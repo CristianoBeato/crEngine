@@ -333,6 +333,10 @@ public:
 #include "Callback.h"
 #include "ParallelJobList.h"
 
+// BEATO Begin:
+#include "StaticPointer.h" // smart pointer (RAII)
+// BEATO End
+
 #include "SoftwareCache.h"
 
 #endif	/* !__LIB_H__ */
