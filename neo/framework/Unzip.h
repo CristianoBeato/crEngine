@@ -31,10 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #define __UNZIP_H__
 
 // Use the included zlib header(s)
-#include "zlib/zconf.h"
-#include "zlib/zlib.h"
+#include <zconf.h>
+#include <zlib.h>
 // Use the included minizip header.
-#include "zlib/contrib/minizip/unzip.h"
+//#include "zlib/contrib/minizip/unzip.h"
 
 /*
  * DG: all unzip code has been moved to minizip/

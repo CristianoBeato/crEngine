@@ -366,7 +366,7 @@ private:
 	idStr					name;			// name of the file in the pak
 	idStr					fullPath;		// full file path including pak file name
 	// DG: use ZPOS64_T, it's the type minizip uses and should also work with zip64 files > 2GB
-	ZPOS64_T				zipFilePos;		// zip file info position in pak
+	uint64_t				zipFilePos;		// zip file info position in pak
 	// DG end
 	int						fileSize;		// size of the file
 	void* 					z;				// unzip info
