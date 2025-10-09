@@ -2017,11 +2017,11 @@ void idAFEntity_Vehicle::Spawn()
 	const char *exhaustsmokeName = spawnArgs.GetString( "exhaust_smoke", "" );
 
 	// motorsep 03-07-2015; if no exhaust joints preset, make a flag saying there is no exhaust
-	if ( ( exhaustJointR1Name[ 0 ] == NULL && 
-		exhaustJointR2Name[ 0 ] == NULL &&
-		exhaustJointL1Name[ 0 ] == NULL && 
-		exhaustJointL2Name[ 0 ] == NULL ) || 
-		exhaustsmokeName[ 0 ] == NULL )
+	if ( ( exhaustJointR1Name[ 0 ] == 0 && 
+		exhaustJointR2Name[ 0 ] == 0 &&
+		exhaustJointL1Name[ 0 ] == 0 && 
+		exhaustJointL2Name[ 0 ] == 0 ) || 
+		exhaustsmokeName[ 0 ] == 0 )
 	{
 		noExhaust = true;
 	}

@@ -31,12 +31,10 @@ If you have questions concerning this license or the applicable additional terms
 #define	__ZIP_H__
 
 // Load the included zlib header files.
-#include "zlib/zconf.h"
-#include "zlib/zlib.h"
+#include "Zip.h"
 
 // DG: all the zip access stuff from minizip is now in minizip/zip.h
-#include "zlib/contrib/minizip/zip.h"
-
+#include "Unzip.h"
 
 /*
 ================================================

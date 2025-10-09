@@ -31,17 +31,19 @@ If you have questions concerning this license or the applicable additional terms
 #define __UNZIP_H__
 
 // Use the included zlib header(s)
-#include <zconf.h>
 #include <zlib.h>
-// Use the included minizip header.
-//#include "zlib/contrib/minizip/unzip.h"
 
-/*
- * DG: all unzip code has been moved to minizip/
- *     when being updated to minizip 1.1 (instead of the previously used minizip 0.15beta from 1998)
- *     This update brings zip64 support (untested) and much cleaner code.
- *     Furthermore, updates to future minizip should be much easier now, as my changes to the
- *     original source files from minizip are quite small.
- */
+// Use the included minizip header.
+#include <minizip/zip.h>
+#include <minizip/unzip.h>
+
+//
+// DG: all unzip code has been moved to minizip/
+//     when being updated to minizip 1.1 (instead of the previously used minizip 0.15beta from 1998)
+//     This update brings zip64 support (untested) and much cleaner code.
+//     Furthermore, updates to future minizip should be much easier now, as my changes to the
+//     original source files from minizip are quite small.
+//
+//
 
 #endif /* __UNZIP_H__ */

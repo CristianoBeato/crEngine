@@ -261,6 +261,9 @@ add_library( d3xp STATIC ${D3XP_SOURCES} )
 #set the idLib specific definitions
 #target_compile_definitions( d3xp PRIVATE __DOOM_DLL__ ) TODO: fix on non monolith build 
 
+# d3xp need idLib
+add_dependencies( d3xp idLib )
+
 #set the idLib root dir as include
 target_include_directories( d3xp PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
 
