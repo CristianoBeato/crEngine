@@ -1,5 +1,182 @@
+##############################
+## 			idLib			## 				
+## Common engine libraries  ##
+##############################
 
-add_definitions(-D__IDLIB__ -D__DOOM_DLL__)
+## Sources
+##################################################################3
+
+set( IDLIB_MAIN_SOURCES 
+	${CMAKE_CURRENT_SOURCE_DIR}/Base64.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Base64.h
+	${CMAKE_CURRENT_SOURCE_DIR}/BitMsg.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/BitMsg.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Callback.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CmdArgs.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/CmdArgs.h
+	${CMAKE_CURRENT_SOURCE_DIR}/CommandLink.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/containers
+	${CMAKE_CURRENT_SOURCE_DIR}/DataQueue.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Dict.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Dict.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry
+	${CMAKE_CURRENT_SOURCE_DIR}/Heap.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Heap.h
+	${CMAKE_CURRENT_SOURCE_DIR}/LangDict.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/LangDict.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Lexer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Lexer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Lib.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Lib.h
+	${CMAKE_CURRENT_SOURCE_DIR}/MapFile.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/MapFile.h
+	${CMAKE_CURRENT_SOURCE_DIR}/ParallelJobList.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/ParallelJobList.h
+	${CMAKE_CURRENT_SOURCE_DIR}/ParallelJobList_JobHeaders.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Parser.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Parser.h
+	${CMAKE_CURRENT_SOURCE_DIR}/precompiled.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h
+	${CMAKE_CURRENT_SOURCE_DIR}/RectAllocator.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SoftwareCache.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/SoftwareCache.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Str.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Str.h
+	${CMAKE_CURRENT_SOURCE_DIR}/StrStatic.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Swap.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Thread.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Thread.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Timer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Timer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Token.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/Token.h
+	)
+
+./bv:
+Bounds.cpp
+Bounds.h
+Box.cpp
+Box.h
+Frustum.cpp
+Frustum.h
+Sphere.cpp
+Sphere.h
+
+./containers:
+Array.h
+BinSearch.h
+BTree.h
+HashIndex.cpp
+HashIndex.h
+HashTable.h
+Hierarchy.h
+LinkList.h
+List.h
+PlaneSet.h
+Queue.h
+Sort.h
+Stack.h
+StaticList.h
+StrList.h
+StrPool.h
+VectorSet.h
+
+./geometry:
+DrawVert.cpp
+DrawVert.h
+DrawVert_intrinsics.h
+JointTransform.cpp
+JointTransform.h
+RenderMatrix.cpp
+RenderMatrix.h
+Surface.cpp
+Surface.h
+Surface_Patch.cpp
+Surface_Patch.h
+Surface_Polytope.cpp
+Surface_Polytope.h
+Surface_SweptSpline.cpp
+Surface_SweptSpline.h
+TraceModel.cpp
+TraceModel.h
+Winding2D.cpp
+Winding2D.h
+Winding.cpp
+Winding.h
+
+./hashing:
+CRC32.cpp
+CRC32.h
+MD4.cpp
+MD4.h
+MD5.cpp
+MD5.h
+
+./math:
+Angles.cpp
+Angles.h
+Complex.cpp
+Complex.h
+Curve.h
+Extrapolate.h
+Interpolate.h
+Lcp.cpp
+Lcp.h
+Math.cpp
+Math.h
+Matrix.cpp
+Matrix.h
+MatX.cpp
+MatX.h
+Ode.cpp
+Ode.h
+Plane.cpp
+Plane.h
+Pluecker.cpp
+Pluecker.h
+Polynomial.cpp
+Polynomial.h
+Quat.cpp
+Quat.h
+Random.h
+Rotation.cpp
+Rotation.h
+Simd.cpp
+Simd_Generic.cpp
+Simd_Generic.h
+Simd.h
+Simd_SSE.cpp
+Simd_SSE.h
+Vector.cpp
+Vector.h
+VectorI.h
+VecX.cpp
+VecX.h
+
+./sys:
+posix
+sys_alloc_tags.h
+sys_assert.cpp
+sys_assert.h
+sys_builddefines.h
+sys_defines.h
+sys_filesystem.h
+sys_includes.h
+sys_intrinsics.h
+sys_threading.h
+sys_types.h
+win32
+
+./sys/posix:
+posix_thread.cpp
+
+./sys/win32:
+win_thread.cpp
+
+
+##################################################################3
+
+
 
 file(GLOB_RECURSE ID_INCLUDES *.h)
 file(GLOB_RECURSE ID_SOURCES *.cpp)
@@ -17,6 +194,8 @@ endif()
 set(ID_PRECOMPILED_SOURCES ${ID_SOURCES})
 list(REMOVE_ITEM ID_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/geometry/RenderMatrix.cpp)
 list(REMOVE_ITEM ID_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/SoftwareCache.cpp)
+
+add_definitions(-D__IDLIB__ -D__DOOM_DLL__)
 
 if(MSVC)
 	
