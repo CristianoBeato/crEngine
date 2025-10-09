@@ -629,9 +629,9 @@ void Sys_DestroyThread( uintptr_t threadHandle )
 Sys_Yield
 ========================
 */
-void Sys_Yield()
+void Sys_Yield( void )
 {
-	pthread_yield();
+	sched_yield();
 }
 
 /*
