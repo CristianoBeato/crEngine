@@ -214,7 +214,7 @@ add_subdirectory( idlib )
 add_subdirectory( d3xp )
 
 # engine framework
-#add_subdirectory( framework )
+add_subdirectory( framework )
 
 # render system
 #add_subdirectory( renderer )
