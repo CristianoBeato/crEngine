@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012 Daniel Gibson
 Copyright (C) 2012 Robert Beckebans
+Copyright (C) 2025 Cristino B. Santos
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -136,24 +137,22 @@ If you have questions concerning this license or the applicable additional terms
 #define NDEBUG
 #endif
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
-#include <string.h>
-#include <assert.h>
-#include <time.h>
-#include <ctype.h>
+// BEATO Begin: Update C references from C++
+#include <cstdio>
+#include <cstdint> // RB: added <stdint.h> for missing uintptr_t with MinGW
+#include <cstdlib>
+#include <cstdarg>
+#include <cstddef> // Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
+#include <cstring>
+#include <cassert>
+#include <ctime>
+#include <cerrno>
+#include <cmath>
+#include <cstring>
+#include <cctype>
 #include <typeinfo>
-#include <errno.h>
-#include <math.h>
-#include <limits.h>
+#include <limits>
 #include <memory>
-// RB: added <stdint.h> for missing uintptr_t with MinGW
-#include <stdint.h>
-// RB end
-// Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
-#include <stddef.h>
-// Yamagi end
 
 //-----------------------------------------------------
 
