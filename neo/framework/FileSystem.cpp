@@ -3293,17 +3293,19 @@ void idFileSystemLocal::GenerateResourceCRCs_f( const idCmdArgs& args )
 {
 	idLib::Printf( "Generating CRCs for resource files...\n" );
 	
-	std::auto_ptr<idFileList> baseResourceFileList( fileSystem->ListFiles( ".", ".resources" ) );
-	if( baseResourceFileList.get() != NULL )
+// BEATO Begin:
+	crStaticPointer<idFileList> baseResourceFileList( fileSystem->ListFiles( ".", ".resources" ) );
+	if( baseResourceFileList != nullptr )
 	{
 		CreateCRCsForResourceFileList( *baseResourceFileList );
 	}
 	
-	std::auto_ptr<idFileList> mapResourceFileList( fileSystem->ListFilesTree( "maps", ".resources" ) );
-	if( mapResourceFileList.get() != NULL )
+	crStaticPointer<idFileList> mapResourceFileList( fileSystem->ListFilesTree( "maps", ".resources" ) );
+	if( mapResourceFileList != nullptr )
 	{
 		CreateCRCsForResourceFileList( *mapResourceFileList );
 	}
+// BEATO End
 	
 	idLib::Printf( "Done generating CRCs for resource files.\n" );
 }
@@ -3319,9 +3321,11 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList& list )
 	{
 		idLib::Printf( " Processing %s.\n", list.GetFile( fileIndex ) );
 		
-		std::auto_ptr<idFile_Memory> currentFile( static_cast<idFile_Memory*>( fileSystem->OpenFileReadMemory( list.GetFile( fileIndex ) ) ) );
-		
-		if( currentFile.get() == NULL )
+// BEATO Begin: 
+		crStaticPointer<idFile_Memory> currentFile( static_cast<idFile_Memory*>( fileSystem->OpenFileReadMemory( list.GetFile( fileIndex ) ) ) );
+// BEATO End
+
+		if( currentFile == nullptr )
 		{
 			idLib::Printf( " Error reading %s.\n", list.GetFile( fileIndex ) );
 			continue;
@@ -3353,7 +3357,7 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList& list )
 		
 		for( int innerFileIndex = 0; innerFileIndex < numFileResources; ++innerFileIndex )
 		{
-			cacheEntries[innerFileIndex].Read( currentFile.get() );
+			cacheEntries[innerFileIndex].Read( &currentFile );
 		}
 		
 		// All tables read, now seek to each one and calculate the CRC.
@@ -3371,8 +3375,8 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList& list )
 		// Write the .crc file corresponding to the .resources file.
 		idStr crcFilename = list.GetFile( fileIndex );
 		crcFilename.SetFileExtension( ".crc" );
-		std::auto_ptr<idFile> crcOutputFile( fileSystem->OpenFileWrite( crcFilename, "fs_basepath" ) );
-		if( crcOutputFile.get() == NULL )
+		crStaticPointer<idFile> crcOutputFile( fileSystem->OpenFileWrite( crcFilename, "fs_basepath" ) );
+		if( crcOutputFile == nullptr )
 		{
 			// RB: fixed potential crash because of "cannot pass objects of non-trivially-copyable type 'class idStr' through '...'"
 			idLib::Printf( "Error writing CRC file %s.\n", crcFilename.c_str() );
