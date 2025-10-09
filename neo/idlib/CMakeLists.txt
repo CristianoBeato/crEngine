@@ -52,225 +52,151 @@ set( IDLIB_MAIN_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/Token.h
 	)
 
-./bv:
-Bounds.cpp
-Bounds.h
-Box.cpp
-Box.h
-Frustum.cpp
-Frustum.h
-Sphere.cpp
-Sphere.h
+set( IDLIB_BOUNDS_VIEW_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/bv/Bounds.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/bv/Bounds.h
+	${CMAKE_CURRENT_SOURCE_DIR}/bv/Box.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/bv/Box.h
+	${CMAKE_CURRENT_SOURCE_DIR}/bv/Frustum.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/bv/Frustum.h
+	${CMAKE_CURRENT_SOURCE_DIR}/bv/Sphere.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/bv/Sphere.h
+	)
 
-./containers:
-Array.h
-BinSearch.h
-BTree.h
-HashIndex.cpp
-HashIndex.h
-HashTable.h
-Hierarchy.h
-LinkList.h
-List.h
-PlaneSet.h
-Queue.h
-Sort.h
-Stack.h
-StaticList.h
-StrList.h
-StrPool.h
-VectorSet.h
+set( IDLIB_CONTAINERS_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/Array.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/BinSearch.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/BTree.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/HashIndex.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/HashIndex.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/HashTable.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/Hierarchy.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/LinkList.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/List.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/PlaneSet.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/Queue.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/Sort.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/Stack.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/StaticList.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/StrList.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/StrPool.h
+	${CMAKE_CURRENT_SOURCE_DIR}/containers/VectorSet.h
+	)
 
-./geometry:
-DrawVert.cpp
-DrawVert.h
-DrawVert_intrinsics.h
-JointTransform.cpp
-JointTransform.h
-RenderMatrix.cpp
-RenderMatrix.h
-Surface.cpp
-Surface.h
-Surface_Patch.cpp
-Surface_Patch.h
-Surface_Polytope.cpp
-Surface_Polytope.h
-Surface_SweptSpline.cpp
-Surface_SweptSpline.h
-TraceModel.cpp
-TraceModel.h
-Winding2D.cpp
-Winding2D.h
-Winding.cpp
-Winding.h
+set( IDLIB_GEOMETRY_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/DrawVert.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/DrawVert.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/DrawVert_intrinsics.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/JointTransform.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/JointTransform.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/RenderMatrix.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/RenderMatrix.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Surface.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Surface.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Surface_Patch.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Surface_Patch.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Surface_Polytope.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Surface_Polytope.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Surface_SweptSpline.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Surface_SweptSpline.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/TraceModel.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/TraceModel.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Winding2D.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Winding2D.h
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Winding.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/geometry/Winding.h
+	)
 
-./hashing:
-CRC32.cpp
-CRC32.h
-MD4.cpp
-MD4.h
-MD5.cpp
-MD5.h
+set( IDLIB_HASHING_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/hashing/CRC32.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/hashing/CRC32.h
+	${CMAKE_CURRENT_SOURCE_DIR}/hashing/MD4.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/hashing/MD4.h
+	${CMAKE_CURRENT_SOURCE_DIR}/hashing/MD5.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/hashing/MD5.h
+	)
 
-./math:
-Angles.cpp
-Angles.h
-Complex.cpp
-Complex.h
-Curve.h
-Extrapolate.h
-Interpolate.h
-Lcp.cpp
-Lcp.h
-Math.cpp
-Math.h
-Matrix.cpp
-Matrix.h
-MatX.cpp
-MatX.h
-Ode.cpp
-Ode.h
-Plane.cpp
-Plane.h
-Pluecker.cpp
-Pluecker.h
-Polynomial.cpp
-Polynomial.h
-Quat.cpp
-Quat.h
-Random.h
-Rotation.cpp
-Rotation.h
-Simd.cpp
-Simd_Generic.cpp
-Simd_Generic.h
-Simd.h
-Simd_SSE.cpp
-Simd_SSE.h
-Vector.cpp
-Vector.h
-VectorI.h
-VecX.cpp
-VecX.h
-
-./sys:
-posix
-sys_alloc_tags.h
-sys_assert.cpp
-sys_assert.h
-sys_builddefines.h
-sys_defines.h
-sys_filesystem.h
-sys_includes.h
-sys_intrinsics.h
-sys_threading.h
-sys_types.h
-win32
-
-./sys/posix:
-posix_thread.cpp
-
-./sys/win32:
-win_thread.cpp
+set( IDLIB_MATH_SOURCES
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Angles.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Angles.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Complex.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Complex.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Curve.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Extrapolate.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Interpolate.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Lcp.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Lcp.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Math.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Math.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Matrix.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Matrix.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/MatX.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/MatX.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Ode.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Ode.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Plane.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Plane.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Pluecker.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Pluecker.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Polynomial.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Polynomial.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Quat.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Quat.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Random.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Rotation.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Rotation.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Simd.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Simd_Generic.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Simd_Generic.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Simd.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Simd_SSE.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Simd_SSE.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Vector.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/Vector.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/VectorI.h
+	${CMAKE_CURRENT_SOURCE_DIR}/math/VecX.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/math/VecX.h
+	)
 
 
-##################################################################3
+set( IDLIB_SYS_SOURCES 
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_alloc_tags.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_assert.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_assert.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_builddefines.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_defines.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_filesystem.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_includes.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_intrinsics.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_thread.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_threading.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_types.h
+	)
 
 
+set( IDLIB_SOURCES 
+	${IDLIB_MAIN_SOURCES}
+	${IDLIB_BOUNDS_VIEW_SOURCES}
+	${IDLIB_CONTAINERS_SOURCES}
+	${IDLIB_GEOMETRY_SOURCES}
+	${IDLIB_HASHING_SOURCES}
+	${IDLIB_MATH_SOURCES}
+	${IDLIB_SYS_SOURCES}
+	)
 
-file(GLOB_RECURSE ID_INCLUDES *.h)
-file(GLOB_RECURSE ID_SOURCES *.cpp)
+## library configurarion 
+##################################################################
 
-if(MSVC)
-	list(REMOVE_ITEM ID_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/posix/posix_thread.cpp)	
-else()
-	list(REMOVE_ITEM ID_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/sys/win32/win_thread.cpp)
-endif()
+add_library( idLib STATIC ${IDLIB_SOURCES} )
 
-#if(STANDALONE)
-#	add_definitions(-DSTANDALONE)
-#endif()
+#set the idLib specific definitions
+target_compile_definitions( idLib PRIVATE __IDLIB__ __DOOM_DLL__ ) 
 
-set(ID_PRECOMPILED_SOURCES ${ID_SOURCES})
-list(REMOVE_ITEM ID_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/geometry/RenderMatrix.cpp)
-list(REMOVE_ITEM ID_PRECOMPILED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/SoftwareCache.cpp)
+#set the idLib root dir as include
+target_include_directories( idLib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
 
-add_definitions(-D__IDLIB__ -D__DOOM_DLL__)
-
-if(MSVC)
-	
-	#set_target_properties(idlib PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h")
-	
-	foreach( src_file ${ID_PRECOMPILED_SOURCES} )
-		#message(STATUS "/Yuprecompiled.h for ${src_file}")
-        set_source_files_properties(
-            ${src_file}
-            PROPERTIES
-            COMPILE_FLAGS "/Yuprecompiled.h"
-            )
-    endforeach()
-	
-	set_source_files_properties(precompiled.cpp
-        PROPERTIES
-        COMPILE_FLAGS "/Ycprecompiled.h"
-        )
-        
-    add_library(idlib ${ID_SOURCES} ${ID_INCLUDES})
-else()
-	foreach( src_file ${ID_PRECOMPILED_SOURCES} )
-		#message(STATUS "-include precompiled.h for ${src_file}")
-		set_source_files_properties(
-			${src_file}
-			PROPERTIES
-			COMPILE_FLAGS "-include ${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h"
-			)
-	endforeach()
-	
-	include_directories(.)
-	
-	# precompiled magic for GCC/clang, adapted from https://gist.github.com/573926
-	# Updated to support Cmake 3.3 or newer.
-	STRING(TOUPPER "CMAKE_CXX_FLAGS_${CMAKE_BUILD_TYPE}" _flags_var_name)
-	SET(_compiler_FLAGS ${${_flags_var_name}})
-	
-	if(NOT CMAKE_VERSION VERSION_LESS "3.3")
-		# This section is for Cmake 3.3 or newer.
-		get_property(_directory_flags DIRECTORY PROPERTY INCLUDE_DIRECTORIES)
-		FOREACH(item ${_directory_flags})
-			LIST(APPEND _compiler_FLAGS " -I${item}")
-		ENDFOREACH(item)
-		get_property(_directory_flags DIRECTORY PROPERTY COMPILE_DEFINITIONS)
-		FOREACH(item ${_directory_flags})
-			LIST(APPEND _compiler_FLAGS " -D${item}")
-		ENDFOREACH(item)
-	else()
-		GET_DIRECTORY_PROPERTY(_directory_flags INCLUDE_DIRECTORIES)
-		FOREACH(item ${_directory_flags})
-			LIST(APPEND _compiler_FLAGS " -I${item}")
-		ENDFOREACH(item)
-		GET_DIRECTORY_PROPERTY(_directory_flags DEFINITIONS)
-		LIST(APPEND _compiler_FLAGS ${_directory_flags})
-	endif()
-	
-	SEPARATE_ARGUMENTS(_compiler_FLAGS)
-	
-	add_custom_target(precomp_header_idlib ALL
-	                  COMMAND ${CMAKE_CXX_COMPILER} ${_compiler_FLAGS} -x c++-header precompiled.h -o precompiled.h.gch
-	                  WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-	                  COMMENT "Creating idlib/precompiled.h.gch for idlib"
-	                  )
-	
-	add_library(idlib ${ID_SOURCES} ${ID_INCLUDES})
-	add_dependencies(idlib precomp_header_idlib)
-	
-endif()
-	
-
-# if(MSVC)
-	# # set_source_files_properties(precompiled.cpp
-        # # PROPERTIES
-        # # COMPILE_FLAGS "/Ycprecompiled.h"
-        # # )
-		
-	# #set_target_properties(idlib PROPERTIES COMPILE_FLAGS "/Yuprecompiled.h")
-# endif()
+# set the precompiled header
+target_precompile_headers( idLib 
+	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h 
+	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Lib.h
+	) 
