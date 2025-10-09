@@ -2,3 +2,4 @@ base/generated
 base/generated_tools
 build
 build64
+.vscode 
