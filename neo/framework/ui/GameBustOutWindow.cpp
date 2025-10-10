@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "../renderer/Image.h"
+#include "renderer/images/Image.h"
 
 #include "DeviceContext.h"
 #include "Window.h"

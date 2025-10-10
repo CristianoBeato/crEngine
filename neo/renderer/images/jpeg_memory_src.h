@@ -30,9 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __JPEG_MEMORY_SRC_H__
 #define __JPEG_MEMORY_SRC_H__
 
-extern "C" {
-#include "../libs/jpeg-6/jpeglib.h"
-#include "../libs/jpeg-6/jerror.h"
+extern "C" 
+{
+    #include <jpeglib.h>
+    #include <jerror.h>
 }
 
 

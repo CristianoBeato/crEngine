@@ -990,7 +990,7 @@ CONSOLE_COMMAND( reloadLanguage, "reload language dict", NULL )
 	commonLocal.InitLanguageDict();
 }
 
-#include "../renderer/Image.h"
+#include "renderer/images/Image.h"
 
 /*
 =================

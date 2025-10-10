@@ -45,10 +45,10 @@ If you have questions concerning this license or the applicable additional terms
 #define MD5_CAMERA_EXT			"md5camera"
 #define MD5_VERSION				10
 
-#include "jobs/ShadowShared.h"
-#include "jobs/prelightshadowvolume/PreLightShadowVolume.h"
-#include "jobs/staticshadowvolume/StaticShadowVolume.h"
-#include "jobs/dynamicshadowvolume/DynamicShadowVolume.h"
+#include "renderer/jobs/ShadowShared.h"
+#include "renderer/jobs/prelightshadowvolume/PreLightShadowVolume.h"
+#include "renderer/jobs/staticshadowvolume/StaticShadowVolume.h"
+#include "renderer/jobs/dynamicshadowvolume/DynamicShadowVolume.h"
 
 // this is used for calculating unsmoothed normals and tangents for deformed models
 struct dominantTri_t

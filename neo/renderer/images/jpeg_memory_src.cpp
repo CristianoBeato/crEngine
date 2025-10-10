@@ -32,8 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-#include <stdio.h>
-#include "renderer/jpeg_memory_src.h"
+#include "jpeg_memory_src.h"
 
 #ifdef HAVE_JPEG_MEM_SRC
 void jpeg_memory_src(j_decompress_ptr cinfo, unsigned char *inbuffer, unsigned long insize) {

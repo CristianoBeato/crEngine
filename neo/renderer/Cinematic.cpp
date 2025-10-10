@@ -31,10 +31,12 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #define JPEG_INTERNALS
-extern "C" {
-#include "../libs/jpeg-6/jpeglib.h"
+extern "C" 
+{
+	#include <jpeglib.h> //"../libs/jpeg-6/jpeglib.h"
 }
-#include "jpeg_memory_src.h"
+
+#include "renderer/images/jpeg_memory_src.h"
 #include "tr_local.h"
 
 #define CIN_system	1
@@ -43,16 +45,17 @@ extern "C" {
 #define CIN_silent	8
 #define CIN_shader	16
 
-class idCinematicLocal : public idCinematic {
+class idCinematicLocal : public idCinematic 
+{
 public:
-							idCinematicLocal();
-	virtual					~idCinematicLocal();
+							idCinematicLocal( void );
+	virtual					~idCinematicLocal( void );
 
 	virtual bool			InitFromFile( const char *qpath, bool looping );
 	virtual cinData_t		ImageForTime( int milliseconds );
-	virtual int				AnimationLength();
-	virtual void			Close();
-	virtual void			ResetTime(int time);
+	virtual int				AnimationLength( void );
+	virtual void			Close( void );
+	virtual void			ResetTime( int time );
 
 private:
 	size_t					mcomp[256];

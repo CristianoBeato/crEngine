@@ -31,9 +31,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "tr_local.h"
-#include "Model_local.h"
+#include "renderer/models/Model_local.h"
 
-#include "../idlib/geometry/DrawVert_intrinsics.h"
+#include "idlib/geometry/DrawVert_intrinsics.h"
 
 /*
 ====================

@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Common_local.h"
-#include "../renderer/Image.h"
-#include "../renderer/ImageOpts.h"
+#include "renderer/images/Image.h"
+#include "renderer/images/ImageOpts.h"
 
 /*
 
@@ -48,8 +48,8 @@ with the interpretation of the previous draw command list.
 While the game tic should be nicely contained, the draw command generation winds through the user interface
 code, and is potentially hazardous.  For now, the overlap will be restricted to the renderer back end,
 which should also be nicely contained.
-
 */
+
 #define DEFAULT_FIXED_TIC "0"
 #define DEFAULT_NO_SLEEP "0"
 

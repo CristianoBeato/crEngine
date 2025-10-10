@@ -34,8 +34,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "GLState.h"
 #include "ScreenRect.h"
-#include "ImageOpts.h"
-#include "Image.h"
+#include "images/ImageOpts.h"
+#include "images/Image.h"
 #include "Framebuffer.h"
 #include "RenderTexture.h"
 #include "Font.h"
@@ -90,8 +90,8 @@ SURFACES
 ==============================================================================
 */
 
-#include "ModelDecal.h"
-#include "ModelOverlay.h"
+#include "models/ModelDecal.h"
+#include "models/ModelOverlay.h"
 #include "Interaction.h"
 
 class idRenderWorldLocal;
@@ -1512,12 +1512,10 @@ srfTriangles_t *R_PolytopeSurface(int numPlanes, const idPlane *planes, idWindin
 #include "GraphicsAPIWrapper.h"
 #include "GLMatrix.h"
 
-
-
 #include "BufferObject.h"
-#include "RenderProgs.h"
-#include "RenderWorld_local.h"
-#include "GuiModel.h"
+#include "backend/RenderProgs.h"
+#include "renderworld/RenderWorld_local.h"
+#include "models/GuiModel.h"
 #include "VertexCache.h"
 
 #endif /* !__TR_LOCAL_H__ */

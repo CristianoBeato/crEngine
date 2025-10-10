@@ -21,8 +21,16 @@ option(OPENAL# Include the libs subdirectory. This will allow the compiler to si
 option(FORCE_WIN7_COMPAT "Force Windows 7 compatibility." OFF)
 if(UNIX)
 	set(OPENAL TRUE)
-endif()
+	set( XAUDIO FALSE )
+else()
+	if( OPENAL FALSE )
+		set( XAUDIO TRUE )
+	endif()
 	
+endif()
+
+
+
 ## Toolchain configuration
 ##################################################################
 
@@ -217,10 +225,10 @@ add_subdirectory( d3xp )
 add_subdirectory( framework )
 
 # render system
-#add_subdirectory( renderer )
+add_subdirectory( renderer )
 
 # sound system
-#add_subdirectory( sound )
+add_subdirectory( sound )
 
 # SWF menus system
 #add_subdirectory( swf )

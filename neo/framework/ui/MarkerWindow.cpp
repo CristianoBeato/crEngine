@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 // included for image uploading for player stat graph
-#include "../renderer/Image.h"
+#include "renderer/images/Image.h"
 
 #include "DeviceContext.h"
 #include "Window.h"
@@ -39,14 +39,15 @@ If you have questions concerning this license or the applicable additional terms
 #include "MarkerWindow.h"
 
 class idImage;
-void idMarkerWindow::CommonInit() {
+void idMarkerWindow::CommonInit( void ) 
+{
 	numStats = 0;
 	currentTime = -1;
 	currentMarker = -1;
 	stopTime = -1;
-	imageBuff = NULL;
-	markerMat = NULL;
-	markerStop = NULL;
+	imageBuff = nullptr;
+	markerMat = nullptr;
+	markerStop = nullptr;
 }
 
 idMarkerWindow::idMarkerWindow(idUserInterfaceLocal *g) : idWindow(g) {
