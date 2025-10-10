@@ -27,9 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
-#include "../libs/zlib/zlib.h"
+#pragma hdrstop
+#include <zlib.h>
 
 /*
 ========================

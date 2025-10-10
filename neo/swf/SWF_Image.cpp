@@ -27,11 +27,11 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
-#include "../renderer/Image.h"
+#pragma hdrstop
+#include "renderer/images/Image.h"
 //#include "../../renderer/ImageTools/ImageProcess.h"
-#include "../libs/jpeg-6/jpeglib.h"
+#include <jpeglib.h>
 
 /*
 ========================
