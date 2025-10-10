@@ -215,11 +215,11 @@ add_executable( crEngine WIN32 ${SYSTEM_SOURCES} )
 
 # to build the executable we need to build all modules
 if( MONOLITH )
-    add_dependencies( crEngine idLib d3xp  swf framework renderer sound   )
-    target_link_libraries( crEngine PRIVATE d3xp renderer sound framework swf idLib  )
+    add_dependencies( crEngine idLib d3xp tools swf framework renderer sound   )
+    target_link_libraries( crEngine PRIVATE d3xp tools renderer sound framework swf idLib  )
 else( )
     add_dependencies( crEngine idLib swf framework renderer sound  )
-    target_link_libraries( crEngine PRIVATE renderer sound framework swf d3xp idLib )
+    target_link_libraries( crEngine PRIVATE tools renderer sound framework swf d3xp idLib )
 endif( )
 
 # link external libraries

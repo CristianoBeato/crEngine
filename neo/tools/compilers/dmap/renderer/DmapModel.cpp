@@ -33,9 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "Dmap_tr_local.h"
 #include "DmapModel_local.h"
 
-#include "renderer/Model_ase.h"
-#include "renderer/Model_lwo.h"
-#include "renderer/Model_ma.h"
+#include "renderer/models/Model_ase.h"
+#include "renderer/models/Model_lwo.h"
+#include "renderer/models/Model_ma.h"
 
 idCVar idDmapRenderModelStatic::r_mergeModelSurfaces("r_mergeModelSurfaces", "1", CVAR_BOOL | CVAR_RENDERER, "combine model surfaces with the same material");
 idCVar idDmapRenderModelStatic::r_slopVertex("r_slopVertex", "0.01", CVAR_RENDERER, "merge xyz coordinates this far apart");

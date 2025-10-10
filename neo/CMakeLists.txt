@@ -29,7 +29,18 @@ else()
 	
 endif()
 
+## find Libraries
+##################################################################
+#TODO: configure windows platform
+#find_package(DirectX REQUIRED)
+#include_directories(${DirectX_INCLUDE_DIR})
 
+find_package( SDL2 REQUIRED CONFIG )
+find_package( ZLIB REQUIRED )
+find_package( PNG REQUIRED )
+find_package( JPEG REQUIRED )
+find_package( OpenGL REQUIRED )
+find_package( OpenAL REQUIRED )
 
 ## Toolchain configuration
 ##################################################################
@@ -232,3 +243,9 @@ add_subdirectory( sound )
 
 # SWF menus system
 add_subdirectory( swf )
+
+#
+add_subdirectory( tools )
+
+# engine system executable
+add_subdirectory( sys )

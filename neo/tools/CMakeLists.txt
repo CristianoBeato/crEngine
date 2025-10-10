@@ -1,0 +1,495 @@
+#af
+#CMakeLists.txt
+#comafx
+#common
+#compilers
+#debugger
+#decl
+#edit_public.h
+#guied
+#materialeditor
+#particle
+#pda
+#radiant
+#script
+#sound
+
+#./neo/tools/af:
+#DialogAFBody.cpp
+#DialogAFBody.h
+#DialogAFConstraintBallAndSocket.cpp
+#DialogAFConstraintBallAndSocket.h
+#DialogAFConstraint.cpp
+#DialogAFConstraintFixed.cpp
+#DialogAFConstraintFixed.h
+#DialogAFConstraint.h
+#DialogAFConstraintHinge.cpp
+#DialogAFConstraintHinge.h
+#DialogAFConstraintSlider.cpp
+#DialogAFConstraintSlider.h
+#DialogAFConstraintSpring.cpp
+#DialogAFConstraintSpring.h
+#DialogAFConstraintUniversal.cpp
+#DialogAFConstraintUniversal.h
+#DialogAF.cpp
+#DialogAF.h
+#DialogAFName.cpp
+#DialogAFName.h
+#DialogAFProperties.cpp
+#DialogAFProperties.h
+#DialogAFView.cpp
+#DialogAFView.h
+
+#./neo/tools/comafx:
+#CDIB.cpp
+#CDIB.h
+#CPathTreeCtrl.cpp
+#CPathTreeCtrl.h
+#CSyntaxRichEditCtrl.cpp
+#CSyntaxRichEditCtrl.h
+#DialogColorPicker.cpp
+#DialogColorPicker.h
+#DialogGoToLine.cpp
+#DialogGoToLine.h
+#DialogName.cpp
+#DialogName.h
+#riched20.tlh
+#StdAfx.cpp
+#StdAfx.h
+#VectorCtl.cpp
+#VectorCtl.h
+
+#./neo/tools/common:
+#AlphaPopup.cpp
+#ColorButton.cpp
+#ColorButton.h
+#DialogHelpers.h
+#MaskEdit.cpp
+#MaskEdit.h
+#OpenFileDialog.cpp
+#OpenFileDialog.h
+#PropertyGrid.cpp
+#PropertyGrid.h
+#PropTree
+#RegistryOptions.cpp
+#RegistryOptions.h
+#RenderBumpFlatDialog.cpp
+#RenderBumpFlatDialog.h
+#RollupPanel.cpp
+#RollupPanel.h
+#SpinButton.cpp
+#SpinButton.h
+
+#./neo/tools/common/PropTree:
+#PropTree.cpp
+#PropTree.h
+#PropTreeInfo.cpp
+#PropTreeInfo.h
+#PropTreeItemButton.cpp
+#PropTreeItemButton.h
+#PropTreeItemCheck.cpp
+#PropTreeItemCheck.h
+#PropTreeItemColor.cpp
+#PropTreeItemColor.h
+#PropTreeItemCombo.cpp
+#PropTreeItemCombo.h
+#PropTreeItem.cpp
+#PropTreeItemEditButton.cpp
+#PropTreeItemEditButton.h
+#PropTreeItemEdit.cpp
+#PropTreeItemEdit.h
+#PropTreeItemFileEdit.cpp
+#PropTreeItemFileEdit.h
+#PropTreeItem.h
+#PropTreeItemStatic.cpp
+#PropTreeItemStatic.h
+#PropTreeList.cpp
+#PropTreeList.h
+#PropTreeView.cpp
+#PropTreeView.h
+
+#./neo/tools/compilers:
+
+#./neo/tools/compilers/renderbump:
+#renderbump.cpp
+
+#./neo/tools/debugger:
+#DebuggerApp.cpp
+#DebuggerApp.h
+#DebuggerBreakpoint.cpp
+#DebuggerBreakpoint.h
+#DebuggerClient.cpp
+#DebuggerClient.h
+#debugger.cpp
+#DebuggerFindDlg.cpp
+#DebuggerFindDlg.h
+#DebuggerMessages.h
+#DebuggerQuickWatchDlg.cpp
+#DebuggerQuickWatchDlg.h
+#DebuggerScript.cpp
+#DebuggerScript.h
+#DebuggerServer.cpp
+#DebuggerServer.h
+#DebuggerWindow.cpp
+#DebuggerWindow.h
+
+#./neo/tools/decl:
+#DialogDeclBrowser.cpp
+#DialogDeclBrowser.h
+#DialogDeclEditor.cpp
+#DialogDeclEditor.h
+#DialogDeclNew.cpp
+#DialogDeclNew.h
+#DialogEntityDefEditor.cpp
+#DialogEntityDefEditor.h
+
+#./neo/tools/guied:
+#GEApp.cpp
+#GEApp.h
+#GECheckInDlg.cpp
+#GEDeleteModifier.cpp
+#GEDeleteModifier.h
+#GEHideModifier.cpp
+#GEHideModifier.h
+#GEInsertModifier.cpp
+#GEInsertModifier.h
+#GEItemPropsDlg.cpp
+#GEItemPropsDlg.h
+#GEItemScriptsDlg.cpp
+#GEItemScriptsDlg.h
+#GEKeyValueModifier.cpp
+#GEKeyValueModifier.h
+#GEModifier.cpp
+#GEModifierGroup.cpp
+#GEModifierGroup.h
+#GEModifier.h
+#GEModifierStack.cpp
+#GEModifierStack.h
+#GEMoveModifier.cpp
+#GEMoveModifier.h
+#GENavigator.cpp
+#GENavigator.h
+#GEOptions.cpp
+#GEOptionsDlg.cpp
+#GEOptionsDlg.h
+#GEOptions.h
+#GEProperties.cpp
+#GEProperties.h
+#GEPropertyPage.cpp
+#GEPropertyPage.h
+#GESelectionMgr.cpp
+#GESelectionMgr.h
+#GESizeModifier.cpp
+#GESizeModifier.h
+#GEStateModifier.cpp
+#GEStateModifier.h
+#GEStatusBar.cpp
+#GEStatusBar.h
+#GETransformer.cpp
+#GETransformer.h
+#GEViewer.cpp
+#GEViewer.h
+#GEWindowWrapper.cpp
+#GEWindowWrapper.h
+#GEWindowWrapper_stub.cpp
+#GEWorkspace.cpp
+#GEWorkspaceFile.cpp
+#GEWorkspace.h
+#GEZOrderModifier.cpp
+#GEZOrderModifier.h
+#guied.cpp
+
+#./neo/tools/materialeditor:
+#ConsoleView.cpp
+#ConsoleView.h
+#FindDialog.cpp
+#FindDialog.h
+#MaterialDef.cpp
+#MaterialDef.h
+#MaterialDoc.cpp
+#MaterialDoc.h
+#MaterialDocManager.cpp
+#MaterialDocManager.h
+#MaterialEditor.cpp
+#MaterialEditor.h
+#MaterialEditView.cpp
+#MaterialEditView.h
+#MaterialModifier.cpp
+#MaterialModifier.h
+#MaterialPreviewPropView.cpp
+#MaterialPreviewPropView.h
+#MaterialPreviewView.cpp
+#MaterialPreviewView.h
+#MaterialPropTreeView.cpp
+#MaterialPropTreeView.h
+#MaterialTreeView.cpp
+#MaterialTreeView.h
+#MaterialView.cpp
+#MaterialView.h
+#MEMainFrame.cpp
+#MEMainFrame.h
+#MEOptions.cpp
+#MEOptions.h
+#StageView.cpp
+#StageView.h
+#ToggleListView.cpp
+#ToggleListView.h
+
+#./neo/tools/particle:
+#DialogParticleEditor.cpp
+#DialogParticleEditor.h
+
+#./neo/tools/pda:
+#DialogPDAEditor.cpp
+#DialogPDAEditor.h
+
+#./neo/tools/radiant:
+#autocaulk.cpp
+#autocaulk.h
+#CameraTargetDlg.cpp
+#CameraTargetDlg.h
+#CamWnd.cpp
+#CamWnd.h
+#CapDialog.cpp
+#CapDialog.h
+#cmdlib.cpp
+#cmdlib.h
+#CommandsDlg.cpp
+#CommandsDlg.h
+#CommentsDlg.cpp
+#CommentsDlg.h
+#ConsoleDlg.cpp
+#ConsoleDlg.h
+#CSG.CPP
+#CurveDlg.cpp
+#CurveDlg.h
+#DialogInfo.cpp
+#DialogInfo.h
+#DialogTextures.cpp
+#DialogTextures.h
+#DialogThick.cpp
+#DialogThick.h
+#DlgCamera.cpp
+#DlgCamera.h
+#DlgEvent.cpp
+#DlgEvent.h
+#DRAG.CPP
+#ECLASS.CPP
+#EditorBrush.cpp
+#EditorBrush.h
+#EditorBrushPrimit.cpp
+#EditorEntity.cpp
+#EditorEntity.h
+#EditorMap.cpp
+#EditorMap.h
+#EditViewDlg.cpp
+#EditViewDlg.h
+#EntityDlg.cpp
+#EntityDlg.h
+#EntityListDlg.cpp
+#EntityListDlg.h
+#EntKeyFindReplace.cpp
+#EntKeyFindReplace.h
+#FindTextureDlg.cpp
+#FindTextureDlg.h
+#GetString.cpp
+#GetString.h
+#GLWidget.cpp
+#GLWidget.h
+#InspectorDialog.cpp
+#InspectorDialog.h
+#LightDlg.cpp
+#LightDlg.h
+#MainFrm.cpp
+#MainFrm.h
+#MapInfo.cpp
+#MapInfo.h
+#MediaPreviewDlg.cpp
+#MediaPreviewDlg.h
+#MRU.CPP
+#MRU.H
+#NewProjDlg.cpp
+#NewProjDlg.h
+#NewTexWnd.cpp
+#NewTexWnd.h
+#PARSE.CPP
+#PARSE.H
+#PatchDensityDlg.cpp
+#PatchDensityDlg.h
+#PatchDialog.cpp
+#PatchDialog.h
+#PMESH.CPP
+#PMESH.H
+#PointFile.cpp
+#PrefsDlg.cpp
+#PrefsDlg.h
+#PreviewDlg.cpp
+#PreviewDlg.h
+#PropertyList.cpp
+#PropertyList.h
+#QE3.CPP
+#QE3.H
+#QEDEFS.H
+#QERTYPES.H
+#Radiant.cpp
+#Radiant.h
+#RotateDlg.cpp
+#RotateDlg.h
+#ScaleDialog.cpp
+#ScaleDialog.h
+#SELECT.CPP
+#SELECT.H
+#splines.cpp
+#splines.h
+#SurfaceDlg.cpp
+#SurfaceDlg.h
+#TabsDlg.cpp
+#TabsDlg.h
+#TearoffContainerWindow.cpp
+#TearoffContainerWindow.h
+#TextureBar.cpp
+#TextureBar.h
+#Textures.h
+#Undo.cpp
+#Undo.h
+#VERTSEL.CPP
+#WaitDlg.cpp
+#WaitDlg.h
+#WaveOpen.cpp
+#WaveOpen.h
+#WIN_DLG.CPP
+#WIN_QE3.CPP
+#WIN_QE3.RC2
+#XYWnd.cpp
+#XYWnd.h
+#ZClip.cpp
+#ZClip.h
+#Z.CPP
+#Z.H
+#ZWnd.cpp
+#ZWnd.h
+
+#./neo/tools/script:
+#DialogScriptEditor.cpp
+#DialogScriptEditor.h
+
+#./neo/tools/sound:
+#DialogSound.cpp
+#DialogSoundGroup.cpp
+#DialogSoundGroup.h
+#DialogSound.h
+#cristiano@BeatoHost:~/sources/crEngine$ 
+
+set( TOOLS_SOURCES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/stubs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/compiler_public.h
+
+    #dmap
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/dmap.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/dmap.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/facebsp.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/gldraw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/leakfile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/map.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/optimize.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/output.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/portals.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/shadowopt3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/tritjunction.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/tritools.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/ubrush.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/usurface.cpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapDrawVert.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapDrawVert.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapMapFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapMapFile.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSimd.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSimd_Generic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSimd_Generic.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSimd.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSurface.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSurface.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSurface_Patch.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSurface_Patch.h
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapInteraction.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapInteraction.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_Beam.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelDecal.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelDecal.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_liquid.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_local.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_md3.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_md3.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_md5.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelOverlay.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelOverlay.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_prt.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_sprite.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderEntity.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderSystem.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderSystem_init.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld_demo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld_load.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld_local.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld_portals.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_guisurf.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_light.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_lightrun.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_local.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_polytope.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_stencilshadow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_trace.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_trisurf.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_turboshadow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapVertexCache.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapVertexCache.h
+
+    #aas 
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASBuild.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASBuild_file.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASBuild_gravity.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASBuild_ledge.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASBuild_local.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASBuild_merge.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASCluster.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASCluster.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASFile.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASFile_local.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASFileManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASFileManager.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASFile_optimize.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASFile_sample.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASReach.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASReach.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/BrushBSP.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/BrushBSP.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/Brush.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/Brush.h
+    )
+
+
+## library configurarion 
+##################################################################
+
+add_library( tools STATIC ${TOOLS_SOURCES} )
+
+# tools need idLib
+add_dependencies( tools idLib )
+
+#set the idLib root dir as include
+target_include_directories( tools PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
+
+# set the precompiled header
+target_precompile_headers( tools PUBLIC ${CMAKE_SOURCE_DIR}/idlib/precompiled.h ) 
