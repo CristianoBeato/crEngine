@@ -81,10 +81,10 @@ const int		SOUND_MAX_CLASSES		= 4;
 class idSoundShader : public idDecl
 {
 public:
-	idSoundShader();
-	virtual					~idSoundShader();
+	idSoundShader( void );
+	virtual					~idSoundShader( void );
 	
-	virtual size_t			Size() const;
+	virtual size_t			Size( void ) const;
 	virtual bool			SetDefaultText();
 	virtual const char* 	DefaultDefinition() const;
 	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );

@@ -213,13 +213,25 @@ endif()
 
 add_executable( crEngine WIN32 ${SYSTEM_SOURCES} )
 
+##
+## GCC require a specific modules linkins
+##
+## d3xp 
+## renderer 
+## framework 
+## sound 
+## swf 
+## tools 
+## idLib
+## contrib 
+
 # to build the executable we need to build all modules
 if( MONOLITH )
-    add_dependencies( crEngine idLib d3xp tools swf framework renderer sound   )
-    target_link_libraries( crEngine PRIVATE d3xp tools renderer sound framework swf idLib  )
+    add_dependencies( crEngine idLib contrib d3xp swf sound framework renderer )
+    target_link_libraries( crEngine PRIVATE d3xp renderer sound framework swf tools idLib contrib )
 else( )
-    add_dependencies( crEngine idLib swf framework renderer sound  )
-    target_link_libraries( crEngine PRIVATE tools renderer sound framework swf d3xp idLib )
+    add_dependencies( crEngine idLib contrib tools swf sound framework renderer  )
+    target_link_libraries( crEngine PRIVATE renderer sound framework swf tools idLib contrib )
 endif( )
 
 # link external libraries

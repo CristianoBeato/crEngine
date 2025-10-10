@@ -318,7 +318,7 @@ public:
 
 
 template< class type >
-ID_INLINE idDecl* idDeclAllocator()
+ID_INLINE idDecl* idDeclAllocator( void )
 {
 	return new( TAG_DECL ) type;
 }
@@ -333,7 +333,7 @@ class idDeclModelDef;
 class idDeclManager
 {
 public:
-	virtual					~idDeclManager() {}
+	virtual					~idDeclManager( void ) {}
 	
 	virtual void			Init() = 0;
 	virtual void			Init2() = 0;

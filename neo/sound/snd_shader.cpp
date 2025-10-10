@@ -49,11 +49,11 @@ typedef enum
 idSoundShader::Init
 ===============
 */
-void idSoundShader::Init()
+void idSoundShader::Init( void )
 {
 	leadin = false;
 	leadinVolume = 0;
-	altSound = NULL;
+	altSound = nullptr;
 }
 
 /*
@@ -61,7 +61,7 @@ void idSoundShader::Init()
 idSoundShader::idSoundShader
 ===============
 */
-idSoundShader::idSoundShader()
+idSoundShader::idSoundShader( void )
 {
 	Init();
 }

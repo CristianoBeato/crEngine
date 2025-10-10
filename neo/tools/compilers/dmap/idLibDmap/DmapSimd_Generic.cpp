@@ -1924,7 +1924,7 @@ void VPCALL idDmapSIMD_Generic::MatX_LowerTriangularSolveTranspose(const idMatX 
 	}
 
 	int i, j;
-	register double s0, s1, s2, s3;
+	double s0, s1, s2, s3;
 	float *xptr;
 
 	lptr = L.ToFloatPtr() + n * nc + n - 4;
