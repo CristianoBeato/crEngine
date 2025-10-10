@@ -26,7 +26,6 @@ else()
 	if( OPENAL FALSE )
 		set( XAUDIO TRUE )
 	endif()
-	
 endif()
 
 ## find Libraries
@@ -44,6 +43,9 @@ find_package( OpenAL REQUIRED )
 
 ## Toolchain configuration
 ##################################################################
+
+## STD 17
+set( CMAKE_CXX_STANDARD 17 ) # upgrade to 20
 
 if(MSVC)
 	#message(STATUS CMAKE_ROOT: ${CMAKE_ROOT})
@@ -228,6 +230,9 @@ include_directories( ${CMAKE_SOURCE_DIR} )
 
 # common utilities
 add_subdirectory( idlib ) 
+
+# external contrib libs
+add_subdirectory( libs )
 
 # game logic
 add_subdirectory( d3xp )
