@@ -388,8 +388,11 @@ saveGameHandle_t idSessionLocal::LoadGameSync( const char* name, saveFileEntryLi
 		
 		// Read the details file when loading games
 		saveFileEntryList_t	filesWithDetails( files );
-		std::auto_ptr< idFile_SaveGame > gameDetailsFile( new( TAG_SAVEGAMES ) idFile_SaveGame( SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT ) );
-		filesWithDetails.Append( gameDetailsFile.get() );
+
+// BEATO BEgin
+		crStaticPointer< idFile_SaveGame > gameDetailsFile( new( TAG_SAVEGAMES ) idFile_SaveGame( SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT ) );
+// BEATO End
+		filesWithDetails.Append( gameDetailsFile.GetPtr() );
 		
 		// Check the cached save details from the enumeration and make sure we don't load a save from a newer version of the game!
 		const saveGameDetailsList_t details = GetSaveGameManager().GetEnumeratedSavegames();

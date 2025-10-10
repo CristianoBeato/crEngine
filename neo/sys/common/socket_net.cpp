@@ -1351,7 +1351,9 @@ bool msg_t::ReadPacket(idUDP & socket, netadr_t & addrFrom)
 			mDataSize = 0;
 			if (fmem.ReadInt(mDataSize) && packetSize <= mDataMaxSize)
 			{
-				std::auto_ptr<idCompressor> compressor(idCompressor::AllocLZSS());
+// BEATO Begin:
+				crStaticPointer<idCompressor> compressor(idCompressor::AllocLZSS());
+// BEATO End
 				compressor->Init(&fmem, false, 8);
 				if (compressor->Read(mData, mDataSize))
 					return true;
@@ -1374,7 +1376,12 @@ void msg_t::SendPacket(idUDP & socket, const netadr_t & addr)
 		// write the uncompressed size
 		fmem.WriteInt(Size());
 
+// BEATO Begin:
+#if 0
 		std::auto_ptr<idCompressor> compressor(idCompressor::AllocLZSS());
+#else	
+		crStaticPointer<idCompressor> compressor(idCompressor::AllocLZSS());
+#endif
 		compressor->Init(&fmem, true, 8);
 		compressor->Write(Data(), Size());
 		compressor->FinishCompress();
@@ -1400,7 +1407,7 @@ void msg_t::SendPacket(idUDP & socket, const netadr_t & addr)
 idUDP::idUDP
 ========================
 */
-idUDP::idUDP()
+idUDP::idUDP( void )
 {
 	netSocket = 0;
 	memset( &bound_to, 0, sizeof( bound_to ) );

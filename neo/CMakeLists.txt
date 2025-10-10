@@ -231,4 +231,4 @@ add_subdirectory( renderer )
 add_subdirectory( sound )
 
 # SWF menus system
-#add_subdirectory( swf )
+add_subdirectory( swf )
