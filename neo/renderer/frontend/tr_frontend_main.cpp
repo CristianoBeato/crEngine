@@ -322,7 +322,7 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 		{
 			for( ; i < j; j-- )
 			{
-				register int64_t m = i;
+				int64_t m = i;
 				for( int64_t k = i + 1; k <= j; k++ )
 				{
 					if( indices[k] < indices[m] )

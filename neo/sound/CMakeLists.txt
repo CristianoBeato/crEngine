@@ -29,7 +29,7 @@ if( OPENAL ) ## OpenAL Windows/Unix Sound Backend
         ${CMAKE_CURRENT_SOURCE_DIR}/OpenAL/AL_SoundVoice.h
         )
 
-elseif( ) ## Xaudio 2 Windows Sound Backend 
+elseif( XAUDIO ) ## Xaudio 2 Windows Sound Backend 
 
     set( SOUND_BACKEND_SOURCES
         ${CMAKE_CURRENT_SOURCE_DIR}/XAudio2/XA2_SoundHardware.cpp

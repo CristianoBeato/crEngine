@@ -631,7 +631,7 @@ void idSoundSystemLocal::Preload( idPreloadManifest& manifest )
 idSoundSystemLocal::EndLevelLoad
 ========================
 */
-void idSoundSystemLocal::EndLevelLoad()
+void idSoundSystemLocal::EndLevelLoad( void )
 {
 
 	insideLevelLoad = false;

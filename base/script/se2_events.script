@@ -639,9 +639,9 @@ scriptEvent	void setCamera( entity cameraEntity );
 scriptEvent	void firstPerson();
 
 // D3 Vagary AI unique stuff; Find a moveable object to throw at the enemy
-scriptEvent entity	vagary_ChooseObjectToThrow( vector min, vector max, float speed, float minDistance, float offset );
+//scriptEvent entity	vagary_ChooseObjectToThrow( vector min, vector max, float speed, float minDistance, float offset );
 // D3 Vagary AI unique stuff; Throw object at enemy
-scriptEvent	void	vagary_ThrowObjectAtEnemy( entity ent, float speed );
+//scriptEvent	void	vagary_ThrowObjectAtEnemy( entity ent, float speed );
 
 //======================================================================
 //
