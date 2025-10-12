@@ -292,11 +292,11 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 	
 	for( ; ; )
 	{
-		register int64_t i = st_lo;
-		register int64_t j = st_hi;
+		int64_t i = st_lo;
+		int64_t j = st_hi;
 		if( j - i >= 4 && level < MAX_LEVELS - 1 )
 		{
-			register uint64_t pivot = indices[( i + j ) / 2];
+			uint64_t pivot = indices[( i + j ) / 2];
 			do
 			{
 				while( indices[i] > pivot ) i++;

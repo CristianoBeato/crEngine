@@ -1798,7 +1798,7 @@ void VPCALL idDmapSIMD_Generic::MatX_LowerTriangularSolve(const idMatX &L, float
 	lptr = L[skip];
 
 	int i, j;
-	register double s0, s1, s2, s3;
+	double s0, s1, s2, s3;
 
 	for (i = skip; i < n; i++) {
 		s0 = lptr[0] * x[0];
