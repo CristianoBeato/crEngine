@@ -117,13 +117,13 @@ public:
 	
 	struct logStats_t
 	{
-		uint64	startTiming;
+		uint64_t	startTiming;
 		int		startDraws;
 		int		startIndexes;
 	};
 	
-	uint64					frameStartTime;
-	uint64					closeBlockTime;
+	uint64_t					frameStartTime;
+	uint64_t					closeBlockTime;
 	logStats_t				logStats[MAX_LOG_LEVELS];
 	int						logLevel;
 	

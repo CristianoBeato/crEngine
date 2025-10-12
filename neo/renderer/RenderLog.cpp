@@ -63,7 +63,7 @@ const char* renderLogMainBlockLabels[] =
 	ASSERT_ENUM_STRING( MRB_MAX,							15 )
 };
 
-extern uint64 Sys_Microseconds();
+extern uint64_t Sys_Microseconds();
 /*
 ================================================================================================
 
@@ -81,8 +81,8 @@ pixEvent_t
 struct pixEvent_t
 {
 	char		name[256];
-	uint64		cpuTime;
-	uint64		gpuTime;
+	uint64_t		cpuTime;
+	uint64_t		gpuTime;
 };
 
 idCVar r_pix( "r_pix", "0", CVAR_INTEGER, "print GPU/CPU event timing" );
@@ -189,15 +189,15 @@ void PC_EndFrame()
 		return;
 	}
 	
-	int64 totalGPU = 0;
-	int64 totalCPU = 0;
+	int64_t totalGPU = 0;
+	int64_t totalCPU = 0;
 	
 	idLib::Printf( "----- GPU Events -----\n" );
 	for( int i = 0 ; i < numPixEvents ; i++ )
 	{
 		pixEvent_t* ev = &pixEvents[i];
 		
-		int64 gpuTime = 0;
+		int64_t gpuTime = 0;
 		qglGetQueryObjectui64vEXT( timeQueryIds[i], GL_QUERY_RESULT, ( GLuint64EXT* )&gpuTime );
 		ev->gpuTime = gpuTime;
 		
@@ -430,7 +430,7 @@ idRenderLog::LogOpenBlock
 void idRenderLog::LogOpenBlock( renderLogIndentLabel_t label, const char* fmt, va_list args )
 {
 
-	uint64 now = Sys_Microseconds();
+	uint64_t now = Sys_Microseconds();
 	
 	if( logFile != NULL )
 	{

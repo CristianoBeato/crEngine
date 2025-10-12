@@ -120,7 +120,7 @@ int idPacketProcessor::FinalizeRead( idBitMsg& inMsg, idBitMsg& outMsg, int& use
 			lzwCompressionData_t	lzwData;
 			idLZWCompressor			lzwCompressor( &lzwData );
 			
-			lzwCompressor.Start( ( uint8* )inMsg.GetReadData() + inMsg.GetReadCount(), compressedSize );		// Read from msg
+			lzwCompressor.Start( ( uint8_t* )inMsg.GetReadData() + inMsg.GetReadCount(), compressedSize );		// Read from msg
 			
 			int reliableSequence = 0;
 			
@@ -128,10 +128,10 @@ int idPacketProcessor::FinalizeRead( idBitMsg& inMsg, idBitMsg& outMsg, int& use
 			
 			for( int r = 0; r < numReliableRecv; r++ )
 			{
-				uint8 uncompMem[ MAX_MSG_SIZE ];
+				uint8_t uncompMem[ MAX_MSG_SIZE ];
 				
-				uint16 reliableDataLength = 0;
-				lzwCompressor.ReadAgnostic< uint16 >( reliableDataLength );
+				uint16_t reliableDataLength = 0;
+				lzwCompressor.ReadAgnostic< uint16_t >( reliableDataLength );
 				lzwCompressor.Read( uncompMem, reliableDataLength );
 				
 				if( reliableSequence + r > reliableSequenceRecv )  		// Only accept newer reliable msg's than we've currently already received
@@ -333,7 +333,7 @@ bool idPacketProcessor::ProcessOutgoing( const int time, const idBitMsg& msg, bo
 			lzwCompressor.WriteAgnostic< int >( reliable.ItemSequence( 0 ) );
 			for( int i = 0; i < reliable.Num(); i++ )
 			{
-				lzwCompressor.WriteAgnostic< uint16 >( reliable.ItemLength( i ) );
+				lzwCompressor.WriteAgnostic< uint16_t >( reliable.ItemLength( i ) );
 				lzwCompressor.Write( reliable.ItemData( i ), reliable.ItemLength( i ) );
 				uncompressedSize += 2 + reliable.ItemLength( i );
 			}

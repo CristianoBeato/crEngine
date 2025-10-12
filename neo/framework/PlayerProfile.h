@@ -164,8 +164,8 @@ protected:
 	int				deviceNum;
 	
 	// Save:
-	uint64			achievementBits;
-	uint64			achievementBits2;
+	uint64_t			achievementBits;
+	uint64_t			achievementBits2;
 	int				dlcReleaseVersion;
 	int				configSet;
 	bool			customConfig;

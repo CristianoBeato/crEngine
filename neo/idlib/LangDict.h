@@ -110,7 +110,7 @@ public:
 		return languageDict;
 	}
 	
-	static utf8Encoding_t	VerifyUTF8( const uint8* buffer, const int bufferLen, const char* name );
+	static utf8Encoding_t	VerifyUTF8( const uint8_t* buffer, const int bufferLen, const char* name );
 	
 private:
 	static idLangDict					languageDict;

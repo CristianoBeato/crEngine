@@ -36,7 +36,7 @@ extern idCVar s_noSound;
 
 #define GPU_CONVERT_CPU_TO_CPU_CACHED_READONLY_ADDRESS( x ) x
 
-const uint32 SOUND_MAGIC_IDMSA = 0x6D7A7274;
+const uint32_t SOUND_MAGIC_IDMSA = 0x6D7A7274;
 
 extern idCVar sys_lang;
 
@@ -154,7 +154,7 @@ bool idSoundSample_XAudio2::LoadGeneratedSample( const idStr& filename )
 	idFileLocal fileIn( fileSystem->OpenFileReadMemory( filename ) );
 	if( fileIn != NULL )
 	{
-		uint32 magic;
+		uint32_t magic;
 		fileIn->ReadBig( magic );
 		fileIn->ReadBig( timestamp );
 		fileIn->ReadBig( loaded );

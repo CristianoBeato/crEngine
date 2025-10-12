@@ -60,7 +60,7 @@ public:
 		inFile->WriteBig( tokenSubType );
 	}
 	idStr token;
-	int8  tokenType;
+	int8_t  tokenType;
 	short tokenSubType;
 };
 

@@ -84,7 +84,7 @@ void	IN_Frame();
 
 void	DisableTaskKeys( BOOL bDisable, BOOL bBeep, BOOL bTaskMgr );
 
-uint64 Sys_Microseconds();
+uint64_t Sys_Microseconds();
 
 // window procedure
 LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

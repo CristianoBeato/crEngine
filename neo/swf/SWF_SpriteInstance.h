@@ -106,7 +106,7 @@ public:
 	void SetMoveToScale( float x = -1.0f, float y = -1.0f );
 	bool UpdateMoveToScale( float speed );	// returns true if the update was successful
 	void SetRotation( float rot );
-	uint16 GetCurrentFrame()
+	uint16_t GetCurrentFrame()
 	{
 		return currentFrame;
 	}
@@ -132,8 +132,8 @@ public:
 	// currentFrame is the frame number currently in the displayList
 	// we use 1 based frame numbers because currentFrame = 0 means nothing is in the display list
 	// it's also convenient because Flash also uses 1 based frame numbers
-	uint16	currentFrame;
-	uint16	frameCount;
+	uint16_t	currentFrame;
+	uint16_t	frameCount;
 	
 	// the sprite this is an instance of
 	idSWFSprite* sprite;
@@ -148,8 +148,8 @@ public:
 	int itemIndex;
 	
 	const idMaterial* materialOverride;
-	uint16 materialWidth;
-	uint16 materialHeight;
+	uint16_t materialWidth;
+	uint16_t materialHeight;
 	
 	float xOffset;
 	float yOffset;
@@ -172,7 +172,7 @@ public:
 	struct swfAction_t
 	{
 		const byte* data;
-		uint32 dataLength;
+		uint32_t dataLength;
 	};
 	idList< swfAction_t, TAG_SWF > actions;
 	
@@ -217,7 +217,7 @@ public:
 	
 	idSWFSpriteInstance* 	FindChildSprite( const char* childName );
 	idSWFSpriteInstance* 	ResolveTarget( const char* targetName );
-	uint32					FindFrame( const char* frameLabel ) const;
+	uint32_t					FindFrame( const char* frameLabel ) const;
 	bool					FrameExists( const char* frameLabel ) const;
 	bool					IsBetweenFrames( const char* frameLabel1, const char* frameLabel2 ) const;
 };

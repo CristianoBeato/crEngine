@@ -41,8 +41,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #define NVIDIA_7X_HARDWARE_BUG_FIX		// keep the DXT5 colors sorted as: max, min
 
-typedef uint16	word;
-typedef uint32	dword;
+typedef uint16_t	word;
+typedef uint32_t	dword;
 
 // macros required by gimp-dds code:
 #ifndef MIN
@@ -3757,7 +3757,7 @@ void idDxtEncoder::EmitColorIndices( const byte* colorBlock, const byte* minColo
 {
 #if 1
 
-	ALIGN16( uint16 colors[4][4] );
+	ALIGN16( uint16_t colors[4][4] );
 	unsigned int result = 0;
 	
 	colors[0][0] = ( maxColor[0] & C565_5_MASK ) | ( maxColor[0] >> 5 );
@@ -3987,7 +3987,7 @@ return: 4 byte color index block
 */
 void idDxtEncoder::EmitColorAlphaIndices( const byte* colorBlock, const byte* minColor, const byte* maxColor )
 {
-	ALIGN16( uint16 colors[4][4] );
+	ALIGN16( uint16_t colors[4][4] );
 	unsigned int result = 0;
 	
 	colors[0][0] = ( minColor[0] & C565_5_MASK ) | ( minColor[0] >> 5 );
@@ -4064,7 +4064,7 @@ return: 4 byte color index block
 */
 void idDxtEncoder::EmitCTX1Indices( const byte* colorBlock, const byte* minColor, const byte* maxColor )
 {
-	ALIGN16( uint16 colors[4][2] );
+	ALIGN16( uint16_t colors[4][2] );
 	unsigned int result = 0;
 	
 	colors[0][0] = maxColor[0];

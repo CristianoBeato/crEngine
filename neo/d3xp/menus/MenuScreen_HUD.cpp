@@ -260,7 +260,7 @@ void idMenuScreen_HUD::UpdateHealthArmor( idPlayer* player )
 		swfColorRGBA_t color;
 		color.r = 255;
 		color.a = 255;
-		uint8 gbColor;
+		uint8_t gbColor;
 		if( player->health > 60 )
 		{
 			gbColor = 255;

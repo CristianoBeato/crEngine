@@ -52,11 +52,11 @@ MsecToSamples
 SamplesToMsec
 ========================
 */
-ID_INLINE_EXTERN uint32 MsecToSamples( uint32 msec, uint32 sampleRate )
+ID_INLINE_EXTERN uint32_t MsecToSamples( uint32_t msec, uint32_t sampleRate )
 {
 	return ( msec * ( sampleRate / 100 ) ) / 10;
 }
-ID_INLINE_EXTERN uint32 SamplesToMsec( uint32 samples, uint32 sampleRate )
+ID_INLINE_EXTERN uint32_t SamplesToMsec( uint32_t samples, uint32_t sampleRate )
 {
 	return sampleRate < 100 ? 0 : ( samples * 10 ) / ( sampleRate / 100 );
 }

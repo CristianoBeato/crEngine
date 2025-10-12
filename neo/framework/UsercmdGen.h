@@ -114,7 +114,7 @@ public:
 	byte		buttons;						// buttons
 	int			clientGameMilliseconds;			// time this usercmd was sent from the client
 	int			serverGameMilliseconds;			// interpolated server time this was applied on
-	uint16		fireCount;						// number of times we've fired
+	uint16_t		fireCount;						// number of times we've fired
 	
 	// Not syncronized
 	byte		impulse;						// impulse command

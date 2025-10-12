@@ -98,10 +98,10 @@ public:
 	//------------------------
 	
 	// save the write state
-	void			SaveWriteState( int& s, int& b, uint64& t ) const;
+	void			SaveWriteState( int& s, int& b, uint64_t& t ) const;
 	
 	// restore the write state
-	void			RestoreWriteState( int s, int b, uint64 t );
+	void			RestoreWriteState( int s, int b, uint64_t t );
 	
 	//------------------------
 	// Reading
@@ -148,12 +148,12 @@ public:
 	void			WriteBits( int value, int numBits );
 	
 	void			WriteBool( bool c );
-	void			WriteChar( int8 c );
-	void			WriteByte( uint8 c );
-	void			WriteShort( int16 c );
-	void			WriteUShort( uint16 c );
-	void			WriteLong( int32 c );
-	void			WriteLongLong( int64 c );
+	void			WriteChar( int8_t c );
+	void			WriteByte( uint8_t c );
+	void			WriteShort( int16_t c );
+	void			WriteUShort( uint16_t c );
+	void			WriteLong( int32_t c );
+	void			WriteLongLong( int64_t c );
 	void			WriteFloat( float f );
 	void			WriteFloat( float f, int exponentBits, int mantissaBits );
 	void			WriteAngle8( float f );
@@ -176,23 +176,23 @@ public:
 		WriteShort( idMath::Ftoi( f * 32767.0f ) );
 	}
 	
-	void			WriteDeltaChar( int8 oldValue, int8 newValue )
+	void			WriteDeltaChar( int8_t oldValue, int8_t newValue )
 	{
 		WriteByte( newValue - oldValue );
 	}
-	void			WriteDeltaByte( uint8 oldValue, uint8 newValue )
+	void			WriteDeltaByte( uint8_t oldValue, uint8_t newValue )
 	{
 		WriteByte( newValue - oldValue );
 	}
-	void			WriteDeltaShort( int16 oldValue, int16 newValue )
+	void			WriteDeltaShort( int16_t oldValue, int16_t newValue )
 	{
 		WriteUShort( newValue - oldValue );
 	}
-	void			WriteDeltaUShort( uint16 oldValue, uint16 newValue )
+	void			WriteDeltaUShort( uint16_t oldValue, uint16_t newValue )
 	{
 		WriteUShort( newValue - oldValue );
 	}
-	void			WriteDeltaLong( int32 oldValue, int32 newValue )
+	void			WriteDeltaLong( int32_t oldValue, int32_t newValue )
 	{
 		WriteLong( newValue - oldValue );
 	}
@@ -270,7 +270,7 @@ public:
 	int				ReadShort() const;
 	int				ReadUShort() const;
 	int				ReadLong() const;
-	int64			ReadLongLong() const;
+	int64_t			ReadLongLong() const;
 	float			ReadFloat() const;
 	float			ReadFloat( int exponentBits, int mantissaBits ) const;
 	float			ReadAngle8() const;
@@ -294,23 +294,23 @@ public:
 		return ReadShort() / 32767.0f;
 	}
 	
-	int8			ReadDeltaChar( int8 oldValue ) const
+	int8_t			ReadDeltaChar( int8_t oldValue ) const
 	{
 		return oldValue + ReadByte();
 	}
-	uint8			ReadDeltaByte( uint8 oldValue ) const
+	uint8_t			ReadDeltaByte( uint8_t oldValue ) const
 	{
 		return oldValue + ReadByte();
 	}
-	int16			ReadDeltaShort( int16 oldValue ) const
+	int16_t			ReadDeltaShort( int16_t oldValue ) const
 	{
 		return oldValue + ReadUShort();
 	}
-	uint16			ReadDeltaUShort( uint16 oldValue ) const
+	uint16_t			ReadDeltaUShort( uint16_t oldValue ) const
 	{
 		return oldValue + ReadUShort();
 	}
-	int32			ReadDeltaLong( int32 oldValue ) const
+	int32_t			ReadDeltaLong( int32_t oldValue ) const
 	{
 		return oldValue + ReadLong();
 	}
@@ -394,7 +394,7 @@ private:
 	bool			overflowed;		// set true if buffer size failed (with allowOverflow set)
 	bool			hasChanged;		// Hack
 	
-	mutable uint64	tempValue;
+	mutable uint64_t	tempValue;
 	
 private:
 	bool			CheckOverflow( int numBits );
@@ -583,7 +583,7 @@ ID_INLINE int idBitMsg::GetRemainingWriteBits() const
 idBitMsg::SaveWriteState
 ========================
 */
-ID_INLINE void idBitMsg::SaveWriteState( int& s, int& b, uint64& t ) const
+ID_INLINE void idBitMsg::SaveWriteState( int& s, int& b, uint64_t& t ) const
 {
 	s = curSize;
 	b = writeBit;
@@ -595,7 +595,7 @@ ID_INLINE void idBitMsg::SaveWriteState( int& s, int& b, uint64& t ) const
 idBitMsg::RestoreWriteState
 ========================
 */
-ID_INLINE void idBitMsg::RestoreWriteState( int s, int b, uint64 t )
+ID_INLINE void idBitMsg::RestoreWriteState( int s, int b, uint64_t t )
 {
 	curSize = s;
 	writeBit = b & 7;
@@ -748,7 +748,7 @@ ID_INLINE void idBitMsg::WriteBool( bool c )
 idBitMsg::WriteChar
 ========================
 */
-ID_INLINE void idBitMsg::WriteChar( int8 c )
+ID_INLINE void idBitMsg::WriteChar( int8_t c )
 {
 	WriteBits( c, -8 );
 }
@@ -758,7 +758,7 @@ ID_INLINE void idBitMsg::WriteChar( int8 c )
 idBitMsg::WriteByte
 ========================
 */
-ID_INLINE void idBitMsg::WriteByte( uint8 c )
+ID_INLINE void idBitMsg::WriteByte( uint8_t c )
 {
 	WriteBits( c, 8 );
 }
@@ -768,7 +768,7 @@ ID_INLINE void idBitMsg::WriteByte( uint8 c )
 idBitMsg::WriteShort
 ========================
 */
-ID_INLINE void idBitMsg::WriteShort( int16 c )
+ID_INLINE void idBitMsg::WriteShort( int16_t c )
 {
 	WriteBits( c, -16 );
 }
@@ -778,7 +778,7 @@ ID_INLINE void idBitMsg::WriteShort( int16 c )
 idBitMsg::WriteUShort
 ========================
 */
-ID_INLINE void idBitMsg::WriteUShort( uint16 c )
+ID_INLINE void idBitMsg::WriteUShort( uint16_t c )
 {
 	WriteBits( c, 16 );
 }
@@ -788,7 +788,7 @@ ID_INLINE void idBitMsg::WriteUShort( uint16 c )
 idBitMsg::WriteLong
 ========================
 */
-ID_INLINE void idBitMsg::WriteLong( int32 c )
+ID_INLINE void idBitMsg::WriteLong( int32_t c )
 {
 	WriteBits( c, 32 );
 }
@@ -798,7 +798,7 @@ ID_INLINE void idBitMsg::WriteLong( int32 c )
 idBitMsg::WriteLongLong
 ========================
 */
-ID_INLINE void idBitMsg::WriteLongLong( int64 c )
+ID_INLINE void idBitMsg::WriteLongLong( int64_t c )
 {
 	int a = c;
 	int b = c >> 32;
@@ -946,11 +946,11 @@ ID_INLINE int idBitMsg::ReadLong() const
 idBitMsg::ReadLongLong
 ========================
 */
-ID_INLINE int64 idBitMsg::ReadLongLong() const
+ID_INLINE int64_t idBitMsg::ReadLongLong() const
 {
-	int64 a = ReadBits( 32 );
-	int64 b = ReadBits( 32 );
-	int64 c = ( 0x00000000ffffffff & a ) | ( b << 32 );
+	int64_t a = ReadBits( 32 );
+	int64_t b = ReadBits( 32 );
+	int64_t c = ( 0x00000000ffffffff & a ) | ( b << 32 );
 	return c;
 }
 

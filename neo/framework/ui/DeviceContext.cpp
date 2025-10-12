@@ -285,7 +285,7 @@ void idDeviceContext::DrawWinding( idWinding& w, const idMaterial* mat )
 	{
 		return;
 	}
-	uint32 currentColor = renderSystem->GetColor();
+	uint32_t currentColor = renderSystem->GetColor();
 	
 	for( int j = 0 ; j < w.GetNumPoints() ; j++ )
 	{
@@ -646,7 +646,7 @@ int idDeviceContext::DrawText( float x, float y, float scale, idVec4 color, cons
 		
 		while( charIndex < len )
 		{
-			uint32 textChar = drawText.UTF8Char( charIndex );
+			uint32_t textChar = drawText.UTF8Char( charIndex );
 			
 			if( idStr::IsColor( drawText.c_str() + charIndex ) )
 			{
@@ -838,7 +838,7 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 	
 	while( charIndex < drawText.Length() )
 	{
-		uint32 textChar = drawText.UTF8Char( charIndex );
+		uint32_t textChar = drawText.UTF8Char( charIndex );
 		
 		// See if we need to start a new line.
 		if( textChar == '\n' || textChar == '\r' || charIndex == drawText.Length() )
@@ -1194,8 +1194,8 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 		return 0;
 	}
 	
-	const uint32 currentColor = PackColor( color );
-	uint32 currentColorNativeByteOrder = LittleLong( currentColor );
+	const uint32_t currentColor = PackColor( color );
+	uint32_t currentColorNativeByteOrder = LittleLong( currentColor );
 	
 	int len = drawText.Length();
 	if( limit > 0 && len > limit )
@@ -1206,13 +1206,13 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 	int charIndex = 0;
 	while( charIndex < drawText.Length() )
 	{
-		uint32 textChar = drawText.UTF8Char( charIndex );
+		uint32_t textChar = drawText.UTF8Char( charIndex );
 		if( textChar == C_COLOR_ESCAPE )
 		{
 			// I'm not sure if inline text color codes are used anywhere in the game,
 			// they may only be needed for multi-color user names
 			idVec4		newColor;
-			uint32 colorIndex = drawText.UTF8Char( charIndex );
+			uint32_t colorIndex = drawText.UTF8Char( charIndex );
 			if( colorIndex == C_COLOR_DEFAULT )
 			{
 				newColor = color;

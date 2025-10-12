@@ -34,7 +34,7 @@ class idSWFBitStream
 {
 public:
 	idSWFBitStream();
-	idSWFBitStream( const byte* data, uint32 len, bool copy )
+	idSWFBitStream( const byte* data, uint32_t len, bool copy )
 	{
 		free = false;
 		Load( data, len, copy );
@@ -46,22 +46,22 @@ public:
 	
 	idSWFBitStream& operator=( idSWFBitStream& other );
 	
-	void			Load( const byte* data, uint32 len, bool copy );
+	void			Load( const byte* data, uint32_t len, bool copy );
 	void			Free();
 	const byte* 	Ptr()
 	{
 		return startp;
 	}
 	
-	uint32			Length() const
+	uint32_t			Length() const
 	{
-		return ( uint32 )( endp - startp );
+		return ( uint32_t )( endp - startp );
 	}
-	uint32			Tell() const
+	uint32_t			Tell() const
 	{
-		return ( uint32 )( readp - startp );
+		return ( uint32_t )( readp - startp );
 	}
-	void			Seek( int32 offset )
+	void			Seek( int32_t offset )
 	{
 		readp += offset;
 	}
@@ -81,12 +81,12 @@ public:
 	template< typename T >
 	void			ReadLittle( T& val );
 	
-	uint8			ReadU8();
-	uint16			ReadU16();
-	uint32			ReadU32();
-	int16			ReadS16();
-	int32			ReadS32();
-	uint32			ReadEncodedU32();
+	uint8_t			ReadU8();
+	uint16_t			ReadU16();
+	uint32_t			ReadU32();
+	int16_t			ReadS16();
+	int32_t			ReadS32();
+	uint32_t			ReadEncodedU32();
 	float			ReadFixed8();
 	float			ReadFixed16();
 	float			ReadFloat();
@@ -108,11 +108,11 @@ private:
 	const byte* 	endp;
 	const byte* 	readp;
 	
-	uint64			currentBit;
-	uint64			currentByte;
+	uint64_t			currentBit;
+	uint64_t			currentByte;
 	
-	int				ReadInternalS( uint64& regCurrentBit, uint64& regCurrentByte, unsigned int numBits );
-	unsigned int	ReadInternalU( uint64& regCurrentBit, uint64& regCurrentByte, unsigned int numBits );
+	int				ReadInternalS( uint64_t& regCurrentBit, uint64_t& regCurrentByte, unsigned int numBits );
+	unsigned int	ReadInternalU( uint64_t& regCurrentBit, uint64_t& regCurrentByte, unsigned int numBits );
 };
 
 /*
@@ -147,30 +147,30 @@ ID_INLINE bool   idSWFBitStream::ReadBool()
 {
 	return ( ReadU( 1 ) != 0 );
 }
-ID_INLINE uint8  idSWFBitStream::ReadU8()
+ID_INLINE uint8_t  idSWFBitStream::ReadU8()
 {
 	ResetBits();
 	return *readp++;
 }
-ID_INLINE uint16 idSWFBitStream::ReadU16()
+ID_INLINE uint16_t idSWFBitStream::ReadU16()
 {
 	ResetBits();
 	readp += 2;
 	return ( readp[-2] | ( readp[-1] << 8 ) );
 }
-ID_INLINE uint32 idSWFBitStream::ReadU32()
+ID_INLINE uint32_t idSWFBitStream::ReadU32()
 {
 	ResetBits();
 	readp += 4;
 	return ( readp[-4] | ( readp[-3] << 8 ) | ( readp[-2] << 16 ) | ( readp[-1] << 24 ) );
 }
-ID_INLINE int16  idSWFBitStream::ReadS16()
+ID_INLINE int16_t  idSWFBitStream::ReadS16()
 {
 	ResetBits();
 	readp += 2;
 	return ( readp[-2] | ( readp[-1] << 8 ) );
 }
-ID_INLINE int32  idSWFBitStream::ReadS32()
+ID_INLINE int32_t  idSWFBitStream::ReadS32()
 {
 	ResetBits();
 	readp += 4;
@@ -192,7 +192,7 @@ ID_INLINE float  idSWFBitStream::ReadFloat()
 {
 	ResetBits();
 	readp += 4;
-	uint32 i = ( readp[-4] | ( readp[-3] << 8 ) | ( readp[-2] << 16 ) | ( readp[-1] << 24 ) );
+	uint32_t i = ( readp[-4] | ( readp[-3] << 8 ) | ( readp[-2] << 16 ) | ( readp[-1] << 24 ) );
 	return ( float& )i;
 }
 

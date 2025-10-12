@@ -71,7 +71,7 @@ public:
 	{
 		innerRadius = r;
 	}
-	void		SetChannelMask( uint32 mask )
+	void		SetChannelMask( uint32_t mask )
 	{
 		channelMask = mask;
 	}
@@ -100,7 +100,7 @@ protected:
 	float		pitch;				// Pitch multiplier
 	float		innerRadius;		// Anything closer than this is omni
 	float		occlusion;			// How much of this sound is occluded (0-1)
-	uint32		channelMask;		// Set to override the default channel mask
+	uint32_t		channelMask;		// Set to override the default channel mask
 	
 	// These are some setting used to do SSF_DISTANCE_BASED_STERO blending
 	float		innerSampleRangeSqr;

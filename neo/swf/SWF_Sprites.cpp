@@ -59,7 +59,7 @@ idSWF::DefineSprite
 */
 void idSWF::DefineSprite( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_SPRITE );
 	if( entry == NULL )
 	{
@@ -86,8 +86,8 @@ void idSWFSprite::Load( idSWFBitStream& bitstream, bool parseDictionary )
 	
 	while( true )
 	{
-		uint16 codeAndLength = bitstream.ReadU16();
-		uint32 recordLength = ( codeAndLength & 0x3F );
+		uint16_t codeAndLength = bitstream.ReadU16();
+		uint32_t recordLength = ( codeAndLength & 0x3F );
 		if( recordLength == 0x3F )
 		{
 			recordLength = bitstream.ReadU32();
@@ -205,7 +205,7 @@ void idSWFSprite::Read( idFile* f )
 		f->ReadString( frameLabels[i].frameLabel );
 	}
 	
-	uint32 bufferSize;
+	uint32_t bufferSize;
 	f->ReadBig( bufferSize );
 	
 	commandBuffer = ( byte* )Mem_Alloc( bufferSize, TAG_SWF );
@@ -217,7 +217,7 @@ void idSWFSprite::Read( idFile* f )
 	commands.SetNum( num );
 	for( int i = 0; i < commands.Num(); i++ )
 	{
-		uint32 streamLength = 0;
+		uint32_t streamLength = 0;
 		
 		f->ReadBig( commands[i].tag );
 		f->ReadBig( streamLength );
@@ -226,7 +226,7 @@ void idSWFSprite::Read( idFile* f )
 		currentBuffer += streamLength;
 	}
 	
-	uint32 doInitActionLength = 0;
+	uint32_t doInitActionLength = 0;
 	f->ReadBig( num );
 	doInitActions.SetNum( num );
 	for( int i = 0; i < num; i++ )
@@ -254,7 +254,7 @@ void idSWFSprite::Write( idFile* f )
 		f->WriteBig( frameLabels[i].frameNum );
 		f->WriteString( frameLabels[i].frameLabel );
 	}
-	uint32 totalLength = 0;
+	uint32_t totalLength = 0;
 	for( int i = 0; i < commands.Num(); i++ )
 	{
 		totalLength += commands[i].stream.Length();

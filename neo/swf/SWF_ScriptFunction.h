@@ -209,11 +209,11 @@ public:
 	}
 	
 	// This could all be passed to Alloc (and was at one time) but in some places it's far more convenient to specify each separately
-	void	SetFlags( uint16 _flags )
+	void	SetFlags( uint16_t _flags )
 	{
 		flags = _flags;
 	}
-	void	SetData( const byte* _data, uint32 _length )
+	void	SetData( const byte* _data, uint32_t _length )
 	{
 		data = _data;
 		length = _length;
@@ -235,7 +235,7 @@ public:
 	{
 		parameters.SetNum( numParms );
 	}
-	void	SetParameter( uint8 n, uint8 r, const char* name )
+	void	SetParameter( uint8_t n, uint8_t r, const char* name )
 	{
 		parameters[n].reg = r;
 		parameters[n].name = name;
@@ -260,9 +260,9 @@ private:
 private:
 	int					refCount;
 	
-	uint16				flags;
+	uint16_t				flags;
 	const  byte* 		data;
-	uint32				length;
+	uint32_t				length;
 	idSWFScriptObject* prototype;
 	
 	idSWFSpriteInstance* defaultSprite;		// some actions have an implicit sprite they work off of (e.g. Action_GotoFrame outside of object scope)
@@ -275,7 +275,7 @@ private:
 	struct parmInfo_t
 	{
 		const char* name;
-		uint8 reg;
+		uint8_t reg;
 	};
 	idList< parmInfo_t, TAG_SWF > parameters;
 };

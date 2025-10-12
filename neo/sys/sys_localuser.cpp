@@ -93,9 +93,9 @@ idLocalUser::StorageSizeAvailable
 */
 // RB: disabled savegame and profile storage checks, because it fails sometimes without any clear reason
 /*
-bool idLocalUser::StorageSizeAvailable( uint64 minSizeInBytes, int64& neededBytes )
+bool idLocalUser::StorageSizeAvailable( uint64_t minSizeInBytes, int64_t& neededBytes )
 {
-	int64 size = Sys_GetDriveFreeSpaceInBytes( fs_savepath.GetString() );
+	int64_t size = Sys_GetDriveFreeSpaceInBytes( fs_savepath.GetString() );
 
 	neededBytes = minSizeInBytes - size;
 	if( neededBytes < 0 )

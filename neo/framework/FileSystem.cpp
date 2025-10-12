@@ -3331,7 +3331,7 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList& list )
 			continue;
 		}
 		
-		uint32 resourceMagic;
+		uint32_t resourceMagic;
 		currentFile->ReadBig( resourceMagic );
 		
 		if( resourceMagic != RESOURCE_FILE_MAGIC )
@@ -3384,8 +3384,8 @@ void idFileSystemLocal::CreateCRCsForResourceFileList( const idFileList& list )
 			continue;
 		}
 		
-		const uint32 CRC_FILE_MAGIC = 0xCC00CC00; // I just made this up, it has no meaning.
-		const uint32 CRC_FILE_VERSION = 1;
+		const uint32_t CRC_FILE_MAGIC = 0xCC00CC00; // I just made this up, it has no meaning.
+		const uint32_t CRC_FILE_VERSION = 1;
 		crcOutputFile->WriteBig( CRC_FILE_MAGIC );
 		crcOutputFile->WriteBig( CRC_FILE_VERSION );
 		crcOutputFile->WriteBig( totalCRC );

@@ -218,7 +218,7 @@ private:
 	
 	float			frameWidth;
 	float			frameHeight;
-	uint16			frameRate;
+	uint16_t			frameRate;
 	float			renderBorder;
 	float			swfScale;
 	
@@ -423,7 +423,7 @@ private:
 	void			DrawEditCursor( idRenderSystem* gui, float x, float y, float w, float h, const swfMatrix_t& matrix );
 	void			DrawLine( idRenderSystem* gui, const idVec2& p1, const idVec2& p2, float width, const swfMatrix_t& matrix );
 	void			RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance, const swfRenderState_t& renderState, int time, bool isSplitscreen = false );
-	uint64			GLStateForRenderState( const swfRenderState_t& renderState );
+	uint64_t			GLStateForRenderState( const swfRenderState_t& renderState );
 	void			FindTooltipIcons( idStr* text );
 	
 	//----------------------------------

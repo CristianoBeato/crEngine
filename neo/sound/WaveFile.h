@@ -49,12 +49,12 @@ public:
 	
 	bool		Open( const char* filename );
 	void		Close();
-	uint32		SeekToChunk( uint32 id );
+	uint32_t		SeekToChunk( uint32_t id );
 	size_t		Read( void* buffer, size_t len )
 	{
 		return file->Read( buffer, len );
 	}
-	uint32		GetChunkOffset( uint32 id );
+	uint32_t		GetChunkOffset( uint32_t id );
 	
 	ID_TIME_T	Timestamp()
 	{
@@ -111,33 +111,33 @@ public:
 #pragma pack( push, 1 )
 	struct waveFmt_t
 	{
-		static const uint32 id = 'fmt ';
+		static const uint32_t id = 'fmt ';
 		// This is the basic data we'd expect to see in any valid wave file
 		struct basic_t
 		{
-			uint16 formatTag;
-			uint16 numChannels;
-			uint32 samplesPerSec;
-			uint32 avgBytesPerSec;
-			uint16 blockSize;
-			uint16 bitsPerSample;
+			uint16_t formatTag;
+			uint16_t numChannels;
+			uint32_t samplesPerSec;
+			uint32_t avgBytesPerSec;
+			uint16_t blockSize;
+			uint16_t bitsPerSample;
 		} basic;
 		// Some wav file formats have extra data after the basic header
-		uint16 extraSize;
+		uint16_t extraSize;
 		// We have a few known formats that we handle:
 		union extra_t
 		{
 			// Valid if basic.formatTag == FORMAT_EXTENSIBLE
 			struct extensible_t
 			{
-				uint16 validBitsPerSample;	// Valid bits in each sample container
-				uint32 channelMask;			// Positions of the audio channels
+				uint16_t validBitsPerSample;	// Valid bits in each sample container
+				uint32_t channelMask;			// Positions of the audio channels
 				struct guid_t
 				{
-					uint32 data1;
-					uint16 data2;
-					uint16 data3;
-					uint16 data4;
+					uint32_t data1;
+					uint16_t data2;
+					uint16_t data3;
+					uint16_t data4;
 					byte data5[ 6 ];
 				} subFormat;				// Format identifier GUID
 			} extensible;
@@ -148,8 +148,8 @@ public:
 			// is exactly the same as the one in audiodefs.h
 			struct adpcm_t
 			{
-				uint16 samplesPerBlock;
-				uint16 numCoef;
+				uint16_t samplesPerBlock;
+				uint16_t numCoef;
 				struct adpcmcoef_t
 				{
 					short coef1;
@@ -159,17 +159,17 @@ public:
 			// Valid if basic.formatTag == FORMAT_XMA2
 			struct xma2_t
 			{
-				uint16 numStreams;		// Number of audio streams (1 or 2 channels each)
-				uint32 channelMask;		// matches the CHANNEL_MASK enum above
-				uint32 samplesEncoded;	// Total number of PCM samples the file decodes to
-				uint32 bytesPerBlock;	// XMA block size (but the last one may be shorter)
-				uint32 playBegin;		// First valid sample in the decoded audio
-				uint32 playLength;		// Length of the valid part of the decoded audio
-				uint32 loopBegin;		// Beginning of the loop region in decoded sample terms
-				uint32 loopLength;		// Length of the loop region in decoded sample terms
+				uint16_t numStreams;		// Number of audio streams (1 or 2 channels each)
+				uint32_t channelMask;		// matches the CHANNEL_MASK enum above
+				uint32_t samplesEncoded;	// Total number of PCM samples the file decodes to
+				uint32_t bytesPerBlock;	// XMA block size (but the last one may be shorter)
+				uint32_t playBegin;		// First valid sample in the decoded audio
+				uint32_t playLength;		// Length of the valid part of the decoded audio
+				uint32_t loopBegin;		// Beginning of the loop region in decoded sample terms
+				uint32_t loopLength;		// Length of the loop region in decoded sample terms
 				byte   loopCount;		// Number of loop repetitions; 255 = infinite
 				byte   encoderVersion;	// Version of XMA encoder that generated the file
-				uint16 blockCount;		// XMA blocks in file (and entries in its seek table)
+				uint16_t blockCount;		// XMA blocks in file (and entries in its seek table)
 			} xma2;
 		} extra;
 	};
@@ -178,54 +178,54 @@ public:
 	
 	struct dataChunk_t
 	{
-		static const uint32 id = 'data';
-		uint32 size;
+		static const uint32_t id = 'data';
+		uint32_t size;
 		void* data;
 	};
 	
 	struct formatChunk_t
 	{
-		static const uint32 id = 'fmt ';
-		uint32 size;
-		uint16 compressionCode;
-		uint16 numChannels;
-		uint32 sampleRate;
-		uint32 averageBytesPerSecond;
-		uint16 blockAlign;
-		uint16 bitsPerSample;
-		uint16 numExtraFormatByte;
+		static const uint32_t id = 'fmt ';
+		uint32_t size;
+		uint16_t compressionCode;
+		uint16_t numChannels;
+		uint32_t sampleRate;
+		uint32_t averageBytesPerSecond;
+		uint16_t blockAlign;
+		uint16_t bitsPerSample;
+		uint16_t numExtraFormatByte;
 	};
 	
 	struct samplerChunk_t
 	{
-		static const uint32 id = 'smpl';
-		uint32 manufacturer;		// ignored
-		uint32 product;				// ignored
-		uint32 samplePeriod;		// ignored (normally 1000000000/samplesPerSec)
-		uint32 MIDIUnityNote;		// ignored
-		uint32 MIDIPitchFraction;	// ignored
-		uint32 SMPTEFormat;			// ignored
-		uint32 SMPTEOffset;			// ignored
-		uint32 numSampleLoops;		// number of samples in wave file
-		uint32 extraSamplerData;	// ignored, should always be 0
+		static const uint32_t id = 'smpl';
+		uint32_t manufacturer;		// ignored
+		uint32_t product;				// ignored
+		uint32_t samplePeriod;		// ignored (normally 1000000000/samplesPerSec)
+		uint32_t MIDIUnityNote;		// ignored
+		uint32_t MIDIPitchFraction;	// ignored
+		uint32_t SMPTEFormat;			// ignored
+		uint32_t SMPTEOffset;			// ignored
+		uint32_t numSampleLoops;		// number of samples in wave file
+		uint32_t extraSamplerData;	// ignored, should always be 0
 	};
 	
 	struct sampleData_t
 	{
-		uint32 identifier;		// ignored
-		uint32 type;			// 0 for loop 33 multi-sample sample type
-		uint32 start;			// start of the loop point
-		uint32 end;				// end of the loop point
-		uint32 fraction;		// ignored
-		uint32 playCount;		// ignored
+		uint32_t identifier;		// ignored
+		uint32_t type;			// 0 for loop 33 multi-sample sample type
+		uint32_t start;			// start of the loop point
+		uint32_t end;				// end of the loop point
+		uint32_t fraction;		// ignored
+		uint32_t playCount;		// ignored
 	};
 	
 	const char* ReadWaveFormat( waveFmt_t& waveFmt );
 	static bool  ReadWaveFormatDirect( waveFmt_t& format, idFile* file );
 	static bool  WriteWaveFormatDirect( waveFmt_t& format, idFile* file );
 	static bool  WriteSampleDataDirect( idList< sampleData_t >& sampleData, idFile* file );
-	static bool  WriteDataDirect( char* _data, uint32 size, idFile* file );
-	static bool  WriteHeaderDirect( uint32 fileSize, idFile* file );
+	static bool  WriteDataDirect( char* _data, uint32_t size, idFile* file );
+	static bool  WriteHeaderDirect( uint32_t fileSize, idFile* file );
 	
 	bool		 ReadLoopData( int& start, int& end );
 	
@@ -234,9 +234,9 @@ private:
 	
 	struct chunk_t
 	{
-		uint32 id;
-		uint32 size;
-		uint32 offset;
+		uint32_t id;
+		uint32_t size;
+		uint32_t offset;
 	};
 	
 	idStaticList< chunk_t, 32 >	chunks;

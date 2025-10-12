@@ -192,7 +192,7 @@ class idEntity : public idClass
 {
 public:
 	static const int		MAX_PVS_AREAS = 4;
-	static const uint32		INVALID_PREDICTION_KEY = 0xFFFFFFFF;
+	static const uint32_t		INVALID_PREDICTION_KEY = 0xFFFFFFFF;
 	
 	int						entityNumber;			// index into the entity list
 	int						entityDefNumber;		// index into the entity def list
@@ -524,8 +524,8 @@ public:
 	void					CreateDeltasFromOldOriginAndAxis( const idVec3& oldOrigin, const idMat3& oldAxis );
 	void					DecayOriginAndAxisDelta();
 
-	uint32					GetPredictedKey() { return predictionKey; }
-	void					SetPredictedKey( uint32 key_ ) { predictionKey = key_; }
+	uint32_t					GetPredictedKey() { return predictionKey; }
+	void					SetPredictedKey( uint32_t key_ ) { predictionKey = key_; }
 	
 	void					FlagNewSnapshot();
 	
@@ -578,7 +578,7 @@ private:
 	
 	int						mpGUIState;							// local cache to avoid systematic SetStateInt
 	
-	uint32					predictionKey;						// Unique key used to sync predicted ents (projectiles) in MP.
+	uint32_t					predictionKey;						// Unique key used to sync predicted ents (projectiles) in MP.
 	
 	// Delta values that are set when the server or client disagree on where the render model should be. If this happens,
 	// they resolve it through DecayOriginAndAxisDelta()

@@ -40,23 +40,23 @@ If you have questions concerning this license or the applicable additional terms
 
 extern idCVar com_engineHz;
 extern float com_engineHz_latched;
-extern int64 com_engineHz_numerator;
-extern int64 com_engineHz_denominator;
+extern int64_t com_engineHz_numerator;
+extern int64_t com_engineHz_denominator;
 
 // Returns the msec the frame starts on
-ID_INLINE int FRAME_TO_MSEC( int64 frame )
+ID_INLINE int FRAME_TO_MSEC( int64_t frame )
 {
 	return ( int )( ( frame * com_engineHz_numerator ) / com_engineHz_denominator );
 }
 // Rounds DOWN to the nearest frame
 ID_INLINE int MSEC_TO_FRAME_FLOOR( int msec )
 {
-	return ( int )( ( ( ( int64 )msec * com_engineHz_denominator ) + ( com_engineHz_denominator - 1 ) ) / com_engineHz_numerator );
+	return ( int )( ( ( ( int64_t )msec * com_engineHz_denominator ) + ( com_engineHz_denominator - 1 ) ) / com_engineHz_numerator );
 }
 // Rounds UP to the nearest frame
 ID_INLINE int MSEC_TO_FRAME_CEIL( int msec )
 {
-	return ( int )( ( ( ( int64 )msec * com_engineHz_denominator ) + ( com_engineHz_numerator - 1 ) ) / com_engineHz_numerator );
+	return ( int )( ( ( ( int64_t )msec * com_engineHz_denominator ) + ( com_engineHz_numerator - 1 ) ) / com_engineHz_numerator );
 }
 // Aligns msec so it starts on a frame bondary
 ID_INLINE int MSEC_ALIGN_TO_FRAME( int msec )
@@ -76,7 +76,7 @@ class idMatchParameters;
 
 struct lobbyConnectInfo_t;
 
-ID_INLINE void BeginProfileNamedEventColor( uint32 color, VERIFY_FORMAT_STRING const char* szName )
+ID_INLINE void BeginProfileNamedEventColor( uint32_t color, VERIFY_FORMAT_STRING const char* szName )
 {
 }
 ID_INLINE void EndProfileNamedEvent()
@@ -85,7 +85,7 @@ ID_INLINE void EndProfileNamedEvent()
 
 ID_INLINE void BeginProfileNamedEvent( VERIFY_FORMAT_STRING const char* szName )
 {
-	BeginProfileNamedEventColor( ( uint32 ) 0xFF00FF00, szName );
+	BeginProfileNamedEventColor( ( uint32_t ) 0xFF00FF00, szName );
 }
 
 class idScopedProfileEvent
@@ -185,7 +185,7 @@ struct mpMap_t
 	
 	idStr			mapFile;
 	idStr			mapName;
-	uint32			supportedModes;
+	uint32_t			supportedModes;
 };
 
 static const int	MAX_LOGGED_STATS = 60 * 120;		// log every half second

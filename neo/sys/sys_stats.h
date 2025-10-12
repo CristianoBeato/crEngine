@@ -56,10 +56,10 @@ public:
 	struct row_t
 	{
 		bool		hasAttachment;
-		int64		attachmentID;
+		int64_t		attachmentID;
 		idStr		name;
-		int64		rank;
-		idArray< int64, MAX_LEADERBOARD_COLUMNS > 	columns;
+		int64_t		rank;
+		idArray< int64_t, MAX_LEADERBOARD_COLUMNS > 	columns;
 	};
 	
 	idLeaderboardCallback() : def( NULL ), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
@@ -74,7 +74,7 @@ public:
 	{
 		rows.Append( row );
 	}
-	void 							SetNumRowsInLeaderboard( int32 i )
+	void 							SetNumRowsInLeaderboard( int32_t i )
 	{
 		numRowsInLeaderboard = i;
 	}

@@ -316,9 +316,9 @@ GL_State
 This routine is responsible for setting the most commonly changed state
 ====================
 */
-void GL_State( uint64 stateBits, bool forceGlState )
+void GL_State( uint64_t stateBits, bool forceGlState )
 {
-	uint64 diff = stateBits ^ backEnd.glState.glStateBits;
+	uint64_t diff = stateBits ^ backEnd.glState.glStateBits;
 	
 	if( !r_useStateCaching.GetBool() || forceGlState )
 	{
@@ -677,7 +677,7 @@ void GL_State( uint64 stateBits, bool forceGlState )
 GL_GetCurrentState
 =================
 */
-uint64 GL_GetCurrentState()
+uint64_t GL_GetCurrentState()
 {
 	return backEnd.glState.glStateBits;
 }
@@ -687,7 +687,7 @@ uint64 GL_GetCurrentState()
 GL_GetCurrentStateMinusStencil
 ========================
 */
-uint64 GL_GetCurrentStateMinusStencil()
+uint64_t GL_GetCurrentStateMinusStencil()
 {
 	return GL_GetCurrentState() & ~( GLS_STENCIL_OP_BITS | GLS_STENCIL_FUNC_BITS | GLS_STENCIL_FUNC_REF_BITS | GLS_STENCIL_FUNC_MASK_BITS );
 }

@@ -138,7 +138,7 @@ void idSignInManagerWin::RegisterLocalUser( int inputDevice )
 		name.Empty();
 		while( nameIndex < nameLength && numChars++ < idLocalUserWin::MAX_GAMERTAG_CHARS )
 		{
-			uint32 c = idStr::UTF8Char( nameSource, nameIndex );
+			uint32_t c = idStr::UTF8Char( nameSource, nameIndex );
 			name.AppendUTF8Char( c );
 		}
 	}

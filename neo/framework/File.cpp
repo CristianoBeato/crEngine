@@ -1696,16 +1696,15 @@ idFile_ReadBuffered::BufferData
 Buffer a section of the file
 =================
 */
-void idFile_Cached::CacheData( uint64 offset, uint64 length )
+void idFile_Cached::CacheData( uintptr_t offset, size_t length )
 {
 	Mem_Free( buffered );
 	bufferedStartOffset = offset;
 	bufferedEndOffset = offset + length;
 	buffered = ( byte* )Mem_Alloc( length, TAG_RESOURCE );
-	if( buffered == NULL )
-	{
+	if( buffered == nullptr )
 		return;
-	}
+	
 	int internalFilePos = idFile_Permanent::Tell();
 	idFile_Permanent::Seek( offset, FS_SEEK_SET );
 	idFile_Permanent::Read( buffered, length );
@@ -1730,7 +1729,7 @@ int idFile_Cached::Read( void* buffer, int len )
 	int read = idFile_Permanent::Read( buffer, len );
 	if( read != -1 )
 	{
-		internalFilePos += ( int64 )read;
+		internalFilePos += ( int64_t )read;
 	}
 	return read;
 }

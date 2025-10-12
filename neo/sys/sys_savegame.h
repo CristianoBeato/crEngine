@@ -276,7 +276,7 @@ public:
 	
 	int									errorCode;					// [out] combination of saveGameError_t bits
 	int									handledErrorCodes;			// [out] combination of saveGameError_t bits
-	int64								requiredSpaceInBytes;		// [out] when fails for insufficient space, this is populated with additional space required
+	int64_t								requiredSpaceInBytes;		// [out] when fails for insufficient space, this is populated with additional space required
 	int									skipErrorDialogMask;
 	
 	// ----------------------
@@ -557,9 +557,9 @@ public:
 	{
 		return handle <= lastExecutedProcessorHandle || handle == 0;    // last case should never be reached since it would be also be true in first case, this is just to show intent
 	}
-	void					Set360RetrySaveAfterDeviceSelected( const char* folder, const int64 bytes );
+	void					Set360RetrySaveAfterDeviceSelected( const char* folder, const int64_t bytes );
 	bool					DeviceSelectorWaitingOnSaveRetry();
-	void					ShowRetySaveDialog( const char* folder, const int64 bytes );
+	void					ShowRetySaveDialog( const char* folder, const int64_t bytes );
 	void					ShowRetySaveDialog();
 	void					ClearRetryInfo();
 	void					RetrySave();
@@ -599,7 +599,7 @@ private:
 	// it becomes true.  This allows us to start the game without a storage device
 	// selected and pop the selector when necessary.
 	const char* 								retryFolder;
-	int64										retryBytes;
+	int64_t										retryBytes;
 	bool										retrySave;
 	idSysSignal									deviceRequestedSignal;
 };

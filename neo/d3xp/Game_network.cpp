@@ -1312,7 +1312,7 @@ void idGameLocal::Tokenize( idStrList& out, const char* in )
 idGameLocal::FindPredictedEntity
 ========================
 */
-idEntity*   idGameLocal::FindPredictedEntity( uint32 predictedKey, idTypeInfo* type )
+idEntity*   idGameLocal::FindPredictedEntity( uint32_t predictedKey, idTypeInfo* type )
 {
 	for( idEntity* predictedEntity = activeEntities.Next(); predictedEntity != NULL; predictedEntity = predictedEntity->activeNode.Next() )
 	{
@@ -1337,11 +1337,11 @@ idEntity*   idGameLocal::FindPredictedEntity( uint32 predictedKey, idTypeInfo* t
 idGameLocal::GeneratePredictionKey
 ========================
 */
-uint32  idGameLocal::GeneratePredictionKey( idWeapon* weapon, idPlayer* playerAttacker, int overrideKey )
+uint32_t  idGameLocal::GeneratePredictionKey( idWeapon* weapon, idPlayer* playerAttacker, int overrideKey )
 {
 	if( overrideKey != -1 )
 	{
-		uint32 predictedKey = overrideKey;
+		uint32_t predictedKey = overrideKey;
 		int peerIndex		= -1;
 		
 		if( common->IsServer() )
@@ -1358,7 +1358,7 @@ uint32  idGameLocal::GeneratePredictionKey( idWeapon* weapon, idPlayer* playerAt
 		return predictedKey;
 	}
 	
-	uint32 predictedKey = idEntity::INVALID_PREDICTION_KEY;
+	uint32_t predictedKey = idEntity::INVALID_PREDICTION_KEY;
 	int peerIndex		= -1;
 	
 	// Get key - fireCount or throwCount

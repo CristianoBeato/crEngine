@@ -56,7 +56,7 @@ public:
 	virtual bool				IsOnline() const;
 	virtual bool				IsInParty() const;
 	virtual int					GetPartyCount() const;
-	virtual uint32				GetOnlineCaps() const
+	virtual uint32_t				GetOnlineCaps() const
 	{
 		return ( IsPersistent() && IsOnline() ) ? ( CAP_IS_ONLINE | CAP_CAN_PLAY_ONLINE ) : 0;
 	}

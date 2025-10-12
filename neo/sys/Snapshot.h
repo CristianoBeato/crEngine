@@ -123,7 +123,7 @@ public:
 	{
 		objectState_t() :
 			objectNum( 0 ),
-			visMask( MAX_UNSIGNED_TYPE( uint32 ) ),
+			visMask( MAX_UNSIGNED_TYPE( uint32_t ) ),
 			stale( false ),
 			deleted( false ),
 			changedCount( 0 ),
@@ -132,9 +132,9 @@ public:
 		{ }
 		void Print( const char* name );
 		
-		uint16			objectNum;
+		uint16_t			objectNum;
 		objectBuffer_t	buffer;
-		uint32			visMask;
+		uint32_t			visMask;
 		bool			stale;			// easy way for clients to check if ss obj is stale. Probably temp till client side of vismask system is more fleshed out
 		bool			deleted;
 		int				changedCount;	// Incremented each time the state changed
@@ -146,7 +146,7 @@ public:
 	{
 		objParms_t* 		objParms;				// Start of object parms
 		int					maxObjParms;			// Max parms (which will dictate how many objects can be processed)
-		uint8* 				objMemory;				// Memory that objects were written out to
+		uint8_t* 				objMemory;				// Memory that objects were written out to
 		objHeader_t* 		headers;				// Memory for headers
 		int					maxHeaders;
 		int					maxObjMemory;			// Max memory (which will dictate when syncs need to occur)
@@ -167,15 +167,15 @@ public:
 	bool WriteDelta( idSnapShot& old, int visIndex, idFile* file, int maxLength, int optimalLength = 0 );
 	
 	// Adds an object to the state, overwrites any existing object with the same number
-	objectState_t* S_AddObject( int objectNum, uint32 visMask, const idBitMsg& msg, const char* tag = NULL )
+	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const idBitMsg& msg, const char* tag = NULL )
 	{
 		return S_AddObject( objectNum, visMask, msg.GetReadData(), msg.GetSize(), tag );
 	}
-	objectState_t* S_AddObject( int objectNum, uint32 visMask, const byte* buffer, int size, const char* tag = NULL )
+	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const byte* buffer, int size, const char* tag = NULL )
 	{
 		return S_AddObject( objectNum, visMask, ( const char* )buffer, size, tag );
 	}
-	objectState_t* S_AddObject( int objectNum, uint32 visMask, const char* buffer, int size, const char* tag = NULL );
+	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const char* buffer, int size, const char* tag = NULL );
 	bool CopyObject( const idSnapShot& oldss, int objectNum, bool forceStale = false );
 	int CompareObject( const idSnapShot* oldss, int objectNum, int start = 0, int end = 0, int oldStart = 0 );
 	
@@ -234,7 +234,7 @@ private:
 										objParms_t*&					baseObjParm,				// Starting obj parm of current stream
 										objParms_t*&					curObjParm,					// Current obj parm of current stream
 										objHeader_t*&					curHeader,					// Current header dest
-										uint8*&						curObjDest,					// Current write pos of current obj
+										uint8_t*&						curObjDest,					// Current write pos of current obj
 										lzwParm_t*&					curlzwParm );				// Current delta parm for next lzw job
 	void SubmitLZWJob(
 		const submitDeltaJobsInfo_t& 	writeDeltaInfo,		// Struct containing parameters originally passed in to SubmitWriteDeltaToJobs

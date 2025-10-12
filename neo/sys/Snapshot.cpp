@@ -246,7 +246,7 @@ void idSnapShot::PeekDeltaSequence( const char* deltaMem, int deltaSize, int& se
 	lzwCompressionData_t	lzwData;
 	idLZWCompressor			lzwCompressor( &lzwData );
 	
-	lzwCompressor.Start( ( uint8* )deltaMem, deltaSize );
+	lzwCompressor.Start( ( uint8_t* )deltaMem, deltaSize );
 	lzwCompressor.ReadAgnostic( sequence );
 	lzwCompressor.ReadAgnostic( baseSequence );
 }
@@ -267,7 +267,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 	idLZWCompressor				lzwCompressor( &lzwData );
 	int bytesRead = 0; // how many uncompressed bytes we read in. Used to figure out compression ratio
 	
-	lzwCompressor.Start( ( uint8* )deltaMem, deltaSize );
+	lzwCompressor.Start( ( uint8_t* )deltaMem, deltaSize );
 	
 	// Skip past sequence and baseSequence
 	int sequence		= 0;
@@ -279,7 +279,7 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 	bytesRead += sizeof( int ) * 3;
 	
 	int objectNum = 0;
-	uint16 delta = 0;
+	uint16_t delta = 0;
 	
 	
 	while( lzwCompressor.ReadAgnostic( delta, true ) == sizeof( delta ) )
@@ -438,10 +438,10 @@ bool idSnapShot::ReadDeltaForJob( const char* deltaMem, int deltaSize, int visIn
 			}
 		}
 #ifdef SNAPSHOT_CHECKSUMS
-		extern uint32 SnapObjChecksum( const uint8 * data, int length );
+		extern uint32_t SnapObjChecksum( const uint8_t * data, int length );
 		if( state.buffer.Size() > 0 )
 		{
-			uint32 checksum = 0;
+			uint32_t checksum = 0;
 			lzwCompressor.ReadAgnostic( checksum );
 			bytesRead += sizeof( checksum );
 			if( !verify( checksum == SnapObjChecksum( state.buffer.Ptr(), state.buffer.Size() ) ) )
@@ -467,7 +467,7 @@ void idSnapShot::SubmitObjectJob(	const submitDeltaJobsInfo_t& 	submitDeltaJobsI
 									objParms_t*&					baseObjParm,
 									objParms_t*&					curObjParm,
 									objHeader_t*&					curHeader,
-									uint8*&						curObjDest,
+									uint8_t*&						curObjDest,
 									lzwParm_t*&					curlzwParm
 								)
 {
@@ -475,7 +475,7 @@ void idSnapShot::SubmitObjectJob(	const submitDeltaJobsInfo_t& 	submitDeltaJobsI
 	assert_16_byte_aligned( curHeader );
 	assert_16_byte_aligned( curObjDest );
 	
-	int32 dataSize = newState != NULL ? newState->buffer.Size() : 0;
+	int32_t dataSize = newState != NULL ? newState->buffer.Size() : 0;
 	int totalSize = OBJ_DEST_SIZE_ALIGN16( dataSize );
 	
 	if( curObjParm - submitDeltaJobsInfo.objParms >= submitDeltaJobsInfo.maxObjParms )
@@ -626,7 +626,7 @@ void idSnapShot::SubmitWriteDeltaToJobs( const submitDeltaJobsInfo_t& submitDelt
 	objParms_t* 	baseObjParms	= submitDeltaJobInfo.objParms;
 	lzwParm_t* 		curlzwParms		= submitDeltaJobInfo.lzwParms;
 	objHeader_t* 	curHeader		= submitDeltaJobInfo.headers;
-	uint8* 			curObjMemory	= submitDeltaJobInfo.objMemory;
+	uint8_t* 			curObjMemory	= submitDeltaJobInfo.objMemory;
 	
 	submitDeltaJobInfo.lzwInOutData->numlzwDeltas	= 0;
 	submitDeltaJobInfo.lzwInOutData->lzwBytes		= 0;
@@ -726,7 +726,7 @@ bool idSnapShot::ReadDelta( idFile* file, int visIndex )
 	file->ReadBig( time );
 	
 	int objectNum = 0;
-	uint16 delta = 0;
+	uint16_t delta = 0;
 	while( file->ReadBig( delta ) == sizeof( delta ) )
 	{
 		objectNum += delta;
@@ -782,7 +782,7 @@ bool idSnapShot::ReadDelta( idFile* file, int visIndex )
 			
 			for( objectSize_t i = 0; i < compareSize; i++ )
 			{
-				uint8 delta = 0;
+				uint8_t delta = 0;
 				file->ReadBig<byte>( delta );
 				newbuffer[i] = state.buffer[i] + delta;
 			}
@@ -867,7 +867,7 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 	}
 	
 	// Get the id of the object we are writing out
-	uint16 objectNum;
+	uint16_t objectNum;
 	if( newState != NULL )
 	{
 		objectNum = newState->objectNum;
@@ -884,7 +884,7 @@ void idSnapShot::WriteObject( idFile* file, int visIndex, objectState_t* newStat
 	assert( objectNum == 0 || objectNum > lastobjectNum );
 	
 	// Write out object id (using delta)
-	uint16 objectDelta = objectNum - lastobjectNum;
+	uint16_t objectDelta = objectNum - lastobjectNum;
 	file->WriteBig( objectDelta );
 	lastobjectNum = objectNum;
 	
@@ -964,7 +964,7 @@ bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int ma
 {
 	file->WriteBig( time );
 	
-	int objectHeaderSize = sizeof( uint16 ) + sizeof( objectSize_t );
+	int objectHeaderSize = sizeof( uint16_t ) + sizeof( objectSize_t );
 #ifdef SNAPSHOT_CHECKSUMS
 	objectHeaderSize += sizeof( unsigned int );
 #endif
@@ -1062,7 +1062,7 @@ bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int ma
 	{
 		return false;
 	}
-	uint16 objectDelta = 0xFFFF - lastobjectNum;
+	uint16_t objectDelta = 0xFFFF - lastobjectNum;
 	file->WriteBig( objectDelta );
 	
 	return true;
@@ -1073,7 +1073,7 @@ bool idSnapShot::WriteDelta( idSnapShot& old, int visIndex, idFile* file, int ma
 idSnapShot::AddObject
 ========================
 */
-idSnapShot::objectState_t* idSnapShot::S_AddObject( int objectNum, uint32 visMask, const char* data, int _size, const char* tag )
+idSnapShot::objectState_t* idSnapShot::S_AddObject( int objectNum, uint32_t visMask, const char* data, int _size, const char* tag )
 {
 	objectSize_t size = _size;
 	objectState_t& state = FindOrCreateObjectByID( objectNum );

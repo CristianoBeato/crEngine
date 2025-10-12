@@ -676,7 +676,7 @@ float idSoundVoice_OpenAL::GetAmplitude()
 	}
 	
 	float rms = 0.0f;
-	for( uint32 i = 0; i < levels.ChannelCount; i++ )
+	for( uint32_t i = 0; i < levels.ChannelCount; i++ )
 	{
 		rms += rmsLevels[i];
 	}
@@ -690,7 +690,7 @@ float idSoundVoice_OpenAL::GetAmplitude()
 idSoundVoice_OpenAL::ResetSampleRate
 ========================
 */
-void idSoundVoice_OpenAL::SetSampleRate( uint32 newSampleRate, uint32 operationSet )
+void idSoundVoice_OpenAL::SetSampleRate( uint32_t newSampleRate, uint32_t operationSet )
 {
 	/*
 	if( pSourceVoice == NULL || leadinSample == NULL )

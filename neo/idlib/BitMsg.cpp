@@ -87,8 +87,8 @@ byte* idBitMsg::GetByteSpace( int length )
 	return ptr;
 }
 
-#define NBM( x ) (uint64)( ( 1LL << x ) - 1 )
-static uint64 maskForNumBits64[33] = {	NBM( 0x00 ), NBM( 0x01 ), NBM( 0x02 ), NBM( 0x03 ),
+#define NBM( x ) (uint64_t)( ( 1LL << x ) - 1 )
+static uint64_t maskForNumBits64[33] = {	NBM( 0x00 ), NBM( 0x01 ), NBM( 0x02 ), NBM( 0x03 ),
 										NBM( 0x04 ), NBM( 0x05 ), NBM( 0x06 ), NBM( 0x07 ),
 										NBM( 0x08 ), NBM( 0x09 ), NBM( 0x0A ), NBM( 0x0B ),
 										NBM( 0x0C ), NBM( 0x0D ), NBM( 0x0E ), NBM( 0x0F ),
@@ -165,7 +165,7 @@ void idBitMsg::WriteBits( int value, int numBits )
 	}
 	
 	// Merge value with possible previous leftover
-	tempValue |= ( ( ( int64 )value ) & maskForNumBits64[numBits] ) << writeBit;
+	tempValue |= ( ( ( int64_t )value ) & maskForNumBits64[numBits] ) << writeBit;
 	
 	writeBit += numBits;
 	

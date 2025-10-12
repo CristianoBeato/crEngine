@@ -45,7 +45,7 @@ idMenuScreen_Shell_Leaderboards::~idMenuScreen_Shell_Leaderboards()
 }
 
 // Helper functions for formatting leaderboard columns
-static idStr FormatTime( int64 time )
+static idStr FormatTime( int64_t time )
 {
 	int minutes = time / ( 1000 * 60 );
 	int seconds = ( time - ( minutes * 1000 * 60 ) ) / 1000;
@@ -53,16 +53,16 @@ static idStr FormatTime( int64 time )
 	return idStr( va( "%02d:%02d.%03d", minutes, seconds, mseconds ) );
 }
 
-static idStr FormatCash( int64 cash )
+static idStr FormatCash( int64_t cash )
 {
-	return idStr::FormatCash( static_cast<int32>( cash ) );
+	return idStr::FormatCash( static_cast<int32_t>( cash ) );
 }
-static int32 FormatNumber( int64 number )
+static int32_t FormatNumber( int64_t number )
 {
-	return static_cast<int32>( number );
+	return static_cast<int32_t>( number );
 }
 
-static idSWFScriptVar FormatColumn( const columnDef_t* columnDef, int64 score )
+static idSWFScriptVar FormatColumn( const columnDef_t* columnDef, int64_t score )
 {
 	switch( columnDef->displayType )
 	{

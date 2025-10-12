@@ -125,13 +125,13 @@ struct netTimes_t
 
 struct frameTiming_t
 {
-	uint64	startSyncTime;
-	uint64	finishSyncTime;
-	uint64	startGameTime;
-	uint64	finishGameTime;
-	uint64	finishDrawTime;
-	uint64	startRenderTime;
-	uint64	finishRenderTime;
+	uint64_t	startSyncTime;
+	uint64_t	finishSyncTime;
+	uint64_t	startGameTime;
+	uint64_t	finishGameTime;
+	uint64_t	finishDrawTime;
+	uint64_t	startRenderTime;
+	uint64_t	finishRenderTime;
 };
 
 #define	MAX_PRINT_MSG_SIZE	4096
@@ -459,14 +459,14 @@ private:
 	float			optimalTimeBuffered;
 	float			optimalTimeBufferedWindow;
 	
-	uint64			snapRate;
-	uint64			actualRate;
+	uint64_t			snapRate;
+	uint64_t			actualRate;
 	
-	uint64			snapTime;			// time we got the most recent snapshot
-	uint64			snapTimeDelta;		// time interval that current ss was sent in
+	uint64_t			snapTime;			// time we got the most recent snapshot
+	uint64_t			snapTimeDelta;		// time interval that current ss was sent in
 	
-	uint64			snapTimeWrite;
-	uint64			snapCurrentTime;	// realtime playback time
+	uint64_t			snapTimeWrite;
+	uint64_t			snapCurrentTime;	// realtime playback time
 	netTimes_t		snapCurrent;		// current snapshot
 	netTimes_t		snapPrevious;		// previous snapshot
 	float			snapCurrentResidual;
@@ -527,10 +527,10 @@ private:
 	int					time_gameFrame;			// game logic time
 	int					time_maxGameFrame;		// maximum single frame game logic time
 	int					time_gameDraw;			// game present time
-	uint64				time_frontend;			// renderer frontend time
-	uint64				time_backend;			// renderer backend time
-	uint64				time_shadows;			// renderer backend waiting for shadow volumes to be created
-	uint64				time_gpu;				// total gpu time, at least for PC
+	uint64_t				time_frontend;			// renderer frontend time
+	uint64_t				time_backend;			// renderer backend time
+	uint64_t				time_shadows;			// renderer backend waiting for shadow volumes to be created
+	uint64_t				time_gpu;				// total gpu time, at least for PC
 	
 	// Used during loading screens
 	int					lastPacifierSessionTime;

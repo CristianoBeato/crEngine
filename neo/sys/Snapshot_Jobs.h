@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 //#define SNAPSHOT_CHECKSUMS
 
-typedef int32 objectSize_t;
+typedef int32_t objectSize_t;
 
 static const objectSize_t SIZE_STALE		= MAX_TYPE( objectSize_t );				// Special size to indicate object went stale
 static const objectSize_t SIZE_NOT_STALE	= MAX_TYPE( objectSize_t ) - 1;			// Special size to indicate object is no longer stale
@@ -44,47 +44,47 @@ static const int RLE_COMPRESSION_PADDING				= 16;			// Padding to accommodate po
 // OBJ_DEST_SIZE_ALIGN16 returns the total space needed to store an object for reading/writing during jobs
 #define OBJ_DEST_SIZE_ALIGN16( s ) ( ( ( s ) + 15 ) & ~15 )
 
-static const uint32 OBJ_VIS_STALE		= ( 1 << 0 );			// Object went stale
-static const uint32 OBJ_VIS_NOT_STALE	= ( 1 << 1 );			// Object no longer stale
-static const uint32 OBJ_NEW				= ( 1 << 2 );			// New object (not in the last snap)
-static const uint32 OBJ_DELETED			= ( 1 << 3 );			// Object was deleted (not going to be in the new snap)
-static const uint32 OBJ_DIFFERENT		= ( 1 << 4 );			// Objects are in both snaps, but different
-static const uint32 OBJ_SAME			= ( 1 << 5 );			// Objects are in both snaps, and are the same (we don't send these, which means ack)
+static const uint32_t OBJ_VIS_STALE		= ( 1 << 0 );			// Object went stale
+static const uint32_t OBJ_VIS_NOT_STALE	= ( 1 << 1 );			// Object no longer stale
+static const uint32_t OBJ_NEW				= ( 1 << 2 );			// New object (not in the last snap)
+static const uint32_t OBJ_DELETED			= ( 1 << 3 );			// Object was deleted (not going to be in the new snap)
+static const uint32_t OBJ_DIFFERENT		= ( 1 << 4 );			// Objects are in both snaps, but different
+static const uint32_t OBJ_SAME			= ( 1 << 5 );			// Objects are in both snaps, and are the same (we don't send these, which means ack)
 
 // This struct is used to communicate data from the obj jobs to the lzw job
 struct ALIGNTYPE16 objHeader_t
 {
-	int32	objID;					// Id of object.
-	int32	size;					// Size data object holds (will be 0 if the obj is being deleted)
-	int32	csize;					// Size after zrle compression
-	uint32	flags;					// Flags used to communicate state from obj job to lzw delta job
-	uint8* data;					// Data ptr to obj memory
+	int32_t	objID;					// Id of object.
+	int32_t	size;					// Size data object holds (will be 0 if the obj is being deleted)
+	int32_t	csize;					// Size after zrle compression
+	uint32_t	flags;					// Flags used to communicate state from obj job to lzw delta job
+	uint8_t* data;					// Data ptr to obj memory
 #ifdef SNAPSHOT_CHECKSUMS
-	uint32	checksum;				// Checksum before compression, used for sanity checking
+	uint32_t	checksum;				// Checksum before compression, used for sanity checking
 #endif
 };
 
 struct objJobState_t
 {
-	uint8				valid;
-	uint8* 				data;
-	uint16				size;
-	uint16				objectNum;
-	uint32				visMask;
+	uint8_t				valid;
+	uint8_t* 				data;
+	uint16_t				size;
+	uint16_t				objectNum;
+	uint32_t				visMask;
 };
 
 // Input to initial jobs that produce delta'd zrle compressed versions of all the snap obj's
 struct ALIGNTYPE16 objParms_t
 {
 	// Input
-	uint8				visIndex;
+	uint8_t				visIndex;
 	
 	objJobState_t		newState;
 	objJobState_t		oldState;
 	
 	// Output
 	objHeader_t*			destHeader;
-	uint8* 				dest;
+	uint8_t* 				dest;
 };
 
 // Output from the job that takes the results of the delta'd zrle obj's.
@@ -103,13 +103,13 @@ struct ALIGNTYPE16 lzwInOutData_t
 	bool					fullSnap;				// True if entire snap was written out in one delta
 	lzwDelta_t* 			lzwDeltas;				// Info about each final delta packet written out
 	int						maxlzwDeltas;			// Max lzw deltas
-	uint8* 					lzwMem;					// Resulting final lzw delta packet data
+	uint8_t* 					lzwMem;					// Resulting final lzw delta packet data
 	int						maxlzwMem;				// Max size in bytes that can fit in lzwMem
 	int						lzwDmaOut;				// How much of lzwMem needs to be DMA'ed back out
 	int						lzwBytes;				// Final delta packet bytes written
 	int						optimalLength;			// Optimal length of lzw streams
 	int						snapSequence;
-	uint16					lastObjId;				// Last obj id written out
+	uint16_t					lastObjId;				// Last obj id written out
 	lzwCompressionData_t* 	lzwData;
 };
 

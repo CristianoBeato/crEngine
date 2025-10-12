@@ -70,10 +70,10 @@ public:
 	idStrStatic< 256 >	filename;
 	int					offset;							// into the resource file
 	int 				length;
-	uint8				containerIndex;
+	uint8_t				containerIndex;
 };
 
-static const uint32 RESOURCE_FILE_MAGIC = 0xD000000D;
+static const uint32_t RESOURCE_FILE_MAGIC = 0xD000000D;
 class idResourceContainer
 {
 	friend class	idFileSystemLocal;
@@ -92,7 +92,7 @@ public:
 		delete resourceFile;
 		cacheTable.Clear();
 	}
-	bool Init( const char* fileName, uint8 containerIndex );
+	bool Init( const char* fileName, uint8_t containerIndex );
 	static void WriteResourceFile( const char* fileName, const idStrList& manifest, const bool& _writeManifest );
 	static void WriteManifestFile( const char* name, const idStrList& list );
 	static int ReadManifestFile( const char* filename, idStrList& list );

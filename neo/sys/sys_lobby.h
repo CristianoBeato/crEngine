@@ -563,7 +563,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	void								SendPeerMembersToLobby( int peerIndex, lobbyType_t destLobbyType, const lobbyConnectInfo_t& connectInfo, bool waitForOtherMembers );
 	void								SendPeerMembersToLobby( int peerIndex, lobbyType_t destLobbyType, bool waitForOtherMembers );
 	void								NotifyPartyOfLeavingGameLobby();
-	uint32								GetPartyTokenAsHost();
+	uint32_t								GetPartyTokenAsHost();
 	
 	virtual void						DrawDebugNetworkHUD() const;
 	virtual void						DrawDebugNetworkHUD2() const;
@@ -601,8 +601,8 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	void								UpdateMatchParms( const idMatchParameters& p );
 	
 	// SessionID helpers
-	idPacketProcessor::sessionId_t		EncodeSessionID( uint32 key ) const;
-	void								DecodeSessionID( idPacketProcessor::sessionId_t sessionID, uint32& key ) const;
+	idPacketProcessor::sessionId_t		EncodeSessionID( uint32_t key ) const;
+	void								DecodeSessionID( idPacketProcessor::sessionId_t sessionID, uint32_t& key ) const;
 	idPacketProcessor::sessionId_t		GenerateSessionID() const;
 	bool								SessionIDCanBeUsedForInBand( idPacketProcessor::sessionId_t sessionID ) const;
 	idPacketProcessor::sessionId_t		IncrementSessionID( idPacketProcessor::sessionId_t sessionID ) const;
@@ -795,7 +795,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	bool								needToDisplayMigrateMsg;	// If true, we migrated as host, so we need to display the msg as soon as the lobby is active
 	gameDialogMessages_t				migrationDlg;				// current migration dialog we should be showing
 	
-	uint8								migrateMsgFlags;			// cached match flags from the old game we migrated from, so we know what type of msg to display
+	uint8_t								migrateMsgFlags;			// cached match flags from the old game we migrated from, so we know what type of msg to display
 	
 	bool								joiningMigratedGame;		// we are joining a migrated game and need to tell the session mgr if we succeed or fail
 	
@@ -911,7 +911,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	
 	idStaticList< peer_t, MAX_PEERS >	peers;							// Unique machines connected to this lobby
 	
-	uint32								partyToken;
+	uint32_t								partyToken;
 	
 	idMatchParameters					parms;
 	
@@ -927,7 +927,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	static const int SNAP_OBJ_JOB_MEMORY = 1024 * 128;			// 128k of obj memory
 	
 	lzwCompressionData_t* 				lzwData;				// Shared across all snapshot jobs
-	uint8* 								objMemory;				// Shared across all snapshot jobs
+	uint8_t* 								objMemory;				// Shared across all snapshot jobs
 	bool								haveSubmittedSnaps;		// True if we previously submitted snaps to jobs
 	idSnapShot* 						localReadSS;
 	
@@ -965,7 +965,7 @@ public:
 	
 	virtual void					GoodbyeFromHost( idLobby& lobby, int peerNum, const lobbyAddress_t& remoteAddress, int msgType ) = 0;
 	
-	virtual	uint32					GetSessionOptions() = 0;
+	virtual	uint32_t					GetSessionOptions() = 0;
 	virtual bool					AnyPeerHasAddress( const lobbyAddress_t& remoteAddress ) const = 0;
 	
 	virtual idSession::sessionState_t GetState() const = 0;

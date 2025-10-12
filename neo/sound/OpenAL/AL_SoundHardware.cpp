@@ -474,7 +474,7 @@ void idSoundHardware_OpenAL::Update()
 	vuMeterRMS->SetPosition( left, top, width * levels.ChannelCount, height );
 	vuMeterPeak->SetPosition( left, top, width * levels.ChannelCount, height );
 	
-	for( uint32 i = 0; i < levels.ChannelCount; i++ )
+	for( uint32_t i = 0; i < levels.ChannelCount; i++ )
 	{
 		vuMeterRMS->SetValue( i, rmsLevels[ i ], idVec4( 0.5f, 1.0f, 0.0f, 1.00f ) );
 		if( peakLevels[ i ] >= vuMeterPeak->GetValue( i ) )

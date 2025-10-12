@@ -164,17 +164,17 @@ protected:
 	
 	struct MS_ADPCM_decodeState_t
 	{
-		uint8 hPredictor;
-		int16 coef1;
-		int16 coef2;
+		uint8_t hPredictor;
+		int16_t coef1;
+		int16_t coef2;
 		
-		uint16 iDelta;
-		int16 iSamp1;
-		int16 iSamp2;
+		uint16_t iDelta;
+		int16_t iSamp1;
+		int16_t iSamp2;
 	};
 	
-	int32			MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble );
-	int				MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len );
+	int32_t			MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8_t nybble );
+	int				MS_ADPCM_decode( uint8_t** audio_buf, uint32_t* audio_len );
 	
 	struct sampleBuffer_t
 	{
@@ -192,7 +192,7 @@ protected:
 	bool			levelLoadReferenced;
 	bool			usesMapHeap;
 	
-	uint32			lastPlayedTime;
+	uint32_t			lastPlayedTime;
 	
 	int				totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;

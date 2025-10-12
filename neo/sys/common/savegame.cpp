@@ -106,7 +106,7 @@ int idSaveGameThread::Save()
 	saveFolder.AppendPath( callback->directory );
 	
 	// Check for the required storage space.
-	int64 requiredSizeBytes = 0;
+	int64_t requiredSizeBytes = 0;
 	{
 		for( int i = 0; i < callback->files.Num(); i++ )
 		{

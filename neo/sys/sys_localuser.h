@@ -53,7 +53,7 @@ localUserHandle_t
 struct localUserHandle_t
 {
 public:
-	typedef uint32 userHandleType_t;
+	typedef uint32_t userHandleType_t;
 	
 	localUserHandle_t() : handle( 0 ) {}
 	
@@ -114,7 +114,7 @@ public:
 	}
 	virtual bool				IsProfileReady() const = 0;							// True if IsPersistent is true AND profile is signed into LIVE service
 	virtual bool				IsOnline() const = 0;								// True if this user has online capabilities
-	virtual uint32				GetOnlineCaps() const = 0;							// Returns combination of onlineCaps_t flags
+	virtual uint32_t			GetOnlineCaps( void ) const = 0;							// Returns combination of onlineCaps_t flags
 	virtual bool				HasOwnerChanged() const
 	{
 		return false;    // Whether or not the original persistent owner has changed since it was first registered
@@ -129,7 +129,7 @@ public:
 	virtual void				ResetStorageDevice();
 	
 	// RB: disabled savegame and profile storage checks, because it fails sometimes without any clear reason
-	//virtual bool				StorageSizeAvailable( uint64 minSizeInBytes, int64& neededBytes );
+	//virtual bool				StorageSizeAvailable( uint64_t minSizeInBytes, int64_t& neededBytes );
 	// RB end
 	
 	// These set stats within the profile as a enum/value pair

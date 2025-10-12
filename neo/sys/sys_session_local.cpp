@@ -2446,7 +2446,7 @@ void idSessionLocal::SendUsercmds( idBitMsg& msg )
 			hostPeer.receivedBpsIndex = sequence;
 			hostPeer.receivedBps = incomingBPS;
 		}
-		uint16 incomingBPS_quantized = idMath::Ftoi( incomingBPS * ( ( BIT( idLobby::BANDWIDTH_REPORTING_BITS ) - 1 )  / idLobby::BANDWIDTH_REPORTING_MAX ) );
+		uint16_t incomingBPS_quantized = idMath::Ftoi( incomingBPS * ( ( BIT( idLobby::BANDWIDTH_REPORTING_BITS ) - 1 )  / idLobby::BANDWIDTH_REPORTING_MAX ) );
 		
 		byte buffer[idPacketProcessor::MAX_FINAL_PACKET_SIZE];
 		lzwCompressionData_t lzwData;
@@ -3259,9 +3259,9 @@ void idSessionLocal::WriteLeaderboardToMsg( idBitMsg& msg, const leaderboardDefi
 	
 	for( int i = 0; i < leaderboard->numColumns; ++i )
 	{
-		uint64 value = stats[i].value;
+		uint64_t value = stats[i].value;
 		
-		//idLib::Printf( "value = %i\n", (int32)value );
+		//idLib::Printf( "value = %i\n", (int32_t)value );
 		
 		for( int j = 0; j < leaderboard->columnDefs[i].bits; j++ )
 		{
@@ -3291,16 +3291,16 @@ const leaderboardDefinition_t* idSessionLocal::ReadLeaderboardFromMsg( idBitMsg&
 	
 	for( int i = 0; i < leaderboard->numColumns; ++i )
 	{
-		uint64 value = 0;
+		uint64_t value = 0;
 		
 		for( int j = 0; j < leaderboard->columnDefs[i].bits; j++ )
 		{
-			value |= ( uint64 )( msg.ReadBits( 1 ) & 1 ) << j;
+			value |= ( uint64_t )( msg.ReadBits( 1 ) & 1 ) << j;
 		}
 		
 		stats[i].value = value;
 		
-		//idLib::Printf( "value = %i\n", (int32)value );
+		//idLib::Printf( "value = %i\n", (int32_t)value );
 		//msg.ReadData( &stats[i].value, sizeof( stats[i].value ) );
 	}
 	

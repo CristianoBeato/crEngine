@@ -580,8 +580,8 @@ public:
 	virtual void			SetServerGameTimeMs( const int time );
 	virtual int				GetServerGameTimeMs() const;
 	
-	idEntity* 				FindPredictedEntity( uint32 predictedKey, idTypeInfo* type );
-	uint32					GeneratePredictionKey( idWeapon* weapon, idPlayer* playerAttacker, int overrideKey );
+	idEntity* 				FindPredictedEntity( uint32_t predictedKey, idTypeInfo* type );
+	uint32_t					GeneratePredictionKey( idWeapon* weapon, idPlayer* playerAttacker, int overrideKey );
 	
 	int						GetLastClientUsercmdMilliseconds( int playerIndex ) const
 	{

@@ -169,12 +169,12 @@ struct threadStats_t
 {
 	unsigned int	numExecutedJobs;
 	unsigned int	numExecutedSyncs;
-	uint64			submitTime;
-	uint64			startTime;
-	uint64			endTime;
-	uint64			waitTime;
-	uint64			threadExecTime[MAX_THREADS];
-	uint64			threadTotalTime[MAX_THREADS];
+	uint64_t			submitTime;
+	uint64_t			startTime;
+	uint64_t			endTime;
+	uint64_t			waitTime;
+	uint64_t			threadExecTime[MAX_THREADS];
+	uint64_t			threadTotalTime[MAX_THREADS];
 };
 
 class idParallelJobList_Threads
@@ -201,26 +201,26 @@ public:
 	{
 		return threadStats.numExecutedSyncs;
 	}
-	uint64					GetSubmitTimeMicroSec() const
+	uint64_t					GetSubmitTimeMicroSec() const
 	{
 		return threadStats.submitTime;
 	}
-	uint64					GetStartTimeMicroSec() const
+	uint64_t					GetStartTimeMicroSec() const
 	{
 		return threadStats.startTime;
 	}
-	uint64					GetFinishTimeMicroSec() const
+	uint64_t					GetFinishTimeMicroSec() const
 	{
 		return threadStats.endTime;
 	}
-	uint64					GetWaitTimeMicroSec() const
+	uint64_t					GetWaitTimeMicroSec() const
 	{
 		return threadStats.waitTime;
 	}
-	uint64					GetTotalProcessingTimeMicroSec() const;
-	uint64					GetTotalWastedTimeMicroSec() const;
-	uint64					GetUnitProcessingTimeMicroSec( int unit ) const;
-	uint64					GetUnitWastedTimeMicroSec( int unit ) const;
+	uint64_t					GetTotalProcessingTimeMicroSec() const;
+	uint64_t					GetTotalWastedTimeMicroSec() const;
+	uint64_t					GetUnitProcessingTimeMicroSec( int unit ) const;
+	uint64_t					GetUnitWastedTimeMicroSec( int unit ) const;
 	
 	jobListId_t				GetId() const
 	{
@@ -508,7 +508,7 @@ void idParallelJobList_Threads::Wait()
 		}
 		
 		bool waited = false;
-		uint64 waitStart = Sys_Microseconds();
+		uint64_t waitStart = Sys_Microseconds();
 		
 		while( signalJobCount[signalJobCount.Num() - 1].GetValue() > 0 )
 		{
@@ -527,7 +527,7 @@ void idParallelJobList_Threads::Wait()
 		numSyncs = 0;
 		lastSignalJob = 0;
 		
-		uint64 waitEnd = Sys_Microseconds();
+		uint64_t waitEnd = Sys_Microseconds();
 		deferredThreadStats.waitTime = waited ? ( waitEnd - waitStart ) : 0;
 	}
 	memcpy( & threadStats, & deferredThreadStats, sizeof( threadStats ) );
@@ -564,9 +564,9 @@ bool idParallelJobList_Threads::IsSubmitted() const
 idParallelJobList_Threads::GetTotalProcessingTimeMicroSec
 ========================
 */
-uint64 idParallelJobList_Threads::GetTotalProcessingTimeMicroSec() const
+uint64_t idParallelJobList_Threads::GetTotalProcessingTimeMicroSec() const
 {
-	uint64 total = 0;
+	uint64_t total = 0;
 	for( int unit = 0; unit < MAX_THREADS; unit++ )
 	{
 		total += threadStats.threadExecTime[unit];
@@ -579,9 +579,9 @@ uint64 idParallelJobList_Threads::GetTotalProcessingTimeMicroSec() const
 idParallelJobList_Threads::GetTotalWastedTimeMicroSec
 ========================
 */
-uint64 idParallelJobList_Threads::GetTotalWastedTimeMicroSec() const
+uint64_t idParallelJobList_Threads::GetTotalWastedTimeMicroSec() const
 {
-	uint64 total = 0;
+	uint64_t total = 0;
 	for( int unit = 0; unit < MAX_THREADS; unit++ )
 	{
 		total += threadStats.threadTotalTime[unit] - threadStats.threadExecTime[unit];
@@ -594,7 +594,7 @@ uint64 idParallelJobList_Threads::GetTotalWastedTimeMicroSec() const
 idParallelJobList_Threads::GetUnitProcessingTimeMicroSec
 ========================
 */
-uint64 idParallelJobList_Threads::GetUnitProcessingTimeMicroSec( int unit ) const
+uint64_t idParallelJobList_Threads::GetUnitProcessingTimeMicroSec( int unit ) const
 {
 	if( unit < 0 || unit >= MAX_THREADS )
 	{
@@ -608,7 +608,7 @@ uint64 idParallelJobList_Threads::GetUnitProcessingTimeMicroSec( int unit ) cons
 idParallelJobList_Threads::GetUnitWastedTimeMicroSec
 ========================
 */
-uint64 idParallelJobList_Threads::GetUnitWastedTimeMicroSec( int unit ) const
+uint64_t idParallelJobList_Threads::GetUnitWastedTimeMicroSec( int unit ) const
 {
 	if( unit < 0 || unit >= MAX_THREADS )
 	{
@@ -738,12 +738,12 @@ int idParallelJobList_Threads::RunJobsInternal( unsigned int threadNum, threadJo
 		
 		// execute the next job
 		{
-			uint64 jobStart = Sys_Microseconds();
+			uint64_t jobStart = Sys_Microseconds();
 			
 			jobList[state.nextJobIndex].function( jobList[state.nextJobIndex].data );
 			jobList[state.nextJobIndex].executed = 1;
 			
-			uint64 jobEnd = Sys_Microseconds();
+			uint64_t jobEnd = Sys_Microseconds();
 			deferredThreadStats.threadExecTime[threadNum] += jobEnd - jobStart;
 			
 #ifndef _DEBUG
@@ -789,7 +789,7 @@ idParallelJobList_Threads::RunJobs
 */
 int idParallelJobList_Threads::RunJobs( unsigned int threadNum, threadJobListState_t& state, bool singleJob )
 {
-	uint64 start = Sys_Microseconds();
+	uint64_t start = Sys_Microseconds();
 	
 	numThreadsExecuting.Increment();
 	
@@ -954,7 +954,7 @@ unsigned int idParallelJobList::GetNumSyncs() const
 idParallelJobList::GetSubmitTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetSubmitTimeMicroSec() const
+uint64_t idParallelJobList::GetSubmitTimeMicroSec() const
 {
 	return jobListThreads->GetSubmitTimeMicroSec();
 }
@@ -964,7 +964,7 @@ uint64 idParallelJobList::GetSubmitTimeMicroSec() const
 idParallelJobList::GetStartTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetStartTimeMicroSec() const
+uint64_t idParallelJobList::GetStartTimeMicroSec() const
 {
 	return jobListThreads->GetStartTimeMicroSec();
 }
@@ -974,7 +974,7 @@ uint64 idParallelJobList::GetStartTimeMicroSec() const
 idParallelJobList::GetFinishTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetFinishTimeMicroSec() const
+uint64_t idParallelJobList::GetFinishTimeMicroSec() const
 {
 	return jobListThreads->GetFinishTimeMicroSec();
 }
@@ -984,7 +984,7 @@ uint64 idParallelJobList::GetFinishTimeMicroSec() const
 idParallelJobList::GetWaitTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetWaitTimeMicroSec() const
+uint64_t idParallelJobList::GetWaitTimeMicroSec() const
 {
 	return jobListThreads->GetWaitTimeMicroSec();
 }
@@ -994,7 +994,7 @@ uint64 idParallelJobList::GetWaitTimeMicroSec() const
 idParallelJobList::GetTotalProcessingTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetTotalProcessingTimeMicroSec() const
+uint64_t idParallelJobList::GetTotalProcessingTimeMicroSec() const
 {
 	return jobListThreads->GetTotalProcessingTimeMicroSec();
 }
@@ -1004,7 +1004,7 @@ uint64 idParallelJobList::GetTotalProcessingTimeMicroSec() const
 idParallelJobList::GetTotalWastedTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetTotalWastedTimeMicroSec() const
+uint64_t idParallelJobList::GetTotalWastedTimeMicroSec() const
 {
 	return jobListThreads->GetTotalWastedTimeMicroSec();
 }
@@ -1014,7 +1014,7 @@ uint64 idParallelJobList::GetTotalWastedTimeMicroSec() const
 idParallelJobList::GetUnitProcessingTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetUnitProcessingTimeMicroSec( int unit ) const
+uint64_t idParallelJobList::GetUnitProcessingTimeMicroSec( int unit ) const
 {
 	return jobListThreads->GetUnitProcessingTimeMicroSec( unit );
 }
@@ -1024,7 +1024,7 @@ uint64 idParallelJobList::GetUnitProcessingTimeMicroSec( int unit ) const
 idParallelJobList::GetUnitWastedTimeMicroSec
 ========================
 */
-uint64 idParallelJobList::GetUnitWastedTimeMicroSec( int unit ) const
+uint64_t idParallelJobList::GetUnitWastedTimeMicroSec( int unit ) const
 {
 	return jobListThreads->GetUnitWastedTimeMicroSec( unit );
 }

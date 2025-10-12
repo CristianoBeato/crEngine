@@ -36,15 +36,15 @@ struct lzwCompressionData_t
 	static const int	LZW_DICT_BITS	= 12;
 	static const int	LZW_DICT_SIZE	= 1 << LZW_DICT_BITS;
 	
-	uint8					dictionaryK[LZW_DICT_SIZE];
-	uint16					dictionaryW[LZW_DICT_SIZE];
+	uint8_t					dictionaryK[LZW_DICT_SIZE];
+	uint16_t					dictionaryW[LZW_DICT_SIZE];
 	
 	int						nextCode;
 	int						codeBits;
 	
 	int						codeWord;
 	
-	uint64					tempValue;
+	uint64_t					tempValue;
 	int						tempBits;
 	int						bytesWritten;
 };
@@ -64,13 +64,13 @@ public:
 	static const int	LZW_START_BITS	= 9;
 	static const int	LZW_FIRST_CODE	= ( 1 << ( LZW_START_BITS - 1 ) );
 	
-	void	Start( uint8* data_, int maxSize, bool append = false );
+	void	Start( uint8_t* data_, int maxSize, bool append = false );
 	int		ReadBits( int bits );
 	int		WriteChain( int code );
 	void	DecompressBlock();
-	void	WriteBits( uint32 value, int bits );
+	void	WriteBits( uint32_t value, int bits );
 	int		ReadByte( bool ignoreOverflow = false );
-	void	WriteByte( uint8 value );
+	void	WriteByte( uint8_t value );
 	int		Lookup( int w, int k );
 	int		AddToDict( int w, int k );
 	bool	BumpBits();
@@ -95,7 +95,7 @@ public:
 	
 	int		Write( const void* data, int length )
 	{
-		uint8* src = ( uint8* )data;
+		uint8_t* src = ( uint8_t* )data;
 		
 		for( int i = 0; i < length && !IsOverflowed(); i++ )
 		{
@@ -107,7 +107,7 @@ public:
 	
 	int		Read( void* data, int length, bool ignoreOverflow = false )
 	{
-		uint8* src = ( uint8* )data;
+		uint8_t* src = ( uint8_t* )data;
 		
 		for( int i = 0; i < length; i++ )
 		{
@@ -118,7 +118,7 @@ public:
 				return i;
 			}
 			
-			src[i] = ( uint8 )byte;
+			src[i] = ( uint8_t )byte;
 		}
 		
 		return length;
@@ -126,7 +126,7 @@ public:
 	
 	int		WriteR( const void* data, int length )
 	{
-		uint8* src = ( uint8* )data;
+		uint8_t* src = ( uint8_t* )data;
 		
 		for( int i = 0; i < length && !IsOverflowed(); i++ )
 		{
@@ -138,7 +138,7 @@ public:
 	
 	int		ReadR( void* data, int length, bool ignoreOverflow = false )
 	{
-		uint8* src = ( uint8* )data;
+		uint8_t* src = ( uint8_t* )data;
 		
 		for( int i = 0; i < length; i++ )
 		{
@@ -149,7 +149,7 @@ public:
 				return i;
 			}
 			
-			src[length - i - 1] = ( uint8 )byte;
+			src[length - i - 1] = ( uint8_t )byte;
 		}
 		
 		return length;
@@ -174,19 +174,19 @@ private:
 	void ClearHash();
 	
 	lzwCompressionData_t* 	lzwData;
-	uint16					hash[MAX_DICTIONARY_HASH];
-	uint16					nextHash[lzwCompressionData_t::LZW_DICT_SIZE];
+	uint16_t					hash[MAX_DICTIONARY_HASH];
+	uint16_t					nextHash[lzwCompressionData_t::LZW_DICT_SIZE];
 	
 	// Used by DecompressBlock
 	int					oldCode;
 	
-	uint8* 				data;		// Read/write
+	uint8_t* 				data;		// Read/write
 	int					maxSize;
 	bool				overflowed;
 	
 	// For reading
 	int					bytesRead;
-	uint8				block[LZW_BLOCK_SIZE];
+	uint8_t				block[LZW_BLOCK_SIZE];
 	int					blockSize;
 	int					blockIndex;
 	
@@ -195,7 +195,7 @@ private:
 	int					savedBytesWritten;
 	int					savedCodeWord;
 	int					saveCodeBits;
-	uint64				savedTempValue;
+	uint64_t				savedTempValue;
 	int					savedTempBits;
 };
 
@@ -212,12 +212,12 @@ public:
 	{
 	}
 	
-	void Start( uint8* dest_, idLZWCompressor* comp_, int maxSize_ );
+	void Start( uint8_t* dest_, idLZWCompressor* comp_, int maxSize_ );
 	bool WriteRun();
-	bool WriteByte( uint8 value );
+	bool WriteByte( uint8_t value );
 	byte ReadByte();
 	void ReadBytes( byte* dest, int count );
-	void WriteBytes( uint8* src, int count );
+	void WriteBytes( uint8_t* src, int count );
 	int End();
 	
 	int CompressedSize() const
@@ -230,8 +230,8 @@ private:
 	
 	int					zeroCount;		// Number of pending zeroes
 	idLZWCompressor* 	comp;
-	uint8* 				destStart;
-	uint8* 				dest;
+	uint8_t* 				destStart;
+	uint8_t* 				dest;
 	int					compressed;		// Compressed size
 	int					maxSize;
 };

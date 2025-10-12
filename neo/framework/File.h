@@ -322,7 +322,7 @@ public:
 	idFile_Cached();
 	virtual					~idFile_Cached();
 	
-	void					CacheData( uint64 offset, uint64 length );
+	void					CacheData( uintptr_t offset, size_t length );
 	
 	virtual int				Read( void* buffer, int len );
 	
@@ -330,9 +330,9 @@ public:
 	virtual int				Seek( long offset, fsOrigin_t origin );
 	
 private:
-	uint64				internalFilePos;
-	uint64				bufferedStartOffset;
-	uint64				bufferedEndOffset;
+	uintptr_t			internalFilePos;
+	uintptr_t			bufferedStartOffset;
+	uintptr_t			bufferedEndOffset;
 	byte* 				buffered;
 };
 
@@ -454,7 +454,5 @@ public:
 protected:
 	idFile* file;	// The managed file pointer.
 };
-
-
 
 #endif /* !__FILE_H__ */

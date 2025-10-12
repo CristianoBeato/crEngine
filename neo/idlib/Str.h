@@ -226,21 +226,21 @@ public:
 	void				Fill( const char ch, int newlen );
 	
 	ID_INLINE int			UTF8Length();
-	ID_INLINE uint32		UTF8Char( int& idx );
+	ID_INLINE uint32_t		UTF8Char( int& idx );
 	static int				UTF8Length( const byte* s );
-	static ID_INLINE uint32 UTF8Char( const char* s, int& idx );
-	static uint32			UTF8Char( const byte* s, int& idx );
-	void					AppendUTF8Char( uint32 c );
+	static ID_INLINE uint32_t UTF8Char( const char* s, int& idx );
+	static uint32_t			UTF8Char( const byte* s, int& idx );
+	void					AppendUTF8Char( uint32_t c );
 	ID_INLINE void			ConvertToUTF8();
-	static bool				IsValidUTF8( const uint8* s, const int maxLen, utf8Encoding_t& encoding );
+	static bool				IsValidUTF8( const uint8_t* s, const int maxLen, utf8Encoding_t& encoding );
 	static ID_INLINE bool	IsValidUTF8( const char* s, const int maxLen, utf8Encoding_t& encoding )
 	{
-		return IsValidUTF8( ( const uint8* )s, maxLen, encoding );
+		return IsValidUTF8( ( const uint8_t* )s, maxLen, encoding );
 	}
-	static ID_INLINE bool	IsValidUTF8( const uint8* s, const int maxLen );
+	static ID_INLINE bool	IsValidUTF8( const uint8_t* s, const int maxLen );
 	static ID_INLINE bool	IsValidUTF8( const char* s, const int maxLen )
 	{
-		return IsValidUTF8( ( const uint8* )s, maxLen );
+		return IsValidUTF8( ( const uint8_t* )s, maxLen );
 	}
 	
 	int					Find( const char c, int start = 0, int end = -1 ) const;
@@ -375,9 +375,9 @@ private:
 	// initialize string using base buffer... call ONLY FROM CONSTRUCTOR
 	ID_INLINE void		Construct();
 	
-	static const uint32	STATIC_BIT	= 31;
-	static const uint32	STATIC_MASK	= 1u << STATIC_BIT;
-	static const uint32	ALLOCED_MASK = STATIC_MASK - 1;
+	static const uint32_t	STATIC_BIT	= 31;
+	static const uint32_t	STATIC_MASK	= 1u << STATIC_BIT;
+	static const uint32_t	ALLOCED_MASK = STATIC_MASK - 1;
 	
 	
 	ID_INLINE int		GetAlloced() const
@@ -1147,7 +1147,7 @@ ID_INLINE int idStr::UTF8Length()
 idStr::UTF8Char
 ========================
 */
-ID_INLINE uint32 idStr::UTF8Char( int& idx )
+ID_INLINE uint32_t idStr::UTF8Char( int& idx )
 {
 	return UTF8Char( ( byte* )data, idx );
 }
@@ -1172,7 +1172,7 @@ ID_INLINE void idStr::ConvertToUTF8()
 idStr::UTF8Char
 ========================
 */
-ID_INLINE uint32 idStr::UTF8Char( const char* s, int& idx )
+ID_INLINE uint32_t idStr::UTF8Char( const char* s, int& idx )
 {
 	return UTF8Char( ( byte* )s, idx );
 }
@@ -1182,7 +1182,7 @@ ID_INLINE uint32 idStr::UTF8Char( const char* s, int& idx )
 idStr::IsValidUTF8
 ========================
 */
-ID_INLINE bool idStr::IsValidUTF8( const uint8* s, const int maxLen )
+ID_INLINE bool idStr::IsValidUTF8( const uint8_t* s, const int maxLen )
 {
 	utf8Encoding_t encoding;
 	return IsValidUTF8( s, maxLen, encoding );

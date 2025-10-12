@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-uint32 globalDmaTag;
+uint32_t globalDmaTag;
 
 bool SpursEmulationAssertFailed( const char* filename, int line, const char* expression )
 {

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "../framework/Serializer.h"
 #include "sys_localuser.h"
 
-typedef uint8 peerMask_t;
+typedef uint8_t peerMask_t;
 static const int MAX_PLAYERS			= 8;
 
 static const int MAX_REDUNDANT_CMDS	= 3;
@@ -53,35 +53,35 @@ enum matchFlags_t
 	MATCH_JOIN_IN_PROGRESS			= BIT( 7 ),		// Join in progress supported for this match
 };
 
-ID_INLINE bool MatchTypeIsOnline( uint8 matchFlags )
+ID_INLINE bool MatchTypeIsOnline( uint8_t matchFlags )
 {
 	return ( matchFlags & MATCH_ONLINE ) ? true : false;
 }
-ID_INLINE bool MatchTypeIsLocal( uint8 matchFlags )
+ID_INLINE bool MatchTypeIsLocal( uint8_t matchFlags )
 {
 	return !MatchTypeIsOnline( matchFlags );
 }
-ID_INLINE bool MatchTypeIsPrivate( uint8 matchFlags )
+ID_INLINE bool MatchTypeIsPrivate( uint8_t matchFlags )
 {
 	return ( matchFlags & MATCH_PRIVATE ) ? true : false;
 }
-ID_INLINE bool MatchTypeIsRanked( uint8 matchFlags )
+ID_INLINE bool MatchTypeIsRanked( uint8_t matchFlags )
 {
 	return ( matchFlags & MATCH_RANKED ) ? true : false;
 }
-ID_INLINE bool MatchTypeHasStats( uint8 matchFlags )
+ID_INLINE bool MatchTypeHasStats( uint8_t matchFlags )
 {
 	return ( matchFlags & MATCH_STATS ) ? true : false;
 }
-ID_INLINE bool MatchTypeInviteOnly( uint8 matchFlags )
+ID_INLINE bool MatchTypeInviteOnly( uint8_t matchFlags )
 {
 	return ( matchFlags & MATCH_INVITE_ONLY ) ? true : false;
 }
-ID_INLINE bool MatchTypeIsSearchable( uint8 matchFlags )
+ID_INLINE bool MatchTypeIsSearchable( uint8_t matchFlags )
 {
 	return !MatchTypeIsPrivate( matchFlags );
 }
-ID_INLINE bool MatchTypeIsJoinInProgress( uint8 matchFlags )
+ID_INLINE bool MatchTypeIsJoinInProgress( uint8_t matchFlags )
 {
 	return ( matchFlags & MATCH_JOIN_IN_PROGRESS ) ? true : false;
 }
@@ -102,14 +102,14 @@ class idLeaderboardCallback;
 struct leaderboardDefinition_t;
 struct column_t;
 
-const int8 GAME_MODE_RANDOM = -1;
-const int8 GAME_MODE_SINGLEPLAYER = -2;
+const int8_t GAME_MODE_RANDOM = -1;
+const int8_t GAME_MODE_SINGLEPLAYER = -2;
 
-const int8 GAME_MAP_RANDOM = -1;
-const int8 GAME_MAP_SINGLEPLAYER = -2;
+const int8_t GAME_MAP_RANDOM = -1;
+const int8_t GAME_MAP_SINGLEPLAYER = -2;
 
-const int8 GAME_EPISODE_UNKNOWN = -1;
-const int8 GAME_SKILL_DEFAULT = -1;
+const int8_t GAME_EPISODE_UNKNOWN = -1;
+const int8_t GAME_SKILL_DEFAULT = -1;
 
 const int DefaultPartyFlags			= MATCH_JOIN_IN_PROGRESS | MATCH_ONLINE;
 const int DefaultPublicGameFlags	= MATCH_JOIN_IN_PROGRESS | MATCH_REQUIRE_PARTY_LOBBY | MATCH_RANKED |  MATCH_STATS;
@@ -155,12 +155,12 @@ public:
 		serverInfo.Serialize( serializer );
 	}
 	
-	uint8 	numSlots;
-	int8	gameMode;
-	int8 	gameMap;
-	int8	gameEpisode;		// Episode for doom classic support.
-	int8	gameSkill;			// Skill for doom classic support.
-	uint8	matchFlags;
+	uint8_t numSlots;
+	int8_t	gameMode;
+	int8_t 	gameMap;
+	int8_t	gameEpisode;		// Episode for doom classic support.
+	int8_t	gameSkill;			// Skill for doom classic support.
+	uint8_t	matchFlags;
 	
 	idStr	mapName; // This is only used for SP (gameMap == GAME_MAP_SINGLEPLAYER)
 	idDict	serverInfo;
@@ -205,8 +205,8 @@ struct serverInfo_t
 	}
 	
 	idStr	serverName;
-	int8	gameMode;
-	int8 	gameMap;
+	int8_t	gameMode;
+	int8_t 	gameMap;
 	bool	joinable;
 	int 	numPlayers;
 	int 	maxPlayers;
@@ -596,7 +596,7 @@ public:
 	//=====================================================================================================
 	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t* leaderboard, const column_t* stats, const idFile_Memory* attachment = NULL ) = 0;
 	virtual void			LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t* leaderboard, int startingRank, int numRows, const idLeaderboardCallback& callback ) = 0;
-	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t* leaderboard, int64 attachmentID ) = 0;
+	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t* leaderboard, int64_t attachmentID ) = 0;
 	virtual void			LeaderboardFlush() = 0;
 	
 	//=====================================================================================================
@@ -701,7 +701,7 @@ public:
 	//=====================================================================================================
 	// Invites
 	//=====================================================================================================
-	virtual void				HandleBootableInvite( int64 lobbyId = 0 ) = 0;
+	virtual void				HandleBootableInvite( int64_t lobbyId = 0 ) = 0;
 	virtual void				HandleExitspawnInvite( const lobbyConnectInfo_t& connectInfo ) {}
 	virtual void				ClearBootableInvite() = 0;
 	virtual void				ClearPendingInvite() = 0;

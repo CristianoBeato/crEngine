@@ -217,7 +217,7 @@ typedef struct
 {
 	int					conditionRegister;	// if registers[conditionRegister] == 0, skip stage
 	stageLighting_t		lighting;			// determines which passes interact with lights
-	uint64				drawStateBits;
+	uint64_t				drawStateBits;
 	colorStage_t		color;
 	bool				hasAlphaTest;
 	int					alphaTestRegister;

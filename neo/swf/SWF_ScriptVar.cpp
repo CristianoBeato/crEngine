@@ -392,7 +392,7 @@ bool idSWFScriptVar::ToBool() const
 idSWFScriptVar::ToInteger
 ========================
 */
-int32 idSWFScriptVar::ToInteger() const
+int32_t idSWFScriptVar::ToInteger() const
 {
 	switch( type )
 	{

@@ -111,7 +111,7 @@ COMMON MISTAKES:
 ================================================================================================
 */
 
-extern uint32 globalDmaTag;
+extern uint32_t globalDmaTag;
 
 #define MAX_DMA_SIZE					( 1 << 14 )
 #define ODS_ROUND16( x )				( ( x + 15 ) & ~15 )

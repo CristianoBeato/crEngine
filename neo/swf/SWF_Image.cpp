@@ -402,9 +402,9 @@ Reads a partial jpeg image, using the tables set by the JPEGTables tag
 */
 void idSWF::DefineBits( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
 	
-	int jpegSize = bitstream.Length() - sizeof( uint16 );
+	int jpegSize = bitstream.Length() - sizeof( uint16_t );
 	
 	int width, height;
 	byte* imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
@@ -426,11 +426,11 @@ Identical to DefineBits, except it uses a local JPEG table (not the one defined 
 */
 void idSWF::DefineBitsJPEG2( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
 	
 	idDecompressJPEG jpeg;
 	
-	int jpegSize = bitstream.Length() - sizeof( uint16 );
+	int jpegSize = bitstream.Length() - sizeof( uint16_t );
 	
 	int width, height;
 	byte* imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
@@ -452,8 +452,8 @@ Mostly identical to DefineBitsJPEG2, except it has an additional zlib compressed
 */
 void idSWF::DefineBitsJPEG3( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
-	uint32 jpegSize = bitstream.ReadU32();
+	uint16_t characterID = bitstream.ReadU16();
+	uint32_t jpegSize = bitstream.ReadU32();
 	
 	idDecompressJPEG jpeg;
 	
@@ -492,20 +492,20 @@ idSWF::DefineBitsLossless
 */
 void idSWF::DefineBitsLossless( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
-	uint8 format = bitstream.ReadU8();
-	uint16 width = bitstream.ReadU16();
-	uint16 height = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
+	uint8_t format = bitstream.ReadU8();
+	uint16_t width = bitstream.ReadU16();
+	uint16_t height = bitstream.ReadU16();
 	
 	idTempArray< byte > buf( width * height * 4 );
 	byte* imageData = buf.Ptr();
 	
 	if( format == 3 )
 	{
-		uint32 paddedWidth = ( width + 3 ) & ~3;
-		uint32 colorTableSize = ( bitstream.ReadU8() + 1 ) * 3;
+		uint32_t paddedWidth = ( width + 3 ) & ~3;
+		uint32_t colorTableSize = ( bitstream.ReadU8() + 1 ) * 3;
 		idTempArray<byte> colorMapData( colorTableSize + ( paddedWidth * height ) );
-		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
+		uint32_t colorDataSize = bitstream.Length() - bitstream.Tell();
 		if( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, colorMapData.Ptr(), ( int )colorMapData.Size() ) )
 		{
 			idLib::Warning( "DefineBitsLossless: Failed to inflate color map data" );
@@ -527,9 +527,9 @@ void idSWF::DefineBitsLossless( idSWFBitStream& bitstream )
 	}
 	else if( format == 4 )
 	{
-		uint32 paddedWidth = ( width + 1 ) & 1;
-		idTempArray<uint16> bitmapData( paddedWidth * height * 2 );
-		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
+		uint32_t paddedWidth = ( width + 1 ) & 1;
+		idTempArray<uint16_t> bitmapData( paddedWidth * height * 2 );
+		uint32_t colorDataSize = bitstream.Length() - bitstream.Tell();
 		if( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, ( byte* )bitmapData.Ptr(), ( int )bitmapData.Size() ) )
 		{
 			idLib::Warning( "DefineBitsLossless: Failed to inflate bitmap data" );
@@ -539,7 +539,7 @@ void idSWF::DefineBitsLossless( idSWFBitStream& bitstream )
 		{
 			for( int w = 0; w < width; w++ )
 			{
-				uint16 pix15 = bitmapData[w + ( h * paddedWidth )];
+				uint16_t pix15 = bitmapData[w + ( h * paddedWidth )];
 				idSwap::Big( pix15 );
 				byte* pixel = &imageData[( w + ( h * width ) ) * 4];
 				pixel[0] = ( pix15 >> 10 ) & 0x1F;
@@ -551,8 +551,8 @@ void idSWF::DefineBitsLossless( idSWFBitStream& bitstream )
 	}
 	else if( format == 5 )
 	{
-		idTempArray<uint32> bitmapData( width * height );
-		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
+		idTempArray<uint32_t> bitmapData( width * height );
+		uint32_t colorDataSize = bitstream.Length() - bitstream.Tell();
 		if( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, ( byte* )bitmapData.Ptr(), ( int )bitmapData.Size() ) )
 		{
 			idLib::Warning( "DefineBitsLossless: Failed to inflate bitmap data" );
@@ -562,7 +562,7 @@ void idSWF::DefineBitsLossless( idSWFBitStream& bitstream )
 		{
 			for( int w = 0; w < width; w++ )
 			{
-				uint32 pix24 = bitmapData[w + ( h * width )];
+				uint32_t pix24 = bitmapData[w + ( h * width )];
 				idSwap::Big( pix24 );
 				byte* pixel = &imageData[( w + ( h * width ) ) * 4];
 				pixel[0] = ( pix24 >> 16 ) & 0xFF;
@@ -588,20 +588,20 @@ idSWF::DefineBitsLossless2
 */
 void idSWF::DefineBitsLossless2( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
-	uint8 format = bitstream.ReadU8();
-	uint16 width = bitstream.ReadU16();
-	uint16 height = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
+	uint8_t format = bitstream.ReadU8();
+	uint16_t width = bitstream.ReadU16();
+	uint16_t height = bitstream.ReadU16();
 	
 	idTempArray< byte > buf( width * height * 4 );
 	byte* imageData = buf.Ptr();
 	
 	if( format == 3 )
 	{
-		uint32 paddedWidth = ( width + 3 ) & ~3;
-		uint32 colorTableSize = ( bitstream.ReadU8() + 1 ) * 4;
+		uint32_t paddedWidth = ( width + 3 ) & ~3;
+		uint32_t colorTableSize = ( bitstream.ReadU8() + 1 ) * 4;
 		idTempArray<byte> colorMapData( colorTableSize + ( paddedWidth * height ) );
-		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
+		uint32_t colorDataSize = bitstream.Length() - bitstream.Tell();
 		if( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, colorMapData.Ptr(), ( int )colorMapData.Size() ) )
 		{
 			idLib::Warning( "DefineBitsLossless2: Failed to inflate color map data" );
@@ -623,8 +623,8 @@ void idSWF::DefineBitsLossless2( idSWFBitStream& bitstream )
 	}
 	else if( format == 5 )
 	{
-		idTempArray<uint32> bitmapData( width * height );
-		uint32 colorDataSize = bitstream.Length() - bitstream.Tell();
+		idTempArray<uint32_t> bitmapData( width * height );
+		uint32_t colorDataSize = bitstream.Length() - bitstream.Tell();
 		if( !Inflate( bitstream.ReadData( colorDataSize ), colorDataSize, ( byte* )bitmapData.Ptr(), ( int )bitmapData.Size() ) )
 		{
 			idLib::Warning( "DefineBitsLossless2: Failed to inflate bitmap data" );
@@ -634,7 +634,7 @@ void idSWF::DefineBitsLossless2( idSWFBitStream& bitstream )
 		{
 			for( int w = 0; w < width; w++ )
 			{
-				uint32 pix32 = bitmapData[w + ( h * width )];
+				uint32_t pix32 = bitmapData[w + ( h * width )];
 				idSwap::Big( pix32 );
 				byte* pixel = &imageData[( w + ( h * width ) ) * 4];
 				pixel[0] = ( pix32 >> 16 ) & 0xFF;

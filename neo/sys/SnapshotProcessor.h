@@ -55,7 +55,7 @@ public:
 	bool ApplyDeltaToSnapshot( idSnapShot& snap, const char* deltaMem, int deltaSize, int visIndex );
 	// Attempts to write the currently pending snap to the supplied buffer, which can then be sent as an unreliable msg.
 	// SubmitPendingSnap will submit the pending snap to a job, so that it can be retrieved later for sending.
-	void SubmitPendingSnap( int visIndex, uint8* objMemory, int objMemorySize, lzwCompressionData_t* lzwData );
+	void SubmitPendingSnap( int visIndex, uint8_t* objMemory, int objMemorySize, lzwCompressionData_t* lzwData );
 	// GetPendingSnapDelta
 	int GetPendingSnapDelta( byte* outBuffer, int maxLength );
 	// If PendingSnapReadyToSend is true, then GetPendingSnapDelta will return something to send

@@ -110,7 +110,7 @@ public:
 	
 	// How much storage is required
 	// returns false if there was an error
-	virtual bool	GetRequiredStorage( uint64& requiredSizeTrophiesBytes )
+	virtual bool	GetRequiredStorage( uint64_t& requiredSizeTrophiesBytes )
 	{
 		requiredSizeTrophiesBytes = 0;
 		return true;

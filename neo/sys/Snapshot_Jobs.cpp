@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Snapshot_Jobs.h"
 
-uint32 SnapObjChecksum( const uint8* data, int length )
+uint32_t SnapObjChecksum( const uint8_t* data, int length )
 {
 	// RB: 64 bit fixes, changed long to int
 	extern unsigned int CRC32_BlockChecksum( const void * data, int length );
@@ -85,7 +85,7 @@ void SnapshotObjectJob( objParms_t* parms )
 	objJobState_t& 	newState	= parms->newState;
 	objJobState_t& 	oldState	= parms->oldState;
 	objHeader_t* 	header		= parms->destHeader;
-	uint8* 			dataStart	= parms->dest;
+	uint8_t* 			dataStart	= parms->dest;
 	
 	assert( newState.valid || oldState.valid );
 	
@@ -154,7 +154,7 @@ void SnapshotObjectJob( objParms_t* parms )
 	}
 	
 	// Get the id of the object we are writing out
-	int32 objectNum = ( newState.valid ) ? newState.objectNum : oldState.objectNum;
+	int32_t objectNum = ( newState.valid ) ? newState.objectNum : oldState.objectNum;
 	
 	// Write out object id
 	header->objID = objectNum;
@@ -398,8 +398,8 @@ void LZWJobInternal( lzwParm_t* parm, unsigned int dmaTag )
 		numChangedObjProcessed++;
 		
 		// Write obj id as delta into stream
-		lzwCompressor.WriteAgnostic<uint16>( ( uint16 )( header->objID - parm->ioData->lastObjId ) );
-		parm->ioData->lastObjId = ( uint16 )header->objID;
+		lzwCompressor.WriteAgnostic<uint16_t>( ( uint16_t )( header->objID - parm->ioData->lastObjId ) );
+		parm->ioData->lastObjId = ( uint16_t )header->objID;
 		
 		// Check special stale/notstale flags
 		if( header->flags & ( OBJ_VIS_STALE | OBJ_VIS_NOT_STALE ) )
@@ -425,7 +425,7 @@ void LZWJobInternal( lzwParm_t* parm, unsigned int dmaTag )
 		lzwCompressor.WriteAgnostic<objectSize_t>( ( objectSize_t )header->size );
 		
 		// Get compressed data area
-		uint8* compressedData = header->data;
+		uint8_t* compressedData = header->data;
 		
 		if( header->csize == -1 )
 		{
@@ -453,7 +453,7 @@ void LZWJobInternal( lzwParm_t* parm, unsigned int dmaTag )
 	if( !parm->saveDictionary )
 	{
 		// Write out terminator
-		uint16 objectDelta = 0xFFFF - parm->ioData->lastObjId;
+		uint16_t objectDelta = 0xFFFF - parm->ioData->lastObjId;
 		lzwCompressor.WriteAgnostic( objectDelta );
 		
 		// Last stream

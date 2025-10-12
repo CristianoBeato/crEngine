@@ -66,7 +66,7 @@ If you have questions concerning this license or the applicable additional terms
  
 #define SERIALIZE_JOINT( ser, var )				\
 {												\
-	uint16 jointIndex = ( var == NULL_JOINT_INDEX ) ? 65535 : var;	\
+	uint16_t jointIndex = ( var == NULL_JOINT_INDEX ) ? 65535 : var;	\
 	ser.Serialize( jointIndex );					\
 	var = ( jointIndex == 65535 ) ? NULL_JOINT_INDEX : (jointIndex_t)jointIndex; \
 }												\
@@ -155,7 +155,7 @@ public:
 		SanityCheck();
 		for( int i = 0 ; i < numBytes ; i++ )
 		{
-			Serialize( ( ( uint8* )bytes )[i] );
+			Serialize( ( ( uint8_t* )bytes )[i] );
 		}
 	};
 	
@@ -274,7 +274,7 @@ public:
 	}
 	//void	SerializeString( idStrId & s )				{ SanityCheck(); if ( writing ) { msg->WriteString(s.GetKey()); } else { idStr key; msg->ReadString( key ); s.Set( key );} }
 	
-	void	SerializeDelta( int32& value, const int32& base )
+	void	SerializeDelta( int32_t& value, const int32_t& base )
 	{
 		SanityCheck();
 		if( writing )
@@ -286,7 +286,7 @@ public:
 			value = msg->ReadDeltaLong( base );
 		}
 	}
-	void	SerializeDelta( int16& value, const int16& base )
+	void	SerializeDelta( int16_t& value, const int16_t& base )
 	{
 		SanityCheck();
 		if( writing )
@@ -298,7 +298,7 @@ public:
 			value = msg->ReadDeltaShort( base );
 		}
 	}
-	void	SerializeDelta( int8& value, const int8& base )
+	void	SerializeDelta( int8_t& value, const int8_t& base )
 	{
 		SanityCheck();
 		if( writing )
@@ -311,7 +311,7 @@ public:
 		}
 	}
 	
-	void	SerializeDelta( uint16& value, const uint16& base )
+	void	SerializeDelta( uint16_t& value, const uint16_t& base )
 	{
 		SanityCheck();
 		if( writing )
@@ -323,7 +323,7 @@ public:
 			value = msg->ReadDeltaUShort( base );
 		}
 	}
-	void	SerializeDelta( uint8& value, const uint8& base )
+	void	SerializeDelta( uint8_t& value, const uint8_t& base )
 	{
 		SanityCheck();
 		if( writing )
@@ -351,7 +351,7 @@ public:
 	
 	
 	// Common types, no compression
-	void	Serialize( int64& value )
+	void	Serialize( int64_t& value )
 	{
 		SanityCheck();
 		if( writing )
@@ -363,7 +363,7 @@ public:
 			value = msg->ReadLongLong();
 		}
 	}
-	void	Serialize( uint64& value )
+	void	Serialize( uint64_t& value )
 	{
 		SanityCheck();
 		if( writing )
@@ -375,7 +375,7 @@ public:
 			value = msg->ReadLongLong();
 		}
 	}
-	void	Serialize( int32& value )
+	void	Serialize( int32_t& value )
 	{
 		SanityCheck();
 		if( writing )
@@ -387,7 +387,7 @@ public:
 			value = msg->ReadLong();
 		}
 	}
-	void	Serialize( uint32& value )
+	void	Serialize( uint32_t& value )
 	{
 		SanityCheck();
 		if( writing )
@@ -399,7 +399,7 @@ public:
 			value = msg->ReadLong();
 		}
 	}
-	void	Serialize( int16& value )
+	void	Serialize( int16_t& value )
 	{
 		SanityCheck();
 		if( writing )
@@ -411,7 +411,7 @@ public:
 			value = msg->ReadShort();
 		}
 	}
-	void	Serialize( uint16& value )
+	void	Serialize( uint16_t& value )
 	{
 		SanityCheck();
 		if( writing )
@@ -423,7 +423,7 @@ public:
 			value = msg->ReadUShort();
 		}
 	}
-	void	Serialize( uint8& value )
+	void	Serialize( uint8_t& value )
 	{
 		SanityCheck();
 		if( writing )
@@ -435,7 +435,7 @@ public:
 			value = msg->ReadByte();
 		}
 	}
-	void	Serialize( int8& value )
+	void	Serialize( int8_t& value )
 	{
 		SanityCheck();
 		if( writing )
@@ -540,12 +540,12 @@ public:
 		{
 			float nAngle = idMath::AngleNormalize360( value );
 			assert( nAngle >= 0.0f ); // should never get a negative angle
-			uint16 sAngle = nAngle * ( 65536.0f / 360.0f );
+			uint16_t sAngle = nAngle * ( 65536.0f / 360.0f );
 			msg->WriteUShort( sAngle );
 		}
 		else
 		{
-			uint16 sAngle = msg->ReadUShort();
+			uint16_t sAngle = msg->ReadUShort();
 			value = sAngle * ( 360.0f / 65536.0f );
 		}
 		
@@ -623,8 +623,8 @@ public:
 	void SerializeCheckpoint( const char* file, int line )
 	{
 #ifdef ENABLE_SERIALIZE_CHECKPOINTS
-		const uint32 tagValue = 0xABADF00D;
-		uint32 tag = tagValue;
+		const uint32_t tagValue = 0xABADF00D;
+		uint32_t tag = tagValue;
 		Serialize( tag );
 		if( tag != tagValue )
 		{
@@ -677,7 +677,7 @@ public:
 		}
 		
 		// Serialize remaining bytes
-		uint8 b = 0;
+		uint8_t b = 0;
 		while( sizeBytes < maxSizeBytes )
 		{
 			ser->Serialize( b );
@@ -848,11 +848,11 @@ ID_INLINE void idSerializer::SerializePacked( int& original )
 	
 	if( IsWriting() )
 	{
-		uint32 value = original;
+		uint32_t value = original;
 		
 		while( true )
 		{
-			uint8 byte = value & 0x7F;
+			uint8_t byte = value & 0x7F;
 			value >>= 7;
 			byte |= value ? 0x80 : 0;
 			msg->WriteByte( byte );		// Emit byte
@@ -864,9 +864,9 @@ ID_INLINE void idSerializer::SerializePacked( int& original )
 	}
 	else
 	{
-		uint8 byte = 0x80;
-		uint32 value = 0;
-		int32 shift = 0;
+		uint8_t byte = 0x80;
+		uint32_t value = 0;
+		int32_t shift = 0;
 		
 		while( byte & 0x80 && shift < 32 )
 		{
@@ -895,10 +895,10 @@ ID_INLINE void idSerializer::SerializeSPacked( int& value )
 	if( IsWriting() )
 	{
 	
-		uint32 uvalue = idMath::Abs( value );
+		uint32_t uvalue = idMath::Abs( value );
 		
 		// Write the first byte specifically to handle the sign bit
-		uint8 byte = uvalue & 0x3f;
+		uint8_t byte = uvalue & 0x3f;
 		byte |= value < 0 ? 0x40 : 0;
 		uvalue >>= 6;
 		byte |= uvalue > 0 ? 0x80 : 0;
@@ -907,7 +907,7 @@ ID_INLINE void idSerializer::SerializeSPacked( int& value )
 		
 		while( uvalue > 0 )
 		{
-			uint8 byte2 = uvalue & 0x7F;
+			uint8_t byte2 = uvalue & 0x7F;
 			uvalue >>= 7;
 			byte2 |= uvalue ? 0x80 : 0;
 			msg->WriteByte( byte2 );		// Emit byte
@@ -916,10 +916,10 @@ ID_INLINE void idSerializer::SerializeSPacked( int& value )
 	else
 	{
 		// Load the first byte specifically to handle the sign bit
-		uint8 byte		= msg->ReadByte();
-		uint32 uvalue	= byte & 0x3f;
+		uint8_t byte		= msg->ReadByte();
+		uint32_t uvalue	= byte & 0x3f;
 		bool sgn		= ( byte & 0x40 ) ? true : false;
-		int32 shift		= 6;
+		int32_t shift		= 6;
 		
 		while( byte & 0x80 && shift < 32 )
 		{

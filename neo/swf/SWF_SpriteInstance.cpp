@@ -431,9 +431,9 @@ void idSWFSpriteInstance::RunTo( int targetFrame )
 	
 	//actions.Clear();
 	
-	uint32 firstActionCommand = sprite->frameOffsets[ targetFrame - 1 ];
+	uint32_t firstActionCommand = sprite->frameOffsets[ targetFrame - 1 ];
 	
-	for( uint32 c = sprite->frameOffsets[ currentFrame ]; c < sprite->frameOffsets[ targetFrame ]; c++ )
+	for( uint32_t c = sprite->frameOffsets[ currentFrame ]; c < sprite->frameOffsets[ targetFrame ]; c++ )
 	{
 		idSWFSprite::swfSpriteCommand_t& command = sprite->commands[ c ];
 		if( command.tag == Tag_DoAction && c < firstActionCommand )
@@ -552,7 +552,7 @@ idSWFSpriteInstance* idSWFSpriteInstance::ResolveTarget( const char* targetName 
 idSWFSpriteInstance::FindFrame
 ========================
 */
-uint32 idSWFSpriteInstance::FindFrame( const char* labelName ) const
+uint32_t idSWFSpriteInstance::FindFrame( const char* labelName ) const
 {
 	int frameNum = atoi( labelName );
 	if( frameNum > 0 )
@@ -626,8 +626,8 @@ void idSWFSpriteInstance::SetMaterial( const idMaterial* material, int width, in
 		{
 			assert( materialOverride->GetImageWidth() > 0 && materialOverride->GetImageHeight() > 0 );
 			assert( materialOverride->GetImageWidth() <= 8192 && materialOverride->GetImageHeight() <= 8192 );
-			materialWidth = ( uint16 )materialOverride->GetImageWidth();
-			materialHeight = ( uint16 )materialOverride->GetImageHeight();
+			materialWidth = ( uint16_t )materialOverride->GetImageWidth();
+			materialHeight = ( uint16_t )materialOverride->GetImageHeight();
 		}
 	}
 	else
@@ -638,12 +638,12 @@ void idSWFSpriteInstance::SetMaterial( const idMaterial* material, int width, in
 	
 	if( width >= 0 )
 	{
-		materialWidth = ( uint16 )width;
+		materialWidth = ( uint16_t )width;
 	}
 	
 	if( height >= 0 )
 	{
-		materialHeight = ( uint16 )height;
+		materialHeight = ( uint16_t )height;
 	}
 }
 
@@ -1610,7 +1610,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( materialWidth )
 	SWF_SPRITE_PTHIS_SET( "materialWidth" );
 	assert( value.ToInteger() > 0 );
 	assert( value.ToInteger() <= 8192 );
-	pThis->materialWidth = ( uint16 )value.ToInteger();
+	pThis->materialWidth = ( uint16_t )value.ToInteger();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( materialHeight )
@@ -1624,7 +1624,7 @@ SWF_SPRITE_NATIVE_VAR_DEFINE_SET( materialHeight )
 	SWF_SPRITE_PTHIS_SET( "materialHeight" );
 	assert( value.ToInteger() > 0 );
 	assert( value.ToInteger() <= 8192 );
-	pThis->materialHeight = ( uint16 )value.ToInteger();
+	pThis->materialHeight = ( uint16_t )value.ToInteger();
 }
 
 SWF_SPRITE_NATIVE_VAR_DEFINE_GET( xOffset )

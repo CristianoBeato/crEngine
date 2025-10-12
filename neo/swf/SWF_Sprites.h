@@ -59,16 +59,16 @@ private:
 	
 	class idSWF* swf;	// this is required so things can access the dictionary, it would be kind of nice if we just had an idSWFDictionary pointer instead
 	
-	uint16	frameCount;
+	uint16_t	frameCount;
 	
 	// frameOffsets contains offsets into the commands list for each frame
 	// the first command for frame 3 is frameOffsets[2] and the last command is frameOffsets[3]
-	idList< uint32, TAG_SWF >	frameOffsets;
+	idList< uint32_t, TAG_SWF >	frameOffsets;
 	
 	struct swfFrameLabel_t
 	{
 		idStr frameLabel;
-		uint32 frameNum;
+		uint32_t frameNum;
 	};
 	idList< swfFrameLabel_t, TAG_SWF > frameLabels;
 	

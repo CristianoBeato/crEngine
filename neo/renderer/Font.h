@@ -56,13 +56,13 @@ public:
 	float GetAscender( float scale ) const;
 	float GetMaxCharWidth( float scale ) const;
 	
-	float GetGlyphWidth( float scale, uint32 idx ) const;
-	void GetScaledGlyph( float scale, uint32 idx, scaledGlyphInfo_t& glyphInfo ) const;
+	float GetGlyphWidth( float scale, uint32_t idx ) const;
+	void GetScaledGlyph( float scale, uint32_t idx, scaledGlyphInfo_t& glyphInfo ) const;
 	
 private:
 	static idFont* RemapFont( const char* baseName );
 	
-	int	GetGlyphIndex( uint32 idx ) const;
+	int	GetGlyphIndex( uint32_t idx ) const;
 	
 	bool LoadFont();
 	
@@ -73,8 +73,8 @@ private:
 		char	top;	// distance in pixels from the base line to the top of the glyph
 		char	left;	// distance in pixels from the pen to the left edge of the glyph
 		byte	xSkip;	// x adjustment after rendering this glyph
-		uint16	s;		// x offset in image where glyph starts (in pixels)
-		uint16	t;		// y offset in image where glyph starts (in pixels)
+		uint16_t	s;		// x offset in image where glyph starts (in pixels)
+		uint16_t	t;		// y offset in image where glyph starts (in pixels)
 	};
 	struct fontInfo_t
 	{
@@ -92,7 +92,7 @@ private:
 		
 		// This is a sorted array of all characters in the font
 		// This maps directly to glyphData, so if charIndex[0] is 42 then glyphData[0] is character 42
-		uint32* 	charIndex;
+		uint32_t* 	charIndex;
 		
 		// As an optimization, provide a direct mapping for the ascii character set
 		char		ascii[128];

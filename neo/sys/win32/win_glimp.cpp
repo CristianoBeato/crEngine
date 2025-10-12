@@ -67,7 +67,7 @@ void GLimp_TestSwapBuffers( const idCmdArgs& args )
 {
 	idLib::Printf( "GLimp_TimeSwapBuffers\n" );
 	static const int MAX_FRAMES = 5;
-	uint64	timestamps[MAX_FRAMES];
+	uint64_t	timestamps[MAX_FRAMES];
 	qglDisable( GL_SCISSOR_TEST );
 	
 	int frameMilliseconds = 16;

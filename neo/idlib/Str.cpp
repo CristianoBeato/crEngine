@@ -1935,11 +1935,11 @@ void idStr::Append( char* dest, int size, const char* src )
 idStr::IsValidUTF8
 ========================
 */
-bool idStr::IsValidUTF8( const uint8* s, const int maxLen, utf8Encoding_t& encoding )
+bool idStr::IsValidUTF8( const uint8_t* s, const int maxLen, utf8Encoding_t& encoding )
 {
 	struct local_t
 	{
-		static int GetNumEncodedUTF8Bytes( const uint8 c )
+		static int GetNumEncodedUTF8Bytes( const uint8_t c )
 		{
 			if( c < 0x80 )
 			{
@@ -1963,7 +1963,7 @@ bool idStr::IsValidUTF8( const uint8* s, const int maxLen, utf8Encoding_t& encod
 			// this isnt' a valid UTF-8 precursor character
 			return 0;
 		}
-		static bool RemainingCharsAreUTF8FollowingBytes( const uint8* s, const int curChar, const int maxLen, const int num )
+		static bool RemainingCharsAreUTF8FollowingBytes( const uint8_t* s, const int curChar, const int maxLen, const int num )
 		{
 			if( maxLen - curChar < num )
 			{
@@ -2060,7 +2060,7 @@ int idStr::UTF8Length( const byte* s )
 	int charLen = 0;
 	while( s[ mbLen ] != '\0' )
 	{
-		uint32 cindex;
+		uint32_t cindex;
 		cindex = s[ mbLen ];
 		if( cindex < 0x80 )
 		{
@@ -2091,7 +2091,7 @@ int idStr::UTF8Length( const byte* s )
 idStr::AppendUTF8Char
 ========================
 */
-void idStr::AppendUTF8Char( uint32 c )
+void idStr::AppendUTF8Char( uint32_t c )
 {
 	if( c < 0x80 )
 	{
@@ -2128,13 +2128,13 @@ void idStr::AppendUTF8Char( uint32 c )
 idStr::UTF8Char
 ========================
 */
-uint32 idStr::UTF8Char( const byte* s, int& idx )
+uint32_t idStr::UTF8Char( const byte* s, int& idx )
 {
 	if( idx >= 0 )
 	{
 		while( s[ idx ] != '\0' )
 		{
-			uint32 cindex = s[ idx ];
+			uint32_t cindex = s[ idx ];
 			if( cindex < 0x80 )
 			{
 				idx++;
@@ -2150,7 +2150,7 @@ uint32 idStr::UTF8Char( const byte* s, int& idx )
 				};
 				trailing = trailingBytes[ cindex - 0xc0 ];
 			}
-			static const uint32 trailingMask[ 6 ] = { 0x0000007f, 0x0000001f, 0x0000000f, 0x00000007, 0x00000003, 0x00000001 };
+			static const uint32_t trailingMask[ 6 ] = { 0x0000007f, 0x0000001f, 0x0000000f, 0x00000007, 0x00000003, 0x00000001 };
 			cindex &= trailingMask[ trailing  ];
 			while( trailing-- > 0 )
 			{

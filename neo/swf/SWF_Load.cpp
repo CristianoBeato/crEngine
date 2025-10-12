@@ -88,7 +88,7 @@ bool idSWF::LoadSWF( const char* fullpath )
 	idSwap::Little( header.fileLength );
 	
 	// header.fileLength somewhat annoyingly includes the size of the header
-	uint32 fileLength2 = header.fileLength - ( uint32 )sizeof( swfHeader_t );
+	uint32_t fileLength2 = header.fileLength - ( uint32_t )sizeof( swfHeader_t );
 	
 	// slurp the raw file into a giant array, which is somewhat atrocious when loading from the preload since it's already an idFile_Memory
 	byte* fileData = ( byte* )Mem_Alloc( fileLength2, TAG_SWF );
@@ -151,7 +151,7 @@ bool idSWF::LoadBinary( const char* bfilename, ID_TIME_T sourceTime )
 		return false;
 	}
 	
-	uint32 magic = 0;
+	uint32_t magic = 0;
 	ID_TIME_T btimestamp = 0;
 	f->ReadBig( magic );
 	f->ReadBig( btimestamp );

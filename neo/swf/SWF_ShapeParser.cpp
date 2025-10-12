@@ -119,7 +119,7 @@ void idSWFShapeParser::ParseMorph( idSWFBitStream& bitstream, idSWFShape& shape 
 	bitstream.ReadRect( shape.startBounds );
 	bitstream.ReadRect( shape.endBounds );
 	
-	uint32 offset = bitstream.ReadU32();
+	uint32_t offset = bitstream.ReadU32();
 	
 	// offset is the byte offset from the current read position to the 'endShape' record
 	// we read the entire block into 'bitstream1' which moves the read pointer of 'bitstream'
@@ -158,24 +158,24 @@ idSWFShapeParser::ParseShapes
 */
 void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* bitstream2, bool swap )
 {
-	int32 pen1X = 0;
-	int32 pen1Y = 0;
-	int32 pen2X = 0;
-	int32 pen2Y = 0;
+	int32_t pen1X = 0;
+	int32_t pen1Y = 0;
+	int32_t pen2X = 0;
+	int32_t pen2Y = 0;
 	
-	uint8 fillStyle0 = 0;
-	uint8 fillStyle1 = 0;
-	uint8 lineStyle = 0;
+	uint8_t fillStyle0 = 0;
+	uint8_t fillStyle1 = 0;
+	uint8_t lineStyle = 0;
 	
-	uint16 baseFillStyle = 0;
-	uint16 baseLineStyle = 0;
+	uint16_t baseFillStyle = 0;
+	uint16_t baseLineStyle = 0;
 	
-	uint8 numBits = bitstream1.ReadU8();
-	uint8 numFillBits1 = numBits >> 4;
-	uint8 numLineBits1 = numBits & 0xF;
+	uint8_t numBits = bitstream1.ReadU8();
+	uint8_t numFillBits1 = numBits >> 4;
+	uint8_t numLineBits1 = numBits & 0xF;
 	
-	uint8 numFillBits2 = 0;
-	uint8 numLineBits2 = 0;
+	uint8_t numFillBits2 = 0;
+	uint8_t numLineBits2 = 0;
 	
 	if( bitstream2 )
 	{
@@ -198,7 +198,7 @@ void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* 
 				// end record
 				if( bitstream2 )
 				{
-					uint8 flags = bitstream2->ReadU( 6 );
+					uint8_t flags = bitstream2->ReadU( 6 );
 					if( flags != 0 )
 					{
 						idLib::Warning( "idSWFShapeParser: morph stream 1 ends before 2" );
@@ -209,7 +209,7 @@ void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* 
 			}
 			if( stateMoveTo )
 			{
-				uint8 moveBits = bitstream1.ReadU( 5 );
+				uint8_t moveBits = bitstream1.ReadU( 5 );
 				pen1X = bitstream1.ReadS( moveBits );
 				pen1Y = bitstream1.ReadS( moveBits );
 			}
@@ -249,7 +249,7 @@ void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* 
 				bool stateMoveTo = bitstream2->ReadBool();
 				if( stateMoveTo )
 				{
-					uint8 moveBits = bitstream2->ReadU( 5 );
+					uint8_t moveBits = bitstream2->ReadU( 5 );
 					pen2X = bitstream2->ReadS( moveBits );
 					pen2Y = bitstream2->ReadS( moveBits );
 				}
@@ -356,10 +356,10 @@ void idSWFShapeParser::ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* 
 idSWFShapeParser::ParseEdge
 ========================
 */
-void idSWFShapeParser::ParseEdge( idSWFBitStream& bitstream, int32& penX, int32& penY, swfSPEdge_t& edge )
+void idSWFShapeParser::ParseEdge( idSWFBitStream& bitstream, int32_t& penX, int32_t& penY, swfSPEdge_t& edge )
 {
 	bool straight = bitstream.ReadBool();
-	uint8 numBits = bitstream.ReadU( 4 ) + 2;
+	uint8_t numBits = bitstream.ReadU( 4 ) + 2;
 	
 	edge.v0 = verts.AddUnique( idVec2( SWFTWIP( penX ), SWFTWIP( penY ) ) );
 	
@@ -629,7 +629,7 @@ void idSWFShapeParser::MakeLoops()
 			}
 			
 			// connect holeVert to shapeVert
-			idList< uint16 > vindex;
+			idList< uint16_t > vindex;
 			vindex.SetNum( loopShape.vindex1.Num() + loopHole.vindex1.Num() + 1 );
 			vindex.SetNum( 0 );
 			for( int j = 0; j <= shapeVert; j++ )
@@ -932,7 +932,7 @@ idSWFShapeParser::ReadFillStyle
 */
 void idSWFShapeParser::ReadFillStyle( idSWFBitStream& bitstream )
 {
-	uint16 fillStyleCount = bitstream.ReadU8();
+	uint16_t fillStyleCount = bitstream.ReadU8();
 	if( extendedCount && fillStyleCount == 0xFF )
 	{
 		fillStyleCount = bitstream.ReadU16();
@@ -940,7 +940,7 @@ void idSWFShapeParser::ReadFillStyle( idSWFBitStream& bitstream )
 	
 	for( int i = 0; i < fillStyleCount; i++ )
 	{
-		uint8 fillStyleType = bitstream.ReadU8();
+		uint8_t fillStyleType = bitstream.ReadU8();
 		
 		swfFillStyle_t& fillStyle = fillDraws.Alloc().style;
 		fillStyle.type = fillStyleType >> 4;
@@ -1000,7 +1000,7 @@ void idSWFShapeParser::ReadFillStyle( idSWFBitStream& bitstream )
 		}
 	}
 	
-	uint16 lineStyleCount = bitstream.ReadU8();
+	uint16_t lineStyleCount = bitstream.ReadU8();
 	if( extendedCount && lineStyleCount == 0xFF )
 	{
 		lineStyleCount = bitstream.ReadU16();
@@ -1016,18 +1016,18 @@ void idSWFShapeParser::ReadFillStyle( idSWFBitStream& bitstream )
 		{
 			lineStyle.endWidth = lineStyle.startWidth;
 			
-			uint8 startCapStyle = bitstream.ReadU( 2 );
-			uint8 joinStyle = bitstream.ReadU( 2 );
+			uint8_t startCapStyle = bitstream.ReadU( 2 );
+			uint8_t joinStyle = bitstream.ReadU( 2 );
 			bool hasFillFlag = bitstream.ReadBool();
 			bool noHScaleFlag = bitstream.ReadBool();
 			bool noVScaleFlag = bitstream.ReadBool();
 			bool pixelHintingFlag = bitstream.ReadBool();
-			uint8 reserved = bitstream.ReadU( 5 );
+			uint8_t reserved = bitstream.ReadU( 5 );
 			bool noClose = bitstream.ReadBool();
-			uint8 endCapStyle = bitstream.ReadU( 2 );
+			uint8_t endCapStyle = bitstream.ReadU( 2 );
 			if( joinStyle == 2 )
 			{
-				uint16 miterLimitFactor = bitstream.ReadU16();
+				uint16_t miterLimitFactor = bitstream.ReadU16();
 			}
 			if( hasFillFlag )
 			{

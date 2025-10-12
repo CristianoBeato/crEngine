@@ -553,7 +553,7 @@ void idImage::AllocImage()
 			
 			if( IsCompressed() )
 			{
-				int compressedSize = ( ( ( w + 3 ) / 4 ) * ( ( h + 3 ) / 4 ) * int64( 16 ) * BitsForFormat( opts.format ) ) / 8;
+				int compressedSize = ( ( ( w + 3 ) / 4 ) * ( ( h + 3 ) / 4 ) * int64_t( 16 ) * BitsForFormat( opts.format ) ) / 8;
 				
 				// Even though the OpenGL specification allows the 'data' pointer to be NULL, for some
 				// drivers we actually need to upload data to get it to allocate the texture.

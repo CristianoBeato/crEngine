@@ -99,8 +99,8 @@ extern idCVar g_demoMode;
 
 idCVar com_engineHz( "com_engineHz", "60", CVAR_FLOAT | CVAR_ARCHIVE, "Frames per second the engine runs at", 10.0f, 1024.0f );
 float com_engineHz_latched = 60.0f; // Latched version of cvar, updated between map loads
-int64 com_engineHz_numerator = 100LL * 1000LL;
-int64 com_engineHz_denominator = 100LL * 60LL;
+int64_t com_engineHz_numerator = 100LL * 1000LL;
+int64_t com_engineHz_denominator = 100LL * 60LL;
 
 int				com_editors;			// currently opened editor(s)
 bool			com_editorActive;		//  true if an editor has focus
@@ -813,7 +813,7 @@ void idCommonLocal::CheckStartupStorageRequirements()
 {
 	// RB: disabled savegame and profile storage checks, because it fails sometimes without any clear reason
 #if 0
-	int64 availableSpace = 0;
+	int64_t availableSpace = 0;
 	
 	// ------------------------------------------------------------------------
 	// Savegame and Profile required storage
@@ -852,11 +852,11 @@ void idCommonLocal::CheckStartupStorageRequirements()
 	const int MIN_SAVE_STORAGE_PROFILE		= 1024 * 1024;
 	const int MIN_SAVE_STORAGE_SAVEGAME		= MIN_SAVEGAME_SIZE_BYTES;
 	
-	uint64 requiredSizeBytes = MIN_SAVE_STORAGE_SAVEGAME + MIN_SAVE_STORAGE_PROFILE;
+	uint64_t requiredSizeBytes = MIN_SAVE_STORAGE_SAVEGAME + MIN_SAVE_STORAGE_PROFILE;
 	
 	idLib::Printf( "requiredSizeBytes: %lld\n", requiredSizeBytes );
 	
-	if( ( int64 )( requiredSizeBytes - availableSpace ) > 0 )
+	if( ( int64_t )( requiredSizeBytes - availableSpace ) > 0 )
 	{
 		class idSWFScriptFunction_Continue : public idSWFScriptFunction_RefCounted
 		{

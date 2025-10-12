@@ -461,7 +461,7 @@ public:
 	//=====================================================================================================
 	// Invites
 	//=====================================================================================================
-	virtual void			HandleBootableInvite( int64 lobbyId = 0 ) = 0;
+	virtual void			HandleBootableInvite( int64_t lobbyId = 0 ) = 0;
 	virtual void			ClearBootableInvite() = 0;
 	virtual void			ClearPendingInvite() = 0;
 	virtual bool			HasPendingBootableInvite() = 0;
@@ -536,7 +536,7 @@ public:
 	// Leaderboards
 	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t* leaderboard, const column_t* stats, const idFile_Memory* attachment = NULL ) = 0;
 	virtual void			LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t* leaderboard, int startingRank, int numRows, const idLeaderboardCallback& callback ) = 0;
-	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t* leaderboard, int64 attachmentID ) = 0;
+	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t* leaderboard, int64_t attachmentID ) = 0;
 	
 	// Scoring (currently just for TrueSkill)
 	virtual void			SetLobbyUserRelativeScore( lobbyUserID_t lobbyUserID, int relativeScore, int team ) = 0;
@@ -693,7 +693,7 @@ protected:
 	static const char* 		stateToString[ NUM_STATES ];
 	
 	state_t					localState;
-	uint32					sessionOptions;
+	uint32_t					sessionOptions;
 	
 	connectType_t			connectType;
 	int						connectTime;
@@ -928,7 +928,7 @@ public:
 	virtual void					MigrationEnded( idLobby& lobby );
 	
 	virtual void					GoodbyeFromHost( idLobby& lobby, int peerNum, const lobbyAddress_t& remoteAddress, int msgType );
-	virtual	uint32					GetSessionOptions()
+	virtual	uint32_t					GetSessionOptions()
 	{
 		return sessionLocal->sessionOptions;
 	}

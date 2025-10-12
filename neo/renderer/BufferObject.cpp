@@ -113,7 +113,7 @@ void CopyBuffer( byte* dst, const byte* src, int numBytes )
 	}
 	for( ; i + 4 <= numBytes; i += 4 )
 	{
-		*( uint32* )&dst[i] = *( const uint32* )&src[i];
+		*( uint32_t* )&dst[i] = *( const uint32_t* )&src[i];
 	}
 	for( ; i < numBytes; i++ )
 	{

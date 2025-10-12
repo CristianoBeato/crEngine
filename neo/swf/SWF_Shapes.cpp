@@ -37,7 +37,7 @@ idSWF::DefineShape
 */
 void idSWF::DefineShape( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_SHAPE );
 	if( entry == NULL )
 	{
@@ -55,7 +55,7 @@ idSWF::DefineShape2
 */
 void idSWF::DefineShape2( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_SHAPE );
 	if( entry == NULL )
 	{
@@ -73,7 +73,7 @@ idSWF::DefineShape3
 */
 void idSWF::DefineShape3( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_SHAPE );
 	if( entry == NULL )
 	{
@@ -91,7 +91,7 @@ idSWF::DefineShape4
 */
 void idSWF::DefineShape4( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_SHAPE );
 	if( entry == NULL )
 	{
@@ -110,7 +110,7 @@ idSWF::DefineMorphShape
 */
 void idSWF::DefineMorphShape( idSWFBitStream& bitstream )
 {
-	uint16 characterID = bitstream.ReadU16();
+	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_MORPH );
 	if( entry == NULL )
 	{

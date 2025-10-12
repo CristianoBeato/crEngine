@@ -28,8 +28,8 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
 
 //===============================================================
 //
@@ -40,7 +40,6 @@ If you have questions concerning this license or the applicable additional terms
 #undef new
 
 // foresthale 2014-05-29: ultra-paranoid debug heap that leaks, just for finding errors
-//#define DEBUGHEAP
 #ifdef DEBUGHEAP
 // storage limits for the debug heap
 #define DEBUGHEAP_BUFFER (0x40000000)

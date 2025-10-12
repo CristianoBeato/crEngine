@@ -114,8 +114,8 @@ struct leaderboardDefinition_t
 		assert( numRegisteredLeaderboards < MAX_LEADERBOARDS );
 		registeredLeaderboards[numRegisteredLeaderboards++] = this;
 	}
-	int32				id;
-	int32				numColumns;
+	int32_t				id;
+	int32_t				numColumns;
 	const columnDef_t* 	columnDefs;
 	rankOrder_t			rankOrder;
 	bool				supportsAttachments;
@@ -124,10 +124,10 @@ struct leaderboardDefinition_t
 
 struct column_t
 {
-	column_t( int64 value_ ) : value( value_ ) {}
+	column_t( int64_t value_ ) : value( value_ ) {}
 	column_t() {}
 	
-	int64				value;
+	int64_t				value;
 };
 
 
@@ -137,7 +137,7 @@ Contains the Achievement and LeaderBoard free function declarations.
 ================================================================================================
 */
 
-typedef int32			leaderboardHandle_t;
+typedef int32_t			leaderboardHandle_t;
 
 /*
 ================================================
@@ -149,8 +149,8 @@ class idLeaderBoardEntry
 public:
 	static const int MAX_LEADERBOARD_COLUMNS = 16;
 	idStr username; // aka gamertag
-	int64 score;
-	int64 columns[ MAX_LEADERBOARD_COLUMNS ];
+	int64_t score;
+	int64_t columns[ MAX_LEADERBOARD_COLUMNS ];
 };
 
 const leaderboardDefinition_t* Sys_FindLeaderboardDef( int id );
@@ -182,10 +182,10 @@ public:
 	struct row_t
 	{
 		bool		hasAttachment;
-		int64		attachmentID;
+		int64_t		attachmentID;
 		idStr		name;
-		int64		rank;
-		idArray<int64, MAX_LEADERBOARD_COLUMNS> 	columns;
+		int64_t		rank;
+		idArray<int64_t, MAX_LEADERBOARD_COLUMNS> 	columns;
 		
 		long		user_id;
 //		CSteamID	user_id;
@@ -203,7 +203,7 @@ public:
 	{
 		rows.Append( row );
 	}
-	void 							SetNumRowsInLeaderboard( int32 i )
+	void 							SetNumRowsInLeaderboard( int32_t i )
 	{
 		numRowsInLeaderboard = i;
 	}

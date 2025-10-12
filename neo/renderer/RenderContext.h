@@ -93,7 +93,7 @@ public:
 		return weaponDepthHackValue;
 	}
 	
-	uint64			GetGPUFrameMicroSec() const
+	uint64_t			GetGPUFrameMicroSec() const
 	{
 		return GPUFrameMicroSec;
 	}
@@ -101,7 +101,7 @@ public:
 private:
 	float			depthHackValue;
 	float			weaponDepthHackValue;
-	uint64			GPUFrameMicroSec;
+	uint64_t			GPUFrameMicroSec;
 };
 
 extern idRenderContext rRenderContext;

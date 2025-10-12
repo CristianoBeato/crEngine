@@ -369,7 +369,7 @@ void idMenuScreen_Shell_Save::SaveGame( int index )
 		// const idStr savePrefix = "doom3_";
 		// Scan all the savegames for the first phaeton_xxx slot.
 		const idStr savePrefix = "se2_";
-		uint64 slotMask = 0;
+		uint64_t slotMask = 0;
 		for( int slot = 0; slot < saveGameInfo.Num(); ++slot )
 		{
 			const idSaveGameDetails& details = saveGameInfo[slot];

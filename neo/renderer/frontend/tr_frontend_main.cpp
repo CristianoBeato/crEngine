@@ -257,7 +257,7 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 {
 #if 1
 
-	uint64* indices = ( uint64* ) _alloca16( numDrawSurfs * sizeof( indices[0] ) );
+	uint64_t* indices = ( uint64_t* ) _alloca16( numDrawSurfs * sizeof( indices[0] ) );
 	
 	// sort the draw surfs based on:
 	// 1. sort value (largest first)
@@ -269,7 +269,7 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 		float sort = SS_POST_PROCESS - drawSurfs[i]->sort;
 		assert( sort >= 0.0f );
 		
-		uint64 dist = 0;
+		uint64_t dist = 0;
 		if( drawSurfs[i]->frontEndGeo != NULL )
 		{
 			float min = 0.0f;
@@ -278,31 +278,31 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 			dist = idMath::Ftoui16( min * 0xFFFF );
 		}
 		
-		indices[i] = ( ( numDrawSurfs - i ) & 0xFFFF ) | ( dist << 16 ) | ( ( uint64 )( *( uint32* )&sort ) << 32 );
+		indices[i] = ( ( numDrawSurfs - i ) & 0xFFFF ) | ( dist << 16 ) | ( ( uint64_t )( *( uint32_t* )&sort ) << 32 );
 	}
 	
-	const int64 MAX_LEVELS = 128;
-	int64 lo[MAX_LEVELS];
-	int64 hi[MAX_LEVELS];
+	const int64_t MAX_LEVELS = 128;
+	int64_t lo[MAX_LEVELS];
+	int64_t hi[MAX_LEVELS];
 	
 	// Keep the top of the stack in registers to avoid load-hit-stores.
-	register int64 st_lo = 0;
-	register int64 st_hi = numDrawSurfs - 1;
-	register int64 level = 0;
+	int64_t st_lo = 0;
+	int64_t st_hi = numDrawSurfs - 1;
+	int64_t level = 0;
 	
 	for( ; ; )
 	{
-		register int64 i = st_lo;
-		register int64 j = st_hi;
+		register int64_t i = st_lo;
+		register int64_t j = st_hi;
 		if( j - i >= 4 && level < MAX_LEVELS - 1 )
 		{
-			register uint64 pivot = indices[( i + j ) / 2];
+			register uint64_t pivot = indices[( i + j ) / 2];
 			do
 			{
 				while( indices[i] > pivot ) i++;
 				while( indices[j] < pivot ) j--;
 				if( i > j ) break;
-				uint64 h = indices[i];
+				uint64_t h = indices[i];
 				indices[i] = indices[j];
 				indices[j] = h;
 			}
@@ -322,15 +322,15 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 		{
 			for( ; i < j; j-- )
 			{
-				register int64 m = i;
-				for( int64 k = i + 1; k <= j; k++ )
+				register int64_t m = i;
+				for( int64_t k = i + 1; k <= j; k++ )
 				{
 					if( indices[k] < indices[m] )
 					{
 						m = k;
 					}
 				}
-				uint64 h = indices[m];
+				uint64_t h = indices[m];
 				indices[m] = indices[j];
 				indices[j] = h;
 			}

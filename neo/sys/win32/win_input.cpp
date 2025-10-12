@@ -758,8 +758,8 @@ static int	threadCount;
 void JoystickSamplingThread( void* data )
 {
 	static int prevTime = 0;
-	static uint64 nextCheck[MAX_JOYSTICKS] = { 0 };
-	const uint64 waitTime = 5000000; // poll every 5 seconds to see if a controller was connected
+	static uint64_t nextCheck[MAX_JOYSTICKS] = { 0 };
+	const uint64_t waitTime = 5000000; // poll every 5 seconds to see if a controller was connected
 	while( 1 )
 	{
 		// hopefully we see close to 4000 usec each loop
@@ -1192,7 +1192,7 @@ static const unsigned char s_scantokey_french[256] = {
 	'a',        'z',    'e',       'r',        't',    'y',         'u',      'i', 
 	'o',        'p',    '^',       '$',        K_ENTER,K_LCTRL,      'q',      's',      // 1 
 	'd',        'f',    'g',       'h',        'j',    'k',         'l',      'm', 
-	'ù',        '`',    K_LSHIFT,   '*',        'w',    'x',         'c',      'v',      // 2 
+	'ï¿½',        '`',    K_LSHIFT,   '*',        'w',    'x',         'c',      'v',      // 2 
 	'b',        'n',    ',',       ';',        ':',    '!',         K_RSHIFT,  K_KP_STAR,
 	K_LALT,      K_SPACE,    K_CAPSLOCK,K_F1,       K_F2,   K_F3,        K_F4,     K_F5,  // 3
 	K_F6,       K_F7,   K_F8,      K_F9,       K_F10,  K_PAUSE,     K_SCROLL, K_HOME, 
@@ -1204,12 +1204,12 @@ static const unsigned char s_scantokey_french[256] = {
 	0,          0,      0,         0,          0,      0,           0,        0, 
 	0,          0,      0,         0,          0,      0,           0,        0,      // 7
 // shifted
-	0,           27,    '&',       'é',        '\"',    '\'',         '(',      '-', 
-	'è',        '_',    'ç',       'à',        '°',    '+',         K_BACKSPACE, 9, // 0 
+	0,           27,    '&',       'ï¿½',        '\"',    '\'',         '(',      '-', 
+	'ï¿½',        '_',    'ï¿½',       'ï¿½',        'ï¿½',    '+',         K_BACKSPACE, 9, // 0 
 	'a',        'z',    'e',       'r',        't',    'y',         'u',      'i', 
 	'o',        'p',    '^',       '$',        K_ENTER,K_LCTRL,      'q',      's',      // 1 
 	'd',        'f',    'g',       'h',        'j',    'k',         'l',      'm', 
-	'ù',        0,    K_LSHIFT,   '*',        'w',    'x',         'c',      'v',      // 2 
+	'ï¿½',        0,    K_LSHIFT,   '*',        'w',    'x',         'c',      'v',      // 2 
 	'b',        'n',    ',',       ';',        ':',    '!',         K_RSHIFT,  K_KP_STAR,
 	K_LALT,      K_SPACE,    K_CAPSLOCK,K_F1,       K_F2,   K_F3,        K_F4,     K_F5,  // 3
 	K_F6,       K_F7,   K_F8,      K_F9,       K_F10,  K_PAUSE,     K_SCROLL, K_HOME, 
@@ -1226,11 +1226,11 @@ static const unsigned char s_scantokey_spanish[256] = {
 //  0            1       2          3          4       5            6         7
 //  8            9       A          B          C       D            E         F
 	0,           27,    '1',       '2',        '3',    '4',         '5',      '6', 
-	'7',        '8',    '9',       '0',        '\'',   '¡',         K_BACKSPACE, 9,  // 0 
+	'7',        '8',    '9',       '0',        '\'',   'ï¿½',         K_BACKSPACE, 9,  // 0 
 	'q',        'w',    'e',       'r',        't',    'y',         'u',      'i', 
 	'o',        'p',    '`',       '+',        K_ENTER,K_LCTRL,      'a',      's',   // 1 
-	'd',        'f',    'g',       'h',        'j',    'k',         'l',      'ñ', 
-	'´',        'º',    K_LSHIFT,   'ç',        'z',    'x',         'c',      'v',   // 2 
+	'd',        'f',    'g',       'h',        'j',    'k',         'l',      'ï¿½', 
+	'ï¿½',        'ï¿½',    K_LSHIFT,   'ï¿½',        'z',    'x',         'c',      'v',   // 2 
 	'b',        'n',    'm',       ',',        '.',    '-',         K_RSHIFT,  K_KP_STAR, 
 	K_LALT,      K_SPACE,    K_CAPSLOCK,K_F1,       K_F2,   K_F3,        K_F4,     K_F5,  // 3
 	K_F6,       K_F7,   K_F8,      K_F9,       K_F10,  K_PAUSE,     K_SCROLL, K_HOME, 
@@ -1242,12 +1242,12 @@ static const unsigned char s_scantokey_spanish[256] = {
 	0,          0,      0,         0,          0,      0,           0,        0, 
 	0,          0,      0,         0,          0,      0,           0,        0,      // 7
 // shifted
-	0,           27,    '!',       '\"',        '·',    '$',         '%',      '&', 
-	'/',        '(',    ')',       '=',        '?',   '¿',         K_BACKSPACE, 9,  // 0 
+	0,           27,    '!',       '\"',        'ï¿½',    '$',         '%',      '&', 
+	'/',        '(',    ')',       '=',        '?',   'ï¿½',         K_BACKSPACE, 9,  // 0 
 	'q',        'w',    'e',       'r',        't',    'y',         'u',      'i', 
 	'o',        'p',    '^',       '*',        K_ENTER,K_LCTRL,      'a',      's',   // 1 
-	'd',        'f',    'g',       'h',        'j',    'k',         'l',      'Ñ', 
-	'¨',        'ª',    K_LSHIFT,   'Ç',        'z',    'x',         'c',      'v',   // 2 
+	'd',        'f',    'g',       'h',        'j',    'k',         'l',      'ï¿½', 
+	'ï¿½',        'ï¿½',    K_LSHIFT,   'ï¿½',        'z',    'x',         'c',      'v',   // 2 
 	'b',        'n',    'm',       ',',        '.',    '-',         K_RSHIFT,  K_KP_STAR, 
 	K_LALT,      K_SPACE,    K_CAPSLOCK,K_F1,       K_F2,   K_F3,        K_F4,     K_F5,  // 3
 	K_F6,       K_F7,   K_F8,      K_F9,       K_F10,  K_PAUSE,     K_SCROLL, K_HOME, 
@@ -1264,11 +1264,11 @@ static const unsigned char s_scantokey_italian[256] = {
 //  0            1       2          3          4       5            6         7
 //  8            9       A          B          C       D            E         F
 		0,           27,    '1',       '2',        '3',    '4',         '5',      '6', 
-		'7',        '8',    '9',       '0',        '\'',   'ì',         K_BACKSPACE, 9,  // 0 
+		'7',        '8',    '9',       '0',        '\'',   'ï¿½',         K_BACKSPACE, 9,  // 0 
 		'q',        'w',    'e',       'r',        't',    'y',         'u',      'i', 
-		'o',        'p',    'è',       '+',        K_ENTER,K_LCTRL,      'a',      's',   // 1 
-		'd',        'f',    'g',       'h',        'j',    'k',         'l',      'ò', 
-		'à',        '\\',    K_LSHIFT,   'ù',        'z',    'x',         'c',      'v',   // 2 
+		'o',        'p',    'ï¿½',       '+',        K_ENTER,K_LCTRL,      'a',      's',   // 1 
+		'd',        'f',    'g',       'h',        'j',    'k',         'l',      'ï¿½', 
+		'ï¿½',        '\\',    K_LSHIFT,   'ï¿½',        'z',    'x',         'c',      'v',   // 2 
 		'b',        'n',    'm',       ',',        '.',    '-',         K_RSHIFT,  K_KP_STAR, 
 		K_LALT,      K_SPACE,    K_CAPSLOCK,K_F1,       K_F2,   K_F3,        K_F4,     K_F5,  // 3
 		K_F6,       K_F7,   K_F8,      K_F9,       K_F10,  K_PAUSE,     K_SCROLL, K_HOME, 
@@ -1280,12 +1280,12 @@ static const unsigned char s_scantokey_italian[256] = {
 		0,          0,      0,         0,          0,      0,           0,        0, 
 		0,          0,      0,         0,          0,      0,           0,        0,      // 7
 // shifted
-		0,           27,    '!',       '\"',        '£',    '$',         '%',      '&', 
+		0,           27,    '!',       '\"',        'ï¿½',    '$',         '%',      '&', 
 		'/',        '(',    ')',       '=',        '?',   '^',         K_BACKSPACE, 9,  // 0 
 		'q',        'w',    'e',       'r',        't',    'y',         'u',      'i', 
-		'o',        'p',    'é',       '*',        K_ENTER,K_LCTRL,      'a',      's',   // 1 
-		'd',        'f',    'g',       'h',        'j',    'k',         'l',      'ç', 
-		'°',        '|',    K_LSHIFT,   '§',        'z',    'x',         'c',      'v',   // 2 
+		'o',        'p',    'ï¿½',       '*',        K_ENTER,K_LCTRL,      'a',      's',   // 1 
+		'd',        'f',    'g',       'h',        'j',    'k',         'l',      'ï¿½', 
+		'ï¿½',        '|',    K_LSHIFT,   'ï¿½',        'z',    'x',         'c',      'v',   // 2 
 		'b',        'n',    'm',       ',',        '.',    '-',         K_RSHIFT,  K_KP_STAR, 
 		K_LALT,      K_SPACE,    K_CAPSLOCK,K_F1,       K_F2,   K_F3,        K_F4,     K_F5,  // 3
 		K_F6,       K_F7,   K_F8,      K_F9,       K_F10,  K_PAUSE,     K_SCROLL, K_HOME, 

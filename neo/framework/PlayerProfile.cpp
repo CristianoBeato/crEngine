@@ -39,9 +39,9 @@ If you have questions concerning this license or the applicable additional terms
 //
 // The biggest reason these limitations exist is because if a newer profile is created and then loaded with a GMC
 // version, we have to support it.
-const int16		PROFILE_TAG					= ( 'D' << 8 ) | '3';
-const int8		PROFILE_VER_MAJOR			= 10;	// If this is changed, you should reset the minor version and remove all backward compatible code
-const int8		PROFILE_VER_MINOR			= 0;	// Within each major version, minor versions can be supported for backward compatibility
+const int16_t		PROFILE_TAG					= ( 'D' << 8 ) | '3';
+const int8_t		PROFILE_VER_MAJOR			= 10;	// If this is changed, you should reset the minor version and remove all backward compatible code
+const int8_t		PROFILE_VER_MINOR			= 0;	// Within each major version, minor versions can be supported for backward compatibility
 
 class idPlayerProfileLocal : public idPlayerProfile
 {
@@ -129,16 +129,16 @@ bool idPlayerProfile::Serialize( idSerializer& ser )
 	// See comments at top of file on versioning rules
 	
 	// Default to current tag/version
-	int32 magicNumber = 0;
+	int32_t magicNumber = 0;
 	magicNumber += PROFILE_TAG << 16;
 	magicNumber += PROFILE_VER_MAJOR << 8;
 	magicNumber += PROFILE_VER_MINOR;
 	
 	// Serialize version
 	ser.SerializePacked( magicNumber );
-	int16 tag = ( magicNumber >> 16 ) & 0xffff;
-	int8 majorVersion = ( magicNumber >> 8 ) & 0xff;
-	int8 minorVersion = magicNumber & 0xff;
+	int16_t tag = ( magicNumber >> 16 ) & 0xffff;
+	int8_t majorVersion = ( magicNumber >> 8 ) & 0xff;
+	int8_t minorVersion = magicNumber & 0xff;
 	minorVersion;
 	
 	if( tag != PROFILE_TAG )
@@ -315,17 +315,17 @@ void idPlayerProfile::SetAchievement( const int id )
 		return;
 	}
 	
-	uint64 mask = 0;
+	uint64_t mask = 0;
 	if( id < 64 )
 	{
 		mask = achievementBits;
-		achievementBits |= ( int64 )1 << id;
+		achievementBits |= ( int64_t )1 << id;
 		mask = ~mask & achievementBits;
 	}
 	else
 	{
 		mask = achievementBits2;
-		achievementBits2 |= ( int64 )1 << ( id - 64 );
+		achievementBits2 |= ( int64_t )1 << ( id - 64 );
 		mask = ~mask & achievementBits2;
 	}
 	
@@ -351,11 +351,11 @@ void idPlayerProfile::ClearAchievement( const int id )
 	
 	if( id < 64 )
 	{
-		achievementBits &= ~( ( int64 )1 << id );
+		achievementBits &= ~( ( int64_t )1 << id );
 	}
 	else
 	{
-		achievementBits2 &= ~( ( int64 )1 << ( id - 64 ) );
+		achievementBits2 &= ~( ( int64_t )1 << ( id - 64 ) );
 	}
 	
 	MarkDirty( true );
@@ -376,11 +376,11 @@ bool idPlayerProfile::GetAchievement( const int id ) const
 	
 	if( id < 64 )
 	{
-		return ( achievementBits & ( int64 )1 << id ) != 0;
+		return ( achievementBits & ( int64_t )1 << id ) != 0;
 	}
 	else
 	{
-		return ( achievementBits2 & ( int64 )1 << ( id - 64 ) ) != 0;
+		return ( achievementBits2 & ( int64_t )1 << ( id - 64 ) ) != 0;
 	}
 }
 

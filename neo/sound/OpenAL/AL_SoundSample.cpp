@@ -37,7 +37,7 @@ extern idCVar s_noSound;
 
 #define GPU_CONVERT_CPU_TO_CPU_CACHED_READONLY_ADDRESS( x ) x
 
-const uint32 SOUND_MAGIC_IDMSA = 0x6D7A7274;
+const uint32_t SOUND_MAGIC_IDMSA = 0x6D7A7274;
 
 extern idCVar sys_lang;
 
@@ -158,7 +158,7 @@ bool idSoundSample_OpenAL::LoadGeneratedSample( const idStr& filename )
 	idFileLocal fileIn( fileSystem->OpenFileReadMemory( filename ) );
 	if( fileIn != NULL )
 	{
-		uint32 magic;
+		uint32_t magic;
 		fileIn->ReadBig( magic );
 		fileIn->ReadBig( timestamp );
 		fileIn->ReadBig( loaded );
@@ -293,7 +293,7 @@ void idSoundSample_OpenAL::CreateOpenALBuffer()
 		CheckALErrors();
 		
 		void* buffer = NULL;
-		uint32 bufferSize = 0;
+		uint32_t bufferSize = 0;
 		
 		if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
 		{
@@ -302,7 +302,7 @@ void idSoundSample_OpenAL::CreateOpenALBuffer()
 			buffer = buffers[0].buffer;
 			bufferSize = buffers[0].bufferSize;
 			
-			if( MS_ADPCM_decode( ( uint8** ) &buffer, &bufferSize ) < 0 )
+			if( MS_ADPCM_decode( ( uint8_t** ) &buffer, &bufferSize ) < 0 )
 			{
 				common->Error( "idSoundSample_OpenAL::CreateOpenALBuffer: could not decode ADPCM '%s' to 16 bit format", GetName() );
 			}
@@ -982,17 +982,17 @@ ALenum idSoundSample_OpenAL::GetOpenALBufferFormat() const
 	return alFormat;
 }
 
-int32 idSoundSample_OpenAL::MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8 nybble )
+int32_t idSoundSample_OpenAL::MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8_t nybble )
 {
-	const int32 max_audioval = ( ( 1 << ( 16 - 1 ) ) - 1 );
-	const int32 min_audioval = -( 1 << ( 16 - 1 ) );
-	const int32 adaptive[] =
+	const int32_t max_audioval = ( ( 1 << ( 16 - 1 ) ) - 1 );
+	const int32_t min_audioval = -( 1 << ( 16 - 1 ) );
+	const int32_t adaptive[] =
 	{
 		230, 230, 230, 230, 307, 409, 512, 614,
 		768, 614, 512, 409, 307, 230, 230, 230
 	};
 	
-	int32 new_sample, delta;
+	int32_t new_sample, delta;
 	
 	new_sample = ( ( state->iSamp1 * state->coef1 ) +
 				   ( state->iSamp2 * state->coef2 ) ) / 256;
@@ -1015,38 +1015,38 @@ int32 idSoundSample_OpenAL::MS_ADPCM_nibble( MS_ADPCM_decodeState_t* state, int8
 		new_sample = max_audioval;
 	}
 	
-	delta = ( ( int32 ) state->iDelta * adaptive[nybble] ) / 256;
+	delta = ( ( int32_t ) state->iDelta * adaptive[nybble] ) / 256;
 	if( delta < 16 )
 	{
 		delta = 16;
 	}
 	
-	state->iDelta = ( uint16 ) delta;
+	state->iDelta = ( uint16_t ) delta;
 	state->iSamp2 = state->iSamp1;
-	state->iSamp1 = ( int16 ) new_sample;
+	state->iSamp1 = ( int16_t ) new_sample;
 	
 	return ( new_sample );
 }
 
-int idSoundSample_OpenAL::MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len )
+int idSoundSample_OpenAL::MS_ADPCM_decode( uint8_t** audio_buf, uint32_t* audio_len )
 {
 	static MS_ADPCM_decodeState_t	states[2];
 	MS_ADPCM_decodeState_t*			state[2];
 	
-	uint8* freeable, *encoded, *decoded;
-	int32 encoded_len, samplesleft;
-	int8 nybble;
-	int8 stereo;
-	int32 new_sample;
+	uint8_t* freeable, *encoded, *decoded;
+	int32_t encoded_len, samplesleft;
+	int8_t nybble;
+	int8_t stereo;
+	int32_t new_sample;
 	
 	// Allocate the proper sized output buffer
 	encoded_len = *audio_len;
 	encoded = *audio_buf;
 	freeable = *audio_buf;
 	
-	*audio_len = ( encoded_len / format.basic.blockSize ) * format.extra.adpcm.samplesPerBlock * format.basic.numChannels * sizeof( int16 );
+	*audio_len = ( encoded_len / format.basic.blockSize ) * format.extra.adpcm.samplesPerBlock * format.basic.numChannels * sizeof( int16_t );
 	
-	*audio_buf = ( uint8* ) Mem_Alloc( *audio_len, TAG_AUDIO );
+	*audio_buf = ( uint8_t* ) Mem_Alloc( *audio_len, TAG_AUDIO );
 	if( *audio_buf == NULL )
 	{
 		//SDL_Error( SDL_ENOMEM );
@@ -1084,27 +1084,27 @@ int idSoundSample_OpenAL::MS_ADPCM_decode( uint8** audio_buf, uint32* audio_len 
 		}
 		
 		state[0]->iDelta = ( ( encoded[1] << 8 ) | encoded[0] );
-		encoded += sizeof( int16 );
+		encoded += sizeof( int16_t );
 		if( stereo )
 		{
 			state[1]->iDelta = ( ( encoded[1] << 8 ) | encoded[0] );
-			encoded += sizeof( int16 );
+			encoded += sizeof( int16_t );
 		}
 		
 		state[0]->iSamp1 = ( ( encoded[1] << 8 ) | encoded[0] );
-		encoded += sizeof( int16 );
+		encoded += sizeof( int16_t );
 		if( stereo )
 		{
 			state[1]->iSamp1 = ( ( encoded[1] << 8 ) | encoded[0] );
-			encoded += sizeof( int16 );
+			encoded += sizeof( int16_t );
 		}
 		
 		state[0]->iSamp2 = ( ( encoded[1] << 8 ) | encoded[0] );
-		encoded += sizeof( int16 );
+		encoded += sizeof( int16_t );
 		if( stereo )
 		{
 			state[1]->iSamp2 = ( ( encoded[1] << 8 ) | encoded[0] );
-			encoded += sizeof( int16 );
+			encoded += sizeof( int16_t );
 		}
 		
 		

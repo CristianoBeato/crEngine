@@ -51,9 +51,9 @@ private:
 	
 	struct swfSPEdge_t
 	{
-		uint16 v0;
-		uint16 v1;
-		uint16 cp;	// control point if this is a curve, 0xFFFF otherwise
+		uint16_t v0;
+		uint16_t v1;
+		uint16_t cp;	// control point if this is a curve, 0xFFFF otherwise
 	};
 	struct swfSPMorphEdge_t
 	{
@@ -63,8 +63,8 @@ private:
 	struct swfSPLineLoop_t
 	{
 		bool hole;
-		idList< uint16, TAG_SWF > vindex1;
-		idList< uint16, TAG_SWF > vindex2;
+		idList< uint16_t, TAG_SWF > vindex1;
+		idList< uint16_t, TAG_SWF > vindex2;
 	};
 	struct swfSPDrawFill_t
 	{
@@ -85,7 +85,7 @@ private:
 private:
 	void ParseShapes( idSWFBitStream& bitstream1, idSWFBitStream* bitstream2, bool swap );
 	void ReadFillStyle( idSWFBitStream& bitstream );
-	void ParseEdge( idSWFBitStream& bitstream, int32& penX, int32& penY, swfSPEdge_t& edge );
+	void ParseEdge( idSWFBitStream& bitstream, int32_t& penX, int32_t& penY, swfSPEdge_t& edge );
 	void MakeLoops();
 	void TriangulateSoup( idSWFShape& shape );
 	void TriangulateSoup( idSWFFontGlyph& shape );

@@ -78,7 +78,7 @@ const char* idLocalization::FindString( const char* inString )
 idLocalization::VerifyUTF8
 ========================
 */
-utf8Encoding_t idLocalization::VerifyUTF8( const uint8* buffer, const int bufferLen, const char* name )
+utf8Encoding_t idLocalization::VerifyUTF8( const uint8_t* buffer, const int bufferLen, const char* name )
 {
 	utf8Encoding_t encoding;
 	idStr::IsValidUTF8( buffer, bufferLen, encoding );
@@ -206,7 +206,7 @@ bool idLangDict::Load( const byte* buffer, const int bufferLen, const char* name
 	int i = 0;
 	while( i < bufferLen )
 	{
-		uint32 c = buffer[i++];
+		uint32_t c = buffer[i++];
 		if( c == '/' )    // comment, read until new line
 		{
 			while( i < bufferLen )

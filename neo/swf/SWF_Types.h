@@ -49,7 +49,7 @@ struct swfHeader_t
 	byte W;
 	byte S;
 	byte version;
-	uint32 fileLength;
+	uint32_t fileLength;
 };
 struct swfRect_t
 {
@@ -82,48 +82,48 @@ struct swfColorRGB_t
 {
 	swfColorRGB_t();
 	idVec4 ToVec4() const;
-	uint8 r, g, b;
+	uint8_t r, g, b;
 };
 struct swfColorRGBA_t : public swfColorRGB_t
 {
 	swfColorRGBA_t();
 	idVec4 ToVec4() const;
-	uint8 a;
+	uint8_t a;
 };
 struct swfLineStyle_t
 {
 	swfLineStyle_t();
-	uint16 startWidth;
-	uint16 endWidth;
+	uint16_t startWidth;
+	uint16_t endWidth;
 	swfColorRGBA_t startColor;
 	swfColorRGBA_t endColor;
 };
 struct swfGradientRecord_t
 {
 	swfGradientRecord_t();
-	uint8 startRatio;
-	uint8 endRatio;
+	uint8_t startRatio;
+	uint8_t endRatio;
 	swfColorRGBA_t startColor;
 	swfColorRGBA_t endColor;
 };
 struct swfGradient_t
 {
 	swfGradient_t();
-	uint8 numGradients;
+	uint8_t numGradients;
 	swfGradientRecord_t gradientRecords[ 16 ];
 };
 struct swfFillStyle_t
 {
 	swfFillStyle_t();
-	uint8 type;			// 0 = solid, 1 = gradient, 4 = bitmap
-	uint8 subType;		// 0 = linear, 2 = radial, 3 = focal; 0 = repeat, 1 = clamp, 2 = near repeat, 3 = near clamp
+	uint8_t type;			// 0 = solid, 1 = gradient, 4 = bitmap
+	uint8_t subType;		// 0 = linear, 2 = radial, 3 = focal; 0 = repeat, 1 = clamp, 2 = near repeat, 3 = near clamp
 	swfColorRGBA_t startColor;	// if type = 0
 	swfColorRGBA_t endColor;	// if type = 0
 	swfMatrix_t startMatrix;	// if type > 0
 	swfMatrix_t endMatrix;		// if type > 0
 	swfGradient_t gradient;	// if type = 1
 	float focalPoint;		// if type = 1 and subType = 3
-	uint16 bitmapID;		// if type = 4
+	uint16_t bitmapID;		// if type = 4
 };
 class idSWFShapeDrawFill
 {
@@ -131,7 +131,7 @@ public:
 	swfFillStyle_t style;
 	idList< idVec2, TAG_SWF > startVerts;
 	idList< idVec2, TAG_SWF > endVerts;
-	idList< uint16, TAG_SWF > indices;
+	idList< uint16_t, TAG_SWF > indices;
 };
 class idSWFShapeDrawLine
 {
@@ -139,7 +139,7 @@ public:
 	swfLineStyle_t style;
 	idList< idVec2, TAG_SWF > startVerts;
 	idList< idVec2, TAG_SWF > endVerts;
-	idList< uint16, TAG_SWF > indices;
+	idList< uint16_t, TAG_SWF > indices;
 };
 class idSWFShape
 {
@@ -158,38 +158,38 @@ class idSWFFontGlyph
 {
 public:
 	idSWFFontGlyph();
-	uint16 code;
-	int16 advance;
+	uint16_t code;
+	int16_t advance;
 	idList< idVec2, TAG_SWF > verts;
-	idList< uint16, TAG_SWF > indices;
+	idList< uint16_t, TAG_SWF > indices;
 };
 class idSWFFont
 {
 public:
 	idSWFFont();
 	class idFont* fontID;
-	int16 ascent;
-	int16 descent;
-	int16 leading;
+	int16_t ascent;
+	int16_t descent;
+	int16_t leading;
 	idList< idSWFFontGlyph, TAG_SWF > glyphs;
 };
 class idSWFTextRecord
 {
 public:
 	idSWFTextRecord();
-	uint16 fontID;
+	uint16_t fontID;
 	swfColorRGBA_t color;
-	int16 xOffset;
-	int16 yOffset;
-	uint16 textHeight;
-	uint16 firstGlyph;
-	uint8 numGlyphs;
+	int16_t xOffset;
+	int16_t yOffset;
+	uint16_t textHeight;
+	uint16_t firstGlyph;
+	uint8_t numGlyphs;
 };
 struct swfGlyphEntry_t
 {
 	swfGlyphEntry_t();
-	uint32 index;
-	int32 advance;
+	uint32_t index;
+	int32_t advance;
 };
 class idSWFText
 {
@@ -231,16 +231,16 @@ class idSWFEditText
 public:
 	idSWFEditText();
 	swfRect_t bounds;
-	uint32 flags;
-	uint16 fontID;
-	uint16 fontHeight;
+	uint32_t flags;
+	uint16_t fontID;
+	uint16_t fontHeight;
 	swfColorRGBA_t color;
-	uint16 maxLength;
+	uint16_t maxLength;
 	swfEditTextAlign_t align;
-	uint16 leftMargin;
-	uint16 rightMargin;
-	uint16 indent;
-	int16 leading;
+	uint16_t leftMargin;
+	uint16_t rightMargin;
+	uint16_t indent;
+	int16_t leading;
 	idStr variable;
 	idStr initialText;
 };
@@ -260,10 +260,10 @@ struct swfColorXform_t
 struct swfDisplayEntry_t
 {
 	swfDisplayEntry_t();
-	uint16 characterID;
-	uint16 depth;
-	uint16 clipDepth;
-	uint16 blendMode;
+	uint16_t characterID;
+	uint16_t depth;
+	uint16_t clipDepth;
+	uint16_t blendMode;
 	swfMatrix_t matrix;
 	swfColorXform_t cxf;
 	float ratio;
@@ -281,7 +281,7 @@ struct swfRenderState_t
 	int materialWidth;
 	int materialHeight;
 	int activeMasks;
-	uint8 blendMode;
+	uint8_t blendMode;
 	float ratio;
 	stereoDepthType_t stereoDepth;
 };

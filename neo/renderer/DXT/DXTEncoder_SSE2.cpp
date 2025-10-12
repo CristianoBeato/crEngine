@@ -51,8 +51,8 @@ If you have questions concerning this license or the applicable additional terms
 #define R_SHUFFLE_D( x, y, z, w )	(( (w) & 3 ) << 6 | ( (z) & 3 ) << 4 | ( (y) & 3 ) << 2 | ( (x) & 3 ))
 #endif
 
-typedef uint16	word;
-typedef uint32	dword;
+typedef uint16_t	word;
+typedef uint32_t	dword;
 
 ALIGN16( static __m128i SIMD_SSE2_zero ) = _mm_set_epi32( 0, 0, 0, 0 );
 ALIGN16( static dword SIMD_SSE2_dword_byte_mask[4] ) = { 0x000000FF, 0x000000FF, 0x000000FF, 0x000000FF };

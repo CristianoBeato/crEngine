@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 struct guiModelSurface_t
 {
 	const idMaterial* 	material;
-	uint64				glState;
+	uint64_t				glState;
 	int					firstIndex;
 	int					numIndexes;
 	stereoDepthType_t		stereoType;
@@ -57,7 +57,7 @@ public:
 	// the returned pointer will be in write-combined memory, so only make contiguous
 	// 32 bit writes and never read from it.
 	idDrawVert* AllocTris( int numVerts, const triIndex_t* indexes, int numIndexes, const idMaterial* material,
-						   const uint64 glState, const stereoDepthType_t stereoType );
+						   const uint64_t glState, const stereoDepthType_t stereoType );
 						   
 	//---------------------------
 private:

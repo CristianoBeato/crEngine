@@ -147,7 +147,7 @@ protected:
 	int						activeLobbyType;
 	int						activeGroupIndex;
 	int						sendFrame;
-	uint32					disableVoiceReasons;
+	uint32_t					disableVoiceReasons;
 	bool					sendGlobal;
 };
 

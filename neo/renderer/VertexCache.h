@@ -44,7 +44,7 @@ const int STATIC_INDEX_MEMORY = 255 * 1024 * 1024; //255 * 1024 * 1024;
 const int STATIC_VERTEX_MEMORY = 127 * 1024 * 1024;	// make sure it fits in VERTCACHE_OFFSET_MASK!
 
 // vertCacheHandle_t packs size, offset, and frame number into 64 bits
-typedef uint64 vertCacheHandle_t;
+typedef uint64_t vertCacheHandle_t;
 const int VERTCACHE_STATIC = 1;					// in the static set, not the per-frame set
 const int VERTCACHE_SIZE_SHIFT = 1;
 const int VERTCACHE_SIZE_MASK = 0x7fffff;		// 8 megs
@@ -123,8 +123,8 @@ public:
 	byte* 			MappedVertexBuffer( vertCacheHandle_t handle )
 	{
 		release_assert( !CacheIsStatic( handle ) );
-		const uint64 offset = ( int )( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-		const uint64 frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64_t offset = ( int )( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+		const uint64_t frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
 		release_assert( frameNum == ( currentFrame & VERTCACHE_FRAME_MASK ) );
 		return frameData[ listNum ].mappedVertexBase + offset;
 	}
@@ -132,8 +132,8 @@ public:
 	byte* 			MappedIndexBuffer( vertCacheHandle_t handle )
 	{
 		release_assert( !CacheIsStatic( handle ) );
-		const uint64 offset = ( int )( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-		const uint64 frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64_t offset = ( int )( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+		const uint64_t frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
 		release_assert( frameNum == ( currentFrame & VERTCACHE_FRAME_MASK ) );
 		return frameData[ listNum ].mappedIndexBase + offset;
 	}
@@ -148,7 +148,7 @@ public:
 		{
 			return true;
 		}
-		const uint64 frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		const uint64_t frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
 		if( frameNum != ( currentFrame & VERTCACHE_FRAME_MASK ) )
 		{
 			return false;

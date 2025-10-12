@@ -1595,7 +1595,7 @@ static void GetMaxStep_SIMD( const float* f, const float* a, const float* delta_
 PrintClocks
 ========================
 */
-static void PrintClocks( const char* string, int dataCount, int64 clocks, int64 otherClocks = 0 )
+static void PrintClocks( const char* string, int dataCount, int64_t clocks, int64_t otherClocks = 0 )
 {
 	idLib::Printf( string );
 	for( int i = idStr::LengthWithoutColors( string ); i < 48; i++ )
@@ -1645,7 +1645,7 @@ static void DotProduct_Test()
 	{
 	
 		float dot1 = DotProduct_Generic( fsrc0, fsrc1, i );
-		int64 clocksGeneric = 0xFFFFFFFFFFFF;
+		int64_t clocksGeneric = 0xFFFFFFFFFFFF;
 		for( int j = 0; j < NUM_TESTS; j++ )
 		{
 			fsrc1[TEST_TRIANGULAR_SOLVE_SIZE] = j;
@@ -1659,7 +1659,7 @@ static void DotProduct_Test()
 		PrintClocks( va( "DotProduct_Generic %d", i ), 1, clocksGeneric );
 		
 		float dot2 = DotProduct_SIMD( fsrc0, fsrc1, i );
-		int64 clocksSIMD = 0xFFFFFFFFFFFF;
+		int64_t clocksSIMD = 0xFFFFFFFFFFFF;
 		for( int j = 0; j < NUM_TESTS; j++ )
 		{
 			fsrc1[TEST_TRIANGULAR_SOLVE_SIZE] = j;
@@ -1701,7 +1701,7 @@ static void LowerTriangularSolve_Test()
 		x.Zero( i );
 		
 		LowerTriangularSolve_Generic( L, x.ToFloatPtr(), b.ToFloatPtr(), i, skip );
-		int64 clocksGeneric = 0xFFFFFFFFFFFF;
+		int64_t clocksGeneric = 0xFFFFFFFFFFFF;
 		for( int j = 0; j < NUM_TESTS; j++ )
 		{
 			timer.Clear();
@@ -1717,7 +1717,7 @@ static void LowerTriangularSolve_Test()
 		PrintClocks( va( "LowerTriangularSolve_Generic %dx%d", i, i ), 1, clocksGeneric );
 		
 		LowerTriangularSolve_SIMD( L, x.ToFloatPtr(), b.ToFloatPtr(), i, skip );
-		int64 clocksSIMD = 0xFFFFFFFFFFFF;
+		int64_t clocksSIMD = 0xFFFFFFFFFFFF;
 		for( int j = 0; j < NUM_TESTS; j++ )
 		{
 			timer.Clear();
@@ -1756,7 +1756,7 @@ static void LowerTriangularSolveTranspose_Test()
 		x.Zero( i );
 		
 		LowerTriangularSolveTranspose_Generic( L, x.ToFloatPtr(), b.ToFloatPtr(), i );
-		int64 clocksGeneric = 0xFFFFFFFFFFFF;
+		int64_t clocksGeneric = 0xFFFFFFFFFFFF;
 		for( int j = 0; j < NUM_TESTS; j++ )
 		{
 			timer.Clear();
@@ -1772,7 +1772,7 @@ static void LowerTriangularSolveTranspose_Test()
 		PrintClocks( va( "LowerTriangularSolveTranspose_Generic %dx%d", i, i ), 1, clocksGeneric );
 		
 		LowerTriangularSolveTranspose_SIMD( L, x.ToFloatPtr(), b.ToFloatPtr(), i );
-		int64 clocksSIMD = 0xFFFFFFFFFFFF;
+		int64_t clocksSIMD = 0xFFFFFFFFFFFF;
 		for( int j = 0; j < NUM_TESTS; j++ )
 		{
 			timer.Clear();
@@ -1808,7 +1808,7 @@ static void LDLT_Factor_Test()
 	for( int i = 1; i < TEST_FACTOR_SOLVE_SIZE; i++ )
 	{
 	
-		int64 clocksGeneric = 0xFFFFFFFFFFFF;
+		int64_t clocksGeneric = 0xFFFFFFFFFFFF;
 		for( int j = 0; j < NUM_TESTS; j++ )
 		{
 			mat1 = original;
@@ -1822,7 +1822,7 @@ static void LDLT_Factor_Test()
 		
 		PrintClocks( va( "LDLT_Factor_Generic %dx%d", i, i ), 1, clocksGeneric );
 		
-		int64 clocksSIMD = 0xFFFFFFFFFFFF;
+		int64_t clocksSIMD = 0xFFFFFFFFFFFF;
 		for( int j = 0; j < NUM_TESTS; j++ )
 		{
 			mat2 = original;

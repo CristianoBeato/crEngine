@@ -125,7 +125,7 @@ struct lobbyUser_t
 	bool				disconnecting;		// true if we've sent a msg to disconnect this user from the session
 	int					level;
 	int					teamNumber;
-	uint32				partyToken;			// set by the server when people join as a party
+	uint32_t				partyToken;			// set by the server when people join as a party
 	
 	int					selectedSkin;
 	bool				weaponAutoSwitch;

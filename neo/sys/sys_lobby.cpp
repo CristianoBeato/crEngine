@@ -134,7 +134,7 @@ void idLobby::Initialize( lobbyType_t sessionType_, idSessionCallbacks* callback
 	if( lobbyType == GetActingGameStateLobbyType() )
 	{
 		// only needed in multiplayer mode
-		objMemory		= ( uint8* )Mem_Alloc( SNAP_OBJ_JOB_MEMORY, TAG_NETWORKING );
+		objMemory		= ( uint8_t* )Mem_Alloc( SNAP_OBJ_JOB_MEMORY, TAG_NETWORKING );
 		lzwData			= ( lzwCompressionData_t* )Mem_Alloc( sizeof( lzwCompressionData_t ), TAG_NETWORKING );
 	}
 }
@@ -667,7 +667,7 @@ void idLobby::HandlePacket( lobbyAddress_t& remoteAddress, idBitMsg fragMsg, idP
 				// If we are the host, we assume we only receive usercmds on the inband channel
 				
 				int snapNum = 0;
-				uint16 receivedBps_quantized = 0;
+				uint16_t receivedBps_quantized = 0;
 				
 				byte usercmdBuffer[idPacketProcessor::MAX_FINAL_PACKET_SIZE];
 				
@@ -2306,7 +2306,7 @@ void idLobby::NotifyPartyOfLeavingGameLobby()
 idLobby::GetPartyTokenAsHost
 ========================
 */
-uint32 idLobby::GetPartyTokenAsHost()
+uint32_t idLobby::GetPartyTokenAsHost()
 {
 	assert( lobbyType == TYPE_PARTY );
 	assert( IsHost() );
@@ -2334,11 +2334,11 @@ uint32 idLobby::GetPartyTokenAsHost()
 idLobby::EncodeSessionID
 ========================
 */
-idPacketProcessor::sessionId_t idLobby::EncodeSessionID( uint32 key ) const
+idPacketProcessor::sessionId_t idLobby::EncodeSessionID( uint32_t key ) const
 {
-	assert( sizeof( uint32 ) >= sizeof( idPacketProcessor::sessionId_t ) );
+	assert( sizeof( uint32_t ) >= sizeof( idPacketProcessor::sessionId_t ) );
 	const int numBits = sizeof( idPacketProcessor::sessionId_t ) * 8 - idPacketProcessor::NUM_LOBBY_TYPE_BITS;
-	const uint32 mask = ( 1 << numBits ) - 1;
+	const uint32_t mask = ( 1 << numBits ) - 1;
 	idPacketProcessor::sessionId_t sessionID = ( key & mask ) << idPacketProcessor::NUM_LOBBY_TYPE_BITS;
 	sessionID |= ( lobbyType + 1 );
 	return sessionID;
@@ -2349,9 +2349,9 @@ idPacketProcessor::sessionId_t idLobby::EncodeSessionID( uint32 key ) const
 idLobby::EncodeSessionID
 ========================
 */
-void idLobby::DecodeSessionID( idPacketProcessor::sessionId_t sessionID, uint32& key ) const
+void idLobby::DecodeSessionID( idPacketProcessor::sessionId_t sessionID, uint32_t& key ) const
 {
-	assert( sizeof( uint32 ) >= sizeof( idPacketProcessor::sessionId_t ) );
+	assert( sizeof( uint32_t ) >= sizeof( idPacketProcessor::sessionId_t ) );
 	key = sessionID >> idPacketProcessor::NUM_LOBBY_TYPE_BITS;
 }
 
@@ -2413,7 +2413,7 @@ idPacketProcessor::sessionId_t idLobby::IncrementSessionID( idPacketProcessor::s
 	// Increment, taking into account valid id's
 	while( 1 )
 	{
-		uint32 key = 0;
+		uint32_t key = 0;
 		
 		DecodeSessionID( sessionID, key );
 		
@@ -4571,7 +4571,7 @@ void idLobby::SendReliable( int type, idBitMsg& msg, bool callReceiveReliable /*
 		common->NetReceiveReliable( -1, type, msg );
 	}
 	
-	uint32 sentPeerMask = 0;
+	uint32_t sentPeerMask = 0;
 	for( int i = 0; i < GetNumLobbyUsers(); ++i )
 	{
 		lobbyUser_t* user = GetLobbyUser( i );

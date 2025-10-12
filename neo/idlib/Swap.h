@@ -252,7 +252,7 @@ private:
 #endif
 };
 
-#define BIG32(v) ((((uint32)(v)) >> 24) | (((uint32)(v) & 0x00FF0000) >> 8) | (((uint32)(v) & 0x0000FF00) << 8) | ((uint32)(v) << 24))
-#define BIG16(v) ((((uint16)(v)) >> 8) | ((uint16)(v) << 8))
+#define BIG32(v) ((((uint32_t)(v)) >> 24) | (((uint32_t)(v) & 0x00FF0000) >> 8) | (((uint32_t)(v) & 0x0000FF00) << 8) | ((uint32_t)(v) << 24))
+#define BIG16(v) ((((uint16_t)(v)) >> 8) | ((uint16_t)(v) << 8))
 
 #endif // !__SWAP_H__

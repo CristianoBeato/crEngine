@@ -329,7 +329,7 @@ public:
 static const struct silhouetteEdges_t
 {
 	byte	indices[12];
-	int32	count;
+	int32_t	count;
 } boxSilhouetteEdgesForFrontBits[64] =
 {
 	{ {  0,  1,  2,  3,  4,  5,  6,  7,  8,  9, 10, 11 }, 12 }, // 000000 = 0 inside the box, every edge is considered part of the silhouette

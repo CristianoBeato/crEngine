@@ -131,19 +131,19 @@ struct wrapperStats_t
 void			GL_SetWrapperContext( const wrapperContext_t& context );
 void			GL_SetWrapperConfig( const wrapperConfig_t& config );
 
-void			GL_SetTimeDelta( uint64 delta );	// delta from GPU to CPU microseconds
+void			GL_SetTimeDelta( uint64_t delta );	// delta from GPU to CPU microseconds
 void			GL_StartFrame( int frame );			// inserts a timing mark for the start of the GPU frame
 void			GL_EndFrame();						// inserts a timing mark for the end of the GPU frame
 void			GL_WaitForEndFrame();				// wait for the GPU to reach the last end frame marker
-void			GL_GetLastFrameTime( uint64& startGPUTimeMicroSec, uint64& endGPUTimeMicroSec );	// GPU time between GL_StartFrame() and GL_EndFrame()
+void			GL_GetLastFrameTime( uint64_t& startGPUTimeMicroSec, uint64_t& endGPUTimeMicroSec );	// GPU time between GL_StartFrame() and GL_EndFrame()
 void			GL_StartDepthPass( const idScreenRect& rect );
 void			GL_FinishDepthPass();
 void			GL_GetDepthPassRect( idScreenRect& rect );
 
 void			GL_SetDefaultState();
-void			GL_State( uint64 stateVector, bool forceGlState = false );
-uint64			GL_GetCurrentState();
-uint64			GL_GetCurrentStateMinusStencil();
+void			GL_State( uint64_t stateVector, bool forceGlState = false );
+uint64_t			GL_GetCurrentState();
+uint64_t			GL_GetCurrentStateMinusStencil();
 void			GL_Cull( int cullType );
 void			GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h );
 void			GL_Viewport( int x /* left */, int y /* bottom */, int w, int h );

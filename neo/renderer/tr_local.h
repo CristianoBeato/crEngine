@@ -116,7 +116,7 @@ struct drawSurf_t
 	vertCacheHandle_t		jointCache;			// idJointMat
 	const viewEntity_t* 	space;
 	const idMaterial* 		material;			// may be NULL for shadow volumes
-	uint64					extraGLState;		// Extra GL state |'d with material->stage[].drawStateBits
+	uint64_t					extraGLState;		// Extra GL state |'d with material->stage[].drawStateBits
 	float					sort;				// material->sort, modified by gui / entity sort offsets
 	const float* 				shaderRegisters;	// evaluated and adjusted for referenceShaders
 	drawSurf_t* 			nextOnLight;		// viewLight chains
@@ -707,7 +707,7 @@ struct glstate_t
 	float				polyOfsScale;
 	float				polyOfsBias;
 	
-	uint64				glStateBits;
+	uint64_t				glStateBits;
 };
 
 struct backEndCounters_t
@@ -804,8 +804,8 @@ public:
 	virtual void			PrintMemInfo( MemInfo_t* mi );
 	
 	virtual void			SetColor( const idVec4& color );
-	virtual uint32			GetColor();
-	virtual void			SetGLState( const uint64 glState ) ;
+	virtual uint32_t			GetColor();
+	virtual void			SetGLState( const uint64_t glState ) ;
 	virtual void			DrawFilled( const idVec4& color, float x, float y, float w, float h );
 	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material );
 	virtual void			DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material );
@@ -819,13 +819,13 @@ public:
 	virtual void			WriteDemoPics();
 	virtual void			WriteEndFrame();
 	virtual void			DrawDemoPics();
-	virtual const emptyCommand_t* 	SwapCommandBuffers( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec );
+	virtual const emptyCommand_t* 	SwapCommandBuffers( uint64_t* frontEndMicroSec, uint64_t* backEndMicroSec, uint64_t* shadowMicroSec, uint64_t* gpuMicroSec );
 	// foresthale 2014-05-19: the editor views need some wrapper code to set up a view render and restore state afterward so that the fixed function OpenGL code of the editors keep working
 	virtual void			Editor_SetupState();
 	virtual void			Editor_BeginView(int width, int height, int &restoreWidth, int &restoreHeight);
 	virtual void			Editor_EndView(int restoreWidth, int restoreHeight);
 	
-	virtual void			SwapCommandBuffers_FinishRendering( uint64* frontEndMicroSec, uint64* backEndMicroSec, uint64* shadowMicroSec, uint64* gpuMicroSec );
+	virtual void			SwapCommandBuffers_FinishRendering( uint64_t* frontEndMicroSec, uint64_t* backEndMicroSec, uint64_t* shadowMicroSec, uint64_t* gpuMicroSec );
 	virtual const emptyCommand_t* 	SwapCommandBuffers_FinishCommandBuffers();
 	
 	virtual void			RenderCommandBuffers( const emptyCommand_t* commandBuffers );
@@ -897,8 +897,8 @@ public:
 	
 	// GUI drawing variables for surface creation
 	int						guiRecursionLevel;		// to prevent infinite overruns
-	uint32					currentColorNativeBytesOrder;
-	uint64					currentGLState;
+	uint32_t					currentColorNativeBytesOrder;
+	uint64_t					currentGLState;
 	class idGuiModel* 		guiModel;
 	
 	idList<idFont*, TAG_FONT>		fonts;

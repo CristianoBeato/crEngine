@@ -43,7 +43,7 @@ public:
 	static const int RETURN_TYPE_OOB; //			= 1;
 	static const int RETURN_TYPE_INBAND; //			= 2;
 	// DG end
-	typedef uint16				sessionId_t;
+	typedef uint16_t				sessionId_t;
 	
 	static const int NUM_LOBBY_TYPE_BITS		= 2;
 	static const int LOBBY_TYPE_MASK			= ( 1 << NUM_LOBBY_TYPE_BITS ) - 1;

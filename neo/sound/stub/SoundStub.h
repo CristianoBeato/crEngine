@@ -77,7 +77,7 @@ public:
 		return false;
 	}
 	
-	uint32					GetSampleRate() const
+	uint32_t					GetSampleRate() const
 	{
 		return 0;
 	}
@@ -249,7 +249,7 @@ protected:
 	bool			levelLoadReferenced;
 	bool			usesMapHeap;
 	
-	uint32			lastPlayedTime;
+	uint32_t			lastPlayedTime;
 	
 	int				totalBufferSize;	// total size of all the buffers
 	idList<sampleBuffer_t, TAG_AUDIO> buffers;

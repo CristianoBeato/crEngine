@@ -310,7 +310,7 @@ void idDmapRenderSystemLocal::SetColor(const idVec4& rgba)
 idDmapRenderSystemLocal::GetColor
 =============
 */
-uint32 idDmapRenderSystemLocal::GetColor()
+uint32_t idDmapRenderSystemLocal::GetColor()
 {
 	return LittleLong(currentColorNativeBytesOrder);
 }
@@ -320,7 +320,7 @@ uint32 idDmapRenderSystemLocal::GetColor()
 idDmapRenderSystemLocal::SetGLState
 =============
 */
-void idDmapRenderSystemLocal::SetGLState(const uint64 glState)
+void idDmapRenderSystemLocal::SetGLState(const uint64_t glState)
 {
 	currentGLState = glState;
 }
@@ -649,10 +649,10 @@ with the rendering of the closed off command buffers by RenderCommandBuffers()
 ====================
 */
 const emptyCommand_t* idDmapRenderSystemLocal::SwapCommandBuffers(
-	uint64* frontEndMicroSec,
-	uint64* backEndMicroSec,
-	uint64* shadowMicroSec,
-	uint64* gpuMicroSec)
+	uint64_t* frontEndMicroSec,
+	uint64_t* backEndMicroSec,
+	uint64_t* shadowMicroSec,
+	uint64_t* gpuMicroSec)
 {
 
 	SwapCommandBuffers_FinishRendering(frontEndMicroSec, backEndMicroSec, shadowMicroSec, gpuMicroSec);
@@ -666,10 +666,10 @@ idDmapRenderSystemLocal::SwapCommandBuffers_FinishRendering
 =====================
 */
 void idDmapRenderSystemLocal::SwapCommandBuffers_FinishRendering(
-	uint64* frontEndMicroSec,
-	uint64* backEndMicroSec,
-	uint64* shadowMicroSec,
-	uint64* gpuMicroSec)
+	uint64_t* frontEndMicroSec,
+	uint64_t* backEndMicroSec,
+	uint64_t* shadowMicroSec,
+	uint64_t* gpuMicroSec)
 {
 	SCOPED_PROFILE_EVENT("SwapCommandBuffers");
 
@@ -696,7 +696,7 @@ void idDmapRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	// read back the start and end timer queries from the previous frame
 	if (glConfig.timerQueryAvailable)
 	{
-		// RB: 64 bit fixes, changed int64 to GLuint64EXT
+		// RB: 64 bit fixes, changed int64_t to GLuint64EXT
 		GLuint64EXT drawingTimeNanoseconds = 0;
 		// RB end
 

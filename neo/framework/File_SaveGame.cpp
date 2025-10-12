@@ -406,7 +406,7 @@ bool idFile_SaveGamePipelined::OpenForWriting( const char* const filename, bool 
 	
 	if( sgf_checksums.GetBool() )
 	{
-		zStream.avail_out -= sizeof( uint32 );
+		zStream.avail_out -= sizeof( uint32_t );
 	}
 	
 	if( sgf_threads.GetInteger() >= 1 )
@@ -466,7 +466,7 @@ bool idFile_SaveGamePipelined::OpenForWriting( idFile* file )
 	
 	if( sgf_checksums.GetBool() )
 	{
-		zStream.avail_out -= sizeof( uint32 );
+		zStream.avail_out -= sizeof( uint32_t );
 	}
 	
 	if( sgf_threads.GetInteger() >= 1 )
@@ -646,8 +646,8 @@ void idFile_SaveGamePipelined::CompressBlock()
 		
 			if( sgf_checksums.GetBool() )
 			{
-				size_t blockSize = zStream.total_out + numChecksums * sizeof( uint32 ) - compressedProducedBytes;
-				uint32 checksum = MD5_BlockChecksum( zStream.next_out - blockSize, blockSize );
+				size_t blockSize = zStream.total_out + numChecksums * sizeof( uint32_t ) - compressedProducedBytes;
+				uint32_t checksum = MD5_BlockChecksum( zStream.next_out - blockSize, blockSize );
 				zStream.next_out[0] = ( ( checksum >>  0 ) & 0xFF );
 				zStream.next_out[1] = ( ( checksum >>  8 ) & 0xFF );
 				zStream.next_out[2] = ( ( checksum >> 16 ) & 0xFF );
@@ -656,7 +656,7 @@ void idFile_SaveGamePipelined::CompressBlock()
 			}
 			
 			// flush the output buffer IO
-			compressedProducedBytes = zStream.total_out + numChecksums * sizeof( uint32 );
+			compressedProducedBytes = zStream.total_out + numChecksums * sizeof( uint32_t );
 			FlushCompressedBlock();
 			if( zstat == Z_STREAM_END )
 			{
@@ -672,7 +672,7 @@ void idFile_SaveGamePipelined::CompressBlock()
 			
 			if( sgf_checksums.GetBool() )
 			{
-				zStream.avail_out -= sizeof( uint32 );
+				zStream.avail_out -= sizeof( uint32_t );
 			}
 		}
 	}
@@ -1075,8 +1075,8 @@ void idFile_SaveGamePipelined::DecompressBlock()
 				{
 					zStream.next_in[0] ^= 0xFF;
 				}
-				zStream.avail_in -= sizeof( uint32 );
-				uint32 checksum = MD5_BlockChecksum( zStream.next_in, zStream.avail_in );
+				zStream.avail_in -= sizeof( uint32_t );
+				uint32_t checksum = MD5_BlockChecksum( zStream.next_in, zStream.avail_in );
 				if(	!verify( zStream.next_in[zStream.avail_in + 0] == ( ( checksum >>  0 ) & 0xFF ) ) ||
 						!verify( zStream.next_in[zStream.avail_in + 1] == ( ( checksum >>  8 ) & 0xFF ) ) ||
 						!verify( zStream.next_in[zStream.avail_in + 2] == ( ( checksum >> 16 ) & 0xFF ) ) ||
@@ -1221,29 +1221,29 @@ static void TestProcessFile( const char* const filename )
 	idFile_SaveGamePipelined* saveFile = new( TAG_IDFILE ) idFile_SaveGamePipelined;
 	saveFile->OpenForWriting( outFileName, true );
 	
-	const uint64 startWriteMicroseconds = Sys_Microseconds();
+	const uint64_t startWriteMicroseconds = Sys_Microseconds();
 	
 	saveFile->Write( testData, testDataLength );
 	delete saveFile;		// final flush
 	const int readDataLength = fileSystem->GetFileLength( outFileName );
 	
-	const uint64 endWriteMicroseconds = Sys_Microseconds();
-	const uint64 writeMicroseconds = endWriteMicroseconds - startWriteMicroseconds;
+	const uint64_t endWriteMicroseconds = Sys_Microseconds();
+	const uint64_t writeMicroseconds = endWriteMicroseconds - startWriteMicroseconds;
 	
 	idLib::Printf( "%lld microseconds to compress %i bytes to %i written bytes = %4.1f MB/s\n",
 				   writeMicroseconds, testDataLength, readDataLength, ( float )readDataLength / writeMicroseconds );
 				   
 	void* readData = ( void* )Mem_Alloc( testDataLength, TAG_SAVEGAMES );
 	
-	const uint64 startReadMicroseconds = Sys_Microseconds();
+	const uint64_t startReadMicroseconds = Sys_Microseconds();
 	
 	idFile_SaveGamePipelined* loadFile = new( TAG_IDFILE ) idFile_SaveGamePipelined;
 	loadFile->OpenForReading( outFileName, true );
 	loadFile->Read( readData, testDataLength );
 	delete loadFile;
 	
-	const uint64 endReadMicroseconds = Sys_Microseconds();
-	const uint64 readMicroseconds = endReadMicroseconds - startReadMicroseconds;
+	const uint64_t endReadMicroseconds = Sys_Microseconds();
+	const uint64_t readMicroseconds = endReadMicroseconds - startReadMicroseconds;
 	
 	idLib::Printf( "%lld microseconds to decompress = %4.1f MB/s\n", readMicroseconds, ( float )testDataLength / readMicroseconds );
 	

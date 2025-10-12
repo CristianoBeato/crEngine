@@ -111,8 +111,8 @@ struct leaderboardDefinition_t
 	{
 	}
 	
-	int32				id;
-	int32				numColumns;
+	int32_t				id;
+	int32_t				numColumns;
 	const columnDef_t* 	columnDefs;
 	rankOrder_t			rankOrder;
 	bool				supportsAttachments;
@@ -122,10 +122,10 @@ struct leaderboardDefinition_t
 
 struct column_t
 {
-	column_t( int64 value_ ) : value( value_ ) {}
+	column_t( int64_t value_ ) : value( value_ ) {}
 	column_t() {}
 	
-	int64				value;
+	int64_t				value;
 };
 
 
@@ -135,7 +135,7 @@ Contains the Achievement and LeaderBoard free function declarations.
 ================================================================================================
 */
 
-typedef int32			leaderboardHandle_t;
+typedef int32_t			leaderboardHandle_t;
 
 /*
 ================================================
@@ -147,8 +147,8 @@ class idLeaderBoardEntry
 public:
 	static const int MAX_LEADERBOARD_COLUMNS = 16;
 	idStr username; // aka gamertag
-	int64 score;
-	int64 columns[ MAX_LEADERBOARD_COLUMNS ];
+	int64_t score;
+	int64_t columns[ MAX_LEADERBOARD_COLUMNS ];
 };
 
 const leaderboardDefinition_t* Sys_FindLeaderboardDef( int id );

@@ -277,8 +277,8 @@ private:
 	idSysSignal				blockFinished;
 	
 	idStrStatic< 32 >		buildVersion;		// build version this file was saved with
-	int16					pointerSize;		// the number of bytes in a pointer, because different pointer sizes mean different offsets into objects a 64 bit build cannot load games saved from a 32 bit build or vice version (a value of 0 is interpreted as 4 bytes)
-	int16					saveFormatVersion;	// version number specific to save games (for maintaining save compatibility across builds)
+	int16_t					pointerSize;		// the number of bytes in a pointer, because different pointer sizes mean different offsets into objects a 64 bit build cannot load games saved from a 32 bit build or vice version (a value of 0 is interpreted as 4 bytes)
+	int16_t					saveFormatVersion;	// version number specific to save games (for maintaining save compatibility across builds)
 	
 	//------------------------
 	// These variables are used when we want to abort due to the termination of the application

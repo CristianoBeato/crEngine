@@ -86,7 +86,7 @@ public:
 	// returns true if we can re-use this voice
 	bool					CompatibleFormat( idSoundSample_OpenAL* s );
 	
-	uint32					GetSampleRate() const
+	uint32_t					GetSampleRate() const
 	{
 		return sampleRate;
 	}
@@ -113,7 +113,7 @@ private:
 	int						SubmitBuffer( idSoundSample_OpenAL* sample, int bufferNumber, int offset );
 	
 	// Adjust the voice frequency based on the new sample rate for the buffer
-	void					SetSampleRate( uint32 newSampleRate, uint32 operationSet );
+	void					SetSampleRate( uint32_t newSampleRate, uint32_t operationSet );
 	
 	//IXAudio2SourceVoice* 	pSourceVoice;
 	bool					triggered;
@@ -126,11 +126,11 @@ private:
 	idSoundSample_OpenAL*	loopingSample;
 	
 	// These are the fields from the sample format that matter to us for voice reuse
-	uint16					formatTag;
-	uint16					numChannels;
+	uint16_t					formatTag;
+	uint16_t					numChannels;
 	
-	uint32					sourceVoiceRate;
-	uint32					sampleRate;
+	uint32_t					sourceVoiceRate;
+	uint32_t					sampleRate;
 	
 	bool					hasVUMeter;
 	bool					paused;

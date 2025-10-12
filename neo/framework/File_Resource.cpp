@@ -54,7 +54,7 @@ void idResourceContainer::ReOpen()
 idResourceContainer::Init
 ========================
 */
-bool idResourceContainer::Init( const char* _fileName, uint8 containerIndex )
+bool idResourceContainer::Init( const char* _fileName, uint8_t containerIndex )
 {
 
 	if( idStr::Icmp( _fileName, "_ordered.resources" ) == 0 )
@@ -186,7 +186,7 @@ void idResourceContainer::UpdateResourceFile( const char* _filename, const idStr
 		return;
 	}
 	
-	uint32 magic = 0;
+	uint32_t magic = 0;
 	int _tableOffset = 0;
 	int _tableLength = 0;
 	idList< idResourceCacheEntry > entries;
@@ -322,7 +322,7 @@ void idResourceContainer::RemoveResourceFiles( const char* _filename, const idSt
 		return;
 	}
 	
-	uint32 magic = 0;
+	uint32_t magic = 0;
 	int _tableOffset = 0;
 	int _tableLength = 0;
 	idList< idResourceCacheEntry > entries;
@@ -446,7 +446,7 @@ void idResourceContainer::ExtractResourceFile( const char* _fileName, const char
 		return;
 	}
 	
-	uint32 magic;
+	uint32_t magic;
 	inFile->ReadBig( magic );
 	if( magic != RESOURCE_FILE_MAGIC )
 	{
@@ -523,7 +523,7 @@ void idResourceContainer::WriteResourceFile( const char* manifestName, const idS
 	idList < idStrList > outPutFiles;
 	
 	idFileManifest outManifest;
-	int64 size = 0;
+	size_t size = 0;
 	idStrList flist;
 	flist.SetGranularity( 16384 );
 	for( int i = 0; i < manifest.Num(); i++ )
@@ -579,7 +579,7 @@ void idResourceContainer::WriteResourceFile( const char* manifestName, const idS
 		int	tableOffset = 0;
 		int	tableLength = 0;
 		int	tableNewLength = 0;
-		uint32	resourceFileMagic = RESOURCE_FILE_MAGIC;
+		uint32_t	resourceFileMagic = RESOURCE_FILE_MAGIC;
 		
 		resFile->WriteBig( resourceFileMagic );
 		resFile->WriteBig( tableOffset );

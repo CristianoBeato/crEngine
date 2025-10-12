@@ -104,21 +104,21 @@ public:
 	// Get the number of sync points.
 	unsigned int			GetNumSyncs() const;
 	// Time at which the job list was submitted.
-	uint64					GetSubmitTimeMicroSec() const;
+	uint64_t					GetSubmitTimeMicroSec() const;
 	// Time at which execution of this job list started.
-	uint64					GetStartTimeMicroSec() const;
+	uint64_t					GetStartTimeMicroSec() const;
 	// Time at which all jobs in the list were executed.
-	uint64					GetFinishTimeMicroSec() const;
+	uint64_t					GetFinishTimeMicroSec() const;
 	// Time the host thread waited for this job list to finish.
-	uint64					GetWaitTimeMicroSec() const;
+	uint64_t					GetWaitTimeMicroSec() const;
 	// Get the total time all units spent processing this job list.
-	uint64					GetTotalProcessingTimeMicroSec() const;
+	uint64_t					GetTotalProcessingTimeMicroSec() const;
 	// Get the total time all units wasted while processing this job list.
-	uint64					GetTotalWastedTimeMicroSec() const;
+	uint64_t					GetTotalWastedTimeMicroSec() const;
 	// Time the given unit spent processing this job list.
-	uint64					GetUnitProcessingTimeMicroSec( int unit ) const;
+	uint64_t					GetUnitProcessingTimeMicroSec( int unit ) const;
 	// Time the given unit wasted while processing this job list.
-	uint64					GetUnitWastedTimeMicroSec( int unit ) const;
+	uint64_t					GetUnitWastedTimeMicroSec( int unit ) const;
 	
 	// Get the job list ID
 	jobListId_t				GetId() const;
