@@ -38,98 +38,84 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // Win32
-#if defined(WIN32) || defined(_WIN32)
-
-#define	CPUSTRING						"x86"
+#if __PLATFORM_WINDOWS__
+#if _ARCH_x86_32_
+# define	CPUSTRING "x32"
+#elif _ARCH_ARM_32_
+# define	CPUSTRING "ARM32"
+#elif _ARCH_PPC_32_
+# define	CPUSTRING "ppc32"
+#elif _ARCH_x86_64_
+# define CPUSTRING  "x64"
+#elif _ARCH_ARM_64_
+# define	CPUSTRING "ARM64"
+#elif _ARCH_PPC_64_
+# define	CPUSTRING "PPC64"
+#endif
 
 #define	BUILD_STRING					"win-" CPUSTRING
 #define BUILD_OS_ID						0
 
-#ifdef _MSC_VER
-#define ALIGN16( x )					__declspec(align(16)) x
-#define ALIGNTYPE16						__declspec(align(16))
-#define ALIGNTYPE128					__declspec(align(128))
-#else
-// DG: mingw/GCC (and probably clang) support
-#define ALIGN16( x )					x __attribute__ ((aligned (16)))
-// FIXME: change ALIGNTYPE* ?
-#define ALIGNTYPE16
-#define ALIGNTYPE128
-// DG end
-#endif
-
-
 #define FORMAT_PRINTF( x )
 
 #define PATHSEPARATOR_STR				"\\"
-#define PATHSEPARATOR_CHAR				'\\'
-#define NEWLINE							"\r\n"
-
-#define ID_INLINE						inline
-#ifdef _MSC_VER
-#define ID_FORCE_INLINE					__forceinline
-#else
-// DG: this should at least work with GCC/MinGW, probably with clang as well..
-#define ID_FORCE_INLINE					inline // TODO: always_inline?
-// DG end
-#endif
-// lint complains that extern used with definition is a hazard, but it
-// has the benefit (?) of making it illegal to take the address of the function
-#ifdef _lint
-#define ID_INLINE_EXTERN				inline
-#define ID_FORCE_INLINE_EXTERN			__forceinline
-#else
-#define ID_INLINE_EXTERN				extern inline
-#ifdef _MSC_VER
-#define ID_FORCE_INLINE_EXTERN			extern __forceinline
-#else
-// DG: GCC/MinGW, probably clang
-#define ID_FORCE_INLINE_EXTERN			extern inline // TODO: always_inline ?
-// DG end
-#endif
-#endif
-
-// DG: #pragma hdrstop is only available on MSVC, so make sure it doesn't cause compiler warnings on other compilers..
-#ifdef _MSC_VER
-// afaik __pragma is a MSVC specific alternative to #pragma that can be used in macros
-#define ID_HDRSTOP __pragma(hdrstop)
-#else
-#define ID_HDRSTOP
-#endif // DG end
+#define PATHSEPARATOR_CHAR			'\\'
+#define NEWLINE							    "\r\n"
 
 // we should never rely on this define in our code. this is here so dodgy external libraries don't get confused
 #ifndef WIN32
 #define WIN32
 #endif
 
+#elif __PLATFORM_LINUX__ 
 
-#elif defined(__linux__) || defined(__FreeBSD__)
-
-#if defined(__i386__)
-#define	CPUSTRING						"x86"
-#elif defined(__x86_64__)
-#define CPUSTRING						"x86_86"
+#if _ARCH_x86_32_
+# define	CPUSTRING "i386"
+#elif _ARCH_ARM_32_
+# define	CPUSTRING "ARM32"
+#elif _ARCH_PPC_32_
+# define	CPUSTRING "ppc32"
+#elif _ARCH_x86_64_
+# define CPUSTRING  "x86_64"
+#elif _ARCH_ARM_64_
+# define	CPUSTRING "ARM64"
+#elif _ARCH_PPC_64_
+# define	CPUSTRING "PPC64"
 #endif
 
-#ifdef __FreeBSD__
-#define	BUILD_STRING					"freebsd-" CPUSTRING
-#define BUILD_OS_ID						3
-#else
 #define	BUILD_STRING					"linux-" CPUSTRING
 #define BUILD_OS_ID						2
-#endif
-
-#define _alloca							alloca
-
-#define ALIGN16( x )					x __attribute__ ((aligned (16)))
-#define ALIGNTYPE16						__attribute__ ((aligned (16)))
-#define ALIGNTYPE128					__attribute__ ((aligned (128)))
 
 #define FORMAT_PRINTF( x )
 
 #define PATHSEPARATOR_STR				"/"
-#define PATHSEPARATOR_CHAR				'/'
-#define NEWLINE							"\n"
+#define PATHSEPARATOR_CHAR			'/'
+#define NEWLINE							    "\n"
+
+#elif __PLATFORM_FBSD__
+
+#if _ARCH_x86_32_
+# define	CPUSTRING "i386"
+#elif _ARCH_ARM_32_
+# define	CPUSTRING "ARM32"
+#elif _ARCH_PPC_32_
+# define	CPUSTRING "ppc32"
+#elif _ARCH_x86_64_
+# define CPUSTRING  "x86_64"
+#elif _ARCH_ARM_64_
+# define	CPUSTRING "ARM64"
+#elif _ARCH_PPC_64_
+# define	CPUSTRING "ppc64"
+#endif
+
+#define	BUILD_STRING					"freebsd-" CPUSTRING
+#define BUILD_OS_ID						3
+
+#define FORMAT_PRINTF( x )
+
+#define PATHSEPARATOR_STR				"/"
+#define PATHSEPARATOR_CHAR			'/'
+#define NEWLINE							    "\n"
 
 #define ID_INLINE						inline
 
@@ -143,12 +129,42 @@ If you have questions concerning this license or the applicable additional terms
 #define ID_FORCE_INLINE_EXTERN			extern inline // TODO: always_inline ?
 // DG end
 
+#endif
+// RB end
+
+#define ID_INLINE						    inline
+#define ID_INLINE_EXTERN				extern inline
+
+#if __COMPILER_MSVC__
+# define ID_FORCE_INLINE				__forceinline
+#define ID_FORCE_INLINE_EXTERN  extern __forceinline
+// DG: #pragma hdrstop is only available on MSVC, so make sure it doesn't cause compiler warnings on other compilers..
+// afaik __pragma is a MSVC specific alternative to #pragma that can be used in macros
+#define ID_HDRSTOP __pragma(hdrstop)
+// DG end
+// RB begin: We need to inform the compiler that Error() and FatalError() will
+// never return, so any conditions that leeds to them being called are
+// guaranteed to be false in the following code
+#define NO_RETURN __declspec(noreturn)
+// RB end
+
+#elif __COMPILER_GNUC__ || __COMPILER_CLANG__
+// DG: this should at least work with GCC/MinGW, probably with clang as well..
+#define _alloca							    alloca
+#define ID_FORCE_INLINE					inline // TODO: always_inline?
+#define ID_FORCE_INLINE_EXTERN  extern inline // TODO: always_inline ?
 #define ID_HDRSTOP
 #define CALLBACK
 #define __cdecl
-
-#endif
+// DG end
+// RB begin: We need to inform the compiler that Error() and FatalError() will
+// never return, so any conditions that leeds to them being called are
+// guaranteed to be false in the following code
+#define NO_RETURN __attribute__((noreturn))
 // RB end
+#else
+#define NO_RETURN
+#endif
 
 /*
 ================================================================================================
@@ -157,6 +173,12 @@ Defines and macros usable in all code
 
 ================================================================================================
 */
+
+// BEATO Begin: use portable c++11 alignas specifier
+#define ALIGN16( x )  alignas( 16 ) x
+#define ALIGNTYPE16   alignas( 16 )
+#define ALIGNTYPE128  alignas( 128 )
+// BEATO End
 
 #define ALIGN( x, a ) ( ( ( x ) + ((a)-1) ) & ~((a)-1) )
 
@@ -191,7 +213,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 ================================================================================================
 */
 
-#ifdef _MSC_VER
+#if __COMPILER_MSVC__
 // disable some /analyze warnings here
 #pragma warning( disable: 6255 )	// warning C6255: _alloca indicates failure by raising a stack overflow exception. Consider using _malloca instead. (Note: _malloca requires _freea.)
 #pragma warning( disable: 6262 )	// warning C6262: Function uses '36924' bytes of stack: exceeds /analyze:stacksize'32768'. Consider moving some data to heap
@@ -230,28 +252,13 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // DG: alternative for GCC with attribute (NOOP for MSVC)
 #define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
 
-#elif defined(__GNUC__) // FIXME: what about clang?
+#elif __COMPILER_GNUC__ // FIXME: what about clang?
 #define	VERIFY_FORMAT_STRING
 // STRIDX: index of format string in function arguments (first arg == 1)
 // FIRSTARGIDX: index of first argument for the format string
 #define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX) __attribute__ ((format (printf, STRIDX, FIRSTARGIDX)))
 // DG end
 #endif // _MSC_VER
-
-// We need to inform the compiler that Error() and FatalError() will
-// never return, so any conditions that leeds to them being called are
-// guaranteed to be false in the following code
-
-// RB begin
-#if defined(_MSC_VER)
-#define NO_RETURN __declspec(noreturn)
-#elif defined(__GNUC__)
-#define NO_RETURN __attribute__((noreturn))
-#else
-#define NO_RETURN
-#endif
-// RB end
-
 
 // I don't want to disable "warning C6031: Return value ignored" from /analyze
 // but there are several cases with sprintf where we pre-initialized the variables
