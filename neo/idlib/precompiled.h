@@ -58,6 +58,9 @@ If you have questions concerning this license or the applicable additional terms
 
 //-----------------------------------------------------
 
+// BEATO Begin:
+#include "sys/sys_platform.h"
+// BEATO End
 #include "sys/sys_defines.h"
 #include "sys/sys_builddefines.h"
 #include "sys/sys_includes.h"
