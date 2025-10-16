@@ -30,20 +30,20 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-#include "../../sys/win32/rc/debugger_resource.h"
+#include "sys/win32/rc/debugger_resource.h"
 #include "DebuggerApp.h"
 #include "DebuggerServer.h"
 
 DWORD CALLBACK DebuggerThread ( LPVOID param );
 
 rvDebuggerApp					gDebuggerApp;
-HWND							gDebuggerWindow = NULL;
+HWND							gDebuggerWindow = nullptr;
 bool							gDebuggerSuspend = false;
 bool							gDebuggerConnnected = false;
-HANDLE							gDebuggerGameThread = NULL;
+HANDLE							gDebuggerGameThread = nullptr;
 
-rvDebuggerServer*				gDebuggerServer			= NULL;
-HANDLE							gDebuggerServerThread   = NULL;
+rvDebuggerServer*				gDebuggerServer			= nullptr;
+HANDLE							gDebuggerServerThread   = nullptr;
 DWORD							gDebuggerServerThreadID = 0;
 bool							gDebuggerServerQuit     = false;
 
@@ -170,9 +170,7 @@ Check to see if there is a breakpoint associtated with this statement
 void DebuggerServerCheckBreakpoint ( idInterpreter* interpreter, idProgram* program, int instructionPointer )
 {
 	if ( !gDebuggerServer )
-	{
 		return;
-	}
 	
 	gDebuggerServer->CheckBreakpoints ( interpreter, program, instructionPointer );
 }
@@ -192,9 +190,7 @@ Sends a print message to the debugger client
 void DebuggerServerPrint ( const char* text )
 {
 	if ( !gDebuggerServer )
-	{
 		return;
-	}
 	
 	gDebuggerServer->Print ( text );
 }

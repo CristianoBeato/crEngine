@@ -628,7 +628,7 @@ void idDmapRenderSystemLocal::InitOpenGL()
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
 		globalImages->ReloadImages(true);
 
-		int err = qglGetError();
+		int err = glGetError();
 		if (err != GL_NO_ERROR)
 		{
 			common->Printf("glGetError() = 0x%x\n", err);

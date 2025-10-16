@@ -116,7 +116,7 @@ const int MAX_EXPRESSION_OPS = 4096;
 const int MAX_EXPRESSION_REGISTERS = 4096;
 
 // renderer
-#include "renderer/OpenGL/qgl.h"
+#include "renderer/OpenGL/OpenGL.h"
 #include "renderer/Cinematic.h"
 #include "renderer/Material.h"
 #include "renderer/BufferObject.h"

@@ -506,11 +506,11 @@ void idGLDrawableView::draw(int x, int y, int w, int h) {
 	const idMaterial		*mat = material;
 
 	if (mat) {
-		qglViewport(x, y, w, h);
-		qglScissor(x, y, w, h);
-		qglMatrixMode(GL_PROJECTION);
-		qglClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
-		qglClear(GL_COLOR_BUFFER_BIT);
+		glViewport(x, y, w, h);
+		glScissor(x, y, w, h);
+		glMatrixMode(GL_PROJECTION);
+		glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		UpdateLights();
 
@@ -546,8 +546,8 @@ void idGLDrawableView::draw(int x, int y, int w, int h) {
 
 		world->DebugClearLines( refdef.time[0] );
 #endif
-		qglMatrixMode( GL_MODELVIEW );
-		qglLoadIdentity();
+		glMatrixMode( GL_MODELVIEW );
+		glLoadIdentity();
 	}
 }
 

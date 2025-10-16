@@ -89,16 +89,16 @@ static int cubeSides = sizeof(cubeData) / sizeof(idMiniDrawVert);
 static int numQuads = cubeSides / 4;
 
 void glTexturedBox(idVec3 &point, float size, const idMaterial *mat) {
-	qglTranslatef(point.x, point.y, point.z);
+	glTranslatef(point.x, point.y, point.z);
 	for (int i = 0; i < numQuads; i++) {
-		qglBegin(GL_QUADS);
+		glBegin(GL_QUADS);
 		for (int j = 0; j < 4; j++) {
 			idVec3 v = cubeData[i * 4 + j].xyz;
 			v *= size;
-			qglTexCoord2fv(cubeData[i * 4 + j].st.ToFloatPtr());
-			qglVertex3fv(v.ToFloatPtr());
+			glTexCoord2fv(cubeData[i * 4 + j].st.ToFloatPtr());
+			glVertex3fv(v.ToFloatPtr());
 		}
-		qglEnd();
+		glEnd();
 	}
 }
 
@@ -173,31 +173,31 @@ void idGLWidget::OnPaint()
 	// foresthale 2014-05-19: set up familiar state for editors before we draw anything
 	tr.Editor_SetupState();
 
-	qglViewport(0, 0, rect.Width(), rect.Height());
-	qglScissor(0, 0, rect.Width(), rect.Height());
-	qglMatrixMode(GL_PROJECTION);
-	qglLoadIdentity();
-	qglClearColor (0.4f, 0.4f, 0.4f, 0.7f);
-	qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glViewport(0, 0, rect.Width(), rect.Height());
+	glScissor(0, 0, rect.Width(), rect.Height());
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glClearColor (0.4f, 0.4f, 0.4f, 0.7f);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 
-	qglDisable(GL_DEPTH_TEST);
-	qglDisable(GL_BLEND);
-	qglOrtho(0, rect.Width(), 0, rect.Height(), -256, 256);
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_BLEND);
+	glOrtho(0, rect.Width(), 0, rect.Height(), -256, 256);
 
 	if (drawable) {
 		drawable->draw(1, 1, rect.Width()-1, rect.Height()-1);
 	} else {
-		qglViewport(0, 0, rect.Width(), rect.Height());
-		qglScissor(0, 0, rect.Width(), rect.Height());
-		qglMatrixMode(GL_PROJECTION);
-		qglLoadIdentity();
-		qglClearColor (0.4f, 0.4f, 0.4f, 0.7f);
-		qglClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glViewport(0, 0, rect.Width(), rect.Height());
+		glScissor(0, 0, rect.Width(), rect.Height());
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glClearColor (0.4f, 0.4f, 0.4f, 0.7f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	}
 
 	qwglSwapBuffers(dc);
-	qglFlush();
+	glFlush();
 	qwglMakeCurrent(win32.hDC, win32.hGLRC);
 
 }
@@ -267,25 +267,25 @@ void idGLDrawable::mouseMove(float x, float y) {
 
 void idGLDrawable::draw(int x, int y, int w, int h) {
 	GL_State( GLS_DEFAULT );
-	qglViewport(x, y, w, h);
-	qglScissor(x, y, w, h);
-	qglMatrixMode(GL_PROJECTION);
-	qglClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
-	qglClear(GL_COLOR_BUFFER_BIT);
-	qglPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-	qglLineWidth(0.5);
-	qglColor3f(1, 1, 1);
+	glViewport(x, y, w, h);
+	glScissor(x, y, w, h);
+	glMatrixMode(GL_PROJECTION);
+	glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
+	glClear(GL_COLOR_BUFFER_BIT);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	glLineWidth(0.5);
+	glColor3f(1, 1, 1);
 	globalImages->BindNull();
-	qglBegin(GL_LINE_LOOP);
-	qglColor3f(1, 0, 0);
-	qglVertex2f(x + 3, y + 3);
-	qglColor3f(0, 1, 0);
-	qglVertex2f(x + 3, h - 3);
-	qglColor3f(0, 0, 1);
-	qglVertex2f(w - 3, h - 3);
-	qglColor3f(1, 1, 1);
-	qglVertex2f(w - 3, y + 3);
-	qglEnd();
+	glBegin(GL_LINE_LOOP);
+	glColor3f(1, 0, 0);
+	glVertex2f(x + 3, y + 3);
+	glColor3f(0, 1, 0);
+	glVertex2f(x + 3, h - 3);
+	glColor3f(0, 0, 1);
+	glVertex2f(w - 3, h - 3);
+	glColor3f(1, 1, 1);
+	glVertex2f(w - 3, y + 3);
+	glEnd();
 
 }
 
@@ -359,11 +359,11 @@ void idGLDrawableMaterial::mouseMove(float x, float y) {
 void idGLDrawableMaterial::draw(int x, int y, int w, int h) {
 	const idMaterial *mat = material;
 	if (mat) {
-		qglViewport(x, y, w, h);
-		qglScissor(x, y, w, h);
-		qglMatrixMode(GL_PROJECTION);
-		qglClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
-		qglClear(GL_COLOR_BUFFER_BIT);
+		glViewport(x, y, w, h);
+		glScissor(x, y, w, h);
+		glMatrixMode(GL_PROJECTION);
+		glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
+		glClear(GL_COLOR_BUFFER_BIT);
 
 		if (worldDirty) {
 			InitWorld();
@@ -505,8 +505,8 @@ void idGLDrawableMaterial::draw(int x, int y, int w, int h) {
 		tr.Editor_EndView(originalNativeWidth, originalNativeHeight);
 #endif
 
-		qglMatrixMode( GL_MODELVIEW );
-		qglLoadIdentity();
+		glMatrixMode( GL_MODELVIEW );
+		glLoadIdentity();
 	}
 
 }
@@ -684,11 +684,11 @@ void idGLDrawableModel::draw(int x, int y, int w, int h) {
 
 	rect.Set( x, y, w, h );
 
-	qglViewport(x, y, w, h);
-	qglScissor(x, y, w, h);
-	qglMatrixMode(GL_PROJECTION);
-	qglClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
-	qglClear(GL_COLOR_BUFFER_BIT);
+	glViewport(x, y, w, h);
+	glScissor(x, y, w, h);
+	glMatrixMode(GL_PROJECTION);
+	glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
+	glClear(GL_COLOR_BUFFER_BIT);
 
 	if (worldDirty) {
 		//InitWorld();
@@ -755,8 +755,8 @@ void idGLDrawableModel::draw(int x, int y, int w, int h) {
 	tr.Editor_EndView(originalNativeWidth, originalNativeHeight);
 #endif
 
-	qglMatrixMode( GL_MODELVIEW );
-	qglLoadIdentity();
+	glMatrixMode( GL_MODELVIEW );
+	glLoadIdentity();
 }
 
 
@@ -886,10 +886,10 @@ idGLDrawable::idGLDrawable() {
 }
 
 void idGLDrawableConsole::draw(int x, int y, int w, int h) {
-	qglPushAttrib( GL_ALL_ATTRIB_BITS );
-	qglClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
-	qglScissor( 0, 0, w, h );
-	qglClear( GL_COLOR_BUFFER_BIT );
+	glPushAttrib( GL_ALL_ATTRIB_BITS );
+	glClearColor( 0.1f, 0.1f, 0.1f, 0.0f );
+	glScissor( 0, 0, w, h );
+	glClear( GL_COLOR_BUFFER_BIT );
 #if 1 //FIX_RADIANT
 	// foresthale 2014-05-19: cleaned up editor begin/end rendering code
 	int originalNativeWidth, originalNativeHeight;
@@ -899,7 +899,7 @@ void idGLDrawableConsole::draw(int x, int y, int w, int h) {
 
 	tr.Editor_EndView(originalNativeWidth, originalNativeHeight);
 #endif
-	qglPopAttrib();
+	glPopAttrib();
 }
 
 void idGLConsoleWidget::init() {

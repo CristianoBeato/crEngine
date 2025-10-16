@@ -70,14 +70,17 @@ static void R_ListVertexCache_f(const idCmdArgs &args) {
 GL_BindBuffer
 ==============
 */
-static void GL_BindBuffer(GLenum target, GLuint buffer) {
-	if (target == GL_ARRAY_BUFFER) {
+static void GL_BindBuffer( GLenum target, GLuint buffer ) 
+{
+	if (target == GL_ARRAY_BUFFER) 
+	{
 		if (gl_current_array_buffer != buffer) {
 			gl_current_array_buffer = buffer;
 		}
 		else return;
 	}
-	else if (target == GL_ELEMENT_ARRAY_BUFFER) {
+	else if (target == GL_ELEMENT_ARRAY_BUFFER) 
+	{
 		if (gl_current_index_buffer != buffer) {
 			gl_current_index_buffer = buffer;
 		}
@@ -87,7 +90,7 @@ static void GL_BindBuffer(GLenum target, GLuint buffer) {
 		common->Error("GL_BindBuffer : invalid buffer target : %i\n", (int)target);
 		return;
 	}
-	qglBindBufferARB(target, buffer);
+	glBindBuffer(target, buffer);
 }
 
 /*
@@ -117,13 +120,14 @@ void idDmapVertexCache::ActuallyFree(dmapVertCache_t *block) {
 				// implementations in some form. Changed a bit to map to NULL pointer
 				// with block size. Removing this is probably ok but you cannot remove
 				// the if ( block->vbo ) cause then it will crash.
-				GL_BindBuffer(GL_ARRAY_BUFFER_ARB, block->vbo);
-				qglBufferDataARB(GL_ARRAY_BUFFER_ARB, block->size, NULL, GL_DYNAMIC_DRAW_ARB);
+				GL_BindBuffer( GL_ARRAY_BUFFER, block->vbo );
+				glBufferData(GL_ARRAY_BUFFER, block->size, nullptr, GL_DYNAMIC_DRAW );
 
 			}
-			else if (block->virtMem) {
+			else if (block->virtMem) 
+			{
 				Mem_Free(block->virtMem);
-				block->virtMem = NULL;
+				block->virtMem = nullptr;
 			}
 		}
 		block->tag = TAG_FREE;		// mark as free
@@ -165,8 +169,8 @@ void idDmapVertexCache::ActuallyFree(dmapVertCache_t *block) {
 			if (block->vbo) {
 #if 0			// this isn't really necessary, it will be reused soon enough
 				// filling with zero length data is the equivalent of freeing
-				qglBindBufferARB(GL_ARRAY_BUFFER_ARB, block->vbo);
-				qglBufferDataARB(GL_ARRAY_BUFFER_ARB, 0, 0, GL_DYNAMIC_DRAW_ARB);
+				glBindBuffer(GL_ARRAY_BUFFER_, block->vbo);
+				glBufferData(GL_ARRAY_BUFFER_, 0, 0, GL_DYNAMIC_DRAW_);
 #endif
 			}
 			else if (block->virtMem) {
@@ -213,9 +217,12 @@ void *idDmapVertexCache::Position(dmapVertCache_t *buffer) {
 		}
 
 		// the ARB vertex object just uses an offset
-		if (buffer->vbo) {
-			if (r_showVertexCache.GetInteger() == 2) {
-				if (buffer->tag == TAG_TMP) {
+		if (buffer->vbo) 
+		{
+			if (r_showVertexCache.GetInteger() == 2) 
+			{
+				if (buffer->tag == TAG_TMP) 
+				{
 					// foresthale 2014-05-19: use %d (as it originally did) rather than %zd (glibc specific), to deal with size_t being 64bit we just cast to int, these numbers aren't THAT big.
 					common->Printf("GL_ARRAY_BUFFER_ARB = %i + %d (%i bytes)\n", buffer->vbo, (int)buffer->offset, buffer->size);
 				}
@@ -247,11 +254,13 @@ void *idDmapVertexCache::Position(dmapVertCache_t *buffer) {
 					common->Printf("GL_ARRAY_BUFFER_ARB = %i (%i bytes)\n", buffer->vbo, buffer->size);
 				}
 			}
-			if (buffer->indexBuffer) {
-				qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, buffer->vbo);
+
+			if ( buffer->indexBuffer ) 
+			{
+				glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, buffer->vbo);
 			}
 			else {
-				qglBindBufferARB(GL_ARRAY_BUFFER_ARB, buffer->vbo);
+				glBindBuffer( GL_ARRAY_BUFFER, buffer->vbo);
 			}
 			return (void *)buffer->offset;
 		}
@@ -261,13 +270,15 @@ void *idDmapVertexCache::Position(dmapVertCache_t *buffer) {
 	}
 }
 
-void idDmapVertexCache::UnbindIndex() {
-	if (r_useArbBufferRange.GetBool()) {
+void idDmapVertexCache::UnbindIndex( void ) 
+{
+	if (r_useArbBufferRange.GetBool()) 
+	{
 		GL_BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		// use old VertexCache.cpp code as fallback
 	}
 	else {
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 }
 
@@ -391,7 +402,7 @@ void idDmapVertexCache::Alloc(void *data, int size, dmapVertCache_t **buffer, bo
 
 			for (int i = 0; i < EXPAND_HEADERS; i++) {
 				block = headerAllocator.Alloc();
-				qglGenBuffersARB(1, &block->vbo);
+				glGenBuffers(1, &block->vbo);
 				block->size = 0;
 				block->next = this->freeStaticHeaders.next;
 				block->prev = &this->freeStaticHeaders;
@@ -425,8 +436,8 @@ void idDmapVertexCache::Alloc(void *data, int size, dmapVertCache_t **buffer, bo
 		if (block->vbo)	{
 			// orphan the buffer in case it needs respecifying (it usually will)
 			GL_BindBuffer(target, block->vbo);
-			qglBufferDataARB(target, (GLsizeiptr)size, NULL, usage);
-			qglBufferDataARB(target, (GLsizeiptr)size, data, usage);
+			glBufferData(target, (GLsizeiptr)size, NULL, usage);
+			glBufferData(target, (GLsizeiptr)size, data, usage);
 		}
 		else {
 			block->virtMem = Mem_Alloc(size, TAG_DMAP);
@@ -481,7 +492,7 @@ void idDmapVertexCache::Alloc(void *data, int size, dmapVertCache_t **buffer, bo
 				block->next->prev = block;
 				block->prev->next = block;
 
-				qglGenBuffersARB(1, &block->vbo);
+				glGenBuffers(1, &block->vbo);
 			}
 		}
 
@@ -516,22 +527,24 @@ void idDmapVertexCache::Alloc(void *data, int size, dmapVertCache_t **buffer, bo
 		block->indexBuffer = indexBuffer;
 
 		// copy the data
-		if (block->vbo) {
-			if (indexBuffer) {
-				qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, block->vbo);
-				qglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, (GLsizeiptrARB)size, data, GL_STATIC_DRAW_ARB);
+		if (block->vbo) 
+		{
+			if (indexBuffer) 
+			{
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, block->vbo);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, (GLsizeiptr)size, data, GL_STATIC_DRAW );
 			}
-			else {
-				qglBindBufferARB(GL_ARRAY_BUFFER_ARB, block->vbo);
-				if (allocatingTempBuffer) {
-					qglBufferDataARB(GL_ARRAY_BUFFER_ARB, (GLsizeiptrARB)size, data, GL_STREAM_DRAW_ARB);
-				}
-				else {
-					qglBufferDataARB(GL_ARRAY_BUFFER_ARB, (GLsizeiptrARB)size, data, GL_STATIC_DRAW_ARB);
-				}
+			else 
+			{
+				glBindBuffer(GL_ARRAY_BUFFER, block->vbo);
+				if (allocatingTempBuffer) 
+					glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)size, data, GL_STREAM_DRAW);
+				else 
+					glBufferData(GL_ARRAY_BUFFER, (GLsizeiptr)size, data, GL_STATIC_DRAW);
 			}
 		}
-		else {
+		else 
+		{
 			block->virtMem = Mem_Alloc(size, TAG_DMAP);
 			dmapSIMDProcessor->Memcpy(block->virtMem, data, size);
 		}
@@ -672,8 +685,8 @@ dmapVertCache_t	*idDmapVertexCache::AllocFrameTemp(void *data, int size) {
 	}
 	else {
 		if (block->vbo) {
-			qglBindBufferARB(GL_ARRAY_BUFFER_ARB, block->vbo);
-			qglBufferSubDataARB(GL_ARRAY_BUFFER_ARB, block->offset, (GLsizeiptrARB)size, data);
+			glBindBuffer(GL_ARRAY_BUFFER, block->vbo);
+			glBufferSubData(GL_ARRAY_BUFFER, block->offset, (GLsizeiptr)size, data);
 		}
 		else {
 			dmapSIMDProcessor->Memcpy((byte *)block->virtMem + block->offset, data, size);
@@ -710,21 +723,23 @@ void idDmapVertexCache::EndFrame() {
 			staticCountTotal, staticAllocTotal / 1024);
 	}
 
-	if (r_useArbBufferRange.GetBool()) {
+	if (r_useArbBufferRange.GetBool()) 
+	{
 		// unbind vertex buffers
 		GL_BindBuffer(GL_ARRAY_BUFFER, 0);
 		GL_BindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 		// use old VertexCache.cpp code as fallback
 	}
-	else {
+	else 
+	{
 #if 0
 		// if our total static count is above our working memory limit, start purging things
 		while (staticAllocTotal > r_vertexBufferMegs.GetInteger() * 1024 * 1024) {
 			// free the least recently used
 		}
 #endif		
-		qglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		qglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	}
 
 	currentFrame = dmap_tr.frameCount;

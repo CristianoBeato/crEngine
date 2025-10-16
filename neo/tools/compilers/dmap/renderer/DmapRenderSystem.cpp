@@ -129,13 +129,12 @@ void idDmapRenderSystemLocal::RenderCommandBuffers(const emptyCommand_t* const c
 		if (glConfig.timerQueryAvailable)
 		{
 			if (dmap_tr.timerQueryId == 0)
-			{
-				qglGenQueriesARB(1, &dmap_tr.timerQueryId);
-			}
-			qglBeginQueryARB(GL_TIME_ELAPSED_EXT, dmap_tr.timerQueryId);
+				glGenQueries(1, &dmap_tr.timerQueryId );
+
+			glBeginQuery(GL_TIME_ELAPSED, dmap_tr.timerQueryId);
 			RB_ExecuteBackEndCommands(cmdHead);
-			qglEndQueryARB(GL_TIME_ELAPSED_EXT);
-			qglFlush();
+			glEndQuery(GL_TIME_ELAPSED);
+			glFlush();
 		}
 		else
 		{
@@ -230,11 +229,11 @@ static void R_CheckCvarsDmap()
 		{
 			if (r_useSeamlessCubeMap.GetBool())
 			{
-				qglEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+				glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 			}
 			else
 			{
-				qglDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
+				glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
 			}
 		}
 	}
@@ -247,11 +246,11 @@ static void R_CheckCvarsDmap()
 		{
 			if (r_useSRGB.GetBool())
 			{
-				qglEnable(GL_FRAMEBUFFER_SRGB);
+				glEnable(GL_FRAMEBUFFER_SRGB);
 			}
 			else
 			{
-				qglDisable(GL_FRAMEBUFFER_SRGB);
+				glDisable(GL_FRAMEBUFFER_SRGB);
 			}
 		}
 	}
@@ -260,13 +259,9 @@ static void R_CheckCvarsDmap()
 	if (r_multiSamples.IsModified())
 	{
 		if (r_multiSamples.GetInteger() > 0)
-		{
-			qglEnable(GL_MULTISAMPLE_ARB);
-		}
+			glEnable( GL_MULTISAMPLE );
 		else
-		{
-			qglDisable(GL_MULTISAMPLE_ARB);
-		}
+			glDisable( GL_MULTISAMPLE );
 	}
 
 	// check for changes to logging state
@@ -701,9 +696,8 @@ void idDmapRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		// RB end
 
 		if (dmap_tr.timerQueryId != 0)
-		{
-			qglGetQueryObjectui64vEXT(dmap_tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds);
-		}
+			glGetQueryObjectui64v( dmap_tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds);
+		
 		if (gpuMicroSec != NULL)
 		{
 			*gpuMicroSec = drawingTimeNanoseconds / 1000;
@@ -1039,13 +1033,13 @@ void idDmapRenderSystemLocal::CaptureRenderToFile(const char* fileName, bool fix
 	RenderCommandBuffers(dmapFrameData->cmdHead);
 
 	// foresthale 2014-02-20: HDR view rendering - this seems to not be changed anywhere and conflicts with FBO rendering
-	//qglReadBuffer( GL_BACK );
+	//glReadBuffer( GL_BACK );
 
 	// include extra space for OpenGL padding to word boundaries
 	int	c = (rc.GetWidth() + 3) * rc.GetHeight();
 	byte* data = (byte*)R_StaticAlloc(c * 3);
 
-	qglReadPixels(rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data);
+	glReadPixels(rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data);
 
 	byte* data2 = (byte*)R_StaticAlloc(c * 4);
 

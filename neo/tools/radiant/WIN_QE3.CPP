@@ -252,7 +252,7 @@ void Error(char *error, ...) {
 
 	err = GetLastError();
 
-	int i = qglGetError();
+	int i = glGetError();
 
 	va_start(argptr, error);
 	vsprintf(text, error, argptr);
@@ -286,7 +286,7 @@ void Warning(char *error, ...) {
 
 	err = GetLastError();
 
-	int i = qglGetError();
+	int i = glGetError();
 
 	va_start(argptr, error);
 	vsprintf(text, error, argptr);
@@ -463,7 +463,7 @@ void SaveAsDialog(bool bRegion) {
 }
 
 /*
- * Menu modifications £
+ * Menu modifications ï¿½
  * FillBSPMenu
  */
 const char	*bsp_commands[256];

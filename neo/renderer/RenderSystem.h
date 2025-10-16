@@ -77,7 +77,6 @@ enum stereoDepthType_t
 	STEREO_DEPTH_TYPE_FAR
 };
 
-
 enum graphicsVendor_t
 {
 	VENDOR_NVIDIA,
@@ -152,10 +151,8 @@ struct glconfig_t
 	
 	float				pixelAspect;
 	
-	GLuint				global_vao;
+	uint32_t			global_vao;
 };
-
-
 
 struct emptyCommand_t;
 

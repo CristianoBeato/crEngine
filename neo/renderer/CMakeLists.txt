@@ -139,13 +139,11 @@ set( RENDERER_MODELS_SOURCES
 
 set( RENDERER_OPENGL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_backend.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glext.h
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_Framebuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_GraphicsAPIWrapper.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_Image.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/qgl.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/qgl_linked.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/wglext.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/OpenGL.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/OpenGL.h
     )
 
 set( RENDERER_RENDERWORLD_SOURCES 
@@ -184,7 +182,11 @@ add_library( renderer STATIC ${RENDERER_SOURCES} )
 add_dependencies( renderer idLib framework )
 
 #set the idLib root dir as include
-target_include_directories( renderer PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
+target_include_directories( renderer 
+    PUBLIC ${CMAKE_SOURCE_DIR}/idlib 
+    PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR} 
+        ${CMAKE_CURRENT_SOURCE_DIR}/libs/crglLib/lib/include ) 
 
 # set the precompiled header
 target_precompile_headers( renderer 

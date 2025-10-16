@@ -151,7 +151,7 @@ void RadiantInit( void ) {
 		// Perform specific initializations
 		pThread->InitInstance();
 
-		qglFinish();
+		glFinish();
 		//qwglMakeCurrent(0, 0);
 		qwglMakeCurrent(win32.hDC, win32.hGLRC);
 
@@ -195,10 +195,10 @@ void RadiantRun( void ) {
 
 	try {
 		if (!exceptionErr && !show) {
-			//qglPushAttrib(GL_ALL_ATTRIB_BITS);
-			qglDepthMask(true);
+			//glPushAttrib(GL_ALL_ATTRIB_BITS);
+			glDepthMask(true);
 			Radiant().Run();
-			//qglPopAttrib();
+			//glPopAttrib();
 			//qwglMakeCurrent(0, 0);
 			if (win32.hDC != NULL && win32.hGLRC != NULL)
 				qwglMakeCurrent(win32.hDC, win32.hGLRC);
@@ -320,7 +320,7 @@ BOOL CRadiantApp::InitInstance()
 
 	g_PrefsDlg.LoadPrefs();
 
-	qglEnableClientState( GL_VERTEX_ARRAY );
+	glEnableClientState( GL_VERTEX_ARRAY );
 
 	CString strTemp = m_lpCmdLine;
 	strTemp.MakeLower();

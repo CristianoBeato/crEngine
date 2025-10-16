@@ -30,8 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __TR_LOCAL_H__
 #define __TR_LOCAL_H__
 
-#include "precompiled.h"
-
+#include "OpenGL/OpenGL.h"
 #include "GLState.h"
 #include "ScreenRect.h"
 #include "images/ImageOpts.h"
@@ -1017,6 +1016,7 @@ extern idCVar r_skipOverlays;				// skip overlay surfaces
 extern idCVar r_skipShadows;				// disable shadows
 
 extern idCVar r_ignoreGLErrors;
+extern idCVar r_swapInterval;
 
 extern idCVar r_screenFraction;				// for testing fill rate, the resolution of the entire screen can be changed
 extern idCVar r_showUnsmoothedTangents;		// highlight geometry rendered with unsmoothed tangents
@@ -1125,75 +1125,11 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 ====================================================================
 */
 
-struct vidMode_t
-{
-	int width;
-	int height;
-	int displayHz;
-	
-	// RB begin
-	vidMode_t()
-	{
-		width = 640;
-		height = 480;
-		displayHz = 60;
-	}
-	
-	vidMode_t( int width, int height, int displayHz ) :
-		width( width ), height( height ), displayHz( displayHz ) {}
-	// RB end
-	
-	bool operator==( const vidMode_t& a )
-	{
-		return a.width == width && a.height == height && a.displayHz == displayHz;
-	}
-};
 
 // the number of displays can be found by itterating this until it returns false
 // displayNum is the 0 based value passed to EnumDisplayDevices(), you must add
 // 1 to this to get an r_fullScreen value.
 bool R_GetModeListForDisplay( const int displayNum, idList<vidMode_t>& modeList );
-
-struct glimpParms_t
-{
-	int			x;				// ignored in fullscreen
-	int			y;				// ignored in fullscreen
-	int			width;
-	int			height;
-	int			fullScreen;		// 0 = windowed, otherwise 1 based monitor number to go full screen on
-	// -1 = borderless window for spanning multiple displays
-	bool		stereo;
-	int			displayHz;
-	int			multiSamples;
-};
-
-// DG: R_GetModeListForDisplay is called before GLimp_Init(), but SDL needs SDL_Init() first.
-// So add PreInit for platforms that need it, others can just stub it.
-void		GLimp_PreInit();
-
-// If the desired mode can't be set satisfactorily, false will be returned.
-// If succesful, sets glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, and glConfig.pixelAspect
-// The renderer will then reset the glimpParms to "safe mode" of 640x480
-// fullscreen and try again.  If that also fails, the error will be fatal.
-bool		GLimp_Init( glimpParms_t parms );
-
-// will set up gl up with the new parms
-bool		GLimp_SetScreenParms( glimpParms_t parms );
-
-// Destroys the rendering context, closes the window, resets the resolution,
-// and resets the gamma ramps.
-void		GLimp_Shutdown();
-
-// Sets the hardware gamma ramps for gamma and brightness adjustment.
-// These are now taken as 16 bit values, so we can take full advantage
-// of dacs with >8 bits of precision
-void		GLimp_SetGamma( unsigned short red[256],
-							unsigned short green[256],
-							unsigned short blue[256] );
-
-
-void		GLimp_EnableLogging( bool enable );
-
 
 /*
 ============================================================

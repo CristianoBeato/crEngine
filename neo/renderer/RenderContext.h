@@ -80,14 +80,17 @@ public:
 	{
 		depthHackValue = depth;
 	}
+
 	float			GetDepthHackValue() const
 	{
 		return depthHackValue;
 	}
+
 	void			SetWeaponDepthHackValue( float depth )
 	{
 		weaponDepthHackValue = depth;
 	}
+	
 	float			GetWeaponDepthHackValue() const
 	{
 		return weaponDepthHackValue;
@@ -99,7 +102,7 @@ public:
 	}
 	
 private:
-	float			depthHackValue;
+	float		depthHackValue;
 	float			weaponDepthHackValue;
 	uint64_t			GPUFrameMicroSec;
 };

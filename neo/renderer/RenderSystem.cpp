@@ -131,12 +131,12 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 		{
 			if( tr.timerQueryId == 0 )
 			{
-				qglGenQueriesARB( 1, & tr.timerQueryId );
+				glGenQueries( 1, & tr.timerQueryId );
 			}
-			qglBeginQueryARB( GL_TIME_ELAPSED_EXT, tr.timerQueryId );
+			glBeginQuery( GL_TIME_ELAPSED, tr.timerQueryId );
 			RB_ExecuteBackEndCommands( cmdHead );
-			qglEndQueryARB( GL_TIME_ELAPSED_EXT );
-			qglFlush();
+			glEndQuery( GL_TIME_ELAPSED );
+			glFlush();
 		}
 		else
 		{
@@ -234,7 +234,6 @@ See if some cvars that we watch have changed
 */
 static void R_CheckCvars()
 {
-
 	// gamma stuff
 	if( r_gamma.IsModified() || r_brightness.IsModified() )
 	{
@@ -268,11 +267,11 @@ static void R_CheckCvars()
 		{
 			if( r_useSeamlessCubeMap.GetBool() )
 			{
-				qglEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
+				glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
 			}
 			else
 			{
-				qglDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
+				glDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
 			}
 		}
 	}
@@ -285,11 +284,11 @@ static void R_CheckCvars()
 		{
 			if( r_useSRGB.GetBool() )
 			{
-				qglEnable( GL_FRAMEBUFFER_SRGB );
+				glEnable( GL_FRAMEBUFFER_SRGB );
 			}
 			else
 			{
-				qglDisable( GL_FRAMEBUFFER_SRGB );
+				glDisable( GL_FRAMEBUFFER_SRGB );
 			}
 		}
 	}
@@ -298,13 +297,9 @@ static void R_CheckCvars()
 	if( r_multiSamples.IsModified() )
 	{
 		if( r_multiSamples.GetInteger() > 0 )
-		{
-			qglEnable( GL_MULTISAMPLE_ARB );
-		}
+			glEnable( GL_MULTISAMPLE );
 		else
-		{
-			qglDisable( GL_MULTISAMPLE_ARB );
-		}
+			glDisable( GL_MULTISAMPLE );
 	}
 	
 	// check for changes to logging state
@@ -740,7 +735,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		
 		if( tr.timerQueryId != 0 )
 		{
-			qglGetQueryObjectui64vEXT( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
+			glGetQueryObjectui64v( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
 		}
 		if( gpuMicroSec != NULL )
 		{
@@ -1082,13 +1077,13 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	RenderCommandBuffers( frameData->cmdHead );
 	
 	// foresthale 2014-02-20: HDR view rendering - this seems to not be changed anywhere and conflicts with FBO rendering
-	//qglReadBuffer( GL_BACK );
+	//glReadBuffer( GL_BACK );
 	
 	// include extra space for OpenGL padding to word boundaries
 	int	c = ( rc.GetWidth() + 3 ) * rc.GetHeight();
 	byte* data = ( byte* )R_StaticAlloc( c * 3 );
 	
-	qglReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data );
+	glReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data );
 	
 	byte* data2 = ( byte* )R_StaticAlloc( c * 4 );
 	
@@ -1180,7 +1175,7 @@ void idRenderSystemLocal::Editor_SetupState()
 void idRenderSystemLocal::Editor_BeginView(int width, int height, int &restoreWidth, int &restoreHeight)
 {
 	// save the attributes so we can restore them later
-	qglPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_SCISSOR_BIT | GL_STENCIL_BUFFER_BIT | GL_TEXTURE_BIT | GL_TRANSFORM_BIT | GL_VIEWPORT_BIT);
+	// glPushAttrib(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_ENABLE_BIT | GL_POLYGON_BIT | GL_SCISSOR_BIT | GL_STENCIL_BUFFER_BIT | GL_TEXTURE_BIT | GL_TRANSFORM_BIT | GL_VIEWPORT_BIT);
 	// change the render size
 	SwapCommandBuffers( NULL, NULL, NULL, NULL );
 	restoreWidth = glConfig.nativeScreenWidth;
@@ -1204,17 +1199,17 @@ void idRenderSystemLocal::Editor_EndView(int restoreWidth, int restoreHeight)
 
 	// now restore state for fixed function editor rendering
 	globalFramebuffers->BindSystemFramebuffer();
-//	qglDisable(GL_SCISSOR_TEST);
-//	qglDisable(GL_DEPTH_TEST);
-//	qglDisable(GL_BLEND);
-//	qglColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-//	qglDepthMask(GL_TRUE);
-//	qglBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	qglPopAttrib();
+//	glDisable(GL_SCISSOR_TEST);
+//	glDisable(GL_DEPTH_TEST);
+//	glDisable(GL_BLEND);
+//	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+//	glDepthMask(GL_TRUE);
+//	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glPopAttrib();
 	// make sure we're using fixed function rendering
 	renderProgManager.Unbind();
-	qglBindTexture(GL_TEXTURE_2D, 0);
-	qglEnable(GL_TEXTURE_2D);
-	qglDisable(GL_TEXTURE_3D);
-	qglDisable(GL_TEXTURE_CUBE_MAP);
+	glBindTexture(GL_TEXTURE_2D, 0);
+	glEnable(GL_TEXTURE_2D);
+	glDisable(GL_TEXTURE_3D);
+	glDisable(GL_TEXTURE_CUBE_MAP);
 }
