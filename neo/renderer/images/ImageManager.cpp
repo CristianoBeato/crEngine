@@ -788,9 +788,9 @@ void idImageManager::BindNull()
 	// foresthale 2014-05-10: when using the tools code (which does not use shaders) we have to manage the texture unit enables
 	if (com_editors)
 	{
-		//qglActiveTexture(GL_TEXTURE0_ARB + backEnd.glState.currenttmu);
-		qglDisable(GL_TEXTURE_2D);
-		qglDisable(GL_TEXTURE_CUBE_MAP);
+		//glActiveTexture(GL_TEXTURE0_ARB + backEnd.glState.currenttmu);
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_TEXTURE_CUBE_MAP);
 	}
 }
 

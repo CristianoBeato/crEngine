@@ -69,7 +69,7 @@ void idFramebuffer::PurgeFramebuffer()
 {
 	if( fbo != 0 )
 	{
-		qglDeleteFramebuffers( 1, ( GLuint* )&fbo );	// this should be the ONLY place it is ever called!
+		glDeleteFramebuffers( 1, ( GLuint* )&fbo );	// this should be the ONLY place it is ever called!
 		fbo = 0;
 		// clear current binding
 		globalFramebuffers->BindSystemFramebuffer();
@@ -97,15 +97,15 @@ void idFramebuffer::Bind()
 		if (!globalFramebuffers->gotsysfbo)
 		{
 			globalFramebuffers->gotsysfbo = true;
-			qglGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&globalFramebuffers->sysfbo);
+			glGetIntegerv(GL_FRAMEBUFFER_BINDING, (GLint*)&globalFramebuffers->sysfbo);
 		}
 
 		// generate the fbo handle
-		qglGenFramebuffers( 1, ( GLuint* )&fbo );
+		glGenFramebuffers( 1, ( GLuint* )&fbo );
 		assert( fbo != 0 );
 
 		// bind the fbo handle so that we can configure it
-		qglBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
 		// attach things
 		if (depthAttachmentImage)
@@ -119,22 +119,22 @@ void idFramebuffer::Bind()
 		// configure the drawbuffers/readbuffer correctly so we can use it
 		if (n > 1)
 		{
-			qglDrawBuffers(n, drawbuffers);
-			qglReadBuffer(GL_NONE);
+			glDrawBuffers(n, drawbuffers);
+			glReadBuffer(GL_NONE);
 		}
 		else if (n == 1)
 		{
-			qglDrawBuffer(GL_COLOR_ATTACHMENT0);
-			qglReadBuffer(GL_COLOR_ATTACHMENT0);
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+			glReadBuffer(GL_COLOR_ATTACHMENT0);
 		}
 		else
 		{
-			qglDrawBuffer(GL_NONE);
-			qglReadBuffer(GL_NONE);
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
 		}
 
 		// check if the framebuffer looks okay to the driver
-		int status = qglCheckFramebufferStatus(GL_FRAMEBUFFER);
+		int status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
 		assert( status == GL_FRAMEBUFFER_COMPLETE );
 
 		// see if we messed anything up
@@ -142,9 +142,9 @@ void idFramebuffer::Bind()
 	}
 	else
 	{
-		qglBindFramebuffer(GL_FRAMEBUFFER, fbo);
+		glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 
-		GLenum status = qglCheckFramebufferStatus( GL_FRAMEBUFFER );
+		GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 		
 		// check for errors
 		GL_CheckErrors();
@@ -152,18 +152,18 @@ void idFramebuffer::Bind()
 		// configure the drawbuffers/readbuffer correctly so we can use it
 		if (n > 1)
 		{
-			qglDrawBuffers(n, drawbuffers);
-			qglReadBuffer(GL_NONE);
+			glDrawBuffers(n, drawbuffers);
+			glReadBuffer(GL_NONE);
 		}
 		else if (n == 1)
 		{
-			qglDrawBuffer(GL_COLOR_ATTACHMENT0);
-			qglReadBuffer(GL_COLOR_ATTACHMENT0);
+			glDrawBuffer(GL_COLOR_ATTACHMENT0);
+			glReadBuffer(GL_COLOR_ATTACHMENT0);
 		}
 		else
 		{
-			qglDrawBuffer(GL_NONE);
-			qglReadBuffer(GL_NONE);
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
 		}
 
 		// check for errors
@@ -328,16 +328,16 @@ void idFramebufferManager::BindSystemFramebuffer()
 {
 	if ( gotsysfbo )
 	{
-		qglBindFramebuffer( GL_FRAMEBUFFER, sysfbo );
+		glBindFramebuffer( GL_FRAMEBUFFER, sysfbo );
 	}
 
-	GLenum status = qglCheckFramebufferStatus( GL_FRAMEBUFFER );
+	GLenum status = glCheckFramebufferStatus( GL_FRAMEBUFFER );
 
 	// check for errors
 	GL_CheckErrors();
 
-	qglDrawBuffer(GL_BACK);
-	qglReadBuffer(GL_BACK);
+	glDrawBuffer(GL_BACK);
+	glReadBuffer(GL_BACK);
 
 	// check for errors
 	GL_CheckErrors();

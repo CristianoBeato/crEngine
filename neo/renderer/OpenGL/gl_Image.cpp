@@ -88,8 +88,8 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	}
 	else if( opts.textureType == TT_CUBIC )
 	{
-		target = GL_TEXTURE_CUBE_MAP_EXT;
-		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT + z;
+		target = GL_TEXTURE_CUBE_MAP;
+		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X + z;
 	}
 	else
 	{
@@ -98,11 +98,11 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 		uploadTarget = GL_TEXTURE_2D;
 	}
 	
-	qglBindTexture( target, texnum );
+	glBindTexture( target, texnum );
 	
 	if( pixelPitch != 0 )
 	{
-		qglPixelStorei( GL_UNPACK_ROW_LENGTH, pixelPitch );
+		glPixelStorei( GL_UNPACK_ROW_LENGTH, pixelPitch );
 	}
 	if( opts.format == FMT_RGB565 )
 	{
@@ -113,7 +113,7 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 #endif
 	if( IsCompressed() )
 	{
-		qglCompressedTexSubImage2DARB( uploadTarget, mipLevel, x, y, width, height, internalFormat, compressedSize, pic );
+		glCompressedTexSubImage2D( uploadTarget, mipLevel, x, y, width, height, internalFormat, compressedSize, pic );
 	}
 	else
 	{
@@ -124,14 +124,14 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 		int unpackAlignment = width * BitsForFormat( ( textureFormat_t )opts.format ) / 8;
 		if( ( unpackAlignment & 3 ) == 0 )
 		{
-			qglPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
+			glPixelStorei( GL_UNPACK_ALIGNMENT, 4 );
 		}
 		else
 		{
-			qglPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
+			glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
 		}
 		
-		qglTexSubImage2D( uploadTarget, mipLevel, x, y, width, height, dataFormat, dataType, pic );
+		glTexSubImage2D( uploadTarget, mipLevel, x, y, width, height, dataFormat, dataType, pic );
 	}
 #ifdef DEBUG
 	GL_CheckErrors();
@@ -142,7 +142,7 @@ void idImage::SubImageUpload( int mipLevel, int x, int y, int z, int width, int 
 	}
 	if( pixelPitch != 0 )
 	{
-		qglPixelStorei( GL_UNPACK_ROW_LENGTH, 0 );
+		glPixelStorei( GL_UNPACK_ROW_LENGTH, 0 );
 	}
 }
 
@@ -170,7 +170,7 @@ void idImage::SetTexParameters()
 			target = GL_TEXTURE_2D;
 			break;
 		case TT_CUBIC:
-			target = GL_TEXTURE_CUBE_MAP_EXT;
+			target = GL_TEXTURE_CUBE_MAP;
 			break;
 			// RB begin
 		case TT_2D_ARRAY:
@@ -187,60 +187,60 @@ void idImage::SetTexParameters()
 #if defined( USE_CORE_PROFILE )
 	if( opts.colorFormat == CFM_GREEN_ALPHA )
 	{
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_GREEN );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_GREEN );
 	}
 	else if( opts.format == FMT_LUM8 )
 	{
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_ONE );
 	}
 	else if( opts.format == FMT_L8A8 )
 	{
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_GREEN );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_GREEN );
 	}
 	else if( opts.format == FMT_ALPHA )
 	{
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_RED );
 	}
 	else if( opts.format == FMT_INT8 )
 	{
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_RED );
 	}
 	else
 	{
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_GREEN );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_BLUE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_ALPHA );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_GREEN );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_BLUE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_ALPHA );
 	}
 #else
 	if( opts.colorFormat == CFM_GREEN_ALPHA )
 	{
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_GREEN );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_GREEN );
 	}
 	else if( opts.format == FMT_ALPHA )
 	{
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
-		qglTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_RED );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_R, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_G, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_B, GL_ONE );
+		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_RED );
 	}
 #endif
 	
@@ -249,21 +249,21 @@ void idImage::SetTexParameters()
 		case TF_DEFAULT:
 			if( r_useTrilinearFiltering.GetBool() )
 			{
-				qglTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
+				glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR );
 			}
 			else
 			{
-				qglTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST );
+				glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST );
 			}
-			qglTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+			glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 			break;
 		case TF_LINEAR:
-			qglTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-			qglTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+			glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+			glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 			break;
 		case TF_NEAREST:
-			qglTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
-			qglTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+			glTexParameterf( target, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+			glTexParameterf( target, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 			break;
 		default:
 			common->FatalError( "%s: bad texture filter %d", GetName(), filter );
@@ -276,52 +276,49 @@ void idImage::SetTexParameters()
 		{
 			int aniso = r_maxAnisotropicFiltering.GetInteger();
 			if( aniso > glConfig.maxTextureAnisotropy )
-			{
 				aniso = glConfig.maxTextureAnisotropy;
-			}
+			
 			if( aniso < 0 )
-			{
 				aniso = 0;
-			}
-			qglTexParameterf( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, aniso );
+			
+			glTexParameterf( target, GL_TEXTURE_MAX_ANISOTROPY, aniso );
 		}
 		else
 		{
-			qglTexParameterf( target, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1 );
+			glTexParameterf( target, GL_TEXTURE_MAX_ANISOTROPY, 1 );
 		}
 	}
+	
+	// use a blurring LOD bias in combination with high anisotropy to fix our aliasing grate textures...
 	if( glConfig.textureLODBiasAvailable && ( usage != TD_FONT ) )
-	{
-		// use a blurring LOD bias in combination with high anisotropy to fix our aliasing grate textures...
-		qglTexParameterf( target, GL_TEXTURE_LOD_BIAS_EXT, r_lodBias.GetFloat() );
-	}
+		glTexParameterf( target, GL_TEXTURE_LOD_BIAS, r_lodBias.GetFloat() ); 
 	
 	// set the wrap/clamp modes
 	switch( repeat )
 	{
 		case TR_REPEAT:
-			qglTexParameterf( target, GL_TEXTURE_WRAP_S, GL_REPEAT );
-			qglTexParameterf( target, GL_TEXTURE_WRAP_T, GL_REPEAT );
+			glTexParameterf( target, GL_TEXTURE_WRAP_S, GL_REPEAT );
+			glTexParameterf( target, GL_TEXTURE_WRAP_T, GL_REPEAT );
 			break;
 		case TR_CLAMP_TO_ZERO:
 		{
 			float color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-			qglTexParameterfv( target, GL_TEXTURE_BORDER_COLOR, color );
-			qglTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-			qglTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+			glTexParameterfv( target, GL_TEXTURE_BORDER_COLOR, color );
+			glTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+			glTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
 		}
 		break;
 		case TR_CLAMP_TO_ZERO_ALPHA:
 		{
 			float color[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-			qglTexParameterfv( target, GL_TEXTURE_BORDER_COLOR, color );
-			qglTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
-			qglTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
+			glTexParameterfv( target, GL_TEXTURE_BORDER_COLOR, color );
+			glTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER );
+			glTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER );
 		}
 		break;
 		case TR_CLAMP:
-			qglTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-			qglTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+			glTexParameterf( target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+			glTexParameterf( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 			break;
 		default:
 			common->FatalError( "%s: bad texture repeat %d", GetName(), repeat );
@@ -331,7 +328,7 @@ void idImage::SetTexParameters()
 		// foresthale 2014-10-12: only set this #if to 0 if you intend to use a shader algorithm that needs the depth values rather than depth comparisons
 #if 1
 		//glTexParameteri( target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
-		glTexParameteri( target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_R_TO_TEXTURE );
+		glTexParameteri( target, GL_TEXTURE_COMPARE_MODE, GL_COMPARE_REF_TO_TEXTURE );
 		glTexParameteri( target, GL_TEXTURE_COMPARE_FUNC, GL_LEQUAL );
 		glTexParameteri( target, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 		glTexParameteri( target, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
@@ -421,12 +418,14 @@ void idImage::AllocImage()
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		case FMT_DXT1:
-			internalFormat = (opts.sRGB && r_useSRGB.GetBool()) ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			// internalFormat = (opts.sRGB && r_useSRGB.GetBool()) ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT1_EXT : GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
+			internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT1_EXT;
 			dataFormat = GL_RGBA;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		case FMT_DXT5:
-			internalFormat = (opts.sRGB && r_useSRGB.GetBool()) ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			// internalFormat = (opts.sRGB && r_useSRGB.GetBool()) ? GL_COMPRESSED_SRGB_ALPHA_S3TC_DXT5_EXT : GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+			internalFormat = GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
 			dataFormat = GL_RGBA;
 			dataType = GL_UNSIGNED_BYTE;
 			break;
@@ -436,13 +435,13 @@ void idImage::AllocImage()
 			dataType = GL_UNSIGNED_BYTE;
 			break;
 		case FMT_X16:
-			internalFormat = GL_INTENSITY16;
-			dataFormat = GL_LUMINANCE;
+			internalFormat = GL_R16;//GL_INTENSITY16;
+			dataFormat = GL_RED;//GL_LUMINANCE;
 			dataType = GL_UNSIGNED_SHORT;
 			break;
 		case FMT_Y16_X16:
-			internalFormat = GL_LUMINANCE16_ALPHA16;
-			dataFormat = GL_LUMINANCE_ALPHA;
+			internalFormat = GL_RG16; //GL_LUMINANCE16_ALPHA16;
+			dataFormat = GL_RG;//GL_LUMINANCE_ALPHA;
 			dataType = GL_UNSIGNED_SHORT;
 			break;
 		// foresthale 2014-02-19: added FMT_RGBA16F and FMT_DEPTHSTENCIL for HDR view rendering
@@ -494,7 +493,7 @@ void idImage::AllocImage()
 	}
 	
 	// generate the texture number
-	qglGenTextures( 1, ( GLuint* )&texnum );
+	glGenTextures( 1, ( GLuint* )&texnum );
 	assert( texnum != TEXTURE_NOT_LOADED );
 	
 	//----------------------------------------------------
@@ -511,8 +510,8 @@ void idImage::AllocImage()
 	}
 	else if( opts.textureType == TT_CUBIC )
 	{
-		target = GL_TEXTURE_CUBE_MAP_EXT;
-		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X_EXT;
+		target = GL_TEXTURE_CUBE_MAP;
+		uploadTarget = GL_TEXTURE_CUBE_MAP_POSITIVE_X;
 		numSides = 6;
 	}
 	// RB begin
@@ -530,7 +529,7 @@ void idImage::AllocImage()
 		numSides = 1;
 	}
 	
-	qglBindTexture( target, texnum );
+	glBindTexture( target, texnum );
 	
 	for( int side = 0; side < numSides; side++ )
 	{
@@ -538,7 +537,7 @@ void idImage::AllocImage()
 		int h = opts.height;
 		if( opts.textureType == TT_2D_ARRAY )
 		{
-			qglTexImage3D( uploadTarget, 0, internalFormat, opts.width, opts.height, numSides, 0, dataFormat, GL_UNSIGNED_BYTE, NULL );
+			glTexImage3D( uploadTarget, 0, internalFormat, opts.width, opts.height, numSides, 0, dataFormat, GL_UNSIGNED_BYTE, NULL );
 			break;
 		}
 		if( opts.textureType == TT_CUBIC )
@@ -567,14 +566,14 @@ void idImage::AllocImage()
 				// RB begin
 #if defined(_WIN32)
 				void* data = HeapAlloc( GetProcessHeap(), 0, compressedSize );
-				qglCompressedTexImage2DARB( uploadTarget + side, level, internalFormat, w, h, 0, compressedSize, data );
+				glCompressedTexImage2DARB( uploadTarget + side, level, internalFormat, w, h, 0, compressedSize, data );
 				if( data != NULL )
 				{
 					HeapFree( GetProcessHeap(), 0, data );
 				}
 #else
 				byte* data = ( byte* )Mem_Alloc( compressedSize, TAG_TEMP );
-				qglCompressedTexImage2DARB( uploadTarget + side, level, internalFormat, w, h, 0, compressedSize, data );
+				glCompressedTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, compressedSize, data );
 				if( data != NULL )
 				{
 					Mem_Free( data );
@@ -584,7 +583,7 @@ void idImage::AllocImage()
 			}
 			else
 			{
-				qglTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, NULL );
+				glTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, NULL );
 			}
 			
 			GL_CheckErrors();
@@ -594,7 +593,7 @@ void idImage::AllocImage()
 		}
 	}
 	
-	qglTexParameteri( target, GL_TEXTURE_MAX_LEVEL, opts.numLevels - 1 );
+	glTexParameteri( target, GL_TEXTURE_MAX_LEVEL, opts.numLevels - 1 );
 	
 	// see if we messed anything up
 	GL_CheckErrors();
@@ -613,9 +612,9 @@ void idImage::PurgeImage()
 {
 	if( texnum != TEXTURE_NOT_LOADED )
 	{
-		// foresthale 2014-10-05: hitting quit in the launch console crashes if we call qglDeleteTextures (which is NULL at the time)
-		if ( qglDeleteTextures )
-			qglDeleteTextures( 1, ( GLuint* )&texnum );	// this should be the ONLY place it is ever called!
+		// foresthale 2014-10-05: hitting quit in the launch console crashes if we call glDeleteTextures (which is NULL at the time)
+		if ( glDeleteTextures )
+			glDeleteTextures( 1, ( GLuint* )&texnum );	// this should be the ONLY place it is ever called!
 		texnum = TEXTURE_NOT_LOADED;
 	}
 	// clear all the current binding caches, so the next bind will do a real one

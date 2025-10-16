@@ -1192,7 +1192,7 @@ void idRenderWorldLocal::ShowPortals()
 				// red = can't see
 				//GL_Color( 1, 0, 0 );
 				if( !r_showNvidiaHack.GetBool() )
-					qglColor3f(1, 0, 0);
+					glColor3f(1, 0, 0);
 				else
 					GL_Color( 1, 0, 0 );
 			}
@@ -1201,7 +1201,7 @@ void idRenderWorldLocal::ShowPortals()
 				// green = see through
 				//GL_Color( 0, 1, 0 );
 				if( !r_showNvidiaHack.GetBool() )
-					qglColor3f(0, 1, 0);
+					glColor3f(0, 1, 0);
 				else
 					GL_Color( 0, 1, 0 );
 			}
@@ -1210,12 +1210,12 @@ void idRenderWorldLocal::ShowPortals()
 			renderProgManager.CommitUniforms();
 			// RB end
 			
-			qglBegin( GL_LINE_LOOP );
+			glBegin( GL_LINE_LOOP );
 			for( j = 0; j < w->GetNumPoints(); j++ )
 			{
-				qglVertex3fv( ( *w )[j].ToFloatPtr() );
+				glVertex3fv( ( *w )[j].ToFloatPtr() );
 			}
-			qglEnd();
+			glEnd();
 		}
 	}
 }

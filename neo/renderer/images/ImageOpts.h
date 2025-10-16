@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __IMAGEOPTS_H__
 #define __IMAGEOPTS_H__
 
-enum textureType_t
+enum textureType_t : uint8_t
 {
 	TT_DISABLED,
 	TT_2D,
@@ -45,7 +45,7 @@ enum textureType_t
 The internal *Texture Format Types*, ::textureFormat_t, are:
 ================================================
 */
-enum textureFormat_t
+enum textureFormat_t : uint16_t
 {
 	FMT_NONE,
 	
@@ -108,7 +108,7 @@ int BitsForFormat( textureFormat_t format );
 DXT5 color formats
 ================================================
 */
-enum textureColor_t
+enum textureColor_t : uint8_t
 {
 	CFM_DEFAULT,			// RGBA
 	CFM_NORMAL_DXT5,		// XY format and use the fast DXT5 compressor
@@ -139,7 +139,7 @@ public:
 	textureColor_t		colorFormat;
 	int					width;
 	int					height;			// not needed for cube maps
-	int					numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
+	int16_t				numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
 	bool				gammaMips;		// if true, mips will be generated with gamma correction
 	bool				readback;		// 360 specific - cpu reads back from this texture, so allocate with cached memory
 	bool				sRGB; 			// foresthale 2014-02-20: fixed r_useSRGB texture handling

@@ -461,12 +461,12 @@ void idImage::BindAttachmentOnFBO(int attachmentType, int layer)
 {
 	if (layer == -1)
 	{
-	qglFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, texnum, 0);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, texnum, 0);
 }
 	else
 	{
 		assert(opts.textureType == TT_2D_ARRAY);
-		qglFramebufferTextureLayer( GL_FRAMEBUFFER, attachmentType, texnum, 0, layer );
+		glFramebufferTextureLayer( GL_FRAMEBUFFER, attachmentType, texnum, 0, layer );
 	}
 
 }
@@ -773,14 +773,14 @@ void idImage::Bind()
 		if( tmu->current2DMap != texnum )
 		{
 			tmu->current2DMap = texnum;
-			qglBindMultiTextureEXT( GL_TEXTURE0_ARB + texUnit, GL_TEXTURE_2D, texnum );
+			glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D, texnum );
 		}
 
 		// foresthale 2014-05-10: when using the tools code (which does not use shaders) we have to manage the texture unit enables
 		if (com_editors)
 		{
-			//qglActiveTexture(GL_TEXTURE0_ARB + texUnit);
-			qglEnable(GL_TEXTURE_2D);
+			//glActiveTexture(GL_TEXTURE0_ARB + texUnit);
+			glEnable(GL_TEXTURE_2D);
 		}
 	}
 	else if( opts.textureType == TT_CUBIC )
@@ -788,14 +788,14 @@ void idImage::Bind()
 		if( tmu->currentCubeMap != texnum )
 		{
 			tmu->currentCubeMap = texnum;
-			qglBindMultiTextureEXT( GL_TEXTURE0_ARB + texUnit, GL_TEXTURE_CUBE_MAP_EXT, texnum );
+			glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_CUBE_MAP, texnum );
 		}
 
 		// foresthale 2014-05-10: when using the tools code (which does not use shaders) we have to manage the texture unit enables
 		if (com_editors)
 		{
-			//qglActiveTexture(GL_TEXTURE0_ARB + texUnit);
-			qglEnable(GL_TEXTURE_CUBE_MAP);
+			//glActiveTexture(GL_TEXTURE0_ARB + texUnit);
+			glEnable(GL_TEXTURE_CUBE_MAP);
 		}
 	}
 	else if( opts.textureType == TT_2D_ARRAY )
@@ -805,7 +805,7 @@ void idImage::Bind()
 			tmu->current2DArray = texnum;
 			
 			// RB begin
-			qglBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_ARRAY, texnum );
+			glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_ARRAY, texnum );
 		}
 	}
 
@@ -843,22 +843,22 @@ void idImage::CopyFramebuffer( int x, int y, int imageWidth, int imageHeight )
 		AllocImage();
 	}
 
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 
 	// foresthale 2014-02-20: HDR view rendering - this seems to not be changed anywhere and conflicts with FBO rendering
-	//qglReadBuffer( GL_BACK );
+	//glReadBuffer( GL_BACK );
 	
 	opts.width = imageWidth;
 	opts.height = imageHeight;
 	// foresthale 2014-02-20: HDR view rendering
-	qglCopyTexImage2D( GL_TEXTURE_2D, 0, opts.format == FMT_RGBA16F ? GL_RGBA16F : GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
+	glCopyTexImage2D( GL_TEXTURE_2D, 0, opts.format == FMT_RGBA16F ? GL_RGBA16F : GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
 	
 	// these shouldn't be necessary if the image was initialized properly
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	qglTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
 	
 	backEnd.pc.c_copyFrameBuffer++;
 }
@@ -870,11 +870,11 @@ CopyDepthbuffer
 */
 void idImage::CopyDepthbuffer( int x, int y, int imageWidth, int imageHeight )
 {
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 	
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	qglCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
+	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
 
 	backEnd.pc.c_copyFrameBuffer++;
 }
@@ -1106,6 +1106,6 @@ void idImage::SetSamplerState( textureFilter_t tf, textureRepeat_t tr )
 	}
 	filter = tf;
 	repeat = tr;
-	qglBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP_EXT : GL_TEXTURE_2D, texnum );
+	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
 	SetTexParameters();
 }
