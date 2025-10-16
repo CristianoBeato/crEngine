@@ -16,7 +16,7 @@ option(MONOLITH
 		"Embed game logic into main executable" ON)
 		
 option(OPENAL# Include the libs subdirectory. This will allow the compiler to simplify the include process.
-		"Use OpenAL soft instead of XAudio2" OFF)
+	"Use OpenAL soft instead of XAudio2" OFF)
 		# This will force the headers to play nice for pre-Windows 8 builds.
 option(FORCE_WIN7_COMPAT "Force Windows 7 compatibility." OFF)
 if(UNIX)
@@ -34,7 +34,9 @@ endif()
 #find_package(DirectX REQUIRED)
 #include_directories(${DirectX_INCLUDE_DIR})
 
-find_package( SDL2 REQUIRED CONFIG )
+find_package( SDL3 REQUIRED CONFIG )
+include_directories( SDL3::Headers )
+
 find_package( ZLIB REQUIRED )
 find_package( PNG REQUIRED )
 find_package( JPEG REQUIRED )
@@ -86,7 +88,7 @@ if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
 	endif()	
 	
 	#if(NOT ANDROID)
-		add_definitions(-DUSE_EXCEPTIONS)
+		add_definitions( -DUSE_EXCEPTIONS )
 	#endif()
 	
 	# the warnings are used for every profile anyway, so put them in a variable
@@ -228,29 +230,12 @@ include_directories( ${CMAKE_SOURCE_DIR} )
 ## Engine submodules
 ##################################################################3
 
-# common utilities
-add_subdirectory( idlib ) 
-
-# external contrib libs
-add_subdirectory( libs )
-
-# game logic
-add_subdirectory( d3xp )
-
-# engine framework
-add_subdirectory( framework )
-
-# render system
-add_subdirectory( renderer )
-
-# sound system
-add_subdirectory( sound )
-
-# SWF menus system
-add_subdirectory( swf )
-
-#
+add_subdirectory( idlib ) # common utilities
+add_subdirectory( libs ) # external contrib libs
+add_subdirectory( d3xp ) # game logic
+add_subdirectory( framework ) # engine framework
+add_subdirectory( renderer ) # render system
+add_subdirectory( sound ) # sound system
+add_subdirectory( swf ) # SWF menus system
 add_subdirectory( tools )
-
-# engine system executable
-add_subdirectory( sys )
+add_subdirectory( sys ) # engine system executable

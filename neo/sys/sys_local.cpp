@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014-2016 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2025 Cristiano Beato
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -30,6 +31,11 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "sys_local.h"
+
+#include <SDL3/SDL_timer.h>
+#include <SDL3/SDL_cpuinfo.h>
+#include <SDL3/SDL_loadso.h>
+#include <SDL3/SDL_clipboard.h>
 
 const char* sysLanguageNames[] =
 {
@@ -297,3 +303,127 @@ const char* Sys_DefaultLanguage()
 	
 	return ID_LANG_ENGLISH;
 }
+
+// BEATO Begin:
+/*
+================
+Sys_Milliseconds
+================
+*/
+uint32_t Sys_Milliseconds( void )
+{
+	return SDL_GetTicks();
+}
+
+
+/*
+========================
+Sys_Microseconds
+========================
+*/
+uint64_t Sys_Microseconds( void )
+{
+	static uint64_t baseCounter = 0;
+	static uint64_t frequency = 0;
+
+	// init the timer 
+	if ( frequency == 0)
+	{
+		frequency = SDL_GetPerformanceFrequency();
+    	baseCounter = SDL_GetPerformanceCounter();
+	}
+	
+	return ( ( SDL_GetPerformanceCounter() - baseCounter ) * 1000000ULL) / frequency;
+}
+
+/*
+==============
+Sys_Sleep
+==============
+*/
+void Sys_Sleep( const uint32_t in_msec ) 
+{
+	SDL_Delay( in_msec );
+}
+
+
+/*
+========================================================================
+
+DLL Loading
+
+========================================================================
+*/
+
+/*
+=====================
+Sys_DLL_Load
+=====================
+*/
+// RB: 64 bit fixes, changed int to intptr_t
+intptr_t Sys_DLL_Load( const char *dllName )
+{
+	auto lib = SDL_LoadObject( dllName );
+	if ( !lib )
+		throw idException( SDL_GetError() );
+	
+	return reinterpret_cast<intptr_t>( lib );
+}
+
+/*
+=====================
+Sys_DLL_GetProcAddress
+=====================
+*/
+void *Sys_DLL_GetProcAddress( intptr_t dllHandle, const char *procName )
+{
+	// RB: added missing cast
+	return reinterpret_cast<void*>( SDL_LoadFunction( reinterpret_cast<SDL_SharedObject*>( dllHandle ), procName ) );
+}
+
+/*
+=====================
+Sys_DLL_Unload
+=====================
+*/
+void Sys_DLL_Unload( intptr_t dllHandle )
+{
+	if( !dllHandle )
+		return;
+
+	SDL_UnloadObject( reinterpret_cast<SDL_SharedObject*>( dllHandle ) );
+}
+
+char* Sys_GetClipboardData( void )
+{
+	size_t strl = 0;
+	char* clpbrd = nullptr;
+	char* copy = nullptr;
+	if ( !SDL_HasClipboardText() )
+		return nullptr;
+
+	clpbrd = SDL_GetClipboardText();
+	if (  clpbrd == nullptr )
+		Sys_Printf( "failed to get clipboard content %s\n", SDL_GetError() );
+	
+	copy = static_cast<char*>( Mem_Alloc( SDL_strlen( clpbrd ) + 1, TAG_CRAP ) );
+
+	SDL_free( clpbrd );
+
+	return copy;
+}
+
+void Sys_SetClipboardData( const char* string )
+{
+	if ( string == nullptr )
+		return;
+
+	SDL_ClearClipboardData();
+
+	if( !SDL_SetClipboardText( string ) )
+		Sys_Printf( "failed to set clipboard content %s\n",  SDL_GetError() );
+}
+
+// RB end
+
+// BEATO End

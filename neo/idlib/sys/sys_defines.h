@@ -116,22 +116,10 @@ If you have questions concerning this license or the applicable additional terms
 #define PATHSEPARATOR_STR				"/"
 #define PATHSEPARATOR_CHAR			'/'
 #define NEWLINE							    "\n"
-
-#define ID_INLINE						inline
-
-// DG: this should at least work with GCC/MinGW, probably with clang as well..
-#define ID_FORCE_INLINE					inline // TODO: always_inline?
-// DG end
-
-#define ID_INLINE_EXTERN				extern inline
-
-// DG: GCC/MinGW, probably clang
-#define ID_FORCE_INLINE_EXTERN			extern inline // TODO: always_inline ?
-// DG end
-
 #endif
 // RB end
 
+// BEATO Begin:
 #define ID_INLINE						    inline
 #define ID_INLINE_EXTERN				extern inline
 
@@ -148,7 +136,7 @@ If you have questions concerning this license or the applicable additional terms
 #define NO_RETURN __declspec(noreturn)
 // RB end
 
-#elif __COMPILER_GNUC__ || __COMPILER_CLANG__
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 // DG: this should at least work with GCC/MinGW, probably with clang as well..
 #define _alloca							    alloca
 #define ID_FORCE_INLINE					inline // TODO: always_inline?
@@ -165,6 +153,7 @@ If you have questions concerning this license or the applicable additional terms
 #else
 #define NO_RETURN
 #endif
+// BEATO End
 
 /*
 ================================================================================================
@@ -252,7 +241,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // DG: alternative for GCC with attribute (NOOP for MSVC)
 #define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
 
-#elif __COMPILER_GNUC__ // FIXME: what about clang?
+#elif __COMPILER_GCC__ // FIXME: what about clang?
 #define	VERIFY_FORMAT_STRING
 // STRIDX: index of format string in function arguments (first arg == 1)
 // FIRSTARGIDX: index of first argument for the format string

@@ -1408,15 +1408,14 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// initialize networking
 		Sys_InitNetworking();
 		
+
 		// override cvars from command line
-		StartupVariable( NULL );
+		StartupVariable( nullptr );
 		
 		consoleUsed = com_allowConsole.GetBool();
 		
 		if( Sys_AlreadyRunning() )
-		{
 			Sys_Quit();
-		}
 		
 		// initialize processor specific SIMD implementation
 		InitSIMD();

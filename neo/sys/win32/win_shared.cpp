@@ -64,52 +64,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma warning(disable:4740)	// warning C4740: flow in or out of inline asm code suppresses global optimization
 
-/*
-================
-Sys_Milliseconds
-================
-*/
-int Sys_Milliseconds()
-{
-	static DWORD sys_timeBase = timeGetTime();
-	return timeGetTime() - sys_timeBase;
-}
-
-/*
-========================
-Sys_Microseconds
-========================
-*/
-uint64 Sys_Microseconds()
-{
-	static uint64 ticksPerMicrosecondTimes1024 = 0;
-	
-	if( ticksPerMicrosecondTimes1024 == 0 )
-	{
-		ticksPerMicrosecondTimes1024 = ( ( uint64 )Sys_ClockTicksPerSecond() << 10 ) / 1000000;
-		assert( ticksPerMicrosecondTimes1024 > 0 );
-	}
-	
-	return ( ( uint64 )( ( int64 )Sys_GetClockTicks() << 10 ) ) / ticksPerMicrosecondTimes1024;
-}
-
-/*
-================
-Sys_GetSystemRam
-
-	returns amount of physical memory in MB
-================
-*/
-int Sys_GetSystemRam()
-{
-	MEMORYSTATUSEX statex;
-	statex.dwLength = sizeof( statex );
-	GlobalMemoryStatusEx( &statex );
-	int physRam = statex.ullTotalPhys / ( 1024 * 1024 );
-	// HACK: For some reason, ullTotalPhys is sometimes off by a meg or two, so we round up to the nearest 16 megs
-	physRam = ( physRam + 8 ) & ~15;
-	return physRam;
-}
 
 
 /*
@@ -137,12 +91,12 @@ int Sys_GetDriveFreeSpace( const char* path )
 Sys_GetDriveFreeSpaceInBytes
 ========================
 */
-int64 Sys_GetDriveFreeSpaceInBytes( const char* path )
+int64_t Sys_GetDriveFreeSpaceInBytes( const char* path )
 {
 	DWORDLONG lpFreeBytesAvailable;
 	DWORDLONG lpTotalNumberOfBytes;
 	DWORDLONG lpTotalNumberOfFreeBytes;
-	int64 ret = 1;
+	int64_t ret = 1;
 	//FIXME: see why this is failing on some machines
 	if( ::GetDiskFreeSpaceEx( path, ( PULARGE_INTEGER )&lpFreeBytesAvailable, ( PULARGE_INTEGER )&lpTotalNumberOfBytes, ( PULARGE_INTEGER )&lpTotalNumberOfFreeBytes ) )
 	{
@@ -219,78 +173,6 @@ int Sys_GetVideoRam()
 	// RB end
 	
 	return retSize;
-}
-
-/*
-================
-Sys_GetCurrentMemoryStatus
-
-	returns OS mem info
-	all values are in kB except the memoryload
-================
-*/
-void Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats )
-{
-	MEMORYSTATUSEX statex = {};
-	unsigned __int64 work;
-	
-	statex.dwLength = sizeof( statex );
-	GlobalMemoryStatusEx( &statex );
-	
-	memset( &stats, 0, sizeof( stats ) );
-	
-	stats.memoryLoad = statex.dwMemoryLoad;
-	
-	work = statex.ullTotalPhys >> 20;
-	stats.totalPhysical = *( int* )&work;
-	
-	work = statex.ullAvailPhys >> 20;
-	stats.availPhysical = *( int* )&work;
-	
-	work = statex.ullAvailPageFile >> 20;
-	stats.availPageFile = *( int* )&work;
-	
-	work = statex.ullTotalPageFile >> 20;
-	stats.totalPageFile = *( int* )&work;
-	
-	work = statex.ullTotalVirtual >> 20;
-	stats.totalVirtual = *( int* )&work;
-	
-	work = statex.ullAvailVirtual >> 20;
-	stats.availVirtual = *( int* )&work;
-	
-	work = statex.ullAvailExtendedVirtual >> 20;
-	stats.availExtendedVirtual = *( int* )&work;
-}
-
-/*
-================
-Sys_LockMemory
-================
-*/
-bool Sys_LockMemory( void* ptr, int bytes )
-{
-	return ( VirtualLock( ptr, ( SIZE_T )bytes ) != FALSE );
-}
-
-/*
-================
-Sys_UnlockMemory
-================
-*/
-bool Sys_UnlockMemory( void* ptr, int bytes )
-{
-	return ( VirtualUnlock( ptr, ( SIZE_T )bytes ) != FALSE );
-}
-
-/*
-================
-Sys_SetPhysicalWorkMemory
-================
-*/
-void Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes )
-{
-	::SetProcessWorkingSetSize( GetCurrentProcess(), minBytes, maxBytes );
 }
 
 /*

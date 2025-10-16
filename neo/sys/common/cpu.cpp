@@ -11,7 +11,7 @@
 
 #include <SDL3/SDL_cpuinfo.h>
 
-#if defined(_MSC_VER)
+#if __COMPILER_MSVC__
 #   include <float.h>
 #   include <intrin.h>
 
@@ -35,7 +35,7 @@ inline unsigned int __get_cpuid( unsigned int level, unsigned int* eax, unsigned
 #undef strcmp
 #endif // 
 
-enum register_t : uint8_t 
+enum cpuReg_t : uint8_t 
 {
     REG_EAX,
     REG_EBX,
@@ -60,11 +60,14 @@ enum flags_t : uint32_t
 static uint32_t nIds = 0;
 static uint32_t nExIds = 0;
 static uint32_t cpui[4] = { 0, 0, 0, 0 };
-static char	vendor[32] = { "Generic" };
-static char	brand[64] = { "Generic" };
+
+idCVar sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
+idCVar sys_cpuvendor( "sys_cpuvendor", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
 
 static inline void  GetCPUInfo(  void )
 {
+    char	vendor[32] = { "Generic" };
+    char	brand[64] = { "Generic" };
     std::memset( vendor, 0, sizeof( vendor ) );
     std::memset( brand, 0, sizeof( brand ) );
     
@@ -98,6 +101,9 @@ static inline void  GetCPUInfo(  void )
 				std::memcpy( brand + 32, cpui, sizeof( cpui ) );
 		}
 	}
+
+    sys_cpustring.SetString( brand );
+    sys_cpuvendor.SetString( vendor );
 }
 
 static inline bool HasCMOV( void )
@@ -165,6 +171,16 @@ void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCP
 }
 
 /*
+===============
+Sys_GetProcessorString
+===============
+*/
+const char* Sys_GetProcessorString( void )
+{
+	return sys_cpustring.GetString();
+}
+
+/*
 ================
 Sys_GetProcessorId
 ================
@@ -176,11 +192,13 @@ cpuid_t Sys_GetProcessorId( void )
     if ( cpuid != CPUID_NONE )
         return static_cast<cpuid_t>( cpuid );
 
+    GetCPUInfo();    
+
     // check for an AMD
-	if ( std::strcmp( vendor, "AuthenticAMD" ) == 0)
+	if ( std::strcmp( sys_cpuvendor.GetString(), "AuthenticAMD" ) == 0)
 		cpuid = CPUID_AMD;
 	// check for an Intel
-	else if ( std::strcmp( vendor, "GenuineIntel" ) == 0)
+	else if ( std::strcmp( sys_cpuvendor.GetString(), "GenuineIntel" ) == 0)
 		cpuid = CPUID_INTEL;
 	else
 		cpuid = CPUID_GENERIC;

@@ -62,6 +62,8 @@ along with Beato idTech 4x  Source Code.  If not, see <http://www.gnu.org/licens
 #   define __PLATFORM_LINUX__ 1
 #elif defined( __FreeBSD__ )
 #   define __PLATFORM_FBSD__ 1
+#elif defined( __ANDROID__ )
+#   define __PLATFORM_ANDROID__ 1
 #endif
 
 /*

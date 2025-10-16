@@ -49,22 +49,26 @@ If you have questions concerning this license or the applicable additional terms
 enum cpuid_t
 {
 	CPUID_NONE							= 0x00000,
-	CPUID_UNSUPPORTED					= 0x00001,	// unsupported (386/486)
-	CPUID_GENERIC						= 0x00002,	// unrecognized processor
-	CPUID_INTEL							= 0x00004,	// Intel
-	CPUID_AMD							= 0x00008,	// AMD
-	CPUID_MMX							= 0x00010,	// Multi Media Extensions
-	CPUID_3DNOW							= 0x00020,	// 3DNow!
-	CPUID_SSE							= 0x00040,	// Streaming SIMD Extensions
-	CPUID_SSE2							= 0x00080,	// Streaming SIMD Extensions 2
-	CPUID_SSE3							= 0x00100,	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
-	CPUID_ALTIVEC						= 0x00200,	// AltiVec
-	CPUID_HTT							= 0x01000,	// Hyper-Threading Technology
-	CPUID_CMOV							= 0x02000,	// Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
-	CPUID_FTZ							= 0x04000,	// Flush-To-Zero mode (denormal results are flushed to zero)
-	CPUID_DAZ							= 0x08000,	// Denormals-Are-Zero mode (denormal source operands are set to zero)
-	CPUID_XENON							= 0x10000,	// Xbox 360
-	CPUID_CELL							= 0x20000	// PS3
+	CPUID_UNSUPPORTED					= ( 1 << 0 ),	// unsupported (386/486)
+	CPUID_GENERIC						= ( 1 << 1 ),	// unrecognized processor
+	CPUID_INTEL							= ( 1 << 2 ),	// Intel
+	CPUID_AMD							= ( 1 << 3 ),	// AMD
+	CPUID_ARM							= ( 1 << 4 ),	// ARM cpu
+	CPUID_MMX							= ( 1 << 5 ),	// Multi Media Extensions
+	CPUID_3DNOW							= ( 1 << 6 ),	// 3DNow!
+	CPUID_SSE							= ( 1 << 7 ),	// Streaming SIMD Extensions
+	CPUID_SSE2							= ( 1 << 8 ),	// Streaming SIMD Extensions 2
+	CPUID_SSE3							= ( 1 << 9 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
+	CPUID_SSSE3							= ( 1 << 10 ),	//
+	CPUID_SSE41							= ( 1 << 11 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
+	CPUID_SSE42							= ( 1 << 12 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
+	CPUID_ALTIVEC						= ( 1 << 13),	// AltiVec
+	CPUID_HTT							= ( 1 << 14 ),	// Hyper-Threading Technology
+	CPUID_CMOV							= ( 1 << 15 ),	// Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
+	CPUID_FTZ							= ( 1 << 16 ),	// Flush-To-Zero mode (denormal results are flushed to zero)
+	CPUID_DAZ							= ( 1 << 17 ),	// Denormals-Are-Zero mode (denormal source operands are set to zero)
+	CPUID_XENON							= ( 1 << 18 ),	// Xbox 360
+	CPUID_CELL							= ( 1 << 19 )	// PS3
 };
 
 enum fpuExceptions_t
@@ -432,6 +436,50 @@ struct sysMemoryStats_t
 	int availExtendedVirtual;
 };
 
+enum videoMode_t : uint8_t
+{
+	VIDEO_MODE_WINDOW,
+	VIDEO_MODE_BORDERLESS,
+	VIDEO_MODE_FULLSCREEN,
+	VIDEO_MODE_DEDICATED
+};
+
+// BEATO Begin:
+typedef struct vidMode_t
+{
+	uint8_t		format = 0;
+	uint16_t	displayID = 0;
+	uint16_t	modeID = 0;
+	uint16_t	width = 0;
+	uint16_t	height = 0;
+	int displayHz;
+	
+	// RB begin
+	vidMode_t( void )
+	{
+		width = 640;
+		height = 480;
+		displayHz = 60;
+	}
+	
+	vidMode_t( int width, int height, int displayHz ) : width( width ), height( height ), displayHz( displayHz ) {}
+	// RB end
+	
+	bool operator==( const vidMode_t& a )
+	{
+		return a.width == width && a.height == height && a.displayHz == displayHz;
+	}
+} idMode_t;
+
+enum grab_e
+{
+	GRAB_ENABLE		= ( 1 << 0 ),
+	GRAB_REENABLE	= ( 1 << 1 ),
+	GRAB_HIDECURSOR	= ( 1 << 2 ),
+	GRAB_SETSTATE	= ( 1 << 3 )
+};
+// BEATO End
+
 // typedef unsigned long address_t; // DG: this isn't even used
 
 void			Sys_Init();
@@ -448,7 +496,11 @@ void			Sys_SetLanguageFromSystem();
 const char* 	Sys_DefaultLanguage();
 void			Sys_Quit();
 
-bool			Sys_AlreadyRunning();
+bool			Sys_AlreadyRunning( void );
+
+// BEATO Begin:
+void			Sys_ReleaseAlreadyRunningLock( void ) ;
+// BEATO End
 
 // note that this isn't journaled...
 char* 			Sys_GetClipboardData();
@@ -467,12 +519,12 @@ void			Sys_DebugVPrintf( const char* fmt, va_list arg );
 
 // allow game to yield CPU time
 // NOTE: due to SYS_MINSLEEP this is very bad portability karma, and should be completely removed
-void			Sys_Sleep( int msec );
+void			Sys_Sleep( const uint32_t in_msec );
 
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
 uint32_t		Sys_Milliseconds( void );
-uint64_t			Sys_Microseconds();
+uint64_t		Sys_Microseconds();
 
 // for accurate performance testing
 double			Sys_GetClockTicks();
@@ -569,8 +621,18 @@ void			Sys_EndJoystickInputEvents();
 // when in windowed mode
 void			Sys_GrabMouseCursor( bool grabIt );
 
+// BEATO Begin
+void			Sys_VideoInit( const uint32_t in_flags );
+void    		Sys_VideoFinish( void );
+void*			Sys_VideoWindowHandler( void );
+void			Sys_VideoGrabInput( const uint32_t flags );
+bool 			Sys_VideoSetMode( const vidMode_t in_mode, const videoMode_t in_fullScreen );
+void			Sys_VideoSetGamma( uint16_t red[256], uint16_t green[256], uint16_t blue[256] );
+vidMode_t*		Sys_VideoGetModeListForDisplay( const uint32_t in_requestedDisplayNum, uint32_t &in_count );
+// BEATO End
+
 void			Sys_ShowWindow( bool show );
-bool			Sys_IsWindowVisible();
+bool			Sys_IsWindowVisible( void );
 void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 
 // This really isn't the right place to have this, but since this is the 'top level' include

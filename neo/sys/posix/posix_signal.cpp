@@ -25,7 +25,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#include "../../idlib/precompiled.h"
+#include "idlib/precompiled.h"
 #include "posix_public.h"
 
 #include <string.h>
@@ -71,7 +71,7 @@ static char fatalError[ 1024 ];
 Posix_ClearSigs
 ================
 */
-void Posix_ClearSigs( )
+void Posix_ClearSigs( void )
 {
 	struct sigaction action;
 	int i;
@@ -90,6 +90,17 @@ void Posix_ClearSigs( )
 		}
 		i++;
 	}
+}
+
+/*
+===============
+Sys_FPE_handler
+===============
+*/
+void Sys_FPE_handler( int signum, siginfo_t* info, void* context )
+{
+	assert( signum == SIGFPE );
+	Sys_Printf( "FPE\n" );
 }
 
 /*

@@ -61,23 +61,18 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/signin.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/signin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/socket_net.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/cpu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/paths.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/process.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/video.cpp
     )
 
 # linux sources 
 set( SYSTEM_LINUX_SOURCES 
-    ${CMAKE_CURRENT_SOURCE_DIR}/linux/linux_main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_console.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_local.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_public.h
     ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_signal.cpp
-    )
-
-#
-set( SYSTEM_SDL_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdl/sdl_cpu.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdl/sdl_events.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdl/sdl_glimp.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdl/sdl_local.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/sdl/sdl_qgl.cpp
     )
 
 set( SYSTEM_WIN_SOURCES
@@ -88,7 +83,7 @@ set( SYSTEM_WIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_local.h
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_nanoafx.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_qgl.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_gl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_shared.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_snd.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_syscon.cpp
@@ -244,7 +239,7 @@ else( )
 endif( )
 
 # link external libraries
-target_link_libraries( crEngine PUBLIC ZLIB::ZLIB SDL2::SDL2 PNG::PNG JPEG::JPEG OpenGL::OpenGL OpenAL::OpenAL )
+target_link_libraries( crEngine PUBLIC ZLIB::ZLIB PNG::PNG JPEG::JPEG OpenGL::OpenGL OpenAL::OpenAL SDL3 )
 
 #set the idLib root dir as include
 target_include_directories( crEngine PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
