@@ -569,16 +569,16 @@ void			Sys_FPU_SetFTZ( bool enable );
 void			Sys_FPU_SetDAZ( bool enable );
 
 // returns amount of system ram
-int				Sys_GetSystemRam();
+int				Sys_GetSystemRam( void );
 
 // returns amount of video ram
-int				Sys_GetVideoRam();
+int				Sys_GetVideoRam( void );
 
 // returns amount of drive space in path
-int				Sys_GetDriveFreeSpace( const char* path );
+uint32_t		Sys_GetDriveFreeSpace( const char* path );
 
 // returns amount of drive space in path in bytes
-int64_t			Sys_GetDriveFreeSpaceInBytes( const char* path );
+uint64_t		Sys_GetDriveFreeSpaceInBytes( const char* path );
 
 // returns memory stats
 void			Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats );

@@ -18,12 +18,14 @@ crDisplaySDL::crDisplaySDL( void ) :
 
 crDisplaySDL::~crDisplaySDL( void )
 {
+    SDL_free( m_videoModes );
+    m_videoModes = nullptr;
     // TODO: check if are really cleared
     m_name.Clear();
     m_modes.Clear();   
 }
 
-bool crDisplaySDL::Init(const SDL_DisplayID in_displayID)
+bool crDisplaySDL::Init( const SDL_DisplayID in_displayID, const int in_displayIndex )
 {
     m_display = in_displayID; 
     int numModes = 0;
@@ -41,19 +43,21 @@ bool crDisplaySDL::Init(const SDL_DisplayID in_displayID)
     m_width = bounds.w;
     m_height = bounds.h;
 
-    SDL_DisplayMode** modes = SDL_GetFullscreenDisplayModes( m_display, &numModes );
-    if ( !modes )
+    m_videoModes = SDL_GetFullscreenDisplayModes( m_display, &numModes );
+    if ( !m_videoModes )
         return false;
 
-    m_modes.Resize( numModes );
+    // m_modes.Resize( numModes );
     for ( uint32_t i = 0; i < numModes; i++)
     {
-        m_modes[i].modeID = i;
-        m_modes[i].displayID = m_display;
-        m_modes[i].width = modes[i]->w;
-        m_modes[i].height = modes[i]->h;
-        m_modes[i].displayHz = modes[i]->refresh_rate;
-        m_modes[i].format = modes[i]->format;
+        vidMode_t mode;
+        mode.modeID = i;
+        mode.displayID = in_displayIndex;
+        mode.width = m_videoModes[i]->w;
+        mode.height = m_videoModes[i]->h;
+        mode.displayHz = m_videoModes[i]->refresh_rate;
+        mode.format = m_videoModes[i]->format;
+        m_modes.Append( mode );
     }
 
     return true;
@@ -97,7 +101,7 @@ bool crVideoSDL3::StartUp( const uint32_t in_flags )
 	}
 
     m_vulkan = in_flags & 0 << 2; 
-    if (  m_vulkan ) 
+    if ( m_vulkan ) 
     {
         // we need load libraries before window creation
         windowflags |= SDL_WINDOW_VULKAN;
@@ -115,10 +119,16 @@ bool crVideoSDL3::StartUp( const uint32_t in_flags )
     for ( uint32_t i = 0; i < displayCount; i++)
     {
         crDisplaySDL* display = new( TAG_VIDEO_SYS ) crDisplaySDL();
-        if ( !display->Init( displays[i] ) )
+        if ( !display->Init( displays[i], i ) )
             continue;
 
         m_displays.Append( display );
+    }
+
+    if( !m_mainWindow.Create( GAME_NAME, 800, 600, windowflags) )
+    {
+        common->Error( "SDL_ Error while creating windoow %s\n", SDL_GetError() );
+        return false;
     }
 
     return true;
@@ -144,6 +154,7 @@ void crVideoSDL3::ShutDown(void)
 
 void *crVideoSDL3::WindowHandler(void)
 {
+    assert( m_mainWindow );
     return reinterpret_cast<void*>( m_mainWindow.GetHandle() );
 }
 
@@ -182,20 +193,20 @@ void crVideoSDL3::GrabInput(const uint32_t in_flags)
 
 bool crVideoSDL3::SetMode(const vidMode_t in_mode, const videoMode_t in_fullScreen)
 {    
-    if ( in_fullScreen <= VIDEO_MODE_FULLSCREEN )
+    if ( in_fullScreen >= VIDEO_MODE_FULLSCREEN )
     {
         SDL_DisplayMode*    fsmode = nullptr;
 
         // we use a listed mode 
         if( in_fullScreen == VIDEO_MODE_DEDICATED )
         {
-            SDL_DisplayMode** modes = nullptr; 
-            modes = SDL_GetFullscreenDisplayModes( in_mode.displayID, nullptr );
+            SDL_DisplayMode** modes = dynamic_cast<crDisplaySDL*>( m_displays[in_mode.displayID] )->FullScreenModes(); 
             fsmode = modes[in_mode.modeID];
         }
         else // try a custom mode
         { 
-            if( !SDL_GetClosestFullscreenDisplayMode( in_mode.displayID, in_mode.width, in_mode.height, in_mode.displayHz, true, fsmode ) )
+            auto displayID = dynamic_cast<crDisplaySDL*>( m_displays[in_mode.displayID])->ID();
+            if( !SDL_GetClosestFullscreenDisplayMode( displayID, in_mode.width, in_mode.height, in_mode.displayHz, true, fsmode ) )
             {
 	    	    common->Warning( "Couldn't found compatible window mode for fullscreen, reason: %s", SDL_GetError() );
 	    	    return false;
@@ -235,7 +246,7 @@ bool crVideoSDL3::SetMode(const vidMode_t in_mode, const videoMode_t in_fullScre
         }
     }
 
-    return false;
+    return true;
 }
 
 void crVideoSDL3::SetGamma(uint16_t red[256], uint16_t green[256], uint16_t blue[256])

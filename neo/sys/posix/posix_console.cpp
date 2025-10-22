@@ -5,12 +5,13 @@
 
 #include <termios.h>
 #include <fcntl.h>
+#include <cstring>
 
 #if defined(__ANDROID__)
 #include <android/log.h>
 #endif
 
-static const uint32_t COMMAND_HISTORY = 64;
+static const int COMMAND_HISTORY = 64;
 
 static struct posix_console_t
 {
@@ -24,7 +25,7 @@ static struct posix_console_t
     idEditField         input_field;
     idEditField			history_backup;				// the base edit line
     idStr			    history[ COMMAND_HISTORY ];	// cycle buffer
-}console;
+}sys_con;
 
 // terminal support
 idCVar in_tty( "in_tty", "1", CVAR_BOOL | CVAR_INIT | CVAR_SYSTEM, "terminal tab-completion and history" );
@@ -55,7 +56,7 @@ void Posix_InitConsoleInput()
 			in_tty.SetBool( false );
 			return;
 		}
-		if( tcgetattr( 0, &console.tty_tc ) == -1 )
+		if( tcgetattr( 0, &sys_con.tty_tc ) == -1 )
 		{
 			Sys_Printf( "tcgetattr failed. disabling terminal support: %s\n", strerror( errno ) );
 			in_tty.SetBool( false );
@@ -68,7 +69,7 @@ void Posix_InitConsoleInput()
 			in_tty.SetBool( false );
 			return;
 		}
-		tc = console.tty_tc;
+		tc = sys_con.tty_tc;
 		/*
 		  ECHO: don't echo input characters
 		  ICANON: enable canonical mode.  This  enables  the  special
@@ -97,12 +98,12 @@ void Posix_InitConsoleInput()
 			Sys_Printf( "fcntl STDOUT non blocking failed: %s\n", strerror( errno ) );
 		}
 #endif
-		console.tty_enabled = true;
+		sys_con.tty_enabled = true;
 		// check the terminal type for the supported ones
 		char* term = getenv( "TERM" );
 		if( term )
 		{
-			if( std::strcmp( term, "linux" ) && std::strcmp( term, "xterm" ) && std::strcmp( term, "xterm-color" ) && std::strcmp( term, "screen" ) )
+			if( strcmp( term, "linux" ) && strcmp( term, "xterm" ) && strcmp( term, "xterm-color" ) && strcmp( term, "screen" ) )
 			{
 				Sys_Printf( "WARNING: terminal type '%s' is unknown. terminal support may not work correctly\n", term );
 			}
@@ -150,44 +151,44 @@ void tty_Right()
 void tty_Hide()
 {
 	int len, buf_len;
-	if( !console.tty_enabled )
+	if( !sys_con.tty_enabled )
 	{
 		return;
 	}
-	if( console.input_hide )
+	if( sys_con.input_hide )
 	{
-		console.input_hide++;
+		sys_con.input_hide++;
 		return;
 	}
 	// clear after cursor
-	len = strlen( console.input_field.GetBuffer() ) - console.input_field.GetCursor();
+	len = strlen( sys_con.input_field.GetBuffer() ) - sys_con.input_field.GetCursor();
 	while( len > 0 )
 	{
 		tty_Right();
 		len--;
 	}
-	buf_len = strlen( console.input_field.GetBuffer() );
+	buf_len = strlen( sys_con.input_field.GetBuffer() );
 	while( buf_len > 0 )
 	{
 		tty_Del();
 		buf_len--;
 	}
-	console.input_hide++;
+	sys_con.input_hide++;
 }
 
 // show the current line
 void tty_Show( void )
 {
 	//	int i;
-	if( !console.tty_enabled )
+	if( !sys_con.tty_enabled )
 	{
 		return;
 	}
-	assert( console.input_hide > 0 );
-	console.input_hide--;
-	if( console.input_hide == 0 )
+	assert( sys_con.input_hide > 0 );
+	sys_con.input_hide--;
+	if( sys_con.input_hide == 0 )
 	{
-		char* buf = console.input_field.GetBuffer();
+		char* buf = sys_con.input_field.GetBuffer();
 		if( buf[0] )
 		{
 			write( STDOUT_FILENO, buf, strlen( buf ) );
@@ -198,7 +199,7 @@ void tty_Show( void )
 #endif
 			// RB end
 			
-			int back = strlen( buf ) - console.input_field.GetCursor();
+			int back = strlen( buf ) - sys_con.input_field.GetCursor();
 			while( back > 0 )
 			{
 				tty_Left();
@@ -221,13 +222,13 @@ void tty_FlushIn()
 /*
 ================
 Posix_ConsoleInput
-Checks for a complete line of text typed in at the console.
+Checks for a complete line of text typed in at the sys_con.
 Return NULL if a complete line is not ready.
 ================
 */
 char* Posix_ConsoleInput( void )
 {
-	if( console.tty_enabled )
+	if( sys_con.tty_enabled )
 	{
 		int		ret;
 		char	key;
@@ -242,36 +243,36 @@ char* Posix_ConsoleInput( void )
 			switch( key )
 			{
 				case 1:
-					console.input_field.SetCursor( 0 );
+					sys_con.input_field.SetCursor( 0 );
 					break;
 				case 5:
-					console.input_field.SetCursor( strlen( console.input_field.GetBuffer() ) );
+					sys_con.input_field.SetCursor( strlen( sys_con.input_field.GetBuffer() ) );
 					break;
 				case 127:
 				case 8:
-					console.input_field.CharEvent( K_BACKSPACE );
+					sys_con.input_field.CharEvent( K_BACKSPACE );
 					break;
 				case '\n':
-					idStr::Copynz( console.input_ret, console.input_field.GetBuffer(), sizeof( console.input_ret ) );
+					idStr::Copynz( sys_con.input_ret, sys_con.input_field.GetBuffer(), sizeof( sys_con.input_ret ) );
 					assert( hidden );
 					tty_Show();
 					write( STDOUT_FILENO, &key, 1 );
-					console.input_field.Clear();
-					if( console.history_count < COMMAND_HISTORY )
+					sys_con.input_field.Clear();
+					if( sys_con.history_count < COMMAND_HISTORY )
 					{
-						console.history[ console.history_count ] = console.input_ret;
-						console.history_count++;
+						sys_con.history[ sys_con.history_count ] = sys_con.input_ret;
+						sys_con.history_count++;
 					}
 					else
 					{
-						console.history[ console.history_start ] = console.input_ret;
-						console.history_start++;
-						console.history_start %= COMMAND_HISTORY;
+						sys_con.history[ sys_con.history_start ] = sys_con.input_ret;
+						sys_con.history_start++;
+						sys_con.history_start %= COMMAND_HISTORY;
 					}
-					console.history_current = 0;
-					return console.input_ret;
+					sys_con.history_current = 0;
+					return sys_con.input_ret;
 				case '\t':
-					console.input_field.AutoComplete();
+					sys_con.input_field.AutoComplete();
 					break;
 				case 27:
 				{
@@ -301,11 +302,11 @@ char* Posix_ConsoleInput( void )
 							{
 								case 72:
 									// xterm only
-									console.input_field.SetCursor( 0 );
+									sys_con.input_field.SetCursor( 0 );
 									break;
 								case 70:
 									// xterm only
-									console.input_field.SetCursor( strlen( console.input_field.GetBuffer() ) );
+									sys_con.input_field.SetCursor( strlen( sys_con.input_field.GetBuffer() ) );
 									break;
 								default:
 									Sys_Printf( "dropping sequence: '27' '79' '%d' ", key );
@@ -340,7 +341,7 @@ char* Posix_ConsoleInput( void )
 										return NULL;
 									}
 									// only screen and linux terms
-									console.input_field.SetCursor( 0 );
+									sys_con.input_field.SetCursor( 0 );
 									break;
 								}
 								case 50:
@@ -355,7 +356,7 @@ char* Posix_ConsoleInput( void )
 										return NULL;
 									}
 									// all terms
-									console.input_field.KeyDownEvent( K_INS );
+									sys_con.input_field.KeyDownEvent( K_INS );
 									break;
 								}
 								case 52:
@@ -370,7 +371,7 @@ char* Posix_ConsoleInput( void )
 										return NULL;
 									}
 									// only screen and linux terms
-									console.input_field.SetCursor( strlen( console.input_field.GetBuffer() ) );
+									sys_con.input_field.SetCursor( strlen( sys_con.input_field.GetBuffer() ) );
 									break;
 								}
 								case 51:
@@ -386,7 +387,7 @@ char* Posix_ConsoleInput( void )
 									}
 									if( key == 126 )
 									{
-										console.input_field.KeyDownEvent( K_DEL );
+										sys_con.input_field.KeyDownEvent( K_DEL );
 										break;
 									}
 									Sys_Printf( "dropping sequence: '27' '91' '51' '%d'", key );
@@ -399,47 +400,47 @@ char* Posix_ConsoleInput( void )
 								case 66:
 								{
 									// history
-									if( console.history_current == 0 )
+									if( sys_con.history_current == 0 )
 									{
-										console.history_backup = console.input_field;
+										sys_con.history_backup = sys_con.input_field;
 									}
 									if( key == 65 )
-                                        console.history_current++; // up
+                                        sys_con.history_current++; // up
 									else
-                                        console.history_current--;// down
+                                        sys_con.history_current--;// down
 									
 									// history_current cycle:
 									// 0: current edit
 									// 1 .. Min( COMMAND_HISTORY, history_count ): back in history
-									if( console.history_current < 0 )
+									if( sys_con.history_current < 0 )
 									{
-										console.history_current = Min( COMMAND_HISTORY, console.history_count );
+										sys_con.history_current = Min( COMMAND_HISTORY, sys_con.history_count );
 									}
 									else
 									{
-										console.history_current %= Min( COMMAND_HISTORY, console.history_count ) + 1;
+										sys_con.history_current %= Min( COMMAND_HISTORY, sys_con.history_count ) + 1;
 									}
 									int index = -1;
-									if( console.history_current == 0 )
+									if( sys_con.history_current == 0 )
 									{
-										console.input_field = console.history_backup;
+										sys_con.input_field = sys_con.history_backup;
 									}
 									else
 									{
-										index = console.history_start + Min( COMMAND_HISTORY, console.history_count ) - console.history_current;
+										index = sys_con.history_start + Min( COMMAND_HISTORY, sys_con.history_count ) - sys_con.history_current;
 										index %= COMMAND_HISTORY;
 										assert( index >= 0 && index < COMMAND_HISTORY );
-										console.input_field.SetBuffer( console.history[ index ] );
+										sys_con.input_field.SetBuffer( sys_con.history[ index ] );
 									}
 									assert( hidden );
 									tty_Show();
 									return NULL;
 								}
 								case 67:
-									console.input_field.KeyDownEvent( K_RIGHTARROW );
+									sys_con.input_field.KeyDownEvent( K_RIGHTARROW );
 									break;
 								case 68:
-									console.input_field.KeyDownEvent( K_LEFTARROW );
+									sys_con.input_field.KeyDownEvent( K_LEFTARROW );
 									break;
 								default:
 									Sys_Printf( "dropping sequence: '27' '91' '%d' ", key );
@@ -462,7 +463,7 @@ char* Posix_ConsoleInput( void )
 				default:
 					if( key >= ' ' )
 					{
-						console.input_field.CharEvent( key );
+						sys_con.input_field.CharEvent( key );
 						break;
 					}
 					Sys_Printf( "dropping sequence: '%d' ", key );
@@ -495,7 +496,7 @@ char* Posix_ConsoleInput( void )
 		if( select( 1, &fdset, NULL, NULL, &timeout ) == -1 || !FD_ISSET( 0, &fdset ) )
 			return nullptr;
 		
-		len = read( 0, console.input_ret, sizeof( console.input_ret ) );
+		len = read( 0, sys_con.input_ret, sizeof( sys_con.input_ret ) );
 		if( len == 0 )
             return nullptr; // EOF
 		
@@ -505,11 +506,11 @@ char* Posix_ConsoleInput( void )
 			return nullptr;
 		}
 		
-		if( len == sizeof( console.input_ret ) )
+		if( len == sizeof( sys_con.input_ret ) )
 			Sys_Printf( "read overflow\n" );	// things are likely to break, as input will be cut into pieces
 		
-		console.input_ret[ len - 1 ] = '\0';		// rip off the \n and terminate
-		return console.input_ret;
+		sys_con.input_ret[ len - 1 ] = '\0';		// rip off the \n and terminate
+		return sys_con.input_ret;
 #endif
 	}
 	return nullptr;
@@ -517,10 +518,10 @@ char* Posix_ConsoleInput( void )
 
 void Posix_ConsoleExit( void )
 {
-    if( console.tty_enabled )
+    if( sys_con.tty_enabled )
 	{
 		Sys_Printf( "shutdown terminal support\n" );
-		if( tcsetattr( 0, TCSADRAIN, &console.tty_tc ) == -1 )
+		if( tcsetattr( 0, TCSADRAIN, &sys_con.tty_tc ) == -1 )
 		{
 			Sys_Printf( "tcsetattr failed: %s\n", strerror( errno ) );
 		}
@@ -528,7 +529,7 @@ void Posix_ConsoleExit( void )
 
 	for( int i = 0; i < COMMAND_HISTORY; i++ )
 	{
-		console.history[ i ].Clear();
+		sys_con.history[ i ].Clear();
 	}
 }
 

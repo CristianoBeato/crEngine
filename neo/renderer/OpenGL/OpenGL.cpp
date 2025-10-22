@@ -2,6 +2,7 @@
 #include "precompiled.h"
 #include "OpenGL.h"
 
+#include <SDL3/SDL_assert.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_init.h>
 #include "renderer/tr_local.h"
@@ -52,8 +53,7 @@ PFNGLREADPIXELSPROC                         	glReadPixels = nullptr;
 PFNGLACTIVETEXTUREPROC							glActiveTexture = nullptr;
 PFNGLBINDTEXTUREPROC                        	glBindTexture = nullptr;
 
-// GL_EXT_direct_state_access
-PFNGLBINDMULTITEXTUREEXTPROC                	glBindMultiTextureEXT = nullptr;
+PFNGLBINDTEXTUREUNITPROC						glBindTextureUnit = nullptr;
 
 // GL_ARB_vertex_buffer_object
 PFNGLBINDBUFFERPROC                         	glBindBuffer = nullptr;
@@ -211,6 +211,8 @@ void ( APIENTRYP glArrayElement )(GLint i);
 idCVar r_waylandcompat( "r_waylandcompat", "0", CVAR_SYSTEM | CVAR_NOCHEAT | CVAR_ARCHIVE, "wayland compatible framebuffer" );
 idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = OpenGL 3.2 compatibility profile, 2 = OpenGL 3.2 core profile", 0, 2 );
 
+static void APIENTRY DebugOutputCall( GLenum in_source, GLenum in_type, GLuint in_id, GLenum in_severity, GLsizei in_length, const GLchar *in_message, const void *in_userParam );
+
 static struct OpenGL
 {
     SDL_Window*     window = nullptr;
@@ -252,6 +254,7 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
 	
     // get window handler
     context.window = static_cast<SDL_Window*>( sys->GetVideoSystem()->WindowHandler() );
+	assert( context.window != nullptr );
 
 	int colorbits = 24;
 	int depthbits = 24;
@@ -355,7 +358,7 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
 		
 		if( !context.context )
 		{
-			common->DPrintf( "Couldn't set GL mode %d/%d/%d: %s", channelcolorbits, tdepthbits, tstencilbits, SDL_GetError() );
+			common->Warning( "Couldn't set GL mode %d/%d/%d: %s", channelcolorbits, tdepthbits, tstencilbits, SDL_GetError() );
 			continue;
 		}
 		
@@ -399,6 +402,17 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
     SDL_HideCursor();
 	//SDL_ShowCursor();
 	// DG end
+
+#if _DEBUG
+	// enable debug
+    glEnable( GL_DEBUG_OUTPUT);
+
+    // To lock on error (synchronized debug)
+    glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS ); 
+
+    glDebugMessageCallback( DebugOutputCall, nullptr ); // set callback
+    glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, GL_TRUE ); // Ativa tudo
+#endif //_DEBUG
 	
 	return true;
 }
@@ -522,8 +536,7 @@ bool QGL_Init( const char* dllname )
 	GET_GL_PROC( PFNGLACTIVETEXTUREPROC, glActiveTexture );
 	GET_GL_PROC( PFNGLBINDTEXTUREPROC, glBindTexture );
 
-	// GL_EXT_direct_state_access
-	GET_GL_PROC( PFNGLBINDMULTITEXTUREEXTPROC,  glBindMultiTextureEXT );
+	GET_GL_PROC( PFNGLBINDTEXTUREUNITPROC,  glBindTextureUnit );
 
 	// GL_ARB_vertex_buffer_object
 	GET_GL_PROC( PFNGLBINDBUFFERPROC, glBindBuffer );
@@ -682,4 +695,107 @@ bool QGL_Init( const char* dllname )
 
 void QGL_Shutdown( void )
 {
+}
+
+void APIENTRY DebugOutputCall( GLenum in_source, GLenum in_type, GLuint in_id, GLenum in_severity, GLsizei in_length, const GLchar *in_message, const void *in_userParam )
+{
+    const char * source = nullptr;
+    const char * type = nullptr;
+    const char * severity = nullptr;
+ 
+    switch ( in_source )
+    {
+    case GL_DEBUG_SOURCE_API:
+        source = "Source: API";
+        break;
+
+    case GL_DEBUG_SOURCE_WINDOW_SYSTEM:
+        source = "Source: Window System";
+        break;
+
+    case GL_DEBUG_SOURCE_SHADER_COMPILER:
+        source = "Source Shader Compiler";
+        break;
+
+    case GL_DEBUG_SOURCE_THIRD_PARTY:
+        source = "Source Third Party";
+        break;
+
+    case GL_DEBUG_SOURCE_APPLICATION:
+        source = "Source Application";
+        break;
+
+    case GL_DEBUG_SOURCE_OTHER:
+        source = "Source Other";
+        break;
+    
+    default:
+        source = "Source Unknow";
+        break;
+    }
+
+    switch ( in_type )
+    {
+    case GL_DEBUG_TYPE_ERROR:
+        type = "Type ERROR";
+        break;
+
+    case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+        type = "Type Deprecated Behaviour";
+        break;
+
+    case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+        type = "Type Undefined Behaviour";
+        break;
+
+    case GL_DEBUG_TYPE_PORTABILITY:
+        type = "Type Portability";
+        break;
+
+    case GL_DEBUG_TYPE_PERFORMANCE:
+        type = "Type Performance";
+        break;
+
+    case GL_DEBUG_TYPE_MARKER:
+        type = "Type Marker";
+        break;
+
+    case GL_DEBUG_TYPE_PUSH_GROUP:
+        type = "Type Push Group";
+        break;
+
+    case GL_DEBUG_TYPE_POP_GROUP:
+        type = "Type Pop Group";
+        break;
+
+    case GL_DEBUG_TYPE_OTHER:
+        type = "Type Other";
+        break;
+
+    default:
+        break;
+    }
+
+    switch ( in_severity )
+    {
+    case GL_DEBUG_SEVERITY_HIGH:
+        severity = "High Severity";
+        break;
+    case GL_DEBUG_SEVERITY_MEDIUM:
+        severity = "Medium Severity";
+        break;
+    case GL_DEBUG_SEVERITY_LOW:
+        severity = "Low Severity";
+        break;
+    case GL_DEBUG_SEVERITY_NOTIFICATION:
+        severity = "Low Severity";
+        break;
+    default:
+        severity = "Unknow Severity level";
+        break;
+    }
+
+    common->Printf( "OpenGL Info: %s %s, from %s :\n * %s", type, severity, source, in_message );
+	if( in_severity != GL_DEBUG_SEVERITY_NOTIFICATION )
+		SDL_TriggerBreakpoint();
 }

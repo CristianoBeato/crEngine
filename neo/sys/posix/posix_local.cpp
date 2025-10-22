@@ -46,10 +46,14 @@ If you have questions concerning this license or the applicable additional terms
 #include <fnmatch.h>
 
 // RB begin
-
-
 #include <sys/statvfs.h>
 // RB end
+// DG: needed for Sys_ReLaunch()
+#include <dirent.h>
+
+static const char** cmdargv = nullptr;
+static int cmdargc = 0;
+// DG end
 
 #include "posix_public.h"
 
@@ -214,101 +218,6 @@ void idSysLocal::StartProcess( const char* exeName, bool quit )
 }
 
 /*
-================
-Sys_ListFiles
-================
-*/
-int Sys_ListFiles( const char* directory, const char* extension, idStrList& list )
-{
-	struct dirent* d;
-	DIR* fdir;
-	bool dironly = false;
-	char search[MAX_OSPATH];
-	struct stat st;
-	bool debug;
-	
-	list.Clear();
-	
-	debug = cvarSystem->GetCVarBool( "fs_debug" );
-	// DG: we use fnmatch for shell-style pattern matching
-	// so the pattern should at least contain "*" to match everything,
-	// the extension will be added behind that (if !dironly)
-	idStr pattern( "*" );
-	
-	// passing a slash as extension will find directories
-	if( extension[0] == '/' && extension[1] == 0 )
-	{
-		dironly = true;
-	}
-	else
-	{
-		// so we have *<extension>, the same as in the windows code basically
-		pattern += extension;
-	}
-	// DG end
-	
-	// NOTE: case sensitivity of directory path can screw us up here
-	if( ( fdir = opendir( directory ) ) == NULL )
-	{
-		if( debug )
-		{
-			common->Printf( "Sys_ListFiles: opendir %s failed\n", directory );
-		}
-		return -1;
-	}
-	
-	// DG: use readdir_r instead of readdir for thread safety
-	// the following lines are from the readdir_r manpage.. fscking ugly.
-	int nameMax = pathconf( directory, _PC_NAME_MAX );
-	if( nameMax == -1 )
-		nameMax = 255;
-	int direntLen = offsetof( struct dirent, d_name ) + nameMax + 1;
-	
-	struct dirent* entry = ( struct dirent* )Mem_Alloc( direntLen, TAG_CRAP );
-	
-	if( entry == NULL )
-	{
-		common->Warning( "Sys_ListFiles: Mem_Alloc for entry failed!" );
-		closedir( fdir );
-		return 0;
-	}
-	
-	while( readdir_r( fdir, entry, &d ) == 0 && d != NULL )
-	{
-		// DG end
-		idStr::snPrintf( search, sizeof( search ), "%s/%s", directory, d->d_name );
-		if( stat( search, &st ) == -1 )
-			continue;
-		if( !dironly )
-		{
-			// DG: the original code didn't work because d3 bfg abuses the extension
-			// to match whole filenames and patterns in the savegame-code, not just file extensions...
-			// so just use fnmatch() which supports matching shell wildcard patterns ("*.foo" etc)
-			// if we should ever need case insensitivity, use FNM_CASEFOLD as third flag
-			if( fnmatch( pattern.c_str(), d->d_name, 0 ) != 0 )
-				continue;
-			// DG end
-		}
-		if( ( dironly && !( st.st_mode & S_IFDIR ) ) ||
-				( !dironly && ( st.st_mode & S_IFDIR ) ) )
-			continue;
-			
-		list.Append( d->d_name );
-	}
-	
-	closedir( fdir );
-	Mem_Free( entry );
-	
-	if( debug )
-	{
-		common->Printf( "Sys_ListFiles: %d entries in %s\n", list.Num(), directory );
-	}
-	
-	return list.Num();
-}
-
-
-/*
 =================
 Posix_Shutdown
 =================
@@ -316,71 +225,6 @@ Posix_Shutdown
 void Posix_Shutdown()
 {
 	
-}
-
-// ---------------------------------------------------------------------------
-
-// only relevant when specified on command line
-const char* Sys_DefaultCDPath()
-{
-	return "";
-}
-
-ID_TIME_T Sys_FileTimeStamp( idFileHandle fp )
-{
-	struct stat st;
-	fstat( fileno( fp ), &st );
-	return st.st_mtime;
-}
-
-
-/*
-================
-Sys_GetDriveFreeSpace
-returns in megabytes
-================
-*/
-int Sys_GetDriveFreeSpace( const char* path )
-{
-	int ret = 26;
-	
-	struct statvfs st;
-	
-	if( statvfs( path, &st ) == 0 )
-	{
-		unsigned long blocksize = st.f_bsize;
-		unsigned long freeblocks = st.f_bfree;
-		
-		unsigned long free = blocksize * freeblocks;
-		
-		ret = ( double )( free ) / ( 1024.0 * 1024.0 );
-	}
-	
-	return ret;
-}
-
-/*
-========================
-Sys_GetDriveFreeSpaceInBytes
-========================
-*/
-int64_t Sys_GetDriveFreeSpaceInBytes( const char* path )
-{
-	int64_t ret = 1;
-	
-	struct statvfs st;
-	
-	if( statvfs( path, &st ) == 0 )
-	{
-		unsigned long blocksize = st.f_bsize;
-		unsigned long freeblocks = st.f_bfree;
-		
-		unsigned long free = blocksize * freeblocks;
-		
-		ret = free;
-	}
-	
-	return ret;
 }
 
 // RB end
@@ -429,4 +273,137 @@ extern idCVar sys_lang;
 void Sys_SetLanguageFromSystem()
 {
 	sys_lang.SetString( Sys_DefaultLanguage() );
+}
+
+/*
+=================
+Sys_OpenURL
+=================
+*/
+void idSysLocal::OpenURL( const char* url, bool quit )
+{
+	const char*	script_path;
+	idFile*		script_file;
+	char		cmdline[ 1024 ];
+	
+	static bool	quit_spamguard = false;
+	
+	if( quit_spamguard )
+	{
+		common->DPrintf( "Sys_OpenURL: already in a doexit sequence, ignoring %s\n", url );
+		return;
+	}
+	
+	common->Printf( "Open URL: %s\n", url );
+	// opening an URL on *nix can mean a lot of things ..
+	// just spawn a script instead of deciding for the user :-)
+	
+	// look in the savepath first, then in the basepath
+	script_path = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_savepath" ), "", "openurl.sh" );
+	script_file = fileSystem->OpenExplicitFileRead( script_path );
+	if( !script_file )
+	{
+		script_path = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_basepath" ), "", "openurl.sh" );
+		script_file = fileSystem->OpenExplicitFileRead( script_path );
+	}
+	if( !script_file )
+	{
+		common->Printf( "Can't find URL script 'openurl.sh' in either savepath or basepath\n" );
+		common->Printf( "OpenURL '%s' failed\n", url );
+		return;
+	}
+	fileSystem->CloseFile( script_file );
+	
+	// if we are going to quit, only accept a single URL before quitting and spawning the script
+	if( quit )
+	{
+		quit_spamguard = true;
+	}
+	
+	common->Printf( "URL script: %s\n", script_path );
+	
+	// StartProcess is going to execute a system() call with that - hence the &
+	idStr::snPrintf( cmdline, 1024, "%s '%s' &",  script_path, url );
+	sys->StartProcess( cmdline, quit );
+}
+
+/*
+========================
+Sys_ReLaunch
+========================
+*/
+void Sys_ReLaunch( void * data, const unsigned int dataSize )
+{
+	// DG: implementing this... basic old fork() exec() (+ setsid()) routine..
+	// NOTE: this function used to have parameters: the commandline arguments, but as one string..
+	//       for Linux/Unix we want one char* per argument so we'll just add the friggin'
+	//       " +set com_skipIntroVideos 1" to the other commandline arguments in this function.
+	
+	int ret = fork();
+	if( ret < 0 )
+		idLib::Error( "Sys_ReLaunch(): Couldn't fork(), reason: %s ", strerror( errno ) );
+		
+	if( ret == 0 )
+	{
+		// child process
+		
+		// get our own session so we don't depend on the (soon to be killed)
+		// parent process anymore - else we'll freeze
+		pid_t sId = setsid();
+		if( sId == ( pid_t ) - 1 )
+		{
+			idLib::Error( "Sys_ReLaunch(): setsid() failed! Reason: %s ", strerror( errno ) );
+		}
+		
+		// close all FDs (except for stdin/out/err) so we don't leak FDs
+		DIR* devfd = opendir( "/dev/fd" );
+		if( devfd != NULL )
+		{
+			struct dirent entry;
+			struct dirent* result;
+			while( readdir_r( devfd, &entry, &result ) == 0 )
+			{
+				const char* filename = result->d_name;
+				char* endptr = NULL;
+				long int fd = strtol( filename, &endptr, 0 );
+				if( endptr != filename && fd > STDERR_FILENO )
+					close( fd );
+			}
+		}
+		else
+		{
+			idLib::Warning( "Sys_ReLaunch(): Couldn't open /dev/fd/ - will leak file descriptors. Reason: %s", strerror( errno ) );
+		}
+		
+		// + 3 because "+set" "com_skipIntroVideos" "1" - and note that while we'll skip
+		// one (the first) cmdargv argument, we need one more pointer for NULL at the end.
+		int argc = cmdargc + 3;
+		const char** argv = ( const char** )calloc( argc, sizeof( char* ) );
+		
+		int i;
+		for( i = 0; i < cmdargc - 1; ++i )
+			argv[i] = cmdargv[i + 1]; // ignore cmdargv[0] == executable name
+			
+		// add +set com_skipIntroVideos 1
+		argv[i++] = "+set";
+		argv[i++] = "com_skipIntroVideos";
+		argv[i++] = "1";
+		// execv expects NULL terminated array
+		argv[i] = nullptr;
+		
+		const char* exepath = Sys_EXEPath();
+		
+		errno = 0;
+		execv( exepath, ( char** )argv );
+		// we only get here if execv() fails, else the executable is restarted
+		idLib::Error( "Sys_ReLaunch(): WTF exec() failed! Reason: %s ", strerror( errno ) );
+		
+	}
+	else
+	{
+		// original process
+		// just do a clean shutdown
+		cmdSystem->AppendCommandText( "quit\n" );
+	}
+	// DG end
 }

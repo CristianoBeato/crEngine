@@ -773,7 +773,8 @@ void idImage::Bind()
 		if( tmu->current2DMap != texnum )
 		{
 			tmu->current2DMap = texnum;
-			glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D, texnum );
+			//glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D, texnum );
+			glBindTextureUnit( texUnit, texnum );
 		}
 
 		// foresthale 2014-05-10: when using the tools code (which does not use shaders) we have to manage the texture unit enables
@@ -788,7 +789,8 @@ void idImage::Bind()
 		if( tmu->currentCubeMap != texnum )
 		{
 			tmu->currentCubeMap = texnum;
-			glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_CUBE_MAP, texnum );
+			//glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_CUBE_MAP, texnum );
+			glBindTextureUnit( texUnit, texnum );
 		}
 
 		// foresthale 2014-05-10: when using the tools code (which does not use shaders) we have to manage the texture unit enables
@@ -805,11 +807,9 @@ void idImage::Bind()
 			tmu->current2DArray = texnum;
 			
 			// RB begin
-			glBindMultiTextureEXT( GL_TEXTURE0 + texUnit, GL_TEXTURE_2D_ARRAY, texnum );
+			glBindTextureUnit( texUnit, texnum );
 		}
 	}
-
-	
 }
 
 /*

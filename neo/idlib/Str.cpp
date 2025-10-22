@@ -2276,22 +2276,22 @@ int idStr::vsnPrintf( char* dest, int size, const char* fmt, va_list argptr )
 	int ret;
 	
 // RB begin
-#ifdef _WIN32
-#undef _vsnprintf
-	ret = _vsnprintf( dest, size - 1, fmt, argptr );
-#define _vsnprintf	use_idStr_vsnPrintf
-#else
-#undef vsnprintf
-	ret = vsnprintf( dest, size, fmt, argptr );
-#define vsnprintf	use_idStr_vsnPrintf
-#endif
+//#ifdef __PLATFORM_WINDOWS__
+//#undef _vsnprintf
+//	ret = _vsnprintf( dest, size - 1, fmt, argptr );
+//#define _vsnprintf	use_idStr_vsnPrintf
+//#else
+//#undef vsnprintf
+//	ret = vsnprintf( dest, size, fmt, argptr );
+//#define vsnprintf	use_idStr_vsnPrintf
+//#endif
+	ret = SDL_vsnprintf( dest, size, fmt, argptr );
 // RB end
 
 	dest[size - 1] = '\0';
 	if( ret < 0 || ret >= size )
-	{
 		return -1;
-	}
+	
 	return ret;
 }
 

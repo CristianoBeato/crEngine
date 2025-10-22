@@ -259,6 +259,7 @@ protected:
 	// Overall state of the session
 	enum state_t
 	{
+		STATE_INVALID = -1,
 		STATE_PRESS_START,							// We are at press start
 		STATE_IDLE,									// We are at the main menu
 		STATE_PARTY_LOBBY_HOST,						// We are in the party lobby menu as host

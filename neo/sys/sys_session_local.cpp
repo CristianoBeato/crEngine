@@ -27,12 +27,12 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
+#pragma hdrstop
+
 #include "sys_session_local.h"
 #include "sys_voicechat.h"
 #include "sys_dedicated_server_search.h"
-
 
 idCVar ui_skinIndex( "ui_skinIndex", "0", CVAR_ARCHIVE, "Selected skin index" );
 idCVar ui_autoSwitch( "ui_autoSwitch", "1", CVAR_ARCHIVE | CVAR_BOOL, "auto switch weapon" );
@@ -2295,6 +2295,8 @@ bool idSessionLocal::HandleState()
 		default:
 			idLib::Error( "HandleState:  Unknown state in idSessionLocal" );
 	}
+
+	return STATE_INVALID;
 }
 
 /*
@@ -2302,7 +2304,7 @@ bool idSessionLocal::HandleState()
 idSessionLocal::GetState
 ========================
 */
-idSessionLocal::sessionState_t idSessionLocal::GetState() const
+idSessionLocal::sessionState_t idSessionLocal::GetState( void ) const
 {
 	// Convert our internal state to one of the external states
 	switch( localState )
@@ -2348,9 +2350,11 @@ idSessionLocal::sessionState_t idSessionLocal::GetState() const
 			idLib::Error( "GetState: Unknown state in idSessionLocal" );
 		}
 	};
+
+	return INVALID;
 }
 
-const char* idSessionLocal::GetStateString() const
+const char* idSessionLocal::GetStateString( void ) const
 {
 	static const char* stateToString[] =
 	{

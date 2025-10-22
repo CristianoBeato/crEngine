@@ -507,17 +507,12 @@ ID_INLINE void idList<_type_, _tag_>::Resize( int newsize )
 	}
 	
 	if( newsize == size )
-	{
-		// not changing the size, so just exit
-		return;
-	}
+		return;	// not changing the size, so just exit
 	
 	list = ( _type_* )idListArrayResize< _type_, _tag_ >( list, size, newsize, false );
 	size = newsize;
 	if( size < num )
-	{
 		num = size;
-	}
 }
 
 /*
@@ -566,10 +561,8 @@ ID_INLINE void idList<_type_, _tag_>::AssureSize( int newSize )
 	if( newSize > size )
 	{
 	
-		if( granularity == 0 )  	// this is a hack to fix our memset classes
-		{
+		if( granularity == 0 ) // this is a hack to fix our memset classes
 			granularity = 16;
-		}
 		
 		newSize += granularity - 1;
 		newSize -= newSize % granularity;

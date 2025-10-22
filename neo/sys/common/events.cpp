@@ -6,6 +6,7 @@ Copyright (C) 1999-2011 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2012 dhewg (dhewm3)
 Copyright (C) 2012 Robert Beckebans
 Copyright (C) 2013 Daniel Gibson
+Copyright (C) 2025 Cristiano Beato
 
 This file is part of the Doom 3 GPL Source Code ("Doom 3 Source Code").
 
@@ -38,11 +39,19 @@ If you have questions concerning this license or the applicable additional terms
 #undef vsnprintf
 // DG end
 
-#include <SDL2/SDL.h>
+#if __PLATFORM_WINDOWS__
+#include "sys/win32/win_local.h"
+#elif __PLATFORM_LINUX__ || __PLATFORM_FBSD__ 
+#include "sys/posix/posix_public.h" 
+#endif
+
+#include <SDL3/SDL_init.h>
+#include <SDL3/SDL_events.h>
+#include <SDL3/SDL_mouse.h>
+#include <SDL3/SDL_keyboard.h>
 
 #include "renderer/tr_local.h"
-#include "sdl_local.h"
-#include "../posix/posix_public.h"
+#include "joystick.h"
 
 // DG: those are needed for moving/resizing windows
 extern idCVar r_windowX;
@@ -93,152 +102,9 @@ struct mouse_poll_t
 static idList<kbd_poll_t> kbd_polls;
 static idList<mouse_poll_t> mouse_polls;
 static idList<sysEvent_t> event_queue;
+
 void Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void *ptr, int inputDeviceNum );
-
-#define SDL_BFG_MAX_CONTROLLER_BUTTON_EVENTS K_JOY_DPAD_RIGHT-K_JOY1+1
-#define SDL_BFG_EVENTS_MAX_CONTROLLER_EVENTS SDL_CONTROLLER_BUTTON_MAX + SDL_CONTROLLER_AXIS_MAX
-struct gamepad_device_t
-{
-	SDL_JoystickID gamePadId;
-	SDL_Joystick *gameJoyStick;
-	SDL_GameController *gamePad;
-	int oldState[SDL_CONTROLLER_BUTTON_MAX];
-	int oldAxisState[SDL_CONTROLLER_AXIS_MAX];
-	/* This is a Mapping of the Cardinal Directions for each axis */
-	bool oldButtonStates[SDL_BFG_MAX_CONTROLLER_BUTTON_EVENTS];
-	int activeEvents;
-	struct
-	{
-		int event;
-		int value;
-	} events[ SDL_BFG_EVENTS_MAX_CONTROLLER_EVENTS ];
-	gamepad_device_t()
-	{
-		gamePadId = -1;
-		gamePad = NULL;
-		activeEvents = 0;
-		gameJoyStick = NULL;
-		for(int i = 0;i < SDL_CONTROLLER_BUTTON_MAX; i++)
-			oldState[i] = 0;
-		for(int i = 0;i < SDL_CONTROLLER_AXIS_MAX; i++) {
-			oldAxisState[i] = 0;
-		}
-		for(int i = 0; i < SDL_BFG_MAX_CONTROLLER_BUTTON_EVENTS;i++)
-			oldButtonStates[i] = false;
-	}
-	
-	gamepad_device_t( SDL_GameController * v )
-	{
-		gamePad = v;
-		activeEvents = 0;
-		gameJoyStick = SDL_GameControllerGetJoystick(v);
-		gamePadId = SDL_JoystickInstanceID(gameJoyStick);
-		for(int i = 0;i < SDL_CONTROLLER_BUTTON_MAX; i++)
-			oldState[i] = 0;
-		for(int i = 0;i < SDL_CONTROLLER_AXIS_MAX; i++) {
-			oldAxisState[i] = 0;
-		}
-		for(int i = 0; i < SDL_BFG_MAX_CONTROLLER_BUTTON_EVENTS;i++)
-			oldButtonStates[i] = false;
-	}
-	void PushButton( int inputDeviceNum, int key, bool value ) {
-		int curKey = 0;
-		if(K_JOY1 <= key && key <=K_JOY_DPAD_RIGHT) {
-			curKey = key-K_JOY1;
-			if(oldButtonStates[curKey] != value) {
-				oldButtonStates[curKey] = value;
-				Sys_QueEvent( SE_KEY, key, value, 0, NULL, inputDeviceNum );
-			}
-		}
-	}
-	void PostInputEvent( int inputDeviceNum, int event, int value, int range = 16384 )
-	{
-		// These events are used for GUI button presses
-		if( ( J_ACTION1 <= event  ) && ( event <= J_ACTION_MAX ) )
-		{
-			PushButton( inputDeviceNum, K_JOY1 + ( event - J_ACTION1 ), value );
-		}
-		else if( ( event >= J_DPAD_UP ) && ( event <= J_DPAD_RIGHT ) )
-		{
-			PushButton( inputDeviceNum, K_JOY_DPAD_UP + ( event - J_DPAD_UP ), value );
-		}
-		else if( event >= J_AXIS_MIN && event <= J_AXIS_MAX )
-		{
-			int axis = event - J_AXIS_MIN;
-			int percent = ( value * 16 ) / range;
-			if( oldAxisState[axis] != percent )
-			{
-				oldAxisState[axis] = percent;
-				Sys_QueEvent( SE_JOYSTICK, axis, percent, 0, NULL, inputDeviceNum );
-			}
-			if( event == J_AXIS_LEFT_X )
-			{
-				PushButton( inputDeviceNum, K_JOY_STICK1_LEFT, ( value < -range ) );
-				PushButton( inputDeviceNum, K_JOY_STICK1_RIGHT, ( value > range ) );
-			}
-			else if( event == J_AXIS_LEFT_Y )
-			{
-				PushButton( inputDeviceNum, K_JOY_STICK1_UP, ( value < -range ) );
-				PushButton( inputDeviceNum, K_JOY_STICK1_DOWN, ( value > range ) );
-			}
-			else if( event == J_AXIS_RIGHT_X )
-			{
-				PushButton( inputDeviceNum, K_JOY_STICK2_LEFT, ( value < -range ) );
-				PushButton( inputDeviceNum, K_JOY_STICK2_RIGHT, ( value > range ) );
-			}
-			else if( event == J_AXIS_RIGHT_Y )
-			{
-				PushButton( inputDeviceNum, K_JOY_STICK2_UP, ( value < -range ) );
-				PushButton( inputDeviceNum, K_JOY_STICK2_DOWN, ( value > range ) );
-			}
-			else if( ( event >= J_DPAD_UP ) && ( event <= J_DPAD_RIGHT ) )
-			{
-				PushButton( inputDeviceNum, K_JOY_DPAD_UP + ( event - J_DPAD_UP ), value != 0 );
-			}
-			else if( event == J_AXIS_LEFT_TRIG )
-			{
-				PushButton( inputDeviceNum, K_JOY_TRIGGER1, ( value > range ) );
-			}
-			else if( event == J_AXIS_RIGHT_TRIG )
-			{
-				PushButton( inputDeviceNum, K_JOY_TRIGGER2, ( value > range ) );
-			}
-		}
-	
-		// These events are used for actual game input
-		events[activeEvents].event = event;
-		events[activeEvents].value = value;
-		activeEvents++;
-	}
-
-	int	pollEvents(int controllerID) 
-	{
-		activeEvents = 0;
-		int currentState = 0;
-		for(int i = 0;i < SDL_CONTROLLER_BUTTON_MAX; i++) {
-			if(-1 < sdl2BFG_ButtonRemap[i]) {
-				currentState = SDL_GameControllerGetButton(gamePad,(SDL_GameControllerButton)i);
-				PostInputEvent(controllerID,sdl2BFG_ButtonRemap[i],currentState);
-			}
-		}
-		int currentAxisState = 0;
-
-		for(int i = 0;i < SDL_CONTROLLER_AXIS_MAX; i++) {
-			currentAxisState = SDL_GameControllerGetAxis(gamePad,(SDL_GameControllerAxis)i);
-			PostInputEvent(controllerID,sdl2BFG_AxisRemap[i],currentAxisState);
-		}
-		return activeEvents;
-	}
-	int		ReturnInputEvent( const int n, int& action, int& value )
-	{
-		if(-1 < n && n < activeEvents) {
-			action = events[n].event;
-			value  = events[n].value;
-			return 1;
-		}
-		return 0;
-	}
-};
+static bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event );
 
 int			eventHead = 0;
 
@@ -279,7 +145,7 @@ static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 			*/
 		case SDLK_SLASH:
 			return K_SLASH;// this is the '/' key on the keyboard
-		case SDLK_QUOTE:
+		case SDLK_APOSTROPHE:
 			return K_APOSTROPHE; // This is the "'" key.
 		case SDLK_0:
 			return K_0;
@@ -363,82 +229,82 @@ static int SDL_KeyToDoom3Key( SDL_Keycode key, bool& isChar )
 			return K_LBRACKET;
 		case SDLK_BACKSLASH:
 			return K_BACKSLASH;
-		case SDLK_a:
+		case SDLK_A:
 			return K_A;
 			
-		case SDLK_b:
+		case SDLK_B:
 			return K_B;
 			
-		case SDLK_c:
+		case SDLK_C:
 			return K_C;
 			
-		case SDLK_d:
+		case SDLK_D:
 			return K_D;
 			
-		case SDLK_e:
+		case SDLK_E:
 			return K_E;
 			
-		case SDLK_f:
+		case SDLK_F:
 			return K_F;
 			
-		case SDLK_g:
+		case SDLK_G:
 			return K_G;
 			
-		case SDLK_h:
+		case SDLK_H:
 			return K_H;
 			
-		case SDLK_i:
+		case SDLK_I:
 			return K_I;
 			
-		case SDLK_j:
+		case SDLK_J:
 			return K_J;
 			
-		case SDLK_k:
+		case SDLK_K:
 			return K_K;
 			
-		case SDLK_l:
+		case SDLK_L:
 			return K_L;
 			
-		case SDLK_m:
+		case SDLK_M:
 			return K_M;
 			
-		case SDLK_n:
+		case SDLK_N:
 			return K_N;
 			
-		case SDLK_o:
+		case SDLK_O:
 			return K_O;
 			
-		case SDLK_p:
+		case SDLK_P:
 			return K_P;
 			
-		case SDLK_q:
+		case SDLK_Q:
 			return K_Q;
 			
-		case SDLK_r:
+		case SDLK_R:
 			return K_R;
 			
-		case SDLK_s:
+		case SDLK_S:
 			return K_S;
 			
-		case SDLK_t:
+		case SDLK_T:
 			return K_T;
 			
-		case SDLK_u:
+		case SDLK_U:
 			return K_U;
 			
-		case SDLK_v:
+		case SDLK_V:
 			return K_V;
 			
-		case SDLK_w:
+		case SDLK_W:
 			return K_W;
 			
-		case SDLK_x:
+		case SDLK_X:
 			return K_X;
 			
-		case SDLK_y:
+		case SDLK_Y:
 			return K_Y;
 			
-		case SDLK_z:
+		case SDLK_Z:
 			return K_Z;
 			
 		case SDLK_RETURN:
@@ -673,7 +539,7 @@ static void PushConsoleEvent( const char* s )
 	
 	SDL_Event event;
 	
-	event.type = SDL_USEREVENT;
+	event.type = SDL_EVENT_USER;
 	event.user.code = SE_CONSOLE;
 	event.user.data1 = ( void* )len;
 	event.user.data2 = b;
@@ -681,52 +547,33 @@ static void PushConsoleEvent( const char* s )
 	SDL_PushEvent( &event );
 }
 
-
-int sys_HandleSDL_Events(void *userdata, SDL_Event *event);
 /*
 =================
 Sys_InitInput
 =================
 */
-void Sys_InitInput()
+void Sys_InitInput( void )
 {
+	int	joysticCount = 0;
+	char guid[64]{};
+
 	common->Printf( "\n------- Input Initialization -------\n" );
 	kbd_polls.SetGranularity( 64 );
 	mouse_polls.SetGranularity( 64 );
 	event_queue.SetGranularity( 256 );
-	joystick_Devices.SetGranularity( MAX_JOYSTICKS );
 	in_keyboard.SetModified();
-	/* Initialize Game Controller API */
-	SDL_Init( SDL_INIT_JOYSTICK |SDL_INIT_GAMECONTROLLER );
-	/* Initialize Event Filter */
-	SDL_SetEventFilter(sys_HandleSDL_Events, NULL);
-	idStr ControllerPath = Sys_DefaultBasePath();
-	ControllerPath.Append("/base/gamecontrollerdb.txt");
-	common->Printf( "Loading controller Mapping file \"%s\"\n",ControllerPath.c_str());
-	SDL_GameControllerAddMappingsFromFile(ControllerPath.c_str());
-	ControllerPath = Sys_DefaultSavePath();
-	ControllerPath.Append("/gamecontrollerdb.txt");
-	common->Printf( "Loading controller Mapping file \"%s\"\n",ControllerPath.c_str());
-	SDL_GameControllerAddMappingsFromFile(ControllerPath.c_str());
-    char guid[64];
-    SDL_GameController *gamecontroller;
-    for (int i = 0; i < SDL_NumJoysticks(); ++i) {
-        const char *name;
-        SDL_JoystickGetGUIDString(SDL_JoystickGetDeviceGUID(i),
-                                  guid, sizeof (guid));
 
-        if ( SDL_IsGameController(i) )
-        {
-            name = SDL_GameControllerNameForIndex(i);
-			if(joystick_Devices.Num() < MAX_JOYSTICKS) {
-				common->Printf( "Adding Controller \"%s\" ( GUID: %s )\n",name, guid);
-		        gamecontroller = SDL_GameControllerOpen(i);
-				joystick_Devices.Append(gamepad_device_t( gamecontroller ));
-			} else{
-				common->Printf( "Detected Controller Not used: %s ( GUID: %s )\n",name, guid);
-			}
-        }
-    }
+	//Initialize Game Controller API
+	if ( !SDL_WasInit( SDL_INIT_EVENTS | SDL_INIT_GAMEPAD | SDL_INIT_HAPTIC ) )
+	{
+		if( !SDL_Init( SDL_INIT_EVENTS | SDL_INIT_GAMEPAD | SDL_INIT_HAPTIC ) )
+			common->Error( SDL_GetError() );
+	}
+	
+	// Initialize Event Filter
+	SDL_SetEventFilter( sys_HandleSDL_Events, nullptr );
+	
+	Sys_InitGamepads();
 }
 
 /*
@@ -734,8 +581,9 @@ void Sys_InitInput()
 Sys_ShutdownInput
 =================
 */
-void Sys_ShutdownInput()
+void Sys_ShutdownInput( void )
 {
+	Sys_ShutdownGamepads();
 	kbd_polls.Clear();
 	mouse_polls.Clear();
 	event_queue.Clear();
@@ -832,11 +680,9 @@ void Sys_GrabMouseCursor( bool grabIt )
 		// DG end
 	}
 	else
-	{
 		flags = GRAB_SETSTATE;
-	}
 	
-	GLimp_GrabInput( flags );
+	sys->GetVideoSystem()->GrabInput( flags );
 }
 
 /*
@@ -845,18 +691,21 @@ void Sys_GrabMouseCursor( bool grabIt )
 Sys_GetEvent
 ================
 */
-sysEvent_t Sys_GetEvent()
+sysEvent_t Sys_GetEvent( void )
 {
 	SDL_Event ev;
 	sysEvent_t res = { };
 	int eventNum = event_queue.Num();
 	
-	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, NULL };
-	if(eventNum && eventHead < eventNum ) {
+	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, nullptr };
+	if(eventNum && eventHead < eventNum ) 
+	{
 		res = event_queue[eventHead];
 		eventHead++;
 		return res;
-	} else{
+	} 
+	else
+	{
 		return res_none;
 	}
 		
@@ -873,68 +722,59 @@ void Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, vo
 	eventData.inputDevice = inputDeviceNum;
 	event_queue.Append(eventData);
 }
-int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
+
+bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 {
 	sysEvent_t res = { };
 	int key;
-	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, NULL };
+	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, nullptr };
 	switch( event->type )
 	{
-		case SDL_WINDOWEVENT:
-			switch( event->window.event )
-			{
-				case SDL_WINDOWEVENT_FOCUS_GAINED:
-				{
-					// unset modifier, in case alt-tab was used to leave window and ALT is still set
-					// as that can cause fullscreen-toggling when pressing enter...
-					SDL_Keymod currentmod = SDL_GetModState();
-					int newmod = KMOD_NONE;
-					if( currentmod & KMOD_CAPS ) // preserve capslock
-						newmod |= KMOD_CAPS;
-						
-					SDL_SetModState( ( SDL_Keymod )newmod );
-					
-					// DG: un-pause the game when focus is gained, that also re-grabs the input
-					//     disabling the cursor is now done once in GLimp_Init() because it should always be disabled
-					cvarSystem->SetCVarBool( "com_pause", false );
-					// DG end
-					break;
-				}
+		case SDL_EVENT_WINDOW_FOCUS_GAINED:
+		{
+			// unset modifier, in case alt-tab was used to leave window and ALT is still set
+			// as that can cause fullscreen-toggling when pressing enter...
+			SDL_Keymod currentmod = SDL_GetModState();
+			int newmod = SDL_KMOD_NONE;
+			if( currentmod & SDL_KMOD_CAPS ) // preserve capslock
+				newmod |= SDL_KMOD_CAPS;
 				
-				case SDL_WINDOWEVENT_FOCUS_LOST:
-					// DG: pause the game when focus is lost, that also un-grabs the input
-					cvarSystem->SetCVarBool( "com_pause", true );
-					// DG end
-					break;
-					
-					// DG: handle resizing and moving of window
-				case SDL_WINDOWEVENT_RESIZED:
-				{
-					int w = event->window.data1;
-					int h = event->window.data2;
-					r_windowWidth.SetInteger( w );
-					r_windowHeight.SetInteger( h );
-					
-					glConfig.nativeScreenWidth = w;
-					glConfig.nativeScreenHeight = h;
-					break;
-				}
-				
-				case SDL_WINDOWEVENT_MOVED:
-				{
-					int x = event->window.data1;
-					int y = event->window.data2;
-					r_windowX.SetInteger( x );
-					r_windowY.SetInteger( y );
-					break;
-				}
-				// DG end
-			}
+			SDL_SetModState( ( SDL_Keymod )newmod );
 			
-			return 0;
-		
-		case SDL_KEYDOWN:
-			if( event->key.keysym.sym == SDLK_RETURN && ( event->key.keysym.mod & KMOD_ALT ) > 0 )
+			// DG: un-pause the game when focus is gained, that also re-grabs the input
+			//     disabling the cursor is now done once in GLimp_Init() because it should always be disabled
+			cvarSystem->SetCVarBool( "com_pause", false );
+			// DG end
+			break;
+		}
+		case SDL_EVENT_WINDOW_FOCUS_LOST:
+		{
+			// DG: pause the game when focus is lost, that also un-grabs the input
+			cvarSystem->SetCVarBool( "com_pause", true );
+			// DG end
+
+		} break;
+		case SDL_EVENT_WINDOW_RESIZED:
+		{
+			int w = event->window.data1;
+			int h = event->window.data2;
+			r_windowWidth.SetInteger( w );
+			r_windowHeight.SetInteger( h );
+					
+			glConfig.nativeScreenWidth = w;
+			glConfig.nativeScreenHeight = h;
+		} break;
+		case SDL_EVENT_WINDOW_MOVED:
+		{
+			int x = event->window.data1;
+			int y = event->window.data2;
+			r_windowX.SetInteger( x );
+			r_windowY.SetInteger( y );
+		} break;
+
+		case SDL_EVENT_KEY_DOWN:
+		{
+			if( event->key.key == SDLK_RETURN && ( event->key.mod & SDL_KMOD_ALT ) > 0 )
 			{
 				// DG: go to fullscreen on current display, instead of always first display
 				int fullscreen = 0;
@@ -951,22 +791,22 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			}
 			
 			// DG: ctrl-g to un-grab mouse - yeah, left ctrl shoots, then just use right ctrl :)
-			if( event->key.keysym.sym == SDLK_g && ( event->key.keysym.mod & KMOD_CTRL ) > 0 )
+			if( event->key.key == SDLK_G && ( event->key.mod & SDL_KMOD_CTRL ) > 0 )
 			{
 				bool grab = cvarSystem->GetCVarBool( "in_nograb" );
 				grab = !grab;
 				cvarSystem->SetCVarBool( "in_nograb", grab );
 				return 0;
 			}
-			// DG end
-			
+			// DG end	
 			// fall through
-		case SDL_KEYUP:
+		}
+		case SDL_EVENT_KEY_UP:
 		{
 			bool isChar;
 			char c;
 			// DG: special case for SDL_SCANCODE_GRAVE - the console key under Esc
-			if( event->key.keysym.scancode == SDL_SCANCODE_GRAVE )
+			if( event->key.scancode == SDL_SCANCODE_GRAVE )
 			{
 				key = K_GRAVE;
 				c = K_BACKSPACE; // bad hack to get empty console inputline..
@@ -974,11 +814,11 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			} // DG end, the original code is in the else case
 			else
 			{
-				key = SDL_KeyToDoom3Key( event->key.keysym.sym, isChar );
+				key = SDL_KeyToDoom3Key( event->key.key, isChar );
 				
 				if( key == 0 )
 				{
-					unsigned char uc = event->key.keysym.scancode & 0xff;
+					unsigned char uc = event->key.scancode & 0xff;
 					// check if its an unmapped console key
 					if( uc == Sys_GetConsoleKey( false ) || uc == Sys_GetConsoleKey( true ) )
 					{
@@ -987,42 +827,44 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 					}
 					else
 					{
-						if( event->type == SDL_KEYDOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
-							common->Warning( "unmapped SDL key %d (0x%x) scancode %d", event->key.keysym.sym, event->	key.keysym.scancode, event->key.keysym.scancode );
+						if( event->type == SDL_EVENT_KEY_DOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
+							common->Warning( "unmapped SDL key %d (0x%x) scancode %d", event->key.key, event->	key.scancode, event->key.scancode );
 						return 0;
 					}
 				}
 			}
 			
-			Sys_QueEvent( SE_KEY, key, event->key.state == SDL_PRESSED ? 1 : 0, 0, NULL, 0 );
-			kbd_polls.Append( kbd_poll_t( key, event->key.state == SDL_PRESSED ) );
+			Sys_QueEvent( SE_KEY, key, event->key.down ? 1 : 0, 0, nullptr, 0 );
+			kbd_polls.Append( kbd_poll_t( key, event->key.down ) );
 			
-			if( key == K_BACKSPACE && event->key.state == SDL_PRESSED ) {
+			if( key == K_BACKSPACE && event->key.down ) 
+			{
 				//c = key;
-				Sys_QueEvent( SE_CHAR, K_BACKSPACE, 0, 0, NULL, 0 );
+				Sys_QueEvent( SE_CHAR, K_BACKSPACE, 0, 0, nullptr, 0 );
 			}
 			//Sys_QueEvent( SE_CHAR, c, 0, 0, NULL, 0 );
 			return 0;
 
 		}
-		
-		case SDL_TEXTINPUT:
+		case SDL_EVENT_TEXT_INPUT:
+		{
 			if( event->text.text && *event->text.text )
 			{
 				if( !event->text.text[1] ) 
-					Sys_QueEvent( SE_CHAR, *event->text.text, 0, 0, NULL, 0 );
-				else {
-					char* s = NULL;
+					Sys_QueEvent( SE_CHAR, *event->text.text, 0, 0, nullptr, 0 );
+				else 
+				{
+					char* s = nullptr;
 					size_t s_pos = 0;
 					s = strdup( event->text.text );
-					while( s !=NULL )
+					while( s != nullptr )
 					{
-						Sys_QueEvent( SE_CHAR, s[s_pos], 0, 0, NULL, 0 );
+						Sys_QueEvent( SE_CHAR, s[s_pos], 0, 0, nullptr, 0 );
 						s_pos++;
 						if( !s[s_pos] )
 						{
 							free( s );
-							s = NULL;
+							s = nullptr;
 							s_pos = 0;
 						}
 					}
@@ -1031,8 +873,9 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			}
 			
 			return 1;
-			
-		case SDL_MOUSEMOTION:
+		}
+		case SDL_EVENT_MOUSE_MOTION:
+		{
 			// DG: return event with absolute mouse-coordinates when in menu
 			// to fix cursor problems in windowed mode
 			if( game && game->Shell_IsActive() )
@@ -1049,8 +892,8 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			mouse_polls.Append( mouse_poll_t( M_DELTAY, event->motion.yrel ) );
 			
 			return 0;
-			
-		case SDL_MOUSEWHEEL:
+		}
+		case SDL_EVENT_MOUSE_WHEEL:
 			if( event->wheel.y > 0 )
 			{
 				mouse_polls.Append( mouse_poll_t( M_DELTAZ, 1 ) );
@@ -1067,69 +910,66 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			}
 			return 0;
 			
-		case SDL_MOUSEBUTTONDOWN:
-		case SDL_MOUSEBUTTONUP:
+		case SDL_EVENT_MOUSE_BUTTON_DOWN:
+		case SDL_EVENT_MOUSE_BUTTON_UP:
+		{
 			switch( event->button.button )
 			{
 				case SDL_BUTTON_LEFT:
-					Sys_QueEvent( SE_KEY, K_MOUSE1, event->button.state == SDL_PRESSED ? 1 : 0, 0, NULL, 0 );
-					mouse_polls.Append( mouse_poll_t( M_ACTION1, event->button.state == SDL_PRESSED ? 1 : 0 ) );
-					break;
+				{
+					Sys_QueEvent( SE_KEY, K_MOUSE1, event->button.down ? 1 : 0, 0, nullptr, 0 );
+					mouse_polls.Append( mouse_poll_t( M_ACTION1, event->button.down ? 1 : 0 ) );
+				}	break;
 				case SDL_BUTTON_MIDDLE:
-					Sys_QueEvent( SE_KEY, K_MOUSE3, event->button.state == SDL_PRESSED ? 1 : 0, 0, NULL, 0 );
-					mouse_polls.Append( mouse_poll_t( M_ACTION3, event->button.state == SDL_PRESSED ? 1 : 0 ) );
-					break;
+				{
+					Sys_QueEvent( SE_KEY, K_MOUSE3, event->button.down ? 1 : 0, 0, nullptr, 0 );
+					mouse_polls.Append( mouse_poll_t( M_ACTION3, event->button.down ? 1 : 0 ) );
+				} break;
 				case SDL_BUTTON_RIGHT:
-					Sys_QueEvent( SE_KEY, K_MOUSE2, event->button.state == SDL_PRESSED ? 1 : 0, 0, NULL, 0 );
-					mouse_polls.Append( mouse_poll_t( M_ACTION2, event->button.state == SDL_PRESSED ? 1 : 0 ) );
-					break;
+				{
+					Sys_QueEvent( SE_KEY, K_MOUSE2, event->button.down ? 1 : 0, 0, nullptr, 0 );
+					mouse_polls.Append( mouse_poll_t( M_ACTION2, event->button.down ? 1 : 0 ) );
+				} break;
 			}
 			return 0;
-		case SDL_JOYAXISMOTION:
-		case SDL_JOYBALLMOTION:          /**< Joystick trackball motion */
-		case SDL_JOYHATMOTION:           /**< Joystick hat position change */
-		case SDL_JOYBUTTONDOWN:          /**< Joystick button pressed */
-		case SDL_JOYBUTTONUP:            /**< Joystick button released */
-		case SDL_JOYDEVICEADDED:         /**< A new joystick has been inserted into the system */
-		case SDL_JOYDEVICEREMOVED:       /**< An opened joystick has been removed */
-			/* Always Pass these events on to SDL*/
-	        return 1;
+		}
 
-		case SDL_CONTROLLERDEVICEADDED:
-			/* TODO: Handle what happens when a gamepad is added */
-			/* 			Sys_QueEvent( SE_KEY, key, value, 0, NULL, inputDeviceNum ); */
-			common->Printf( "Controller Device Connected: %u\n", event->cdevice.which );
-			{
-				SDL_GameController *gamecontroller = NULL;
-				gamecontroller = SDL_GameControllerOpen(event->cdevice.which);
-				common->Printf( "Controller Connected %s\n",
-					SDL_GameControllerNameForIndex(event->cdevice.which) );
-				joystick_Devices.Append(gamepad_device_t(gamecontroller));
-			}
+		case SDL_EVENT_GAMEPAD_ADDED:
+		{
+			Sys_JoystickConnect( event->gdevice.which );
 	        return 1;
-	    case SDL_CONTROLLERDEVICEREMOVED:
-			/* TODO: Handle what happens when a gamepad is removed */
-			for(int i = 0; i< joystick_Devices.Num();i++) {
-				if(event->cdevice.which == joystick_Devices[i].gamePadId) {
-					common->Printf( "Controller Device Removed: %u\n", event->cdevice.which );
-					common->Printf( "Controller Device Name %s\n",
-						SDL_GameControllerName(joystick_Devices[i].gamePad) );
-					SDL_GameControllerClose(joystick_Devices[i].gamePad);
-					joystick_Devices.RemoveIndex(i);
-					break;
-				}
-			}
+		}
+		case SDL_EVENT_GAMEPAD_REMOVED:
+		{
+			Sys_JoystickDisconnect( event->gdevice.which );
+			return 1;
+		}
+		case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
+		case SDL_EVENT_GAMEPAD_BUTTON_UP:
+		{
+			//Sys_QueEvent( SE_KEY, key, value, 0, NULL, inputDeviceNum );
+		}
+		case SDL_EVENT_GAMEPAD_AXIS_MOTION:
+		{
+			//Sys_QueEvent( SE_JOYSTICK, axis, percent, 0, nullptr, inputDeviceNum );
 	        return 1;
-	    case SDL_CONTROLLERBUTTONDOWN:
-	    case SDL_CONTROLLERBUTTONUP:
-	    case SDL_CONTROLLERAXISMOTION:
-			/* The Actual per-Device events are handled when joystick devices get polled. */
-	        return 1;
-		case SDL_QUIT:
+		}
+
+		//case SDL_JOYAXISMOTION:
+		//case SDL_JOYBALLMOTION:          /**< Joystick trackball motion */
+		//case SDL_JOYHATMOTION:           /**< Joystick hat position change */
+		//case SDL_JOYBUTTONDOWN:          /**< Joystick button pressed */
+		//case SDL_JOYBUTTONUP:            /**< Joystick button released */
+		//case SDL_JOYDEVICEADDED:         /**< A new joystick has been inserted into the system */
+		//case SDL_JOYDEVICEREMOVED:       /**< An opened joystick has been removed */
+		//	// Always Pass these events on to SDL
+	    //    return 1;
+		case SDL_EVENT_QUIT:
+		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			PushConsoleEvent( "quit" );
 			return 0;
 			
-		case SDL_USEREVENT:
+		case SDL_EVENT_USER:
 			switch( event->user.code )
 			{
 				case SE_CONSOLE:
@@ -1150,16 +990,12 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 	return 1;
 }
 
-void Sys_Handle_SDL_ControllerAxisEvent( const SDL_ControllerAxisEvent sdlEvent )
-{
-
-}
 /*
 ================
 Sys_ClearEvents
 ================
 */
-void Sys_ClearEvents()
+void Sys_ClearEvents( void )
 {
 	SDL_Event ev;
 	
@@ -1177,9 +1013,13 @@ void Sys_ClearEvents()
 Sys_GenerateEvents
 ================
 */
-void Sys_GenerateEvents()
+void Sys_GenerateEvents( void )
 {
+#if __PLATFORM_WINDOWS__
+	char* s = Sys_ConsoleInput();
+#elif __PLATFORM_LINUX__ || __PLATFORM_FBSD__
 	char* s = Posix_ConsoleInput();
+#endif
 	
 	if( s )
 		PushConsoleEvent( s );
@@ -1248,45 +1088,3 @@ int Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] )
 	
 	return numEvents;
 }
-
-//=====================================================================================
-//	Joystick Input Handling
-//=====================================================================================
-
-int activeController = -1;
-int Sys_PollJoystickInputEvents( int deviceNum )
-{
-	if( -1 < deviceNum && deviceNum < joystick_Devices.Num()) {
-		if(SDL_GameControllerGetAttached(joystick_Devices[deviceNum].gamePad))
-		{
-			activeController = deviceNum;
-			return joystick_Devices[deviceNum].pollEvents(deviceNum);
-
-		}
-	}
-	return 0;//win32.g_Joystick.PollInputEvents( deviceNum );
-}
-
-
-int Sys_ReturnJoystickInputEvent( const int n, int& action, int& value )
-{
-
-	if(-1 < activeController ) {
-		return joystick_Devices[activeController].ReturnInputEvent(n,action,value);
-	}
-	return 0;//win32.g_Joystick.ReturnInputEvent( n, action, value );
-}
-
-
-void Sys_EndJoystickInputEvents()
-{
-	activeController = -1;
-}
-
-void Sys_SetRumble( int device, int low, int hi )
-{
-	if( -1 < device && device < joystick_Devices.Num()) {
-		//joystick_Devices[deviceNum].pollEvents(deviceNum);
-	}
-}
-

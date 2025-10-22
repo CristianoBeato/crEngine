@@ -1,6 +1,13 @@
 
 #include "precompiled.h"
 
+// DG: SDL.h somehow needs the following functions, so #undef those silly
+//     "don't use" #defines from Str.h
+#undef strncmp
+#undef strcasecmp
+#undef vsnprintf
+// DG end
+
 #include <bitset>
 #include <cfenv>
 #include <cstdint>
@@ -54,15 +61,15 @@ enum flags_t : uint32_t
     BIT_SSE         = ( 1 << 25 ), // bit 25 of EDX denotes SSE existence
     BIT_SSE2        = ( 1 << 26 ), // bit 26 of EDX denotes SSE2 existence
     BIT_HTT         = ( 1 << 28 ), // bit 28 of EDX denotes HTT existence
-    BIT_3DNOW       = ( 1 << 31 ) // bit 31 of EDX denotes 3DNow! support
+//    BIT_3DNOW       = ( 1 << 31 ) // bit 31 of EDX denotes 3DNow! support
 };
 
 static uint32_t nIds = 0;
 static uint32_t nExIds = 0;
 static uint32_t cpui[4] = { 0, 0, 0, 0 };
 
-idCVar sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar sys_cpuvendor( "sys_cpuvendor", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
+static idCVar sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
+static idCVar sys_cpuvendor( "sys_cpuvendor", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
 
 static inline void  GetCPUInfo(  void )
 {
@@ -113,6 +120,7 @@ static inline bool HasCMOV( void )
 
 static inline bool Has3DNow( void )
 {
+#if 0
     // load bitset with flags for function 0x80000001
 	if ( nExIds >= 0x80000001 )
 	{
@@ -122,7 +130,7 @@ static inline bool Has3DNow( void )
 		if ( cpui[REG_EDX] & BIT_3DNOW )
 			return true;
 	}
-
+#endif
     return false;
 }
 

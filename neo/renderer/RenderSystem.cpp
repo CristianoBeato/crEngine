@@ -726,30 +726,23 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		// RB end
 		
 		if( tr.timerQueryId != 0 )
-		{
 			glGetQueryObjectui64v( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
-		}
+
 		if( gpuMicroSec != NULL )
-		{
 			*gpuMicroSec = drawingTimeNanoseconds / 1000;
-		}
 	}
 	
 	//------------------------------
 	
 	// save out timing information
 	if( frontEndMicroSec != NULL )
-	{
 		*frontEndMicroSec = pc.frontEndMicroSec;
-	}
+	
 	if( backEndMicroSec != NULL )
-	{
 		*backEndMicroSec = backEnd.pc.totalMicroSec;
-	}
+	
 	if( shadowMicroSec != NULL )
-	{
 		*shadowMicroSec = backEnd.pc.shadowMicroSec;
-	}
 	
 	// print any other statistics and clear all of them
 	R_PerformanceCounters();

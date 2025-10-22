@@ -143,7 +143,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <cstdlib>
 #include <cstdarg>
 #include <cstddef> // Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
-#include <cstring>
+//#include <cstring>
 #include <cassert>
 #include <ctime>
 #include <cerrno>

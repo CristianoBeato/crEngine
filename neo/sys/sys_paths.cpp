@@ -1,17 +1,27 @@
 #include "precompiled.h"
 #include "sys/sys_public.h"
 
+// DG: SDL.h somehow needs the following functions, so #undef those silly
+//     "don't use" #defines from Str.h
+#undef strncmp
+#undef strcasecmp
+#undef vsnprintf
+// DG end
+
 // STD 17
 #include <fstream>
 #include <filesystem>
+#include <chrono>
+#include <sys/stat.h>
+
 namespace fs = std::filesystem;
 
 #include <SDL3/SDL_filesystem.h>
 #include <SDL3/SDL_storage.h>
 #include <SDL3/SDL_iostream.h>
 
-static idStr	basepath;
-static idStr	savepath;
+static idCVar sys_defaultbasepath( "sys_defaultbasepath", "detect", CVAR_SYSTEM | CVAR_ROM, "the local game source base path" );
+static idCVar sys_defaultsavepath( "sys_defaultsavepath", "detect", CVAR_SYSTEM | CVAR_ROM, "the game saves folder" );
 
 /*
 ==============
@@ -47,12 +57,15 @@ const char* Sys_EXEPath( void )
  */
 const char* Sys_DefaultSavePath( void )
 {
+	static idStr savepath;
     if ( !savepath.IsEmpty() )
     {
 #if __PLATFORM_LINUX__
-    	sprintf( savepath, "%s/.%s", getenv( "HOME" ), GAME_NAME );
+		char path[1024];
+    	SDL_snprintf( path, 1024, "%s/.%s", getenv( "HOME" ), GAME_NAME );
+		savepath = path;
 #else
-    savepath = SDL_GetPrefPath( "crEngine", GAME_NAME);
+    	savepath = SDL_GetPrefPath( "crEngine", GAME_NAME);
 #endif
     }
 	
@@ -72,12 +85,55 @@ Try to be intelligent: if there is no BASE_GAMEDIR, try the next path
 */
 const char* Sys_DefaultBasePath( void )
 {
+	static idStr basepath;
     if ( basepath.IsEmpty() )
+	{
+#if 0
         basepath = SDL_GetBasePath();
+#else
+		fs::path cwd = fs::current_path();
+		basepath = cwd.c_str(); 
+#endif
+		sys_defaultbasepath.SetString( basepath.c_str() );
+	}
 
 	return basepath.c_str();
 }
 
+// ---------------------------------------------------------------------------
+
+#include <SDL3/SDL.h>
+
+/*
+================
+Sys_GetDriveFreeSpace
+returns in megabytes
+================
+*/
+uint32_t Sys_GetDriveFreeSpace( const char* path )
+{
+	uint64_t bytes = Sys_GetDriveFreeSpaceInBytes(path);
+    return static_cast<uint32_t>( bytes / ( 1024 * 1024 ) ); // convert to MB
+}
+
+/*
+========================
+Sys_GetDriveFreeSpaceInBytes
+========================
+*/
+uint64_t Sys_GetDriveFreeSpaceInBytes( const char* path )
+{
+	try 
+	{
+        fs::space_info info = fs::space(path);
+        return static_cast<uint64_t>(info.available);
+    } 
+	catch (const fs::filesystem_error& e) 
+	{
+		common->Error( "Sys_Rmdir: erro '%s' ao remover '%s'\n", e.what(), path );
+		return 0;
+	}
+}
 
 /*
 ================
@@ -86,9 +142,30 @@ Sys_Mkdir
 */
 void Sys_Mkdir( const char* path )
 {
+	if (!path || !*path)
+		return;
+
+#if 0
 	if ( !SDL_CreateDirectory( path ) )
 		Sys_Printf( "ERROR: mkdir (%s) failed %s\n", path, SDL_GetError() );
+#else
+	// check if already exists 
+	if ( fs::exists( fs::path( path ) ) )
+		return; 
+
+	// try create
+	try 
+	{
+		fs::create_directories( fs::path( path ) );
+	}
+	catch (const fs::filesystem_error& e) 
+	{
+		common->Warning("Sys_Mkdir: error '%s' wen creating '%s'\n", e.what(), path);	
+	}
+#endif
 }
+
+
 
 /*
 ================
@@ -97,13 +174,32 @@ Sys_Rmdir
 */
 bool Sys_Rmdir( const char* path )
 {
+	if (!path || !*path)
+		return false;
+
+#if 0
 	if ( !SDL_RemovePath( path ) )
 	{
 		Sys_Printf( "ERROR: rmdir (%s) failed %s\n", path, SDL_GetError() );
 		return false;
-	}	
+	}
+
+#else		
+	try 
+	{
+		fs::path dir(path);
+
+		// remove apenas se for diretório existente
+		if ( fs::exists(dir) && fs::is_directory(dir) )
+			return fs::remove(dir);
+	} 
+	catch (const fs::filesystem_error& e) 
+	{
+		common->DPrintf( "Sys_Rmdir: erro '%s' ao remover '%s'\n", e.what(), path );
+	}
+#endif
 		
-	return true;
+	return false;
 }
 
 /*
@@ -180,3 +276,110 @@ sysFolder_t Sys_IsFolder( const char* path )
 		return FOLDER_ERROR;
 	}
 }
+
+/*
+================
+Sys_ListFiles
+================
+*/
+int Sys_ListFiles( const char* directory, const char* extension, idStrList& list )
+{
+	if (!directory || !*directory)
+        return 0;
+
+#if 0
+	int count = 0;
+	char** pathlist = SDL_GlobDirectory( directory, 0, extension, &count );
+
+	for ( uint32_t i = 0; i < count; i++)
+	{
+		char* path = pathlist[i];
+		if ( !path )
+			continue;
+
+		
+	}
+	
+	SDL_free( pathlist );
+#else
+	try
+	{
+		fs::path dirPath(directory);
+        if (!fs::exists(dirPath) || !fs::is_directory(dirPath))
+            return 0;
+
+        std::string extFilter;
+        if (extension && *extension) 
+		{
+            extFilter = extension;
+            if (extFilter[0] != '.')
+                extFilter = "." + extFilter;
+        }
+
+        list.Clear(); // idStrList tem Clear()
+
+        for (const auto& entry : fs::directory_iterator(dirPath)) 
+		{
+            if (!entry.is_regular_file())
+                continue;
+
+            const fs::path& filePath = entry.path();
+            if (!extFilter.empty()) 
+			{
+                if (filePath.extension() != extFilter)
+                    continue;
+            }
+
+            list.Append(filePath.filename().string().c_str());
+        }
+
+        
+	}
+	catch(const std::exception& e)
+	{
+		 common->DPrintf("Sys_ListFiles: fail '%s' to acess '%s'\n", e.what(), directory);
+        return 0;
+	}
+	
+	return list.Num(); // idStrList.Num() retorna count
+#endif
+}
+
+// ---------------------------------------------------------------------------
+
+// only relevant when specified on command line
+const char* Sys_DefaultCDPath()
+{
+	return "";
+}
+
+
+ID_TIME_T Sys_FileTimeStamp( idFileHandle fp )
+{
+#if __PLATFORM_WINDOWS__
+	struct _stat st;
+	_fstat( fileno( fp ), &st );
+	return st.st_mtime;
+#else
+	struct stat st;
+	fstat( fileno( fp ), &st );
+	return st.st_mtime;
+#endif
+}
+
+#if 0
+ID_TIME_T Sys_FileTimeStamp(const char* path) 
+{
+    try 
+	{
+        auto ftime = last_write_time(path);
+        // converte de filesystem::file_time_type para time_t
+        auto sctp = decltype(ftime)::clock::to_sys(ftime);
+        return std::chrono::system_clock::to_time_t(sctp);
+    } 
+	catch (const std::filesystem::filesystem_error&) 
+	{
+        return 0; // falha ou arquivo inexistente
+    }
+}
+#endif

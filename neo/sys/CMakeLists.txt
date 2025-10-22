@@ -35,6 +35,7 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_local.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_localuser.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_localuser.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sys_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_profile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_profile.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_public.h
@@ -52,6 +53,10 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_stats_misc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_voicechat.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_voicechat.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sys_video.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sys_video.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/sys_cpu.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/sys_paths.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/achievements.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/achievements.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/localuser.cpp
@@ -61,10 +66,10 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/signin.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/signin.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/socket_net.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/cpu.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/paths.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/process.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/video.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/events.cpp
     )
 
 # linux sources 

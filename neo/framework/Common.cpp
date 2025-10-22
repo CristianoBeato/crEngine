@@ -1818,9 +1818,9 @@ void idCommonLocal::Shutdown()
 idCommonLocal::CreateMainMenu
 ========================
 */
-void idCommonLocal::CreateMainMenu()
+void idCommonLocal::CreateMainMenu( void )
 {
-	if( game != NULL )
+	if( game != nullptr )
 	{
 		// note which media we are going to need to load
 		declManager->BeginLevelLoad();

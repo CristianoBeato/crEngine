@@ -427,6 +427,7 @@ public:
 
 	enum sessionState_t
 	{
+		INVALID = -1,
 		PRESS_START,
 		IDLE,
 		SEARCHING,

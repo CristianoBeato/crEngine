@@ -65,8 +65,7 @@ extern PFNGLREADPIXELSPROC                          glReadPixels;
 extern PFNGLACTIVETEXTUREPROC						glActiveTexture;
 extern PFNGLBINDTEXTUREPROC                         glBindTexture;
 
-// GL_EXT_direct_state_access
-extern PFNGLBINDMULTITEXTUREEXTPROC                 glBindMultiTextureEXT;
+extern PFNGLBINDTEXTUREUNITPROC                     glBindTextureUnit;
 
 // GL_ARB_vertex_buffer_object
 extern PFNGLBINDBUFFERPROC                          glBindBuffer;

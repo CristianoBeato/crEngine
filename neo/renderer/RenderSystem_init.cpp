@@ -59,13 +59,12 @@ idCVar r_skipIntelWorkarounds( "r_skipIntelWorkarounds", "0", CVAR_RENDERER | CV
 idCVar r_multiSamples( "r_multiSamples", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "number of antialiasing samples" );
 idCVar r_vidMode( "r_vidMode", "0", CVAR_ARCHIVE | CVAR_RENDERER | CVAR_INTEGER, "fullscreen video mode number" );
 idCVar r_displayRefresh( "r_displayRefresh", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_NOCHEAT, "optional display refresh rate option for vid mode", 0.0f, 240.0f );
-#ifdef WIN32
-idCVar r_fullscreen( "r_fullscreen", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
-#else
-// DG: add mode -2 for SDL, also defaulting to windowed mode, as that causes less trouble on linux
-idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "-2 = use current monitor, -1 = (reserved), 0 = windowed, 1 = full screen on monitor 1, 2 = full screen on monitor 2, etc" );
-// DG end
-#endif
+
+// BEATO Begin:
+idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "-1 = bordeless window; 0 window mode; 1 dedicated fullscreen; 2 = bordeless full screen" );
+idCVar r_display( "r_display", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "select the display index" );
+// BEATO End
+
 idCVar r_customWidth( "r_customWidth", "1280", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen width. set r_vidMode to -1 to activate" );
 idCVar r_customHeight( "r_customHeight", "720", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen height. set r_vidMode to -1 to activate" );
 idCVar r_windowX( "r_windowX", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "Non-fullscreen parameter" );
@@ -614,9 +613,15 @@ r_displayRefresh 70	specify 70 hz, etc
 */
 void R_SetNewMode( const bool fullInit )
 {
-	// try up to three different configurations
+	uint32_t numDisplay = 0;
+	crDisplay* const* displays = nullptr;
+	
 	auto video = sys->GetVideoSystem();
-
+	
+	// get available displays 
+	displays = video->Displays( &numDisplay );
+	
+	// try up to three different configurations
 	for( int i = 0 ; i < 3 ; i++ )
 	{
 		videoMode_t fullscreen = VIDEO_MODE_WINDOW;
@@ -629,6 +634,7 @@ void R_SetNewMode( const bool fullInit )
 			// use explicit position / size for window
 			//parms.x = r_windowX.GetInteger();
 			//parms.y = r_windowY.GetInteger();
+			mode.displayID = Min( r_display.GetInteger(),  (int)( numDisplay - 1 ) );
 			mode.width = r_windowWidth.GetInteger();
 			mode.height = r_windowHeight.GetInteger();
 			mode.displayHz = 0;		// ignored	
@@ -639,26 +645,19 @@ void R_SetNewMode( const bool fullInit )
 		}
 		else
 		{
-			int display = 0;
-			uint32_t numDisplay = 0;
 			uint32_t numModes = 0;
-			crDisplay* const* displays = nullptr;
 			const vidMode_t* modes = nullptr;
 
 			// get the display list 
-			displays = video->Displays( &numDisplay );
-			display = r_fullscreen.GetInteger() - 1; 
-			if ( display >= numDisplay )
+			if ( r_display.GetInteger() >= numDisplay )
 			{
-				idLib::Printf( "r_fullscreen reset from %i to 1 because mode list failed.", r_fullscreen.GetInteger() );
-				
+				idLib::Printf( "r_display reset from %i to 1 because mode list failed.", r_display.GetInteger() );
 				// fallback just take the first display
-				r_fullscreen.SetInteger( 1 );				
-				display = r_fullscreen.GetInteger() - 1;
+				r_display.SetInteger( 0 );				
 			}
 			
 			// get the mode list for this monitor
-			modes = displays[display]->Modes( &numModes ); 
+			modes = displays[r_display.GetInteger()]->Modes( &numModes ); 
 			if ( numModes < 1 )
 			{
 				idLib::Printf( "Going to safe mode because mode list failed." );
@@ -672,7 +671,8 @@ void R_SetNewMode( const bool fullInit )
 				mode.width = r_customWidth.GetInteger();
 				mode.height = r_customHeight.GetInteger();
 				mode.displayHz = r_displayRefresh.GetInteger();
-				fullscreen = VIDEO_MODE_FULLSCREEN;				
+				mode.displayID = Min( r_display.GetInteger(),  (int)( numDisplay - 1 ) );
+				fullscreen = VIDEO_MODE_FULLSCREEN;
 			}
 			else
 			{
@@ -684,6 +684,7 @@ void R_SetNewMode( const bool fullInit )
 			
 				// get a mode from the list
 				mode = modes[r_vidMode.GetInteger()];
+				fullscreen = VIDEO_MODE_DEDICATED;
 			}
 		}
 
@@ -738,7 +739,7 @@ all renderSystem functions will still operate properly, notably the material
 and model information functions.
 ==================
 */
-void R_InitOpenGL()
+void R_InitOpenGL( void )
 {
 
 	common->Printf( "----- R_InitOpenGL -----\n" );
@@ -763,23 +764,20 @@ void R_InitOpenGL()
 	glConfig.renderer_string = ( const char* )glGetString( GL_RENDERER );
 	glConfig.version_string = ( const char* )glGetString( GL_VERSION );
 	glConfig.shading_language_string = ( const char* )glGetString( GL_SHADING_LANGUAGE_VERSION );
-	glConfig.extensions_string = ( const char* )glGetString( GL_EXTENSIONS );
 	
-	if( glConfig.extensions_string == NULL )
-	{		
-		// Build the extensions string
-		GLint numExtensions;
-		glGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
-		extensions_string.Clear();
-		for( int i = 0; i < numExtensions; i++ )
-		{
-			extensions_string.Append( ( const char* )glGetStringi( GL_EXTENSIONS, i ) );
-			// the now deprecated glGetString method usaed to create a single string with each extension separated by a space
-			if( i < numExtensions - 1 )
-				extensions_string.Append( ' ' );
-		}
-		glConfig.extensions_string = extensions_string.c_str();
+	//glConfig.extensions_string = ( const char* )glGetString( GL_EXTENSIONS ); // lead to error
+	// Build the extensions string
+	GLint numExtensions;
+	glGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
+	extensions_string.Clear();
+	for( int i = 0; i < numExtensions; i++ )
+	{
+		extensions_string.Append( ( const char* )glGetStringi( GL_EXTENSIONS, i ) );
+		// the now deprecated glGetString method usaed to create a single string with each extension separated by a space
+		if( i < numExtensions - 1 )
+			extensions_string.Append( ' ' );
 	}
+	glConfig.extensions_string = extensions_string.c_str();
 	
 	
 	float glVersion = atof( glConfig.version_string );

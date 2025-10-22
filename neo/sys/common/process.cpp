@@ -23,12 +23,11 @@ bool Sys_AlreadyRunning( void )
 	if ( sys_allowMultipleInstances.GetBool() )
 		return true; 
 
-#if __PLATFORM_WINDOWS__
-
-#elif __PLATFORM_LINUX__
-#else
-	return false;
-#endif 
+//#if __PLATFORM_WINDOWS__
+//#elif __PLATFORM_LINUX__
+//#else
+    return false;
+//#endif 
 }
 
 

@@ -9,18 +9,20 @@ class crDisplaySDL : public crDisplay
 public:
     crDisplaySDL( void );
     virtual ~crDisplaySDL( void );
-    bool Init( const SDL_DisplayID in_displayID );
+    bool Init( const SDL_DisplayID in_displayID, const int in_displayIndex );
     virtual const char* Name( void ) const;
     virtual const vidMode_t* Modes( uint32_t *in_count ) const;
-
+    SDL_DisplayID       ID( void ) const { return m_display; }
+    SDL_DisplayMode**   FullScreenModes( void ) const { return m_videoModes; }
 private:
-    int32_t             m_x; 
-    int32_t             m_y;
-    uint32_t            m_width; 
-    uint32_t            m_height;
-    SDL_DisplayID       m_display;
-    idStr               m_name;
-    idList<vidMode_t>   m_modes;
+    int32_t                             m_x; 
+    int32_t                             m_y;
+    uint32_t                            m_width; 
+    uint32_t                            m_height;
+    SDL_DisplayID                       m_display;
+    idStr                               m_name;
+    idList<vidMode_t, TAG_VIDEO_SYS>    m_modes;
+    SDL_DisplayMode**                   m_videoModes;
 };
 
 class crVideoSDL3 : public crVideo
@@ -39,10 +41,10 @@ public:
 	virtual crDisplay* const* Displays( uint32_t* in_count ) const;
 
 private:
-    bool                    m_grabbed;
-    bool                    m_vulkan;
-    SDL::Window             m_mainWindow;
-    idList<crDisplay*>      m_displays;
+    bool                                m_grabbed;
+    bool                                m_vulkan;
+    SDL::Window                         m_mainWindow;
+    idList<crDisplay*, TAG_VIDEO_SYS>   m_displays;
 };
 
 #endif //!__VIDEO_H__

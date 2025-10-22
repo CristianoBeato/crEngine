@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#include <SDL3/SDL_timer.h>
+
 idCVar com_requireNonProductionSignIn( "com_requireNonProductionSignIn", "1", CVAR_BOOL | CVAR_ARCHIVE, "If true, will require sign in, even on non production builds." );
 extern idCVar fs_savepath;
 
@@ -257,7 +259,7 @@ localUserHandle_t idSignInManagerBase::GetUniqueLocalUserHandle( const char* nam
 {
 	MD5_CTX			ctx;
 	unsigned char	digest[16];
-	int64_t			clockTicks = Sys_GetClockTicks();
+	int64_t			clockTicks = SDL_GetPerformanceCounter();
 	
 	MD5_Init( &ctx );
 	MD5_Update( &ctx, ( const unsigned char* )name, idStr::Length( name ) );

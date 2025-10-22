@@ -2260,8 +2260,8 @@ int lwGetPolygons5( idFile* fp, int cksize, lwPolygonList* plist, int ptoffset )
 	lwPolygon* pp;
 	lwPolVert* pv;
 	unsigned char* buf, *bp;
-	int i, j, nv, nverts, npols;
-	
+	int i, nv, nverts, npols;
+	uintptr_t j = 0;
 	
 	if( cksize == 0 ) return 1;
 	
@@ -2312,7 +2312,7 @@ int lwGetPolygons5( idFile* fp, int cksize, lwPolygonList* plist, int ptoffset )
 			bp += 2;
 		}
 		j -= 1;
-		pp->surf = ( lwSurface* ) j; // DG: FIXME: cast int to pointer?!
+		pp->surf = reinterpret_cast<lwSurface*>( j ); // DG: FIXME: cast int to pointer?!
 		
 		pp++;
 		pv += nv;
@@ -3032,7 +3032,8 @@ Read polygon tags from a PTAG chunk in an LWO2 file.
 int lwGetPolygonTags( idFile* fp, int cksize, lwTagList* tlist, lwPolygonList* plist )
 {
 	unsigned int type;
-	int rlen = 0, i, j;
+	int rlen = 0, i;
+	uintptr_t j = 0;
 	
 	set_flen( 0 );
 	type = getU4( fp );
@@ -3055,7 +3056,7 @@ int lwGetPolygonTags( idFile* fp, int cksize, lwTagList* tlist, lwPolygonList* p
 		switch( type )
 		{
 			case ID_SURF:
-				plist->pol[ i ].surf = ( lwSurface* ) j; // DG: FIXME: cast int to pointer?!
+				plist->pol[ i ].surf = reinterpret_cast<lwSurface*> ( j ); // DG: FIXME: cast int to pointer?!
 				break;
 			case ID_PART:
 				plist->pol[ i ].part = j;

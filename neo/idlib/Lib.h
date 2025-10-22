@@ -234,6 +234,14 @@ public:
 	idNetworkLoadException( const char* text = "" ) : idException( text ) { }
 };
 
+// BEATO Begin:
+template< typename _t >
+inline void SetZero( _t * in_array, const uint32_t in_count  )
+{
+	std::memset( in_array, 0x00, sizeof(_t) * in_count );
+}
+// BEATO End
+
 /*
 ===============================================================================
 

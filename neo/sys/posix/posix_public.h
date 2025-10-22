@@ -39,6 +39,7 @@ void		Posix_EarlyInit( );
 void		Posix_LateInit( );
 
 void		Posix_Exit( int ret );
+void        Posix_Shutdown( void );
 void		Posix_SetExit( int ret ); // override the exit code
 void		Posix_SetExitSpawn( const char* exeName ); // set the process to be spawned when we quit
 
@@ -51,7 +52,7 @@ char*		Posix_ConsoleInput( void );
 void        Posix_ConsoleExit( void );
 
 // posix_signal.cpp
+void Posix_InitSigs( void );
 void Posix_ClearSigs( void );
-
 #endif
 

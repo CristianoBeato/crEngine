@@ -140,7 +140,7 @@ static void sig_handler( int signum, siginfo_t* info, void* context )
 Posix_InitSigs
 ================
 */
-void Posix_InitSigs( )
+void Posix_InitSigs( void )
 {
 	struct sigaction action;
 	int i;

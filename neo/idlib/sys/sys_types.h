@@ -70,10 +70,13 @@ bool IsSignedType( const _type_ t )
 	return _type_( -1 ) < 0;
 }
 
+/// X greater Y = X else Y
 template<class T> T	Max( T x, T y )
 {
 	return ( x > y ) ? x : y;
 }
+
+// X lesser Y = X else Y
 template<class T> T	Min( T x, T y )
 {
 	return ( x < y ) ? x : y;
