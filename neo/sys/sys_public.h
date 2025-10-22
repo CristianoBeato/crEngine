@@ -388,40 +388,16 @@ struct sysEvent_t
 	int				evValue2;
 	int				evPtrLength;		// bytes of data pointed to by evPtr, for journaling
 	void* 			evPtr;				// this must be manually freed if not NULL
-	
 	int				inputDevice;
-	bool			IsKeyEvent() const
-	{
-		return evType == SE_KEY;
-	}
-	bool			IsMouseEvent() const
-	{
-		return evType == SE_MOUSE;
-	}
-	bool			IsCharEvent() const
-	{
-		return evType == SE_CHAR;
-	}
-	bool			IsJoystickEvent() const
-	{
-		return evType == SE_JOYSTICK;
-	}
-	bool			IsKeyDown() const
-	{
-		return evValue2 != 0;
-	}
-	keyNum_t		GetKey() const
-	{
-		return static_cast< keyNum_t >( evValue );
-	}
-	int				GetXCoord() const
-	{
-		return evValue;
-	}
-	int				GetYCoord() const
-	{
-		return evValue2;
-	}
+
+	bool			IsKeyEvent( void ) const { return evType == SE_KEY; }
+	bool			IsMouseEvent( void ) const { return evType == SE_MOUSE; }
+	bool			IsCharEvent( void ) const { return evType == SE_CHAR; }
+	bool			IsJoystickEvent( void ) const { return evType == SE_JOYSTICK; }
+	bool			IsKeyDown( void ) const { return evValue2 != 0; }
+	keyNum_t		GetKey( void ) const { return static_cast< keyNum_t >( evValue ); }
+	int				GetXCoord( void ) const { return evValue; }
+	int				GetYCoord( void ) const { return evValue2; }
 };
 
 struct sysMemoryStats_t
@@ -447,22 +423,25 @@ enum videoMode_t : uint8_t
 // BEATO Begin:
 typedef struct vidMode_t
 {
-	uint8_t		format = 0;
-	uint16_t	displayID = 0;
-	uint16_t	modeID = 0;
-	uint16_t	width = 0;
-	uint16_t	height = 0;
-	int displayHz;
+	uint8_t		format;
+	uint8_t		displayHz; // ( uint8 since our engine max is 240hz  )
+	uint16_t	width;
+	uint16_t	height;
+	uint32_t	modeID;
+	uint32_t	displayID;
 	
 	// RB begin
 	vidMode_t( void )
 	{
+		format = 0;
+		modeID = UINT32_MAX;
+		displayID = UINT32_MAX;
 		width = 640;
 		height = 480;
 		displayHz = 60;
 	}
 	
-	vidMode_t( int width, int height, int displayHz ) : width( width ), height( height ), displayHz( displayHz ) {}
+	vidMode_t( uint16_t width, uint16_t height, uint8_t displayHz ) : width( width ), height( height ), displayHz( displayHz ) {}
 	// RB end
 	
 	bool operator==( const vidMode_t& a )
@@ -478,14 +457,49 @@ enum grab_e
 	GRAB_HIDECURSOR	= ( 1 << 2 ),
 	GRAB_SETSTATE	= ( 1 << 3 )
 };
+
+// 
+/*
+================================================
+idJoystick is managed by each platform's local Sys implementation, and
+provides full *Joy Pad* support (the most common device, these days).
+================================================
+*/
+//class idJoystick
+//{
+//public:
+//	virtual			~idJoystick() { }
+//	
+//	virtual bool	Init() { return false; }
+//	virtual void	Shutdown() { }
+//	virtual void	Deactivate() { }
+//	virtual void	SetRumble( int deviceNum, int rumbleLow, int rumbleHigh ) { }
+//	virtual int		PollInputEvents( int inputDeviceNum ) { return 0; }
+//	virtual int		ReturnInputEvent( const int n, int& action, int& value ) { return 0; }
+//	virtual void	EndInputEvents() { }
+//};
+
+
+class crGamepadDevice
+{
+public:
+	crGamepadDevice( void ) {};
+	~crGamepadDevice( void ){}
+	virtual uint32_t	PollEvents( void );
+	virtual bool 		GetEvent( const uint32_t eventID,  int ) const;
+	virtual void 		ClearEvents( void ) = 0;
+	virtual uint16_t	GetEventState( const sys_jEvents event ) const = 0;
+	virtual void 		SetRumble(float lowFreq, float highFreq, uint32_t duration_ms = 0) = 0;
+	virtual void 		SetLEDColor(uint8_t r, uint8_t g, uint8_t b) = 0;
+};
 // BEATO End
 
 // typedef unsigned long address_t; // DG: this isn't even used
 
-void			Sys_Init();
-void			Sys_Shutdown();
+void			Sys_Init( void );
+void			Sys_Shutdown( void );
 void			Sys_Error( const char* error, ... );
-const char* 	Sys_GetCmdLine();
+const char* 	Sys_GetCmdLine( void );
 // DG: Sys_ReLaunch() doesn't need any options (and the old way is painful for POSIX systems)
 //void			Sys_ReLaunch();
 // DG end
@@ -524,11 +538,7 @@ void			Sys_Sleep( const uint32_t in_msec );
 // Sys_Milliseconds should only be used for profiling purposes,
 // any game related timing information should come from event timestamps
 uint32_t		Sys_Milliseconds( void );
-uint64_t		Sys_Microseconds();
-
-// for accurate performance testing
-double			Sys_GetClockTicks();
-double			Sys_ClockTicksPerSecond();
+uint64_t		Sys_Microseconds( void );
 
 // returns a selection of the CPUID_* flags
 cpuid_t			Sys_GetProcessorId();
@@ -578,9 +588,6 @@ void			Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t& stats );
 bool			Sys_LockMemory( void* ptr, int bytes );
 bool			Sys_UnlockMemory( void* ptr, int bytes );
 
-// set amount of physical work memory
-void			Sys_SetPhysicalWorkMemory( int minBytes, int maxBytes );
-
 // DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
 
 // RB: 64 bit fixes, changed int to intptr_t
@@ -607,32 +614,26 @@ int				Sys_ReturnKeyboardInputEvent( const int n, int& ch, bool& state );
 void			Sys_EndKeyboardInputEvents();
 
 // mouse input polling
-static const int MAX_MOUSE_EVENTS = 256;
+inline constexpr int MAX_MOUSE_EVENTS = 256;
 int				Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] );
 
+// Beato Begin:
+// gamepad management
+inline constexpr int MAX_JOYSTICKS = 4; // Limit for Most consoles is 4 Controllers 
+extern uint32_t 		Sys_GamepadCount( void );
+extern crGamepadDevice*	Sys_GetGamepadDevice( void );
+// BEATO end
+
 // joystick input polling
-void			Sys_SetRumble( int device, int low, int hi );
+void			Sys_SetRumble( int device, uint16_t low, uint16_t hi );
 int				Sys_PollJoystickInputEvents( int deviceNum );
-int				Sys_ReturnJoystickInputEvent( const int n, int& action, int& value );
-void			Sys_EndJoystickInputEvents();
+bool			Sys_ReturnJoystickInputEvent( const int n, int& action, int& value );
+void			Sys_EndJoystickInputEvents( void );
 
 // when the console is down, or the game is about to perform a lengthy
 // operation like map loading, the system can release the mouse cursor
 // when in windowed mode
 void			Sys_GrabMouseCursor( bool grabIt );
-
-// BEATO Begin
-void			Sys_VideoInit( const uint32_t in_flags );
-void    		Sys_VideoFinish( void );
-void*			Sys_VideoWindowHandler( void );
-void			Sys_VideoGrabInput( const uint32_t flags );
-bool 			Sys_VideoSetMode( const vidMode_t in_mode, const videoMode_t in_fullScreen );
-void			Sys_VideoSetGamma( uint16_t red[256], uint16_t green[256], uint16_t blue[256] );
-vidMode_t*		Sys_VideoGetModeListForDisplay( const uint32_t in_requestedDisplayNum, uint32_t &in_count );
-// BEATO End
-
-void			Sys_ShowWindow( bool show );
-bool			Sys_IsWindowVisible( void );
 void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 
 // This really isn't the right place to have this, but since this is the 'top level' include
@@ -645,7 +646,6 @@ typedef HANDLE idFileHandle;
 typedef FILE* idFileHandle;
 #endif
 // RB end
-
 
 ID_TIME_T		Sys_FileTimeStamp( idFileHandle fp );
 // NOTE: do we need to guarantee the same output on all platforms?
@@ -821,38 +821,30 @@ const char* 	Sys_GetLocalIP( int i );
 void			Sys_InitNetworking();
 void			Sys_ShutdownNetworking();
 
+// BEATO Begin:
 
-
-/*
-================================================
-idJoystick is managed by each platform's local Sys implementation, and
-provides full *Joy Pad* support (the most common device, these days).
-================================================
-*/
-class idJoystick
+class crDisplay
 {
 public:
-	virtual			~idJoystick() { }
-	
-	virtual bool	Init()
-	{
-		return false;
-	}
-	virtual void	Shutdown() { }
-	virtual void	Deactivate() { }
-	virtual void	SetRumble( int deviceNum, int rumbleLow, int rumbleHigh ) { }
-	virtual int		PollInputEvents( int inputDeviceNum )
-	{
-		return 0;
-	}
-	virtual int		ReturnInputEvent( const int n, int& action, int& value )
-	{
-		return 0;
-	}
-	virtual void	EndInputEvents() { }
+    virtual const char* Name( void ) const = 0;
+    virtual const vidMode_t* Modes( uint32_t *in_count ) const = 0;
 };
 
+class crVideo
+{
+public:
+	virtual bool    			StartUp( const uint32_t in_flags ) = 0;
+	virtual void    			ShutDown( void ) = 0;
+	virtual void*				WindowHandler( void ) = 0;
+	virtual void				GrabInput( const uint32_t in_flags ) = 0;
+	virtual bool				SetMode( const vidMode_t in_mode, const videoMode_t in_fullScreen ) = 0;
+	virtual void				SetGamma( uint16_t red[256], uint16_t green[256], uint16_t blue[256] ) = 0;
+	virtual void				ShowWindow( bool show ) = 0;
+	virtual bool				IsWindowVisible( void ) const = 0;
+	virtual crDisplay* const* 	Displays( uint32_t* in_count ) const = 0;
+};
 
+// BEATO End
 
 /*
 ==============================================================
@@ -868,11 +860,11 @@ public:
 	virtual void			DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... ) = 0;
 	virtual void			DebugVPrintf( const char* fmt, va_list arg ) = 0;
 	
-	virtual double			GetClockTicks() = 0;
-	virtual double			ClockTicksPerSecond() = 0;
-	virtual cpuid_t			GetProcessorId() = 0;
-	virtual const char* 	GetProcessorString() = 0;
-	virtual const char* 	FPU_GetState() = 0;
+	virtual double			GetClockTicks( void ) = 0;
+	virtual double			ClockTicksPerSecond( void ) = 0;
+	virtual cpuid_t			GetProcessorId( void ) = 0;
+	virtual const char* 	GetProcessorString( void ) = 0;
+	virtual const char* 	FPU_GetState( void ) = 0;
 	virtual bool			FPU_StackIsEmpty() = 0;
 	virtual void			FPU_SetFTZ( bool enable ) = 0;
 	virtual void			FPU_SetDAZ( bool enable ) = 0;
@@ -892,6 +884,10 @@ public:
 	
 	virtual void			OpenURL( const char* url, bool quit ) = 0;
 	virtual void			StartProcess( const char* exePath, bool quit ) = 0;
+
+// BEATO Begin:
+	virtual crVideo*		GetVideoSystem( void ) const = 0;
+// BEATO End
 };
 
 extern idSys* 				sys;

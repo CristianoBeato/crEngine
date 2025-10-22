@@ -33,9 +33,9 @@ void Sys_Init()
 	CoInitialize( NULL );
 #endif
 
-	// BEATO Begin:
-	Sys_VideoInit( 0 ); // get video modes and create main window
-	// BEATO End
+// BEATO Begin:
+	sys->GetVideoSystem()->StartUp( 0 );
+// BEATO End
 }
 
 /*
@@ -45,7 +45,7 @@ Sys_Shutdown
 */
 void Sys_Shutdown( void )
 {
-    Sys_VideoFinish();
+	sys->GetVideoSystem()->ShutDown();
 
     Sys_ReleaseAlreadyRunningLock();
 
@@ -82,6 +82,16 @@ void Sys_DoPreferences( void )
 {
 }
 
+/*
+========================
+Sys_GetCmdLine
+========================
+*/
+const char* Sys_GetCmdLine( void )
+{
+	// DG: don't use this, use cmdargv and cmdargc instead!
+	return "TODO Sys_GetCmdLine";
+}
 
 /*
 ================

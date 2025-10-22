@@ -615,7 +615,8 @@ r_displayRefresh 70	specify 70 hz, etc
 void R_SetNewMode( const bool fullInit )
 {
 	// try up to three different configurations
-	
+	auto video = sys->GetVideoSystem();
+
 	for( int i = 0 ; i < 3 ; i++ )
 	{
 		videoMode_t fullscreen = VIDEO_MODE_WINDOW;
@@ -638,23 +639,31 @@ void R_SetNewMode( const bool fullInit )
 		}
 		else
 		{
-			// get the mode list for this monitor
-			idList<vidMode_t> modeList;
-			if( !R_GetModeListForDisplay( r_fullscreen.GetInteger() - 1, modeList ) )
+			int display = 0;
+			uint32_t numDisplay = 0;
+			uint32_t numModes = 0;
+			crDisplay* const* displays = nullptr;
+			const vidMode_t* modes = nullptr;
+
+			// get the display list 
+			displays = video->Displays( &numDisplay );
+			display = r_fullscreen.GetInteger() - 1; 
+			if ( display >= numDisplay )
 			{
 				idLib::Printf( "r_fullscreen reset from %i to 1 because mode list failed.", r_fullscreen.GetInteger() );
-				r_fullscreen.SetInteger( 1 );
-				R_GetModeListForDisplay( r_fullscreen.GetInteger() - 1, modeList );
+				
+				// fallback just take the first display
+				r_fullscreen.SetInteger( 1 );				
+				display = r_fullscreen.GetInteger() - 1;
 			}
-			if( modeList.Num() < 1 )
+			
+			// get the mode list for this monitor
+			modes = displays[display]->Modes( &numModes ); 
+			if ( numModes < 1 )
 			{
 				idLib::Printf( "Going to safe mode because mode list failed." );
 				goto safeMode;
 			}
-			
-			//parms.x = 0;		// ignored
-			//parms.y = 0;		// ignored
-			//parms.fullScreen = r_fullscreen.GetInteger();
 			
 			// set the parameters we are trying
 			if( r_vidMode.GetInteger() < 0 )
@@ -667,19 +676,19 @@ void R_SetNewMode( const bool fullInit )
 			}
 			else
 			{
-				if( r_vidMode.GetInteger() >= modeList.Num() )
+				if( r_vidMode.GetInteger() >= numModes )
 				{
 					idLib::Printf( "r_vidMode reset from %i to 0.\n", r_vidMode.GetInteger() );
 					r_vidMode.SetInteger( 0 );
 				}
 			
 				// get a mode from the list
-				mode = modeList[r_vidMode.GetInteger()];
+				mode = modes[r_vidMode.GetInteger()];
 			}
 		}
 
 		// try sert full screen
-		if( !Sys_VideoSetMode( mode, fullscreen ) )
+		if( !video->SetMode( mode, fullscreen ) )
 			continue;
 		
 		if( fullInit )
@@ -933,6 +942,7 @@ R_ListModes_f
 */
 static void R_ListModes_f( const idCmdArgs& args )
 {
+#if 0
 	for( int displayNum = 0 ; ; displayNum++ )
 	{
 		idList<vidMode_t> modeList;
@@ -945,6 +955,8 @@ static void R_ListModes_f( const idCmdArgs& args )
 			common->Printf( "Monitor %i, mode %3i: %4i x %4i @ %ihz\n", displayNum + 1, i, modeList[i].width, modeList[i].height, modeList[i].displayHz );
 		}
 	}
+#else
+#endif
 }
 
 /*
@@ -1940,6 +1952,23 @@ void R_SetColorMappings()
 	GLimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 }
 
+static void DumpAllDisplayDevices( void )
+{
+	uint32_t numDisplays = 0;
+	auto displays = sys->GetVideoSystem()->Displays( &numDisplays );
+	for ( uint32_t i = 0; i < numDisplays; i++)
+	{
+		uint32_t numModes = 0;
+		auto modes = displays[i]->Modes( &numModes );
+		for ( uint32_t j = 0; j < numModes; j++)
+		{
+			auto mode = modes[j]; 
+			common->Printf( "Displays %ui mode %ui: width %ui height %ui %uiHz,  ", i, j, mode.width, mode.height, mode.displayHz );
+		}
+	}
+}
+	
+
 /*
 ================
 GfxInfo_f
@@ -1968,7 +1997,6 @@ void GfxInfo_f( const idCmdArgs& args )
 	common->Printf( "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits );
 	
 	// print all the display adapters, monitors, and video modes
-	void DumpAllDisplayDevices();
 	DumpAllDisplayDevices();
 	
 	common->Printf( "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );

@@ -68,6 +68,10 @@ public:
 	
 	virtual void			OpenURL( const char* url, bool quit );
 	virtual void			StartProcess( const char* exeName, bool quit );
+
+// BEATO Begin:
+	virtual crVideo*		GetVideoSystem( void ) const;
+// BEATO End
 };
 
 #endif /* !__SYS_LOCAL__ */

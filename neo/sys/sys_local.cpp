@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL3/SDL_loadso.h>
 #include <SDL3/SDL_clipboard.h>
 
+#include "sys_video.h"
+
 const char* sysLanguageNames[] =
 {
 	ID_LANG_ENGLISH, ID_LANG_FRENCH, ID_LANG_ITALIAN, ID_LANG_GERMAN, ID_LANG_SPANISH, ID_LANG_JAPANESE, NULL
@@ -63,14 +65,14 @@ void idSysLocal::DebugVPrintf( const char* fmt, va_list arg )
 	Sys_DebugVPrintf( fmt, arg );
 }
 
-double idSysLocal::GetClockTicks()
+double idSysLocal::GetClockTicks( void )
 {
-	return Sys_GetClockTicks();
+	return static_cast<double>(SDL_GetPerformanceCounter());
 }
 
-double idSysLocal::ClockTicksPerSecond()
+double idSysLocal::ClockTicksPerSecond( void )
 {
-	return Sys_ClockTicksPerSecond();
+	return static_cast<double>(SDL_GetPerformanceFrequency());
 }
 
 cpuid_t idSysLocal::GetProcessorId()
@@ -316,6 +318,7 @@ uint32_t Sys_Milliseconds( void )
 }
 
 
+
 /*
 ========================
 Sys_Microseconds
@@ -425,5 +428,10 @@ void Sys_SetClipboardData( const char* string )
 }
 
 // RB end
+crVideo *idSysLocal::GetVideoSystem(void) const
+{
+	static crVideoSDL3 video = crVideoSDL3();
+    return dynamic_cast<crVideo*>( &video );
+}
 
 // BEATO End

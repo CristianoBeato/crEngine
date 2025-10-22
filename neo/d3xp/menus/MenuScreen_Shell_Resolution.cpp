@@ -155,8 +155,9 @@ idMenuScreen_Shell_Resolution::ShowScreen
 */
 void idMenuScreen_Shell_Resolution::ShowScreen( const mainMenuTransition_t transitionType )
 {
-
-
+	int viewIndex = 0;
+	uint32_t numDisplays = 0;
+	
 	originalOption.fullscreen = r_fullscreen.GetInteger();
 	originalOption.vidmode = r_vidMode.GetInteger();
 	
@@ -164,37 +165,30 @@ void idMenuScreen_Shell_Resolution::ShowScreen( const mainMenuTransition_t trans
 	menuOptions.Alloc().Alloc() = "#str_swf_disabled";
 	optionData.Append( optionData_t( 0, 0 ) );
 	
-	int viewIndex = 0;
-	idList< idList<vidMode_t> > displays;
-	for( int displayNum = 0 ; ; displayNum++ )
+	// get the displays list from video system
+	auto displays = sys->GetVideoSystem()->Displays( &numDisplays );
+	
+	for( int displayNum = 0 ; displayNum < numDisplays; displayNum++ )
 	{
-		idList<vidMode_t>& modeList = displays.Alloc();
-		if( !R_GetModeListForDisplay( displayNum, modeList ) )
-		{
-			displays.RemoveIndex( displays.Num() - 1 );
-			break;
-		}
-	}
-	for( int displayNum = 0 ; displayNum < displays.Num(); displayNum++ )
-	{
-		idList<vidMode_t>& modeList = displays[displayNum];
-		for( int i = 0; i < modeList.Num(); i++ )
+		uint32_t numModes = 0;
+		auto display = displays[displayNum];
+		auto modeList = display->Modes( &numModes );
+
+		for( int i = 0; i < numModes; i++ )
 		{
 			const optionData_t thisOption( displayNum + 1, i );
+
 			if( originalOption == thisOption )
-			{
 				viewIndex = menuOptions.Num();
-			}
+			
 			idStr str;
-			if( displays.Num() > 1 )
-			{
+			if( numModes > 1 )
 				str.Append( va( "%s %i: ", idLocalization::GetString( "#str_swf_monitor" ), displayNum + 1 ) );
-			}
+
 			str.Append( va( "%4i x %4i", modeList[i].width, modeList[i].height ) );
 			if( modeList[i].displayHz != 60 )
-			{
 				str.Append( va( " @ %dhz", modeList[i].displayHz ) );
-			}
+
 			menuOptions.Alloc().Alloc() = str;
 			optionData.Append( thisOption );
 		}

@@ -232,7 +232,7 @@ R_CheckCvars
 See if some cvars that we watch have changed
 =============
 */
-static void R_CheckCvars()
+void R_CheckCvars( void )
 {
 	// gamma stuff
 	if( r_gamma.IsModified() || r_brightness.IsModified() )
@@ -266,13 +266,9 @@ static void R_CheckCvars()
 		if( glConfig.seamlessCubeMapAvailable )
 		{
 			if( r_useSeamlessCubeMap.GetBool() )
-			{
 				glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
-			}
 			else
-			{
 				glDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
-			}
 		}
 	}
 	
@@ -283,13 +279,9 @@ static void R_CheckCvars()
 		if( glConfig.sRGBFramebufferAvailable )
 		{
 			if( r_useSRGB.GetBool() )
-			{
 				glEnable( GL_FRAMEBUFFER_SRGB );
-			}
 			else
-			{
 				glDisable( GL_FRAMEBUFFER_SRGB );
-			}
 		}
 	}
 	
@@ -303,7 +295,7 @@ static void R_CheckCvars()
 	}
 	
 	// check for changes to logging state
-	GLimp_EnableLogging( r_logFile.GetInteger() != 0 );
+	// GLimp_EnableLogging( r_logFile.GetInteger() != 0 );
 }
 
 /*

@@ -251,7 +251,7 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
 	GLimp_PreInit(); // DG: make sure SDL is initialized
 	
     // get window handler
-    context.window = static_cast<SDL_Window*>( Sys_VideoWindowHandler() );
+    context.window = static_cast<SDL_Window*>( sys->GetVideoSystem()->WindowHandler() );
 
 	int colorbits = 24;
 	int depthbits = 24;
@@ -401,6 +401,21 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
 	// DG end
 	
 	return true;
+}
+
+/*
+===================
+GLimp_Shutdown
+===================
+*/
+void GLimp_Shutdown( void )
+{
+	if ( !context.context )
+		return;
+
+	SDL_GL_DestroyContext( context.context );
+
+	context.context = nullptr;
 }
 
 /*

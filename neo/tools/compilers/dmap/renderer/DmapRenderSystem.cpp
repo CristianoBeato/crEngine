@@ -185,89 +185,6 @@ static void R_ViewStatisticsDmap(dmapViewDef_t* parms)
 
 //=================================================================================
 
-
-/*
-=============
-R_CheckCvarsDmap
-
-See if some cvars that we watch have changed
-=============
-*/
-static void R_CheckCvarsDmap()
-{
-
-	// gamma stuff
-	if (r_gamma.IsModified() || r_brightness.IsModified())
-	{
-		r_gamma.ClearModified();
-		r_brightness.ClearModified();
-		R_SetColorMappings();
-	}
-
-	// filtering
-	if (r_maxAnisotropicFiltering.IsModified() || r_useTrilinearFiltering.IsModified() || r_lodBias.IsModified())
-	{
-		idLib::Printf("Updating texture filter parameters.\n");
-		r_maxAnisotropicFiltering.ClearModified();
-		r_useTrilinearFiltering.ClearModified();
-		r_lodBias.ClearModified();
-		for (int i = 0; i < globalImages->images.Num(); i++)
-		{
-			if (globalImages->images[i])
-			{
-				globalImages->images[i]->Bind();
-				globalImages->images[i]->SetTexParameters();
-			}
-		}
-	}
-
-	extern idCVar r_useSeamlessCubeMap;
-	if (r_useSeamlessCubeMap.IsModified())
-	{
-		r_useSeamlessCubeMap.ClearModified();
-		if (glConfig.seamlessCubeMapAvailable)
-		{
-			if (r_useSeamlessCubeMap.GetBool())
-			{
-				glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-			}
-			else
-			{
-				glDisable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
-			}
-		}
-	}
-
-	extern idCVar r_useSRGB;
-	if (r_useSRGB.IsModified())
-	{
-		r_useSRGB.ClearModified();
-		if (glConfig.sRGBFramebufferAvailable)
-		{
-			if (r_useSRGB.GetBool())
-			{
-				glEnable(GL_FRAMEBUFFER_SRGB);
-			}
-			else
-			{
-				glDisable(GL_FRAMEBUFFER_SRGB);
-			}
-		}
-	}
-
-
-	if (r_multiSamples.IsModified())
-	{
-		if (r_multiSamples.GetInteger() > 0)
-			glEnable( GL_MULTISAMPLE );
-		else
-			glDisable( GL_MULTISAMPLE );
-	}
-
-	// check for changes to logging state
-	GLimp_EnableLogging(r_logFile.GetInteger() != 0);
-}
-
 /*
 =============
 idDmapRenderSystemLocal::idDmapRenderSystemLocal
@@ -724,7 +641,7 @@ void idDmapRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	R_PerformanceCountersDmap();
 
 	// check for dynamic changes that require some initialization
-	R_CheckCvarsDmap();
+	R_CheckCvars();
 
 	// check for errors
 	GL_CheckErrors();

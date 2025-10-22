@@ -357,7 +357,19 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 	const int fullscreen = r_fullscreen.GetInteger();
 	if( fullscreen > 0 )
 	{
-		R_GetModeListForDisplay( fullscreen - 1, modeList );
+		uint32_t numDisplays = 0;
+		auto displays = sys->GetVideoSystem()->Displays( &numDisplays );
+		for ( uint32_t i = 0; i < numDisplays; i++)
+		{
+			uint32_t numModes = 0;
+			auto display = displays[i];
+			auto modes = display->Modes( &numModes );
+		
+			for ( uint32_t j = 0; j < numModes; j++)
+			{
+				modeList.Append( modes[j] );
+			}
+		}
 	}
 	else
 	{
