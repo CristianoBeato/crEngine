@@ -446,8 +446,8 @@ void idCommonLocal::ExecuteMapChange()
 	// clear all menu sounds
 	soundWorld->Pause();
 	menuSoundWorld->ClearAllSoundEmitters();
-	soundSystem->SetPlayingSoundWorld( menuSoundWorld );
-	soundSystem->Render();
+	idSoundSystem::Get()->SetPlayingSoundWorld( menuSoundWorld );
+	idSoundSystem::Get()->Render();
 	
 	// extract the map name from serverinfo
 	currentMapName = matchParameters.mapName;
@@ -482,7 +482,7 @@ void idCommonLocal::ExecuteMapChange()
 	// note which media we are going to need to load
 	sm = Sys_Milliseconds();
 	renderSystem->BeginLevelLoad();
-	soundSystem->BeginLevelLoad();
+	idSoundSystem::Get()->BeginLevelLoad();
 	declManager->BeginLevelLoad();
 	uiManager->BeginLevelLoad();
 	ms = Sys_Milliseconds() - sm;
@@ -507,7 +507,7 @@ void idCommonLocal::ExecuteMapChange()
 		idPreloadManifest manifest;
 		manifest.LoadManifest( manifestName );
 		renderSystem->Preload( manifest, currentMapName );
-		soundSystem->Preload( manifest );
+		idSoundSystem::Get()->Preload( manifest );
 		game->Preload( manifest );
 	}
 
@@ -614,7 +614,7 @@ void idCommonLocal::ExecuteMapChange()
 	renderSystem->EndLevelLoad();
 	UpdateLevelLoadPacifier(false,48);
 	/* These Next Couple of Events are fairly quick */
-	soundSystem->EndLevelLoad();
+	idSoundSystem::Get()->EndLevelLoad();
 	UpdateLevelLoadPacifier(false,49);
 	declManager->EndLevelLoad();
 	UpdateLevelLoadPacifier(false,50);
@@ -709,7 +709,7 @@ void idCommonLocal::ExecuteMapChange()
 	//Sys_DumpMemory( false );
 	
 	// Issue a render at the very end of the load process to update soundTime before the first frame
-	soundSystem->Render();
+	idSoundSystem::Get()->Render();
 }
 
 /*
@@ -1049,8 +1049,8 @@ bool idCommonLocal::SaveGame( const char* saveName )
 	}
     bool activeShell = 	game->Shell_IsActive();
 	soundWorld->Pause();
-	soundSystem->SetPlayingSoundWorld( menuSoundWorld );
-	soundSystem->Render();
+	idSoundSystem::Get()->SetPlayingSoundWorld( menuSoundWorld );
+	idSoundSystem::Get()->Render();
 
 	if( insideExecuteMapChange )
 	{
@@ -1112,11 +1112,11 @@ bool idCommonLocal::SaveGame( const char* saveName )
 	
 	gameDetails.descriptors.Set( "SaveName", saveName);
 	gameDetails.descriptors.Set( SAVEGAME_DETAIL_FIELD_MAP_FILENAME, currentMapName);
-	if( insideExecuteMapChange ) {
-		gameDetails.descriptors.SetBool(SAVEGAME_DETAIL_FIELD_HAS_THUMBNAIL, false);
-	} else {
+	if( insideExecuteMapChange )
+		gameDetails.descriptors.SetBool(SAVEGAME_DETAIL_FIELD_HAS_THUMBNAIL, false); 
+	else 
 		gameDetails.descriptors.SetBool(SAVEGAME_DETAIL_FIELD_HAS_THUMBNAIL, true);
-	}	
+
 	gameDetails.descriptors.Set( SAVEGAME_DETAIL_FIELD_LANGUAGE, sys_lang.GetString() );
 	gameDetails.descriptors.SetInt( SAVEGAME_DETAIL_FIELD_CHECKSUM, ( int )gameDetails.descriptors.Checksum() );
 	

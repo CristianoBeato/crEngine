@@ -146,8 +146,10 @@ idSoundShader::Parse
 */
 bool idSoundShader::Parse( const char* text, const int textLength, bool allowBinaryVersion )
 {
-	if ( soundSystemLocal.currentSoundWorld )
-		soundSystemLocal.currentSoundWorld->WriteSoundShaderLoad( this );
+	//idSoundSystemLocal* soundSystemLocal = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() );  
+	idSoundSystemLocal* soundSystemLocal = static_cast<idSoundSystemLocal*>(idSoundSystem::Get());
+	if ( soundSystemLocal->currentSoundWorld )
+		soundSystemLocal->currentSoundWorld->WriteSoundShaderLoad( this );
 	
 	idLexer	src;	
 	src.LoadMemory( text, textLength, GetFileName(), GetLineNum() );
@@ -382,7 +384,8 @@ bool idSoundShader::ParseShader( idLexer& src )
 			// add to the wav list
 			if( s_maxSamples.GetInteger() == 0 || ( s_maxSamples.GetInteger() > 0 && entries.Num() < s_maxSamples.GetInteger() ) )
 			{
-				entries.Append( soundSystemLocal.LoadSample( token.c_str() ) );
+				idSoundSystemLocal* soundSystemLocal = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() );
+				entries.Append( soundSystemLocal->LoadSample( token.c_str() ) );
 			}
 		}
 		else

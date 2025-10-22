@@ -774,14 +774,14 @@ void idCommonLocal::Frame()
 		if( pauseGame )
 		{
 			soundWorld->Pause();
-			soundSystem->SetPlayingSoundWorld( menuSoundWorld );
+			idSoundSystem::Get()->SetPlayingSoundWorld( menuSoundWorld );
 		}
 		else
 		{
 			soundWorld->UnPause();
-			soundSystem->SetPlayingSoundWorld( soundWorld );
+			idSoundSystem::Get()->SetPlayingSoundWorld( soundWorld );
 		}
-		soundSystem->Render();
+		idSoundSystem::Get()->Render();
 		
 		// process the game return for map changes, etc
 		ProcessGameReturn( ret );

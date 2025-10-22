@@ -1623,8 +1623,9 @@ bool idSndWindow::InitFromFile( const char *qpath, bool looping ) {
 idSndWindow::ImageForTime
 ==============
 */
-cinData_t idSndWindow::ImageForTime( int milliseconds ) {
-	return soundSystem->ImageForTime( milliseconds, showWaveform );
+cinData_t idSndWindow::ImageForTime( int milliseconds ) 
+{
+	return idSoundSystem::Get()->ImageForTime( milliseconds, showWaveform );
 }
 
 /*
@@ -1632,6 +1633,7 @@ cinData_t idSndWindow::ImageForTime( int milliseconds ) {
 idSndWindow::AnimationLength
 ==============
 */
-int idSndWindow::AnimationLength() {
+int idSndWindow::AnimationLength( void ) 
+{
 	return -1;
 }

@@ -48,18 +48,18 @@ const float DB_SILENCE = -60.0f;
 class idSoundSample;
 
 // sound shader flags
-static const int	SSF_PRIVATE_SOUND =		BIT( 0 );	// only plays for the current listenerId
-static const int	SSF_ANTI_PRIVATE_SOUND = BIT( 1 );	// plays for everyone but the current listenerId
-static const int	SSF_NO_OCCLUSION =		BIT( 2 );	// don't flow through portals, only use straight line
-static const int	SSF_GLOBAL =			BIT( 3 );	// play full volume to all speakers and all listeners
-static const int	SSF_OMNIDIRECTIONAL =	BIT( 4 );	// fall off with distance, but play same volume in all speakers
-static const int	SSF_LOOPING =			BIT( 5 );	// repeat the sound continuously
-static const int	SSF_PLAY_ONCE =			BIT( 6 );	// never restart if already playing on any channel of a given emitter
-static const int	SSF_UNCLAMPED =			BIT( 7 );	// don't clamp calculated volumes at 1.0
-static const int	SSF_NO_FLICKER =		BIT( 8 );	// always return 1.0 for volume queries
-static const int	SSF_NO_DUPS =			BIT( 9 );	// try not to play the same sound twice in a row
-static const int	SSF_VO =				BIT( 10 ); // VO - direct a portion of the sound through the center channel (set automatically on shaders that contain files that start with "sound/vo/")
-static const int	SSF_MUSIC =				BIT( 11 ); // Music - Muted when the player is playing his own music
+static const int	SSF_PRIVATE_SOUND =			BIT( 0 );	// only plays for the current listenerId
+static const int	SSF_ANTI_PRIVATE_SOUND =	BIT( 1 );	// plays for everyone but the current listenerId
+static const int	SSF_NO_OCCLUSION =			BIT( 2 );	// don't flow through portals, only use straight line
+static const int	SSF_GLOBAL =				BIT( 3 );	// play full volume to all speakers and all listeners
+static const int	SSF_OMNIDIRECTIONAL =		BIT( 4 );	// fall off with distance, but play same volume in all speakers
+static const int	SSF_LOOPING =				BIT( 5 );	// repeat the sound continuously
+static const int	SSF_PLAY_ONCE =				BIT( 6 );	// never restart if already playing on any channel of a given emitter
+static const int	SSF_UNCLAMPED =				BIT( 7 );	// don't clamp calculated volumes at 1.0
+static const int	SSF_NO_FLICKER =			BIT( 8 );	// always return 1.0 for volume queries
+static const int	SSF_NO_DUPS =				BIT( 9 );	// try not to play the same sound twice in a row
+static const int	SSF_VO =					BIT( 10 ); // VO - direct a portion of the sound through the center channel (set automatically on shaders that contain files that start with "sound/vo/")
+static const int	SSF_MUSIC =					BIT( 11 ); // Music - Muted when the player is playing his own music
 
 // these options can be overriden from sound shader defaults on a per-emitter and per-channel basis
 typedef struct
@@ -189,7 +189,6 @@ independent render worlds.  The prime example is the editor sound preview
 option existing simultaniously with a live game.
 ===============================================================================
 */
-
 class idSoundWorld
 {
 public:
@@ -277,10 +276,11 @@ typedef struct
 	int						current44kHzTime;
 } soundDecoderInfo_t;
 
-
 class idSoundSystem
 {
 public:
+	static idSoundSystem*	Get( void );
+
 	virtual					~idSoundSystem() {}
 	
 	// All non-hardware initialization.
@@ -333,14 +333,12 @@ public:
 	virtual	void			BeginLevelLoad() = 0;
 	
 	// Load all sounds marked as used this level
-	virtual	void			EndLevelLoad() = 0;
+	virtual	void			EndLevelLoad( void ) = 0;
 	
 	virtual void			Preload( idPreloadManifest& preload ) = 0;
 	
 	// prints memory info
 	virtual void			PrintMemInfo( MemInfo_t* mi ) = 0;
 };
-
-extern idSoundSystem*	soundSystem;
 
 #endif /* !__SOUND__ */

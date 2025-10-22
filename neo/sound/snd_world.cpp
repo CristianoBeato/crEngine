@@ -90,10 +90,8 @@ idSoundWorldLocal::~idSoundWorldLocal
 idSoundWorldLocal::~idSoundWorldLocal()
 {
 
-	if( soundSystemLocal.currentSoundWorld == this )
-	{
-		soundSystemLocal.currentSoundWorld = NULL;
-	}
+	if( static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->currentSoundWorld == this )
+		static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->currentSoundWorld = NULL;
 	
 	for( int i = 0; i < emitters.Num(); i++ )
 	{
@@ -471,9 +469,10 @@ void idSoundWorldLocal::Update()
 	bool showVoices = s_showVoices.GetBool();
 	if( showVoices )
 	{
+		auto soundSystemLocal = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() );
 		showVoiceTable.Format( "currentCushionDB: %5.1f  freeVoices: %i zombieVoices: %i buffers:%i/%i\n", currentCushionDB,
-							   soundSystemLocal.hardware.GetNumFreeVoices(), soundSystemLocal.hardware.GetNumZombieVoices(),
-							   soundSystemLocal.activeStreamBufferContexts.Num(), soundSystemLocal.freeStreamBufferContexts.Num() );
+							   soundSystemLocal->hardware.GetNumFreeVoices(), soundSystemLocal->hardware.GetNumZombieVoices(),
+							   soundSystemLocal->activeStreamBufferContexts.Num(), soundSystemLocal->freeStreamBufferContexts.Num() );
 	}
 	for( int i = 0; i < activeEmitterChannels.Num(); i++ )
 	{
@@ -655,7 +654,7 @@ int idSoundWorldLocal::PlayShaderDirectly( const char* name, int channel )
 	}
 	else
 	{
-		return localSound->StartSound( shader, channel, soundSystemLocal.random.RandomFloat(), SSF_GLOBAL, true );
+		return localSound->StartSound( shader, channel, static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->random.RandomFloat(), SSF_GLOBAL, true );
 	}
 }
 
@@ -680,7 +679,7 @@ void idSoundWorldLocal::Pause()
 {
 	if( !isPaused )
 	{
-		pausedTime = soundSystemLocal.SoundTime();
+		pausedTime = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->SoundTime();
 		isPaused = true;
 		// just pause all unmutable voices (normally just voice overs)
 		for( int e = emitters.Num() - 1; e > 0; e-- )
@@ -707,7 +706,7 @@ void idSoundWorldLocal::UnPause()
 	if( isPaused )
 	{
 		isPaused = false;
-		accumulatedPauseTime += soundSystemLocal.SoundTime() - pausedTime;
+		accumulatedPauseTime += static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->SoundTime() - pausedTime;
 		pauseFade.SetVolume( DB_SILENCE );
 		pauseFade.Fade( 0.0f, s_unpauseFadeInTime.GetInteger(), GetSoundTime() );
 		
@@ -734,13 +733,9 @@ idSoundWorldLocal::GetSoundTime
 int idSoundWorldLocal::GetSoundTime()
 {
 	if( isPaused )
-	{
 		return pausedTime - accumulatedPauseTime;
-	}
 	else
-	{
-		return soundSystemLocal.SoundTime() - accumulatedPauseTime;
-	}
+		return static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->SoundTime() - accumulatedPauseTime;
 }
 
 /*

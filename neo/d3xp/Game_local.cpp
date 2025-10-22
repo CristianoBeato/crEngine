@@ -129,7 +129,7 @@ extern "C" gameExport_t* GetGameAPI( gameImport_t* import )
 		cvarSystem					= import->cvarSystem;
 		fileSystem					= import->fileSystem;
 		renderSystem				= import->renderSystem;
-		soundSystem					= import->soundSystem;
+		//soundSystem					= import->soundSystem;
 		renderModelManager			= import->renderModelManager;
 		uiManager					= import->uiManager;
 		declManager					= import->declManager;
@@ -170,7 +170,7 @@ void TestGameAPI()
 	testImport.cvarSystem				= ::cvarSystem;
 	testImport.fileSystem				= ::fileSystem;
 	testImport.renderSystem				= ::renderSystem;
-	testImport.soundSystem				= ::soundSystem;
+	testImport.soundSystem				= idSoundSystem::Get();
 	testImport.renderModelManager		= ::renderModelManager;
 	testImport.uiManager				= ::uiManager;
 	testImport.declManager				= ::declManager;

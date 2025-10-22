@@ -610,7 +610,7 @@ void idSoundSample_OpenAL::FreeData()
 {
 	if( buffers.Num() > 0 )
 	{
-		soundSystemLocal.StopVoicesWithSample( ( idSoundSample* )this );
+		static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->StopVoicesWithSample( ( idSoundSample* )this );
 		for( int i = 0; i < buffers.Num(); i++ )
 		{
 			FreeBuffer( buffers[i].buffer );
@@ -632,13 +632,9 @@ void idSoundSample_OpenAL::FreeData()
 		
 		alDeleteBuffers( 1, &openalBuffer );
 		if( CheckALErrors() != AL_NO_ERROR )
-		{
 			common->Error( "idSoundSample_OpenAL::FreeData: error unloading data from OpenAL hardware buffer" );
-		}
 		else
-		{
 			openalBuffer = 0;
-		}
 	}
 }
 

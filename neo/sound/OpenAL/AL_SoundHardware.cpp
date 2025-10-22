@@ -154,7 +154,7 @@ void listDevices_f( const idCmdArgs& args )
 	
 	idSoundHardware_OpenAL::PrintALCInfo( NULL );
 	
-	idSoundHardware_OpenAL::PrintALCInfo( ( ALCdevice* )soundSystem->GetOpenALDevice() );
+	idSoundHardware_OpenAL::PrintALCInfo( ( ALCdevice* )static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->GetOpenALDevice() );
 }
 
 /*
@@ -383,14 +383,10 @@ void idSoundHardware_OpenAL::Update()
 		return;
 	}
 	
-	if( soundSystem->IsMuted() )
-	{
+	if( idSoundSystem::Get()->IsMuted() )
 		alListenerf( AL_GAIN, 0.0f );
-	}
 	else
-	{
 		alListenerf( AL_GAIN, DBtoLinear( s_volume_dB.GetFloat() ) );
-	}
 	
 	// IXAudio2SourceVoice::Stop() has been called for every sound on the
 	// zombie list, but it is documented as asyncronous, so we have to wait

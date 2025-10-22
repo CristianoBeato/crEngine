@@ -173,12 +173,12 @@ A muted sound is considered still running, and can restart when a listener
 gets close enough.
 ========================
 */
-void idSoundChannel::Mute()
+void idSoundChannel::Mute( void )
 {
-	if( hardwareVoice != NULL )
+	if( hardwareVoice != nullptr )
 	{
-		soundSystemLocal.FreeVoice( hardwareVoice );
-		hardwareVoice = NULL;
+		static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->FreeVoice( hardwareVoice );
+		hardwareVoice = nullptr;
 	}
 }
 
@@ -289,17 +289,15 @@ void idSoundChannel::UpdateVolume( int currentTime )
 		}
 	}
 	
-	if( soundSystemLocal.musicMuted && ( parms.soundShaderFlags & SSF_MUSIC ) != 0 )
-	{
+	if( static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->musicMuted && ( parms.soundShaderFlags & SSF_MUSIC ) != 0 )
 		newVolumeDB = DB_SILENCE;
-	}
 	
 	// store the new volume on the channel
 	volumeDB = newVolumeDB;
 	
 	// keep track of the maximum volume
 	float currentVolumeDB = newVolumeDB;
-	if( hardwareVoice != NULL )
+	if( hardwareVoice != nullptr )
 	{
 		float amplitude = hardwareVoice->GetAmplitude();
 		if( amplitude <= 0.0f )
@@ -323,22 +321,17 @@ void idSoundChannel::UpdateHardware( float volumeAdd, int currentTime )
 {
 	idSoundWorldLocal* soundWorld = emitter->soundWorld;
 	
-	if( soundWorld == NULL )
-	{
+	if( soundWorld == nullptr )
 		return;
-	}
-	if( leadinSample == NULL )
-	{
+	
+	if( leadinSample == nullptr )
 		return;
-	}
+	
 	if( startTime > currentTime )
-	{
 		return;
-	}
+
 	if( endTime > 0 && endTime < currentTime )
-	{
 		return;
-	}
 	
 	// convert volumes from decibels to linear
 	float volume = Max( 0.0f, DBtoLinear( volumeDB + volumeAdd ) );
@@ -355,19 +348,15 @@ void idSoundChannel::UpdateHardware( float volumeAdd, int currentTime )
 	int startOffset = 0;
 	bool issueStart = false;
 	
-	if( hardwareVoice == NULL )
+	if( hardwareVoice == nullptr )
 	{
 		if( volume <= 0.00001f )
-		{
 			return;
-		}
 		
-		hardwareVoice = soundSystemLocal.AllocateVoice( leadinSample, loopingSample );
+		hardwareVoice = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->AllocateVoice( leadinSample, loopingSample );
 		
-		if( hardwareVoice == NULL )
-		{
+		if( hardwareVoice == nullptr )
 			return;
-		}
 		
 		issueStart = true;
 		startOffset = currentTime - startTime;
@@ -603,7 +592,9 @@ void idSoundEmitterLocal::Update( int currentTime )
 		// listener is outside the world
 		return;
 	}
-	if( soundSystemLocal.muted || soundWorld != soundSystemLocal.currentSoundWorld )
+
+	auto soundSystemLocal = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() );
+	if( soundSystemLocal->muted || soundWorld != soundSystemLocal->currentSoundWorld )
 	{
 		return;
 	}
@@ -946,7 +937,7 @@ int idSoundEmitterLocal::StartSound( const idSoundShader* shader, const s_channe
 	if( chan->IsLooping() && !shader->leadin )
 	{
 		// looping sounds start at a random point...
-		startOffset = soundSystemLocal.random.RandomInt( length );
+		startOffset = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->random.RandomInt( length );
 	}
 	
 	chan->startTime = currentTime - startOffset;

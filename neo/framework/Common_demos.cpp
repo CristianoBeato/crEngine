@@ -167,7 +167,7 @@ void idCommonLocal::StopPlayingRenderDemo()
 	readDemo->Close();
 	
 	soundWorld->StopAllSounds();
-	soundSystem->SetPlayingSoundWorld( menuSoundWorld );
+	idSoundSystem::Get()->SetPlayingSoundWorld( menuSoundWorld );
 	
 	common->Printf( "stopped playing %s.\n", readDemo->GetName() );
 

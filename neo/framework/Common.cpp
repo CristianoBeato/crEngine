@@ -569,7 +569,7 @@ Com_MaterialEditor_f
 */
 static void Com_MaterialEditor_f( const idCmdArgs &args ) {
 	// Turn off sounds
-	soundSystem->SetMute( true );
+	idSoundSystem::Get()->SetMute( true );
 	MaterialEditorInit();
 }
 #endif // ID_ALLOW_TOOLS
@@ -588,7 +588,7 @@ CONSOLE_COMMAND( printMemInfo, "prints memory debugging data", NULL )
 	mi.filebase = commonLocal.GetCurrentMapName();
 	
 	renderSystem->PrintMemInfo( &mi );			// textures and models
-	soundSystem->PrintMemInfo( &mi );			// sounds
+	idSoundSystem::Get()->PrintMemInfo( &mi );			// sounds
 	
 	common->Printf( " Used image memory: %s bytes\n", idStr::FormatNumber( mi.imageAssetsTotal ).c_str() );
 	mi.assetTotals += mi.imageAssetsTotal;
@@ -1170,8 +1170,8 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 	
 	soundWorld->PlayShaderDirectly( path_audio, 0 ); // "gui/loadvideointro"
 	soundWorld->UnPause();
-	soundSystem->SetPlayingSoundWorld( soundWorld );
-	soundSystem->Render();			
+	idSoundSystem::Get()->SetPlayingSoundWorld( soundWorld );
+	idSoundSystem::Get()->Render();			
 
 	sysEvent_t	ev; //SS2 fix RoQ videos skipping
 	bool EndVideo = false;
@@ -1202,7 +1202,7 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 		Sys_Sleep( 10 );		
 	}
 	
-	soundSystem->StopAllSounds(); // Stop Playing Video Sound track.
+	idSoundSystem::Get()->StopAllSounds(); // Stop Playing Video Sound track.
 	material->MakeDefault();
 }
 
@@ -1487,7 +1487,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		com_engineHz_latched = com_engineHz.GetFloat();
 		
 		// start the sound system, but don't do any hardware operations yet
-		soundSystem->Init();
+		idSoundSystem::Get()->Init();
 		
 		// initialize the renderSystem data structures
 		renderSystem->Init();
@@ -1555,9 +1555,9 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// and demos, insuring that level specific models
 		// will be freed
 		renderWorld = renderSystem->AllocRenderWorld();
-		soundWorld = soundSystem->AllocSoundWorld( renderWorld );
+		soundWorld = idSoundSystem::Get()->AllocSoundWorld( renderWorld );
 		
-		menuSoundWorld = soundSystem->AllocSoundWorld( NULL );
+		menuSoundWorld = idSoundSystem::Get()->AllocSoundWorld( nullptr );
 		menuSoundWorld->PlaceListener( vec3_origin, mat3_identity, 0 );
 		
 		// init the session
@@ -1571,10 +1571,8 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		InitializeMPMapsModes();
 
 		// leaderboards need to be initialized after InitializeMPMapsModes, which populates the MP Map list.
-		if( game != NULL )
-		{
+		if( game != nullptr )
 			game->Leaderboards_Init();
-		}
 		
 		CreateMainMenu();
 		
@@ -1634,7 +1632,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 			idPreloadManifest manifest;
 			manifest.LoadManifest( "_common.preload" );
 			globalImages->Preload( manifest, false );
-			soundSystem->Preload( manifest );
+			idSoundSystem::Get()->Preload( manifest );
 		}
 		
 		fileSystem->EndLevelLoad();
@@ -1685,7 +1683,7 @@ void idCommonLocal::Shutdown()
 	
 	// kill sound first
 	printf( "soundSystem->StopAllSounds();\n" );
-	soundSystem->StopAllSounds();
+	idSoundSystem::Get()->StopAllSounds();
 	
 	// shutdown the script debugger
 	DebuggerServerShutdown();
@@ -1737,7 +1735,7 @@ void idCommonLocal::Shutdown()
 	
 	// shut down the sound system
 	printf( "soundSystem->Shutdown();\n" );
-	soundSystem->Shutdown();
+	idSoundSystem::Get()->Shutdown();
 	
 	// shut down the user command input code
 	printf( "usercmdGen->Shutdown();\n" );
@@ -1822,10 +1820,12 @@ void idCommonLocal::CreateMainMenu( void )
 {
 	if( game != nullptr )
 	{
+		auto sound = idSoundSystem::Get();
+
 		// note which media we are going to need to load
 		declManager->BeginLevelLoad();
+		sound->BeginLevelLoad();
 		renderSystem->BeginLevelLoad();
-		soundSystem->BeginLevelLoad();
 		uiManager->BeginLevelLoad();
 		
 		// create main inside an "empty" game level load - so assets get
@@ -1835,10 +1835,10 @@ void idCommonLocal::CreateMainMenu( void )
 		game->Shell_SyncWithSession();
 		
 		// load
-		renderSystem->EndLevelLoad();
-		soundSystem->EndLevelLoad();
-		declManager->EndLevelLoad();
 		uiManager->EndLevelLoad( "" );
+		renderSystem->EndLevelLoad();
+		sound->EndLevelLoad();
+		declManager->EndLevelLoad();
 	}
 }
 
@@ -1856,7 +1856,7 @@ void idCommonLocal::Stop( bool resetSession )
 	// clear mapSpawned and demo playing flags
 	UnloadMap();
 	
-	soundSystem->StopAllSounds();
+	idSoundSystem::Get()->StopAllSounds();
 	
 	insideUpdateScreen = false;
 	insideExecuteMapChange = false;

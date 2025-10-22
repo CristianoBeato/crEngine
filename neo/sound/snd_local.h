@@ -606,6 +606,4 @@ public:
 	{}
 };
 
-extern	idSoundSystemLocal	soundSystemLocal;
-
 #endif /* !__SND_LOCAL_H__ */

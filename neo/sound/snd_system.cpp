@@ -46,8 +46,11 @@ idCVar s_maxSamples( "s_maxSamples", "5", CVAR_INTEGER, "max samples to load per
 
 idCVar preLoad_Samples( "preLoad_Samples", "1", CVAR_SYSTEM | CVAR_BOOL, "preload samples during beginlevelload" );
 
-idSoundSystemLocal soundSystemLocal;
-idSoundSystem* soundSystem = &soundSystemLocal;
+idSoundSystem *idSoundSystem::Get( void )
+{
+	static idSoundSystemLocal sound = idSoundSystemLocal();
+    return &sound;
+}
 
 /*
 ================================================================================================
@@ -71,10 +74,10 @@ void TestSound_f( const idCmdArgs& args )
 		idLib::Printf( "Usage: testSound <file>\n" );
 		return;
 	}
-	if( soundSystemLocal.currentSoundWorld )
-	{
-		soundSystemLocal.currentSoundWorld->PlayShaderDirectly( args.Argv( 1 ) );
-	}
+
+	auto soundSystemLocal = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() );
+	if( soundSystemLocal->currentSoundWorld )
+		soundSystemLocal->currentSoundWorld->PlayShaderDirectly( args.Argv( 1 ) );
 }
 
 /*
@@ -84,7 +87,7 @@ RestartSound_f
 */
 void RestartSound_f( const idCmdArgs& args )
 {
-	soundSystemLocal.Restart();
+	static_cast<idSoundSystemLocal*>( idSoundSystem::Get() )->Restart();
 }
 
 /*
@@ -97,10 +100,11 @@ void ListSamples_f( const idCmdArgs& args )
 {
 	idLib::Printf( "Sound samples\n-------------\n" );
 	int totSize = 0;
-	for( int i = 0; i < soundSystemLocal.samples.Num(); i++ )
+	auto soundSystemLocal = static_cast<idSoundSystemLocal*>( idSoundSystem::Get() );
+	for( int i = 0; i < soundSystemLocal->samples.Num(); i++ )
 	{
-		idLib::Printf( "%05dkb\t%s\n", soundSystemLocal.samples[ i ]->BufferSize() / 1024, soundSystemLocal.samples[ i ]->GetName() );
-		totSize += soundSystemLocal.samples[ i ]->BufferSize();
+		idLib::Printf( "%05dkb\t%s\n", soundSystemLocal->samples[ i ]->BufferSize() / 1024, soundSystemLocal->samples[ i ]->GetName() );
+		totSize += soundSystemLocal->samples[ i ]->BufferSize();
 	}
 	idLib::Printf( "--------------------------\n" );
 	idLib::Printf( "%05dkb total size\n", totSize / 1024 );
@@ -633,7 +637,6 @@ idSoundSystemLocal::EndLevelLoad
 */
 void idSoundSystemLocal::EndLevelLoad( void )
 {
-
 	insideLevelLoad = false;
 	int mSoundCount = samples.Num();
 	int mSoundProgress = 1;
@@ -653,9 +656,8 @@ void idSoundSystemLocal::EndLevelLoad( void )
 		
 		
 		if( samples[i]->GetNeverPurge() )
-		{
 			continue;
-		}
+		
 		if( samples[i]->IsLoaded() )
 		{
 			keepCount++;
