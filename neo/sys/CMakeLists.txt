@@ -96,104 +96,13 @@ set( SYSTEM_WIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_wndproc.cpp
     )
 
-#win32/rc/AFEditor.rc
-#win32/rc/AFEditor_resource.h
-#win32/rc/Common.rc
-#win32/rc/Common_resource.h
-#win32/rc/CreateResourceIDs.cpp
-#win32/rc/CreateResourceIDs.h
-#win32/rc/Debugger.rc
-#win32/rc/Debugger_resource.h
-#win32/rc/DeclEditor.rc
-#win32/rc/DeclEditor_resource.h
-#win32/rc/doom.aps
-#win32/rc/doom.rc
-#win32/rc/doom_resource.h
-#win32/rc/GuiEd.rc
-#win32/rc/GuiEd_resource.h
-#win32/rc/MaterialEditor.rc
-#win32/rc/MaterialEditor_Resource.h
-#win32/rc/ParticleEditor.rc
-#win32/rc/ParticleEditor_resource.h
-#win32/rc/PDAEditor.rc
-#win32/rc/PDAEditor_resource.h
-#win32/rc/PropTree.rc
-#win32/rc/PropTree_resource.h
-#win32/rc/Radiant.rc
-#win32/rc/Radiant_resource.h
-#win32/rc/ScriptEditor.rc
-#win32/rc/ScriptEditor_resource.h
-#win32/rc/SoundEditor.rc
-#win32/rc/SoundEditor_resource.h
-#win32/rc/res/BEVEL.BMP
-#win32/rc/res/BITMAP2.BMP
-#win32/rc/res/BMP00001.BMP
-#win32/rc/res/bmp00002.bmp
-#win32/rc/res/bmp00003.bmp
-#win32/rc/res/bmp00004.bmp
-#win32/rc/res/bmp00005.bmp
-#win32/rc/res/BMP0002.BMP
-#win32/rc/res/cchsb.bmp
-#win32/rc/res/ccrgb.bmp
-#win32/rc/res/dbg_back.bmp
-#win32/rc/res/dbg_breakpoint.ico
-#win32/rc/res/dbg_current.ico
-#win32/rc/res/dbg_currentline.ico
-#win32/rc/res/dbg_empty.ico
-#win32/rc/res/dbg_open.bmp
-#win32/rc/res/dbg_toolbar.bmp
-#win32/rc/res/DEFTEX.WAL
-#win32/rc/res/doom.ico
-#win32/rc/res/ENDCAP.BMP
-#win32/rc/res/fpoint.cur
-#win32/rc/res/fxeditor.ico
-#win32/rc/res/fxed_link.ico
-#win32/rc/res/fxed_toolbar.bmp
-#win32/rc/res/GetString.htm
-#win32/rc/res/guied_collapse.ico
-#win32/rc/res/guied_expand.ico
-#win32/rc/res/guied_hand.cur
-#win32/rc/res/guied.ico
-#win32/rc/res/guied_nav_visibledisabled.ico
-#win32/rc/res/guied_nav_visible.ico
-#win32/rc/res/guied_scripts.ico
-#win32/rc/res/guied_scripts_white.ico
-#win32/rc/res/guied_viewer_toolbar.bmp
-#win32/rc/res/IBEVEL.BMP
-#win32/rc/res/icon2.ico
-#win32/rc/res/IENDCAP.BMP
-#win32/rc/res/logo_sm3dfx.bmp
-#win32/rc/res/matedtree.bmp
-#win32/rc/res/MaterialEditor.ico
-#win32/rc/res/me_disabled_icon.ico
-#win32/rc/res/me_enabled.ico
-#win32/rc/res/MEFileToolbar.bmp
-#win32/rc/res/me_off_icon.ico
-#win32/rc/res/me_on_icon.ico
-#win32/rc/res/MEtoolbar.bmp
-#win32/rc/res/PropTree.rc2
-#win32/rc/res/Q.BMP
-#win32/rc/res/qe3.ico
-#win32/rc/res/RADIANT3.GIF
-#win32/rc/res/RadiantDoc.ico
-#win32/rc/res/Radiant.ico
-#win32/rc/res/shaderbar.bmp
-#win32/rc/res/shaderdoc.ico
-#win32/rc/res/shaderframe.ico
-#win32/rc/res/spliter.cur
-#win32/rc/res/stormengine2.ico
-#win32/rc/res/TOOLBAR1.BMP
-#win32/rc/res/TOOLBAR2.BMP
-#win32/rc/res/Toolbar.bmp
-#win32/rc/res/VIEWDEFA.BMP
-#win32/rc/res/VIEWOPPO.BMP
 if( WIN32 )
     set ( SYSTEM_PLATFORM_SOURCES ${SYSTEM_WIN_SOURCES} )
 elseif( "${CMAKE_SYSTEM}" MATCHES "Linux")
     set ( SYSTEM_PLATFORM_SOURCES ${SYSTEM_LINUX_SOURCES} ${SYSTEM_SDL_SOURCES} )
 endif( )
 
-set( SYSTEM_SOURCES  
+set( SYSTEM_SOURCES
     ${SYSTEM_MAIN_SOURCES}
     ${SYSTEM_PLATFORM_SOURCES}    
     )
@@ -225,19 +134,20 @@ add_executable( crEngine WIN32 ${SYSTEM_SOURCES} )
 ## idLib 
 ## contrib
 set( MODULES_LIBRARIES 
-    renderer
-    sound
-    swf
     framework
+    swf
     tools
+    sound
+    renderer
+    d3xp
     idLib
     contrib    
     )
 
 # to build the executable we need to build all modules
 if( MONOLITH )
-    add_dependencies( crEngine d3xp ${MODULES_LIBRARIES} )
-    target_link_libraries( crEngine PRIVATE -Wl,--start-group d3xp ${MODULES_LIBRARIES} -Wl,--end-group )
+    add_dependencies( crEngine ${MODULES_LIBRARIES} )
+    target_link_libraries( crEngine PRIVATE -Wl,--start-group ${MODULES_LIBRARIES} -Wl,--end-group )
 else( )
     add_dependencies( crEngine ${MODULES_LIBRARIES} )
     target_link_libraries( crEngine PRIVATE -Wl,--start-group ${MODULES_LIBRARIES} -Wl,--end-group )

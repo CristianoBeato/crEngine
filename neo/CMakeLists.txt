@@ -15,18 +15,9 @@ option(USE_MFC_TOOLS "Compile the built-in MFC based tools" ON)
 option(MONOLITH
 		"Embed game logic into main executable" ON)
 		
-option(OPENAL# Include the libs subdirectory. This will allow the compiler to simplify the include process.
-	"Use OpenAL soft instead of XAudio2" OFF)
-		# This will force the headers to play nice for pre-Windows 8 builds.
-option(FORCE_WIN7_COMPAT "Force Windows 7 compatibility." OFF)
-if(UNIX)
-	set(OPENAL TRUE)
-	set( XAUDIO FALSE )
-else()
-	if( OPENAL FALSE )
-		set( XAUDIO TRUE )
-	endif()
-endif()
+# Include the libs subdirectory. This will allow the compiler to simplify the include process.		
+option( XAUDIO "Use XAudio2 as sound backend" OFF )
+option( OPENAL "Use OpenAL as sound backend" OFF)
 
 ## find Libraries
 ##################################################################
@@ -68,51 +59,42 @@ else()
 	message(STATUS CMAKE_BUILD_TYPE: ${CMAKE_BUILD_TYPE})
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang")
-	add_definitions(-pipe)
+if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" )
+	#add_definitions(-pipe)
 	#add_definitions(-Wall)
-	add_definitions(-mmmx -msse -msse2)
+	#add_definitions(-mmmx -msse -msse2)
 	if(WIN32)
 		# require msvcr70.dll or newer for _aligned_malloc etc
 		# I think it is from Visual C++ .NET 2002, so it should be available on any remotely modern system.
-		add_definitions(-D__MSVCRT_VERSION__=0x0700)
-		
-		find_package(DirectX REQUIRED)
+		add_definitions(-D__MSVCRT_VERSION__=0x0700)	
 		include_directories(libs/mingw-hacks)
-		include_directories(${DirectX_INCLUDE_DIR})
-		add_definitions(-DUSE_XINPUT)
-	elseif(UNIX)
-		if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64" AND NOT CMAKE_C_COMPILER_ID STREQUAL "Clang")
-			# add_definitions(-mfpmath=387) # sets x87 fpu as generic fpu by default.
-		endif()
 	endif()	
 	
-	#if(NOT ANDROID)
-		add_definitions( -DUSE_EXCEPTIONS )
-	#endif()
+	add_definitions( -DUSE_EXCEPTIONS )
 	
 	# the warnings are used for every profile anyway, so put them in a variable
-	set(my_warn_flags "-Wno-pragmas -Wtrigraphs -Wmultichar -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value")
+	set( my_warn_flags "-Wno-pragmas -Wtrigraphs -Wmultichar -Wno-unused-variable -Wno-unused-but-set-variable -Wno-switch -Wno-unused-value")
 	
-	if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
+	if( CMAKE_C_COMPILER_ID STREQUAL "Clang")
 		# append clang-specific settings for warnings (the second one make sure clang doesn't complain
 		# about unknown -W flags, like -Wno-unused-but-set-variable)
 		set(my_warn_flags "${my_warn_flags} -Wno-local-type-template-args -Wno-unknown-warning-option")
 	endif()
 	
-	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O0 -ggdb -fno-strict-aliasing ${my_warn_flags}")
+	set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -D_DEBUG -O0 -ggdb -g -fno-strict-aliasing ${my_warn_flags}")
 	#set(CMAKE_C_FLAGS_DEBUGALL "${CMAKE_C_FLAGS_DEBUGALL} -g -ggdb -D_DEBUG -fno-strict-aliasing ${my_warn_flags}")
 	#set(CMAKE_C_FLAGS_PROFILE "${CMAKE_C_FLAGS_PROFILE} -g -ggdb -D_DEBUG -O1 -fno-omit-frame-pointer -fno-strict-aliasing ${my_warn_flags}")
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing ${my_warn_flags}")
 	set(CMAKE_C_FLAGS_RELWITHDEBINFO "${CMAKE_C_FLAGS_RELWITHDEBINFO} -g -O3 -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing ${my_warn_flags}")
 	set(CMAKE_C_FLAGS_MINSIZEREL "${CMAKE_C_FLAGS_MINSIZEREL} -Os -ffast-math -fno-unsafe-math-optimizations -fomit-frame-pointer -fno-strict-aliasing ${my_warn_flags}")
 	
-	set(CMAKE_CXX_FLAGS_DEBUG ${CMAKE_C_FLAGS_DEBUG})
+	set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} ")
 	#set(CMAKE_CXX_FLAGS_DEBUGALL ${CMAKE_C_FLAGS_DEBUGALL})
 	#set(CMAKE_CXX_FLAGS_PROFILE ${CMAKE_C_FLAGS_PROFILE})
 	set(CMAKE_CXX_FLAGS_RELEASE ${CMAKE_C_FLAGS_RELEASE})
 	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO ${CMAKE_C_FLAGS_RELWITHDEBINFO})
 	set(CMAKE_CXX_FLAGS_MINSIZEREL ${CMAKE_C_FLAGS_MINSIZEREL})
+	set(CMAKE_EXE_LINKER_FLAGS_DEBUG "${CMAKE_EXE_LINKER_FLAGS_DEBUG}")
 
 elseif(MSVC)
 	

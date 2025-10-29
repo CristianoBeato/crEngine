@@ -179,7 +179,7 @@ add_library( renderer STATIC ${RENDERER_SOURCES} )
 #target_compile_definitions( renderer PRIVATE __DOOM_DLL__ )
 
 # d3xp need idLib
-add_dependencies( renderer idLib framework )
+add_dependencies( renderer idLib )
 
 #set the idLib root dir as include
 target_include_directories( renderer 

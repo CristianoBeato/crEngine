@@ -154,7 +154,7 @@ add_library( framework STATIC ${FRAMEWORK_SOURCE} )
 #target_compile_definitions( framework PRIVATE __DOOM_DLL__ ) TODO: fix on non monolith build 
 
 # d3xp need idLib
-add_dependencies( framework idLib )
+add_dependencies( framework idLib sound renderer )
 
 #set the idLib root dir as include
 target_include_directories( framework PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
