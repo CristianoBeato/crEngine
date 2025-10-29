@@ -249,20 +249,6 @@ idCVar r_screenshot_png_quality( "screenshot_png_quality", "3", CVAR_RENDERER | 
 	0, 8, idCmdSystem::ArgCompletion_Integer<0, 8> );
 
 /*
-========================
-glBindMultiTextureEXT
-
-As of 2011/09/16 the Intel drivers for "Sandy Bridge" and "Ivy Bridge" integrated graphics do not support this extension.
-========================
-*/
-void APIENTRY glBindMultiTextureEXT_( GLenum texunit, GLenum target, GLuint texture )
-{
-	glActiveTexture( texunit );
-	glBindTexture( target, texture );
-}
-
-
-/*
 =================
 R_CheckExtension
 =================
@@ -320,17 +306,11 @@ static void R_CheckPortableExtensions()
 	}
 	
 	if( idStr::Icmpn( glConfig.renderer_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "AMD ", 4 ) == 0 )
-	{
 		glConfig.vendor = VENDOR_AMD;
-	}
 	else if( idStr::Icmpn( glConfig.renderer_string, "NVIDIA", 6 ) == 0 )
-	{
 		glConfig.vendor = VENDOR_NVIDIA;
-	}
 	else if( idStr::Icmpn( glConfig.renderer_string, "Intel", 5 ) == 0 )
-	{
 		glConfig.vendor = VENDOR_INTEL;
-	}
 
 
 	// Integrate Features found in OpenGL 2.x
@@ -416,18 +396,9 @@ static void R_CheckPortableExtensions()
 	{
 	}
 	
-	// GL_ARB_vertex_program / GL_ARB_fragment_program
-	glConfig.fragmentProgramAvailable = R_CheckExtension( "GL_ARB_fragment_program" );
-	if( glConfig.glVersion >= 3.1f )
-	{
-		glConfig.fragmentProgramAvailable = true; // All of these functions are actually found in OpenGL 2.x.		
-	}
-	else if( glConfig.fragmentProgramAvailable )
-	{		
-		//glGetIntegerv( GL_MAX_TEXTURE_COORDS, ( GLint* )&glConfig.maxTextureCoords );
-		glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, ( GLint* )&glConfig.maxTextureImageUnits );
-	}
-	
+	//glGetIntegerv( GL_MAX_TEXTURE_COORDS, ( GLint* )&glConfig.maxTextureCoords );
+	glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, ( GLint* )&glConfig.maxTextureImageUnits );
+		
 	// GLSL, core in OpenGL > 2.0
 	glConfig.glslAvailable = ( glConfig.glVersion >= 2.0f );
 	if( glConfig.glslAvailable )
@@ -544,11 +515,7 @@ static void R_CheckPortableExtensions()
 	{
 		idLib::Error( "GL_ARB_draw_elements_base_vertex not available" );
 	}
-	// GL_ARB_vertex_program / GL_ARB_fragment_program
-	if( !glConfig.fragmentProgramAvailable )
-	{
-		idLib::Error( "GL_ARB_fragment_program not available" );
-	}
+
 	// GLSL
 	if( !glConfig.glslAvailable )
 	{
@@ -2821,6 +2788,9 @@ void idRenderSystemLocal::InitOpenGL()
 			common->Printf( "glGetError() = 0x%x\n", err );
 		}
 	}
+
+	// show window
+	sys->GetVideoSystem()->ShowWindow( true );
 }
 
 /*

@@ -120,7 +120,6 @@ struct glconfig_t
 	bool				mapBufferRangeAvailable;
 	bool				vertexArrayObjectAvailable;
 	bool				drawElementsBaseVertexAvailable;
-	bool				fragmentProgramAvailable;
 	bool				glslAvailable;
 	bool				frameBufferObjectAvailable;
 	bool				textureFloatAvailable;
