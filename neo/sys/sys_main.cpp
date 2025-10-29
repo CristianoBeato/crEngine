@@ -177,7 +177,7 @@ void Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats )
 	
 	work = statex.ullAvailExtendedVirtual >> 20;
 	stats.availExtendedVirtual = *( int* )&work;
-#else __PLATFORM_LINUX__
+#elif __PLATFORM_LINUX__
     FILE *f = fopen("/proc/meminfo", "r");
     if (!f) 
     {

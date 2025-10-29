@@ -47,26 +47,16 @@ enum memTag_t
 
 static const int MAX_TAGS = 256;
 
-
-
 // RB: 64 bit fixes, changed int to size_t
-void* 		Mem_Alloc16( const size_t size, const memTag_t tag );
-void		Mem_Free16( void* ptr );
-
-ID_INLINE void* 	Mem_Alloc( const size_t size, const memTag_t tag )
-{
-	return Mem_Alloc16( size, tag );
-}
-
-ID_INLINE void		Mem_Free( void* ptr )
-{
-	Mem_Free16( ptr );
-}
-
-void* 		Mem_ClearedAlloc( const size_t size, const memTag_t tag );
-char* 		Mem_CopyString( const char* in );
+extern void* 		Mem_Alloc16( const size_t size, const memTag_t tag );
+extern void			Mem_Free16( void* ptr );
+extern void*		Mem_Alloc( const size_t size, const memTag_t tag );
+extern void			Mem_Free( void* ptr );
+extern void* 		Mem_ClearedAlloc( const size_t size, const memTag_t tag );
+extern char* 		Mem_CopyString( const char* in );
 // RB end
 
+#if !defined( USE_EXTERNAL_NEWDELETE )
 ID_INLINE void* operator new( size_t s )
 #if !defined(_MSC_VER) && __cplusplus < 201100
 throw( std::bad_alloc ) // DG: standard signature seems to include throw(..)
@@ -120,6 +110,7 @@ ID_INLINE void operator delete[]( void* p, memTag_t tag ) throw() // DG: delete 
 {
 	Mem_Free( p );
 }
+#endif // USE_EXTERNAL_NEWDELETE
 
 // Define replacements for the PS3 library's aligned new operator.
 // Without these, allocations of objects with 32 byte or greater alignment

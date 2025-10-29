@@ -312,11 +312,8 @@ public:
 		// integral types.
 		for( int i = 0; i < GetParms().Num(); ++i )
 		{
-			if( GetParms()[ i ].GetType() != otherAction.GetParms()[ i ].GetType()
-					|| GetParms()[ i ].ToInteger() != otherAction.GetParms()[ i ].ToInteger() )
-			{
+			if( GetParms()[ i ].GetType() != otherAction.GetParms()[ i ].GetType() || GetParms()[ i ].ToInteger() != otherAction.GetParms()[ i ].ToInteger() )
 				return false;
-			}
 		}
 		
 		return true;
@@ -373,15 +370,17 @@ public:
 		parms.Append( var4 );
 	}
 	
-	idSWFScriptFunction* 	GetScriptFunction()
+	idSWFScriptFunction* 	GetScriptFunction( void )
 	{
 		return scriptFunction;
 	}
-	const widgetAction_t	GetType() const
+
+	const widgetAction_t	GetType( void ) const
 	{
 		return action;
 	}
-	const idSWFParmList& 	GetParms() const
+
+	const idSWFParmList& 	GetParms( void ) const
 	{
 		return parms;
 	}

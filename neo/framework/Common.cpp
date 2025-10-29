@@ -32,15 +32,17 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Common_local.h"
 
+
+
 #include "ConsoleHistory.h"
-#include "../renderer/AutoRenderBink.h"
+#include "renderer/AutoRenderBink.h"
 
-#include "../sound/sound.h"
+#include "sound/sound.h"
 
-#include "../sys/sys_savegame.h"
+#include "sys/sys_savegame.h"
 
 #ifdef WIN32
-#include "../sys/win32/win_local.h"  //SS2 fix RoQ videos skipping
+#include "sys/win32/win_local.h"  //SS2 fix RoQ videos skipping
 #endif
 
 //#ifdef MINGW
@@ -1820,11 +1822,9 @@ void idCommonLocal::CreateMainMenu( void )
 {
 	if( game != nullptr )
 	{
-		auto sound = idSoundSystem::Get();
-
 		// note which media we are going to need to load
 		declManager->BeginLevelLoad();
-		sound->BeginLevelLoad();
+		idSoundSystem::Get()->BeginLevelLoad();
 		renderSystem->BeginLevelLoad();
 		uiManager->BeginLevelLoad();
 		
@@ -1837,7 +1837,7 @@ void idCommonLocal::CreateMainMenu( void )
 		// load
 		uiManager->EndLevelLoad( "" );
 		renderSystem->EndLevelLoad();
-		sound->EndLevelLoad();
+		idSoundSystem::Get()->EndLevelLoad();
 		declManager->EndLevelLoad();
 	}
 }

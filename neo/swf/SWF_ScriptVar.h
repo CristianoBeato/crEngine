@@ -99,10 +99,19 @@ public:
 	{
 		SetBool( b );
 	}
+
 	idSWFScriptVar( int32_t i ) : type( SWF_VAR_UNDEF )
 	{
 		SetInteger( i );
 	}
+
+// BEATO Begin:
+	idSWFScriptVar( uint32_t ui ) : type( SWF_VAR_UNDEF )
+	{
+		SetInteger( ui );
+	}
+// BEATO end
+
 	idSWFScriptVar( idSWFScriptFunction* nf ) : type( SWF_VAR_UNDEF )
 	{
 		SetFunction( nf );

@@ -36,6 +36,10 @@ If you have questions concerning this license or the applicable additional terms
 //	memory allocation all in one place
 //
 //===============================================================
+// BEATO Begin:
+#include <SDL3/SDL_stdinc.h>
+// BEATO End
+
 #include <stdlib.h>
 #undef new
 
@@ -199,11 +203,11 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 // RB end
 {
 	if( !size )
-	{
-		return NULL;
-	}
-	const size_t paddedSize = ( size + 15 ) & ~15;
+		return nullptr;
+	
+#if 0
 #ifdef _WIN32
+	const size_t paddedSize = ( size + 15 ) & ~15;
 	// this should work with MSVC and mingw, as long as __MSVCRT_VERSION__ >= 0x0700
 	return _aligned_malloc( paddedSize, 16 );
 #else // not _WIN32
@@ -213,6 +217,9 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 	return ret;
 	// DG end
 #endif // _WIN32
+#else
+	return SDL_aligned_alloc( 16, size );
+#endif
 }
 
 /*
@@ -222,10 +229,10 @@ Mem_Free16
 */
 void Mem_Free16( void* ptr )
 {
-	if( ptr == NULL )
-	{
+	if( ptr == nullptr )
 		return;
-	}
+
+#if 0
 #ifdef _WIN32
 	_aligned_free( ptr );
 #else // not _WIN32
@@ -234,6 +241,25 @@ void Mem_Free16( void* ptr )
 	free( ptr );
 	// DG end
 #endif // _WIN32
+#else
+	SDL_aligned_free( ptr );
+#endif
+}
+
+void* Mem_Alloc( const size_t size, const memTag_t tag )
+{
+	if( !size )
+		return nullptr;
+
+	return SDL_malloc( size );
+}
+
+void Mem_Free( void* ptr )
+{
+	if( ptr == nullptr )
+		return;
+
+	SDL_free( ptr );
 }
 
 #endif // !DEBUGHEAP
@@ -245,9 +271,10 @@ Mem_ClearedAlloc
 */
 void* Mem_ClearedAlloc( const size_t size, const memTag_t tag )
 {
-	void* mem = Mem_Alloc( size, tag );
-	SIMDProcessor->Memset( mem, 0, size );
-	return mem;
+	return std::memset( SDL_malloc( size ), 0x00, size );
+	//void* mem = Mem_Alloc( size, tag );
+	//SIMDProcessor->Memset( mem, 0, size );
+	//return mem;
 }
 
 /*
