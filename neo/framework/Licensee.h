@@ -27,17 +27,12 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#define GAME_NAME						"Storm Engine 2"		// appears on window titles and errors
-
-// RB: changed home folder so we don't break the savegame of the original game
-#define SAVE_PATH						"\\Kot-in-Action\\StormEngine2"
-
-#define ENGINE_VERSION					"Storm Engine 2"	// printed in console
-// RB end
+#define GAME_NAME						"crEngine"		// appears on window titles and errors
+#define ENGINE_VERSION					"crEngine"	// printed in console
 
 #define	BASE_GAMEDIR					"base"
 
-#define CONFIG_FILE						"SE2Config.cfg"
+#define CONFIG_FILE						"creConfig.cfg"
 
 // see ASYNC_PROTOCOL_VERSION
 // use a different major for each game
@@ -53,12 +48,7 @@ If you have questions concerning this license or the applicable additional terms
 #define	WIN32_WINDOW_CLASS_NAME			"D3BFG"
 #define	WIN32_FAKE_WINDOW_CLASS_NAME	"D3BFG_WGL_FAKE"
 
-// RB begin
-// Linux info
-#define LINUX_DEFAULT_PATH				"/usr/local/games/stormengine2"
-// RB end
-
 // editor info
-#define EDITOR_DEFAULT_PROJECT			"stormengine2.qe4"
-#define EDITOR_REGISTRY_KEY				"SE2Radiant"
-#define EDITOR_WINDOWTEXT				"Storm Engine 2 Level Editor"
+#define EDITOR_DEFAULT_PROJECT			"crengine.qe4"
+#define EDITOR_REGISTRY_KEY				"creRadiant"
+#define EDITOR_WINDOWTEXT				"crEngine Level Editor"

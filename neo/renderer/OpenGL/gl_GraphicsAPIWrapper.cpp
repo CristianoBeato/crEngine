@@ -40,9 +40,7 @@ GL_SelectTexture
 void GL_SelectTexture( int unit )
 {
 	if( backEnd.glState.currenttmu == unit )
-	{
 		return;
-	}
 	
 	if( unit < 0 || unit >= glConfig.maxTextureImageUnits )
 	{

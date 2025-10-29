@@ -48,7 +48,7 @@ extern idRenderWorld* 				gameRenderWorld;
 extern idSoundWorld* 				gameSoundWorld;
 
 // the "gameversion" client command will print this plus compile date
-#define	GAME_VERSION		"Storm Engine 2"
+#define	GAME_VERSION		"crEngine"
 
 // classes used by idGameLocal
 class idEntity;

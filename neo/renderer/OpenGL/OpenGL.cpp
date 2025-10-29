@@ -489,7 +489,6 @@ void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigne
 
 bool QGL_Init( const char* dllname )
 {
-
 	GET_GL_PROC( PFNGLGETERRORPROC, glGetError );
 	GET_GL_PROC( PFNGLGETINTEGERVPROC, glGetIntegerv );
 	GET_GL_PROC( PFNGLGETFLOATVPROC, glGetFloatv );

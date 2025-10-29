@@ -66,6 +66,8 @@ void idMenuScreen_Shell_Credits::SetupCreditList()
 	
 	creditList.Clear();
 
+	creditList.Append( creditInfo_t( 3,	"crEngine"	) );
+	creditList.Append( creditInfo_t( 3,	"BASED ON EFORTS OF"	) );
 	creditList.Append( creditInfo_t( 3,	"Storm Engine 2"	) );
 	creditList.Append( creditInfo_t() );
 	creditList.Append( creditInfo_t( 2,	"DEVELOPMENT TEAM"	) );

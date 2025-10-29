@@ -76,7 +76,7 @@ const vidMode_t *crDisplaySDL::Modes( uint32_t *in_count ) const
     return m_modes.Ptr();
 }
 
-crVideoSDL3::crVideoSDL3( void ) : m_grabbed( false )
+crVideoSDL3::crVideoSDL3( void ) : m_grabbed( false ), m_vulkan( false )
 {
 }
 
