@@ -3,12 +3,12 @@
 #include "script/base_defines.script"
 
 // defs and util functions
-#include "script/se2_defs.script"
-#include "script/se2_events.script"
+#include "script/game_defs.script"
+#include "script/game_events.script"
 //#include "script/weapon_base.script"
 //#include "script/ai_base.script"
 //#include "script/ai_monster_base.script"
-#include "script/se2_utils.script"
+#include "script/game_utils.script"
 
 // new AI/entity scripts
 //#include "script/base_entity.script"
@@ -40,7 +40,7 @@
 //#include "script/ai_npc.script"
 
 // objects and map objects
-//#include "script/ss2_objects.script"
+//#include "script/game_objects.script"
 
 // cinematics
 //#include "script/cinematics.script"
@@ -55,9 +55,9 @@
 // test scripts
 //#include "script/test.script"
 
-void se2_main()
+void game_main()
 {
-	sys.print( "Entering se2_main()\n");
+	sys.print( "Entering game_main()\n");
 //	game_count = 0;
-	sys.print( "Exiting se2_main()\n" );
+	sys.print( "Exiting game_main()\n" );
 }
