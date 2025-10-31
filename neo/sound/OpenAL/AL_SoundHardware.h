@@ -33,8 +33,6 @@ class idSoundSample_OpenAL;
 class idSoundVoice_OpenAL;
 class idSoundHardware_OpenAL;
 
-
-
 /*
 ================================================
 idSoundHardware_OpenAL

@@ -39,13 +39,16 @@ elseif( XAUDIO ) ## Xaudio 2 Windows Sound Backend
         ${CMAKE_CURRENT_SOURCE_DIR}/XAudio2/XA2_SoundVoice.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/XAudio2/XA2_SoundVoice.h
         )
-else( ) ## Stub Sound Backed
+else( ) ## USE SDL Backend 
     set( SOUND_BACKEND_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/stub/SoundSample.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/stub/SoundStub.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/SDL/SDLSoundHardware.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/SDL/SDLSoundHardware.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/SDL/SDLSoundSample.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/SDL/SDLSoundSample.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/SDL/SDLSoundVoice.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/SDL/SDLSoundVoice.h
         )
 endif()
-
 
 set( SOUND_SOURCES
     ${SOUND_MAIN_SOURCES}
@@ -63,6 +66,7 @@ if( OPENAL )
 elseif( XAUDIO )
     target_compile_definitions( sound PRIVATE USE_XAUDIO )  
 else()
+    target_compile_definitions( sound PRIVATE USE_SDL3 )  
 endif()
 
 # d3xp need idLib

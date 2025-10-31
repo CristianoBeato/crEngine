@@ -71,6 +71,7 @@ public:
 	{
 		innerRadius = r;
 	}
+
 	void		SetChannelMask( uint32_t mask )
 	{
 		channelMask = mask;
@@ -84,14 +85,9 @@ public:
 		occlusion = f;
 	}
 	
-	float		GetGain()
-	{
-		return gain;
-	}
-	float		GetPitch()
-	{
-		return pitch;
-	}
+	float		GetGain( void ) const { return gain; }
+
+	float		GetPitch( void ) const { return pitch; }
 	
 protected:
 	idVec3		position;			// Position of the sound relative to listener

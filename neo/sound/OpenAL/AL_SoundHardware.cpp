@@ -348,7 +348,7 @@ idSoundVoice* idSoundHardware_OpenAL::AllocateVoice( const idSoundSample* leadin
 		return voice;
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*

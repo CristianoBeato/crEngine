@@ -46,7 +46,7 @@ extern idCVar sys_lang;
 AllocBuffer
 ========================
 */
-static void* AllocBuffer( int size, const char* name )
+static void* AllocBuffer( size_t size, const char* name )
 {
 	return Mem_Alloc( size, TAG_AUDIO );
 }
@@ -66,7 +66,7 @@ static void FreeBuffer( void* p )
 idSoundSample_OpenAL::idSoundSample_OpenAL
 ========================
 */
-idSoundSample_OpenAL::idSoundSample_OpenAL()
+idSoundSample_OpenAL::idSoundSample_OpenAL( void )
 {
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
 	loaded = false;
@@ -156,7 +156,7 @@ bool idSoundSample_OpenAL::LoadGeneratedSample( const idStr& filename )
 {
 #if 1
 	idFileLocal fileIn( fileSystem->OpenFileReadMemory( filename ) );
-	if( fileIn != NULL )
+	if( fileIn != nullptr )
 	{
 		uint32_t magic;
 		fileIn->ReadBig( magic );
@@ -606,7 +606,7 @@ idSoundSample_OpenAL::FreeData
 Called before deleting the object and at the start of LoadResource()
 ========================
 */
-void idSoundSample_OpenAL::FreeData()
+void idSoundSample_OpenAL::FreeData( void )
 {
 	if( buffers.Num() > 0 )
 	{
@@ -620,7 +620,7 @@ void idSoundSample_OpenAL::FreeData()
 	amplitude.Clear();
 	
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( idWaveFile::waveFmt_t ) );
 	loaded = false;
 	totalBufferSize = 0;
 	playBegin = 0;

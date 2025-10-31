@@ -46,10 +46,11 @@ idCVar s_maxSamples( "s_maxSamples", "5", CVAR_INTEGER, "max samples to load per
 
 idCVar preLoad_Samples( "preLoad_Samples", "1", CVAR_SYSTEM | CVAR_BOOL, "preload samples during beginlevelload" );
 
+static idSoundSystemLocal soundSystemInstance;
+
 idSoundSystem *idSoundSystem::Get( void )
 {
-	static idSoundSystemLocal sound = idSoundSystemLocal();
-    return &sound;
+    return &soundSystemInstance;
 }
 
 /*
@@ -390,33 +391,13 @@ void idSoundSystemLocal::StopAllSounds()
 
 /*
 ========================
-idSoundSystemLocal::GetIXAudio2
-========================
-*/
-void* idSoundSystemLocal::GetIXAudio2() const
-{
-	// RB begin
-#if defined(USE_OPENAL)
-	return NULL;
-#else
-	return ( void* )hardware.GetIXAudio2();
-#endif
-	// RB end
-}
-
-/*
-========================
 idSoundSystemLocal::GetOpenALDevice
 ========================
 */
 // RB begin
-void* idSoundSystemLocal::GetOpenALDevice() const
+void* idSoundSystemLocal::GetDevice( void ) const
 {
-#if defined(USE_OPENAL)
-	return ( void* )hardware.GetOpenALDevice();
-#else
-	return ( void* )hardware.GetIXAudio2();
-#endif
+	return hardware.GetAudioDevice();
 }
 // RB end
 
@@ -534,9 +515,9 @@ idSoundSystemLocal::FreeVoice
 cinData_t idSoundSystemLocal::ImageForTime( const int milliseconds, const bool waveform )
 {
 	cinData_t cd;
-	cd.imageY = NULL;
-	cd.imageCr = NULL;
-	cd.imageCb = NULL;
+	cd.imageY = nullptr;
+	cd.imageCr = nullptr;
+	cd.imageCb = nullptr;
 	cd.imageWidth = 0;
 	cd.imageHeight = 0;
 	cd.status = FMV_IDLE;
@@ -548,7 +529,7 @@ cinData_t idSoundSystemLocal::ImageForTime( const int milliseconds, const bool w
 idSoundSystemLocal::BeginLevelLoad
 ========================
 */
-void idSoundSystemLocal::BeginLevelLoad()
+void idSoundSystemLocal::BeginLevelLoad( void )
 {
 	insideLevelLoad = true;
 
@@ -559,9 +540,8 @@ void idSoundSystemLocal::BeginLevelLoad()
 	for( int i = 0; i < samples.Num(); i++ )
 	{
 		if( samples[i]->GetNeverPurge() )
-		{
 			continue;
-		}
+		
 		samples[i]->FreeData();
 		samples[i]->ResetLevelLoadReferenced();
 	}

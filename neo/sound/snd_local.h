@@ -33,18 +33,18 @@ If you have questions concerning this license or the applicable additional terms
 #include "WaveFile.h"
 
 // Maximum number of voices we can have allocated
-#define MAX_HARDWARE_VOICES 48
+inline constexpr int MAX_HARDWARE_VOICES = 48;
 
 // A single voice can play multiple channels (up to 5.1, but most commonly stereo)
 // This is the maximum number of channels which can play simultaneously
 // This is limited primarily by seeking on the optical drive, secondarily by memory consumption, and tertiarily by CPU time spent mixing
-#define MAX_HARDWARE_CHANNELS 64
+inline constexpr int MAX_HARDWARE_CHANNELS = 64;
 
 // We may need up to 3 buffers for each hardware voice if they are all long sounds
-#define MAX_SOUND_BUFFERS ( MAX_HARDWARE_VOICES * 3 )
+inline constexpr int MAX_SOUND_BUFFERS = ( MAX_HARDWARE_VOICES * 3 );
 
 // Maximum number of channels in a sound sample
-#define MAX_CHANNELS_PER_VOICE	8
+inline constexpr int MAX_CHANNELS_PER_VOICE = 8;
 
 /*
 ========================
@@ -172,9 +172,14 @@ struct AudioDevice
 #include "XAudio2/XA2_SoundHardware.h"
 
 #else // not _MSC_VER => MinGW, GCC, ...
-// just a stub for now
-#include "stub/SoundStub.h"
+#include "SDL/SDLSoundSample.h"
+#include "SDL/SDLSoundVoice.h"
+#include "SDL/SDLSoundHardware.h"
 #endif // _MSC_VER ; DG end
+
+extern idCVar s_noSound;
+extern idCVar s_volume_dB;
+extern idCVar s_useCompression;
 
 //------------------------
 // Listener data
@@ -459,26 +464,26 @@ class idSoundSystemLocal : public idSoundSystem
 {
 public:
 	// all non-hardware initialization
-	virtual void			Init();
+	virtual void			Init( void ) override;
 	
 	// shutdown routine
-	virtual	void			Shutdown();
+	virtual	void			Shutdown( void ) override;
 	
-	virtual idSoundWorld* 	AllocSoundWorld( idRenderWorld* rw );
-	virtual void			FreeSoundWorld( idSoundWorld* sw );
+	virtual idSoundWorld* 	AllocSoundWorld( idRenderWorld* rw ) override;
+	virtual void			FreeSoundWorld( idSoundWorld* sw ) override;
 	
 	// specifying NULL will cause silence to be played
-	virtual void			SetPlayingSoundWorld( idSoundWorld* soundWorld );
+	virtual void			SetPlayingSoundWorld( idSoundWorld* soundWorld ) override;
 	
 	// some tools, like the sound dialog, may be used in both the game and the editor
 	// This can return NULL, so check!
-	virtual idSoundWorld* 	GetPlayingSoundWorld();
+	virtual idSoundWorld* 	GetPlayingSoundWorld( void ) override;
 	
 	// sends the current playing sound world information to the sound hardware
-	virtual void			Render();
+	virtual void			Render( void ) override;
 	
 	// Mutes the SSG_MUSIC group
-	virtual void			MuteBackgroundMusic( bool mute )
+	virtual void			MuteBackgroundMusic( bool mute ) override
 	{
 		musicMuted = mute;
 	}
@@ -486,39 +491,38 @@ public:
 	// sets the final output volume to 0
 	// This should only be used when the app is deactivated
 	// Since otherwise there will be problems with different subsystems muting and unmuting at different times
-	virtual void			SetMute( bool mute )
+	virtual void			SetMute( bool mute ) override
 	{
 		muted = mute;
 	}
-	virtual bool			IsMuted()
+
+	virtual bool			IsMuted( void ) override
 	{
 		return muted;
 	}
 	
-	virtual void			OnReloadSound( const idDecl* sound );
+	virtual void			OnReloadSound( const idDecl* sound ) override;
 	
-	virtual void			StopAllSounds();
+	virtual void			StopAllSounds( void ) override;
 	
-	virtual void			InitStreamBuffers();
-	virtual void			FreeStreamBuffers();
-	
-	virtual void* 			GetIXAudio2() const; // FIXME: stupid name; get rid of this? not sure if it's really needed..
-	
+	virtual void			InitStreamBuffers( void ) override;
+	virtual void			FreeStreamBuffers( void ) override;
+		
 	// RB begin
-	virtual void*			GetOpenALDevice() const;
+	virtual void*			GetDevice( void ) const;
 	// RB end
 	
 	// for the sound level meter window
-	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform );
+	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform ) override;
 	
 	// Free all sounds loaded during the last map load
-	virtual	void			BeginLevelLoad();
+	virtual	void			BeginLevelLoad( void ) override;
 	
 	// We might want to defer the loading of new sounds to this point
-	virtual	void			EndLevelLoad();
+	virtual	void			EndLevelLoad( void ) override;
 	
 	// prints memory info
-	virtual void			PrintMemInfo( MemInfo_t* mi );
+	virtual void			PrintMemInfo( MemInfo_t* mi ) override;
 	
 	//-------------------------
 	
@@ -541,13 +545,13 @@ public:
 	
 	idSoundSample* 			LoadSample( const char* name );
 	
-	virtual void			Preload( idPreloadManifest& preload );
+	virtual void			Preload( idPreloadManifest& preload ) override;
 	
 	struct bufferContext_t
 	{
 		bufferContext_t() :
-			voice( NULL ),
-			sample( NULL ),
+			voice( nullptr ),
+			sample( nullptr ),
 			bufferNumber( 0 )
 		{ }
 		
@@ -598,7 +602,7 @@ public:
 	//-------------------------
 	
 	idSoundSystemLocal() :
-		currentSoundWorld( NULL ),
+		currentSoundWorld( nullptr ),
 		soundTime( 0 ),
 		muted( false ),
 		musicMuted( false ),

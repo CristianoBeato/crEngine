@@ -386,22 +386,14 @@ void idSoundChannel::UpdateHardware( float volumeAdd, int currentTime )
 	hardwareVoice->SetPitch( soundWorld->slowmoSpeed * idMath::ClampFloat( 0.2f, 5.0f, timescale.GetFloat() ) );
 	
 	if( soundWorld->enviroSuitActive )
-	{
 		hardwareVoice->SetOcclusion( 0.5f );
-	}
 	else
-	{
 		hardwareVoice->SetOcclusion( 0.0f );
-	}
 	
 	if( issueStart )
-	{
 		hardwareVoice->Start( startOffset, parms.soundShaderFlags | ( parms.shakes == 0.0f ? SSF_NO_FLICKER : 0 ) );
-	}
 	else
-	{
 		hardwareVoice->Update();
-	}
 }
 
 /*
@@ -568,9 +560,7 @@ idSoundEmitterLocal::Update
 void idSoundEmitterLocal::Update( int currentTime )
 {
 	if( channels.Num() == 0 )
-	{
 		return;
-	}
 	
 	directDistance = ( soundWorld->listener.pos - origin ).LengthFast() * DOOM_TO_METERS;
 	

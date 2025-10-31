@@ -279,6 +279,8 @@ typedef struct
 class idSoundSystem
 {
 public:
+	uint64_t canary = 0xDEADBEEF12345678;
+
 	static idSoundSystem*	Get( void );
 
 	virtual					~idSoundSystem() {}
@@ -307,25 +309,21 @@ public:
 	
 	// Sets the final output volume to 0.
 	virtual void			SetMute( bool mute ) = 0;
-	virtual bool			IsMuted() = 0;
+	virtual bool			IsMuted( void ) = 0;
 	
 	// Called by the decl system when a sound decl is reloaded
 	virtual void			OnReloadSound( const idDecl* sound ) = 0;
 	
 	// Called before freeing any sound sample resources
-	virtual void			StopAllSounds() = 0;
+	virtual void			StopAllSounds( void ) = 0;
 	
 	// May be called to free memory for level loads
-	virtual void			InitStreamBuffers() = 0;
-	virtual void			FreeStreamBuffers() = 0;
+	virtual void			InitStreamBuffers( void ) = 0;
+	virtual void			FreeStreamBuffers( void ) = 0;
 	
 	// video playback needs to get this
-	virtual void* 			GetIXAudio2() const = 0; // FIXME: stupid name if we have other backends
-	
-#if defined(USE_OPENAL)
-	virtual void*			GetOpenALDevice() const = 0;
-#endif
-	
+	virtual void*			GetDevice( void ) const = 0;
+		
 	// for the sound level meter window
 	virtual cinData_t		ImageForTime( const int milliseconds, const bool waveform ) = 0;
 	
