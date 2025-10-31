@@ -43,8 +43,10 @@ If you have questions concerning this license or the applicable additional terms
 // foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #define BUGFIXEDSCREENSHOTRESOLUTION 1
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
-#include "../framework/Common_local.h"
+#include "framework/Common_local.h"
 #endif
+
+static bool r_initialized = false;
 
 // DeviceContext bypasses RenderSystem to work directly with this
 idGuiModel* tr_guiModel;
@@ -547,8 +549,6 @@ static void R_CheckPortableExtensions()
 	glBindVertexArray( glConfig.global_vao );
 }
 
-static bool r_initialized = false;
-
 /*
 =============================
 R_IsInitialized
@@ -692,140 +692,15 @@ idStr extensions_string;
 
 /*
 ==================
-R_InitOpenGL
-
-This function is responsible for initializing a valid OpenGL subsystem
-for rendering.  This is done by calling the system specific GLimp_Init,
-which gives us a working OGL subsystem, then setting all necessary openGL
-state, including images, vertex programs, and display lists.
-
-Changes to the vertex cache size or smp state require a vid_restart.
-
-If R_IsInitialized() is false, no rendering can take place, but
-all renderSystem functions will still operate properly, notably the material
-and model information functions.
-==================
-*/
-void R_InitOpenGL( void )
-{
-
-	common->Printf( "----- R_InitOpenGL -----\n" );
-	
-	if( R_IsInitialized() )
-	{
-		common->FatalError( "R_InitOpenGL called while active" );
-	}
-	
-	// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
-	GLimp_PreInit();
-	// DG end
-	
-	R_SetNewMode( true );
-	
-	
-	// input and sound systems need to be tied to the new window
-	Sys_InitInput();
-	
-	// get our config strings
-	glConfig.vendor_string = ( const char* )glGetString( GL_VENDOR );
-	glConfig.renderer_string = ( const char* )glGetString( GL_RENDERER );
-	glConfig.version_string = ( const char* )glGetString( GL_VERSION );
-	glConfig.shading_language_string = ( const char* )glGetString( GL_SHADING_LANGUAGE_VERSION );
-	
-	//glConfig.extensions_string = ( const char* )glGetString( GL_EXTENSIONS ); // lead to error
-	// Build the extensions string
-	GLint numExtensions;
-	glGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
-	extensions_string.Clear();
-	for( int i = 0; i < numExtensions; i++ )
-	{
-		extensions_string.Append( ( const char* )glGetStringi( GL_EXTENSIONS, i ) );
-		// the now deprecated glGetString method usaed to create a single string with each extension separated by a space
-		if( i < numExtensions - 1 )
-			extensions_string.Append( ' ' );
-	}
-	glConfig.extensions_string = extensions_string.c_str();
-	
-	
-	float glVersion = atof( glConfig.version_string );
-	float glslVersion = atof( glConfig.shading_language_string );
-	idLib::Printf( "OpenGL Version: %3.1f\n", glVersion );
-	idLib::Printf( "OpenGL Vendor : %s\n", glConfig.vendor_string );
-	idLib::Printf( "OpenGL GLSL   : %3.1f\n", glslVersion );
-	
-	// OpenGL driver constants
-	GLint temp;
-	glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
-	glConfig.maxTextureSize = temp;
-	
-	// stubbed or broken drivers may have reported 0...
-	if( glConfig.maxTextureSize <= 0 )
-	{
-		glConfig.maxTextureSize = 256;
-	}
-	
-	r_initialized = true;
-	
-	// recheck all the extensions (FIXME: this might be dangerous)
-	R_CheckPortableExtensions();
-	
-	renderProgManager.Init();
-	
-	r_initialized = true;
-	
-	// allocate the vertex array range or vertex objects
-	vertexCache.Init();
-	
-	// allocate the frame data, which may be more if smp is enabled
-	R_InitFrameData();
-	
-	// Reset our gamma
-	R_SetColorMappings();
-
-	// foresthale 2014-02-19: init the view framebuffer object
-	globalFramebuffers->InitIntrinsics();
-	
-	// RB begin
-#if defined(_WIN32)
-	static bool glCheck = false;
-	if( !glCheck && win32.osversion.dwMajorVersion == 6 )
-	{
-		glCheck = true;
-		if( !idStr::Icmp( glConfig.vendor_string, "Microsoft" ) && idStr::FindText( glConfig.renderer_string, "OpenGL-D3D" ) != -1 )
-		{
-			if( cvarSystem->GetCVarBool( "r_fullscreen" ) )
-			{
-				cmdSystem->BufferCommandText( CMD_EXEC_NOW, "vid_restart partial windowed\n" );
-				Sys_GrabMouseCursor( false );
-			}
-			int ret = MessageBox( nullptr, "Please install OpenGL drivers from your graphics hardware vendor to run " GAME_NAME ".\nYour OpenGL functionality is limited.",
-								  "Insufficient OpenGL capabilities", MB_OKCANCEL | MB_ICONWARNING | MB_TASKMODAL );
-			if( ret == IDCANCEL )
-			{
-				cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "quit\n" );
-				cmdSystem->ExecuteCommandBuffer();
-			}
-			if( cvarSystem->GetCVarBool( "r_fullscreen" ) )
-			{
-				cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "vid_restart\n" );
-			}
-		}
-	}
-#endif
-	// RB end
-}
-
-/*
-==================
 GL_CheckErrors
 ==================
 */
 // RB: added filename, line parms
 void GL_CheckErrors_Extended(const char* file, int line)
 {
-	int		err;
+	int		i = 0;
+	int		err = 0;
 	char	s[64];
-	int		i;
 	
 	// check for up to 10 errors pending
 	for( i = 0 ; i < 10 ; i++ )
@@ -2058,14 +1933,11 @@ void R_VidRestart_f( const idCmdArgs& args )
 {
 	// if OpenGL isn't started, do nothing
 	if( !R_IsInitialized() )
-	{
 		return;
-	}
 	
 	// set the mode without re-initializing the context
 	R_SetNewMode( false );
 	
-#if 0
 	bool full = true;
 	bool forceWindow = false;
 	for( int i = 1 ; i < args.Argc() ; i++ )
@@ -2098,14 +1970,13 @@ void R_VidRestart_f( const idCmdArgs& args )
 	// free the vertex caches so they will be regenerated again
 	vertexCache.PurgeAll();
 	
-	// sound and input are tied to the window we are about to destroy
-	
 	if( full )
 	{
 		// free all of our texture numbers
-		Sys_ShutdownInput();
+		//Sys_ShutdownInput();
 		globalFramebuffers->PurgeAllFramebuffers();
 		globalImages->PurgeAllImages();
+		
 		// free the context and close the window
 		GLimp_Shutdown();
 		r_initialized = false;
@@ -2116,7 +1987,8 @@ void R_VidRestart_f( const idCmdArgs& args )
 		{
 			cvarSystem->SetCVarBool( "r_fullscreen", false );
 		}
-		R_InitOpenGL();
+		// R_InitOpenGL();
+		// TODO: reinitialize OpenGL Context
 		cvarSystem->SetCVarBool( "r_fullscreen", latch );
 		
 		// regenerate all images
@@ -2124,17 +1996,17 @@ void R_VidRestart_f( const idCmdArgs& args )
 	}
 	else
 	{
-		glimpParms_t parms;
-		parms.width = glConfig.nativeScreenWidth;
-		parms.height = glConfig.nativeScreenHeight;
-		parms.fullScreen = ( forceWindow ) ? false : r_fullscreen.GetInteger();
-		parms.displayHz = r_displayRefresh.GetInteger();
-		parms.multiSamples = r_multiSamples.GetInteger();
-		parms.stereo = false;
-		GLimp_SetScreenParms( parms );
+		// TODO: update video mode
+
+		// parms.width = glConfig.nativeScreenWidth;
+		// parms.height = glConfig.nativeScreenHeight;
+		// parms.fullScreen = ( forceWindow ) ? false : r_fullscreen.GetInteger();
+		// parms.displayHz = r_displayRefresh.GetInteger();
+		// parms.multiSamples = r_multiSamples.GetInteger();
+		// parms.stereo = false;
+
+		GLimp_SetScreenParms( false, r_multiSamples.GetInteger() );
 	}
-	
-	
 	
 	// make sure the regeneration doesn't use anything no longer valid
 	tr.viewCount++;
@@ -2145,9 +2017,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 	if( err != GL_NO_ERROR )
 	{
 		common->Printf( "glGetError() = 0x%x\n", err );
-	}
-#endif
-	
+	}	
 }
 
 /*
@@ -2178,13 +2048,9 @@ Keybinding command
 static void R_SizeUp_f( const idCmdArgs& args )
 {
 	if( r_screenFraction.GetInteger() + 10 > 100 )
-	{
 		r_screenFraction.SetInteger( 100 );
-	}
 	else
-	{
 		r_screenFraction.SetInteger( r_screenFraction.GetInteger() + 10 );
-	}
 }
 
 
@@ -2530,8 +2396,12 @@ srfTriangles_t* R_MakeTestImageTriangles()
 idRenderSystemLocal::Init
 ===============
 */
-void idRenderSystemLocal::Init()
+void idRenderSystemLocal::Init( void )
 {
+// BEATO Begin: Move to inside the renderSystem->Init, since we separate render api fom window api
+	// init OpenGL, which will open a window and connect sound and input hardware
+	InitOpenGL();
+// BEATO End
 
 	common->Printf( "------- Initializing renderSystem --------\n" );
 	
@@ -2771,12 +2641,79 @@ void idRenderSystemLocal::ResetFonts()
 idRenderSystemLocal::InitOpenGL
 ========================
 */
-void idRenderSystemLocal::InitOpenGL()
+void idRenderSystemLocal::InitOpenGL( void )
 {
 	// if OpenGL isn't started, start it now
 	if( !R_IsInitialized() )
 	{
-		R_InitOpenGL();
+		common->Printf( "----- R_InitOpenGL -----\n" );
+	
+		// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
+		GLimp_PreInit();
+		// DG end
+		
+		R_SetNewMode( true );
+		
+		
+		// input and sound systems need to be tied to the new window
+		Sys_InitInput();
+		
+		// get our config strings
+		glConfig.vendor_string = ( const char* )glGetString( GL_VENDOR );
+		glConfig.renderer_string = ( const char* )glGetString( GL_RENDERER );
+		glConfig.version_string = ( const char* )glGetString( GL_VERSION );
+		glConfig.shading_language_string = ( const char* )glGetString( GL_SHADING_LANGUAGE_VERSION );
+		
+		//glConfig.extensions_string = ( const char* )glGetString( GL_EXTENSIONS ); // lead to error
+		// Build the extensions string
+		GLint numExtensions;
+		glGetIntegerv( GL_NUM_EXTENSIONS, &numExtensions );
+		extensions_string.Clear();
+		for( int i = 0; i < numExtensions; i++ )
+		{
+			extensions_string.Append( ( const char* )glGetStringi( GL_EXTENSIONS, i ) );
+			// the now deprecated glGetString method usaed to create a single string with each extension separated by a space
+			if( i < numExtensions - 1 )
+				extensions_string.Append( ' ' );
+		}
+		glConfig.extensions_string = extensions_string.c_str();
+		
+		
+		float glVersion = atof( glConfig.version_string );
+		float glslVersion = atof( glConfig.shading_language_string );
+		idLib::Printf( "OpenGL Version: %3.1f\n", glVersion );
+		idLib::Printf( "OpenGL Vendor : %s\n", glConfig.vendor_string );
+		idLib::Printf( "OpenGL GLSL   : %3.1f\n", glslVersion );
+		
+		// OpenGL driver constants
+		GLint temp;
+		glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
+		glConfig.maxTextureSize = temp;
+		
+		// stubbed or broken drivers may have reported 0...
+		if( glConfig.maxTextureSize <= 0 )
+			glConfig.maxTextureSize = 256;
+		
+		r_initialized = true;
+		
+		// recheck all the extensions (FIXME: this might be dangerous)
+		R_CheckPortableExtensions();
+		
+		renderProgManager.Init();
+		
+		r_initialized = true;
+		
+		// allocate the vertex array range or vertex objects
+		vertexCache.Init();
+		
+		// allocate the frame data, which may be more if smp is enabled
+		R_InitFrameData();
+		
+		// Reset our gamma
+		R_SetColorMappings();
+
+		// foresthale 2014-02-19: init the view framebuffer object
+		globalFramebuffers->InitIntrinsics();
 		
 		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
 		globalImages->ReloadImages( true );

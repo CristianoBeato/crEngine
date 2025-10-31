@@ -1149,7 +1149,6 @@ INITIALIZATION
 */
 
 void R_Init();
-void R_InitOpenGL();
 
 void R_SetColorMappings();
 

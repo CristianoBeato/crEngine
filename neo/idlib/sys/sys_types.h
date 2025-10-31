@@ -141,12 +141,12 @@ const float	MAX_ENTITY_COORDINATE = 64000.0f;
 
 #if 1
 
-typedef unsigned short triIndex_t;
+typedef uint16_t triIndex_t;
 #define GL_INDEX_TYPE		GL_UNSIGNED_SHORT
 
 #else
 
-typedef unsigned int triIndex_t;
+typedef uint32_t triIndex_t;
 #define GL_INDEX_TYPE		GL_UNSIGNED_INT
 
 #endif
