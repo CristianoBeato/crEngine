@@ -3,7 +3,10 @@
 #include "sys_video.h"
 
 #include <SDL3/SDL_init.h>
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_vulkan.h>
+
+
 
 static idCVar in_nograb( "in_nograb", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "prevents input grabbing" );
 
@@ -270,6 +273,14 @@ void crVideoSDL3::ShowWindow(const bool in_show)
         m_mainWindow.Show();
     else
         m_mainWindow.Hide();
+}
+
+void crVideoSDL3::TextInput(const bool in_enable)
+{
+    if ( in_enable )
+        SDL_StartTextInput( m_mainWindow );
+    else
+        SDL_StopTextInput( m_mainWindow);
 }
 
 bool crVideoSDL3::IsWindowVisible( void ) const

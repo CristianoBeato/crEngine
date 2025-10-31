@@ -840,6 +840,7 @@ public:
 	virtual bool				SetMode( const vidMode_t in_mode, const videoMode_t in_fullScreen ) = 0;
 	virtual void				SetGamma( uint16_t red[256], uint16_t green[256], uint16_t blue[256] ) = 0;
 	virtual void				ShowWindow( bool show ) = 0;
+	virtual void				TextInput( const bool in_enable ) = 0;	
 	virtual bool				IsWindowVisible( void ) const = 0;
 	virtual crDisplay* const* 	Displays( uint32_t* in_count ) const = 0;
 };

@@ -37,6 +37,7 @@ public:
 	virtual bool	SetMode( const vidMode_t in_mode, const videoMode_t in_fullScreen );
 	virtual void	SetGamma( uint16_t red[256], uint16_t green[256], uint16_t blue[256] );
 	virtual void	ShowWindow( const bool in_show );
+    virtual void    TextInput( const bool in_enable );	
 	virtual bool    IsWindowVisible( void ) const;
 	virtual crDisplay* const* Displays( uint32_t* in_count ) const;
 
