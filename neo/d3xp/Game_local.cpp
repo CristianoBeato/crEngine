@@ -125,7 +125,6 @@ extern "C" gameExport_t* GetGameAPI( gameImport_t* import )
 
 	if( import->version == GAME_API_VERSION )
 	{
-	
 		// set interface pointers used by the game
 		sys							= import->sys;
 		common						= import->common;
@@ -165,8 +164,8 @@ TestGameAPI
 */
 void TestGameAPI( void )
 {
-	gameImport_t testImport;
-	gameExport_t testExport;
+	gameImport_t testImport{ GAME_API_VERSION, nullptr, nullptr };
+	gameExport_t testExport{};
 	
 	testImport.sys						= ::sys;
 	testImport.common					= ::common;
@@ -201,7 +200,7 @@ idGameLocal::Clear
 */
 void idGameLocal::Clear( void )
 {
-	int i;
+	int i = 0;
 	
 	serverInfo.Clear();
 	numClients = 0;

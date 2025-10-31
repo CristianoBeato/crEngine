@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-inline constexpr int GAME_API_VERSION = 8;
+inline constexpr int GAME_API_VERSION = 10;
 
 inline constexpr int TIME_GROUP1 = 0;
 inline constexpr int TIME_GROUP2 = 1;
@@ -311,7 +311,6 @@ public:
 };
 
 extern idGameEdit* 				gameEdit;
-
 
 /*
 ===============================================================================

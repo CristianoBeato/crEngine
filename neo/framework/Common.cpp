@@ -302,14 +302,13 @@ Check for "safe" on the command line, which will
 skip loading of config file (DoomConfig.cfg)
 ==================
 */
-bool idCommonLocal::SafeMode()
+bool idCommonLocal::SafeMode( void )
 {
 	int			i;
 	
 	for( i = 0 ; i < com_numConsoleLines ; i++ )
 	{
-		if( !idStr::Icmp( com_consoleLines[ i ].Argv( 0 ), "safe" )
-				|| !idStr::Icmp( com_consoleLines[ i ].Argv( 0 ), "cvar_restart" ) )
+		if( !idStr::Icmp( com_consoleLines[ i ].Argv( 0 ), "safe" ) || !idStr::Icmp( com_consoleLines[ i ].Argv( 0 ), "cvar_restart" ) )
 		{
 			com_consoleLines[ i ].Clear();
 			return true;
@@ -379,7 +378,8 @@ void idCommonLocal::AddStartupCommands()
 idCommonLocal::InitTool
 =================
 */
-void idCommonLocal::InitTool( const toolFlag_t tool, const idDict *dict ) {
+void idCommonLocal::InitTool( const toolFlag_t tool, const idDict *dict ) 
+{
 #ifdef ID_ALLOW_TOOLS
 	if ( tool & EDITOR_SOUND ) {
 		SoundEditorInit( dict );
@@ -400,7 +400,8 @@ idCommonLocal::ActivateTool
 Activates or Deactivates a tool
 ==================
 */
-void idCommonLocal::ActivateTool( bool active ) {
+void idCommonLocal::ActivateTool( bool active ) 
+{
 	com_editorActive = active;
 //	 ** Tools don't need to grab the mouse.  The SDL window grabs and release the mouse when activated.
 //	Sys_GrabMouseCursor( !active );
@@ -701,13 +702,9 @@ CONSOLE_COMMAND( error, "causes an error", NULL )
 	}
 	
 	if( args.Argc() > 1 )
-	{
 		commonLocal.FatalError( "Testing fatal error" );
-	}
 	else
-	{
 		commonLocal.Error( "Testing drop error" );
-	}
 }
 
 /*
@@ -1009,12 +1006,11 @@ CONSOLE_COMMAND( startBuild, "prepares to make a build", NULL )
 Com_FinishBuild_f
 =================
 */
-CONSOLE_COMMAND( finishBuild, "finishes the build process", NULL )
+CONSOLE_COMMAND( finishBuild, "finishes the build process", nullptr )
 {
 	if( game )
-	{
-		game->CacheDictionaryMedia( NULL );
-	}
+		game->CacheDictionaryMedia( nullptr );
+	
 	globalImages->FinishBuild( ( args.Argc() > 1 ) );
 }
 
@@ -1024,7 +1020,7 @@ CONSOLE_COMMAND( finishBuild, "finishes the build process", NULL )
 idCommonLocal::InitCommands
 =================
 */
-void idCommonLocal::InitCommands()
+void idCommonLocal::InitCommands( void )
 {
 	cmdSystem->AddCommand( "dmap", Dmap_f, CMD_FL_TOOL, "compiles a map", idCmdSystem::ArgCompletion_MapName );
 	cmdSystem->AddCommand( "runAAS", RunAAS_f, CMD_FL_TOOL, "compiles an AAS file for a map", idCmdSystem::ArgCompletion_MapName );
@@ -1230,7 +1226,7 @@ void idCommonLocal::InitSIMD( void )
 idCommonLocal::LoadGameDLL
 =================
 */
-void idCommonLocal::LoadGameDLL()
+void idCommonLocal::LoadGameDLL( void )
 {
 #ifdef __DOOM_DLL__
 	char			dllPath[ MAX_OSPATH ];
@@ -1294,10 +1290,8 @@ void idCommonLocal::LoadGameDLL()
 #endif
 	
 	// initialize the game object
-	if( game != NULL )
-	{
+	if( game != nullptr )
 		game->Init();
-	}
 }
 
 /*
@@ -1305,12 +1299,10 @@ void idCommonLocal::LoadGameDLL()
 idCommonLocal::UnloadGameDLL
 =================
 */
-void idCommonLocal::CleanupShell()
+void idCommonLocal::CleanupShell( void )
 {
-	if( game != NULL )
-	{
+	if( game != nullptr )
 		game->Shell_Cleanup();
-	}
 }
 
 /*
@@ -1318,25 +1310,24 @@ void idCommonLocal::CleanupShell()
 idCommonLocal::UnloadGameDLL
 =================
 */
-void idCommonLocal::UnloadGameDLL()
+void idCommonLocal::UnloadGameDLL( void )
 {
 
 	// shut down the game object
-	if( game != NULL )
-	{
+	if( game != nullptr )
 		game->Shutdown();
-	}
 	
 #ifdef __DOOM_DLL__
 	
 	if( gameDLL )
 	{
 		Sys_DLL_Unload( gameDLL );
-		gameDLL = NULL;
+		gameDLL = nullptr;
 	}
-	game = NULL;
-	gameEdit = NULL;
-	
+
+	game = nullptr;
+	gameEdit = nullptr;
+
 #endif
 }
 
@@ -1485,13 +1476,6 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		
 		// if any archived cvars are modified after this, we will trigger a writing of the config file
 		cvarSystem->ClearModifiedFlags( CVAR_ARCHIVE );
-
-// BEATO Begin: Move to inside the renderSystem->Init, since we separate render api fom window api
-#if 0	
-		// init OpenGL, which will open a window and connect sound and input hardware
-		renderSystem->InitOpenGL();
-#endif
-// BEATO End
 		
 		// Support up to 2 digits after the decimal point
 		com_engineHz_denominator = 100LL * com_engineHz.GetFloat();
