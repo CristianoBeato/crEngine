@@ -205,21 +205,7 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 	if( !size )
 		return nullptr;
 	
-#if 0
-#ifdef _WIN32
-	const size_t paddedSize = ( size + 15 ) & ~15;
-	// this should work with MSVC and mingw, as long as __MSVCRT_VERSION__ >= 0x0700
-	return _aligned_malloc( paddedSize, 16 );
-#else // not _WIN32
-	// DG: the POSIX solution for linux etc
-	void* ret;
-	posix_memalign( &ret, 16, paddedSize );
-	return ret;
-	// DG end
-#endif // _WIN32
-#else
 	return SDL_aligned_alloc( 16, size );
-#endif
 }
 
 /*
@@ -232,18 +218,7 @@ void Mem_Free16( void* ptr )
 	if( ptr == nullptr )
 		return;
 
-#if 0
-#ifdef _WIN32
-	_aligned_free( ptr );
-#else // not _WIN32
-	// DG: Linux/POSIX compatibility
-	// can use normal free() for aligned memory
-	free( ptr );
-	// DG end
-#endif // _WIN32
-#else
 	SDL_aligned_free( ptr );
-#endif
 }
 
 void* Mem_Alloc( const size_t size, const memTag_t tag )
@@ -271,10 +246,9 @@ Mem_ClearedAlloc
 */
 void* Mem_ClearedAlloc( const size_t size, const memTag_t tag )
 {
-	return std::memset( SDL_malloc( size ), 0x00, size );
-	//void* mem = Mem_Alloc( size, tag );
-	//SIMDProcessor->Memset( mem, 0, size );
-	//return mem;
+	void* mem = SDL_malloc( size );
+	std::memset( mem, 0x00, size );
+	return mem;
 }
 
 /*
@@ -284,8 +258,10 @@ Mem_CopyString
 */
 char* Mem_CopyString( const char* in )
 {
-	char* out = ( char* )Mem_Alloc( strlen( in ) + 1, TAG_STRING );
-	strcpy( out, in );
+	// string length plut the '/0'
+	const size_t len = strlen( in ) + 1;
+	char* out = static_cast<char*>( Mem_ClearedAlloc( len, TAG_STRING ) );
+	std::strncpy( out, in, len );
 	return out;
 }
 
