@@ -389,71 +389,16 @@ set( TOOLS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/dmap.h
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/facebsp.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/gldraw.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/leakfile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/map.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/optimize.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/output.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/portals.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/shadowopt3.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/tritjunction.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/tritools.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/ubrush.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/usurface.cpp
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapDrawVert.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapDrawVert.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapMapFile.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapMapFile.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSimd.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSimd_Generic.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSimd_Generic.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSimd.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSurface.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSurface.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSurface_Patch.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/idLibDmap/DmapSurface_Patch.h
-
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapInteraction.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapInteraction.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_Beam.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelDecal.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelDecal.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_liquid.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_local.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelManager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelManager.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_md3.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_md3.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_md5.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelOverlay.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModelOverlay.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_prt.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapModel_sprite.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderEntity.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderSystem.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderSystem_init.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld_demo.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld_load.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld_local.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapRenderWorld_portals.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_guisurf.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_light.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_lightrun.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_local.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_polytope.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_stencilshadow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_trace.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_trisurf.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/Dmap_tr_turboshadow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapVertexCache.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/renderer/DmapVertexCache.h
 
     #aas 
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/AASBuild.cpp
