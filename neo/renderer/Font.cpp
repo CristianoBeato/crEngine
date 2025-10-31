@@ -53,6 +53,7 @@ idFont::RemapFont
 */
 idFont* idFont::RemapFont( const char* baseName )
 {
+	auto renderSystem = idRenderSystem::Get();
 	idStr cleanName = baseName;
 	
 	if( cleanName == DEFAULT_FONT )
@@ -130,7 +131,7 @@ idFont::idFont( const char* n ) : name( n )
 		else
 		{
 			idLib::Warning( "Could not load font %s", n );
-			alias = renderSystem->RegisterFont( DEFAULT_FONT );
+			alias = tr.RegisterFont( DEFAULT_FONT );
 		}
 	}
 }

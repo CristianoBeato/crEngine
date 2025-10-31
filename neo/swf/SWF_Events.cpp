@@ -248,6 +248,8 @@ idSWF::HandleEvent
 */
 bool idSWF::HandleEvent( const sysEvent_t* event )
 {
+	auto renderSystem = idRenderSystem::Get();
+	
 	if( !IsLoaded() || !IsActive() || ( !inhibitControl && useInhibtControl ) )
 	{
 		return false;

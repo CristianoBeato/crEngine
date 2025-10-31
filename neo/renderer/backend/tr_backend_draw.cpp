@@ -4490,8 +4490,8 @@ void RB_PostProcess( const void* data )
 	GL_State( GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO | GLS_DEPTHMASK | GLS_DEPTHFUNC_ALWAYS );
 	GL_Cull( CT_TWO_SIDED );
 	
-	int screenWidth = renderSystem->GetWidth();
-	int screenHeight = renderSystem->GetHeight();
+	int screenWidth = tr.GetWidth();
+	int screenHeight = tr.GetHeight();
 	
 	// set the window clipping
 	GL_Viewport( 0, 0, screenWidth, screenHeight );

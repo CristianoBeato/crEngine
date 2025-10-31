@@ -2533,7 +2533,6 @@ void idPlayer::DrawHUD( idMenuHandler_HUD* _hudManager )
 {
 	SCOPED_PROFILE_EVENT( "idPlayer::DrawHUD" );
 	
-
 	// #################################### SR
 
 	// GUI HUD always active
@@ -2554,9 +2553,7 @@ void idPlayer::DrawHUD( idMenuHandler_HUD* _hudManager )
 
 	 
 	if( !weapon.GetEntity() || influenceActive != INFLUENCE_NONE || privateCameraView || gameLocal.GetCamera() || !g_showHud.GetBool() )	// ######## || gameLocal.GetCamera() ### !!!
-	{
 		return;
-	}
 	
 	if( common->IsMultiplayer() )
 	{
@@ -2567,22 +2564,16 @@ void idPlayer::DrawHUD( idMenuHandler_HUD* _hudManager )
 	// Always draw the local client's messages so that chat works correctly while spectating another player.
 	idPlayer* localPlayer = static_cast< idPlayer* >( gameLocal.entities[ gameLocal.GetLocalClientNum() ] );
 	
-	if( localPlayer != NULL && localPlayer->mpMessages != NULL )
-	{
+	if( localPlayer != nullptr && localPlayer->mpMessages != nullptr )
 		localPlayer->mpMessages->Render( renderSystem, Sys_Milliseconds() );
-	}
 	
-		UpdateHudStats( _hudManager );
+	UpdateHudStats( _hudManager );
 	
 	if( spectating )
-	{
 		return;
-	}
 	
 	if( _hudManager )
-	{
 		_hudManager->Update();
-	}
 	
 	if ( !weaponGone )
 		weapon.GetEntity()->UpdateGUI();
@@ -2634,30 +2625,26 @@ void idPlayer::DrawHUD( idMenuHandler_HUD* _hudManager )
 idPlayer::EnterCinematic
 ===============
 */
-void idPlayer::EnterCinematic()
+void idPlayer::EnterCinematic( void )
 {
 	if( PowerUpActive( HELLTIME ) )
-	{
 		StopHelltime();
-	}
 	
 	Hide();
 	StopSound( SND_CHANNEL_PDA_AUDIO, false );
 	StopSound( SND_CHANNEL_PDA_VIDEO, false );
 	
 	if( hudManager )
-	{
 		hudManager->SetRadioMessage( false );
-	}
+	
 	physicsObj.SetLinearVelocity( vec3_origin );
 	
 	SetState( "EnterCinematic" );
 	UpdateScript();
 	
 	if( weaponEnabled && weapon.GetEntity() )
-	{
 		weapon.GetEntity()->EnterCinematic();
-	}
+
 	/*if( flashlight.GetEntity() )
 	{
 		flashlight.GetEntity()->EnterCinematic();

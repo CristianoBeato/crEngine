@@ -34,28 +34,32 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "gamesys/SysCvar.h"	
 
-#ifdef GAME_DLL
+// BEATO Begin:
+#ifdef __ID_GAME_LOGIC__
+idSoundSystem* 				soundSystem = nullptr;
+idRenderSystem* 			renderSystem = nullptr;
+#endif //__ID_GAME_LOGIC__
+// BEATO End
 
-idSys* 						sys = NULL;
-idCommon* 					common = NULL;
-idCmdSystem* 				cmdSystem = NULL;
-idCVarSystem* 				cvarSystem = NULL;
-idFileSystem* 				fileSystem = NULL;
-idRenderSystem* 			renderSystem = NULL;
-idSoundSystem* 				soundSystem = NULL;
-idRenderModelManager* 		renderModelManager = NULL;
-idUserInterfaceManager* 	uiManager = NULL;
-idDeclManager* 				declManager = NULL;
-idAASFileManager* 			AASFileManager = NULL;
-idCollisionModelManager* 	collisionModelManager = NULL;
-idCVar* 					idCVar::staticVars = NULL;
+#ifdef GAME_DLL
+idSys* 						sys = nullptr;
+idCommon* 					common = nullptr;
+idCmdSystem* 				cmdSystem = nullptr;
+idCVarSystem* 				cvarSystem = nullptr;
+idFileSystem* 				fileSystem = nullptr;
+idRenderModelManager* 		renderModelManager = nullptr;
+idUserInterfaceManager* 	uiManager = nullptr;
+idDeclManager* 				declManager = nullptr;
+idAASFileManager* 			AASFileManager = nullptr;
+idCollisionModelManager* 	collisionModelManager = nullptr;
+idCVar* 					idCVar::staticVars = nullptr;
 
 idCVar com_forceGenericSIMD( "com_forceGenericSIMD", "0", CVAR_BOOL | CVAR_SYSTEM, "force generic platform independent SIMD" );
-
 #endif
 
-idRenderWorld* 				gameRenderWorld = NULL;		// all drawing is done to this world
-idSoundWorld* 				gameSoundWorld = NULL;		// all audio goes to this world
+
+idRenderWorld* 				gameRenderWorld = nullptr;		// all drawing is done to this world
+idSoundWorld* 				gameSoundWorld = nullptr;		// all audio goes to this world
 
 static gameExport_t			gameExport;
 
@@ -100,7 +104,7 @@ static const char* fastEntityList[] =
 	"weapon_fists",
 	"projectile_rocket",
 	"projectile_bullet_machinegun",	
-	NULL
+	nullptr
 };
 /*
 ===========
@@ -129,7 +133,7 @@ extern "C" gameExport_t* GetGameAPI( gameImport_t* import )
 		cvarSystem					= import->cvarSystem;
 		fileSystem					= import->fileSystem;
 		renderSystem				= import->renderSystem;
-		//soundSystem					= import->soundSystem;
+		soundSystem					= import->soundSystem;
 		renderModelManager			= import->renderModelManager;
 		uiManager					= import->uiManager;
 		declManager					= import->declManager;
@@ -159,7 +163,7 @@ extern "C" gameExport_t* GetGameAPI( gameImport_t* import )
 TestGameAPI
 ============
 */
-void TestGameAPI()
+void TestGameAPI( void )
 {
 	gameImport_t testImport;
 	gameExport_t testExport;
@@ -169,7 +173,7 @@ void TestGameAPI()
 	testImport.cmdSystem				= ::cmdSystem;
 	testImport.cvarSystem				= ::cvarSystem;
 	testImport.fileSystem				= ::fileSystem;
-	testImport.renderSystem				= ::renderSystem;
+	testImport.renderSystem				= idRenderSystem::Get();
 	testImport.soundSystem				= idSoundSystem::Get();
 	testImport.renderModelManager		= ::renderModelManager;
 	testImport.uiManager				= ::uiManager;
@@ -185,7 +189,7 @@ void TestGameAPI()
 idGameLocal::idGameLocal
 ============
 */
-idGameLocal::idGameLocal()
+idGameLocal::idGameLocal( void )
 {
 	Clear();
 }
@@ -195,7 +199,7 @@ idGameLocal::idGameLocal()
 idGameLocal::Clear
 ============
 */
-void idGameLocal::Clear()
+void idGameLocal::Clear( void )
 {
 	int i;
 	

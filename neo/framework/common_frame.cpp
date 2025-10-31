@@ -204,20 +204,16 @@ idCommonLocal::DrawWipeModel
 Draw the fade material over everything that has been drawn
 ===============
 */
-void idCommonLocal::DrawWipeModel()
+void idCommonLocal::DrawWipeModel( void )
 {
-
+	auto renderSystem = idRenderSystem::Get(); 
 	if( wipeStartTime >= wipeStopTime )
-	{
 		return;
-	}
 	
 	int currentTime = Sys_Milliseconds();
 	
 	if( !wipeHold && currentTime > wipeStopTime )
-	{
 		return;
-	}
 	
 	float fade = ( float )( currentTime - wipeStartTime ) / ( wipeStopTime - wipeStartTime );
 	renderSystem->SetColor4( 1, 1, 1, fade );
@@ -229,13 +225,13 @@ void idCommonLocal::DrawWipeModel()
 idCommonLocal::Draw
 ===============
 */
-void idCommonLocal::Draw()
+void idCommonLocal::Draw( void )
 {
 	// debugging tool to test frame dropping behavior
 	if( com_sleepDraw.GetInteger() )
-	{
 		Sys_Sleep( com_sleepDraw.GetInteger() );
-	}
+	
+	auto renderSystem = idRenderSystem::Get(); 
 	
 	if( loadPacifierBinarizeActive )
 	{
@@ -355,6 +351,8 @@ This is an out-of-sequence screen update, not the normal game rendering
 // DG: added possibility to *not* release mouse in UpdateScreen(), it fucks up the view angle for screenshots
 void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 {
+	auto renderSystem = idRenderSystem::Get(); 
+	
 	if( insideUpdateScreen )
 	{
 		return;
@@ -449,11 +447,13 @@ extern idCVar com_pause;
 idCommonLocal::Frame
 =================
 */
-void idCommonLocal::Frame()
+void idCommonLocal::Frame( void )
 {
 	try
 	{
 		SCOPED_PROFILE_EVENT( "Common::Frame" );
+
+		auto renderSystem = idRenderSystem::Get();
 		
 		// This is the only place this is incremented
 		idLib::frameNumber++;
@@ -473,7 +473,7 @@ void idCommonLocal::Frame()
 		
 		eventLoop->RunEventLoop();
 
-		renderSystem->OnFrame();
+		idRenderSystem::Get()->OnFrame();
 		
 		// Activate the shell if it's been requested
 		if( showShellRequested && game )
@@ -506,13 +506,13 @@ void idCommonLocal::Frame()
 		if( aviCaptureMode )
 		{
 			idStr name = va( "demos/%s/%s_%05i.tga", aviDemoShortName.c_str(), aviDemoShortName.c_str(), aviDemoFrameCount++ );
-			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL );
+			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), nullptr );
 			
 			// remove any printed lines at the top before taking the screenshot
 			console->ClearNotifyLines();
 			
 			// this will call Draw, possibly multiple times if com_aviDemoSamples is > 1
-			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), NULL );
+			renderSystem->TakeScreenshot( com_aviDemoWidth.GetInteger(), com_aviDemoHeight.GetInteger(), name, com_aviDemoSamples.GetInteger(), nullptr );
 		}
 		
 		//--------------------------------------------
@@ -525,7 +525,7 @@ void idCommonLocal::Frame()
 		// this should exit right after vsync, with the GPU idle and ready to draw
 		// This may block if the GPU isn't finished renderng the previous frame.
 		frameTiming.startSyncTime = Sys_Microseconds();
-		const emptyCommand_t* renderCommands = NULL;
+		const emptyCommand_t* renderCommands = nullptr;
 		// foresthale 2014-05-12: also check com_editors as many of them are not particularly thread-safe (editLights for example)
 		if( com_smp.GetBool() && com_editors == 0)
 		{
@@ -537,6 +537,7 @@ void idCommonLocal::Frame()
 			// input latency
 			renderSystem->SwapCommandBuffers_FinishRendering( &time_frontend, &time_backend, &time_shadows, &time_gpu );
 		}
+
 		frameTiming.finishSyncTime = Sys_Microseconds();
 		
 		//--------------------------------------------

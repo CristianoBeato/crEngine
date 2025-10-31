@@ -756,13 +756,8 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 		} break;
 		case SDL_EVENT_WINDOW_RESIZED:
 		{
-			int w = event->window.data1;
-			int h = event->window.data2;
-			r_windowWidth.SetInteger( w );
-			r_windowHeight.SetInteger( h );
-					
-			glConfig.nativeScreenWidth = w;
-			glConfig.nativeScreenHeight = h;
+			idRenderSystem::Get()->UpdateRenderSize( event->window.data1, event->window.data2 );
+			return false; 
 		} break;
 		case SDL_EVENT_WINDOW_MOVED:
 		{
@@ -770,6 +765,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 			int y = event->window.data2;
 			r_windowX.SetInteger( x );
 			r_windowY.SetInteger( y );
+			return false;
 		} break;
 
 		case SDL_EVENT_KEY_DOWN:
@@ -778,7 +774,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 			{
 				// DG: go to fullscreen on current display, instead of always first display
 				int fullscreen = 0;
-				if( ! renderSystem->IsFullScreen() )
+				if( ! idRenderSystem::Get()->IsFullScreen() )
 				{
 					// this will be handled as "fullscreen on current window"
 					// r_fullscreen 1 means "fullscreen on first window" in d3 bfg
@@ -846,6 +842,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 			return false;
 
 		}
+		case SDL_EVENT_TEXT_EDITING:
 		case SDL_EVENT_TEXT_INPUT:
 		{
 			if( event->text.text && *event->text.text )
@@ -970,7 +967,18 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 		// just to ignore this window events
 		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
 		case SDL_EVENT_WINDOW_SAFE_AREA_CHANGED:
+		case SDL_EVENT_WINDOW_SHOWN:
+		case SDL_EVENT_WINDOW_EXPOSED:
+		case SDL_EVENT_AUDIO_DEVICE_ADDED:
+		case SDL_EVENT_KEYMAP_CHANGED:
+		case SDL_EVENT_CLIPBOARD_UPDATE:
 			return true;
+
+		// may we can pause and unpause game
+		case SDL_EVENT_WINDOW_MOUSE_ENTER:
+		case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+			return true;
+	
 
 		case SDL_EVENT_USER:
 			switch( event->user.code )

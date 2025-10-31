@@ -370,12 +370,12 @@ idPlayerView::CalculateShake
 void idPlayerView::CalculateShake()
 {
 	float shakeVolume = gameSoundWorld->CurrentShakeAmplitude();
-	//
+	
 	// shakeVolume should somehow be molded into an angle here
 	// it should be thought of as being in the range 0.0 -> 1.0, although
 	// since CurrentShakeAmplitudeForPosition() returns all the shake sounds
 	// the player can hear, it can go over 1.0 too.
-	//
+	
 	shakeAng[0] = gameLocal.random.CRandomFloat() * shakeVolume;
 	shakeAng[1] = gameLocal.random.CRandomFloat() * shakeVolume;
 	shakeAng[2] = gameLocal.random.CRandomFloat() * shakeVolume;
@@ -430,12 +430,9 @@ idPlayerView::SingleView
 */
 void idPlayerView::SingleView( const renderView_t* view, idMenuHandler_HUD* hudManager )
 {
-
 	// normal rendering
 	if( !view )
-	{
 		return;
-	}
 	
 	// place the sound origin for the player
 	gameSoundWorld->PlaceListener( view->vieworg, view->viewaxis, player->entityNumber + 1 );
@@ -443,10 +440,9 @@ void idPlayerView::SingleView( const renderView_t* view, idMenuHandler_HUD* hudM
 	// if the objective system is up, don't do normal drawing
 	if( player->objectiveSystemOpen )
 	{
-		if( player->pdaMenu != NULL )
-		{
+		if( player->pdaMenu != nullptr )
 			player->pdaMenu->Update();
-		}
+
 		return;
 	}
 	

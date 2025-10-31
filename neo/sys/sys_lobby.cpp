@@ -3154,6 +3154,7 @@ void idLobby::DrawDebugNetworkHUD() const
 	
 	int numLines = ( net_forceUpstream.GetFloat() != 0.0f ? 6 : 5 );
 	
+	auto renderSystem = idRenderSystem::Get();
 	renderSystem->DrawFilled( idVec4( 0.0f, 0.0f, 0.0f, 0.7f ), X_OFFSET - 10.0f, curY - 10.0f, 1550, ( peers.Num() + numLines ) * Y_SPACING + 20.0f );
 	
 	renderSystem->DrawSmallStringExt( idMath::Ftoi( X_OFFSET ), idMath::Ftoi( curY ), "# Peer                   | Sent kB/s | Recv kB/s | Sent MB | Recv MB | Ping   | L |  %  | R.NM | R.SZ | R.AK | T", colorGreen, false );
@@ -3221,10 +3222,10 @@ void idLobby::DrawDebugNetworkHUD() const
 idLobby::DrawDebugNetworkHUD2
 ========================
 */
-void idLobby::DrawDebugNetworkHUD2() const
+void idLobby::DrawDebugNetworkHUD2( void ) const
 {
-	int		totalSendRate = 0;
-	int		totalRecvRate = 0;
+	int	totalSendRate = 0;
+	int	totalRecvRate = 0;
 	
 	const float Y_OFFSET	= 20.0f;
 	const float X_OFFSET	= 20.0f;
@@ -3232,6 +3233,8 @@ void idLobby::DrawDebugNetworkHUD2() const
 	
 	float	curY = Y_OFFSET;
 	
+	auto renderSystem = idRenderSystem::Get();
+
 	renderSystem->DrawFilled( idVec4( 0.0f, 0.0f, 0.0f, 0.7f ), X_OFFSET - 10.0f, curY - 10.0f, 550, ( peers.Num() + 4 ) * Y_SPACING + 20.0f );
 	
 	const char* stateName = session->GetStateString();
@@ -3319,6 +3322,7 @@ void idLobby::DrawDebugNetworkHUD_ServerSnapshotMetrics( bool draw )
 	const float X_OFFSET	= 20.0f;
 	const float Y_SPACING	= 15.0f;
 	idVec4 color = colorWhite;
+	auto renderSystem = idRenderSystem::Get();
 	
 	float	curY = Y_OFFSET;
 	
@@ -3328,14 +3332,10 @@ void idLobby::DrawDebugNetworkHUD_ServerSnapshotMetrics( bool draw )
 		{
 			for( int i = 0; i < peers[p].debugGraphs.Num(); i++ )
 			{
-				if( peers[p].debugGraphs[i] != NULL )
-				{
+				if( peers[p].debugGraphs[i] != nullptr )
 					peers[p].debugGraphs[i]->Enable( false );
-				}
 				else
-				{
 					return;
-				}
 			}
 		}
 		return;

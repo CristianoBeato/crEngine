@@ -38,14 +38,18 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+inline constexpr int GAME_API_VERSION = 8;
+
+inline constexpr int TIME_GROUP1 = 0;
+inline constexpr int TIME_GROUP2 = 1;
+
 // default scripts
-#define SCRIPT_DEFAULTDEFS			"script/se2_defs.script"
-#define SCRIPT_DEFAULT				"script/se2_main.script"
-#define SCRIPT_DEFAULTFUNC			"se2_main"
+inline constexpr char SCRIPT_DEFAULTDEFS[]	= { "script/game_defs.script" };
+inline constexpr char SCRIPT_DEFAULT[] 		= { "script/game_main.script" };
+inline constexpr char SCRIPT_DEFAULTFUNC[]	= { "game_main" };
 
 struct gameReturn_t
 {
-
 	gameReturn_t() :
 		syncNextGameFrame( false ),
 		vibrationLow( 0 ),
@@ -60,9 +64,6 @@ struct gameReturn_t
 	int			vibrationLow;
 	int			vibrationHigh;
 };
-
-#define TIME_GROUP1		0
-#define TIME_GROUP2		1
 
 class idGame
 {
@@ -320,7 +321,14 @@ extern idGameEdit* 				gameEdit;
 ===============================================================================
 */
 
-const int GAME_API_VERSION		= 8;
+// BEATO Begin: Continue using class pointers only within the game logic; 
+// in the other engine libraries, access to the subsystems must be done
+// through the singleon "idXSystem::Get()".
+#ifdef __ID_GAME_LOGIC__
+extern idRenderSystem*	renderSystem;	// render system
+extern idSoundSystem*	soundSystem;	// sound system
+#endif // __ID_GAME_LOGIC__
+// BEATO End
 
 typedef struct
 {
@@ -338,19 +346,17 @@ typedef struct
 	idDeclManager* 				declManager;			// declaration manager
 	idAASFileManager* 			AASFileManager;			// AAS file manager
 	idCollisionModelManager* 	collisionModelManager;	// collision model manager
-	
 } gameImport_t;
 
 typedef struct
 {
-
 	int							version;				// API version
 	idGame* 					game;					// interface to run the game
-	idGameEdit* 				gameEdit;				// interface for in-game editing
-	
+	idGameEdit* 				gameEdit;				// interface for in-game editing	
 } gameExport_t;
 
-extern "C" {
+extern "C" 
+{
 	typedef gameExport_t* ( *GetGameAPI_t )( gameImport_t* import );
 }
 

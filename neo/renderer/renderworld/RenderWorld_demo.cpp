@@ -100,21 +100,20 @@ ProcessDemoCommand
 */
 bool idRenderWorldLocal::ProcessDemoCommand( idDemoFile* readDemo, renderView_t* renderView, int* demoTimeOffset )
 {
+	auto renderSystem = idRenderSystem::Get();
 	bool	newMap = false;
 
 	if ( !readDemo )
-	{
 		return false;
-	}
 
 	demoCommand_t	dc;
 	qhandle_t		h;
 
 	if ( !readDemo->ReadInt( (int&)dc ) )
-	{
-		// a demoShot may not have an endFrame, but it is still valid
 		return false;
-	}
+		// a demoShot may not have an endFrame, but it is still valid
+
+
 
 	switch ( dc )
 	{

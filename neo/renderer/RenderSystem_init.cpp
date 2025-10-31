@@ -476,7 +476,7 @@ static void R_CheckPortableExtensions()
 		if( r_debugContext.GetInteger() >= 3 )
 		{
 			// enable all the low priority messages
-			glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, NULL, true );
+			glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, nullptr, true );
 		}
 	}
 	
@@ -798,7 +798,7 @@ void R_InitOpenGL( void )
 				cmdSystem->BufferCommandText( CMD_EXEC_NOW, "vid_restart partial windowed\n" );
 				Sys_GrabMouseCursor( false );
 			}
-			int ret = MessageBox( NULL, "Please install OpenGL drivers from your graphics hardware vendor to run " GAME_NAME ".\nYour OpenGL functionality is limited.",
+			int ret = MessageBox( nullptr, "Please install OpenGL drivers from your graphics hardware vendor to run " GAME_NAME ".\nYour OpenGL functionality is limited.",
 								  "Insufficient OpenGL capabilities", MB_OKCANCEL | MB_ICONWARNING | MB_TASKMODAL );
 			if( ret == IDCANCEL )
 			{
@@ -940,9 +940,9 @@ void R_TestImage_f( const idCmdArgs& args )
 	if( tr.testVideo )
 	{
 		delete tr.testVideo;
-		tr.testVideo = NULL;
+		tr.testVideo = nullptr;
 	}
-	tr.testImage = NULL;
+	tr.testImage = nullptr;
 	
 	if( args.Argc() != 2 )
 	{
@@ -975,9 +975,9 @@ void R_TestVideo_f( const idCmdArgs& args )
 	if( tr.testVideo )
 	{
 		delete tr.testVideo;
-		tr.testVideo = NULL;
+		tr.testVideo = nullptr;
 	}
-	tr.testImage = NULL;
+	tr.testImage = nullptr;
 	
 	if( args.Argc() < 2 )
 	{
@@ -990,11 +990,11 @@ void R_TestVideo_f( const idCmdArgs& args )
 	
 	cinData_t	cin;
 	cin = tr.testVideo->ImageForTime( 0 );
-	if( cin.imageY == NULL )
+	if( cin.imageY == nullptr )
 	{
 		delete tr.testVideo;
-		tr.testVideo = NULL;
-		tr.testImage = NULL;
+		tr.testVideo = nullptr;
+		tr.testImage = nullptr;
 		return;
 	}
 	
@@ -1116,11 +1116,11 @@ tiling it into window-sized chunks and rendering each chunk separately
 If ref isn't specified, the full session UpdateScreen will be done.
 ====================
 */
-void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref = NULL )
+void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref = nullptr )
 {
 	// include extra space for OpenGL padding to word boundaries
-	int sysWidth = renderSystem->GetWidth();
-	int sysHeight = renderSystem->GetHeight();
+	int sysWidth = tr.GetWidth();
+	int sysHeight = tr.GetHeight();
 	byte* temp = ( byte* )R_StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
 
 	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
@@ -1132,11 +1132,11 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	// make sure the game / draw thread has completed
 	commonLocal.WaitGameThread();
 	// discard anything currently on the list
-	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 	// discard anything currently on the list
-	//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	//tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 	// discard anything currently on the list
-	//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	//tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 	// override the render resolution so we can take our screenshots
 //	tr.screenshotOverrideWidth = sysWidth;
 //	tr.screenshotOverrideHeight = sysHeight;
@@ -1156,7 +1156,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 			// discard anything currently on the list
-			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+			tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 			if( ref )
 			{
 				// ref is only used by envShot, Event_camShot, etc to grab screenshots of things in the world,
@@ -1169,23 +1169,23 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 				commonLocal.Draw();
 			}
 			// this should exit right after vsync, with the GPU idle and ready to draw
-			const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+			const emptyCommand_t* cmd = tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 			// get the GPU busy with new commands
 			tr.RenderCommandBuffers( cmd );
 			// discard anything currently on the list (this triggers SwapBuffers)
-			tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+			tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 #else
-			// foresthale 2014-03-01: note: ref is always NULL in every call path to this function
+			// foresthale 2014-03-01: note: ref is always nullptr in every call path to this function
 			if( ref )
 			{
 				// discard anything currently on the list
-				tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+				tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 				
 				// build commands to render the scene
 				tr.primaryWorld->RenderScene( ref );
 				
 				// finish off these commands
-				const emptyCommand_t* cmd = tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+				const emptyCommand_t* cmd = tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 				
 				// issue the commands to the GPU
 				tr.RenderCommandBuffers( cmd );
@@ -1224,11 +1224,11 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	// discard anything currently on the list
-	tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 	// discard anything currently on the list
-	//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	//tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 	// discard anything currently on the list
-	//tr.SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	//tr.SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 	// undo our override
 //	tr.screenshotOverrideWidth = 0;
 //	tr.screenshotOverrideHeight = 0;
@@ -1249,7 +1249,7 @@ TakeScreenshot
 Move to tr_imagefiles.c...
 
 Downsample is the number of steps to mipmap the image before saving it
-If ref == NULL, common->UpdateScreen will be used
+If ref == nullptr, common->UpdateScreen will be used
 ==================
 */
 void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fileName, int blends, renderView_t* ref )
@@ -1438,7 +1438,7 @@ void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName )
 		{
 			break;
 		}
-		int len = fileSystem->ReadFile( fileName, NULL, NULL );
+		int len = fileSystem->ReadFile( fileName, nullptr, nullptr );
 		if( len <= 0 )
 		{
 			break;
@@ -1465,20 +1465,20 @@ void R_ScreenShot_f( const idCmdArgs& args )
 	static int lastPngNumber = 0;
 	idStr checkname;
 	
-	int width = renderSystem->GetWidth();
-	int height = renderSystem->GetHeight();
+	int width = tr.GetWidth();
+	int height = tr.GetHeight();
 	int	blends = 0;
 	
 	switch( args.Argc() )
 	{
 		case 1:
-			width = renderSystem->GetWidth();
-			height = renderSystem->GetHeight();
+			width = tr.GetWidth();
+			height = tr.GetHeight();
 			blends = 1;
 			break;
 		case 2:
-			width = renderSystem->GetWidth();
-			height = renderSystem->GetHeight();
+			width = tr.GetWidth();
+			height = tr.GetHeight();
 			blends = 1;
 			checkname = args.Argv( 1 );
 			break;
@@ -1504,15 +1504,14 @@ void R_ScreenShot_f( const idCmdArgs& args )
 			common->Printf( "usage: screenshot\n       screenshot <filename>\n       screenshot <width> <height>\n       screenshot <width> <height> <blends>\n" );
 			return;
 	}
-	if(r_screenshot_png.GetBool()) {
+	if(r_screenshot_png.GetBool())
 		R_ScreenshotFilename( lastPngNumber, "screenshots/shot", checkname );
-	} else {
+	else 
 		R_ScreenshotFilename( lastNumber, "screenshots/shot", checkname );
-	}	
 	// put the console away
 	console->Close();
 	
-	tr.TakeScreenshot( width, height, checkname, blends, NULL );
+	tr.TakeScreenshot( width, height, checkname, blends, nullptr );
 	
 	common->Printf( "Wrote %s\n", checkname.c_str() );
 }
@@ -1801,7 +1800,7 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 		common->Printf( "loading %s\n", fullname.c_str() );
 		const bool captureToImage = false;
 		common->UpdateScreen( captureToImage );
-		R_LoadImage( fullname, &buffers[i], &width, &height, NULL, true );
+		R_LoadImage( fullname, &buffers[i], &width, &height, nullptr, true );
 		if( !buffers[i] )
 		{
 			common->Printf( "failed.\n" );
@@ -1965,7 +1964,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	DumpAllDisplayDevices();
 	
 	common->Printf( "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
-	common->Printf( "MODE: %d, %d x %d %s hz:", r_vidMode.GetInteger(), renderSystem->GetWidth(), renderSystem->GetHeight(), fsstrings[r_fullscreen.GetBool()] );
+	common->Printf( "MODE: %d, %d x %d %s hz:", r_vidMode.GetInteger(), tr.GetWidth(), tr.GetHeight(), fsstrings[r_fullscreen.GetBool()] );
 	if( glConfig.displayFrequency )
 	{
 		common->Printf( "%d\n", glConfig.displayFrequency );
@@ -1983,7 +1982,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	typedef BOOL ( WINAPI * PFNWGLSWAPINTERVALEXTPROC )( int interval );
 	extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
 	
-	if( r_swapInterval.GetInteger() && wglSwapIntervalEXT != NULL )
+	if( r_swapInterval.GetInteger() && wglSwapIntervalEXT != nullptr )
 	{
 		common->Printf( "Forcing swapInterval %i\n", r_swapInterval.GetInteger() );
 	}
@@ -2008,7 +2007,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	}
 	
 	idLib::Printf( "Stereo mode: " );
-	switch( renderSystem->GetStereo3DMode() )
+	switch( tr.GetStereo3DMode() )
 	{
 		case STEREO3D_OFF:
 			idLib::Printf( "STEREO3D_OFF\n" );
@@ -2032,7 +2031,7 @@ void GfxInfo_f( const idCmdArgs& args )
 			idLib::Printf( "STEREO3D_QUAD_BUFFER\n" );
 			break;
 		default:
-			idLib::Printf( "Unknown (%i)\n", renderSystem->GetStereo3DMode() );
+			idLib::Printf( "Unknown (%i)\n", tr.GetStereo3DMode() );
 			break;
 	}
 	
@@ -2045,7 +2044,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	if( r_forceScreenWidthCentimeters.GetFloat() )
 	{
 		common->Printf( "screen size manually forced to %5.1f cm width (%4.1f\" diagonal)\n",
-						renderSystem->GetPhysicalScreenWidthInCentimeters(), renderSystem->GetPhysicalScreenWidthInCentimeters() / 2.54f
+						tr.GetPhysicalScreenWidthInCentimeters(), tr.GetPhysicalScreenWidthInCentimeters() / 2.54f
 						* sqrt( ( float )( 16 * 16 + 9 * 9 ) ) / 16.0f );
 	}
 }
@@ -2139,7 +2138,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 	
 	// make sure the regeneration doesn't use anything no longer valid
 	tr.viewCount++;
-	tr.viewDef = NULL;
+	tr.viewDef = nullptr;
 	
 	// check for problems
 	int err = glGetError();
@@ -2283,13 +2282,13 @@ void idRenderSystemLocal::Clear()
 	frameShaderTime = 0.0f;
 	ambientLightVector.Zero();
 	worlds.Clear();
-	primaryWorld = NULL;
+	primaryWorld = nullptr;
 	memset( &primaryRenderView, 0, sizeof( primaryRenderView ) );
-	primaryView = NULL;
-	defaultMaterial = NULL;
-	testImage = NULL;
-	ambientCubeImage = NULL;
-	viewDef = NULL;
+	primaryView = nullptr;
+	defaultMaterial = nullptr;
+	testImage = nullptr;
+	ambientCubeImage = nullptr;
+	viewDef = nullptr;
 	memset( &pc, 0, sizeof( pc ) );
 	memset( &identitySpace, 0, sizeof( identitySpace ) );
 	memset( renderCrops, 0, sizeof( renderCrops ) );
@@ -2297,29 +2296,29 @@ void idRenderSystemLocal::Clear()
 	currentColorNativeBytesOrder = 0xFFFFFFFF;
 	currentGLState = 0;
 	guiRecursionLevel = 0;
-	guiModel = NULL;
+	guiModel = nullptr;
 	memset( gammaTable, 0, sizeof( gammaTable ) );
 	takingScreenshot = false;
 	
-	if( unitSquareTriangles != NULL )
+	if( unitSquareTriangles != nullptr )
 	{
 		Mem_Free( unitSquareTriangles );
-		unitSquareTriangles = NULL;
+		unitSquareTriangles = nullptr;
 	}
 	
-	if( zeroOneCubeTriangles != NULL )
+	if( zeroOneCubeTriangles != nullptr )
 	{
 		Mem_Free( zeroOneCubeTriangles );
-		zeroOneCubeTriangles = NULL;
+		zeroOneCubeTriangles = nullptr;
 	}
 	
-	if( testImageTriangles != NULL )
+	if( testImageTriangles != nullptr )
 	{
 		Mem_Free( testImageTriangles );
-		testImageTriangles = NULL;
+		testImageTriangles = nullptr;
 	}
 	
-	frontEndJobList = NULL;
+	frontEndJobList = nullptr;
 
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()
@@ -2574,30 +2573,30 @@ void idRenderSystemLocal::Init()
 	identitySpace.modelMatrix[2 * 4 + 2] = 1.0f;
 	
 	// make sure the tr.unitSquareTriangles data is current in the vertex / index cache
-	if( unitSquareTriangles == NULL )
+	if( unitSquareTriangles == nullptr )
 	{
 		unitSquareTriangles = R_MakeFullScreenTris();
 	}
 	// make sure the tr.zeroOneCubeTriangles data is current in the vertex / index cache
-	if( zeroOneCubeTriangles == NULL )
+	if( zeroOneCubeTriangles == nullptr )
 	{
 		zeroOneCubeTriangles = R_MakeZeroOneCubeTris();
 	}
 	// make sure the tr.testImageTriangles data is current in the vertex / index cache
-	if( testImageTriangles == NULL )
+	if( testImageTriangles == nullptr )
 	{
 		testImageTriangles = R_MakeTestImageTriangles();
 	}
 	
 	// foresthale 2014-05-28: due to increased MAX_INTERACTIONS_PER_LIGHT the job limit also has to be increased
 #ifdef ID_ALLOW_TOOLS
-	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 16384, 0, NULL );	
+	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 16384, 0, nullptr );	
 #else
-	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, NULL );
+	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, nullptr );
 #endif
 	
 	// make sure the command buffers are ready to accept the first screen update
-	SwapCommandBuffers( NULL, NULL, NULL, NULL );
+	SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 	
 	common->Printf( "renderSystem initialized.\n" );
 	common->Printf( "--------------------------------------\n" );
@@ -2821,7 +2820,7 @@ bool idRenderSystemLocal::IsOpenGLRunning() const
 idRenderSystemLocal::IsFullScreen
 ========================
 */
-bool idRenderSystemLocal::IsFullScreen() const
+bool idRenderSystemLocal::IsFullScreen( void ) const
 {
 	return glConfig.isFullscreen != 0;
 }
@@ -2831,7 +2830,7 @@ bool idRenderSystemLocal::IsFullScreen() const
 idRenderSystemLocal::GetWidth
 ========================
 */
-int idRenderSystemLocal::GetWidth() const
+uint32_t idRenderSystemLocal::GetWidth() const
 {
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()
@@ -2852,7 +2851,7 @@ int idRenderSystemLocal::GetWidth() const
 idRenderSystemLocal::GetHeight
 ========================
 */
-int idRenderSystemLocal::GetHeight() const
+uint32_t idRenderSystemLocal::GetHeight( void ) const
 {
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()
@@ -2963,3 +2962,13 @@ float idRenderSystemLocal::GetPhysicalScreenWidthInCentimeters() const
 	}
 	return glConfig.physicalScreenWidthInCentimeters;
 }
+
+// BEATO Begin:
+void idRenderSystemLocal::UpdateRenderSize( const uint32_t in_width, const uint32_t in_height )
+{
+	r_windowWidth.SetInteger( in_width );
+	r_windowHeight.SetInteger( in_height );
+	glConfig.nativeScreenWidth = in_width;
+	glConfig.nativeScreenHeight = in_height;
+}
+// BEATO End

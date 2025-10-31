@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../renderer/tr_local.h"
+#include "renderer/tr_local.h"
 
 idCVar swf_timescale( "swf_timescale", "1", CVAR_FLOAT, "timescale for swf files" );
 idCVar swf_stopat( "swf_stopat", "0", CVAR_FLOAT, "stop at a specific frame" );
@@ -54,7 +54,7 @@ idSWF::DrawStretchPic
 */
 void idSWF::DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material )
 {
-	renderSystem->DrawStretchPic( x * scaleToVirtual.x, y * scaleToVirtual.y, w * scaleToVirtual.x, h * scaleToVirtual.y, s1, t1, s2, t2, material );
+	idRenderSystem::Get()->DrawStretchPic( x * scaleToVirtual.x, y * scaleToVirtual.y, w * scaleToVirtual.x, h * scaleToVirtual.y, s1, t1, s2, t2, material );
 }
 
 /*
@@ -64,7 +64,7 @@ idSWF::DrawStretchPic
 */
 void idSWF::DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material )
 {
-	renderSystem->DrawStretchPic(
+	idRenderSystem::Get()->DrawStretchPic(
 		idVec4( topLeft.x * scaleToVirtual.x, topLeft.y * scaleToVirtual.y, topLeft.z, topLeft.w ),
 		idVec4( topRight.x * scaleToVirtual.x, topRight.y * scaleToVirtual.y, topRight.z, topRight.w ),
 		idVec4( bottomRight.x * scaleToVirtual.x, bottomRight.y * scaleToVirtual.y, bottomRight.z, bottomRight.w ),
@@ -128,6 +128,7 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 		}
 	}
 	
+	auto renderSystem = idRenderSystem::Get();
 	const float pixelAspect = renderSystem->GetPixelAspect();
 	const float sysWidth = renderSystem->GetWidth() * ( pixelAspect > 1.0f ? pixelAspect : 1.0f );
 	const float sysHeight = renderSystem->GetHeight() / ( pixelAspect < 1.0f ? pixelAspect : 1.0f );
@@ -218,8 +219,8 @@ idSWF::RenderSprite
 */
 void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstance, const swfRenderState_t& renderState, int time, bool isSplitscreen )
 {
-
-	if( spriteInstance == NULL )
+	auto renderSystem = idRenderSystem::Get();
+	if( spriteInstance == nullptr )
 	{
 		idLib::Warning( "%s: RenderSprite: spriteInstance == NULL", filename.c_str() );
 		return;

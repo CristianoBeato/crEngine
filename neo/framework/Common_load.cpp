@@ -31,11 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Common_local.h"
-#include "../sys/sys_lobby_backend.h"
-
-
-#define LAUNCH_TITLE_DOOM_EXECUTABLE		"doom1.exe"
-#define LAUNCH_TITLE_DOOM2_EXECUTABLE		"doom2.exe"
+#include "sys/sys_lobby_backend.h"
 
 idCVar com_wipeSeconds( "com_wipeSeconds", "1", CVAR_SYSTEM, "" );
 idCVar com_disableAutoSaves( "com_disableAutoSaves", "0", CVAR_SYSTEM | CVAR_BOOL, "" );
@@ -43,7 +39,6 @@ idCVar com_disableAllSaves( "com_disableAllSaves", "0", CVAR_SYSTEM | CVAR_BOOL,
 
 
 extern idCVar sys_lang;
-
 extern idCVar g_demoMode;
 
 // This is for the dirty hack to get a dialog to show up before we capture the screen for autorender.
@@ -64,7 +59,7 @@ void idCommonLocal::StartWipe( const char* _wipeMaterial, bool hold )
 	
 	Draw();
 	
-	renderSystem->CaptureRenderToImage( "_currentRender" );
+	idRenderSystem::Get()->CaptureRenderToImage( "_currentRender" );
 	
 	wipeMaterial = declManager->FindMaterial( _wipeMaterial, false );
 	
@@ -248,19 +243,20 @@ void idCommonLocal::LoadLoadingGui( const char* mapName, bool& hellMap )
 {
 
 	defaultLoadscreen = false;
-	loadGUI = new idSWF( "loading/default", NULL );
+	loadGUI = new idSWF( "loading/default", nullptr );
 	
+	auto renderSystem = idRenderSystem::Get();
 	if( g_demoMode.GetBool() )
 	{
 		hellMap = false;
-		if( loadGUI != NULL )
+		if( loadGUI != nullptr )
 		{
 			const idMaterial* defaultMat = declManager->FindMaterial( "guis/assets/loadscreens/default" );
 			renderSystem->LoadLevelImages();
 			
 			loadGUI->Activate( true );
 			idSWFSpriteInstance* bgImg = loadGUI->GetRootObject().GetSprite( "bgImage" );
-			if( bgImg != NULL )
+			if( bgImg != nullptr )
 			{
 				bgImg->SetMaterial( defaultMat );
 			}
@@ -392,8 +388,11 @@ player and multiplayer, but not for renderDemos, which don't create a game at al
 Exits with mapSpawned = true
 ===============
 */
-void idCommonLocal::ExecuteMapChange()
+void idCommonLocal::ExecuteMapChange( void )
 {
+	auto renderSystem = idRenderSystem::Get();
+	auto soundSystem = idSoundSystem::Get();
+
 	if( session->GetState() != idSession::LOADING )
 	{
 		idLib::Warning( "Session state is not LOADING in ExecuteMapChange" );
@@ -446,8 +445,8 @@ void idCommonLocal::ExecuteMapChange()
 	// clear all menu sounds
 	soundWorld->Pause();
 	menuSoundWorld->ClearAllSoundEmitters();
-	idSoundSystem::Get()->SetPlayingSoundWorld( menuSoundWorld );
-	idSoundSystem::Get()->Render();
+	soundSystem->SetPlayingSoundWorld( menuSoundWorld );
+	soundSystem->Render();
 	
 	// extract the map name from serverinfo
 	currentMapName = matchParameters.mapName;
@@ -458,13 +457,9 @@ void idCommonLocal::ExecuteMapChange()
 	fullMapName.SetFileExtension( "map" );
 	
 	if( mapSpawnData.savegameFile )
-	{
-		fileSystem->BeginLevelLoad( currentMapName, NULL, 0 );
-	}
+		fileSystem->BeginLevelLoad( currentMapName, nullptr, 0 );
 	else
-	{
 		fileSystem->BeginLevelLoad( currentMapName, saveFile.GetDataPtr(), saveFile.GetAllocated() );
-	}
 	
 	// capture the current screen and start a wipe
 	// immediately complete the wipe to fade out the level transition
@@ -482,7 +477,7 @@ void idCommonLocal::ExecuteMapChange()
 	// note which media we are going to need to load
 	sm = Sys_Milliseconds();
 	renderSystem->BeginLevelLoad();
-	idSoundSystem::Get()->BeginLevelLoad();
+	soundSystem->BeginLevelLoad();
 	declManager->BeginLevelLoad();
 	uiManager->BeginLevelLoad();
 	ms = Sys_Milliseconds() - sm;
@@ -507,7 +502,7 @@ void idCommonLocal::ExecuteMapChange()
 		idPreloadManifest manifest;
 		manifest.LoadManifest( manifestName );
 		renderSystem->Preload( manifest, currentMapName );
-		idSoundSystem::Get()->Preload( manifest );
+		soundSystem->Preload( manifest );
 		game->Preload( manifest );
 	}
 
@@ -590,6 +585,7 @@ void idCommonLocal::ExecuteMapChange()
 	}
 	ms = Sys_Milliseconds() - sm;
 	sm = Sys_Milliseconds();
+
 	common->Printf( "%6d msec to finish loading\n", ms );
 	if( !mapSpawnData.savegameFile )
 	{
@@ -600,21 +596,18 @@ void idCommonLocal::ExecuteMapChange()
 		{
 			emptyCommandManager.PutUserCmdForPlayer( playerIndex, usercmd_t() );
 		}
+
 		if( IsClient() )
-		{
 			game->ClientRunFrame( emptyCommandManager, false, emptyGameReturn );
-		}
 		else
-		{
 			game->RunFrame( emptyCommandManager, emptyGameReturn );
-		}
 	}
 	UpdateLevelLoadPacifier(false,8);
 	sm = Sys_Milliseconds();
 	renderSystem->EndLevelLoad();
 	UpdateLevelLoadPacifier(false,48);
-	/* These Next Couple of Events are fairly quick */
-	idSoundSystem::Get()->EndLevelLoad();
+	// These Next Couple of Events are fairly quick
+	soundSystem->EndLevelLoad();
 	UpdateLevelLoadPacifier(false,49);
 	declManager->EndLevelLoad();
 	UpdateLevelLoadPacifier(false,50);
@@ -709,7 +702,7 @@ void idCommonLocal::ExecuteMapChange()
 	//Sys_DumpMemory( false );
 	
 	// Issue a render at the very end of the load process to update soundTime before the first frame
-	idSoundSystem::Get()->Render();
+	soundSystem->Render();
 }
 
 /*
@@ -776,18 +769,18 @@ void idCommonLocal::UpdateLevelLoadPacifier(int mProgress)
 void idCommonLocal::UpdateLevelLoadPacifier(bool updateSecondary, int mProgress)
 {
 	static bool isIncreasing = true;
+	auto renderSystem = idRenderSystem::Get();
 	autoRenderIconType_t icon = AUTORENDER_DEFAULTICON;
 	bool autoswapsRunning = renderSystem->AreAutomaticBackgroundSwapsRunning( &icon );
+	
 	// foresthale 2014-05-30: we want to show the loading screen for binarize too
 	if( !insideExecuteMapChange && !autoswapsRunning && !loadPacifierBinarizeActive )
-	{
 		return;
-	}
+	
 	// foresthale 2014-05-30: don't crash if idLobby hasn't been initialized yet
 	if( !menuSoundWorld )
-	{
 		return;
-	}
+	
 	const int sessionUpdateTime = common->IsMultiplayer() ? 16 : 100;
 	
 	const int time = Sys_Milliseconds();
@@ -1019,16 +1012,14 @@ idCommonLocal::SaveGame
 */
 bool idCommonLocal::SaveGame( const char* saveName )
 {
-	if( pipelineFile != NULL )
-	{
-		// We're already in the middle of a save. Leave us alone.
-		return false;
-	}
+	auto renderSystem = idRenderSystem::Get();
+	auto soundSystem = idSoundSystem::Get();
+
+	if( pipelineFile != nullptr )
+		return false; // We're already in the middle of a save. Leave us alone.
 	
 	if( com_disableAllSaves.GetBool() || ( com_disableAutoSaves.GetBool() && ( idStr::Icmp( saveName, "autosave" ) == 0 ) ) )
-	{
 		return false;
-	}
 	
 	if( IsMultiplayer() )
 	{
@@ -1036,10 +1027,8 @@ bool idCommonLocal::SaveGame( const char* saveName )
 		return false;
 	}
 	
-	if( mapSpawnData.savegameFile != NULL )
-	{
+	if( mapSpawnData.savegameFile != nullptr )
 		return false;
-	}
 	
 	const idDict& persistentPlayerInfo = game->GetPersistentPlayerInfo( 0 );
 	if( persistentPlayerInfo.GetInt( "health" ) <= 0 )
@@ -1049,8 +1038,8 @@ bool idCommonLocal::SaveGame( const char* saveName )
 	}
     bool activeShell = 	game->Shell_IsActive();
 	soundWorld->Pause();
-	idSoundSystem::Get()->SetPlayingSoundWorld( menuSoundWorld );
-	idSoundSystem::Get()->Render();
+	soundSystem->SetPlayingSoundWorld( menuSoundWorld );
+	soundSystem->Render();
 
 	if( insideExecuteMapChange )
 	{
@@ -1133,15 +1122,13 @@ bool idCommonLocal::SaveGame( const char* saveName )
 	session->SaveGameSync( gameDetails.slotName, files, gameDetails );
 	
 	if( !insideExecuteMapChange )
-	{
 		renderSystem->EndAutomaticBackgroundSwaps();
-	}
 	
 	syncNextGameFrame = true;
 	/* Update the Game's Menu at this time */
 	if( !insideExecuteMapChange )
 	{	
-	    if( game != NULL )
+	    if( game != nullptr )
 	    {
 		    // note which media we are going to need to load
 		    //declManager->BeginLevelLoad();
@@ -1433,7 +1420,7 @@ void idCommonLocal::TriggerScreenWipe( const char* _wipeMaterial, bool hold )
 	StartWipe( _wipeMaterial, hold );
 	CompleteWipe();
 	wipeForced = true;
-	renderSystem->BeginAutomaticBackgroundSwaps( AUTORENDER_DEFAULTICON );
+	idRenderSystem::Get()->BeginAutomaticBackgroundSwaps( AUTORENDER_DEFAULTICON );
 }
 
 /*
@@ -1444,9 +1431,7 @@ idCommonLocal::OnEnumerationCompleted
 void idCommonLocal::OnEnumerationCompleted( idSaveLoadParms& parms )
 {
 	if( parms.GetError() == SAVEGAME_E_NONE )
-	{
 		game->Shell_UpdateSavedGames();
-	}
 }
 
 /*
@@ -1457,9 +1442,7 @@ idCommonLocal::OnDeleteCompleted
 void idCommonLocal::OnDeleteCompleted( idSaveLoadParms& parms )
 {
 	if( parms.GetError() == SAVEGAME_E_NONE )
-	{
 		game->Shell_UpdateSavedGames();
-	}
 }
 
 /*

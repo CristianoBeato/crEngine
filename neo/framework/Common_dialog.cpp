@@ -786,19 +786,13 @@ void idCommonDialog::Render( bool loading )
 	}
 	
 	if( messageList.Num() > 0 && loading && ( messageList[0].renderDuringLoad == false ) )
-	{
 		return;
-	}
 	
 	if( dialog->IsActive() )
-	{
-		dialog->Render( renderSystem, Sys_Microseconds() );
-	}
+		dialog->Render( idRenderSystem::Get(), Sys_Microseconds() );
 	
-	if( saveIndicator != NULL && saveIndicator->IsActive() )
-	{
-		saveIndicator->Render( renderSystem, Sys_Microseconds() );
-	}
+	if( saveIndicator != nullptr && saveIndicator->IsActive() )
+		saveIndicator->Render( idRenderSystem::Get(), Sys_Microseconds() );
 }
 
 /*

@@ -283,7 +283,7 @@ bool idSWF::LoadBinary( const char* bfilename, ID_TIME_T sourceTime )
 				idSWFFont* font = dictionary[i].font;
 				idStr fontName;
 				f->ReadString( fontName );
-				font->fontID = renderSystem->RegisterFont( fontName );
+				font->fontID = idRenderSystem::Get()->RegisterFont( fontName );
 				f->ReadBig( font->ascent );
 				f->ReadBig( font->descent );
 				f->ReadBig( font->leading );

@@ -819,8 +819,8 @@ public:
 	virtual bool			IsStereoScopicRenderingSupported() const;
 	virtual stereo3DMode_t	GetStereoScopicRenderingMode() const;
 	virtual void			EnableStereoScopicRendering( const stereo3DMode_t mode ) const;
-	virtual int				GetWidth() const;
-	virtual int				GetHeight() const;
+	virtual uint32_t		GetWidth( void ) const;
+	virtual uint32_t		GetHeight( void ) const;
 	virtual float			GetPixelAspect() const;
 	virtual float			GetPhysicalScreenWidthInCentimeters() const;
 	virtual idRenderWorld* 	AllocRenderWorld();
@@ -833,6 +833,10 @@ public:
 	virtual void			EndAutomaticBackgroundSwaps();
 	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t* usingAlternateIcon = NULL ) const;
 	
+// BEATO Begin:
+	virtual void			UpdateRenderSize( const uint32_t in_width, const uint32_t in_height );
+// BEATO End
+
 	virtual idFont* 		RegisterFont( const char* fontName );
 	virtual void			ResetFonts();
 	virtual void			PrintMemInfo( MemInfo_t* mi );
@@ -1459,7 +1463,6 @@ void RB_ShowOverdraw();
 void RB_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
 void RB_ShutdownDebugTools();
 void RB_SetVertexColorParms( stageVertexColor_t svc );
-
 
 #include "ResolutionScale.h"
 #include "RenderLog.h"

@@ -243,7 +243,7 @@ RB_ScanStencilBuffer
 Debugging tool to see what values are in the stencil buffer
 ===================
 */
-void RB_ScanStencilBuffer()
+void RB_ScanStencilBuffer( void )
 {
 	int		counts[256];
 	int		i;
@@ -251,10 +251,10 @@ void RB_ScanStencilBuffer()
 	
 	memset( counts, 0, sizeof( counts ) );
 	
-	stencilReadback = ( byte* )R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS );
-	glReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+	stencilReadback = ( byte* )R_StaticAlloc( tr.GetWidth() * tr.GetHeight(), TAG_RENDER_TOOLS );
+	glReadPixels( 0, 0, tr.GetWidth(), tr.GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 	
-	for( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ )
+	for( i = 0; i < tr.GetWidth() * tr.GetHeight(); i++ )
 	{
 		counts[ stencilReadback[i] ]++;
 	}
@@ -287,11 +287,11 @@ static void RB_CountStencilBuffer()
 	byte*	stencilReadback;
 	
 	
-	stencilReadback = ( byte* )R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight(), TAG_RENDER_TOOLS );
-	glReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
+	stencilReadback = ( byte* )R_StaticAlloc( tr.GetWidth() * tr.GetHeight(), TAG_RENDER_TOOLS );
+	glReadPixels( 0, 0, tr.GetWidth(), tr.GetHeight(), GL_STENCIL_INDEX, GL_UNSIGNED_BYTE, stencilReadback );
 	
 	count = 0;
-	for( i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ )
+	for( i = 0; i < tr.GetWidth() * tr.GetHeight(); i++ )
 	{
 		count += stencilReadback[i];
 	}
@@ -299,7 +299,7 @@ static void RB_CountStencilBuffer()
 	R_StaticFree( stencilReadback );
 	
 	// print some stats (not supposed to do from back end in SMP...)
-	common->Printf( "overdraw: %5.1f\n", ( float )count / ( renderSystem->GetWidth() * renderSystem->GetHeight() ) );
+	common->Printf( "overdraw: %5.1f\n", ( float )count / ( tr.GetWidth() * tr.GetHeight() ) );
 }
 
 /*
@@ -413,8 +413,8 @@ void RB_ShowOverdraw()
 			const_cast<drawSurf_t*>( surf )->material = material;
 			newDrawSurfs[i++] = const_cast<drawSurf_t*>( surf );
 		}
-		vLight->localInteractions = NULL;
-		vLight->globalInteractions = NULL;
+		vLight->localInteractions = nullptr;
+		vLight->globalInteractions = nullptr;
 	}
 	
 	switch( r_showOverDraw.GetInteger() )
@@ -453,10 +453,10 @@ static void RB_ShowIntensity()
 		return;
 	}
 	
-	colorReadback = ( byte* )R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight() * 4, TAG_RENDER_TOOLS );
-	glReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
+	colorReadback = ( byte* )R_StaticAlloc( tr.GetWidth() * tr.GetHeight() * 4, TAG_RENDER_TOOLS );
+	glReadPixels( 0, 0, tr.GetWidth(), tr.GetHeight(), GL_RGBA, GL_UNSIGNED_BYTE, colorReadback );
 	
-	c = renderSystem->GetWidth() * renderSystem->GetHeight() * 4;
+	c = tr.GetWidth() * tr.GetHeight() * 4;
 	for( i = 0; i < c; i += 4 )
 	{
 		j = colorReadback[i];
@@ -497,7 +497,7 @@ static void RB_ShowIntensity()
 	globalImages->BindNull();
 	glMatrixMode( GL_MODELVIEW );
 	
-	glDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );
+	glDrawPixels( tr.GetWidth(), tr.GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, colorReadback );
 	
 	R_StaticFree( colorReadback );
 }
@@ -510,14 +510,12 @@ RB_ShowDepthBuffer
 Draw the depth buffer as colors
 ===================
 */
-static void RB_ShowDepthBuffer()
+static void RB_ShowDepthBuffer( void )
 {
 	void*	depthReadback;
 	
 	if( !r_showDepth.GetBool() )
-	{
 		return;
-	}
 
 	renderProgManager.Unbind();
 	
@@ -536,13 +534,13 @@ static void RB_ShowDepthBuffer()
 	GL_Color( 1, 1, 1 );
 	globalImages->BindNull();
 	
-	depthReadback = R_StaticAlloc( renderSystem->GetWidth() * renderSystem->GetHeight() * 4, TAG_RENDER_TOOLS );
-	memset( depthReadback, 0, renderSystem->GetWidth() * renderSystem->GetHeight() * 4 );
+	depthReadback = R_StaticAlloc( tr.GetWidth() * tr.GetHeight() * 4, TAG_RENDER_TOOLS );
+	memset( depthReadback, 0, tr.GetWidth() * tr.GetHeight() * 4 );
 	
-	glReadPixels( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight(), GL_DEPTH_COMPONENT , GL_FLOAT, depthReadback );
+	glReadPixels( 0, 0, tr.GetWidth(), tr.GetHeight(), GL_DEPTH_COMPONENT , GL_FLOAT, depthReadback );
 	
 #if 0
-	for( int i = 0; i < renderSystem->GetWidth() * renderSystem->GetHeight(); i++ )
+	for( int i = 0; i < tr.GetWidth() * tr.GetHeight(); i++ )
 	{
 		( ( byte* )depthReadback )[i * 4] =
 			( ( byte* )depthReadback )[i * 4 + 1] =
@@ -551,7 +549,7 @@ static void RB_ShowDepthBuffer()
 	}
 #endif
 	
-	glDrawPixels( renderSystem->GetWidth(), renderSystem->GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, depthReadback );
+	glDrawPixels( tr.GetWidth(), tr.GetHeight(), GL_RGBA , GL_UNSIGNED_BYTE, depthReadback );
 	R_StaticFree( depthReadback );
 }
 
@@ -2898,7 +2896,7 @@ void RB_TestImage()
 		w = 0.25 * image->GetUploadWidth() / max;
 		h = 0.25 * image->GetUploadHeight() / max;
 		
-		w *= ( float )renderSystem->GetHeight() / renderSystem->GetWidth();
+		w *= ( float )tr.GetHeight() / tr.GetWidth();
 	}
 	
 	// Set State

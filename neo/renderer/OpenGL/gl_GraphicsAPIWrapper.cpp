@@ -301,7 +301,7 @@ void GL_SetDefaultState()
 	
 	if( r_useScissor.GetBool() )
 	{
-		glScissor( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() );
+		glScissor( 0, 0, tr.GetWidth(), tr.GetHeight() );
 	}
 }
 

@@ -53,7 +53,7 @@ void idSWF::DefineFont2( idSWFBitStream& bitstream )
 	memcpy( fontName, bitstream.ReadData( fontNameLength ), fontNameLength );
 	fontName[ fontNameLength ] = 0;
 	
-	entry->font->fontID = renderSystem->RegisterFont( fontName );
+	entry->font->fontID = idRenderSystem::Get()->RegisterFont( fontName );
 	
 	uint16_t numGlyphs = bitstream.ReadU16();
 	entry->font->glyphs.SetNum( numGlyphs );

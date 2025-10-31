@@ -300,15 +300,12 @@ void idMenuHandler::ActivateMenu( bool show )
 idMenuHandler::Update
 ================================================
 */
-void idMenuHandler::Update()
+void idMenuHandler::Update( void )
 {
-
 	PumpWidgetActionRepeater();
 	
-	if( gui != NULL && gui->IsActive() )
-	{
+	if( gui != nullptr && gui->IsActive() )
 		gui->Render( renderSystem, Sys_Milliseconds() );
-	}
 }
 
 /*
@@ -320,10 +317,8 @@ void idMenuHandler::UpdateChildren()
 {
 	for( int index = 0; index < children.Num(); ++index )
 	{
-		if( children[ index ] != NULL )
-		{
+		if( children[ index ] != nullptr )
 			children[index]->Update();
-		}
 	}
 }
 
@@ -334,11 +329,8 @@ idMenuHandler::UpdateMenuDisplay
 */
 void idMenuHandler::UpdateMenuDisplay( int menu )
 {
-
-	if( menuScreens[ menu ] != NULL )
-	{
+	if( menuScreens[ menu ] != nullptr )
 		menuScreens[ menu ]->Update();
-	}
 	
 	UpdateChildren();
 	
@@ -351,11 +343,8 @@ idMenuHandler::Update
 */
 bool idMenuHandler::HandleGuiEvent( const sysEvent_t* sev )
 {
-
-	if( gui != NULL && activeScreen != -1 )
-	{
+	if( gui != nullptr && activeScreen != -1 )
 		return gui->HandleEvent( sev );
-	}
 	
 	return false;
 }

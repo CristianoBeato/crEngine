@@ -113,13 +113,13 @@ const char* idWindow::ScriptNames[] =
 idWindow::CommonInit
 ================
 */
-void idWindow::CommonInit()
+void idWindow::CommonInit( void )
 {
 	childID = 0;
 	flags = 0;
 	lastTimeRun = 0;
 	origin.Zero();
-	font = renderSystem->RegisterFont( "" );
+	font = idRenderSystem::Get()->RegisterFont( "" );
 	timeLine = -1;
 	xOffset = yOffset = 0.0;
 	cursor = 0;
@@ -142,21 +142,21 @@ void idWindow::CommonInit()
 	hoverColor = idVec4( 1, 1, 1, 1 );
 	matColor = idVec4( 1, 1, 1, 1 );
 	borderColor.Zero();
-	background = NULL;
+	background = nullptr;
 	backGroundName = "";
-	focusedChild = NULL;
-	captureChild = NULL;
-	overChild = NULL;
-	parent = NULL;
-	saveOps = NULL;
-	saveRegs = NULL;
+	focusedChild = nullptr;
+	captureChild = nullptr;
+	overChild = nullptr;
+	parent = nullptr;
+	saveOps = nullptr;
+	saveRegs = nullptr;
 	timeLine = -1;
 	textShadow = 0;
 	hover = false;
 	
 	for( int i = 0; i < SCRIPT_COUNT; i++ )
 	{
-		scripts[i] = NULL;
+		scripts[i] = nullptr;
 	}
 	
 	hideCursor = false;
@@ -2570,7 +2570,7 @@ bool idWindow::ParseInternalVar( const char* _name, idTokenParser* src )
 	{
 		idStr fontName;
 		ParseString( src, fontName );
-		font = renderSystem->RegisterFont( fontName );
+		font = idRenderSystem::Get()->RegisterFont( fontName );
 		return true;
 	}
 	return false;
@@ -2702,7 +2702,7 @@ bool idWindow::ParseInternalVar(const char *_name, idParser *src) {
 	if ( idStr::Icmp( _name, "font" ) == 0 ) {
 		idStr fontStr;
 		ParseString( src, fontStr );
-		font = renderSystem->RegisterFont( fontStr );
+		font = idRenderSystem::Get()->RegisterFont( fontStr );
 		return true;
 	}
 	return false;
@@ -5187,7 +5187,7 @@ void idWindow::ReadFromSaveGame( idFile* savefile )
 //	if ( savefile->GetFileVersion() >= BUILD_NUMBER_8TH_ANNIVERSARY_1 ) {
 	idStr fontName;
 	savefile->ReadString( fontName );
-	font = renderSystem->RegisterFont( fontName );
+	font = idRenderSystem::Get()->RegisterFont( fontName );
 //	}
 
 	ReadSaveGameString( name, savefile );

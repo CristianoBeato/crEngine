@@ -47,20 +47,20 @@ idRenderWindow::idRenderWindow( idUserInterfaceLocal* g ) : idWindow( g )
 	CommonInit();
 }
 
-idRenderWindow::~idRenderWindow()
+idRenderWindow::~idRenderWindow( void )
 {
-	renderSystem->FreeRenderWorld( world );
+	idRenderSystem::Get()->FreeRenderWorld( world );
 }
 
 void idRenderWindow::CommonInit()
 {
-	world = renderSystem->AllocRenderWorld();
+	world = idRenderSystem::Get()->AllocRenderWorld();
 	needsRender = true;
 	lightOrigin = idVec4( -128.0f, 0.0f, 0.0f, 1.0f );
 	lightColor = idVec4( 1.0f, 1.0f, 1.0f, 1.0f );
 	modelOrigin.Zero();
 	viewOffset = idVec4( -128.0f, 0.0f, 0.0f, 1.0f );
-	modelAnim = NULL;
+	modelAnim = nullptr;
 	animLength = 0;
 	animEndTime = -1;
 	modelDef = -1;
@@ -70,11 +70,8 @@ void idRenderWindow::CommonInit()
 
 void idRenderWindow::BuildAnimation( int time )
 {
-
 	if( !updateAnimation )
-	{
 		return;
-	}
 	
 	if( animName.Length() && animClass.Length() )
 	{

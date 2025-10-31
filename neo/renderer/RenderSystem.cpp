@@ -33,7 +33,16 @@ If you have questions concerning this license or the applicable additional terms
 #include "tr_local.h"
 
 idRenderSystemLocal	tr;
-idRenderSystem* renderSystem = &tr;
+
+/*
+=====================
+idRenderSystem::Get
+=====================
+*/
+idRenderSystem *idRenderSystem::Get(void)
+{
+    return &tr;
+}
 
 /*
 =====================

@@ -176,31 +176,38 @@ const int TITLESAFE_HEIGHT		= TITLESAFE_BOTTOM - TITLESAFE_TOP;
 
 class idRenderWorld;
 
-
 class idRenderSystem
 {
 public:
 
-	virtual					~idRenderSystem() {}
+	virtual					~idRenderSystem( void ) {}
 	
+// BEATO Begin:
+	/// @brief global acess to render system 
+	static idRenderSystem*	Get( void );		
+// BEATO End
+
 	// set up cvars and basic data structures, but don't
 	// init OpenGL, so it can also be used for dedicated servers
-	virtual void			Init() = 0;
+	virtual void			Init( void ) = 0;
 	
 	// only called before quitting
-	virtual void			Shutdown() = 0;
+	virtual void			Shutdown( void ) = 0;
 	
-	virtual void			ResetGuiModels() = 0;
+	virtual void			ResetGuiModels( void ) = 0;
 	
-	virtual void			InitOpenGL() = 0;
+	virtual void			InitOpenGL( void ) = 0;
+	virtual void			ShutdownOpenGL( void ) = 0;
+	virtual bool			IsOpenGLRunning( void ) const = 0;
 	
-	virtual void			ShutdownOpenGL() = 0;
+	virtual bool			IsFullScreen( void ) const = 0;
+	virtual uint32_t		GetWidth( void ) const = 0;
+	virtual uint32_t		GetHeight( void ) const = 0;
 	
-	virtual bool			IsOpenGLRunning() const = 0;
-	
-	virtual bool			IsFullScreen() const = 0;
-	virtual int				GetWidth() const = 0;
-	virtual int				GetHeight() const = 0;
+// BEATO Begin:
+	///@brief update the frame rendering size, and update framebuffers
+	virtual void			UpdateRenderSize( const uint32_t in_width, const uint32_t in_height ) = 0;
+// BEAO End
 	
 	// return w/h of a single pixel. This will be 1.0 for normal cases.
 	// A side-by-side stereo 3D frame will have a pixel aspect of 0.5.
@@ -329,10 +336,8 @@ public:
 	// consoles switch stereo 3D eye views each 60 hz frame
 	virtual int				GetFrameCount( void ) const = 0;
 
-	virtual void OnFrame() = 0;
+	virtual void OnFrame( void ) = 0;
 };
-
-extern idRenderSystem* 			renderSystem;
 
 // used by the view shot taker
 void R_ScreenshotFilename( int& lastNumber, const char* base, idStr& fileName );

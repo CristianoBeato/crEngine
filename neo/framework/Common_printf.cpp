@@ -497,10 +497,8 @@ void idCommonLocal::Error( const char* fmt, ... )
 	}
 	
 	// if we don't have GL running, make it a fatal error
-	if( !renderSystem->IsOpenGLRunning() )
-	{
+	if( !idRenderSystem::Get()->IsOpenGLRunning() )
 		code = ERP_FATAL;
-	}
 	
 	// if we got a recursive error, make it fatal
 	if( com_errorEntered )

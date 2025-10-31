@@ -1629,16 +1629,20 @@ void idObjective::Spawn()
 idObjective::Event_Screenshot
 ================
 */
-void idObjective::Event_CamShot( ) {
+void idObjective::Event_CamShot( ) 
+{
 	const char *camName;
 	idStr shotName = gameLocal.GetMapName();
 	shotName.StripFileExtension();
 	shotName += "/";
 	shotName += spawnArgs.GetString( "screenshot" );
 	shotName.SetFileExtension( ".tga" );
-	if ( spawnArgs.GetString( "camShot", "", &camName ) ) {
+	
+	if ( spawnArgs.GetString( "camShot", "", &camName ) ) 
+	{
 		idEntity *ent = gameLocal.FindEntity( camName );
-		if ( ent && ent->cameraTarget ) {
+		if ( ent && ent->cameraTarget ) 
+		{
 			const renderView_t *view = ent->cameraTarget->GetRenderView();
 			renderView_t fullView = *view;
 			fullView.width = SCREEN_WIDTH;
@@ -1646,28 +1650,35 @@ void idObjective::Event_CamShot( ) {
 
 #ifdef _D3XP
 			// HACK : always draw sky-portal view if there is one in the map, this isn't real-time
-			if ( gameLocal.portalSkyEnt.GetEntity() && g_enablePortalSky.GetBool() ) {
+			if ( gameLocal.portalSkyEnt.GetEntity() && g_enablePortalSky.GetBool() ) 
+			{
 				renderView_t	portalView = fullView;
 				portalView.vieworg = gameLocal.portalSkyEnt.GetEntity()->GetPhysics()->GetOrigin();
 
 				// setup global fixup projection vars
-				if ( 1 ) {
+				if ( 1 ) 
+				{
 					int vidWidth, vidHeight;
 					idVec2 shiftScale;
 
-					renderSystem->GetGLSettings( vidWidth, vidHeight );
-
+					//renderSystem->GetGLSettings( vidWidth, vidHeight );
+					vidWidth = renderSystem->GetWidth();
+					vidHeight = renderSystem->GetHeight();
+		
 					float pot;
 					int temp;
 
 					int	 w = vidWidth;
-					for (temp = 1 ; temp < w ; temp<<=1) {
+					for (temp = 1 ; temp < w ; temp<<=1) 
+					{
 					}
+					
 					pot = (float)temp;
 					shiftScale.x = (float)w / pot;
 
 					int	 h = vidHeight;
-					for (temp = 1 ; temp < h ; temp<<=1) {
+					for (temp = 1 ; temp < h ; temp<<=1) 
+					{
 					}
 					pot = (float)temp;
 					shiftScale.y = (float)h / pot;
@@ -1682,7 +1693,7 @@ void idObjective::Event_CamShot( ) {
 #endif
 
 			// draw a view to a texture
-			tr.TakeScreenshot( 256, 256, shotName, 1, &fullView );
+			renderSystem->TakeScreenshot( 256, 256, shotName, 1, &fullView );
 			//renderSystem->CropRenderSize( 256, 256 );
 			//gameRenderWorld->RenderScene( &fullView );
 			//renderSystem->CaptureRenderToFile( shotName );

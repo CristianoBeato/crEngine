@@ -259,7 +259,7 @@ set( D3XP_SOURCES
 add_library( d3xp STATIC ${D3XP_SOURCES} )
 
 #set the idLib specific definitions
-#target_compile_definitions( d3xp PRIVATE __DOOM_DLL__ ) TODO: fix on non monolith build 
+target_compile_definitions( d3xp PRIVATE _D3XP __ID_GAME_LOGIC__ ) #TODO: fix on non monolith build
 
 # d3xp need idLib
 add_dependencies( d3xp idLib )

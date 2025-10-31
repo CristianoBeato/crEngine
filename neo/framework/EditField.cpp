@@ -607,7 +607,8 @@ void idEditField::Draw( int x, int y, int width, bool showCursor )
 	int		cursorChar;
 	char	str[MAX_EDIT_LINE];
 	int		size;
-	
+	auto renderSystem = idRenderSystem::Get();
+
 	size = SMALLCHAR_WIDTH;
 	
 	drawLen = widthInChars;
@@ -624,33 +625,24 @@ void idEditField::Draw( int x, int y, int width, bool showCursor )
 		{
 			scroll = len - drawLen;
 			if( scroll < 0 )
-			{
 				scroll = 0;
-			}
 		}
 		prestep = scroll;
 		
 		// Skip color code
 		if( idStr::IsColor( buffer + prestep ) )
-		{
 			prestep += 2;
-		}
+		
 		if( prestep > 0 && idStr::IsColor( buffer + prestep - 1 ) )
-		{
 			prestep++;
-		}
 	}
 	
 	if( prestep + drawLen > len )
-	{
 		drawLen = len - prestep;
-	}
 	
 	// extract <drawLen> characters from the field at <prestep>
 	if( drawLen >= MAX_EDIT_LINE )
-	{
 		common->Error( "drawLen >= MAX_EDIT_LINE" );
-	}
 	
 	memcpy( str, buffer + prestep, drawLen );
 	str[ drawLen ] = 0;
@@ -660,23 +652,15 @@ void idEditField::Draw( int x, int y, int width, bool showCursor )
 	
 	// draw the cursor
 	if( !showCursor )
-	{
 		return;
-	}
 	
 	if( ( int )( idLib::frameNumber >> 4 ) & 1 )
-	{
 		return;		// off blink
-	}
 	
 	if( idKeyInput::GetOverstrikeMode() )
-	{
 		cursorChar = 11;
-	}
 	else
-	{
 		cursorChar = 10;
-	}
 	
 	// Move the cursor back to account for color codes
 	for( int i = 0; i < cursor; i++ )

@@ -48,7 +48,7 @@ idVec4 idDeviceContext::colorBlack;
 idVec4 idDeviceContext::colorWhite;
 idVec4 idDeviceContext::colorNone;
 
-void idDeviceContext::Init()
+void idDeviceContext::Init( void )
 {
 	xScale = 1.0f;
 	yScale = 1.0f;
@@ -56,7 +56,7 @@ void idDeviceContext::Init()
 	yOffset = 0.0f;
 	whiteImage = declManager->FindMaterial( "guis/assets/white.tga" );
 	whiteImage->SetSort( SS_GUI );
-	activeFont = renderSystem->RegisterFont( "" );
+	activeFont = idRenderSystem::Get()->RegisterFont( "" );
 	colorPurple = idVec4( 1, 0, 1, 1 );
 	colorOrange = idVec4( 1, 1, 0, 1 );
 	colorYellow = idVec4( 0, 1, 1, 1 );
@@ -246,7 +246,7 @@ DrawStretchPic
 */
 void idDeviceContext::DrawWinding( idWinding& w, const idMaterial* mat )
 {
-
+	auto renderSystem = idRenderSystem::Get();
 	idPlane p;
 	
 	p.Normal().Set( 1.0f, 0.0f, 0.0f );
@@ -266,9 +266,7 @@ void idDeviceContext::DrawWinding( idWinding& w, const idMaterial* mat )
 	w.ClipInPlace( p );
 	
 	if( w.GetNumPoints() < 3 )
-	{
 		return;
-	}
 	
 	int numIndexes = 0;
 	triIndex_t tempIndexes[( MAX_POINTS_ON_WINDING - 2 ) * 3];
@@ -281,10 +279,9 @@ void idDeviceContext::DrawWinding( idWinding& w, const idMaterial* mat )
 	assert( numIndexes == ( w.GetNumPoints() - 2 ) * 3 );
 	
 	idDrawVert* verts = renderSystem->AllocTris( w.GetNumPoints(), tempIndexes, numIndexes, mat );
-	if( verts == NULL )
-	{
+	if( verts == nullptr )
 		return;
-	}
+	
 	uint32_t currentColor = renderSystem->GetColor();
 	
 	for( int j = 0 ; j < w.GetNumPoints() ; j++ )
@@ -305,7 +302,7 @@ void idDeviceContext::DrawStretchPic( float x, float y, float w, float h, float 
 {
 	if( matIsIdentity )
 	{
-		renderSystem->DrawStretchPic( xOffset + x * xScale, yOffset + y * yScale, w * xScale, h * yScale, s1, t1, s2, t2, shader );
+		idRenderSystem::Get()->DrawStretchPic( xOffset + x * xScale, yOffset + y * yScale, w * xScale, h * yScale, s1, t1, s2, t2, shader );
 		return;
 	}
 	
@@ -328,8 +325,7 @@ void idDeviceContext::DrawStretchPic( float x, float y, float w, float h, float 
 
 void idDeviceContext::DrawMaterial( float x, float y, float w, float h, const idMaterial* mat, const idVec4& color, float scalex, float scaley )
 {
-
-	renderSystem->SetColor( color );
+	idRenderSystem::Get()->SetColor( color );
 	
 	float	s0, s1, t0, t1;
 //
@@ -379,8 +375,7 @@ void idDeviceContext::DrawMaterial( float x, float y, float w, float h, const id
 
 void idDeviceContext::DrawMaterialRotated( float x, float y, float w, float h, const idMaterial* mat, const idVec4& color, float scalex, float scaley, float angle )
 {
-
-	renderSystem->SetColor( color );
+	idRenderSystem::Get()->SetColor( color );
 	
 	float	s0, s1, t0, t1;
 	//
@@ -472,18 +467,13 @@ void idDeviceContext::DrawStretchPicRotated( float x, float y, float w, float h,
 
 void idDeviceContext::DrawFilledRect( float x, float y, float w, float h, const idVec4& color )
 {
-
 	if( color.w == 0.0f )
-	{
 		return;
-	}
 	
-	renderSystem->SetColor( color );
+	idRenderSystem::Get()->SetColor( color );
 	
-	if( ClippedCoords( &x, &y, &w, &h, NULL, NULL, NULL, NULL ) )
-	{
+	if( ClippedCoords( &x, &y, &w, &h, nullptr, nullptr, nullptr, nullptr ) )
 		return;
-	}
 	
 	DrawStretchPic( x, y, w, h, 0, 0, 0, 0, whiteImage );
 }
@@ -491,18 +481,13 @@ void idDeviceContext::DrawFilledRect( float x, float y, float w, float h, const 
 
 void idDeviceContext::DrawRect( float x, float y, float w, float h, float size, const idVec4& color )
 {
-
 	if( color.w == 0.0f )
-	{
 		return;
-	}
 	
-	renderSystem->SetColor( color );
+	idRenderSystem::Get()->SetColor( color );
 	
-	if( ClippedCoords( &x, &y, &w, &h, NULL, NULL, NULL, NULL ) )
-	{
+	if( ClippedCoords( &x, &y, &w, &h, nullptr, nullptr, nullptr, nullptr ) )
 		return;
-	}
 	
 	DrawStretchPic( x, y, size, h, 0, 0, 0, 0, whiteImage );
 	DrawStretchPic( x + w - size, y, size, h, 0, 0, 0, 0, whiteImage );
@@ -514,52 +499,36 @@ void idDeviceContext::DrawMaterialRect( float x, float y, float w, float h, floa
 {
 
 	if( color.w == 0.0f )
-	{
 		return;
-	}
 	
-	renderSystem->SetColor( color );
+	idRenderSystem::Get()->SetColor( color );
 	DrawMaterial( x, y, size, h, mat, color );
 	DrawMaterial( x + w - size, y, size, h, mat, color );
 	DrawMaterial( x, y, w, size, mat, color );
 	DrawMaterial( x, y + h - size, w, size, mat, color );
 }
 
-
 void idDeviceContext::SetCursor( int n )
 {
-
 	if( n > CURSOR_ARROW && n < CURSOR_COUNT )
-	{
-	
+	{	
 		keyBindings_t binds = idKeyInput::KeyBindingsFromBinding( "_use", true );
 		
 		keyNum_t keyNum = K_NONE;
 		if( in_useJoystick.GetBool() )
-		{
 			keyNum = idKeyInput::StringToKeyNum( binds.gamepad.c_str() );
-		}
 		
 		if( keyNum != K_NONE )
 		{
 		
 			if( keyNum == K_JOY1 )
-			{
 				cursor = CURSOR_HAND_JOY1;
-			}
 			else if( keyNum == K_JOY2 )
-			{
 				cursor = CURSOR_HAND_JOY2;
-			}
 			else if( keyNum == K_JOY3 )
-			{
 				cursor = CURSOR_HAND_JOY3;
-			}
 			else if( keyNum == K_JOY4 )
-			{
 				cursor = CURSOR_HAND_JOY4;
-			}
-			
 		}
 		else
 		{
@@ -576,26 +545,18 @@ void idDeviceContext::SetCursor( int n )
 void idDeviceContext::DrawCursor( float* x, float* y, float size )
 {
 	if( *x < 0 )
-	{
 		*x = 0;
-	}
 	
 	if( *x >= VIRTUAL_WIDTH )
-	{
 		*x = VIRTUAL_WIDTH;
-	}
 	
 	if( *y < 0 )
-	{
 		*y = 0;
-	}
 	
 	if( *y >= VIRTUAL_HEIGHT )
-	{
 		*y = VIRTUAL_HEIGHT;
-	}
 	
-	renderSystem->SetColor( colorWhite );
+	idRenderSystem::Get()->SetColor( colorWhite );
 	DrawStretchPic( *x, *y, size, size, 0, 0, 1, 1, cursorImages[cursor] );
 }
 /*
@@ -626,6 +587,7 @@ void idDeviceContext::PaintChar( float x, float y, const scaledGlyphInfo_t& glyp
 
 int idDeviceContext::DrawText( float x, float y, float scale, idVec4 color, const char* text, float adjust, int limit, int style, int cursor )
 {
+	auto renderSystem = idRenderSystem::Get();
 	int			len;
 	idVec4		newColor;
 	
@@ -823,7 +785,7 @@ int idDeviceContext::DrawText( const char* text, float textScale, int textAlign,
 	{
 		if( cursor == 0 )
 		{
-			renderSystem->SetColor( color );
+			idRenderSystem::Get()->SetColor( color );
 			DrawEditCursor( rectDraw.x, lineSkip + rectDraw.y, textScale );
 		}
 		return idMath::Ftoi( rectDraw.w / charSkip );
@@ -1222,7 +1184,8 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 				newColor = idStr::ColorForIndex( colorIndex );
 				newColor[3] = color[3];
 			}
-			renderSystem->SetColor( newColor );
+			
+			idRenderSystem::Get()->SetColor( newColor );
 			currentColorNativeByteOrder = LittleLong( PackColor( newColor ) );
 			continue;
 		}

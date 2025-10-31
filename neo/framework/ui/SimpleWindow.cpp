@@ -465,7 +465,7 @@ void idSimpleWindow::ReadFromSaveGame( idFile* savefile )
 //	if ( savefile->GetFileVersion() >= BUILD_NUMBER_8TH_ANNIVERSARY_1 ) {
 	idStr fontName;
 	savefile->ReadString( fontName );
-	font = renderSystem->RegisterFont( fontName );
+	font = idRenderSystem::Get()->RegisterFont( fontName );
 //	}
 
 	text.ReadFromSaveGame( savefile );

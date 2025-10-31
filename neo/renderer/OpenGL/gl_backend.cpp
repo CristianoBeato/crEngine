@@ -216,8 +216,8 @@ R_MakeStereoRenderImage
 static void R_MakeStereoRenderImage( idImage* image )
 {
 	idImageOpts	opts;
-	opts.width = renderSystem->GetWidth();
-	opts.height = renderSystem->GetHeight();
+	opts.width = tr.GetWidth();
+	opts.height = tr.GetHeight();
 	opts.numLevels = 1;
 	opts.format = FMT_RGBA8;
 	image->AllocImage( opts, TF_LINEAR, TR_CLAMP );
@@ -253,10 +253,10 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 		}
 		
 		// resize the stereo render image if the main window has changed size
-		if( stereoRenderImages[i]->GetUploadWidth() != renderSystem->GetWidth() ||
-				stereoRenderImages[i]->GetUploadHeight() != renderSystem->GetHeight() )
+		if( stereoRenderImages[i]->GetUploadWidth() != tr.GetWidth() ||
+				stereoRenderImages[i]->GetUploadHeight() != tr.GetHeight() )
 		{
-			stereoRenderImages[i]->Resize( renderSystem->GetWidth(), renderSystem->GetHeight() );
+			stereoRenderImages[i]->Resize( tr.GetWidth(), tr.GetHeight() );
 		}
 	}
 	
@@ -328,7 +328,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 		}
 		
 		// copy to the target
-		stereoRenderImages[ targetEye ]->CopyFramebuffer( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() );
+		stereoRenderImages[ targetEye ]->CopyFramebuffer( 0, 0, tr.GetWidth(), tr.GetHeight() );
 	}
 	
 	// perform the final compositing / warping / deghosting to the actual framebuffer(s)
@@ -342,7 +342,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 	// make sure we draw to both eyes.  This is likely to be sub-optimal
 	// performance on most cards and drivers, but it is better than getting
 	// a confusing, half-ghosted view.
-	if( renderSystem->GetStereo3DMode() != STEREO3D_QUAD_BUFFER )
+	if( tr.GetStereo3DMode() != STEREO3D_QUAD_BUFFER )
 	{
 		glDrawBuffer( GL_BACK );
 	}
@@ -365,7 +365,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 	renderProgManager.BindShader_Texture();
 	GL_Color( 1, 1, 1, 1 );
 	
-	switch( renderSystem->GetStereo3DMode() )
+	switch( tr.GetStereo3DMode() )
 	{
 		case STEREO3D_QUAD_BUFFER:
 			glDrawBuffer( GL_BACK_RIGHT );
@@ -465,14 +465,14 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 			stereoRenderImages[0]->Bind();
 			GL_SelectTexture( 1 );
 			stereoRenderImages[1]->Bind();
-			GL_ViewportAndScissor( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() );
+			GL_ViewportAndScissor( 0, 0, tr.GetWidth(), tr.GetHeight() );
 			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 			
 			GL_SelectTexture( 0 );
 			stereoRenderImages[1]->Bind();
 			GL_SelectTexture( 1 );
 			stereoRenderImages[0]->Bind();
-			GL_ViewportAndScissor( renderSystem->GetWidth(), 0, renderSystem->GetWidth(), renderSystem->GetHeight() );
+			GL_ViewportAndScissor( tr.GetWidth(), 0, tr.GetWidth(), tr.GetHeight() );
 			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 			break;
 			
@@ -481,14 +481,14 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 			stereoRenderImages[0]->Bind();
 			GL_SelectTexture( 0 );
 			stereoRenderImages[1]->Bind();
-			GL_ViewportAndScissor( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() );
+			GL_ViewportAndScissor( 0, 0, tr.GetWidth(), tr.GetHeight() );
 			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 			
 			GL_SelectTexture( 1 );
 			stereoRenderImages[1]->Bind();
 			GL_SelectTexture( 0 );
 			stereoRenderImages[0]->Bind();
-			GL_ViewportAndScissor( 0, renderSystem->GetHeight(), renderSystem->GetWidth(), renderSystem->GetHeight() );
+			GL_ViewportAndScissor( 0, tr.GetHeight(), tr.GetWidth(), tr.GetHeight() );
 			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 			break;
 			
@@ -504,7 +504,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 			glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
 			
-			GL_ViewportAndScissor( 0, 0, renderSystem->GetWidth(), renderSystem->GetHeight() * 2 );
+			GL_ViewportAndScissor( 0, 0, tr.GetWidth(), tr.GetHeight() * 2 );
 			renderProgManager.BindShader_StereoInterlace();
 			RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
 			
@@ -557,7 +557,7 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		return;
 	}
 	
-	if( renderSystem->GetStereo3DMode() != STEREO3D_OFF )
+	if( tr.GetStereo3DMode() != STEREO3D_OFF )
 	{
 		RB_StereoRenderExecuteBackEndCommands( cmds );
 		renderLog.EndFrame();

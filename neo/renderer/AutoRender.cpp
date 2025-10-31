@@ -116,7 +116,7 @@ void idAutoRender::EndBackgroundAutoSwaps()
 idAutoRender::RenderFrame
 ============================
 */
-void idAutoRender::RenderFrame()
+void idAutoRender::RenderFrame( void )
 {
 	// values are 0 to 1
 	float loadingIconPosX = 0.5f;
@@ -143,8 +143,8 @@ void idAutoRender::RenderFrame()
 	
 	const bool stereoRender = false;
 	
-	const int width = renderSystem->GetWidth();
-	const int height = renderSystem->GetHeight();
+	const int width = tr.GetWidth();
+	const int height = tr.GetHeight();
 	const int guardBand = height / 24;
 	
 	if( stereoRender )
@@ -224,9 +224,9 @@ void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, floa
 		idMath::SinCos( angle, s, c );
 	}
 	
-	const float pixelAspect = renderSystem->GetPixelAspect();
-	const float screenWidth = renderSystem->GetWidth();
-	const float screenHeight = renderSystem->GetHeight();
+	const float pixelAspect = tr.GetPixelAspect();
+	const float screenWidth = tr.GetWidth();
+	const float screenHeight = tr.GetHeight();
 	
 	const float minSize = Min( screenWidth, screenHeight );
 	if( minSize <= 0.0f )

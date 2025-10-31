@@ -246,7 +246,7 @@ void idGuiModel::EmitFullScreen()
 	viewDef->is2Dgui = true;
 	tr.GetCroppedViewport( &viewDef->viewport );
 	
-	bool stereoEnabled = ( renderSystem->GetStereo3DMode() != STEREO3D_OFF );
+	bool stereoEnabled = ( tr.GetStereo3DMode() != STEREO3D_OFF );
 	if( stereoEnabled )
 	{
 		const float screenSeparation = GetScreenSeparationForGuis();

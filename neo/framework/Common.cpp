@@ -589,7 +589,7 @@ CONSOLE_COMMAND( printMemInfo, "prints memory debugging data", NULL )
 	memset( &mi, 0, sizeof( mi ) );
 	mi.filebase = commonLocal.GetCurrentMapName();
 	
-	renderSystem->PrintMemInfo( &mi );			// textures and models
+	idRenderSystem::Get()->PrintMemInfo( &mi );			// textures and models
 	idSoundSystem::Get()->PrintMemInfo( &mi );			// sounds
 	
 	common->Printf( " Used image memory: %s bytes\n", idStr::FormatNumber( mi.imageAssetsTotal ).c_str() );
@@ -1057,8 +1057,9 @@ void idCommonLocal::InitCommands()
 idCommonLocal::RenderSplash
 =================
 */
-void idCommonLocal::RenderSplash()
+void idCommonLocal::RenderSplash( void )
 {
+	auto renderSystem = idRenderSystem::Get();
 	const float sysWidth = renderSystem->GetWidth() * renderSystem->GetPixelAspect();
 	const float sysHeight = renderSystem->GetHeight();
 	const float sysAspect = sysWidth / sysHeight;
@@ -1155,6 +1156,8 @@ idCommonLocal::RenderBink
 
 void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 {
+	auto renderSystem = idRenderSystem::Get();
+	auto soundSystem = idSoundSystem::Get();
 	// TODO: Fix video skipping on Linux
 	const float sysWidth = renderSystem->GetWidth() * renderSystem->GetPixelAspect();
 	const float sysHeight = renderSystem->GetHeight();
@@ -1172,8 +1175,8 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 	
 	soundWorld->PlayShaderDirectly( path_audio, 0 ); // "gui/loadvideointro"
 	soundWorld->UnPause();
-	idSoundSystem::Get()->SetPlayingSoundWorld( soundWorld );
-	idSoundSystem::Get()->Render();			
+	soundSystem->SetPlayingSoundWorld( soundWorld );
+	soundSystem->Render();			
 
 	sysEvent_t	ev; //SS2 fix RoQ videos skipping
 	bool EndVideo = false;
@@ -1198,13 +1201,14 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 				}
 			}
 		}
+
 		if( EndVideo )
  			break;			
 				// TODO: Restrict Joystick input to only allow pressing buttons/triggers to skip video, no dpad or sticks.		
 		Sys_Sleep( 10 );		
 	}
 	
-	idSoundSystem::Get()->StopAllSounds(); // Stop Playing Video Sound track.
+	soundSystem->StopAllSounds(); // Stop Playing Video Sound track.
 	material->MakeDefault();
 }
 
@@ -1359,6 +1363,9 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 {	
 	try
 	{
+		auto renderSystem = idRenderSystem::Get();
+		auto soundSystem = idSoundSystem::Get();
+		
 		// set interface pointers used by idLib
 		idLib::sys			= sys;
 		idLib::common		= common;
@@ -1409,7 +1416,6 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// initialize networking
 		Sys_InitNetworking();
 		
-
 		// override cvars from command line
 		StartupVariable( nullptr );
 		
@@ -1479,16 +1485,20 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		
 		// if any archived cvars are modified after this, we will trigger a writing of the config file
 		cvarSystem->ClearModifiedFlags( CVAR_ARCHIVE );
-		
+
+// BEATO Begin: Move to inside the renderSystem->Init, since we separate render api fom window api
+#if 0	
 		// init OpenGL, which will open a window and connect sound and input hardware
 		renderSystem->InitOpenGL();
+#endif
+// BEATO End
 		
 		// Support up to 2 digits after the decimal point
 		com_engineHz_denominator = 100LL * com_engineHz.GetFloat();
 		com_engineHz_latched = com_engineHz.GetFloat();
 		
 		// start the sound system, but don't do any hardware operations yet
-		idSoundSystem::Get()->Init();
+		soundSystem->Init();
 		
 		// initialize the renderSystem data structures
 		renderSystem->Init();
@@ -1556,9 +1566,9 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// and demos, insuring that level specific models
 		// will be freed
 		renderWorld = renderSystem->AllocRenderWorld();
-		soundWorld = idSoundSystem::Get()->AllocSoundWorld( renderWorld );
+		soundWorld = soundSystem->AllocSoundWorld( renderWorld );
 		
-		menuSoundWorld = idSoundSystem::Get()->AllocSoundWorld( nullptr );
+		menuSoundWorld = soundSystem->AllocSoundWorld( nullptr );
 		menuSoundWorld->PlaceListener( vec3_origin, mat3_identity, 0 );
 		
 		// init the session
@@ -1633,7 +1643,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 			idPreloadManifest manifest;
 			manifest.LoadManifest( "_common.preload" );
 			globalImages->Preload( manifest, false );
-			idSoundSystem::Get()->Preload( manifest );
+			soundSystem->Preload( manifest );
 		}
 		
 		fileSystem->EndLevelLoad();
@@ -1642,15 +1652,14 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		
 		
 		// No longer need the splash screen
-		if( splashScreen != NULL )
+		if( splashScreen != nullptr )
 		{
 			for( int i = 0; i < splashScreen->GetNumStages(); i++ )
 			{
 				idImage* image = splashScreen->GetStage( i )->texture.image;
-				if( image != NULL )
-				{
+				if( image != nullptr )
 					image->PurgeImage();
-				}
+				
 			}
 		}
 		
@@ -1703,19 +1712,19 @@ void idCommonLocal::Shutdown()
 	
 	printf( "delete loadGUI;\n" );
 	delete loadGUI;
-	loadGUI = NULL;
+	loadGUI = nullptr;
 	
 	printf( "delete renderWorld;\n" );
 	delete renderWorld;
-	renderWorld = NULL;
+	renderWorld = nullptr;
 	
 	printf( "delete soundWorld;\n" );
 	delete soundWorld;
-	soundWorld = NULL;
+	soundWorld = nullptr;
 	
 	printf( "delete menuSoundWorld;\n" );
 	delete menuSoundWorld;
-	menuSoundWorld = NULL;
+	menuSoundWorld = nullptr;
 	
 	// shut down the session
 	printf( "session->ShutdownSoundRelatedSystems();\n" );
@@ -1724,7 +1733,7 @@ void idCommonLocal::Shutdown()
 	session->Shutdown();
 	
 	// shutdown, deallocate leaderboard definitions.
-	if( game != NULL )
+	if( game != nullptr )
 	{
 		printf( "game->Leaderboards_Shutdown();\n" );
 		game->Leaderboards_Shutdown();
@@ -1752,7 +1761,7 @@ void idCommonLocal::Shutdown()
 	
 	// shut down the renderSystem
 	printf( "renderSystem->Shutdown();\n" );
-	renderSystem->Shutdown();
+	idRenderSystem::Get()->Shutdown();
 	
 	printf( "commonDialog.Shutdown();\n" );
 	commonDialog.Shutdown();
@@ -1819,11 +1828,14 @@ idCommonLocal::CreateMainMenu
 */
 void idCommonLocal::CreateMainMenu( void )
 {
+	auto renderSystem = idRenderSystem::Get();
+	auto soundSystem = idSoundSystem::Get();
+
 	if( game != nullptr )
 	{
 		// note which media we are going to need to load
 		declManager->BeginLevelLoad();
-		idSoundSystem::Get()->BeginLevelLoad();
+		soundSystem->BeginLevelLoad();
 		renderSystem->BeginLevelLoad();
 		uiManager->BeginLevelLoad();
 		
@@ -1836,7 +1848,7 @@ void idCommonLocal::CreateMainMenu( void )
 		// load
 		uiManager->EndLevelLoad( "" );
 		renderSystem->EndLevelLoad();
-		idSoundSystem::Get()->EndLevelLoad();
+		soundSystem->EndLevelLoad();
 		declManager->EndLevelLoad();
 	}
 }
