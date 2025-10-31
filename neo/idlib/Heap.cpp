@@ -210,6 +210,18 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 
 /*
 ==================
+Mem_ClearedAlloc16
+==================
+*/
+void* Mem_ClearedAlloc16( const size_t size, const memTag_t tag )
+{
+	void* mem = SDL_aligned_alloc( 16, size );
+	std::memset( mem, 0x00, size );
+	return mem;
+}
+
+/*
+==================
 Mem_Free16
 ==================
 */

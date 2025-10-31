@@ -49,6 +49,7 @@ static const int MAX_TAGS = 256;
 
 // RB: 64 bit fixes, changed int to size_t
 extern void* 		Mem_Alloc16( const size_t size, const memTag_t tag );
+extern void* 		Mem_ClearedAlloc16( const size_t size, const memTag_t tag );
 extern void			Mem_Free16( void* ptr );
 extern void*		Mem_Alloc( const size_t size, const memTag_t tag );
 extern void			Mem_Free( void* ptr );
