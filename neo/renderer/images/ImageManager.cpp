@@ -781,10 +781,11 @@ void idImageManager::UnbindAll()
 BindNull
 ===============
 */
-void idImageManager::BindNull()
+void idImageManager::BindNull( void )
 {
 	RENDERLOG_PRINTF( "BindNull()\n" );
 	
+#if 0 // TODO: Beato Remove
 	// foresthale 2014-05-10: when using the tools code (which does not use shaders) we have to manage the texture unit enables
 	if (com_editors)
 	{
@@ -792,6 +793,7 @@ void idImageManager::BindNull()
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_TEXTURE_CUBE_MAP);
 	}
+#endif
 }
 
 /*

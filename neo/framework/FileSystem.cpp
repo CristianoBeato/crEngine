@@ -4130,7 +4130,7 @@ idFile* idFileSystemLocal::OpenFileWrite( const char* relativePath, const char* 
 		common->Printf( "idFileSystem::OpenFileWrite: %s\n", OSpath.c_str() );
 	}
 	
-	//common->DPrintf( "writing to: %s\n", OSpath.c_str() );
+	common->DPrintf( "writing to: %s\n", OSpath.c_str() );
 	CreateOSPath( OSpath );
 	
 	f = new( TAG_IDFILE ) idFile_Permanent();

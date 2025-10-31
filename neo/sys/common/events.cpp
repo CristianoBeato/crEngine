@@ -787,7 +787,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 				cvarSystem->SetCVarInteger( "r_fullscreen", fullscreen );
 				// DG end
 				PushConsoleEvent( "vid_restart" );
-				return 0;
+				return false;
 			}
 			
 			// DG: ctrl-g to un-grab mouse - yeah, left ctrl shoots, then just use right ctrl :)
@@ -796,7 +796,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 				bool grab = cvarSystem->GetCVarBool( "in_nograb" );
 				grab = !grab;
 				cvarSystem->SetCVarBool( "in_nograb", grab );
-				return 0;
+				return false;
 			}
 			// DG end	
 			// fall through
@@ -829,7 +829,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 					{
 						if( event->type == SDL_EVENT_KEY_DOWN ) // FIXME: don't complain if this was an ASCII char and the console is open?
 							common->Warning( "unmapped SDL key %d (0x%x) scancode %d", event->key.key, event->	key.scancode, event->key.scancode );
-						return 0;
+						return false;
 					}
 				}
 			}
@@ -843,7 +843,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 				Sys_QueEvent( SE_CHAR, K_BACKSPACE, 0, 0, nullptr, 0 );
 			}
 			//Sys_QueEvent( SE_CHAR, c, 0, 0, NULL, 0 );
-			return 0;
+			return false;
 
 		}
 		case SDL_EVENT_TEXT_INPUT:
@@ -868,47 +868,44 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 							s_pos = 0;
 						}
 					}
-					return 0;
+					return false;
 				}
 			}
 			
-			return 1;
+			return true;
 		}
 		case SDL_EVENT_MOUSE_MOTION:
 		{
 			// DG: return event with absolute mouse-coordinates when in menu
 			// to fix cursor problems in windowed mode
 			if( game && game->Shell_IsActive() )
-			{
-				Sys_QueEvent( SE_MOUSE_ABSOLUTE, event->motion.x, event->motion.y, 0, NULL, 0 );
-			}
+				Sys_QueEvent( SE_MOUSE_ABSOLUTE, event->motion.x, event->motion.y, 0, nullptr, 0 );
 			else // this is the old, default behavior
-			{
-				Sys_QueEvent( SE_MOUSE, event->motion.xrel, event->motion.yrel, 0, NULL, 0 );
-			}
+				Sys_QueEvent( SE_MOUSE, event->motion.xrel, event->motion.yrel, 0, nullptr, 0 );
+			
 			// DG end
 			
 			mouse_polls.Append( mouse_poll_t( M_DELTAX, event->motion.xrel ) );
 			mouse_polls.Append( mouse_poll_t( M_DELTAY, event->motion.yrel ) );
 			
-			return 0;
+			return false;
 		}
 		case SDL_EVENT_MOUSE_WHEEL:
 			if( event->wheel.y > 0 )
 			{
 				mouse_polls.Append( mouse_poll_t( M_DELTAZ, 1 ) );
-				Sys_QueEvent( SE_KEY, K_MWHEELUP, 1, 0, NULL, 0 );
-				/* Immediately Queue Not Pressed Event */
-				Sys_QueEvent( SE_KEY, K_MWHEELUP, 0, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MWHEELUP, 1, 0, nullptr, 0 );
+				// Immediately Queue Not Pressed Event
+				Sys_QueEvent( SE_KEY, K_MWHEELUP, 0, 0, nullptr, 0 );
 			}
 			else
 			{
 				mouse_polls.Append( mouse_poll_t( M_DELTAZ, -1 ) );
-				Sys_QueEvent( SE_KEY, K_MWHEELDOWN, 1, 0, NULL, 0 );
-				/* Immediately Queue Not Pressed Event */
-				Sys_QueEvent( SE_KEY, K_MWHEELDOWN, 0, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MWHEELDOWN, 1, 0, nullptr, 0 );
+				// Immediately Queue Not Pressed Event
+				Sys_QueEvent( SE_KEY, K_MWHEELDOWN, 0, 0, nullptr, 0 );
 			}
-			return 0;
+			return false;
 			
 		case SDL_EVENT_MOUSE_BUTTON_DOWN:
 		case SDL_EVENT_MOUSE_BUTTON_UP:
@@ -931,28 +928,29 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 					mouse_polls.Append( mouse_poll_t( M_ACTION2, event->button.down ? 1 : 0 ) );
 				} break;
 			}
-			return 0;
+			return false;
 		}
 
 		case SDL_EVENT_GAMEPAD_ADDED:
 		{
 			Sys_JoystickConnect( event->gdevice.which );
-	        return 1;
+	        return false;
 		}
 		case SDL_EVENT_GAMEPAD_REMOVED:
 		{
 			Sys_JoystickDisconnect( event->gdevice.which );
-			return 1;
+			return false;
 		}
 		case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 		case SDL_EVENT_GAMEPAD_BUTTON_UP:
 		{
 			//Sys_QueEvent( SE_KEY, key, value, 0, NULL, inputDeviceNum );
+			return true;
 		}
 		case SDL_EVENT_GAMEPAD_AXIS_MOTION:
 		{
 			//Sys_QueEvent( SE_JOYSTICK, axis, percent, 0, nullptr, inputDeviceNum );
-	        return 1;
+	        return true;
 		}
 
 		//case SDL_JOYAXISMOTION:
@@ -963,12 +961,17 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 		//case SDL_JOYDEVICEADDED:         /**< A new joystick has been inserted into the system */
 		//case SDL_JOYDEVICEREMOVED:       /**< An opened joystick has been removed */
 		//	// Always Pass these events on to SDL
-	    //    return 1;
+	    //    return true;
 		case SDL_EVENT_QUIT:
 		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
 			PushConsoleEvent( "quit" );
-			return 0;
+			return false;
 			
+		// just to ignore this window events
+		case SDL_EVENT_WINDOW_PIXEL_SIZE_CHANGED:
+		case SDL_EVENT_WINDOW_SAFE_AREA_CHANGED:
+			return true;
+
 		case SDL_EVENT_USER:
 			switch( event->user.code )
 			{
@@ -977,17 +980,17 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 					//res.evPtrLength = ( intptr_t )event->user.data1;
 					//res.evPtr = event->user.data2;
 					Sys_QueEvent( SE_CONSOLE, 0, 0, ( intptr_t )event->user.data1, event->user.data2, 0 );
-					return 0;
+					return false;
 				default:
 					common->Warning( "unknown user event %u", event->user.code );
-					return 1;
+					return true;
 			}
 		default:
 			common->Warning( "unknown event %u", event->type );
-			return 1;
+			return true;
 	}
 	// Event Not Handled, Add to Main queue.
-	return 1;
+	return true;
 }
 
 /*

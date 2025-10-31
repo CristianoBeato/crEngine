@@ -397,24 +397,18 @@ void idEditField::CharEvent( int ch )
 	else  	// insert mode
 	{
 		if( len == MAX_EDIT_LINE - 1 )
-		{
 			return; // all full
-		}
+		
 		memmove( buffer + cursor + 1, buffer + cursor, len + 1 - cursor );
 		buffer[cursor] = ch;
 		cursor++;
 	}
 	
-	
 	if( cursor >= widthInChars )
-	{
 		scroll++;
-	}
 	
 	if( cursor == len + 1 )
-	{
 		buffer[cursor] = 0;
-	}
 }
 
 /*
@@ -439,13 +433,9 @@ void idEditField::KeyDownEvent( int key )
 	if( key == K_DEL )
 	{
 		if( autoComplete.length )
-		{
 			ClearAutoComplete();
-		}
 		else if( cursor < len )
-		{
 			memmove( buffer + cursor, buffer + cursor + 1, len - cursor );
-		}
 		return;
 	}
 	
@@ -470,19 +460,14 @@ void idEditField::KeyDownEvent( int key )
 		}
 		
 		if( cursor > len )
-		{
 			cursor = len;
-		}
 		
 		if( cursor >= scroll + widthInChars )
-		{
 			scroll = cursor - widthInChars + 1;
-		}
 		
 		if( autoComplete.length > 0 )
-		{
 			autoComplete.length = cursor;
-		}
+
 		return;
 	}
 	
@@ -567,17 +552,15 @@ void idEditField::KeyDownEvent( int key )
 idEditField::Paste
 ===============
 */
-void idEditField::Paste()
+void idEditField::Paste( void )
 {
-	char*	cbd;
-	int		pasteLen, i;
+	char*	cbd = nullptr;
+	int		pasteLen = 0, i = 0;
 	
 	cbd = Sys_GetClipboardData();
 	
 	if( !cbd )
-	{
 		return;
-	}
 	
 	// send as if typed, so insert / overstrike works properly
 	pasteLen = strlen( cbd );
@@ -594,7 +577,7 @@ void idEditField::Paste()
 idEditField::GetBuffer
 ===============
 */
-char* idEditField::GetBuffer()
+char* idEditField::GetBuffer( void )
 {
 	return buffer;
 }

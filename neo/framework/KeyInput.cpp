@@ -268,7 +268,7 @@ public:
 };
 
 bool		key_overstrikeMode = false;
-idKey* 		keys = NULL;
+idKey* 		keys = nullptr;
 
 
 /*
@@ -312,9 +312,7 @@ idKeyInput::IsDown
 bool idKeyInput::IsDown( int keynum )
 {
 	if( keynum == -1 )
-	{
 		return false;
-	}
 	
 	return keys[keynum].down;
 }
@@ -326,19 +324,14 @@ idKeyInput::StringToKeyNum
 */
 keyNum_t idKeyInput::StringToKeyNum( const char* str )
 {
-
 	if( !str || !str[0] )
-	{
 		return K_NONE;
-	}
 	
 	// scan for a text match
 	for( keyname_t* kn = keynames; kn->name; kn++ )
 	{
 		if( !idStr::Icmp( str, kn->name ) )
-		{
 			return kn->keynum;
-		}
 	}
 	
 	return K_NONE;
@@ -355,9 +348,7 @@ const char* idKeyInput::KeyNumToString( keyNum_t keynum )
 	for( keyname_t* kn = keynames; kn->name; kn++ )
 	{
 		if( keynum == kn->keynum )
-		{
 			return kn->name;
-		}
 	}
 	return "?";
 }
@@ -444,9 +435,7 @@ idKeyInput::GetBinding
 const char* idKeyInput::GetBinding( int keynum )
 {
 	if( keynum == -1 )
-	{
 		return "";
-	}
 	
 	return keys[ keynum ].binding;
 }
@@ -822,9 +811,8 @@ idKeyInput::KeyIsBountTo
 bool idKeyInput::KeyIsBoundTo( int keynum, const char* binding )
 {
 	if( keynum >= 0 && keynum < K_LAST_KEY )
-	{
 		return ( keys[keynum].binding.Icmp( binding ) == 0 );
-	}
+	
 	return false;
 }
 
@@ -869,7 +857,7 @@ bool idKeyInput::ExecKeyBinding( int keynum )
 idKeyInput::ClearStates
 ===================
 */
-void idKeyInput::ClearStates()
+void idKeyInput::ClearStates( void )
 {
 	for( int i = 0; i < K_LAST_KEY; i++ )
 	{
@@ -889,7 +877,7 @@ void idKeyInput::ClearStates()
 idKeyInput::Init
 ===================
 */
-void idKeyInput::Init()
+void idKeyInput::Init( void )
 {
 
 	keys = new( TAG_SYSTEM ) idKey[K_LAST_KEY];
@@ -910,7 +898,7 @@ idKeyInput::Shutdown
 void idKeyInput::Shutdown()
 {
 	delete [] keys;
-	keys = NULL;
+	keys = nullptr;
 }
 
 

@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "ConsoleHistory.h"
-#include "../renderer/ResolutionScale.h"
+#include "renderer/ResolutionScale.h"
 #include "Common_local.h"
 
 #ifdef ID_ALLOW_TOOLS
@@ -430,12 +430,16 @@ void	idConsoleLocal::ClearNotifyLines()
 idConsoleLocal::Close
 ================
 */
-void	idConsoleLocal::Close()
+void	idConsoleLocal::Close( void )
 {
 	keyCatching = false;
 	SetDisplayFraction( 0 );
 	displayFrac = 0;	// don't scroll to that point, go immediately
 	ClearNotifyLines();
+
+// BEATO Begin:
+	sys->GetVideoSystem()->TextInput( false );
+// BEATO End
 }
 
 /*
@@ -802,9 +806,7 @@ bool	idConsoleLocal::ProcessEvent( const sysEvent_t* event, bool forceAccept )
 	{
 		// ignore up events
 		if( event->evValue2 == 0 )
-		{
 			return true;
-		}
 		
 		consoleField.ClearAutoComplete();
 		
@@ -819,32 +821,29 @@ bool	idConsoleLocal::ProcessEvent( const sysEvent_t* event, bool forceAccept )
 			consoleField.Clear();
 			keyCatching = true;
 			if( idKeyInput::IsDown( K_LSHIFT ) || idKeyInput::IsDown( K_RSHIFT ) )
-			{
-				// if the shift key is down, don't open the console as much
-				SetDisplayFraction( 0.2f );
-			}
+				SetDisplayFraction( 0.2f ); // if the shift key is down, don't open the console as much
 			else
-			{
 				SetDisplayFraction( 0.5f );
-			}
+
+// BEATO Begin:
+			// we need to tel SDL3, that we are waiting the keyboard input as a text editor, for console input
+			sys->GetVideoSystem()->TextInput( true );
+// BEATO End
 		}
 		return true;
 	}
 	
 	// if we aren't key catching, dump all the other events
 	if( !forceAccept && !keyCatching )
-	{
 		return false;
-	}
 	
 	// handle key and character events
 	if( event->evType == SE_CHAR )
 	{
 		// never send the console key as a character
 		if( event->evValue != '`' && event->evValue != '~' )
-		{
 			consoleField.CharEvent( event->evValue );
-		}
+		
 		return true;
 	}
 	
@@ -852,9 +851,7 @@ bool	idConsoleLocal::ProcessEvent( const sysEvent_t* event, bool forceAccept )
 	{
 		// ignore up key events
 		if( event->evValue2 == 0 )
-		{
 			return true;
-		}
 		
 		KeyDownEvent( event->evValue );
 		return true;
@@ -883,15 +880,12 @@ void idConsoleLocal::Linefeed()
 	
 	// mark time for transparent overlay
 	if( current >= 0 )
-	{
 		times[current % NUM_CON_TIMES] = Sys_Milliseconds();
-	}
 	
 	x = 0;
 	if( display == current )
-	{
 		display++;
-	}
+	
 	current++;
 	for( i = 0; i < LINE_WIDTH; i++ )
 	{
@@ -935,13 +929,10 @@ void idConsoleLocal::Print( const char* txt )
 		if( idStr::IsColor( txt ) )
 		{
 			if( *( txt + 1 ) == C_COLOR_DEFAULT )
-			{
 				color = idStr::ColorIndex( C_COLOR_CYAN );
-			}
 			else
-			{
 				color = idStr::ColorIndex( *( txt + 1 ) );
-			}
+
 			txt += 2;
 			continue;
 		}
@@ -956,16 +947,12 @@ void idConsoleLocal::Print( const char* txt )
 			for( l = 0 ; l < LINE_WIDTH ; l++ )
 			{
 				if( txt[l] <= ' ' )
-				{
 					break;
-				}
 			}
 			
 			// word wrap
 			if( l != LINE_WIDTH && ( x + l >= LINE_WIDTH ) )
-			{
 				Linefeed();
-			}
 		}
 		
 		txt++;
@@ -1006,9 +993,7 @@ void idConsoleLocal::Print( const char* txt )
 	
 	// mark time for transparent overlay
 	if( current >= 0 )
-	{
 		times[current % NUM_CON_TIMES] = Sys_Milliseconds();
-	}
 }
 
 

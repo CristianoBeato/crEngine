@@ -341,7 +341,7 @@ idRenderModel* idRenderWorldLocal::ParseShadowModel( idLexer* src, idFile* fileO
 	idRenderModel* model = renderModelManager->AllocModel();
 	model->InitEmpty( token );
 	
-	if( fileOut != NULL )
+	if( fileOut != nullptr )
 	{
 		// write out the type so the binary reader knows what to instantiate
 		fileOut->WriteString( "shadowmodel" );
@@ -855,7 +855,7 @@ bool idRenderWorldLocal::InitFromMap( const char* name )
 	bool loaded = false;
 	
 	idFileLocal file( fileSystem->OpenFileReadMemory( generatedFileName ) );
-	if( file != NULL )
+	if( file != nullptr )
 	{
 		int numEntries = 0;
 		int magic = 0;
@@ -889,7 +889,7 @@ bool idRenderWorldLocal::InitFromMap( const char* name )
 					else if( type == "shadowmodel" )
 					{
 						idRenderModel* lastModel = ReadBinaryModel( file );
-						if( lastModel == NULL )
+						if( lastModel == nullptr )
 						{
 							loaded = false;
 							break;

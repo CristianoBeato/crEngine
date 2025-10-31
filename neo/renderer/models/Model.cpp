@@ -69,7 +69,7 @@ idRenderModelStatic::idRenderModelStatic()
 	hasShadowCastingSurfaces = true;
 	timeStamp = 0;
 	numInvertedJoints = 0;
-	jointsInverted = NULL;
+	jointsInverted = nullptr;
 	jointsInvertedBuffer = 0;
 }
 
@@ -127,7 +127,7 @@ void idRenderModelStatic::Print() const
 idRenderModelStatic::Memory
 ==============
 */
-int idRenderModelStatic::Memory() const
+int idRenderModelStatic::Memory( void ) const
 {
 	int	totalBytes = 0;
 	

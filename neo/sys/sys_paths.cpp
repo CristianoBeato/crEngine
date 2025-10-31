@@ -20,8 +20,10 @@ namespace fs = std::filesystem;
 #include <SDL3/SDL_storage.h>
 #include <SDL3/SDL_iostream.h>
 
-static idCVar sys_defaultbasepath( "sys_defaultbasepath", "detect", CVAR_SYSTEM | CVAR_ROM, "the local game source base path" );
-static idCVar sys_defaultsavepath( "sys_defaultsavepath", "detect", CVAR_SYSTEM | CVAR_ROM, "the game saves folder" );
+constexpr char* DEFALT_STRING = "detect";
+
+static idCVar sys_defaultbasepath( "sys_defaultbasepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the local game source base path" );
+static idCVar sys_defaultsavepath( "sys_defaultsavepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the game saves folder" );
 
 /*
 ==============
@@ -57,19 +59,20 @@ const char* Sys_EXEPath( void )
  */
 const char* Sys_DefaultSavePath( void )
 {
-	static idStr savepath;
-    if ( !savepath.IsEmpty() )
+	if ( strncmp( DEFALT_STRING, sys_defaultsavepath.GetString(), strlen( DEFALT_STRING ) ) == 0 )
     {
 #if __PLATFORM_LINUX__
 		char path[1024];
     	SDL_snprintf( path, 1024, "%s/.%s", getenv( "HOME" ), GAME_NAME );
-		savepath = path;
+		sys_defaultsavepath.SetString( path );
 #else
-    	savepath = SDL_GetPrefPath( "crEngine", GAME_NAME);
+		char* path = SDL_GetPrefPath( "crEngine", GAME_NAME );
+		sys_defaultsavepath.SetString( path );
+		SDL_free( path );
 #endif
     }
 	
-	return savepath.c_str();
+	return sys_defaultsavepath.GetString();
 }
 
 /*
@@ -289,25 +292,29 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 
 #if 0
 	int count = 0;
-	char** pathlist = SDL_GlobDirectory( directory, 0, extension, &count );
-
+	char** pathlist = SDL_GlobDirectory( directory, extension, SDL_GLOB_CASEINSENSITIVE , &count );
 	for ( uint32_t i = 0; i < count; i++)
 	{
-		char* path = pathlist[i];
-		if ( !path )
+		idStr path;
+		if ( pathlist[i] == nullptr )
 			continue;
-
 		
+		path = pathlist[i];
+
+
+		list.Append( path );
 	}
 	
 	SDL_free( pathlist );
 #else
 	try
 	{
+		// check for a valid path
 		fs::path dirPath(directory);
         if (!fs::exists(dirPath) || !fs::is_directory(dirPath))
             return 0;
 
+		// get the extensions
         std::string extFilter;
         if (extension && *extension) 
 		{
@@ -320,20 +327,22 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 
         for (const auto& entry : fs::directory_iterator(dirPath)) 
 		{
-            if (!entry.is_regular_file())
-                continue;
-
-            const fs::path& filePath = entry.path();
-            if (!extFilter.empty()) 
+			const fs::path& filePath = entry.path();
+          
+			// we are listing subpaths
+			if ( entry.is_directory() && std::strncmp( extension, PATHSEPARATOR_STR, strlen( extension ) ) )
 			{
-                if (filePath.extension() != extFilter)
-                    continue;
-            }
+            	list.Append(filePath.filename().string().c_str());
+			}
+			else if( entry.is_regular_file() && !extFilter.empty() )
+			{
+				std::string ext = filePath.extension(); 
+            	if ( ext != extFilter)
+            	    continue;
 
-            list.Append(filePath.filename().string().c_str());
+				list.Append(filePath.filename().string().c_str());
+			}	
         }
-
-        
 	}
 	catch(const std::exception& e)
 	{

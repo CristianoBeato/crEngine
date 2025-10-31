@@ -27,7 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#define GAME_NAME						"crEngine"		// appears on window titles and errors
+#define GAME_NAME						"crEngine"  // appears on window titles and errors
 #define ENGINE_VERSION					"crEngine"	// printed in console
 
 #define	BASE_GAMEDIR					"base"
