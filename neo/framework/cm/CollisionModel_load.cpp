@@ -2985,78 +2985,6 @@ void idCollisionModelManagerLocal::CreatePatchPolygons( cm_model_t* model, idSur
 
 /*
 =================
-idCollisionModelManagerLocal::CreatePatchPolygons
-=================
-*/
-void idCollisionModelManagerLocal::CreatePatchPolygons( cm_model_t* model, idDmapSurface_Patch& mesh, const idMaterial* material, int primitiveNum )
-{
-	int i, j;
-	float dot;
-	int v1, v2, v3, v4;
-	idFixedWinding w;
-	idPlane plane;
-	idVec3 d1, d2;
-	
-	for( i = 0; i < mesh.GetWidth() - 1; i++ )
-	{
-		for( j = 0; j < mesh.GetHeight() - 1; j++ )
-		{
-			v1 = j * mesh.GetWidth() + i;
-			v2 = v1 + 1;
-			v3 = v1 + mesh.GetWidth() + 1;
-			v4 = v1 + mesh.GetWidth();
-			
-			d1 = mesh[v2].xyz - mesh[v1].xyz;
-			d2 = mesh[v3].xyz - mesh[v1].xyz;
-			plane.SetNormal( d1.Cross( d2 ) );
-			if( plane.Normalize() != 0.0f )
-			{
-				plane.FitThroughPoint( mesh[v1].xyz );
-				dot = plane.Distance( mesh[v4].xyz );
-				// if we can turn it into a quad
-				if( idMath::Fabs( dot ) < 0.1f )
-				{
-					w.Clear();
-					w += mesh[v1].xyz;
-					w += mesh[v2].xyz;
-					w += mesh[v3].xyz;
-					w += mesh[v4].xyz;
-					
-					PolygonFromWinding( model, &w, plane, material, -primitiveNum );
-					continue;
-				}
-				else
-				{
-					// create one of the triangles
-					w.Clear();
-					w += mesh[v1].xyz;
-					w += mesh[v2].xyz;
-					w += mesh[v3].xyz;
-					
-					PolygonFromWinding( model, &w, plane, material, -primitiveNum );
-				}
-			}
-			// create the other triangle
-			d1 = mesh[v3].xyz - mesh[v1].xyz;
-			d2 = mesh[v4].xyz - mesh[v1].xyz;
-			plane.SetNormal( d1.Cross( d2 ) );
-			if( plane.Normalize() != 0.0f )
-			{
-				plane.FitThroughPoint( mesh[v1].xyz );
-				
-				w.Clear();
-				w += mesh[v1].xyz;
-				w += mesh[v3].xyz;
-				w += mesh[v4].xyz;
-				
-				PolygonFromWinding( model, &w, plane, material, -primitiveNum );
-			}
-		}
-	}
-}
-
-/*
-=================
 CM_EstimateVertsAndEdges
 =================
 */
@@ -3094,7 +3022,7 @@ static void CM_EstimateVertsAndEdges( const idMapEntity* mapEnt, int* numVerts, 
 CM_EstimateVertsAndEdgesDmap
 =================
 */
-static void CM_EstimateVertsAndEdgesDmap( const idDmapMapEntity* mapEnt, int* numVerts, int* numEdges )
+static void CM_EstimateVertsAndEdgesDmap( const idMapEntity* mapEnt, int* numVerts, int* numEdges )
 {
 	int j, width, height;
 	
@@ -3130,62 +3058,21 @@ idCollisionModelManagerLocal::ConvertPatch
 */
 void idCollisionModelManagerLocal::ConvertPatch( cm_model_t* model, const idMapPatch* patch, int primitiveNum )
 {
-	const idMaterial* material;
-	idSurface_Patch* cp;
+	const idMaterial* material = nullptr;
+	idSurface_Patch* cp = nullptr;
 	
 	material = declManager->FindMaterial( patch->GetMaterial() );
 	if( !( material->GetContentFlags() & CONTENTS_REMOVE_UTIL ) )
-	{
 		return;
-	}
 	
 	// copy the patch
 	cp = new( TAG_COLLISION ) idSurface_Patch( *patch );
 	
 	// if the patch has an explicit number of subdivisions use it to avoid cracks
 	if( patch->GetExplicitlySubdivided() )
-	{
 		cp->SubdivideExplicit( patch->GetHorzSubdivisions(), patch->GetVertSubdivisions(), false, true );
-	}
 	else
-	{
 		cp->Subdivide( DEFAULT_CURVE_MAX_ERROR_CD, DEFAULT_CURVE_MAX_ERROR_CD, DEFAULT_CURVE_MAX_LENGTH_CD, false );
-	}
-	
-	// create collision polygons for the patch
-	CreatePatchPolygons( model, *cp, material, primitiveNum );
-	
-	delete cp;
-}
-
-/*
-=================
-idCollisionModelManagerLocal::ConvertPatch
-=================
-*/
-void idCollisionModelManagerLocal::ConvertPatch( cm_model_t* model, const idDmapMapPatch* patch, int primitiveNum )
-{
-	const idMaterial* material;
-	idDmapSurface_Patch* cp;
-	
-	material = declManager->FindMaterial( patch->GetMaterial() );
-	if( !( material->GetContentFlags() & CONTENTS_REMOVE_UTIL ) )
-	{
-		return;
-	}
-	
-	// copy the patch
-	cp = new( TAG_COLLISION ) idDmapSurface_Patch( *patch );
-	
-	// if the patch has an explicit number of subdivisions use it to avoid cracks
-	if( patch->GetExplicitlySubdivided() )
-	{
-		cp->SubdivideExplicit( patch->GetHorzSubdivisions(), patch->GetVertSubdivisions(), false, true );
-	}
-	else
-	{
-		cp->Subdivide( DEFAULT_CURVE_MAX_ERROR_CD, DEFAULT_CURVE_MAX_ERROR_CD, DEFAULT_CURVE_MAX_LENGTH_CD, false );
-	}
 	
 	// create collision polygons for the patch
 	CreatePatchPolygons( model, *cp, material, primitiveNum );
@@ -4116,13 +4003,9 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 	// create an axial bsp tree for the model if it has more than just a bunch brushes
 	brushCount = CM_CountNodeBrushes( model->node );
 	if( brushCount > 4 )
-	{
 		model->node = CreateAxialBSPTree( model, model->node );
-	}
 	else
-	{
 		model->node->planeType = -1;
-	}
 	
 	// get bounds for hash
 	if( brushCount )
@@ -4166,7 +4049,7 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 idCollisionModelManagerLocal::CollisionModelForMapEntityDmap
 ================
 */
-cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntityDmap( const idDmapMapEntity* mapEnt )
+cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntityDmap( const idMapEntity* mapEnt )
 {
 
 	cm_model_t* model;
@@ -4176,9 +4059,7 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntityDmap( const 
 	
 	// if the entity has no primitives
 	if( mapEnt->GetNumPrimitives() < 1 )
-	{
-		return NULL;
-	}
+		return nullptr;
 	
 	// get a name for the collision model
 	mapEnt->epairs.GetString( "model", "", &name );
@@ -4230,19 +4111,13 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntityDmap( const 
 	// create an axial bsp tree for the model if it has more than just a bunch brushes
 	brushCount = CM_CountNodeBrushes( model->node );
 	if( brushCount > 4 )
-	{
 		model->node = CreateAxialBSPTree( model, model->node );
-	}
 	else
-	{
 		model->node->planeType = -1;
-	}
 	
 	// get bounds for hash
 	if( brushCount )
-	{
 		CM_GetNodeBounds( &bounds, model->node );
-	}
 	else
 	{
 		bounds[0].Set( -256, -256, -256 );
@@ -4260,7 +4135,7 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntityDmap( const 
 		mapPrim = mapEnt->GetPrimitive( i );
 		if( mapPrim->GetType() == idMapPrimitive::TYPE_PATCH )
 		{
-			ConvertPatch( model, static_cast<idDmapMapPatch*>( mapPrim ), i );
+			ConvertPatch( model, static_cast<idMapPatch*>( mapPrim ), i );
 			continue;
 		}
 		if( mapPrim->GetType() == idMapPrimitive::TYPE_BRUSH )
@@ -4415,9 +4290,7 @@ void idCollisionModelManagerLocal::BuildModels( const idMapFile* mapFile )
 	{
 	
 		if( !mapFile->GetNumEntities() )
-		{
 			return;
-		}
 		
 		// load the .proc file bsp for data optimisation
 		LoadProcBSP( mapFile->GetName() );
@@ -4463,10 +4336,10 @@ void idCollisionModelManagerLocal::BuildModels( const idMapFile* mapFile )
 idCollisionModelManagerLocal::BuildModelsDmap
 ================
 */
-void idCollisionModelManagerLocal::BuildModelsDmap( const idDmapMapFile* mapFile )
+void idCollisionModelManagerLocal::BuildModelsDmap( const idMapFile* mapFile )
 {
 	int i;
-	const idDmapMapEntity* mapEnt;
+	const idMapEntity* mapEnt;
 	
 	idTimer timer;
 	timer.Start();
@@ -4622,10 +4495,9 @@ void idCollisionModelManagerLocal::LoadMap( const idMapFile* mapFile )
 idCollisionModelManagerLocal::LoadMap
 ================
 */
-void idCollisionModelManagerLocal::LoadMapDmap( const idDmapMapFile* mapFile )
+void idCollisionModelManagerLocal::LoadMapDmap( const idMapFile* mapFile )
 {
-
-	if( mapFile == NULL )
+	if( mapFile == nullptr )
 	{
 		common->Error( "idCollisionModelManagerLocal::LoadMap: NULL mapFile" );
 		return;

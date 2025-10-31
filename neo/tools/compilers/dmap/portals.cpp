@@ -592,8 +592,9 @@ bool FloodEntities( tree_t *tree ) {
 
 	c_floodedleafs = 0;
 	bool errorShown = false;
-	for (i=1 ; i<dmapGlobals.num_entities ; i++) {
-		idDmapMapEntity	*mapEnt;
+	for (i=1 ; i<dmapGlobals.num_entities ; i++) 
+	{
+		idMapEntity	*mapEnt = nullptr;
 
 		mapEnt = dmapGlobals.uEntities[i].mapEntity;
 		if ( !mapEnt->epairs.GetVector( "origin", "", origin) ) {

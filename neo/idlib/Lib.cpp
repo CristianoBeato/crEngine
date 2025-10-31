@@ -74,9 +74,6 @@ void idLib::Init()
 	
 	// initialize generic SIMD implementation
 	idSIMD::Init();
-
-	// foresthale 2014-05-21: initialize the generic Dmap-specific SIMD implementation
-	idDmapSIMD::Init();
 	
 	// initialize math
 	idMath::Init();
@@ -106,10 +103,7 @@ void idLib::ShutDown()
 	
 	// shut down the string memory allocator
 	idStr::ShutdownMemory();
-	
-	// foresthale 2014-05-21: shutdown the generic Dmap-specific SIMD implementation
-	idDmapSIMD::Shutdown();
-
+		
 	// shut down the SIMD engine
 	idSIMD::Shutdown();
 }

@@ -173,7 +173,8 @@ static	void UnlinkEdge( optEdge_t *e, optIsland_t *island ) {
 LinkEdge
 ====================
 */
-static	void LinkEdge( optEdge_t *e ) {
+static	void LinkEdge( optEdge_t *e ) 
+{
 	e->v1link = e->v1->edges;
 	e->v1->edges = e;
 
@@ -185,7 +186,8 @@ static	void LinkEdge( optEdge_t *e ) {
 FindOptVertex
 ================
 */
-static optVertex_t *FindOptVertex( idDmapDrawVert *v, optimizeGroup_t *opt ) {
+static optVertex_t *FindOptVertex( idDrawVert *v, optimizeGroup_t *opt ) 
+{
 	int		i;
 	float	x, y;
 	optVertex_t	*vert;
@@ -195,21 +197,23 @@ static optVertex_t *FindOptVertex( idDmapDrawVert *v, optimizeGroup_t *opt ) {
 	y = v->xyz * opt->axis[1];
 
 	// should we match based on the t-junction fixing hash verts?
-	for ( i = 0 ; i < numOptVerts ; i++ ) {
-		if ( optVerts[i].pv[0] == x && optVerts[i].pv[1] == y ) {
+	for ( i = 0 ; i < numOptVerts ; i++ ) 
+	{
+		if ( optVerts[i].pv[0] == x && optVerts[i].pv[1] == y )
 			return &optVerts[i];
-		}
 	}
 
-	if ( numOptVerts >= MAX_OPT_VERTEXES ) {
+	if ( numOptVerts >= MAX_OPT_VERTEXES ) 
+	{
 		common->Error( "MAX_OPT_VERTEXES" );
-		return NULL;
+		return nullptr;
 	}
 	
 	numOptVerts++;
 
 	vert = &optVerts[i];
-	memset( vert, 0, sizeof( *vert ) );
+	std::memset( vert, 0, sizeof( *vert ) );
+
 	vert->v = *v;
 	vert->pv[0] = x;
 	vert->pv[1] = y;
@@ -220,17 +224,18 @@ static optVertex_t *FindOptVertex( idDmapDrawVert *v, optimizeGroup_t *opt ) {
 	return vert;
 }
 
+#if 0
 /*
 ================
 DrawAllEdges
 ================
 */
-static	void DrawAllEdges( void ) {
+static	void DrawAllEdges( void ) 
+{
 	int		i;
 
-	if ( !dmapGlobals.drawflag ) {
+	if ( !dmapGlobals.drawflag ) 
 		return;
-	}
 
 	Draw_ClearWindow();
 
@@ -249,7 +254,9 @@ static	void DrawAllEdges( void ) {
 
 //	GLimp_SwapBuffers();
 }
+#endif
 
+#if 0
 /*
 ================
 DrawVerts
@@ -274,7 +281,9 @@ static void DrawVerts( optIsland_t *island ) {
 	glDisable( GL_BLEND );
 	glFlush();
 }
+#endif
 
+#if 0
 /*
 ================
 DrawEdges
@@ -304,6 +313,7 @@ static	void DrawEdges( optIsland_t *island ) {
 
 //	GLimp_SwapBuffers();
 }
+#endif
 
 //=================================================================
 
@@ -336,10 +346,10 @@ This should only be called if PointsStraddleLine returned true
 Will return NULL if the lines are colinear
 ====================
 */
-static	optVertex_t *EdgeIntersection( const optVertex_t *p1, const optVertex_t *p2, 
-									  const optVertex_t *l1, const optVertex_t *l2, optimizeGroup_t *opt ) {
+static	optVertex_t *EdgeIntersection( const optVertex_t *p1, const optVertex_t *p2, const optVertex_t *l1, const optVertex_t *l2, optimizeGroup_t *opt ) 
+{
 	float	f;
-	idDmapDrawVert	*v;
+	idDrawVert	*v;
 	idVec3	dir1, dir2, cross1, cross2;
 
 	dir1 = p1->pv - l1->pv;
@@ -350,19 +360,33 @@ static	optVertex_t *EdgeIntersection( const optVertex_t *p1, const optVertex_t *
 	dir2 = p2->pv - l2->pv;
 	cross2 = dir1.Cross( dir2 );
 
-	if ( cross1[2] - cross2[2] == 0 ) {
-		return NULL;
-	}
+	if ( cross1[2] - cross2[2] == 0 ) 
+		return nullptr;
 
 	f = cross1[2] / ( cross1[2] - cross2[2] );
 
 	// FIXME: how are we freeing this, since it doesn't belong to a tri?
-	v = (idDmapDrawVert *)Mem_Alloc( sizeof( *v ), TAG_DMAP );
+#if 0
+	v = static_cast<idDrawVert*>( Mem_Alloc( sizeof( *v ), TAG_DMAP ) );
 	memset( v, 0, sizeof( *v ) );
+#else
+	v = static_cast<idDrawVert*>( Mem_ClearedAlloc( sizeof( *v ), TAG_DMAP ) );
+#endif
 
 	v->xyz = p1->v.xyz * ( 1.0 - f ) + p2->v.xyz * f;
+
+// BEATO Begin:
+#if 1
+	idVec3 p1n = p1->v.GetNormal() * ( 1.0 - f );
+	idVec3 p2n = p2->v.GetNormal() * f;
+	idVec3 normal = p1n + p2n;
+	normal.Normalize();
+	v->SetNormal( normal );
+#else
 	v->normal = p1->v.normal * ( 1.0 - f ) + p2->v.normal * f;
 	v->normal.Normalize();
+#endif
+// BEATO End
 	v->st[0] = p1->v.st[0] * ( 1.0 - f ) + p2->v.st[0] * f;
 	v->st[1] = p1->v.st[1] * ( 1.0 - f ) + p2->v.st[1] * f;
 
@@ -524,7 +548,8 @@ AddInteriorEdges
 Add all possible edges between the verts
 ==================
 */
-static	void AddInteriorEdges( optIsland_t *island ) {
+static	void AddInteriorEdges( optIsland_t *island ) 
+{
 	int		c_addedEdges;
 	optVertex_t	*vert, *vert2;
 	int		c_verts;
@@ -532,7 +557,11 @@ static	void AddInteriorEdges( optIsland_t *island ) {
 	int				numLengths;
 	int				i;
 
+// BEATO Begin: don't draw vertices
+#if 0 
 	DrawVerts( island );
+#endif
+// BEATO End
 
 	// count the verts
 	c_verts = 0;
@@ -1675,8 +1704,6 @@ static void CullUnusedVerts( optIsland_t *island ) {
 	}
 }
 
-
-
 /*
 ====================
 OptimizeIsland
@@ -1688,12 +1715,15 @@ Interior and colinear vertexes will be removed, and
 a new triangulation will be created.
 ====================
 */
-static void OptimizeIsland( optIsland_t *island ) {
+static void OptimizeIsland( optIsland_t *island ) 
+{
 	// add space-filling fake edges so we have a complete
 	// triangulation of a convex hull before optimization
 	AddInteriorEdges( island );
-	DrawEdges( island );
 
+//	DrawEdges( island );
+
+	
 	// determine all the possible triangles, and decide if
 	// the are filled or empty
 	BuildOptTriangles( island );
@@ -1701,19 +1731,22 @@ static void OptimizeIsland( optIsland_t *island ) {
 	// remove interior vertexes that have filled triangles
 	// between all their edges
 	RemoveInteriorEdges( island );
-	DrawEdges( island );
 
+//	DrawEdges( island );
+	
 	ValidateEdgeCounts( island );
 
 	// remove vertexes that only have two colinear edges
 	CombineColinearEdges( island );
 	CullUnusedVerts( island );
-	DrawEdges( island );
+
+
+//	DrawEdges( island );
 
 	// add new internal edges between the remaining exterior edges
 	// to give us a full triangulation again
 	AddInteriorEdges( island );
-	DrawEdges( island );
+//	DrawEdges( island );
 
 	// determine all the possible triangles, and decide if
 	// the are filled or empty
@@ -1723,11 +1756,12 @@ static void OptimizeIsland( optIsland_t *island ) {
 	RegenerateTriangles( island );
 }
 
-static void DontSeparateIslands( optimizeGroup_t *opt ) {
+static void DontSeparateIslands( optimizeGroup_t *opt ) 
+{
 	int		i;
 	optIsland_t	island;
 
-	DrawAllEdges();
+//	DrawAllEdges();
 
 	memset( &island, 0, sizeof( island ) );
 	island.group = opt;
@@ -1782,7 +1816,7 @@ static	void OptimizeOptList( optimizeGroup_t *opt ) {
 	// free the original list and use the new one
 	FreeTriList( opt->triList );
 	opt->triList = opt->regeneratedTris;
-	opt->regeneratedTris = NULL;
+	opt->regeneratedTris = nullptr;
 }
 
 
@@ -1849,11 +1883,13 @@ void	OptimizeGroupList( optimizeGroup_t *groupList ) {
 OptimizeEntity
 ==================
 */
-void	OptimizeEntity( uEntity_t *e ) {
+void	OptimizeEntity( uEntity_t *e ) 
+{
 	int		i;
 
 	common->Printf( "----- OptimizeEntity -----\n" );
-	for ( i = 0 ; i < e->numAreas ; i++ ) {
+	for ( i = 0 ; i < e->numAreas ; i++ ) 
+	{
 		OptimizeGroupList( e->areas[i].groups );
 	}
 }

@@ -101,10 +101,10 @@ private:	// map loading
 	void					ClipBrushSidesWithProcBSP( idBrushList &brushList );
 	int						ContentsForAAS( int contents );
 	idBrushList				AddBrushesForMapBrush( const idMapBrush *mapBrush, const idVec3 &origin, const idMat3 &axis, int entityNum, int primitiveNum, idBrushList brushList );
-	idBrushList				AddBrushesForMapPatch( const idDmapMapPatch *mapPatch, const idVec3 &origin, const idMat3 &axis, int entityNum, int primitiveNum, idBrushList brushList );
-	idBrushList				AddBrushesForMapEntity( const idDmapMapEntity *mapEnt, int entityNum, idBrushList brushList );
-	idBrushList				AddBrushesForMapFile( const idDmapMapFile * mapFile, idBrushList brushList );
-	bool					CheckForEntities( const idDmapMapFile *mapFile, idStrList &entityClassNames ) const;
+	idBrushList				AddBrushesForMapPatch( const idMapPatch *mapPatch, const idVec3 &origin, const idMat3 &axis, int entityNum, int primitiveNum, idBrushList brushList );
+	idBrushList				AddBrushesForMapEntity( const idMapEntity *mapEnt, int entityNum, idBrushList brushList );
+	idBrushList				AddBrushesForMapFile( const idMapFile * mapFile, idBrushList brushList );
+	bool					CheckForEntities( const idMapFile *mapFile, idStrList &entityClassNames ) const;
 	void					ChangeMultipleBoundingBoxContents_r( idBrushBSPNode *node, int mask );
 
 private:	// gravitational subdivision

@@ -194,16 +194,6 @@ const int MAX_EXPRESSION_REGISTERS = 4096;
 
 #include "tools/edit_public.h"
 
-// Files for dmap/aas/editors
-#include "tools/compilers/dmap/idLibDmap/DmapDrawVert.h"
-#include "tools/compilers/dmap/idLibDmap/DmapSurface.h"
-#include "tools/compilers/dmap/idLibDmap/DmapSurface_Patch.h"
-#include "tools/compilers/dmap/idLibDmap/DmapMapFile.h"
-#include "tools/compilers/dmap/idLibDmap/DmapSimd.h"
-#include "tools/compilers/dmap/renderer/DmapModel.h"
-#include "tools/compilers/dmap/renderer/DmapModelManager.h"
-#include "tools/compilers/dmap/renderer/DmapRenderWorld.h"
-
 //-----------------------------------------------------
 
 #undef min

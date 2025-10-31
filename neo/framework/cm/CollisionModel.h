@@ -88,8 +88,6 @@ typedef int cmHandle_t;
 #define CM_BOX_EPSILON		1.0f			// should always be larger than clip epsilon
 #define CM_MAX_TRACE_DIST	4096.0f			// maximum distance a trace model may be traced, point traces are unlimited
 
-class idDmapMapFile;
-
 class idCollisionModelManager
 {
 public:
@@ -97,7 +95,7 @@ public:
 	
 	// Loads collision models from a map file.
 	virtual void			LoadMap( const idMapFile* mapFile ) = 0;
-	virtual void			LoadMapDmap( const idDmapMapFile* mapFile ) = 0;
+	virtual void			LoadMapDmap( const idMapFile* mapFile ) = 0;
 	// Frees all the collision models.
 	virtual void			FreeMap() = 0;
 	

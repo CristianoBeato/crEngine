@@ -234,3 +234,78 @@ void VPCALL idSIMD_Generic::UntransformJoints( idJointMat* jointMats, const int*
 		jointMats[i] /= jointMats[parents[i]];
 	}
 }
+
+/*
+============
+idSIMD_Generic::Dot
+
+  dst[i] = constant.Normal() * src[i].xyz + constant[3];
+============
+*/
+void VPCALL idSIMD_Generic::Dot(float *dst, const idPlane &constant, const idDrawVert *src, const int count )
+{
+	for ( int i = 0; i < count; i++)
+	{
+		dst[i] = constant.Normal() * src[i].xyz + constant[3];
+	}
+	
+}
+
+/*
+============
+idSIMD_Generic::Dot
+
+  dst[i] = constant * src[i].Normal() + src[i][3];
+============
+*/
+void VPCALL idSIMD_Generic::Dot(float *dst, const idVec3 &constant, const idPlane *src, const int count)
+{
+    for ( int i = 0; i < count; i++)
+	{
+		dst[i] = constant * src[i].Normal() + src[i][3];
+	}
+}
+
+/*
+============
+idSIMD_Generic::CmpLT
+
+  dst[i] |= ( src0[i] < constant ) << bitNum;
+============
+*/
+void VPCALL idSIMD_Generic::CmpLT( byte *dst, const byte bitNum, const float *src0, const float constant, const int count ) 
+{
+	for ( int i = 0; i < count; i++)
+	{
+		dst[i] |= ( src0[i] < constant ) << bitNum;
+	}
+}
+
+/*
+============
+idSIMD_Generic::CmpGT
+
+  dst[i] |= ( src0[i] > constant ) << bitNum;
+============
+*/
+void VPCALL idSIMD_Generic::CmpGT( byte *dst, const byte bitNum, const float *src0, const float constant, const int count ) 
+{
+	for ( int i = 0; i < count; i++)
+	{
+		dst[i] |= ( src0[i] > constant ) << bitNum;
+	}
+}
+/*
+============
+idSIMD_Generic::CmpGE
+
+  dst[i] = src0[i] >= constant;
+============
+*/
+void VPCALL idSIMD_Generic::CmpGE( byte *dst, const float *src0, const float constant, const int count ) 
+{
+	for ( int i = 0; i < count; i++)
+	{
+		dst[i] = src0[i] >= constant;
+	}
+}

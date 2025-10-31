@@ -328,7 +328,7 @@ class idCollisionModelManagerLocal : public idCollisionModelManager
 public:
 	// load collision models from a map file
 	void			LoadMap( const idMapFile* mapFile );
-	void			LoadMapDmap( const idDmapMapFile* mapFile );
+	void			LoadMapDmap( const idMapFile* mapFile );
 	// frees all the collision models
 	void			FreeMap();
 	
@@ -493,9 +493,7 @@ private:			// CollisionMap_load.cpp
 	void			PolygonFromWinding( cm_model_t* model, idFixedWinding* w, const idPlane& plane, const idMaterial* material, int primitiveNum );
 	void			CalculateEdgeNormals( cm_model_t* model, cm_node_t* node );
 	void			CreatePatchPolygons( cm_model_t* model, idSurface_Patch& mesh, const idMaterial* material, int primitiveNum );
-	void			CreatePatchPolygons( cm_model_t* model, idDmapSurface_Patch& mesh, const idMaterial* material, int primitiveNum );
 	void			ConvertPatch( cm_model_t* model, const idMapPatch* patch, int primitiveNum );
-	void			ConvertPatch( cm_model_t* model, const idDmapMapPatch* patch, int primitiveNum );
 	void			ConvertBrushSides( cm_model_t* model, const idMapBrush* mapBrush, int primitiveNum );
 	void			ConvertBrush( cm_model_t* model, const idMapBrush* mapBrush, int primitiveNum );
 	void			PrintModelInfo( const cm_model_t* model );
@@ -504,10 +502,10 @@ private:			// CollisionMap_load.cpp
 	void			OptimizeArrays( cm_model_t* model );
 	void			FinishModel( cm_model_t* model );
 	void			BuildModels( const idMapFile* mapFile );
-	void			BuildModelsDmap( const idDmapMapFile* mapFile );
+	void			BuildModelsDmap( const idMapFile* mapFile );
 	cmHandle_t		FindModel( const char* name );
 	cm_model_t* 	CollisionModelForMapEntity( const idMapEntity* mapEnt );	// brush/patch model from .map
-	cm_model_t* 	CollisionModelForMapEntityDmap( const idDmapMapEntity* mapEnt );	// brush/patch model from .map
+	cm_model_t* 	CollisionModelForMapEntityDmap( const idMapEntity* mapEnt );	// brush/patch model from .map
 	cm_model_t* 	LoadRenderModel( const char* fileName );					// ASE/LWO models
 	cm_model_t* 	LoadBinaryModel( const char* fileName, ID_TIME_T sourceTimeStamp );
 	cm_model_t* 	LoadBinaryModelFromFile( idFile* fileIn, ID_TIME_T sourceTimeStamp );

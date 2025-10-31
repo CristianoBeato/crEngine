@@ -41,10 +41,10 @@ If you have questions concerning this license or the applicable additional terms
 class idAASReach {
 
 public:
-	bool					Build( const idDmapMapFile *mapFile, idAASFileLocal *file );
+	bool					Build( const idMapFile *mapFile, idAASFileLocal *file );
 
 private:
-	const idDmapMapFile *		mapFile;
+	const idMapFile *		mapFile;
 	idAASFileLocal *		file;
 	int						numReachabilities;
 	bool					allowSwimReachabilities;

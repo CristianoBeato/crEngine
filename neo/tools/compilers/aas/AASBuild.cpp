@@ -372,7 +372,7 @@ idBrushList idAASBuild::AddBrushesForMapBrush( const idMapBrush *mapBrush, const
 idAASBuild::AddBrushesForPatch
 ============
 */
-idBrushList idAASBuild::AddBrushesForMapPatch( const idDmapMapPatch *mapPatch, const idVec3 &origin, const idMat3 &axis, int entityNum, int primitiveNum, idBrushList brushList ) {
+idBrushList idAASBuild::AddBrushesForMapPatch( const idMapPatch *mapPatch, const idVec3 &origin, const idMat3 &axis, int entityNum, int primitiveNum, idBrushList brushList ) {
 	int i, j, contents, validBrushes;
 	float dot;
 	int v1, v2, v3, v4;
@@ -380,7 +380,7 @@ idBrushList idAASBuild::AddBrushesForMapPatch( const idDmapMapPatch *mapPatch, c
 	idPlane plane;
 	idVec3 d1, d2;
 	idBrush *brush;
-	idDmapSurface_Patch mesh;
+	idSurface_Patch mesh;
 	const idMaterial *mat;
 
 	mat = declManager->FindMaterial( mapPatch->GetMaterial() );
@@ -390,7 +390,7 @@ idBrushList idAASBuild::AddBrushesForMapPatch( const idDmapMapPatch *mapPatch, c
 		return brushList;
 	}
 
-	mesh = idDmapSurface_Patch( *mapPatch );
+	mesh = idSurface_Patch( *mapPatch );
 
 	// if the patch has an explicit number of subdivisions use it to avoid cracks
 	if ( mapPatch->GetExplicitlySubdivided() ) {
@@ -501,7 +501,7 @@ idBrushList idAASBuild::AddBrushesForMapPatch( const idDmapMapPatch *mapPatch, c
 idAASBuild::AddBrushesForMapEntity
 ============
 */
-idBrushList idAASBuild::AddBrushesForMapEntity( const idDmapMapEntity *mapEnt, int entityNum, idBrushList brushList ) {
+idBrushList idAASBuild::AddBrushesForMapEntity( const idMapEntity *mapEnt, int entityNum, idBrushList brushList ) {
 	int i;
 	idVec3 origin;
 	idMat3 axis;
@@ -530,7 +530,7 @@ idBrushList idAASBuild::AddBrushesForMapEntity( const idDmapMapEntity *mapEnt, i
 		}
 		if ( mapPrim->GetType() == idMapPrimitive::TYPE_PATCH ) {
 			if ( aasSettings->usePatches ) {
-				brushList = AddBrushesForMapPatch( static_cast<idDmapMapPatch*>(mapPrim), origin, axis, entityNum, i, brushList );
+				brushList = AddBrushesForMapPatch( static_cast<idMapPatch*>(mapPrim), origin, axis, entityNum, i, brushList );
 			}
 			continue;
 		}
@@ -544,7 +544,7 @@ idBrushList idAASBuild::AddBrushesForMapEntity( const idDmapMapEntity *mapEnt, i
 idAASBuild::AddBrushesForMapFile
 ============
 */
-idBrushList idAASBuild::AddBrushesForMapFile( const idDmapMapFile * mapFile, idBrushList brushList ) {
+idBrushList idAASBuild::AddBrushesForMapFile( const idMapFile * mapFile, idBrushList brushList ) {
 	int i;
 
 	common->Printf( "[Brush Load]\n" );
@@ -569,7 +569,7 @@ idBrushList idAASBuild::AddBrushesForMapFile( const idDmapMapFile * mapFile, idB
 idAASBuild::CheckForEntities
 ============
 */
-bool idAASBuild::CheckForEntities( const idDmapMapFile *mapFile, idStrList &entityClassNames ) const {
+bool idAASBuild::CheckForEntities( const idMapFile *mapFile, idStrList &entityClassNames ) const {
 	int		i;
 	idStr	classname;
 
@@ -639,7 +639,7 @@ idAASBuild::Build
 */
 bool idAASBuild::Build( const idStr &fileName, const idAASSettings *settings ) {
 	int i, bit, mask, startTime;
-	idDmapMapFile * mapFile;
+	idMapFile * mapFile;
 	idBrushList brushList;
 	idList<idBrushList*> expandedBrushes;
 	idBrush *b;	
@@ -657,7 +657,7 @@ bool idAASBuild::Build( const idStr &fileName, const idAASSettings *settings ) {
 	name = fileName;
 	name.SetFileExtension( "map" );
 
-	mapFile = new idDmapMapFile;
+	mapFile = new idMapFile;
 	if ( !mapFile->Parse( name ) ) {
 		delete mapFile;
 		common->Error( "Couldn't load map file: '%s'", name.c_str() );
@@ -713,7 +713,7 @@ bool idAASBuild::Build( const idStr &fileName, const idAASSettings *settings ) {
 		delete expandedBrushes[i];
 	}
 
-	idDmapMapEntity * wrld = mapFile->FindEntityByClassName( "worldspawn" );
+	idMapEntity * wrld = mapFile->FindEntityByClassName( "worldspawn" );
 
 	const int bspGridSize = wrld ? wrld->epairs.GetInt( "bsp_gridsize", 512 ) : 512;
 
@@ -799,7 +799,7 @@ idAASBuild::BuildReachability
 */
 bool idAASBuild::BuildReachability( const idStr &fileName, const idAASSettings *settings ) {
 	int startTime;
-	idDmapMapFile * mapFile;
+	idMapFile * mapFile;
 	idStr name;
 	idAASReach reach;
 	idAASCluster cluster;
@@ -811,7 +811,7 @@ bool idAASBuild::BuildReachability( const idStr &fileName, const idAASSettings *
 	name = fileName;
 	name.SetFileExtension( "map" );
 
-	mapFile = new idDmapMapFile;
+	mapFile = new idMapFile;
 	if ( !mapFile->Parse( name ) ) {
 		delete mapFile;
 		common->Error( "Couldn't load map file: '%s'", name.c_str() );

@@ -264,4 +264,9 @@ extern volatile int ignoredReturnValue;
 #define MAX_UNSIGNED_TYPE( x )	( ( ( ( 1U << ( ( sizeof( x ) - 1 ) * 8 ) ) - 1 ) << 8 ) | 255U )
 #define MIN_UNSIGNED_TYPE( x )	0
 
+inline constexpr int MAX_QPATH = 256;
+
+//#define	MAX_QPATH 256			// max length of a game pathname
+//#define MAX_QPATH	256
+
 #endif

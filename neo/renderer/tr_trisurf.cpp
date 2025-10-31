@@ -126,53 +126,30 @@ int R_TriSurfMemory( const srfTriangles_t* tri )
 {
 	int total = 0;
 	
-	if( tri == NULL )
-	{
+	if( tri == nullptr )
 		return total;
-	}
 	
-	if( tri->preLightShadowVertexes != NULL )
-	{
+	if( tri->preLightShadowVertexes != nullptr )
 		total += tri->numVerts * 2 * sizeof( tri->preLightShadowVertexes[0] );
-	}
-	if( tri->staticShadowVertexes != NULL )
-	{
+	
+	if( tri->staticShadowVertexes != nullptr )
 		total += tri->numVerts * 2 * sizeof( tri->staticShadowVertexes[0] );
-	}
-	if( tri->verts != NULL )
+
+	if( tri->verts != nullptr )
 	{
-		if( tri->ambientSurface == NULL || tri->verts != tri->ambientSurface->verts )
-		{
+		if( tri->ambientSurface == nullptr || tri->verts != tri->ambientSurface->verts )
 			total += tri->numVerts * sizeof( tri->verts[0] );
-		}
 	}
-	if( tri->indexes != NULL )
+	if( tri->indexes != nullptr )
 	{
-		if( tri->ambientSurface == NULL || tri->indexes != tri->ambientSurface->indexes )
-		{
+		if( tri->ambientSurface == nullptr || tri->indexes != tri->ambientSurface->indexes )
 			total += tri->numIndexes * sizeof( tri->indexes[0] );
-		}
 	}
-	if( tri->silIndexes != NULL )
-	{
-		total += tri->numIndexes * sizeof( tri->silIndexes[0] );
-	}
-	if( tri->silEdges != NULL )
-	{
-		total += tri->numSilEdges * sizeof( tri->silEdges[0] );
-	}
-	if( tri->dominantTris != NULL )
-	{
-		total += tri->numVerts * sizeof( tri->dominantTris[0] );
-	}
-	if( tri->mirroredVerts != NULL )
-	{
-		total += tri->numMirroredVerts * sizeof( tri->mirroredVerts[0] );
-	}
-	if( tri->dupVerts != NULL )
-	{
-		total += tri->numDupVerts * sizeof( tri->dupVerts[0] );
-	}
+	if( tri->silIndexes != nullptr ) total += tri->numIndexes * sizeof( tri->silIndexes[0] );
+	if( tri->silEdges != nullptr ) total += tri->numSilEdges * sizeof( tri->silEdges[0] );
+	if( tri->dominantTris != nullptr ) total += tri->numVerts * sizeof( tri->dominantTris[0] );
+	if( tri->mirroredVerts != nullptr ) total += tri->numMirroredVerts * sizeof( tri->mirroredVerts[0] );
+	if( tri->dupVerts != nullptr ) total += tri->numDupVerts * sizeof( tri->dupVerts[0] );
 	
 	total += sizeof( *tri );
 	
@@ -200,28 +177,24 @@ R_FreeStaticTriSurf
 */
 void R_FreeStaticTriSurf( srfTriangles_t* tri )
 {
-	if( !tri )
-	{
-		return;
-	}
+	if( !tri ) return;
 	
 	R_FreeStaticTriSurfVertexCaches( tri );
 	
 	if( !tri->referencedVerts )
 	{
-		if( tri->verts != NULL )
+		if( tri->verts != nullptr )
 		{
 			// R_CreateLightTris points tri->verts at the verts of the ambient surface
-			if( tri->ambientSurface == NULL || tri->verts != tri->ambientSurface->verts )
-			{
+			if( tri->ambientSurface == nullptr || tri->verts != tri->ambientSurface->verts )
 				Mem_Free( tri->verts );
-			}
 		}
 	}
 	
-	if (!tri->facePlanes) {
+	if (!tri->facePlanes) 
+	{
 		Mem_Free(tri->facePlanes);
-		tri->facePlanes = NULL;
+		tri->facePlanes = nullptr;
 	}
 
 	if( !tri->referencedIndexes )
@@ -2190,15 +2163,11 @@ void R_CreateStaticBuffersForTri( srfTriangles_t& tri )
 	
 	// index cache
 	if( tri.indexes != NULL )
-	{
 		tri.indexCache = vertexCache.AllocStaticIndex( tri.indexes, ALIGN( tri.numIndexes * sizeof( tri.indexes[0] ), INDEX_CACHE_ALIGN ) );
-	}
 	
 	// vertex cache
 	if( tri.verts != NULL )
-	{
 		tri.ambientCache = vertexCache.AllocStaticVertex( tri.verts, ALIGN( tri.numVerts * sizeof( tri.verts[0] ), VERTEX_CACHE_ALIGN ) );
-	}
 	
 	// shadow cache
 	if( tri.preLightShadowVertexes != NULL )

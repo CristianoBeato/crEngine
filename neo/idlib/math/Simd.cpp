@@ -33,9 +33,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "Simd_Generic.h"
 #include "Simd_SSE.h"
 
-idSIMDProcessor	*	processor = NULL;			// pointer to SIMD processor
-idSIMDProcessor *	generic = NULL;				// pointer to generic SIMD implementation
-idSIMDProcessor *	SIMDProcessor = NULL;
+idSIMDProcessor	*	processor = nullptr;			// pointer to SIMD processor
+idSIMDProcessor *	generic = nullptr;				// pointer to generic SIMD implementation
+idSIMDProcessor *	SIMDProcessor = nullptr;
 
 /*
 ================
@@ -45,7 +45,7 @@ idSIMD::Init
 void idSIMD::Init() {
 	generic = new (TAG_MATH) idSIMD_Generic;
 	generic->cpuid = CPUID_GENERIC;
-	processor = NULL;
+	processor = nullptr;
 	SIMDProcessor = generic;
 }
 
@@ -66,7 +66,8 @@ void idSIMD::InitProcessor( const char *module, bool forceGeneric ) {
 
 	} else {
 
-		if ( processor == NULL ) {
+		if ( processor == nullptr ) 
+		{
 			if ( ( cpuid & CPUID_MMX ) && ( cpuid & CPUID_SSE ) ) {
 				processor = new (TAG_MATH) idSIMD_SSE;
 			} else {

@@ -116,10 +116,10 @@ class idDrawVert
 public:
 	idVec3				xyz;			// 12 bytes
 	halfFloat_t			st[2];			// 4 bytes
-	byte				normal[4];		// 4 bytes
-	byte				tangent[4];		// 4 bytes -- [3] is texture polarity sign
-	byte				color[4];		// 4 bytes
-	byte				color2[4];		// 4 bytes -- weights for skinning
+	uint8_t				normal[4];		// 4 bytes
+	uint8_t				tangent[4];		// 4 bytes -- [3] is texture polarity sign
+	uint8_t				color[4];		// 4 bytes
+	uint8_t				color2[4];		// 4 bytes -- weights for skinning
 	
 	float				operator[]( const int index ) const;
 	float& 				operator[]( const int index );
@@ -201,8 +201,7 @@ Assumes input is in the range [-1, 1]
 ID_INLINE void VertexFloatToByte( const float& x, const float& y, const float& z, byte* bval )
 {
 	assert_4_byte_aligned( bval );	// for __stvebx
-	
-	
+
 	const __m128 vector_float_one			= { 1.0f, 1.0f, 1.0f, 1.0f };
 	const __m128 vector_float_half			= { 0.5f, 0.5f, 0.5f, 0.5f };
 	const __m128 vector_float_255_over_2	= { 255.0f / 2.0f, 255.0f / 2.0f, 255.0f / 2.0f, 255.0f / 2.0f };
@@ -264,7 +263,7 @@ ID_INLINE void idDrawVert::Clear()
 idDrawVert::GetNormal
 ========================
 */
-ID_INLINE const idVec3 idDrawVert::GetNormal() const
+ID_INLINE const idVec3 idDrawVert::GetNormal( void ) const
 {
 	idVec3 n(	VERTEX_BYTE_TO_FLOAT( normal[0] ),
 				VERTEX_BYTE_TO_FLOAT( normal[1] ),

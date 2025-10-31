@@ -221,11 +221,13 @@ FlipTriList
 Swaps the vertex order
 ================
 */
-void	FlipTriList( mapTri_t *tris ) {
+void	FlipTriList( mapTri_t *tris ) 
+{
 	mapTri_t	*tri;
 
-	for ( tri = tris ; tri ; tri = tri->next ) {
-		idDmapDrawVert	v;
+	for ( tri = tris ; tri ; tri = tri->next ) 
+	{
+		idDrawVert	v;
 		const struct hashVert_s *hv;
 		struct optVertex_s	*ov;
 
@@ -267,7 +269,8 @@ TriVertsFromOriginal
 Regenerate the texcoords and colors on a fragmented tri from the plane equations
 ================
 */
-void		TriVertsFromOriginal( mapTri_t *tri, const mapTri_t *original ) {
+void		TriVertsFromOriginal( mapTri_t *tri, const mapTri_t *original ) 
+{
 	int		i, j;
 	float	denom;
 
@@ -276,7 +279,8 @@ void		TriVertsFromOriginal( mapTri_t *tri, const mapTri_t *original ) {
 		return;		// original was degenerate, so it doesn't matter
 	}
 
-	for ( i = 0 ; i < 3 ; i++ ) {
+	for ( i = 0 ; i < 3 ; i++ ) 
+	{
 		float	a, b, c;
 	
 		// find the barycentric coordinates
@@ -290,11 +294,27 @@ void		TriVertsFromOriginal( mapTri_t *tri, const mapTri_t *original ) {
 		tri->v[i].st[1] = a * original->v[0].st[1] 
 			 + b * original->v[1].st[1] + c * original->v[2].st[1];
 
-		for ( j = 0 ; j < 3 ; j++ ) {
+// BEATO Begin:
+#if 1
+		tri->v[i].normal[0] = ( a * original->v[0].normal[0] ) + ( b * original->v[1].normal[0] ) + ( c * original->v[2].normal[0] );
+		tri->v[i].normal[1] = ( a * original->v[0].normal[1] ) + ( b * original->v[1].normal[1] ) + ( c * original->v[2].normal[1] );
+		tri->v[i].normal[2] = ( a * original->v[0].normal[2] ) + ( b * original->v[1].normal[2] ) + ( c * original->v[2].normal[2] );
+
+		idVec3 n0 = original->v[0].GetNormal() * a;
+		idVec3 n1 = original->v[1].GetNormal() * b;
+		idVec3 n2 = original->v[2].GetNormal() * c;
+		idVec3 normal = n0 + n1 + n2;
+		normal.Normalize();
+		tri->v[i].SetNormal( normal );
+#else
+		for ( j = 0 ; j < 3 ; j++ ) 
+		{
 			tri->v[i].normal[j] = a * original->v[0].normal[j]
 				 + b * original->v[1].normal[j] + c * original->v[2].normal[j];
 		}
 		tri->v[i].normal.Normalize();
+#endif
+// BEATO End
 	}
 }
 
@@ -314,11 +334,10 @@ mapTri_t *WindingToTriList( const idWinding *w, const mapTri_t *originalTri ) {
 	int			i, j;
 	const idVec3	*vec;
 
-	if ( !w ) {
-		return NULL;
-	}
+	if ( !w ) 
+		return nullptr;
 
-	triList = NULL;
+	triList = nullptr;
 	for ( i = 2 ; i < w->GetNumPoints() ; i++ ) {
 		tri = AllocTri();
 		if ( !originalTri ) {

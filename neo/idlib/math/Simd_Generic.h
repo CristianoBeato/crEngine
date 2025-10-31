@@ -57,6 +57,15 @@ public:
 	virtual void VPCALL ConvertJointMatsToJointQuats( idJointQuat* jointQuats, const idJointMat* jointMats, const int numJoints );
 	virtual void VPCALL TransformJoints( idJointMat* jointMats, const int* parents, const int firstJoint, const int lastJoint );
 	virtual void VPCALL UntransformJoints( idJointMat* jointMats, const int* parents, const int firstJoint, const int lastJoint );
+
+// BEATO Begin:
+	virtual void VPCALL Dot( float *dst, const idPlane &constant,const idDrawVert *src,	const int count );
+	virtual	void VPCALL Dot( float *dst, const idVec3 &constant,	const idPlane *src, const int count );
+	virtual void VPCALL CmpLT( byte *dst, const byte bitNum, const float *src0, const float constant, const int count );
+	virtual void VPCALL CmpGT( byte *dst, const byte bitNum, const float *src0, const float constant, const int count );
+	virtual void VPCALL CmpGE( byte *dst, const float *src0, const float constant,	const int count );
+// BEATO End
+
 };
 
 #endif /* !__MATH_SIMD_GENERIC_H__ */

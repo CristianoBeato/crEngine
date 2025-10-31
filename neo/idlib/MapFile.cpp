@@ -995,7 +995,8 @@ idMapEntity* idMapFile::FindEntity( const char* name )
 			return ent;
 		}
 	}
-	return NULL;
+	
+	return nullptr;
 }
 
 /*
@@ -1071,3 +1072,24 @@ bool idMapFile::NeedsReload()
 	}
 	return true;
 }
+
+// BEATO Begin:
+/*
+===============
+idMapFile::FindEntity
+===============
+*/
+idMapEntity * idMapFile::FindEntityByClassName( const char *name )
+{
+	for ( int i = 0; i < entities.Num(); i++ )
+	{
+		idMapEntity* ent = entities[ i ];
+		if ( idStr::Icmp( ent->epairs.GetString( "classname" ), name ) == 0 )
+			return ent;
+		
+	}
+
+	return nullptr;
+}
+
+// BEATO End

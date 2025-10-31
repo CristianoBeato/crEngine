@@ -102,11 +102,12 @@ static void AddTriListToArea( uEntity_t *e, mapTri_t *triList, int planeNum, int
 TexVecForTri
 ===================
 */
-static void TexVecForTri( textureVectors_t *texVec, mapTri_t *tri ) {
+static void TexVecForTri( textureVectors_t *texVec, mapTri_t *tri ) 
+{
 	float	area, inva;
 	idVec3	temp;
 	idVec5	d0, d1;
-	idDmapDrawVert	*a, *b, *c;
+	idDrawVert	*a, *b, *c;
 
 	a = &tri->v[0];
 	b = &tri->v[1];
@@ -152,9 +153,10 @@ TriListForSide
 #define	SNAP_FLOAT_TO_INT	256
 #define	SNAP_INT_TO_FLOAT	(1.0/SNAP_FLOAT_TO_INT)
 
-mapTri_t *TriListForSide( const side_t *s, const idWinding *w ) {
+mapTri_t *TriListForSide( const side_t *s, const idWinding *w ) 
+{
 	int				i, j;
-	idDmapDrawVert	*dv;
+	idDrawVert*		dv = nullptr;
 	mapTri_t		*tri, *triList;
 	const idVec3		*vec;
 	const idMaterial	*si;
@@ -206,17 +208,21 @@ mapTri_t *TriListForSide( const side_t *s, const idWinding *w ) {
 				dv->st[1] = DotProduct( dv->xyz, s->texVec.v[1] ) + s->texVec.v[1][3];
 
 				// copy normal
-				dv->normal = dmapGlobals.mapPlanes[s->planenum].Normal();
-				if ( dv->normal.Length() < 0.9 || dv->normal.Length() > 1.1 ) {
+				//dv->normal = dmapGlobals.mapPlanes[s->planenum].Normal();
+				dv->SetNormal( dmapGlobals.mapPlanes[s->planenum].Normal() );
+				idVec3 normal = dmapGlobals.mapPlanes[s->planenum].Normal();
+				if ( normal.Length() < 0.9 || normal.Length() > 1.1 ) 
 					common->Error( "Bad normal in TriListForSide" );
-				}
 			}
 		}
-	} else {
+	} 
+	else 
+	{
 		// triangle fan from central point, more verts and tris, but less distended
 		// I use this when debugging some tjunction problems
-		triList = NULL;
-		for ( i = 0 ; i < w->GetNumPoints() ; i++ ) {
+		triList = nullptr;
+		for ( i = 0 ; i < w->GetNumPoints() ; i++ ) 
+		{
 			idVec3	midPoint;
 
 			tri = AllocTri();
@@ -224,13 +230,19 @@ mapTri_t *TriListForSide( const side_t *s, const idWinding *w ) {
 			tri->next = triList;
 			triList = tri;
 
-			for ( j = 0 ; j < 3 ; j++ ) {
-				if ( j == 0 ) {
+			for ( j = 0 ; j < 3 ; j++ ) 
+			{
+				if ( j == 0 ) 
+				{
 					vec = &midPoint;
 					midPoint = w->GetCenter();
-				} else if ( j == 1 ) {
+				} 
+				else if ( j == 1 ) 
+				{
 					vec = &((*w)[i]).ToVec3();
-				} else {
+				} 
+				else 
+				{
 					vec = &((*w)[(i+1)%w->GetNumPoints()]).ToVec3();
 				}
 
@@ -243,10 +255,12 @@ mapTri_t *TriListForSide( const side_t *s, const idWinding *w ) {
 				dv->st[1] = DotProduct( dv->xyz, s->texVec.v[1] ) + s->texVec.v[1][3];
 
 				// copy normal
-				dv->normal = dmapGlobals.mapPlanes[s->planenum].Normal();
-				if ( dv->normal.Length() < 0.9f || dv->normal.Length() > 1.1f ) {
+				// dv->normal = dmapGlobals.mapPlanes[s->planenum].Normal();
+				idVec3 normal = dmapGlobals.mapPlanes[s->planenum].Normal();
+				dv->SetNormal( normal );
+				if ( normal.Length() < 0.9f || normal.Length() > 1.1f ) 
 					common->Error( "Bad normal in TriListForSide" );
-				}
+			
 			}
 		}
 	}
@@ -278,12 +292,16 @@ static void ClipSideByTree_r( idWinding *w, side_t *side, node_t *node ) {
 		return;
 	}
 
-	if ( node->planenum != PLANENUM_LEAF ) {
-		if ( side->planenum == node->planenum ) {
+	if ( node->planenum != PLANENUM_LEAF ) 
+	{
+		if ( side->planenum == node->planenum ) 
+		{
 			ClipSideByTree_r( w, side, node->children[0] );
 			return;
 		}
-		if ( side->planenum == ( node->planenum ^ 1) ) {
+		
+		if ( side->planenum == ( node->planenum ^ 1) ) 
+		{
 			ClipSideByTree_r( w, side, node->children[1] );
 			return;
 		}
@@ -298,13 +316,12 @@ static void ClipSideByTree_r( idWinding *w, side_t *side, node_t *node ) {
 	}
 
 	// if opaque leaf, don't add
-	if ( !node->opaque ) {
-		if ( !side->visibleHull ) {
+	if ( !node->opaque ) 
+	{
+		if ( !side->visibleHull ) 
 			side->visibleHull = w->Copy();
-		}
-		else {
+		else 
 			side->visibleHull->AddToConvexHull( w, dmapGlobals.mapPlanes[ side->planenum ].Normal() );
-		}
 	}
 
 	delete w;
@@ -629,20 +646,21 @@ void PutPrimitivesInAreas( uEntity_t *e ) {
 	if ( dmapGlobals.entityNum == 0 ) {
 		bool inlineAll = dmapGlobals.uEntities[0].mapEntity->epairs.GetBool( "inlineAllStatics" );
 
-		for ( int eNum = 1 ; eNum < dmapGlobals.num_entities ; eNum++ ) {
+		for ( int eNum = 1 ; eNum < dmapGlobals.num_entities ; eNum++ ) 
+		{
 			uEntity_t *entity = &dmapGlobals.uEntities[eNum];
 			const char *className = entity->mapEntity->epairs.GetString( "classname" );
-			if ( idStr::Icmp( className, "func_static" ) ) {
+			if ( idStr::Icmp( className, "func_static" ) ) 
 				continue;
-			}
-			if ( !entity->mapEntity->epairs.GetBool( "inline" ) && !inlineAll ) {
+			
+			if ( !entity->mapEntity->epairs.GetBool( "inline" ) && !inlineAll ) 
 				continue;
-			}
+			
 			const char *modelName = entity->mapEntity->epairs.GetString( "model" );
-			if ( !modelName ) {
+			if ( !modelName ) 
 				continue;
-			}
-			idDmapRenderModel	*model = dmapRenderModelManager->FindModel(modelName);
+	
+			idRenderModel	*model = renderModelManager->FindModel( modelName );
 
 			common->Printf( "inlining %s.\n", entity->mapEntity->epairs.GetString( "name" ) );
 
@@ -659,9 +677,10 @@ void PutPrimitivesInAreas( uEntity_t *e ) {
 
 			idVec3	origin = entity->mapEntity->epairs.GetVector( "origin" );
 
-			for ( i = 0 ; i < model->NumSurfaces() ; i++ ) {
-				const dmapModelSurface_t *surface = model->Surface( i );
-				const srfDmapTriangles_t *tri = surface->geometry;
+			for ( i = 0 ; i < model->NumSurfaces() ; i++ ) 
+			{
+				const modelSurface_t *surface = model->Surface( i );
+				const srfTriangles_t *tri = surface->geometry;
 
 				mapTri_t	mapTri;
 				memset( &mapTri, 0, sizeof( mapTri ) );
@@ -670,14 +689,26 @@ void PutPrimitivesInAreas( uEntity_t *e ) {
 				if ( mapTri.material->IsDiscrete() || mapTri.material->IsLOD() ) { // motorsep 11-25-2014; || mapTri.material->IsLOD() added to prevent LOD surfaces being merged into one surface ) 
 					mapTri.mergeGroup = (void *)surface;
 				}
-				for ( int j = 0 ; j < tri->numIndexes ; j += 3 ) {
-					for ( int k = 0 ; k < 3 ; k++ ) {
+
+				for ( int j = 0 ; j < tri->numIndexes ; j += 3 ) 
+				{
+					for ( int k = 0 ; k < 3 ; k++ ) 
+					{
 						idVec3 v = tri->verts[tri->indexes[j+k]].xyz;
 
 						mapTri.v[k].xyz = v * axis + origin;
 
+// BEATO Begin:
+#if 1
+						idVec3 normal  = tri->verts[tri->indexes[j+k]].GetNormal() * axis;
+						mapTri.v[k].SetNormal( normal );
+						std::memcpy( &mapTri.v[k].st[0], &tri->verts[tri->indexes[j+k]].st[0], sizeof( halfFloat_t ) );
+#else
 						mapTri.v[k].normal = tri->verts[tri->indexes[j+k]].normal * axis;
 						mapTri.v[k].st = tri->verts[tri->indexes[j+k]].st;
+#endif
+// BEATO End
+
 					}
 					AddMapTriToAreas( &mapTri, e );
 				}

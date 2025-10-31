@@ -168,6 +168,22 @@ public:
 	virtual void			RemoveDecals() = 0;
 };
 
+// BEATO Begin: we need shadowFrustum_t to compute map shadows
+typedef struct 
+{
+	int		numPlanes;		// this is always 6 for now
+	idPlane	planes[6];
+	// positive sides facing inward
+	// plane 5 is always the plane the projection is going to, the
+	// other planes are just clip planes
+	// all planes are in global coordinates
+
+	bool	makeClippedPlanes;
+	// a projected light with a single frustum needs to make sil planes
+	// from triangles that clip against side planes, but a point light
+	// that has adjacent frustums doesn't need to
+} shadowFrustum_t;
+// BEATO End
 
 class idRenderLightLocal : public idRenderLight
 {
@@ -220,6 +236,25 @@ public:
 	idInteraction* 			lastInteraction;
 	
 	struct doublePortal_s* 	foggedPortals;
+
+// BEATO Begin: dmap structures for map compilation
+
+	// in global space, positive side facing out, last two are front/back
+	idPlane					frustum[6];
+
+	// one for projected lights, usually six for point lights
+	int						numShadowFrustums;
+	shadowFrustum_t			shadowFrustums[6];
+	
+	// used for culling
+	idWinding *				frustumWindings[6];
+	
+	// this is just a rearrangement of parms.axis and parms.origin
+	float					modelMatrix[16];
+
+	// triangulated frustumWindings[]
+	srfTriangles_t *		frustumTris;
+// BEATO End
 };
 
 
@@ -1183,6 +1218,10 @@ void R_StaticFree( void* data );
 void R_RenderView( viewDef_t* parms );
 void R_RenderPostProcess( viewDef_t* parms );
 
+// BEATO Begin:
+void R_InitMaterials( void );
+// BEATO End
+
 /*
 ============================================================
 
@@ -1421,17 +1460,6 @@ void RB_RenderDebugTools( drawSurf_t** drawSurfs, int numDrawSurfs );
 void RB_ShutdownDebugTools();
 void RB_SetVertexColorParms( stageVertexColor_t svc );
 
-/*
-============================================================
-
-POLYTOPE
-
-============================================================
-*/
-
-srfTriangles_t *R_PolytopeSurface(int numPlanes, const idPlane *planes, idWinding **windings);
-
-//=============================================
 
 #include "ResolutionScale.h"
 #include "RenderLog.h"

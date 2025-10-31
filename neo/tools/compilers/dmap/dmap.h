@@ -27,9 +27,11 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#include "renderer/Dmap_tr_local.h"
 
-typedef struct primitive_s {
+#include "renderer/tr_local.h"
+
+typedef struct primitive_s 
+{
 	struct primitive_s *next;
 
 	// only one of these will be non-NULL
@@ -43,8 +45,9 @@ typedef struct {
 	// we might want to add other fields later
 } uArea_t;
 
-typedef struct {
-	idDmapMapEntity *	mapEntity;		// points into mapFile_t data
+typedef struct 
+{
+	idMapEntity*		mapEntity;		// points into mapFile_t data
 
 	idVec3				origin;
 	primitive_t *		primitives;
@@ -53,7 +56,6 @@ typedef struct {
 	int					numAreas;
 	uArea_t *			areas;
 } uEntity_t;
-
 
 // chains of mapTri_t are the general unit of processing
 typedef struct mapTri_s {
@@ -64,13 +66,30 @@ typedef struct mapTri_s {
 											// from different fixed groups, like guiSurfs and mirrors
 	int					planeNum;			// not set universally, just in some areas
 
-	idDmapDrawVert		v[3];
+	idDrawVert			v[3];
 	const struct hashVert_s *hashVert[3];
 	struct optVertex_s *optVert[3];
 } mapTri_t;
 
+// BEATO Begin:
 
-typedef struct {
+typedef struct 
+{
+	idVec3*		verts;			// includes both front and back projections, caller should free
+	int			numVerts;
+	uint16_t*	indexes;	// caller should free
+
+	// indexes must be sorted frontCap, rearCap, silPlanes so the caps can be removed
+	// when the viewer is in a position that they don't need to see them
+	int		numFrontCapIndexes;
+	int		numRearCapIndexes;
+	int		numSilPlaneIndexes;
+	int		totalIndexes;
+} optimizedShadow_t;
+// BEATO End
+
+typedef struct 
+{
 	int					width, height;
 	idDrawVert *		verts;
 } mesh_t;
@@ -175,12 +194,11 @@ typedef struct tree_s {
 	idBounds	bounds;
 } tree_t;
 
-#define	MAX_QPATH			256			// max length of a game pathname
-
-typedef struct {
-	idDmapRenderLightLocal	def;
-	char		name[MAX_QPATH];		// for naming the shadow volume surface and interactions
-	srfDmapTriangles_t	*shadowTris;
+typedef struct 
+{
+	char 					name[MAX_QPATH]; 	// for naming the shadow volume surface and interactions
+	idRenderLightLocal		def;
+	srfTriangles_t*			shadowTris;
 } mapLight_t;
 
 #define	MAX_GROUP_LIGHTS	16
@@ -234,7 +252,7 @@ typedef struct {
 	// mapFileBase will contain the qpath without any extension: "maps/test_box"
 	char		mapFileBase[1024];
 
-	idDmapMapFile	*dmapFile;
+	idMapFile*	dmapFile;
 
 	idPlaneSet	mapPlanes;
 
@@ -409,8 +427,9 @@ void	FixGlobalTjunctions( uEntity_t *e );
 // will just be done by OptimizeEntity()
 
 
-typedef struct optVertex_s {
-	idDmapDrawVert	v;
+typedef struct optVertex_s 
+{
+	idDrawVert	v;
 	idVec3	pv;					// projected against planar axis, third value is 0
 	struct optEdge_s *edges;
 	struct optVertex_s	*islandLink;
@@ -471,15 +490,16 @@ void		ClipTriList( const mapTri_t *list, const idPlane &plane, float epsilon, ma
 //=============================================================================
 
 // output.cpp
+srfTriangles_t	*ShareMapTriVerts( const mapTri_t *tris );
 
-srfDmapTriangles_t	*ShareMapTriVerts( const mapTri_t *tris );
 void WriteOutputFile( void );
 
 //=============================================================================
 
 // shadowopt.cpp
 
-srfDmapTriangles_t *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLight_t *light );
+srfTriangles_t *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLight_t *light );
+
 void		FreeBeamTree( struct beamTree_s *beamTree );
 
 void		CarveTriByBeamTree( const struct beamTree_s *beamTree, const mapTri_t *tri, mapTri_t **lit, mapTri_t **unLit );

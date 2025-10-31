@@ -50,8 +50,10 @@ If you have questions concerning this license or the applicable additional terms
 //
 // private declarations
 //
-
-#define MAX_BUILD_SIDES		300
+constexpr int	MAX_BUILD_SIDES = 300;
+constexpr int	MAX_POLYTOPE_PLANES = 6;
+constexpr float NORMAL_EPSILON = 0.00001f;
+constexpr float DIST_EPSILON = 0.01f;
 
 static	int		entityPrimitive;		// to track editor brush numbers
 static	int		c_numMapPatches;
@@ -62,11 +64,6 @@ static	uEntity_t	*uEntity;
 // brushes are parsed into a temporary array of sides,
 // which will have duplicates removed before the final brush is allocated
 static	uBrush_t	*buildBrush;
-
-
-#define	NORMAL_EPSILON			0.00001f
-#define	DIST_EPSILON			0.01f
-
 
 /*
 ===========
@@ -206,7 +203,8 @@ meaning it encloses no volume.
 Also removes planes without any normal
 =================
 */
-static bool RemoveDuplicateBrushPlanes( uBrush_t * b ) {
+static bool RemoveDuplicateBrushPlanes( uBrush_t * b ) 
+{
 	int			i, j, k;
 	side_t		*sides;
 
@@ -258,9 +256,10 @@ static bool RemoveDuplicateBrushPlanes( uBrush_t * b ) {
 ParseBrush
 =================
 */
-static void ParseBrush( const idMapBrush *mapBrush, int primitiveNum ) {
-	uBrush_t	*b;
-	side_t		*s;
+static void ParseBrush( const idMapBrush *mapBrush, int primitiveNum ) 
+{
+	uBrush_t	*b = nullptr;
+	side_t		*s = nullptr;
 	const idMapBrushSide	*ms;
 	int			i;
 	bool		fixedDegeneracies = false;
@@ -304,7 +303,8 @@ static void ParseBrush( const idMapBrush *mapBrush, int primitiveNum ) {
 ParseSurface
 ================
 */
-static void ParseSurface(const idDmapMapPatch *patch, const idDmapSurface *surface, const idMaterial *material) {
+static void ParseSurface(const idMapPatch *patch, const idSurface *surface, const idMaterial *material) 
+{
 	int				i;
 	mapTri_t		*tri;
 	primitive_t		*prim;
@@ -314,7 +314,8 @@ static void ParseSurface(const idDmapMapPatch *patch, const idDmapSurface *surfa
 	prim->next = uEntity->primitives;
 	uEntity->primitives = prim;
 
-	for ( i = 0; i < surface->GetNumIndexes(); i += 3 ) {
+	for ( i = 0; i < surface->GetNumIndexes(); i += 3 ) 
+	{
 		tri = AllocTri();
 		tri->v[2] = (*surface)[surface->GetIndexes()[i+0]];
 		tri->v[1] = (*surface)[surface->GetIndexes()[i+2]];
@@ -338,7 +339,7 @@ static void ParseSurface(const idDmapMapPatch *patch, const idDmapSurface *surfa
 ParsePatch
 ================
 */
-static void ParsePatch(const idDmapMapPatch *patch, int primitiveNum) {
+static void ParsePatch(const idMapPatch *patch, int primitiveNum) {
 	const idMaterial *mat;
 
 	if ( dmapGlobals.noCurves ) {
@@ -349,7 +350,7 @@ static void ParsePatch(const idDmapMapPatch *patch, int primitiveNum) {
 
 	mat = declManager->FindMaterial( patch->GetMaterial() );
 
-	idDmapSurface_Patch *cp = new idDmapSurface_Patch( *patch );
+	idSurface_Patch *cp = new idSurface_Patch( *patch );
 
 	if ( patch->GetExplicitlySubdivided() ) {
 		cp->SubdivideExplicit( patch->GetHorzSubdivisions(), patch->GetVertSubdivisions(), true );
@@ -367,7 +368,8 @@ static void ParsePatch(const idDmapMapPatch *patch, int primitiveNum) {
 ProcessMapEntity
 ================
 */
-static bool	ProcessMapEntity( idDmapMapEntity *mapEnt ) {
+static bool	ProcessMapEntity( idMapEntity *mapEnt ) 
+{
 	idMapPrimitive	*prim;
 
 	uEntity = &dmapGlobals.uEntities[dmapGlobals.num_entities];
@@ -382,7 +384,7 @@ static bool	ProcessMapEntity( idDmapMapEntity *mapEnt ) {
 			ParseBrush( static_cast<idMapBrush*>(prim), entityPrimitive );
 		}
 		else if ( prim->GetType() == idMapPrimitive::TYPE_PATCH ) {
-			ParsePatch( static_cast<idDmapMapPatch*>(prim), entityPrimitive );
+			ParsePatch( static_cast<idMapPatch*>(prim), entityPrimitive );
 		}
 	}
 
@@ -396,35 +398,535 @@ static bool	ProcessMapEntity( idDmapMapEntity *mapEnt ) {
 
 //===================================================================
 
+// BEATO Begin:
+/*
+=====================
+SetLightProject
+
+All values are reletive to the origin
+Assumes that right and up are not normalized
+This is also called by dmap during map processing.
+=====================
+*/
+static void SetLightProject( idPlane lightProject[4], const idVec3 origin, const idVec3 target, const idVec3 rightVector, const idVec3 upVector, const idVec3 start, const idVec3 stop ) 
+{
+	float		dist;
+	float		scale;
+	float		rLen, uLen;
+	idVec3		normal;
+	float		ofs;
+	idVec3		right, up;
+	idVec3		startGlobal;
+	idVec4		targetGlobal;
+
+	right = rightVector;
+	rLen = right.Normalize();
+	up = upVector;
+	uLen = up.Normalize();
+	normal = up.Cross( right );
+//normal = right.Cross( up );
+	normal.Normalize();
+
+	dist = target * normal; //  - ( origin * normal );
+	if ( dist < 0 ) 
+	{
+		dist = -dist;
+		normal = -normal;
+	}
+
+	scale = ( 0.5f * dist ) / rLen;
+	right *= scale;
+	scale = -( 0.5f * dist ) / uLen;
+	up *= scale;
+
+	lightProject[2] = normal;
+	lightProject[2][3] = -( origin * lightProject[2].Normal() );
+
+	lightProject[0] = right;
+	lightProject[0][3] = -( origin * lightProject[0].Normal() );
+
+	lightProject[1] = up;
+	lightProject[1][3] = -( origin * lightProject[1].Normal() );
+
+	// now offset to center
+	targetGlobal.ToVec3() = target + origin;
+	targetGlobal[3] = 1;
+	ofs = 0.5f - ( targetGlobal * lightProject[0].ToVec4() ) / ( targetGlobal * lightProject[2].ToVec4() );
+	lightProject[0].ToVec4() += ofs * lightProject[2].ToVec4();
+	ofs = 0.5f - ( targetGlobal * lightProject[1].ToVec4() ) / ( targetGlobal * lightProject[2].ToVec4() );
+	lightProject[1].ToVec4() += ofs * lightProject[2].ToVec4();
+
+	// set the falloff vector
+	normal = stop - start;
+	dist = normal.Normalize();
+	if ( dist <= 0 )
+		dist = 1;
+	
+	lightProject[3] = normal * ( 1.0f / dist );
+	startGlobal = start + origin;
+	lightProject[3][3] = -( startGlobal * lightProject[3].Normal() );
+}
+
+
+/*
+===================
+SetLightFrustum
+
+Creates plane equations from the light projection, positive sides
+face out of the light
+===================
+*/
+static void SetLightFrustum( const idPlane lightProject[4], idPlane frustum[6] ) 
+{
+	int		i;
+
+	// we want the planes of s=0, s=q, t=0, and t=q
+	frustum[0] = lightProject[0];
+	frustum[1] = lightProject[1];
+	frustum[2] = lightProject[2] - lightProject[0];
+	frustum[3] = lightProject[2] - lightProject[1];
+
+	// we want the planes of s=0 and s=1 for front and rear clipping planes
+	frustum[4] = lightProject[3];
+
+	frustum[5] = lightProject[3];
+	frustum[5][3] -= 1.0f;
+	frustum[5] = -frustum[5];
+
+	for ( i = 0 ; i < 6 ; i++ ) 
+	{
+		float	l;
+
+		frustum[i] = -frustum[i];
+		l = frustum[i].Normalize();
+		frustum[i][3] /= l;
+	}
+}
+
+/*
+====================
+R_FreeLightDefFrustum
+====================
+*/
+static void FreeLightDefFrustum( idRenderLightLocal *ldef ) 
+{
+	int i;
+
+	// free the frustum tris
+	if ( ldef->frustumTris ) 
+	{
+		R_FreeStaticTriSurf( ldef->frustumTris );
+		ldef->frustumTris = nullptr;
+	}
+	
+	// free frustum windings
+	for ( i = 0; i < 6; i++ ) 
+	{
+		if ( ldef->frustumWindings[i] ) 
+		{
+			delete ldef->frustumWindings[i];
+			ldef->frustumWindings[i] = nullptr;
+		}
+	}
+}
+
+/*
+===================
+MakeShadowFrustums
+
+Called at definition derivation time
+===================
+*/
+static void MakeShadowFrustums( idRenderLightLocal *light ) 
+{
+	int		i = 0, j = 0;
+
+	if ( light->parms.pointLight ) 
+	{
+#if 0
+		idVec3	adjustedRadius;
+
+		// increase the light radius to cover any origin offsets.
+		// this will cause some shadows to extend out of the exact light
+		// volume, but is simpler than adjusting all the frustums
+		adjustedRadius[0] = light->parms.lightRadius[0] + idMath::Fabs( light->parms.lightCenter[0] );
+		adjustedRadius[1] = light->parms.lightRadius[1] + idMath::Fabs( light->parms.lightCenter[1] );
+		adjustedRadius[2] = light->parms.lightRadius[2] + idMath::Fabs( light->parms.lightCenter[2] );
+
+		light->numShadowFrustums = 0;
+		// a point light has to project against six planes
+		for ( i = 0 ; i < 6 ; i++ ) {
+			shadowFrustum_t	*frust = &light->shadowFrustums[ light->numShadowFrustums ];
+
+			frust->numPlanes = 6;
+			frust->makeClippedPlanes = false;
+			for ( j = 0 ; j < 6 ; j++ ) {
+				idPlane &plane = frust->planes[j];
+				plane[0] = pointLightFrustums[i][j][0] / adjustedRadius[0];
+				plane[1] = pointLightFrustums[i][j][1] / adjustedRadius[1];
+				plane[2] = pointLightFrustums[i][j][2] / adjustedRadius[2];
+				plane.Normalize();
+				plane[3] = -( plane.Normal() * light->globalLightOrigin );
+				if ( j == 5 ) {
+					plane[3] += adjustedRadius[i>>1];
+				}
+			}
+
+			light->numShadowFrustums++;
+		}
+#else
+		// exact projection,taking into account asymetric frustums when 
+		// globalLightOrigin isn't centered
+
+		static int	faceCorners[6][4] = {
+			{ 7, 5, 1, 3 },		// positive X side
+			{ 4, 6, 2, 0 },		// negative X side
+			{ 6, 7, 3, 2 },		// positive Y side
+			{ 5, 4, 0, 1 },		// negative Y side
+			{ 6, 4, 5, 7 },		// positive Z side
+			{ 3, 1, 0, 2 }		// negative Z side
+		};
+		static int	faceEdgeAdjacent[6][4] = {
+			{ 4, 4, 2, 2 },		// positive X side
+			{ 7, 7, 1, 1 },		// negative X side
+			{ 5, 5, 0, 0 },		// positive Y side
+			{ 6, 6, 3, 3 },		// negative Y side
+			{ 0, 0, 3, 3 },		// positive Z side
+			{ 5, 5, 6, 6 }		// negative Z side
+		};
+
+		bool	centerOutside = false;
+
+		// if the light center of projection is outside the light bounds,
+		// we will need to build the planes a little differently
+		if ( fabs( light->parms.lightCenter[0] ) > light->parms.lightRadius[0]
+			|| fabs( light->parms.lightCenter[1] ) > light->parms.lightRadius[1]
+			|| fabs( light->parms.lightCenter[2] ) > light->parms.lightRadius[2] ) {
+			centerOutside = true;
+		}
+
+		// make the corners
+		idVec3	corners[8];
+
+		for ( i = 0 ; i < 8 ; i++ ) {
+			idVec3	temp;
+			for ( j = 0 ; j < 3 ; j++ ) {
+				if ( i & ( 1 << j ) ) {
+					temp[j] = light->parms.lightRadius[j];
+				} else {
+					temp[j] = -light->parms.lightRadius[j];
+				}
+			}
+
+			// transform to global space
+			corners[i] = light->parms.origin + light->parms.axis * temp;
+		}
+
+		light->numShadowFrustums = 0;
+		for ( int side = 0 ; side < 6 ; side++ ) 
+		{
+			shadowFrustum_t	*frust = &light->shadowFrustums[ light->numShadowFrustums ];
+			idVec3 &p1 = corners[faceCorners[side][0]];
+			idVec3 &p2 = corners[faceCorners[side][1]];
+			idVec3 &p3 = corners[faceCorners[side][2]];
+			idPlane backPlane;
+
+			// plane will have positive side inward
+			backPlane.FromPoints( p1, p2, p3 );
+
+			// if center of projection is on the wrong side, skip
+			float d = backPlane.Distance( light->globalLightOrigin );
+			if ( d < 0 ) {
+				continue;
+			}
+
+			frust->numPlanes = 6;
+			frust->planes[5] = backPlane;
+			frust->planes[4] = backPlane;	// we don't really need the extra plane
+
+			// make planes with positive side facing inwards in light local coordinates
+			for ( int edge = 0 ; edge < 4 ; edge++ ) 
+			{
+				idVec3 &p1 = corners[faceCorners[side][edge]];
+				idVec3 &p2 = corners[faceCorners[side][(edge+1)&3]];
+
+				// create a plane that goes through the center of projection
+				frust->planes[edge].FromPoints( p2, p1, light->globalLightOrigin );
+
+				// see if we should use an adjacent plane instead
+				if ( centerOutside ) {
+					idVec3 &p3 = corners[faceEdgeAdjacent[side][edge]];
+					idPlane sidePlane;
+
+					sidePlane.FromPoints( p2, p1, p3 );
+					d = sidePlane.Distance( light->globalLightOrigin );
+					if ( d < 0 ) {
+						// use this plane instead of the edged plane
+						frust->planes[edge] = sidePlane;
+					}
+					// we can't guarantee a neighbor, so add sill planes at edge
+					light->shadowFrustums[ light->numShadowFrustums ].makeClippedPlanes = true;
+				}
+			}
+			light->numShadowFrustums++;
+		}
+
+#endif
+		return;
+	}
+	
+	// projected light
+
+	light->numShadowFrustums = 1;
+	shadowFrustum_t	*frust = &light->shadowFrustums[ 0 ];
+
+	// flip and transform the frustum planes so the positive side faces
+	// inward in local coordinates
+
+	// it is important to clip against even the near clip plane, because
+	// many projected lights that are faking area lights will have their
+	// origin behind solid surfaces.
+	for ( i = 0 ; i < 6 ; i++ ) 
+	{
+		idPlane &plane = frust->planes[i];
+
+		plane.SetNormal( -light->frustum[i].Normal() );
+		plane.SetDist( -light->frustum[i].Dist() );
+	}
+	
+	frust->numPlanes = 6;
+
+	frust->makeClippedPlanes = true;
+	// projected lights don't have shared frustums, so any clipped edges
+	// right on the planes must have a sil plane created for them
+}
+
+/*
+=====================
+static PolytopeSurface
+
+Generate vertexes and indexes for a polytope,
+and optionally returns the polygon windings.
+The positive sides of the planes will be visible.
+=====================
+*/
+static srfTriangles_t *PolytopeSurface( int numPlanes, const idPlane *planes, idWinding **windings ) 
+{
+	int i = 0, j = 0;
+	srfTriangles_t *tri = nullptr;
+	idFixedWinding planeWindings[MAX_POLYTOPE_PLANES];
+	int numVerts = 0, numIndexes = 0;
+
+	if ( numPlanes > MAX_POLYTOPE_PLANES ) 
+	{
+		common->Error( "R_PolytopeSurface: more than %d planes", MAX_POLYTOPE_PLANES );
+	}
+
+	numVerts = 0;
+	numIndexes = 0;
+	for ( i = 0; i < numPlanes; i++ ) 
+	{
+		const idPlane &plane = planes[i];
+		idFixedWinding &w = planeWindings[i];
+
+		w.BaseForPlane( plane );
+		for ( j = 0; j < numPlanes; j++ ) 
+		{
+			const idPlane &plane2 = planes[j];
+			if ( j == i ) 
+				continue;
+			
+			if ( !w.ClipInPlace( -plane2, ON_EPSILON ) ) 
+				break;
+		}
+
+		if ( w.GetNumPoints() <= 2 )
+			continue;
+		
+		numVerts += w.GetNumPoints();
+		numIndexes += ( w.GetNumPoints() - 2 ) * 3;
+	}
+
+	// allocate the surface
+	tri = R_AllocStaticTriSurf();
+	R_AllocStaticTriSurfVerts( tri, numVerts );
+	R_AllocStaticTriSurfIndexes( tri, numIndexes );
+
+	// copy the data from the windings
+	for ( i = 0; i < numPlanes; i++ ) 
+	{
+		idFixedWinding &w = planeWindings[i];
+		if ( !w.GetNumPoints() ) 
+			continue;
+		
+		for ( j = 0 ; j < w.GetNumPoints() ; j++ ) 
+		{
+			tri->verts[tri->numVerts + j ].Clear();
+			tri->verts[tri->numVerts + j ].xyz = w[j].ToVec3();
+		}
+
+		for ( j = 1 ; j < w.GetNumPoints() - 1 ; j++ ) 
+		{
+			tri->indexes[ tri->numIndexes + 0 ] = tri->numVerts;
+			tri->indexes[ tri->numIndexes + 1 ] = tri->numVerts + j;
+			tri->indexes[ tri->numIndexes + 2 ] = tri->numVerts + j + 1;
+			tri->numIndexes += 3;
+		}
+		
+		tri->numVerts += w.GetNumPoints();
+
+		// optionally save the winding
+		if ( windings ) 
+		{
+			windings[i] = new idWinding( w.GetNumPoints() );
+			*windings[i] = w;
+		}
+	}
+
+	R_BoundTriSurf( tri );
+
+	return tri;
+}
+
+/*
+=================
+DeriveLightData
+Fills everything in based on light->parms
+=================
+*/
+static void DeriveLightData( idRenderLightLocal *light ) 
+{
+	int i = 0;
+
+	// decide which light shader we are going to use
+	if ( light->parms.shader ) 
+		light->lightShader = light->parms.shader;
+	
+	if ( !light->lightShader ) 
+	{
+		if ( light->parms.pointLight ) 
+			light->lightShader = declManager->FindMaterial( "lights/defaultPointLight" );
+		else 
+			light->lightShader = declManager->FindMaterial( "lights/defaultProjectedLight" );
+	}
+
+	// get the falloff image
+	light->falloffImage = light->lightShader->LightFalloffImage();
+	if ( !light->falloffImage ) 
+	{
+		// use the falloff from the default shader of the correct type
+		const idMaterial	*defaultShader;
+
+		if ( light->parms.pointLight ) 
+		{
+			defaultShader = declManager->FindMaterial( "lights/defaultPointLight" );
+			light->falloffImage = defaultShader->LightFalloffImage();
+		} 
+		else 
+		{
+			// projected lights by default don't diminish with distance
+			defaultShader = declManager->FindMaterial( "lights/defaultProjectedLight" );
+			light->falloffImage = defaultShader->LightFalloffImage();
+		}
+	}
+
+	// set the projection
+	if ( !light->parms.pointLight ) 
+	{
+		// projected light
+		SetLightProject( light->lightProject, vec3_origin /* light->parms.origin */, light->parms.target, 
+			light->parms.right, light->parms.up, light->parms.start, light->parms.end);
+	} 
+	else 
+	{
+		// point light
+		std::memset( light->lightProject, 0, sizeof( light->lightProject ) );
+		light->lightProject[0][0] = 0.5f / light->parms.lightRadius[0];
+		light->lightProject[1][1] = 0.5f / light->parms.lightRadius[1];
+		light->lightProject[3][2] = 0.5f / light->parms.lightRadius[2];
+		light->lightProject[0][3] = 0.5f;
+		light->lightProject[1][3] = 0.5f;
+		light->lightProject[2][3] = 1.0f;
+		light->lightProject[3][3] = 0.5f;
+	}
+
+	// set the frustum planes
+	SetLightFrustum( light->lightProject, light->frustum );
+
+	// rotate the light planes and projections by the axis
+	R_AxisToModelMatrix( light->parms.axis, light->parms.origin, light->modelMatrix );
+
+	for ( i = 0 ; i < 6 ; i++ ) 
+	{
+		idPlane		temp;
+		temp = light->frustum[i];
+		R_LocalPlaneToGlobal( light->modelMatrix, temp, light->frustum[i] );
+	}
+	
+	for ( i = 0 ; i < 4 ; i++ ) 
+	{
+		idPlane		temp;
+		temp = light->lightProject[i];
+		R_LocalPlaneToGlobal( light->modelMatrix, temp, light->lightProject[i] );
+	}
+
+	// adjust global light origin for off center projections and parallel projections
+	// we are just faking parallel by making it a very far off center for now
+	if ( light->parms.parallel ) 
+	{
+		idVec3	dir;
+
+		dir = light->parms.lightCenter;
+		if ( !dir.Normalize() )
+			dir[2] = 1; // make point straight up if not specified
+		
+		light->globalLightOrigin = light->parms.origin + dir * 100000;
+	} 
+	else 
+	{
+		light->globalLightOrigin = light->parms.origin + light->parms.axis * light->parms.lightCenter;
+	}
+
+	FreeLightDefFrustum( light );
+
+	light->frustumTris = PolytopeSurface( 6, light->frustum, light->frustumWindings );
+
+	// a projected light will have one shadowFrustum, a point light will have
+	// six unless the light center is outside the box
+	MakeShadowFrustums( light );
+}
+
+// BEATO End
+
 /*
 ==============
 CreateMapLight
 
 ==============
 */
-static void CreateMapLight( const idDmapMapEntity *mapEnt ) {
-	mapLight_t	*light;
-	bool	dynamic;
+static void CreateMapLight( const idMapEntity *mapEnt ) 
+{
+	bool	dynamic = false;
+	mapLight_t	*light = nullptr;
 
 	// designers can add the "noPrelight" flag to signal that
 	// the lights will move around, so we don't want
 	// to bother chopping up the surfaces under it or creating
 	// shadow volumes
 	mapEnt->epairs.GetBool( "noPrelight", "0", dynamic );
-	if ( dynamic ) {
+	if ( dynamic ) 
 		return;
-	}
 
 	light = new mapLight_t;
 	light->name[0] = '\0';
-	light->shadowTris = NULL;
+	light->shadowTris = nullptr;
 
 	// parse parms exactly as the game do
 	// use the game's epair parsing code so
 	// we can use the same renderLight generation
 	gameEdit->ParseSpawnArgsToRenderLight( &mapEnt->epairs, &light->def.parms );
 
-	R_DeriveLightDataDmap( &light->def );
+	DeriveLightData( &light->def );
 
 	// get the name for naming the shadow surfaces
 	const char	*name;
@@ -453,20 +955,21 @@ CreateMapLights
 
 ==============
 */
-static void CreateMapLights( const idDmapMapFile *dmapFile ) {
-	int		i;
-	const idDmapMapEntity *mapEnt;
-	const char	*value;
+static void CreateMapLights( const idMapFile *dmapFile ) 
+{
+	int					i = 0;
+	const char*			value = nullptr;
+	const idMapEntity*	mapEnt = nullptr;
 
-	for ( i = 0 ; i < dmapFile->GetNumEntities() ; i++ ) {
+	for ( i = 0 ; i < dmapFile->GetNumEntities() ; i++ ) 
+	{
 		mapEnt = dmapFile->GetEntity(i);
 		mapEnt->epairs.GetString( "classname", "", &value);
-		if ( !idStr::Icmp( value, "light" ) ) {
+		if ( !idStr::Icmp( value, "light" ) ) 
+		{
 			CreateMapLight( mapEnt );
 		}
-
 	}
-
 }
 
 /*
@@ -474,7 +977,8 @@ static void CreateMapLights( const idDmapMapFile *dmapFile ) {
 LoadDMapFile
 ================
 */
-bool LoadDMapFile( const char *filename ) {		
+bool LoadDMapFile( const char *filename ) 
+{		
 	primitive_t	*prim;
 	idBounds	mapBounds;
 	int			brushes, triSurfs;
@@ -485,10 +989,11 @@ bool LoadDMapFile( const char *filename ) {
 	common->Printf( "loading %s\n", filename ); 
 
 	// load and parse the map file into canonical form
-	dmapGlobals.dmapFile = new idDmapMapFile();
-	if ( !dmapGlobals.dmapFile->Parse(filename) ) {
+	dmapGlobals.dmapFile = new idMapFile();
+	if ( !dmapGlobals.dmapFile->Parse(filename) ) 
+	{
 		delete dmapGlobals.dmapFile;
-		dmapGlobals.dmapFile = NULL;
+		dmapGlobals.dmapFile = nullptr;
 		common->Warning( "Couldn't load map file: '%s'", filename );
 		return false;
 	}
@@ -545,10 +1050,12 @@ bool LoadDMapFile( const char *filename ) {
 FreeOptimizeGroupList
 ================
 */
-void FreeOptimizeGroupList( optimizeGroup_t *groups ) {
-	optimizeGroup_t	*next;
+void FreeOptimizeGroupList( optimizeGroup_t *groups ) 
+{
+	optimizeGroup_t	*next = nullptr;
 
-	for ( ; groups ; groups = next ) {
+	for ( ; groups ; groups = next ) 
+	{
 		next = groups->nextGroup;
 		FreeTriList( groups->triList );
 		Mem_Free( groups );
@@ -560,11 +1067,12 @@ void FreeOptimizeGroupList( optimizeGroup_t *groups ) {
 FreeDMapFile
 ================
 */
-void FreeDMapFile( void ) {
-	int		i, j;
+void FreeDMapFile( void ) 
+{
+	int i = 0, j = 0;
 
 	FreeBrush( buildBrush );
-	buildBrush = NULL;
+	buildBrush = nullptr;
 
 	// free the entities and brushes
 	for ( i = 0 ; i < dmapGlobals.num_entities ; i++ ) {
@@ -605,8 +1113,9 @@ void FreeDMapFile( void ) {
 	dmapGlobals.num_entities = 0;
 
 	// free the map lights
-	for ( i = 0; i < dmapGlobals.mapLights.Num(); i++ ) {
-		R_FreeLightDefDerivedDataDmap( &dmapGlobals.mapLights[i]->def );
+	for ( i = 0; i < dmapGlobals.mapLights.Num(); i++ ) 
+	{
+		R_FreeLightDefDerivedData( &dmapGlobals.mapLights[i]->def );
 	}
 	dmapGlobals.mapLights.DeleteContents( true );
 }

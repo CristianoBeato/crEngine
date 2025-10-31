@@ -99,7 +99,8 @@ static void WriteFloat( idFile *f, float v )
 	}
 }
 
-void Write1DMatrix( idFile *f, int x, float *m ) {
+void Write1DMatrix( idFile *f, int x, float *m ) 
+{
 	int		i;
 
 	f->WriteFloatString( "( " );
@@ -111,7 +112,8 @@ void Write1DMatrix( idFile *f, int x, float *m ) {
 	f->WriteFloatString( ") " );
 }
 
-static int CountUniqueShaders( optimizeGroup_t *groups ) {
+static int CountUniqueShaders( optimizeGroup_t *groups ) 
+{
 	optimizeGroup_t		*a, *b;
 	int					count;
 
@@ -151,33 +153,30 @@ MatchVert
 #define	ST_EPSILON	0.001
 #define	COSINE_EPSILON	0.999
 
-static bool MatchVert( const idDmapDrawVert *a, const idDmapDrawVert *b ) {
-	if ( idMath::Fabs( a->xyz[0] - b->xyz[0] ) > XYZ_EPSILON ) {
+static bool MatchVert( const idDrawVert *a, const idDrawVert *b ) 
+{
+	if ( idMath::Fabs( a->xyz[0] - b->xyz[0] ) > XYZ_EPSILON ) 
 		return false;
-	}
-	if ( idMath::Fabs( a->xyz[1] - b->xyz[1] ) > XYZ_EPSILON ) {
+	
+	if ( idMath::Fabs( a->xyz[1] - b->xyz[1] ) > XYZ_EPSILON )
 		return false;
-	}
-	if ( idMath::Fabs( a->xyz[2] - b->xyz[2] ) > XYZ_EPSILON ) {
+	
+	if ( idMath::Fabs( a->xyz[2] - b->xyz[2] ) > XYZ_EPSILON ) 
 		return false;
-	}
-	if ( idMath::Fabs( a->st[0] - b->st[0] ) > ST_EPSILON ) {
+	
+	if ( idMath::Fabs( a->st[0] - b->st[0] ) > ST_EPSILON ) 
 		return false;
-	}
-	if ( idMath::Fabs( a->st[1] - b->st[1] ) > ST_EPSILON ) {
+	
+	if ( idMath::Fabs( a->st[1] - b->st[1] ) > ST_EPSILON ) 
 		return false;
-	}
 
 	// if the normal is 0 (smoothed normals), consider it a match
-	if ( a->normal[0] == 0 && a->normal[1] == 0 && a->normal[2] == 0 
-		&& b->normal[0] == 0 && b->normal[1] == 0 && b->normal[2] == 0 ) {
+	if ( a->normal[0] == 0 && a->normal[1] == 0 && a->normal[2] == 0 && b->normal[0] == 0 && b->normal[1] == 0 && b->normal[2] == 0 ) 
 		return true;
-	}
 
 	// otherwise do a dot-product cosine check
-	if ( DotProduct( a->normal, b->normal ) < COSINE_EPSILON ) {
+	if ( DotProduct( a->normal, b->normal ) < COSINE_EPSILON )
 		return false;
-	}
 
 	return true;
 }
@@ -189,37 +188,42 @@ ShareMapTriVerts
 Converts independent triangles to shared vertex triangles
 ====================
 */
-srfDmapTriangles_t	*ShareMapTriVerts( const mapTri_t *tris ) {
-	const mapTri_t	*step;
-	int			count;
-	int			i, j;
-	int			numVerts;
-	int			numIndexes;
-	srfDmapTriangles_t	*uTri;
+srfTriangles_t	*ShareMapTriVerts( const mapTri_t *tris ) 
+{
+	int				count = 0;
+	int				i = 0, j = 0;
+	int				numVerts = 0;
+	int				numIndexes = 0;
+	const mapTri_t	*step = nullptr;
+	srfTriangles_t	*uTri = nullptr;
 
 	// unique the vertexes
 	count = CountTriList( tris );
 
-	uTri = R_AllocStaticTriSurfDmap();
-	R_AllocStaticTriSurfVertsDmap( uTri, count * 3 );
-	R_AllocStaticTriSurfIndexesDmap( uTri, count * 3 );
+	uTri = R_AllocStaticTriSurf();
+	R_AllocStaticTriSurfVerts( uTri, count * 3 );
+	R_AllocStaticTriSurfIndexes( uTri, count * 3 );
 
 	numVerts = 0;
 	numIndexes = 0;
 
-	for ( step = tris ; step ; step = step->next ) {
-		for ( i = 0 ; i < 3 ; i++ ) {
-			const idDmapDrawVert	*dv;
+	for ( step = tris ; step ; step = step->next ) 
+	{
+		for ( i = 0 ; i < 3 ; i++ ) 
+		{
+			const idDrawVert	*dv = nullptr;
 
 			dv = &step->v[i];
 
 			// search for a match
-			for ( j = 0 ; j < numVerts ; j++ ) {
-				if ( MatchVert( &uTri->verts[j], dv ) ) {
+			for ( j = 0 ; j < numVerts ; j++ ) 
+			{
+				if ( MatchVert( &uTri->verts[j], dv ) ) 
 					break;
-				}
 			}
-			if ( j == numVerts ) {
+			
+			if ( j == numVerts ) 
+			{
 				numVerts++;
 				uTri->verts[j].xyz = dv->xyz;
 				uTri->verts[j].normal[0] = dv->normal[0];
@@ -245,16 +249,17 @@ srfDmapTriangles_t	*ShareMapTriVerts( const mapTri_t *tris ) {
 CleanupUTriangles
 ==================
 */
-static void CleanupUTriangles( srfDmapTriangles_t *tri ) {
+static void CleanupUTriangles( srfTriangles_t *tri ) 
+{
 	// perform cleanup operations
 
-	R_RangeCheckIndexesDmap( tri );
-	R_CreateSilIndexesDmap( tri );
+	R_RangeCheckIndexes( tri );
+	R_CreateSilIndexes( tri );
 //	R_RemoveDuplicatedTriangles( tri );	// this may remove valid overlapped transparent triangles
-	R_RemoveDegenerateTrianglesDmap( tri );
+	R_RemoveDegenerateTriangles( tri );
 //	R_RemoveUnusedVerts( tri );
 
-	R_FreeStaticTriSurfSilIndexesDmap( tri );
+	R_FreeStaticTriSurfSilIndexes( tri );
 }
 
 /*
@@ -264,9 +269,10 @@ WriteUTriangles
 Writes text verts and indexes to procfile
 ====================
 */
-static void WriteUTriangles( const srfDmapTriangles_t *uTris ) {
-	int			col;
-	int			i;
+static void WriteUTriangles( const srfTriangles_t *uTris ) 
+{
+	int			col = 0;
+	int			i = 0;
 
 	// emit this chain
 	procFile->WriteFloatString( "/* numVerts = */ %i /* numIndexes = */ %i\n", 
@@ -274,9 +280,10 @@ static void WriteUTriangles( const srfDmapTriangles_t *uTris ) {
 
 	// verts
 	col = 0;
-	for ( i = 0 ; i < uTris->numVerts ; i++ ) {
+	for ( i = 0 ; i < uTris->numVerts ; i++ ) 
+	{
 		float	vec[8];
-		const idDmapDrawVert *dv;
+		const idDrawVert *dv = nullptr;
 
 		dv = &uTris->verts[i];
 
@@ -322,9 +329,10 @@ WriteShadowTriangles
 Writes text verts and indexes to procfile
 ====================
 */
-static void WriteShadowTriangles( const srfDmapTriangles_t *tri ) {
-	int			col;
-	int			i;
+static void WriteShadowTriangles( const srfTriangles_t *tri ) 
+{
+	int			col = 0;
+	int			i = 0;
 
 	// emit this chain
 	procFile->WriteFloatString( "/* numVerts = */ %i /* noCaps = */ %i /* noFrontCaps = */ %i /* numIndexes = */ %i /* planeBits = */ %i\n", 
@@ -332,10 +340,12 @@ static void WriteShadowTriangles( const srfDmapTriangles_t *tri ) {
 
 	// verts
 	col = 0;
-	for ( i = 0 ; i < tri->numVerts ; i++ ) {
-		Write1DMatrix( procFile, 3,  &tri->shadowVertexes[i].xyz[0] );
+	for ( i = 0 ; i < tri->numVerts ; i++ ) 
+	{
+		Write1DMatrix( procFile, 3,  &tri->preLightShadowVertexes[i].xyzw[0] );
 
-		if ( ++col == 5 ) {
+		if ( ++col == 5 ) 
+		{
 			col = 0;
 			procFile->WriteFloatString( "\n" );
 		}
@@ -383,16 +393,17 @@ static bool GroupsAreSurfaceCompatible( const optimizeGroup_t *a, const optimize
 WriteOutputSurfaces
 ====================
 */
-static void WriteOutputSurfaces( int entityNum, int areaNum ) {
+static void WriteOutputSurfaces( int entityNum, int areaNum ) 
+{
 	mapTri_t	*ambient, *copy;
 	int			surfaceNum;
 	int			numSurfaces;
-	idDmapMapEntity	*entity;
+	idMapEntity	*entity;
 	uArea_t		*area;
 	optimizeGroup_t	*group, *groupStep;
 	int			i; // , j;
 //	int			col;
-	srfDmapTriangles_t	*uTri;
+	srfTriangles_t	*uTri;
 //	mapTri_t	*tri;
 typedef struct interactionTris_s {
 	struct interactionTris_s	*next;
@@ -489,7 +500,7 @@ typedef struct interactionTris_s {
 
 		CleanupUTriangles( uTri );
 		WriteUTriangles( uTri );
-		R_FreeStaticTriSurfDmap( uTri );
+		R_FreeStaticTriSurf( uTri );
 
 		procFile->WriteFloatString( "}\n\n" );
 	}
@@ -637,7 +648,8 @@ static void WriteOutputEntity( int entityNum ) {
 WriteOutputFile
 ====================
 */
-void WriteOutputFile( void ) {
+void WriteOutputFile( void ) 
+{
 	int				i;
 	uEntity_t		*entity;
 	idStr			qpath;
@@ -658,29 +670,30 @@ void WriteOutputFile( void ) {
 	procFile->WriteFloatString( "%s\n\n", PROC_FILE_ID );
 
 	// write the entity models and information, writing entities first
-	for ( i=dmapGlobals.num_entities - 1 ; i >= 0 ; i-- ) {
+	for ( i=dmapGlobals.num_entities - 1 ; i >= 0 ; i-- ) 
+	{
 		entity = &dmapGlobals.uEntities[i];
 	
-		if ( !entity->primitives ) {
+		if ( !entity->primitives ) 
 			continue;
-		}
 
 		WriteOutputEntity( i );
 	}
 
 	// write the shadow volumes
-	for ( i = 0 ; i < dmapGlobals.mapLights.Num() ; i++ ) {
+	for ( i = 0 ; i < dmapGlobals.mapLights.Num() ; i++ ) 
+	{
 		mapLight_t	*light = dmapGlobals.mapLights[i];
-		if ( !light->shadowTris ) {
+		if ( !light->shadowTris ) 
 			continue;
-		}
+		
 
 		procFile->WriteFloatString( "shadowModel { /* name = */ \"_prelight_%s\"\n\n", light->name );
 		WriteShadowTriangles( light->shadowTris );
 		procFile->WriteFloatString( "}\n\n" );
 
-		R_FreeStaticTriSurfDmap( light->shadowTris );
-		light->shadowTris = NULL;
+		R_FreeStaticTriSurf( light->shadowTris );
+		light->shadowTris = nullptr;
 	}
 
 	fileSystem->CloseFile( procFile );

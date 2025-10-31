@@ -38,6 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+class idBrush;
 class idBrushBSP;
 class idBrushBSPNode;
 class idBrushBSPPortal;
@@ -145,7 +146,8 @@ private:
 //
 //===============================================================
 
-class idBrushBSP {
+class idBrushBSP 
+{
 
 public:
 							idBrushBSP( const int bspGridSize );
@@ -159,7 +161,7 @@ public:
 							// portalize the bsp tree
 	void					Portalize( void );
 							// remove subspaces outside the map not reachable by entities
-	bool					RemoveOutside( const idDmapMapFile *mapFile, int contents, const idStrList &classNames );
+	bool					RemoveOutside( const idMapFile *mapFile, int contents, const idStrList &classNames );
 							// write file with a trace going through a leak
 	void					LeakFile( const idStr &fileName );
 							// try to merge portals
@@ -218,7 +220,7 @@ private:
 	void					MakeTreePortals_r( idBrushBSPNode *node );
 	void					FloodThroughPortals_r( idBrushBSPNode *node, int contents, int depth );
 	bool					FloodFromOrigin( const idVec3 &origin, int contents );
-	bool					FloodFromEntities( const idDmapMapFile *mapFile, int contents, const idStrList &classNames );
+	bool					FloodFromEntities( const idMapFile *mapFile, int contents, const idStrList &classNames );
 	void					RemoveOutside_r( idBrushBSPNode *node, int contents );
 	void					SetPortalPlanes_r( idBrushBSPNode *node, idPlaneSet &planeList );
 	void					SetPortalPlanes( void );

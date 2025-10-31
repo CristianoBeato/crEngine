@@ -297,33 +297,34 @@ Returns a list of two new mapTri if the hashVert is
 on an edge of the given mapTri, otherwise returns NULL.
 ==================
 */
-static mapTri_t *FixTriangleAgainstHashVert( const mapTri_t *a, const hashVert_t *hv ) {
-	int			i;
-	const idDmapDrawVert	*v1, *v2;
-	idDmapDrawVert	split;
+static mapTri_t *FixTriangleAgainstHashVert( const mapTri_t *a, const hashVert_t *hv ) 
+{
+	int			i = 0;
+	float		len = 0.0f;
+	float		frac = 0.0f;
+	float		d = 0.0f, off = 0.0f;
 	idVec3		dir;
-	float		len;
-	float		frac;
-	mapTri_t	*new1, *new2;
 	idVec3		temp;
-	float		d, off;
-	const idVec3 *v;
+	idDrawVert	split;
 	idPlane		plane1, plane2;
+	const idVec3 *v = nullptr;
+	mapTri_t	*new1 = nullptr, *new2 = nullptr;
+	const idDrawVert	*v1 = nullptr, *v2 = nullptr;
 
 	v = &hv->v;
 
 	// if the triangle already has this hashVert as a vert,
 	// it can't be split by it
-	if ( a->hashVert[0] == hv || a->hashVert[1] == hv || a->hashVert[2] == hv ) {
-		return NULL;
-	}
+	if ( a->hashVert[0] == hv || a->hashVert[1] == hv || a->hashVert[2] == hv ) 
+		return nullptr;
 
 	split.Clear();
 
 	// we probably should find the edge that the vertex is closest to.
 	// it is possible to be < 1 unit away from multiple
 	// edges, but we only want to split by one of them
-	for ( i = 0 ; i < 3 ; i++ ) {
+	for ( i = 0 ; i < 3 ; i++ ) 
+	{
 		v1 = &a->v[i];
 		v2 = &a->v[(i+1)%3];
 		VectorSubtract( v2->xyz, v1->xyz, dir );
@@ -350,16 +351,23 @@ static mapTri_t *FixTriangleAgainstHashVert( const mapTri_t *a, const hashVert_t
 		frac = d / len;
 		split.st[0] = v1->st[0] + frac * ( v2->st[0] - v1->st[0] );
 		split.st[1] = v1->st[1] + frac * ( v2->st[1] - v1->st[1] );
+
+#if 0
 		split.normal[0] = v1->normal[0] + frac * ( v2->normal[0] - v1->normal[0] );
 		split.normal[1] = v1->normal[1] + frac * ( v2->normal[1] - v1->normal[1] );
 		split.normal[2] = v1->normal[2] + frac * ( v2->normal[2] - v1->normal[2] );
 		split.normal.Normalize();
+#else
+		idVec3 normal = v1->GetNormal() + frac * ( v2->GetNormal() - v1->GetNormal() ); 
+		normal.Normalize();
+		split.SetNormal( normal );
+#endif
 
 		// split the tri
 		new1 = CopyMapTri( a );
 		new1->v[(i+1)%3] = split;
 		new1->hashVert[(i+1)%3] = hv;
-		new1->next = NULL;
+		new1->next = nullptr;
 
 		new2 = CopyMapTri( a );
 		new2->v[i] = split;
@@ -382,7 +390,7 @@ static mapTri_t *FixTriangleAgainstHashVert( const mapTri_t *a, const hashVert_t
 	}
 
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -603,7 +611,7 @@ void	FixGlobalTjunctions( uEntity_t *e ) {
 				continue;
 			}
 
-			idDmapRenderModel	*model = dmapRenderModelManager->FindModel( modelName );
+			idRenderModel	*model = renderModelManager->FindModel( modelName );
 
 //			common->Printf( "adding T junction verts for %s.\n", entity->mapEntity->epairs.GetString( "name" ) );
 
@@ -620,9 +628,10 @@ void	FixGlobalTjunctions( uEntity_t *e ) {
 
 			idVec3	origin = entity->mapEntity->epairs.GetVector( "origin" );
 
-			for ( i = 0 ; i < model->NumSurfaces() ; i++ ) {
-				const dmapModelSurface_t *surface = model->Surface( i );
-				const srfDmapTriangles_t *tri = surface->geometry;
+			for ( i = 0 ; i < model->NumSurfaces() ; i++ ) 
+			{
+				const modelSurface_t *surface = model->Surface( i );
+				const srfTriangles_t *tri = surface->geometry;
 
 				mapTri_t	mapTri;
 				memset( &mapTri, 0, sizeof( mapTri ) );

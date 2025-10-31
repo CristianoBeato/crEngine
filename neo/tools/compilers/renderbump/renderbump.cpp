@@ -62,8 +62,6 @@ If you have questions concerning this license or the applicable additional terms
 
 */
 
-#define MAX_QPATH		256
-
 #define	DEFAULT_TRACE_FRACTION	0.05
 
 #define	INITIAL_TRI_TO_LINK_EXPANSION	16	// can grow as needed

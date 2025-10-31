@@ -875,7 +875,8 @@ void idAASReach::FlagReachableAreas( idAASFileLocal *file ) {
 idAASReach::Build
 ================
 */
-bool idAASReach::Build( const idDmapMapFile *mapFile, idAASFileLocal *file ) {
+bool idAASReach::Build( const idMapFile *mapFile, idAASFileLocal *file ) 
+{
 	int i, j, lastPercent, percent;
 
 	this->mapFile = mapFile;

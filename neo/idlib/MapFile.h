@@ -325,6 +325,10 @@ public:
 		return hasPrimitiveData;
 	}
 	
+// BEATO Begin: Dmap utility
+	idMapEntity*			FindEntityByClassName( const char *name );
+// BEATO End
+
 protected:
 	float					version;
 	ID_TIME_T					fileTime;

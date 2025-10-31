@@ -1214,10 +1214,9 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 idCommonLocal::InitSIMD
 =================
 */
-void idCommonLocal::InitSIMD()
+void idCommonLocal::InitSIMD( void )
 {
-	idSIMD::InitProcessor( "stormengine2", com_forceGenericSIMD.GetBool() ); // SE2 fix: was "doom"
-	idDmapSIMD::InitProcessor( "stormengine2-dmap", com_forceGenericSIMD.GetBool() ); // foresthale 2014-05-21: changed phaeton to phaeton-dmap
+	idSIMD::InitProcessor( GAME_NAME, com_forceGenericSIMD.GetBool() ); // SE2 fix: was "doom"
 	com_forceGenericSIMD.ClearModified();
 }
 
@@ -1925,7 +1924,7 @@ bool idCommonLocal::WaitForSessionState( idSession::sessionState_t desiredState 
 idCommonLocal::LeaveGame
 ========================
 */
-void idCommonLocal::LeaveGame()
+void idCommonLocal::LeaveGame( void )
 {
 
 	const bool captureToImage = false;
@@ -1957,12 +1956,9 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 		{
 			if( !game->Shell_IsActive() )
 			{
-			
 				// menus / etc
 				if( MenuEvent( event ) )
-				{
 					return true;
-				}
 				
 				console->Close();
 				
@@ -1975,9 +1971,7 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 				
 				// menus / etc
 				if( MenuEvent( event ) )
-				{
 					return true;
-				}
 				
 				game->Shell_ClosePause();
 			}
@@ -1986,13 +1980,10 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 	
 	// let the pull-down console take it if desired
 	if( console->ProcessEvent( event, false ) )
-	{
 		return true;
-	}
+	
 	if( session->ProcessInputEvent( event ) )
-	{
 		return true;
-	}
 	
 	if( Dialog().IsDialogActive() )
 	{
@@ -2002,9 +1993,7 @@ bool idCommonLocal::ProcessEvent( const sysEvent_t* event )
 	
 	// menus / etc
 	if( MenuEvent( event ) )
-	{
 		return true;
-	}
 	
 	// if we aren't in a game, force the console to take it
 	if( !mapSpawned )

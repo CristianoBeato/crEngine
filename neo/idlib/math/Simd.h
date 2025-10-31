@@ -112,6 +112,14 @@ public:
 	virtual void VPCALL ConvertJointMatsToJointQuats( idJointQuat* jointQuats, const idJointMat* jointMats, const int numJoints ) = 0;
 	virtual void VPCALL TransformJoints( idJointMat* jointMats, const int* parents, const int firstJoint, const int lastJoint ) = 0;
 	virtual void VPCALL UntransformJoints( idJointMat* jointMats, const int* parents, const int firstJoint, const int lastJoint ) = 0;
+
+// BEATO Begin:
+	virtual void VPCALL Dot( float *dst, const idPlane &constant,const idDrawVert *src,	const int count ) = 0;
+	virtual	void VPCALL Dot( float *dst, const idVec3 &constant,	const idPlane *src, const int count ) = 0;
+	virtual void VPCALL CmpLT( byte *dst, const byte bitNum, const float *src0, const float constant, const int count ) = 0;
+	virtual void VPCALL CmpGT( byte *dst, const byte bitNum, const float *src0, const float constant, const int count ) = 0;
+	virtual void VPCALL CmpGE( byte *dst, const float *src0, const float constant,	const int count ) = 0;
+// BEATO End
 };
 
 // pointer to SIMD processor

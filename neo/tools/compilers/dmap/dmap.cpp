@@ -33,7 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "dmap.h"
 
 dmapGlobals_t	dmapGlobals;
-frameData_t		*dmapFrameData;
 
 /*
 ============
@@ -164,12 +163,13 @@ void DmapHelp( void ) {
 ResetDmapGlobals
 ============
 */
-void ResetDmapGlobals( void ) {
+void ResetDmapGlobals( void ) 
+{
 	dmapGlobals.mapFileBase[0] = '\0';
-	dmapGlobals.dmapFile = NULL;
+	dmapGlobals.dmapFile = nullptr;
 	dmapGlobals.mapPlanes.Clear();
 	dmapGlobals.num_entities = 0;
-	dmapGlobals.uEntities = NULL;
+	dmapGlobals.uEntities = nullptr;
 	dmapGlobals.entityNum = 0;
 	dmapGlobals.mapLights.Clear();
 	dmapGlobals.verbose = false;
@@ -197,7 +197,8 @@ void ResetDmapGlobals( void ) {
 Dmap
 ============
 */
-void Dmap( const idCmdArgs &args ) {
+void Dmap( const idCmdArgs &args ) 
+{
 	int			i;
 	int			start, end;
 	char		path[1024];
@@ -206,14 +207,12 @@ void Dmap( const idCmdArgs &args ) {
 	bool		noCM = false;
 	bool		noAAS = false;
 
-
-	// foresthale 2014-05-21: since this idDmapSIMD is called in radiant as well, it is now initialized alongside the regular idSIMD
-	//idDmapSIMD::Init();
-	R_InitTriSurfDataDmap();
+	// R_InitTriSurfData();
 
 	ResetDmapGlobals();
 
-	if ( args.Argc() < 2 ) {
+	if ( args.Argc() < 2 ) 
+	{
 		DmapHelp();
 		return;
 	}
@@ -228,84 +227,122 @@ void Dmap( const idCmdArgs &args ) {
 
 	dmapGlobals.noLightCarve = true;
 
-	for ( i = 1 ; i < args.Argc() ; i++ ) {
-		const char *s;
+	for ( i = 1 ; i < args.Argc() ; i++ ) 
+	{
+		const char *s
+		;
 
 		s = args.Argv(i);
 		if ( s[0] == '-' ) {
 			s++;
-			if ( s[0] == '\0' ) {
+			if ( s[0] == '\0' ) 
 				continue;
-			}
 		}
 
-		if ( !idStr::Icmp( s,"glview" ) ) {
+		if ( !idStr::Icmp( s,"glview" ) ) 
+		{
 			dmapGlobals.glview = true;
-		} else if ( !idStr::Icmp( s, "v" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "v" ) ) 
+		{
 			common->Printf( "verbose = true\n" );
 			dmapGlobals.verbose = true;
-		} else if ( !idStr::Icmp( s, "draw" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "draw" ) ) 
+		{
 			common->Printf( "drawflag = true\n" );
 			dmapGlobals.drawflag = true;
-		} else if ( !idStr::Icmp( s, "noFlood" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noFlood" ) ) 
+		{
 			common->Printf( "noFlood = true\n" );
 			dmapGlobals.noFlood = true;
-		} else if ( !idStr::Icmp( s, "noLightCarve" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noLightCarve" ) ) 
+		{
 			common->Printf( "noLightCarve = true\n" );
 			dmapGlobals.noLightCarve = true;
-		} else if ( !idStr::Icmp( s, "lightCarve" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "lightCarve" ) ) 
+		{
 			common->Printf( "noLightCarve = false\n" );
 			dmapGlobals.noLightCarve = false;
-		} else if ( !idStr::Icmp( s, "noOpt" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noOpt" ) ) 
+		{
 			common->Printf( "noOptimize = true\n" );
 			dmapGlobals.noOptimize = true;
-		} else if ( !idStr::Icmp( s, "verboseentities" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "verboseentities" ) ) 
+		{
 			common->Printf( "verboseentities = true\n");
 			dmapGlobals.verboseentities = true;
-		} else if ( !idStr::Icmp( s, "noCurves" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noCurves" ) ) 
+		{
 			common->Printf( "noCurves = true\n");
 			dmapGlobals.noCurves = true;
-		} else if ( !idStr::Icmp( s, "noModels" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noModels" ) ) 
+		{
 			common->Printf( "noModels = true\n" );
 			dmapGlobals.noModelBrushes = true;
-		} else if ( !idStr::Icmp( s, "noClipSides" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noClipSides" ) ) 
+		{
 			common->Printf( "noClipSides = true\n" );
 			dmapGlobals.noClipSides = true;
-		} else if ( !idStr::Icmp( s, "noCarve" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noCarve" ) ) 
+		{
 			common->Printf( "noCarve = true\n" );
 			dmapGlobals.fullCarve = false;
-		} else if ( !idStr::Icmp( s, "shadowOpt" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "shadowOpt" ) ) 
+		{
 			dmapGlobals.shadowOptLevel = (shadowOptLevel_t)atoi( args.Argv( i+1 ) );
 			common->Printf( "shadowOpt = %i\n",dmapGlobals.shadowOptLevel );
 			i += 1;
-		} else if ( !idStr::Icmp( s, "noTjunc" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noTjunc" ) ) 
+		{
 			// triangle optimization won't work properly without tjunction fixing
 			common->Printf ("noTJunc = true\n" );
 			dmapGlobals.noTJunc = true;
 			dmapGlobals.noOptimize = true;
 			common->Printf ("forcing noOptimize = true\n" );
-		} else if ( !idStr::Icmp( s, "noCM" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noCM" ) ) 
+		{
 			noCM = true;
 			common->Printf( "noCM = true\n" );
-		} else if ( !idStr::Icmp( s, "noAAS" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "noAAS" ) ) 
+		{
 			noAAS = true;
 			common->Printf( "noAAS = true\n" );
-		} else if ( !idStr::Icmp( s, "editorOutput" ) ) {
+		} 
+		else if ( !idStr::Icmp( s, "editorOutput" ) ) 
+		{
 #ifdef _WIN32
 			//com_outputMsg = true;
 #endif
-		} else {
+		} 
+		else 
+		{
 			break;
 		}
 	}
 
-	if ( i >= args.Argc() ) {
+	if ( i >= args.Argc() ) 
+	{
 		common->Error( "usage: dmap [options] mapfile" );
 	}
 
 	passedName = args.Argv(i);		// may have an extension
 	passedName.BackSlashesToSlashes();
-	if ( passedName.Icmpn( "maps/", 4 ) != 0 ) {
+	if ( passedName.Icmpn( "maps/", 4 ) != 0 ) 
+	{
 		passedName = "maps/" + passedName;
 	}
 
@@ -315,10 +352,13 @@ void Dmap( const idCmdArgs &args ) {
 
 	bool region = false;
 	// if this isn't a regioned map, delete the last saved region map
-	if ( passedName.Right( 4 ) != ".reg" ) {
+	if ( passedName.Right( 4 ) != ".reg" ) 
+	{
 		sprintf( path, "%s.reg", dmapGlobals.mapFileBase );
 		fileSystem->RemoveFile( path );
-	} else {
+	} 
+	else 
+	{
 		region = true;
 	}
 
@@ -336,22 +376,20 @@ void Dmap( const idCmdArgs &args ) {
 	fileSystem->RemoveFile( path );
 
 
-
 	//
 	// start from scratch
 	//
 	start = Sys_Milliseconds();
 
-	R_InitMaterialsDmap(); // Initialize Dmap Materials.
-	if ( !LoadDMapFile( passedName ) ) {
+	R_InitMaterials(); // Initialize Dmap Materials.
+	if ( !LoadDMapFile( passedName ) ) 
 		return;
-	}
 
-	if ( ProcessModels() ) {
+	if ( ProcessModels() ) 
 		WriteOutputFile();
-	} else {
+	else 
 		leaked = true;
-	}
+	
 	FreeDMapFile();
 
 	common->Printf( "%i total shadow triangles\n", dmapGlobals.totalShadowTriangles );
@@ -361,7 +399,8 @@ void Dmap( const idCmdArgs &args ) {
 	common->Printf( "-----------------------\n" );
 	common->Printf( "%5.0f seconds for dmap\n", ( end - start ) * 0.001f );
 
-	if ( !leaked ) {
+	if ( !leaked ) 
+	{
 
 		if ( !noCM ) {
 
@@ -390,9 +429,7 @@ void Dmap( const idCmdArgs &args ) {
 	// clear the map plane list
 	dmapGlobals.mapPlanes.Clear();
 
-	R_ShutdownTriSurfData();
-	// foresthale 2014-05-21: since this idDmapSIMD is called in radiant as well, it is now initialized alongside the regular idSIMD
-	//idDmapSIMD::Shutdown();
+	//R_ShutdownTriSurfData();
 
 #ifdef _WIN32
 	//if ( com_outputMsg && com_hwndMsg != NULL ) {
@@ -407,7 +444,8 @@ void Dmap( const idCmdArgs &args ) {
 Dmap_f
 ============
 */
-void Dmap_f( const idCmdArgs &args ) {
+void Dmap_f( const idCmdArgs &args ) 
+{
 
 	common->ClearWarnings( "running dmap" );
 

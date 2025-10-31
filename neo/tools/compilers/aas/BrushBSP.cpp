@@ -886,7 +886,7 @@ idBrushBSPNode *idBrushBSP::ProcessGridCell( idBrushBSPNode *node, int skipConte
 
 	BuildBrushBSP_r( node, planeList, testedPlanes, skipContents );
 
-	delete testedPlanes;
+	delete[] testedPlanes;
 
 #ifdef OUPUT_BSP_STATS_PER_GRID_CELL
 	common->Printf( "\r%6d splits\n", numGridCellSplits );
@@ -1508,58 +1508,54 @@ idBrushBSP::FloodFromEntities
   Marks all nodes that can be reached by entites.
 ============
 */
-bool idBrushBSP::FloodFromEntities( const idDmapMapFile *mapFile, int contents, const idStrList &classNames ) {
+bool idBrushBSP::FloodFromEntities( const idMapFile *mapFile, int contents, const idStrList &classNames ) 
+{
 	int i, j;
 	bool inside;
 	idVec3 origin;
-	idDmapMapEntity *mapEnt;
+	idMapEntity *mapEnt;
 	idStr classname;
 
 	inside = false;
 	outside->occupied = 0;
 
 	// skip the first entity which is assumed to be the worldspawn
-	for ( i = 1; i < mapFile->GetNumEntities(); i++ ) {
-
+	for ( i = 1; i < mapFile->GetNumEntities(); i++ ) 
+	{
 		mapEnt = mapFile->GetEntity( i );
 
-		if ( !mapEnt->epairs.GetVector( "origin", "", origin ) ) {
+		if ( !mapEnt->epairs.GetVector( "origin", "", origin ) ) 
 			continue;
-		}
 
-		if ( !mapEnt->epairs.GetString( "classname", "", classname ) ) {
+		if ( !mapEnt->epairs.GetString( "classname", "", classname ) ) 
 			continue;
-		}
 
-		for ( j = 0; j < classNames.Num(); j++ ) {
-			if ( classname.Icmp( classNames[j] ) == 0 ) {
+		for ( j = 0; j < classNames.Num(); j++ ) 
+		{
+			if ( classname.Icmp( classNames[j] ) == 0 ) 
 				break;
-			}
 		}
 
-		if ( j >= classNames.Num() ) {
+		if ( j >= classNames.Num() ) 
 			continue;
-		}
 
 		origin[2] += 1;
 
 		// nudge around a little
-		if ( FloodFromOrigin( origin, contents ) ) {
+		if ( FloodFromOrigin( origin, contents ) ) 
 			inside = true;
-		}
 
-		if ( outside->occupied ) {
+		if ( outside->occupied ) 
+		{
 			leakOrigin = origin;
 			break;
 		}
 	}
 
-	if ( !inside ) {
+	if ( !inside ) 
 		common->Warning( "no entities inside" );
-	}
-	else if ( outside->occupied ) {
+	else if ( outside->occupied ) 
 		common->Warning( "reached outside from entity %d (%s)", i, classname.c_str() );
-	}
 
 	return ( inside && !outside->occupied );
 }
@@ -1600,7 +1596,7 @@ void idBrushBSP::RemoveOutside_r( idBrushBSPNode *node, int contents ) {
 idBrushBSP::RemoveOutside
 ============
 */
-bool idBrushBSP::RemoveOutside( const idDmapMapFile *mapFile, int contents, const idStrList &classNames ) {
+bool idBrushBSP::RemoveOutside( const idMapFile *mapFile, int contents, const idStrList &classNames ) {
 	common->Printf( "[Remove Outside]\n" );
 
 	solidLeafNodes = outsideLeafNodes = insideLeafNodes = 0;

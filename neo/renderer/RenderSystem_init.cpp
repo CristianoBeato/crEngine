@@ -2156,7 +2156,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 R_InitMaterials
 =================
 */
-void R_InitMaterials()
+void R_InitMaterials( void )
 {
 	tr.defaultMaterial = declManager->FindMaterial( "_default", false );
 	if( !tr.defaultMaterial )
