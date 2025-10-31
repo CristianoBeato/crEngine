@@ -62,6 +62,9 @@ const int SHADOW_CAP_INFINITE	= 64;
 class idRenderModelStatic;
 struct viewDef_t;
 
+// BEATO Begin:
+// BEATO End
+
 // our only drawing geometry type
 struct srfTriangles_t
 {

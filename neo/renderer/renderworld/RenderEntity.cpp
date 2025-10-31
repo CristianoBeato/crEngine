@@ -80,33 +80,40 @@ int idRenderEntityLocal::GetIndex()
 void idRenderEntityLocal::ProjectOverlay( const idPlane localTextureAxis[ 2 ], const idMaterial* material )
 {
 }
-void idRenderEntityLocal::RemoveDecals()
+
+void idRenderEntityLocal::RemoveDecals( void )
 {
 }
 
 //======================================================================
 
-idRenderLightLocal::idRenderLightLocal()
+idRenderLightLocal::idRenderLightLocal( void )
 {
-	memset( &parms, 0, sizeof( parms ) );
-	memset( lightProject, 0, sizeof( lightProject ) );
+// BEATO Begin:
+	SetZero( parms ); // std::memset( &parms, 0, sizeof( parms ) );
+	SetZero( lightProject ); // std::memset( lightProject, 0, sizeof( lightProject ) );
+	SetZero( frustum, 6 );
+	SetZero( shadowFrustums, 6 );
+	SetZero( frustumWindings, 6 );
+	SetZero( modelMatrix, 16 );
+	frustumTris = nullptr;
+// BEATO end
 
 	lightHasMoved = false;
-	world = NULL;
+	world = nullptr;
 	index = 0;
 	areaNum = 0;
 	lastModifiedFrameNum = 0;
 	archived = false;
-	lightShader = NULL;
-	falloffImage = NULL;
+	lightShader = nullptr;
+	falloffImage = nullptr;
 	globalLightOrigin = vec3_zero;
 	viewCount = 0;
-	viewLight = NULL;
-	references = NULL;
-	foggedPortals = NULL;
-	firstInteraction = NULL;
-	lastInteraction = NULL;
-
+	viewLight = nullptr;
+	references = nullptr;
+	foggedPortals = nullptr;
+	firstInteraction = nullptr;
+	lastInteraction = nullptr;
 	baseLightProject.Zero();
 	inverseBaseLightProject.Zero();
 }

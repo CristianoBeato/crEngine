@@ -2198,7 +2198,7 @@ void idRenderSystemLocal::Clear()
 R_MakeFullScreenTris
 =============
 */
-static srfTriangles_t* R_MakeFullScreenTris()
+static srfTriangles_t* R_MakeFullScreenTris( void )
 {
 	// copy verts and indexes
 	srfTriangles_t* tri = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
@@ -2212,12 +2212,12 @@ static srfTriangles_t* R_MakeFullScreenTris()
 	
 	int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
 	int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
-	tri->verts = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
+	tri->verts = ( idDrawVert* )Mem_ClearedAlloc16( allocatedVertexBytes, TAG_RENDER_TOOLS );
 	
 	idDrawVert* verts = tri->verts;
 	
 	triIndex_t tempIndexes[6] = { 3, 0, 2, 2, 0, 1 };
-	memcpy( tri->indexes, tempIndexes, indexSize );
+	std::memcpy( tri->indexes, tempIndexes, indexSize );
 	
 	verts[0].xyz[0] = -1.0f;
 	verts[0].xyz[1] = 1.0f;
@@ -2240,7 +2240,6 @@ static srfTriangles_t* R_MakeFullScreenTris()
 		verts[i].SetColor( 0xffffffff );
 	}
 	
-	
 	return tri;
 }
 
@@ -2258,11 +2257,11 @@ static srfTriangles_t* R_MakeZeroOneCubeTris()
 	
 	const int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
 	const int allocatedIndexBytes = ALIGN( indexSize, 16 );
-	tri->indexes = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
+	tri->indexes = ( triIndex_t* )Mem_Alloc16( allocatedIndexBytes, TAG_RENDER_TOOLS );
 	
 	const int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
 	const int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
-	tri->verts = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
+	tri->verts = ( idDrawVert* )Mem_ClearedAlloc16( allocatedVertexBytes, TAG_RENDER_TOOLS );
 	
 	idDrawVert* verts = tri->verts;
 	
@@ -2360,7 +2359,7 @@ srfTriangles_t* R_MakeTestImageTriangles()
 	tri->verts = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
 	
 	ALIGNTYPE16 triIndex_t tempIndexes[6] = { 3, 0, 2, 2, 0, 1 };
-	memcpy( tri->indexes, tempIndexes, indexSize );
+	std::memcpy( tri->indexes, tempIndexes, indexSize );
 	
 	idDrawVert* tempVerts = tri->verts;
 	tempVerts[0].xyz[0] = 0.0f;

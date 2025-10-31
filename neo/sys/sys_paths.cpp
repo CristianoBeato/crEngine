@@ -20,7 +20,7 @@ namespace fs = std::filesystem;
 #include <SDL3/SDL_storage.h>
 #include <SDL3/SDL_iostream.h>
 
-constexpr char* DEFALT_STRING = "detect";
+constexpr char DEFALT_STRING[7] = { "detect" };
 
 static idCVar sys_defaultbasepath( "sys_defaultbasepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the local game source base path" );
 static idCVar sys_defaultsavepath( "sys_defaultsavepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the game saves folder" );

@@ -260,7 +260,7 @@ void R_FreeStaticTriSurfVerts( srfTriangles_t* tri )
 R_AllocStaticTriSurf
 ==============
 */
-srfTriangles_t* R_AllocStaticTriSurf()
+srfTriangles_t* R_AllocStaticTriSurf( void )
 {
 	srfTriangles_t* tris = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( srfTriangles_t ), TAG_SRFTRIS );
 	return tris;
@@ -446,8 +446,8 @@ R_FreeStaticTriSurfSilIndexes
 */
 void R_FreeStaticTriSurfSilIndexes( srfTriangles_t* tri )
 {
-	Mem_Free( tri->silIndexes );
-	tri->silIndexes = NULL;
+	Mem_Free16( tri->silIndexes );
+	tri->silIndexes = nullptr;
 }
 
 /*
@@ -573,20 +573,20 @@ the edge count by about 20% on Q3 models
 */
 void R_CreateSilIndexes( srfTriangles_t* tri )
 {
-	int		i;
-	int*		remap;
+	int	i = 0;
+	int* remap = 0;
 	
 	if( tri->silIndexes )
 	{
-		Mem_Free( tri->silIndexes );
-		tri->silIndexes = NULL;
+		Mem_Free16( tri->silIndexes );
+		tri->silIndexes = nullptr;
 	}
-	
+
 	remap = R_CreateSilRemap( tri );
 	
 	// remap indexes to the first one
 	R_AllocStaticTriSurfSilIndexes( tri, tri->numIndexes );
-	assert( tri->silIndexes != NULL );
+	assert( tri->silIndexes != nullptr );
 	for( i = 0; i < tri->numIndexes; i++ )
 	{
 		tri->silIndexes[i] = remap[tri->indexes[i]];
@@ -1211,10 +1211,8 @@ used by a vertex, creating drawVert->normal
 */
 void R_CreateVertexNormals( srfTriangles_t* tri )
 {
-	if( tri->silIndexes == NULL )
-	{
+	if( tri->silIndexes == nullptr )
 		R_CreateSilIndexes( tri );
-	}
 	
 	idTempArray< idVec3 > vertexNormals( tri->numVerts );
 	vertexNormals.Zero();

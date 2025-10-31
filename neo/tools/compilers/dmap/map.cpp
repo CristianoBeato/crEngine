@@ -510,7 +510,7 @@ R_FreeLightDefFrustum
 */
 static void FreeLightDefFrustum( idRenderLightLocal *ldef ) 
 {
-	int i;
+	int i = 0;
 
 	// free the frustum tris
 	if ( ldef->frustumTris ) 
