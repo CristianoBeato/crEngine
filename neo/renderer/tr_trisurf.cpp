@@ -187,7 +187,7 @@ void R_FreeStaticTriSurf( srfTriangles_t* tri )
 		{
 			// R_CreateLightTris points tri->verts at the verts of the ambient surface
 			if( tri->ambientSurface == nullptr || tri->verts != tri->ambientSurface->verts )
-				Mem_Free( tri->verts );
+				Mem_Free16( tri->verts );
 		}
 	}
 	
@@ -199,47 +199,37 @@ void R_FreeStaticTriSurf( srfTriangles_t* tri )
 
 	if( !tri->referencedIndexes )
 	{
-		if( tri->indexes != NULL )
+		if( tri->indexes != nullptr )
 		{
 			// if a surface is completely inside a light volume R_CreateLightTris points tri->indexes at the indexes of the ambient surface
-			if( tri->ambientSurface == NULL || tri->indexes != tri->ambientSurface->indexes )
-			{
-				Mem_Free( tri->indexes );
-			}
+			if( tri->ambientSurface == nullptr || tri->indexes != tri->ambientSurface->indexes )
+				Mem_Free16( tri->indexes );
 		}
-		if( tri->silIndexes != NULL )
-		{
-			Mem_Free( tri->silIndexes );
-		}
-		if( tri->silEdges != NULL )
-		{
-			Mem_Free( tri->silEdges );
-		}
-		if( tri->dominantTris != NULL )
-		{
-			Mem_Free( tri->dominantTris );
-		}
-		if( tri->mirroredVerts != NULL )
-		{
-			Mem_Free( tri->mirroredVerts );
-		}
-		if( tri->dupVerts != NULL )
-		{
-			Mem_Free( tri->dupVerts );
-		}
+
+		if( tri->silIndexes != nullptr )
+			Mem_Free16( tri->silIndexes );
+		
+		if( tri->silEdges != nullptr )
+			Mem_Free16( tri->silEdges );
+		
+		if( tri->dominantTris != nullptr )
+			Mem_Free16( tri->dominantTris );
+		
+		if( tri->mirroredVerts != nullptr )
+			Mem_Free16( tri->mirroredVerts );
+		
+		if( tri->dupVerts != nullptr )
+			Mem_Free16( tri->dupVerts );
 	}
 	
-	if( tri->preLightShadowVertexes != NULL )
-	{
-		Mem_Free( tri->preLightShadowVertexes );
-	}
-	if( tri->staticShadowVertexes != NULL )
-	{
-		Mem_Free( tri->staticShadowVertexes );
-	}
+	if( tri->preLightShadowVertexes != nullptr )
+		Mem_Free16( tri->preLightShadowVertexes );
+	
+	if( tri->staticShadowVertexes != nullptr )
+		Mem_Free16( tri->staticShadowVertexes );
 	
 	// clear the tri out so we don't retain stale data
-	memset( tri, 0, sizeof( srfTriangles_t ) );
+	std::memset( tri, 0, sizeof( srfTriangles_t ) );
 	
 	Mem_Free( tri );
 }
@@ -292,8 +282,8 @@ srfTriangles_t* R_CopyStaticTriSurf( const srfTriangles_t* tri )
 	R_AllocStaticTriSurfIndexes( newTri, tri->numIndexes );
 	newTri->numVerts = tri->numVerts;
 	newTri->numIndexes = tri->numIndexes;
-	memcpy( newTri->verts, tri->verts, tri->numVerts * sizeof( newTri->verts[0] ) );
-	memcpy( newTri->indexes, tri->indexes, tri->numIndexes * sizeof( newTri->indexes[0] ) );
+	std::memcpy( newTri->verts, tri->verts, tri->numVerts * sizeof( newTri->verts[0] ) );
+	std::memcpy( newTri->indexes, tri->indexes, tri->numIndexes * sizeof( newTri->indexes[0] ) );
 	
 	return newTri;
 }
@@ -305,7 +295,7 @@ R_AllocStaticTriSurfVerts
 */
 void R_AllocStaticTriSurfVerts( srfTriangles_t* tri, int numVerts )
 {
-	assert( tri->verts == NULL );
+	assert( tri->verts == nullptr );
 	tri->verts = ( idDrawVert* )Mem_Alloc16( numVerts * sizeof( idDrawVert ), TAG_TRI_VERTS );
 }
 
@@ -316,7 +306,7 @@ R_AllocStaticTriSurfIndexes
 */
 void R_AllocStaticTriSurfIndexes( srfTriangles_t* tri, int numIndexes )
 {
-	assert( tri->indexes == NULL );
+	assert( tri->indexes == nullptr );
 	tri->indexes = ( triIndex_t* )Mem_Alloc16( numIndexes * sizeof( triIndex_t ), TAG_TRI_INDEXES );
 }
 
@@ -327,7 +317,7 @@ R_AllocStaticTriSurfSilIndexes
 */
 void R_AllocStaticTriSurfSilIndexes( srfTriangles_t* tri, int numIndexes )
 {
-	assert( tri->silIndexes == NULL );
+	assert( tri->silIndexes == nullptr );
 	tri->silIndexes = ( triIndex_t* )Mem_Alloc16( numIndexes * sizeof( triIndex_t ), TAG_TRI_SIL_INDEXES );
 }
 
@@ -338,8 +328,8 @@ R_AllocStaticTriSurfDominantTris
 */
 void R_AllocStaticTriSurfDominantTris( srfTriangles_t* tri, int numVerts )
 {
-	assert( tri->dominantTris == NULL );
-	tri->dominantTris = ( dominantTri_t* )Mem_Alloc16( numVerts * sizeof( dominantTri_t ), TAG_TRI_DOMINANT_TRIS );
+	assert( tri->dominantTris == nullptr );
+	tri->dominantTris = static_cast<dominantTri_t*>( Mem_Alloc( numVerts * sizeof( dominantTri_t ), TAG_TRI_DOMINANT_TRIS ) );
 }
 
 /*
@@ -349,8 +339,8 @@ R_AllocStaticTriSurfMirroredVerts
 */
 void R_AllocStaticTriSurfMirroredVerts( srfTriangles_t* tri, int numMirroredVerts )
 {
-	assert( tri->mirroredVerts == NULL );
-	tri->mirroredVerts = ( int* )Mem_Alloc16( numMirroredVerts * sizeof( *tri->mirroredVerts ), TAG_TRI_MIR_VERT );
+	assert( tri->mirroredVerts == nullptr );
+	tri->mirroredVerts = static_cast<int*>( Mem_Alloc16( numMirroredVerts * sizeof( *tri->mirroredVerts ), TAG_TRI_MIR_VERT ) );
 }
 
 /*
@@ -360,8 +350,8 @@ R_AllocStaticTriSurfDupVerts
 */
 void R_AllocStaticTriSurfDupVerts( srfTriangles_t* tri, int numDupVerts )
 {
-	assert( tri->dupVerts == NULL );
-	tri->dupVerts = ( int* )Mem_Alloc16( numDupVerts * 2 * sizeof( *tri->dupVerts ), TAG_TRI_DUP_VERT );
+	assert( tri->dupVerts == nullptr );
+	tri->dupVerts = static_cast<int*>( Mem_Alloc16( numDupVerts * 2 * sizeof( *tri->dupVerts ), TAG_TRI_DUP_VERT ) );
 }
 
 /*
@@ -371,7 +361,7 @@ R_AllocStaticTriSurfSilEdges
 */
 void R_AllocStaticTriSurfSilEdges( srfTriangles_t* tri, int numSilEdges )
 {
-	assert( tri->silEdges == NULL );
+	assert( tri->silEdges == nullptr );
 	tri->silEdges = ( silEdge_t* )Mem_Alloc16( numSilEdges * sizeof( silEdge_t ), TAG_TRI_SIL_EDGE );
 }
 
@@ -382,7 +372,7 @@ R_AllocStaticTriSurfPreLightShadowVerts
 */
 void R_AllocStaticTriSurfPreLightShadowVerts( srfTriangles_t* tri, int numVerts )
 {
-	assert( tri->preLightShadowVertexes == NULL );
+	assert( tri->preLightShadowVertexes == nullptr );
 	tri->preLightShadowVertexes = ( idShadowVert* )Mem_Alloc16( numVerts * sizeof( idShadowVert ), TAG_TRI_SHADOW );
 }
 
@@ -392,12 +382,12 @@ void R_AllocStaticTriSurfPreLightShadowVerts( srfTriangles_t* tri, int numVerts 
 R_AllocStaticTriSurfPlanes
 =================
 */
-void R_AllocStaticTriSurfPlanes(srfTriangles_t* tri, int numIndexes) {
-	if (tri->facePlanes) {
+void R_AllocStaticTriSurfPlanes(srfTriangles_t* tri, int numIndexes) 
+{
+	if (tri->facePlanes != nullptr ) 
 		Mem_Free(tri->facePlanes);
-	}
 	
-	tri->facePlanes = (idPlane*)Mem_Alloc(numIndexes / 3 * sizeof(idPlane), TAG_TRI_PLANES);
+	tri->facePlanes = static_cast<idPlane*>( Mem_Alloc(numIndexes / 3 * sizeof(idPlane), TAG_TRI_PLANES) );
 }
 
 
@@ -872,7 +862,7 @@ void R_IdentifySilEdges( srfTriangles_t* tri, bool omitCoplanarEdges )
 	
 	tri->numSilEdges = silEdges.Num();
 	R_AllocStaticTriSurfSilEdges( tri, silEdges.Num() );
-	memcpy( tri->silEdges, silEdges.Ptr(), silEdges.Num() * sizeof( tri->silEdges[0] ) );
+	std::memcpy( tri->silEdges, silEdges.Ptr(), silEdges.Num() * sizeof( tri->silEdges[0] ) );
 }
 
 /*

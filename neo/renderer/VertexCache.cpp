@@ -195,7 +195,7 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 	assert( ( bytes & 15 ) == 0 );
 	
 	// thread safe interlocked adds
-	byte** base = NULL;
+	byte** base = nullptr;
 	int	endPos = 0;
 	if( type == CACHE_INDEX )
 	{
