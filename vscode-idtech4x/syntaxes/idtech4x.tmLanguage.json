@@ -1,0 +1,57 @@
+{
+  "scopeName": "source.idtech4x",
+  "patterns": 
+  [
+    {
+      "match": "//.*$",
+      "name": "comment.line.double-slash.idtech4x"
+    },
+    {
+      "begin": "/\\*",
+      "end": "\\*/",
+      "name": "comment.block.idtech4x"
+    },
+    {
+      "match": "^[ \\t]*#\\s*(define|ifdef|ifndef|endif)\\b.*$",
+      "name": "keyword.preprocessor.idtech4x"
+    },
+    {
+      "begin": "^[ \\t]*#\\s*include\\s+",
+      "beginCaptures": 
+      {
+        "0": { "name": "keyword.preprocessor.include.idtech4x" }
+      },
+      "end": "$",
+      "patterns": 
+      [
+        {
+            "match": "\"[^\"]+\"",
+            "name": "string.quoted.double.idtech4x"
+        }
+      ]
+    },
+    {
+      "match": "\\b(float|vector|entity|void|boolean|int|string|event)\\b",
+      "name": "storage.type.idtech4x"
+    },
+    {
+      "match": "\\b(object|if|else|for|while|return|break|continue|state|thread|wait|waitFor|spawn|call)\\b",
+      "name": "keyword.control.idtech4x"
+    },
+    {
+      "match": "\".*?\"",
+      "name": "string.quoted.double.idtech4x"
+    },
+    {
+      "match": "\\b[0-9]+(\\.[0-9]+)?\\b",
+      "name": "constant.numeric.idtech4x"
+    },
+    {
+      "match": "\\bself\\b",
+      "name": "variable.language.self.idtech4x"
+    }
+  ],
+  "repository": {},
+  "fileTypes": ["script", "def"],
+  "name": "idTech4x Script"
+}

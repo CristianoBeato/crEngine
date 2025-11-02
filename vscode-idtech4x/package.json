@@ -1,0 +1,31 @@
+{
+  "name": "idtech4x-scripting",
+  "displayName": "idTech4x Script Support",
+  "description": "Syntax highlight e snippets para os scripts da idTech4x (Doom 3 BFG).",
+  "version": "0.1.0",
+  "publisher": "beato",
+  "engines": { "vscode": "^1.60.0" },
+  "contributes": {
+    "languages": [
+      {
+        "id": "idtech4x-script",
+        "aliases": ["idTech4x Script", "idtech4x-script"],
+        "extensions": [".script", ".def"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "idtech4x-script",
+        "scopeName": "source.idtech4x",
+        "path": "./syntaxes/idtech4x.tmLanguage.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "idtech4x-script",
+        "path": "./snippets/idtech4x.code-snippets"
+      }
+    ]
+  }
+}
