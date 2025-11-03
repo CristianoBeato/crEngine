@@ -1,0 +1,105 @@
+///
+///	player base object
+///
+
+#ifndef __PLAYER_BASE__
+#define __PLAYER_BASE__
+
+object player_base 
+{
+	boolean		AI_FORWARD;
+	boolean		AI_BACKWARD;
+	boolean		AI_STRAFE_LEFT;
+	boolean		AI_STRAFE_RIGHT;
+	boolean		AI_ATTACK_HELD;
+	boolean		AI_WEAPON_FIRED;
+	boolean		AI_JUMP;
+	boolean		AI_DEAD;
+	boolean		AI_CROUCH;
+	boolean		AI_ONGROUND;
+	boolean		AI_ONLADDER;
+	boolean		AI_RUN;
+	boolean		AI_HARDLANDING;
+	boolean		AI_SOFTLANDING;
+	boolean		AI_RELOAD;
+	boolean		AI_PAIN;
+	boolean		AI_TELEPORT;
+	boolean		AI_TURN_LEFT;
+	boolean		AI_TURN_RIGHT;
+	
+				// called by game
+	void		EnterCinematic();
+	void		ExitCinematic();
+	void		LowerWeapon();
+	void		RaiseWeapon();
+	void		ReloadWeapon();
+	void		NetCatchup();
+};
+
+/*
+=====================
+player_base::EnterCinematic
+
+Required by game code for cinematics.  Implemented in subclasses.
+=====================
+*/
+void player_base::EnterCinematic() 
+{
+}
+
+/*
+=====================
+player_base::ExitCinematic
+
+Required by game code for cinematics.  Implemented in subclasses.
+=====================
+*/
+void player_base::ExitCinematic() 
+{
+}
+
+/*
+=====================
+player_base::LowerWeapon
+
+Required by game code for weapon switches.  Implemented in subclasses.
+=====================
+*/
+void player_base::LowerWeapon() 
+{
+}
+
+/*
+=====================
+player_base::RaiseWeapon
+
+Required by game code for weapon switches.  Implemented in subclasses.
+=====================
+*/
+void player_base::RaiseWeapon() 
+{
+}
+
+/*
+=====================
+player_base::ReloadWeapon
+
+Required by game code for weapon reloading.  Implemented in subclasses.
+=====================
+*/
+void player_base::ReloadWeapon() 
+{
+}
+
+/*
+=====================
+player_base::NetCatchup
+
+Required by game code for networking.  Implemented in subclasses.
+=====================
+*/
+void player_base::NetCatchup() 
+{
+}
+
+#endif //!__PLAYER_BASE__

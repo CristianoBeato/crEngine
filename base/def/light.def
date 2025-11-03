@@ -1,0 +1,46 @@
+
+// ==============================================================================
+// 			LIGHT SOURCE
+// ==============================================================================
+
+entityDef light 
+{
+	"editor_color"					"0 1 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_rotatable"				"1"
+	"editor_displayFolder"			"lights"
+
+	"editor_usage"                 "Light source.  If health is set, light becomes breakable and turns off when shot."
+	
+	"editor_material texture"      "light shader to use."
+	"editor_color color"           "light color"
+	"editor_var shaderParm3"       "shader parm #3"
+	"editor_var shaderParm4"       "shader parm #4"
+	"editor_var shaderParm5"       "shader parm #5"
+	"editor_var shaderParm6"       "shader parm #6"
+	"editor_var shaderParm7"       "shader parm #7"
+	"editor_var count"             "this many times light must be triggered to toggle"
+	"editor_var break"             "break when triggered"
+	"editor_model model"           "model"
+	"editor_model broken"          "model if light is broken (default is model name with '_broken' suffix)"
+	"editor_var hideModelOnBreak"  "hide model when broke"
+	"editor_var health"			   "how many damage to deal to become broken, 0 is invincible"
+	"editor_var target"			   "trigger this entities when shot"
+	"editor_var levels"			   "like count (this many times light must be triggered to toggle), but each trigger light will become dimmer by one level"
+	"editor_var start_off"		   "start toggled off"
+	"editor_var snd_broken"		   "sound shader to use if broken"
+	"editor_var mtr_broken"		   "material to use if broken"
+	"editor_color color_demonic"   "demonic mode - color"
+	"editor_material mat_demonic"  "demonic mode - material"
+	"editor_var leave_demonic_mat" "demonic mode - leave demonic material when effect expires (color is still reverted)"
+
+	"spawnclass"				   "idLight"
+	
+	// defaults
+	"health"					   "0"
+	"levels"					   "1"
+	"start_off"					   "0"
+	"count"						   "1"
+	"break"						   "0"
+}

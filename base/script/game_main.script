@@ -1,14 +1,26 @@
 // this file is loaded by engine, it loads all other scripts
 
+#ifndef __GAME_MAIN_SCRIPT__
+#define __GAME_MAIN_SCRIPT__
+
 #include "script/base_defines.script"
 
 // defs and util functions
 #include "script/game_defs.script"
 #include "script/game_events.script"
-//#include "script/weapon_base.script"
-//#include "script/ai_base.script"
-//#include "script/ai_monster_base.script"
 #include "script/game_utils.script"
+#include "script/base_player.script"
+
+// weapons
+#include "script/weapon/weapon_base.script"
+#include "script/weapon/weapon_fists.script"
+#include "script/weapon/weapon_pistol.script"
+#include "script/weapon/weapon_flashlight.script"
+
+// AI 
+#include "script/ai/ai_base.script"
+#include "script/ai/ai_player.script"
+//#include "script/ai_monster_base.script"
 
 // new AI/entity scripts
 //#include "script/base_entity.script"
@@ -16,18 +28,9 @@
 //#include "script/base_animated.script"
 //#include "script/base_actor.script"
 //#include "script/base_ai.script"
-//#include "script/base_player.script"
-//#include "script/ai_player.script"
 //#include "script/base_turret.script"
 //#include "script/base_drone.script"
 //#include "script/base_assault_drone.script"
-
-// weapons
-//#include "script/weapon_fists.script"
-//#include "script/weapon_blade.script"
-//#include "script/weapon_flintlock.script"
-//#include "script/weapon_ar.script"
-//#include "script/weapon_railgun.script"
 
 // gadgets
 //#include "script/gadget_compass.script"
@@ -61,3 +64,5 @@ void game_main()
 //	game_count = 0;
 	sys.print( "Exiting game_main()\n" );
 }
+
+#endif //!__GAME_MAIN_SCRIPT__

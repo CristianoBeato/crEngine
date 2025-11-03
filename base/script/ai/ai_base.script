@@ -1,0 +1,70 @@
+// 
+// 
+// ai_base.script
+// 
+// Base object for AI characters and player.  Contains variables required by game code.
+// 
+// 
+
+#ifndef __IA_BASE__
+#define __IA_BASE__
+
+//
+// move types
+//
+#define MOVETYPE_DEAD					0				// no enemy tracking or steering.  just runs physics and script.
+#define MOVETYPE_ANIM					1				// movement based on animation deltas
+#define MOVETYPE_SLIDE					2				// movement based on velocity.  set speed using setFlySpeed.
+#define MOVETYPE_FLY					3				// flying monsters.
+#define MOVETYPE_STATIC					4				// no movement or gravity.
+
+//
+// move results
+//
+#define MOVE_STATUS_DONE				0				// move succeeded, or not moving
+#define MOVE_STATUS_MOVING				1				// move in progress
+#define MOVE_STATUS_WAITING				2				// 
+#define MOVE_STATUS_DEST_NOT_FOUND		3				// destination doesn't exist
+#define MOVE_STATUS_DEST_UNREACHABLE	4				// 
+#define MOVE_STATUS_BLOCKED_BY_WALL		5
+#define MOVE_STATUS_BLOCKED_BY_OBJECT	6
+#define MOVE_STATUS_BLOCKED_BY_ENEMY	7
+#define MOVE_STATUS_BLOCKED_BY_MONSTER	8
+
+//
+// talk states
+//
+#define TALK_NEVER						0
+#define TALK_DEAD						1
+#define TALK_OK							2
+#define TALK_BUSY						3
+
+/***********************************************************************
+
+	ai object
+
+***********************************************************************/
+
+object ai 
+{
+	boolean		AI_TALK;
+	boolean		AI_DAMAGE;
+	boolean		AI_PAIN;
+	float		AI_SPECIAL_DAMAGE;		// value of "special_damage" on projectile
+	boolean		AI_DEAD;
+	boolean		AI_ENEMY_VISIBLE;
+	boolean		AI_ENEMY_IN_FOV;
+	boolean		AI_ENEMY_DEAD;
+	boolean		AI_MOVE_DONE;
+	boolean		AI_ONGROUND;
+	boolean		AI_ACTIVATED;
+	boolean		AI_FORWARD;
+	boolean		AI_JUMP;
+	boolean		AI_DEST_UNREACHABLE;
+	boolean		AI_BLOCKED;
+	boolean		AI_HIT_ENEMY;
+	boolean		AI_OBSTACLE_IN_PATH;
+	boolean		AI_PUSHED;
+};
+
+#endif //!__IA_BASE__

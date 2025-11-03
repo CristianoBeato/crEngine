@@ -1,8 +1,8 @@
 // this are readed by the engine
 // it contains defs that are synced to the engine
 
-#ifndef __PHAETON_DEFS__
-#define __PHAETON_DEFS__
+#ifndef __GAME_DEFS__
+#define __GAME_DEFS__
 
 #define GAME_FPS 60			
 #define GAME_FRAMETIME 0.016
@@ -111,4 +111,4 @@
 #define waitUntil( x )	while( !( x ) ) { waitFrame(); }
 #define eachFrame		for( 0; 1; waitFrame() )
 
-#endif
+#endif //! __GAME_DEFS__

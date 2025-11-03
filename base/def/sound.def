@@ -1,0 +1,33 @@
+
+//==============================================================================
+//			SOUND SOURCE
+//==============================================================================
+
+entityDef speaker 
+{
+	"editor_color"					"0 1 0"
+	"editor_mins"					"-8 -8 -8"
+	"editor_maxs"					"8 8 8"
+	"editor_material"				"textures/editor/speaker"
+	
+
+	"editor_usage"					"Sound source. Use to add atmospheric sound effects on your map or add background music."
+	
+	"editor_snd s_shader"			"specify a sound file (.wav or .ogg) or a sound shader."
+	"editor_snd snd_demonic"		"reserved field (?)"
+	"editor_var overlayDemonic"		"to overlay sound with snd_demonic instead of replacing it, set this to 1."
+	"editor_var s_waitfortrigger"	"set to 1 to play the sound when triggered. 0 to play it on map load."
+	"editor_var s_volume"			"override sound shader volume level."
+	"editor_var s_minDistance"		"override sound shader minDistance."
+	"editor_var s_maxDistance"		"override sound shader maxDistance."
+	"editor_var s_omni"				"force sound to be omnidirectional."
+	"editor_var s_looping"			"force sound to loop continuously."
+	"editor_var s_occlusion"		"do not occlude this sound by portals"
+	"editor_var s_global"			"play sound at the same volume level across the map (no falloff at all)"
+	"editor_var s_bgmusic"			"flags this speaker as background music source to allow independent volume control via menu."
+	"editor_var s_shakes"			"when the sound is loud this entity makes the screen shake."
+	"editor_var wait"				"specifies seconds between triggerings when set > 0."
+	"editor_var random"				"every wait time will be random."
+	
+	"spawnclass"					"idSound"
+}

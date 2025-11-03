@@ -4,7 +4,8 @@
 // TODO: you can have multiple targets by naming them "target", "target1", "target2", ...
 // TODO: does this have to be explicitly documented in each entity?
 
-entityDef target_ai_followalternatepath1 {
+entityDef target_ai_followalternatepath1 
+{
 	"spawnclass"	"idTarget_CallObjectFunction"
 
 	"editor_usage"	"NOTE: TODO: currently not functional in OpenTech due to missing monster AI scripts!"
@@ -19,7 +20,8 @@ entityDef target_ai_followalternatepath1 {
 	// TODO: doesn't work yet!
 }
 
-entityDef target_ai_followalternatepath2 {
+entityDef target_ai_followalternatepath2 
+{
 	"spawnclass"	"idTarget_CallObjectFunction"
 
 	"editor_usage"	"NOTE: TODO: currently not functional in OpenTech due to missing monster AI scripts!"
@@ -34,7 +36,8 @@ entityDef target_ai_followalternatepath2 {
 	// TODO: doesn't work yet!
 }
 
-entityDef target_ai_followalternatepath3 {
+entityDef target_ai_followalternatepath3 
+{
 	"spawnclass"	"idTarget_CallObjectFunction"
 
 	"editor_usage"	"NOTE: TODO: currently not functional in OpenTech due to missing monster AI scripts!"
@@ -49,7 +52,8 @@ entityDef target_ai_followalternatepath3 {
 	// TODO: doesn't work yet!
 }
 
-entityDef target_callobjectfunction {
+entityDef target_callobjectfunction 
+{
 	"spawnclass"	"idTarget_CallObjectFunction"
 
 	"editor_usage"	"Calls the given script function on the targeted entities"
@@ -61,7 +65,8 @@ entityDef target_callobjectfunction {
 	"editor_var call"	"Scriptfunction to call"
 }
 
-entityDef target_enableStamina {
+entityDef target_enableStamina 
+{
 	"spawnclass"	"idTarget_EnableStamina"
 
 	"editor_usage"	"Enables/disables stamina of all players (player's 'pm_stamina' is set to 0 or its default value)"
@@ -73,7 +78,8 @@ entityDef target_enableStamina {
 	"editor_bool enable"	"if set (to 1), enable stamine, else disable it"
 }
 
-entityDef target_enableweapons {
+entityDef target_enableweapons 
+{
 	"spawnclass"	"idTarget_EnableLevelWeapons"
 
 	"editor_usage"	"Enables/disables the players weapons for the current level"
@@ -88,7 +94,8 @@ entityDef target_enableweapons {
 	"weapon"	"weapon_pistol" // TODO: do we even have this?
 }
 
-entityDef target_endLevel {
+entityDef target_endLevel 
+{
 	"spawnclass"	"idTarget_EndLevel"
 
 	"editor_usage"	"Ends the current level, shows statistics and switches to next map. entity orientation sets view orientation for viewing stats"
@@ -104,7 +111,8 @@ entityDef target_endLevel {
 	// "nextMap"	"guis/EndLevel.gui" // TODO: we don't have that .gui and passing this to "map" in the console in d3bfg fails anyway!
 }
 
-entityDef target_entity_fadein {
+entityDef target_entity_fadein 
+{
 	"spawnclass"	"idTarget_FadeEntity"
 
 	"editor_usage"	"the targeted entity is faded in when this is triggered"
@@ -120,7 +128,8 @@ entityDef target_entity_fadein {
 	"fadeTime"	"1.0"
 }
 
-entityDef target_entity_fadeout {
+entityDef target_entity_fadeout 
+{
 	"spawnclass"	"idTarget_FadeEntity"
 
 	"editor_usage"	"the targeted entity is faded out when this is triggered"
@@ -136,7 +145,8 @@ entityDef target_entity_fadeout {
 	"fadeTime"	"1.0"
 }
 
-entityDef target_entity_setcolor {
+entityDef target_entity_setcolor 
+{
 	"spawnclass"	"idTarget_FadeEntity"
 
 	"editor_usage"	"the targeted entity is faded to the given color when this is triggered"
@@ -151,7 +161,8 @@ entityDef target_entity_setcolor {
 	"fadeTime"	"0.0"
 }
 
-entityDef target_FadeSoundClass {
+entityDef target_FadeSoundClass 
+{
 	"spawnclass"	"idTarget_FadeSoundClass"
 
 	"editor_usage"	"Fades a whole sound-class in or out (eg to silence environment during cut scenes; sounds default to class 0)"
@@ -171,7 +182,8 @@ entityDef target_FadeSoundClass {
 	"fadeTime"	"0.5"
 }
 
-entityDef target_give {
+entityDef target_give 
+{
 	"spawnclass"	"idTarget_Give"
 
 	"editor_usage"	"adds items to the player's intentory"
@@ -189,7 +201,8 @@ entityDef target_give {
 	"onspawn"	"1"
 }
 
-entityDef target_giveemail {
+entityDef target_giveemail 
+{
 	"spawnclass"	"idTarget_GiveEmail"
 
 	"editor_usage"	"Sends an E-Mail to the player's PDA when triggered"
@@ -201,7 +214,8 @@ entityDef target_giveemail {
 	"editor_var email"	"name of the E-Mail to send, refers to an email declaration, usually(?) in .pda files"
 }
 
-entityDef target_givesecurity {
+entityDef target_givesecurity 
+{
 	"spawnclass"	"idTarget_GiveSecurity"
 
 	"editor_usage"	"Gives the player a new security clearance when triggered"
@@ -215,7 +229,8 @@ entityDef target_givesecurity {
 	"text_security"		"Unlimited Access"
 }
 
-entityDef target_levelTrigger {
+entityDef target_levelTrigger 
+{
 	"spawnclass"	"idTarget_LevelTrigger"
 
 	"editor_usage"	"If triggered, activates a trigger in another map when the player is next spawned there"

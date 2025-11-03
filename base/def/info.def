@@ -4,7 +4,8 @@
 
 // from info.def:
 
-entityDef info_player_start {
+entityDef info_player_start 
+{
 	"spawnclass"	"idPlayerStart"
 	
 	"editor_usage"	"Possible player spawn spot in single player games"
@@ -19,7 +20,8 @@ entityDef info_player_start {
 	"editor_var skin"		"player skin to use when spawning through"
 }
 
-entityDef info_player_deathmatch {
+entityDef info_player_deathmatch 
+{
 	"spawnclass"	"idPlayerStart"
 	
 	"editor_usage"	"Possible player spawn in multiplayer games, first spawn will happen at initial spot"
@@ -33,7 +35,8 @@ entityDef info_player_deathmatch {
 	"editor_var initial"	"initial spawn spot in mp games"
 }
 
-entityDef info_player_teleport {
+entityDef info_player_teleport 
+{
 	"spawnclass"	"idPlayerStart"
 
 	"editor_usage"	"spawn spot after teleportation is done, i.e. after cinematic"
@@ -53,7 +56,8 @@ entityDef info_player_teleport {
 
 // from misc.def:
 
-entityDef info_location {
+entityDef info_location 
+{
 	"spawnclass"	"idLocationEntity"
 
 	"editor_usage"	"name for a map location (location is enclosed by doors)"

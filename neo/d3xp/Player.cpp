@@ -38,6 +38,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "Mover.h"				// ###### SR
 #include "framework/KeyInput.h"	// #### SR
 
+#ifdef _DEBUG
+#define TEST_PLAYER
+#endif //_DEBUG
+
 idCVar flashlight_batteryDrainTimeMS( "flashlight_batteryDrainTimeMS", "30000", CVAR_INTEGER, "amount of time (in MS) it takes for full battery to drain (-1 == no battery drain)" );
 idCVar flashlight_batteryChargeTimeMS( "flashlight_batteryChargeTimeMS", "3000", CVAR_INTEGER, "amount of time (in MS) it takes to fully recharge battery" );
 idCVar flashlight_minActivatePercent( "flashlight_minActivatePercent", ".25", CVAR_FLOAT, "( 0.0 - 1.0 ) minimum amount of battery (%) needed to turn on flashlight" );
@@ -739,25 +743,27 @@ void idPlayer::Init()
 	
 	value = spawnArgs.GetString( "bone_hips", "" );
 	hipJoint = animator.GetJointHandle( value );
+
+#ifndef TEST_PLAYER
 	if( hipJoint == INVALID_JOINT )
-	{
 		gameLocal.Error( "Joint '%s' not found for 'bone_hips' on '%s'", value, name.c_str() );
-	}
-	
+#endif // !TEST_PLAYER
+
 	value = spawnArgs.GetString( "bone_chest", "" );
 	chestJoint = animator.GetJointHandle( value );
+
+#ifndef TEST_PLAYER
 	if( chestJoint == INVALID_JOINT )
-	{
 		gameLocal.Error( "Joint '%s' not found for 'bone_chest' on '%s'", value, name.c_str() );
-	}
+#endif // !TEST_PLAYER
 	
 	value = spawnArgs.GetString( "bone_head", "" );
 	headJoint = animator.GetJointHandle( value );
+#ifndef TEST_PLAYER
 	if( headJoint == INVALID_JOINT )
-	{
 		gameLocal.Error( "Joint '%s' not found for 'bone_head' on '%s'", value, name.c_str() );
-	}
-	
+#endif // !TEST_PLAYER
+
 	// initialize the script variables
 	AI_FORWARD		= false;
 	AI_BACKWARD		= false;
@@ -4925,9 +4931,8 @@ void idPlayer::UpdateWeapon()
 			assert( weapon.GetEntity()->IsLinked() );
 		}
 		else
-		{
 			return;
-		}
+		
 	}
 	
 	if( hiddenWeapon && tipUp && usercmd.buttons & BUTTON_ATTACK )

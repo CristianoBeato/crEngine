@@ -68,8 +68,10 @@ anglemod180
 Puts angles into the range of -180 to 180
 ==================
 */
-vector anglemod180( vector ang ) {
-	while( ang_x < -180 ) {
+vector anglemod180( vector ang ) 
+{
+	while( ang_x < -180 ) 
+	{
 		ang_x += 360;
 	}
 	while( ang_x >= 180 ) {
@@ -98,7 +100,8 @@ vector anglemod180( vector ang ) {
 RandomDelay
 ==================
 */
-float RandomDelay( float min, float max ) {
+float RandomDelay( float min, float max ) 
+{
 	float t;
 	
 	t = sys.getTime();
@@ -112,7 +115,8 @@ float RandomDelay( float min, float max ) {
 RandomTime
 ==================
 */
-float RandomTime( float delay ) {
+float RandomTime( float delay ) 
+{
 	float t;
 	
 	t = sys.getTime();
