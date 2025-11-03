@@ -49,14 +49,14 @@ Calculates two axis for the surface such that a point dotted against
 the axis will give a 0.0 to 1.0 range in S and T when inside the gui surface
 ================
 */
-void R_SurfaceToTextureAxis( const srfTriangles_t* tri, idVec3& origin, idVec3 axis[3] )
+void R_SurfaceToTextureAxis( const crDrawGeometry* tri, idVec3& origin, idVec3 axis[3] )
 {
 	// find the bounds of the texture
 	idVec2 boundsMin( 999999.0f, 999999.0f );
 	idVec2 boundsMax( -999999.0f, -999999.0f );
-	for( int i = 0 ; i < tri->numVerts ; i++ )
+	for( int i = 0 ; i < tri->NumVerts() ; i++ )
 	{
-		const idVec2 uv = tri->verts[i].GetTexCoord();
+		const idVec2 uv = tri->Verts()[i].GetTexCoord();
 		boundsMin.x = Min( uv.x, boundsMin.x );
 		boundsMax.x = Max( uv.x, boundsMax.x );
 		boundsMin.y = Min( uv.y, boundsMin.y );
@@ -69,15 +69,15 @@ void R_SurfaceToTextureAxis( const srfTriangles_t* tri, idVec3& origin, idVec3 a
 	const idVec2 boundsOrg( floor( ( boundsMin.x + boundsMax.x ) * 0.5f ), floor( ( boundsMin.y + boundsMax.y ) * 0.5f ) );
 	
 	// determine the world S and T vectors from the first drawSurf triangle
-	const idJointMat* joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat* joints = ( tri->StaticModelWithJoints() != nullptr && r_useGPUSkinning.GetBool() ) ? tri->StaticModelWithJoints()->jointsInverted : nullptr;
 	
-	const idVec3 aXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[0] ], joints );
-	const idVec3 bXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[1] ], joints );
-	const idVec3 cXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[2] ], joints );
+	const idVec3 aXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->Verts()[ tri->Indexes()[0] ], joints );
+	const idVec3 bXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->Verts()[ tri->Indexes()[1] ], joints );
+	const idVec3 cXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->Verts()[ tri->Indexes()[2] ], joints );
 	
-	const idVec2 aST = tri->verts[ tri->indexes[0] ].GetTexCoord();
-	const idVec2 bST = tri->verts[ tri->indexes[1] ].GetTexCoord();
-	const idVec2 cST = tri->verts[ tri->indexes[2] ].GetTexCoord();
+	const idVec2 aST = tri->Verts()[ tri->Indexes()[0] ].GetTexCoord();
+	const idVec2 bST = tri->Verts()[ tri->Indexes()[1] ].GetTexCoord();
+	const idVec2 cST = tri->Verts()[ tri->Indexes()[2] ].GetTexCoord();
 	
 	float d0[5];
 	d0[0] = bXYZ[0] - aXYZ[0];

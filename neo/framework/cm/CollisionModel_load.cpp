@@ -50,6 +50,10 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+// BEATO Begin:
+#include "renderer/VertexCache.h"
+#include "renderer/Geometry.h"
+// BEATO End
 
 #include "CollisionModel_local.h"
 
@@ -3869,17 +3873,15 @@ cm_model_t* idCollisionModelManagerLocal::LoadRenderModel( const char* fileName 
 		surf = renderModel->Surface( i );
 		// if this surface has no contents
 		if( !( surf->shader->GetContentFlags() & CONTENTS_REMOVE_UTIL ) )
-		{
 			continue;
-		}
+		
 		// if the model has a collision surface and this surface is not a collision surface
 		if( collisionSurface && !( surf->shader->GetSurfaceFlags() & SURF_COLLISION ) )
-		{
 			continue;
-		}
+		
 		// get max verts and edges
-		model->maxVertices += surf->geometry->numVerts;
-		model->maxEdges += surf->geometry->numIndexes;
+		model->maxVertices += surf->geometry->NumVerts();
+		model->maxEdges += surf->geometry->NumIndexes();
 	}
 	
 	model->vertices = ( cm_vertex_t* ) Mem_ClearedAlloc( model->maxVertices * sizeof( cm_vertex_t ), TAG_COLLISION );
@@ -3898,21 +3900,20 @@ cm_model_t* idCollisionModelManagerLocal::LoadRenderModel( const char* fileName 
 		surf = renderModel->Surface( i );
 		// if this surface has no contents
 		if( !( surf->shader->GetContentFlags() & CONTENTS_REMOVE_UTIL ) )
-		{
 			continue;
-		}
+		
 		// if the model has a collision surface and this surface is not a collision surface
 		if( collisionSurface && !( surf->shader->GetSurfaceFlags() & SURF_COLLISION ) )
-		{
 			continue;
-		}
 		
-		for( j = 0; j < surf->geometry->numIndexes; j += 3 )
+		idDrawVert* verts = surf->geometry->Verts();
+		triIndex_t* indexes = surf->geometry->Indexes();
+		for( j = 0; j < surf->geometry->NumIndexes(); j += 3 )
 		{
 			w.Clear();
-			w += surf->geometry->verts[ surf->geometry->indexes[ j + 2 ] ].xyz;
-			w += surf->geometry->verts[ surf->geometry->indexes[ j + 1 ] ].xyz;
-			w += surf->geometry->verts[ surf->geometry->indexes[ j + 0 ] ].xyz;
+			w += verts[ indexes[ j + 2 ] ].xyz;
+			w += verts[ indexes[ j + 1 ] ].xyz;
+			w += verts[ indexes[ j + 0 ] ].xyz;
 			w.GetPlane( plane );
 			plane = -plane;
 			PolygonFromWinding( model, &w, plane, surf->shader, 1 );

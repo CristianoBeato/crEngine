@@ -1189,7 +1189,7 @@ optimizedShadow_t SuperOptimizeOccluders( idVec4 *verts, uint16_t *indexes, int 
 RemoveDegenerateTriangles
 =================
 */
-static void RemoveDegenerateTriangles( srfTriangles_t *tri ) 
+static void RemoveDegenerateTriangles( crDrawGeometry *tri ) 
 {
 	int		c_removed;
 	int		i;
@@ -1197,20 +1197,23 @@ static void RemoveDegenerateTriangles( srfTriangles_t *tri )
 
 	// check for completely degenerate triangles
 	c_removed = 0;
-	for ( i = 0 ; i < tri->numIndexes ; i+=3 ) {
-		a = tri->indexes[i];
-		b = tri->indexes[i+1];
-		c = tri->indexes[i+2];
-		if ( a == b || a == c || b == c ) {
+	for ( i = 0 ; i < tri->NumIndexes(); i+=3 ) 
+	{
+		a = tri->Indexes()[i];
+		b = tri->Indexes()[i+1];
+		c = tri->Indexes()[i+2];
+
+		if ( a == b || a == c || b == c ) 
+		{
 			c_removed++;
-			memmove( tri->indexes + i, tri->indexes + i + 3, ( tri->numIndexes - i - 3 ) * sizeof( tri->indexes[0] ) );
-			tri->numIndexes -= 3;
-			if ( i < tri->numShadowIndexesNoCaps ) {
-				tri->numShadowIndexesNoCaps -= 3;
-			}
-			if ( i < tri->numShadowIndexesNoFrontCaps ) {
-				tri->numShadowIndexesNoFrontCaps -= 3;
-			}
+			std::memmove( tri->Indexes() + i, tri->Indexes() + i + 3, ( tri->NumIndexes() - i - 3 ) * sizeof( tri->Indexes()[0] ) );
+			tri->NumIndexes() -= 3;
+			if ( i < tri->NumShadowIndexesNoCaps() ) 
+				tri->NumShadowIndexesNoCaps() -= 3;
+			
+			if ( i < tri->NumShadowIndexesNoFrontCaps() ) 
+				tri->NumShadowIndexesNoFrontCaps() -= 3;
+			
 			i -= 3;
 		}
 	}
@@ -1231,46 +1234,46 @@ removes matched sil quads at frustum seams
 removes degenerate tris
 ====================
 */
-void CleanupOptimizedShadowTris( srfTriangles_t *tri ) 
+void CleanupOptimizedShadowTris( crDrawGeometry *tri ) 
 {
 	int		i;
 
 	// unique all the verts
-	maxUniqued = tri->numVerts;
+	maxUniqued = tri->NumVerts();
 	uniqued = (idVec3 *)_alloca( sizeof( *uniqued ) * maxUniqued );
 	numUniqued = 0;
 
-	uint	*remap = (uint *)_alloca( sizeof( *remap ) * tri->numVerts );
+	uint	*remap = (uint *)_alloca( sizeof( *remap ) * tri->NumVerts() );
 
-	for ( i = 0 ; i < tri->numIndexes ; i++ ) {
-		if ( tri->indexes[i] > (uint)tri->numVerts || tri->indexes[i] < 0 ) {
+	for ( i = 0 ; i < tri->NumIndexes() ; i++ ) 
+	{
+		if ( tri->Indexes()[i] > tri->NumVerts() || tri->Indexes()[i] < 0 ) 
 			common->Error( "CleanupOptimizedShadowTris: index out of range" );
-		}
 	}
 
-	for (i = 0; i < tri->numVerts; i++) 
+	for (i = 0; i < tri->NumVerts(); i++) 
 	{
 		//remap[i] = FindUniqueVert(tri->shadowVertexes[i].xyz.ToVec3());
-		remap[i] = FindUniqueVert(tri->preLightShadowVertexes[i].xyzw.ToVec3());
+		remap[i] = FindUniqueVert(tri->PreLightShadowVertexes()[i].xyzw.ToVec3());
 
 	}
 	
-	tri->numVerts = numUniqued;
-	for (i = 0; i < tri->numVerts; i++) 
+	tri->NumVerts() = numUniqued;
+	for (i = 0; i < tri->NumVerts(); i++) 
 	{
 		//tri->shadowVertexes[i].xyz.ToVec3() = uniqued[i];
 		//tri->shadowVertexes[i].xyz[3] = 1;
-		tri->preLightShadowVertexes[i].xyzw.ToVec3() = uniqued[i];
-		tri->preLightShadowVertexes[i].xyzw[3] = 1;
+		tri->PreLightShadowVertexes()[i].xyzw.ToVec3() = uniqued[i];
+		tri->PreLightShadowVertexes()[i].xyzw[3] = 1;
 	}
 
-	for ( i = 0 ; i < tri->numIndexes ; i++ ) 
+	for ( i = 0 ; i < tri->NumIndexes(); i++ ) 
 	{
-		tri->indexes[i] = remap[tri->indexes[i]];
+		tri->Indexes()[i] = remap[tri->Indexes()[i]];
 	}
 
 	// remove matched quads
-	int	numSilIndexes = tri->numShadowIndexesNoCaps;
+	int	numSilIndexes = tri->NumShadowIndexesNoCaps();
 	for ( int i = 0 ; i < numSilIndexes ; i+=6 ) 
 	{
 		int	j;
@@ -1279,12 +1282,12 @@ void CleanupOptimizedShadowTris( srfTriangles_t *tri )
 			// if there is a reversed quad match, we can throw both of them out
 			// this is not a robust check, it relies on the exact ordering of
 			// quad indexes
-			if ( tri->indexes[i+0] == tri->indexes[j+1]
-			&& tri->indexes[i+1] == tri->indexes[j+0]
-			&& tri->indexes[i+2] == tri->indexes[j+3]
-			&& tri->indexes[i+3] == tri->indexes[j+5]
-			&& tri->indexes[i+4] == tri->indexes[j+1]
-			&& tri->indexes[i+5] == tri->indexes[j+3] ) 
+			if ( tri->Indexes()[i+0] == tri->Indexes()[j+1]
+			&& tri->Indexes()[i+1] == tri->Indexes()[j+0]
+			&& tri->Indexes()[i+2] == tri->Indexes()[j+3]
+			&& tri->Indexes()[i+3] == tri->Indexes()[j+5]
+			&& tri->Indexes()[i+4] == tri->Indexes()[j+1]
+			&& tri->Indexes()[i+5] == tri->Indexes()[j+3] ) 
 			{
 				break;
 			}
@@ -1298,24 +1301,24 @@ void CleanupOptimizedShadowTris( srfTriangles_t *tri )
 		// remove first quad
 		for ( k = i+6 ; k < j ; k++ ) 
 		{
-			tri->indexes[k-6] = tri->indexes[k];
+			tri->Indexes()[k-6] = tri->Indexes()[k];
 		}
 		
 		// remove second quad
-		for ( k = j+6 ; k < tri->numIndexes ; k++ ) 
+		for ( k = j+6 ; k < tri->NumIndexes(); k++ ) 
 		{
-			tri->indexes[k-12] = tri->indexes[k];
+			tri->Indexes()[k-12] = tri->Indexes()[k];
 		}
 		
 		numSilIndexes -= 12;
 		i -= 6;
 	}
 
-	int	removed = tri->numShadowIndexesNoCaps - numSilIndexes;
+	int	removed = tri->NumShadowIndexesNoCaps() - numSilIndexes;
 
-	tri->numIndexes -= removed;
-	tri->numShadowIndexesNoCaps -= removed;
-	tri->numShadowIndexesNoFrontCaps -= removed;
+	tri->NumIndexes() -= removed;
+	tri->NumShadowIndexesNoCaps() -= removed;
+	tri->NumShadowIndexesNoFrontCaps() -= removed;
 
 	// remove degenerates after we have removed quads, so the double
 	// triangle pairing isn't disturbed
@@ -1329,50 +1332,50 @@ CalcPointCull
 Also inits the remap[] array to all -1
 ================
 */
-static void CalcPointCull( const srfTriangles_t *tri, const idPlane frustum[6], unsigned short *pointCull ) 
+static void CalcPointCull( const crDrawGeometry *tri, const idPlane frustum[6], uint16_t *pointCull ) 
 {
 	int i;
 	int frontBits;
 	float *planeSide;
 	byte *side1, *side2;
 
-	std::memset( remap, -1, tri->numVerts * sizeof( remap[0] ) );
+	std::memset( remap, -1, tri->NumVerts() * sizeof( int ) );
 
 	for ( frontBits = 0, i = 0; i < 6; i++ ) {
 		// get front bits for the whole surface
-		if ( tri->bounds.PlaneDistance( frustum[i] ) >= LIGHT_CLIP_EPSILON ) {
+		if ( tri->Bounds().PlaneDistance( frustum[i] ) >= LIGHT_CLIP_EPSILON ) 
+		{
 			frontBits |= 1<<(i+6);
 		}
 	}
 
 	// initialize point cull
-	for ( i = 0; i < tri->numVerts; i++ ) {
+	for ( i = 0; i < tri->NumVerts(); i++ ) 
+	{
 		pointCull[i] = frontBits;
 	}
 
 	// if the surface is not completely inside the light frustum
-	if ( frontBits == ( ( ( 1 << 6 ) - 1 ) ) << 6 ) {
+	if ( frontBits == ( ( ( 1 << 6 ) - 1 ) ) << 6 ) 
 		return;
-	}
 
-	planeSide = (float *) _alloca16( tri->numVerts * sizeof( float ) );
-	side1 = (byte *) _alloca16( tri->numVerts * sizeof( byte ) );
-	side2 = (byte *) _alloca16( tri->numVerts * sizeof( byte ) );
-	SIMDProcessor->Memset( side1, 0, tri->numVerts * sizeof( byte ) );
-	SIMDProcessor->Memset( side2, 0, tri->numVerts * sizeof( byte ) );
+	planeSide = (float *) _alloca16( tri->NumVerts() * sizeof( float ) );
+	side1 = (byte *) _alloca16( tri->NumVerts() * sizeof( byte ) );
+	side2 = (byte *) _alloca16( tri->NumVerts() * sizeof( byte ) );
+	std::memset( side1, 0, tri->NumVerts() * sizeof( byte ) );
+	std::memset( side2, 0, tri->NumVerts() * sizeof( byte ) );
 
 	for ( i = 0; i < 6; i++ ) 
 	{
-
 		if ( frontBits & (1<<(i+6)) ) 
 			continue;
 
-		SIMDProcessor->Dot( planeSide, frustum[i], tri->verts, tri->numVerts );
-		SIMDProcessor->CmpLT( side1, i, planeSide, LIGHT_CLIP_EPSILON, tri->numVerts );
-		SIMDProcessor->CmpGT( side2, i, planeSide, -LIGHT_CLIP_EPSILON, tri->numVerts );
+		SIMDProcessor->Dot( planeSide, frustum[i], tri->Verts(), tri->NumVerts() );
+		SIMDProcessor->CmpLT( side1, i, planeSide, LIGHT_CLIP_EPSILON, tri->NumVerts() );
+		SIMDProcessor->CmpGT( side2, i, planeSide, -LIGHT_CLIP_EPSILON, tri->NumVerts() );
 	}
 
-	for ( i = 0; i < tri->numVerts; i++ ) 
+	for ( i = 0; i < tri->NumVerts(); i++ ) 
 	{
 		pointCull[i] |= side1[i] | (side2[i] << 6);
 	}
@@ -1654,8 +1657,8 @@ other point is on the plane, it will be completely removed.
 */
 static bool ClipLineToLight(	const idVec3 &a, const idVec3 &b, const idPlane frustum[6], idVec3 &p1, idVec3 &p2 ) 
 {
-	float	*clip;
 	int		j;
+	float	*clip;
 	float	d1, d2;
 	float	f;
 
@@ -1707,21 +1710,21 @@ Add quads from the front points to the projected points
 for each silhouette edge in the light
 =================
 */
-static void AddSilEdges( const srfTriangles_t *tri, unsigned short *pointCull, const idPlane frustum[6] ) 
+static void AddSilEdges( const crDrawGeometry *tri, uint16_t *pointCull, const idPlane frustum[6] ) 
 {
 	int		v1, v2;
 	int		i;
 	silEdge_t	*sil;
 	int		numPlanes;
 
-	numPlanes = tri->numIndexes / 3;
+	numPlanes = tri->NumIndexes() / 3;
 
 	// add sil edges for any true silhouette boundaries on the surface
-	for ( i = 0 ; i < tri->numSilEdges ; i++ ) {
-		sil = tri->silEdges + i;
-		if ( sil->p1 < 0 || sil->p1 > numPlanes || sil->p2 < 0 || sil->p2 > numPlanes ) {
+	for ( i = 0 ; i < tri->NumSilEdges() ; i++ ) 
+	{
+		sil = const_cast<silEdge_t*>( tri->SilEdges() ) + i;
+		if ( sil->p1 < 0 || sil->p1 > numPlanes || sil->p2 < 0 || sil->p2 > numPlanes ) 
 			common->Error( "Bad sil planes" );
-		}
 
 		// an edge will be a silhouette edge if the face on one side
 		// casts a shadow, but the face on the other side doesn't.
@@ -1729,30 +1732,29 @@ static void AddSilEdges( const srfTriangles_t *tri, unsigned short *pointCull, c
 		// not just that it has the correct facing direction
 		// This will cause edges that are exactly on the frustum plane
 		// to be considered sil edges if the face inside casts a shadow.
-		if ( !( faceCastsShadow[ sil->p1 ] ^ faceCastsShadow[ sil->p2 ] ) ) {
+		if ( !( faceCastsShadow[ sil->p1 ] ^ faceCastsShadow[ sil->p2 ] ) ) 
 			continue;
-		}
 
 		// if the edge is completely off the negative side of
 		// a frustum plane, don't add it at all.  This can still
 		// happen even if the face is visible and casting a shadow
 		// if it is partially clipped
-		if ( EDGE_CULLED( sil->v1, sil->v2 ) ) {
+		if ( EDGE_CULLED( sil->v1, sil->v2 ) ) 
 			continue;
-		}
-
+		
 		// see if the edge needs to be clipped
-		if ( EDGE_CLIPPED( sil->v1, sil->v2 ) ) {
-			if ( numShadowVerts + 4 > MAX_SHADOW_VERTS ) {
+		if ( EDGE_CLIPPED( sil->v1, sil->v2 ) ) 
+		{
+			if ( numShadowVerts + 4 > MAX_SHADOW_VERTS ) 
+			{
 				overflowed = true;
 				return;
 			}
+			
 			v1 = numShadowVerts;
 			v2 = v1 + 2;
-			if ( !ClipLineToLight( tri->verts[ sil->v1 ].xyz, tri->verts[ sil->v2 ].xyz,
-				frustum, shadowVerts[v1].ToVec3(), shadowVerts[v2].ToVec3() ) ) {
+			if ( !ClipLineToLight( tri->Verts()[ sil->v1 ].xyz, tri->Verts()[ sil->v2 ].xyz, frustum, shadowVerts[v1].ToVec3(), shadowVerts[v2].ToVec3() ) ) 
 				continue;	// clipped away
-			}
 
 			numShadowVerts += 4;
 		} 
@@ -1892,7 +1894,7 @@ need to be added.
 =================
 */
 static void CreateShadowVolumeInFrustum( const idRenderEntityLocal *ent,
-										  const srfTriangles_t *tri,
+										  const crDrawGeometry *tri,
 										  const idRenderLightLocal *light,
 										  const idVec3 lightOrigin,
 										  const idPlane frustum[6],
@@ -1901,13 +1903,13 @@ static void CreateShadowVolumeInFrustum( const idRenderEntityLocal *ent,
 										  {
 	int		i;
 	int		numTris;
-	unsigned short		*pointCull;
+	uint16_t		*pointCull;
 	int		numCapIndexes;
 	int		firstShadowIndex;
 	int		firstShadowVert;
 	int		cullBits;
 
-	pointCull = (unsigned short *)_alloca16( tri->numVerts * sizeof( pointCull[0] ) );
+	pointCull = (uint16_t *)_alloca16( tri->NumVerts() * sizeof( uint16_t ) );
 
 	// test the vertexes for inside the light frustum, which will allow
 	// us to completely cull away some triangles from consideration.
@@ -1919,7 +1921,7 @@ static void CreateShadowVolumeInFrustum( const idRenderEntityLocal *ent,
 
 	// decide which triangles front shadow volumes, clipping as needed
 	numClipSilEdges = 0;
-	numTris = tri->numIndexes / 3;
+	numTris = tri->NumIndexes() / 3;
 	for ( i = 0 ; i < numTris ; i++ ) 
 	{
 		int		i1, i2, i3;
@@ -1931,9 +1933,9 @@ static void CreateShadowVolumeInFrustum( const idRenderEntityLocal *ent,
 		if ( globalFacing[i] ) 
 			continue;
 
-		i1 = tri->silIndexes[ i*3 + 0 ];
-		i2 = tri->silIndexes[ i*3 + 1 ];
-		i3 = tri->silIndexes[ i*3 + 2 ];
+		i1 = tri->SilIndexes()[ i*3 + 0 ];
+		i2 = tri->SilIndexes()[ i*3 + 1 ];
+		i3 = tri->SilIndexes()[ i*3 + 2 ];
 
 		// if all the verts are off one side of the frustum,
 		// don't add any of them
@@ -1954,21 +1956,21 @@ static void CreateShadowVolumeInFrustum( const idRenderEntityLocal *ent,
 		if ( !POINT_CULLED(i1) && remap[i1] == -1 ) {
 
 			remap[i1] = numShadowVerts;
-			shadowVerts[ numShadowVerts ].ToVec3() = tri->verts[i1].xyz;
+			shadowVerts[ numShadowVerts ].ToVec3() = tri->Verts()[i1].xyz;
 			numShadowVerts+=2;
 		}
 
 		if ( !POINT_CULLED(i2) && remap[i2] == -1 ) 
 		{
 			remap[i2] = numShadowVerts;
-			shadowVerts[ numShadowVerts ].ToVec3() = tri->verts[i2].xyz;
+			shadowVerts[ numShadowVerts ].ToVec3() = tri->Verts()[i2].xyz;
 			numShadowVerts+=2;
 		}
 
 		if ( !POINT_CULLED(i3) && remap[i3] == -1 ) 
 		{
 			remap[i3] = numShadowVerts;
-			shadowVerts[ numShadowVerts ].ToVec3() = tri->verts[i3].xyz;
+			shadowVerts[ numShadowVerts ].ToVec3() = tri->Verts()[i3].xyz;
 			numShadowVerts+=2;
 		}
 
@@ -1978,10 +1980,8 @@ static void CreateShadowVolumeInFrustum( const idRenderEntityLocal *ent,
 			cullBits = ( ( pointCull[ i1 ] ^ 0xfc0 ) | ( pointCull[ i2 ] ^ 0xfc0 ) | ( pointCull[ i3 ] ^ 0xfc0 ) ) >> 6;
 			// this will also define clip edges that will become
 			// silhouette planes
-			if ( ClipTriangleToLight( tri->verts[i1].xyz, tri->verts[i2].xyz,
-				tri->verts[i3].xyz, cullBits, frustum ) ) {
+			if ( ClipTriangleToLight( tri->Verts()[i1].xyz, tri->Verts()[i2].xyz, tri->Verts()[i3].xyz, cullBits, frustum ) ) 
 				faceCastsShadow[i] = 1;
-			}
 		} 
 		else 
 		{
@@ -1993,9 +1993,8 @@ static void CreateShadowVolumeInFrustum( const idRenderEntityLocal *ent,
 			}
 			
 			if ( remap[i1] == -1 || remap[i2] == -1 || remap[i3] == -1 ) 
-			{
 				common->Error( "CreateShadowVolumeInFrustum: bad remap[]" );
-			}
+			
 			shadowIndexes[numShadowIndexes++] = remap[i3];
 			shadowIndexes[numShadowIndexes++] = remap[i2];
 			shadowIndexes[numShadowIndexes++] = remap[i1];
@@ -2132,7 +2131,7 @@ the number of surface triangles, which will be used to handle dangling
 edge silhouettes.
 ================
 */
-void CalcInteractionFacing( const idRenderEntityLocal *ent, const srfTriangles_t *tri, const idRenderLightLocal *light, srfCullInfo_t &cullInfo ) 
+void CalcInteractionFacing( const idRenderEntityLocal *ent, const crDrawGeometry *tri, const idRenderLightLocal *light, srfCullInfo_t &cullInfo ) 
 {
 	idVec3 localLightOrigin;
 
@@ -2141,10 +2140,11 @@ void CalcInteractionFacing( const idRenderEntityLocal *ent, const srfTriangles_t
 
 	R_GlobalPointToLocal( ent->modelMatrix, light->globalLightOrigin, localLightOrigin );
 
-	int numFaces = tri->numIndexes / 3;
+	int numFaces = tri->NumIndexes() / 3;
 
-	if ( !tri->facePlanes || !tri->facePlanesCalculated ) {
-		R_DeriveFacePlanes( const_cast<srfTriangles_t *>(tri) );
+	if ( !tri->FacePlanes() || !tri->FacePlanesCalculated() ) 
+	{
+		const_cast<crDrawGeometry*>(tri)->DeriveFacePlanes();
 	}
 
 	cullInfo.facing = (byte *) R_StaticAlloc( ( numFaces + 1 ) * sizeof( cullInfo.facing[0] ) );
@@ -2153,7 +2153,7 @@ void CalcInteractionFacing( const idRenderEntityLocal *ent, const srfTriangles_t
 	float *planeSide = (float *) _alloca16( numFaces * sizeof( float ) );
 
 	// exact geometric cull against face
-	SIMDProcessor->Dot( planeSide, localLightOrigin, tri->facePlanes, numFaces );
+	SIMDProcessor->Dot( planeSide, localLightOrigin, tri->FacePlanes(), numFaces );
 	SIMDProcessor->CmpGE( cullInfo.facing, planeSide, 0.0f, numFaces );
 
 	cullInfo.facing[ numFaces ] = 1;	// for dangling edges to reference
@@ -2186,11 +2186,11 @@ as if it was culled for edges, because the sil edge will have been
 generated by the triangle irregardless of if it actually was a sil edge.
 =================
 */
-static srfTriangles_t * CreateShadowVolume( const idRenderEntityLocal *ent, const srfTriangles_t *tri, const idRenderLightLocal *light, shadowGen_t optimize, srfCullInfo_t &cullInfo ) 
+static crDrawGeometry * CreateShadowVolume( const idRenderEntityLocal *ent, const crDrawGeometry *tri, const idRenderLightLocal *light, shadowGen_t optimize, srfCullInfo_t &cullInfo ) 
 {
 	int		i, j;
 	idVec3	lightOrigin;
-	srfTriangles_t	*newTri;
+	crDrawGeometry	*newTri;
 	int		capPlaneBits;
 
 #if 0
@@ -2198,14 +2198,14 @@ static srfTriangles_t * CreateShadowVolume( const idRenderEntityLocal *ent, cons
 		return nullptr;
 #endif
 
-	if ( tri->numSilEdges == 0 || tri->numIndexes == 0 || tri->numVerts == 0 ) 
+	if ( tri->NumSilEdges() == 0 || tri->NumIndexes() == 0 || tri->NumVerts() == 0 ) 
 		return nullptr;
 
-	if ( tri->numIndexes < 0 ) 
-		common->Error( "CreateShadowVolume: tri->numIndexes = %i", tri->numIndexes );
+	if ( tri->NumIndexes() < 0 ) 
+		common->Error( "CreateShadowVolume: tri->NumIndexes() = %i", tri->NumIndexes() );
 
-	if ( tri->numVerts < 0 ) 
-		common->Error( "CreateShadowVolume: tri->numVerts = %i", tri->numVerts );
+	if ( tri->NumVerts() < 0 ) 
+		common->Error( "CreateShadowVolume: tri->NumVerts() = %i", tri->NumVerts() );
 
 	//tr.pc.c_createShadowVolumes++;
 
@@ -2224,7 +2224,7 @@ static srfTriangles_t * CreateShadowVolume( const idRenderEntityLocal *ent, cons
 
 	CalcInteractionFacing( ent, tri, light, cullInfo );
 
-	int numFaces = tri->numIndexes / 3;
+	int numFaces = tri->NumIndexes() / 3;
 	int allFront = 1;
 	for ( i = 0; i < numFaces && allFront; i++ ) 
 	{
@@ -2245,8 +2245,8 @@ static srfTriangles_t * CreateShadowVolume( const idRenderEntityLocal *ent, cons
 	// the facing information will be the same for all six projections
 	// from a point light, as well as for any directed lights
 	globalFacing = cullInfo.facing;
-	faceCastsShadow = (byte *)_alloca16( tri->numIndexes / 3 + 1 );	// + 1 for fake dangling edge face
-	remap = (int *)_alloca16( tri->numVerts * sizeof( remap[0] ) );
+	faceCastsShadow = (byte *)_alloca16( tri->NumIndexes() / 3 + 1 );	// + 1 for fake dangling edge face
+	remap = (int *)_alloca16( tri->NumVerts() * sizeof( int ) );
 
 	R_GlobalPointToLocal( ent->modelMatrix, light->globalLightOrigin, lightOrigin );
 
@@ -2270,7 +2270,7 @@ static srfTriangles_t * CreateShadowVolume( const idRenderEntityLocal *ent, cons
 			R_GlobalPlaneToLocal( ent->modelMatrix, frust->planes[j], frustum[j] );
 
 			// try to cull the entire surface against this frustum
-			float d = tri->bounds.PlaneDistance( frustum[j] );
+			float d = tri->Bounds().PlaneDistance( frustum[j] );
 			if ( d < -LIGHT_CLIP_EPSILON )
 				break;
 		}
@@ -2307,15 +2307,16 @@ static srfTriangles_t * CreateShadowVolume( const idRenderEntityLocal *ent, cons
 		common->FatalError( "Shadow volume exceeded allocation" );
 
 	// allocate a new surface for the shadow volume
-	newTri = R_AllocStaticTriSurf();
+	newTri = new crDrawGeometry();
+
 
 	// we might consider setting this, but it would only help for
 	// large lights that are partially off screen
-	newTri->bounds.Clear();
+	newTri->Bounds().Clear();
 
 	// copy off the verts and indexes
-	newTri->numVerts = numShadowVerts;
-	newTri->numIndexes = numShadowIndexes;
+	newTri->NumVerts() = numShadowVerts;
+	newTri->NumIndexes() = numShadowIndexes;
 
 	// the shadow verts will go into a main memory buffer as well as a vertex
 	// cache buffer, so they can be copied back if they are purged
@@ -2324,44 +2325,44 @@ static srfTriangles_t * CreateShadowVolume( const idRenderEntityLocal *ent, cons
 	std::memcpy( newTri->shadowVertexes, shadowVerts, newTri->numVerts * sizeof( newTri->shadowVertexes[0] ) );
 #endif
 
-	R_AllocStaticTriSurfIndexes( newTri, newTri->numIndexes );
+	newTri->AllocStaticTriSurfIndexes( newTri->NumIndexes() );
 
-	if ( 1 /* sortCapIndexes */ ) 
+	if ( 1 ) 
 	{
-		newTri->shadowCapPlaneBits = capPlaneBits;
+		newTri->ShadowCapPlaneBits() = capPlaneBits;
 
 		// copy the sil indexes first
-		newTri->numShadowIndexesNoCaps = 0;
+		newTri->NumShadowIndexesNoCaps() = 0;
 		for ( i = 0 ; i < indexFrustumNumber ; i++ ) 
 		{
 			int	c = indexRef[i].end - indexRef[i].silStart;
-			std::memcpy( newTri->indexes+newTri->numShadowIndexesNoCaps, shadowIndexes+indexRef[i].silStart, c * sizeof( newTri->indexes[0] ) );
-			newTri->numShadowIndexesNoCaps += c;
+			std::memcpy( newTri->Indexes()+newTri->NumShadowIndexesNoCaps(), shadowIndexes+indexRef[i].silStart, c * sizeof( newTri->Indexes()[0] ) );
+			newTri->NumShadowIndexesNoCaps() += c;
 		}
 
 		// copy rear cap indexes next
-		newTri->numShadowIndexesNoFrontCaps = newTri->numShadowIndexesNoCaps;
+		newTri->NumShadowIndexesNoFrontCaps() = newTri->NumShadowIndexesNoCaps();
 		for ( i = 0 ; i < indexFrustumNumber ; i++ ) 
 		{
 			int	c = indexRef[i].silStart - indexRef[i].rearCapStart;
-			std::memcpy( newTri->indexes+newTri->numShadowIndexesNoFrontCaps, shadowIndexes+indexRef[i].rearCapStart, c * sizeof( newTri->indexes[0] ) );
-			newTri->numShadowIndexesNoFrontCaps += c;
+			std::memcpy( newTri->Indexes()+newTri->NumShadowIndexesNoFrontCaps(), shadowIndexes+indexRef[i].rearCapStart, c * sizeof( newTri->Indexes()[0] ) );
+			newTri->NumShadowIndexesNoFrontCaps() += c;
 		}
 
 		// copy front cap indexes last
-		newTri->numIndexes = newTri->numShadowIndexesNoFrontCaps;
+		newTri->NumIndexes() = newTri->NumShadowIndexesNoFrontCaps();
 		for ( i = 0 ; i < indexFrustumNumber ; i++ ) 
 		{
 			int	c = indexRef[i].rearCapStart - indexRef[i].frontCapStart;
-			std::memcpy( newTri->indexes+newTri->numIndexes, shadowIndexes+indexRef[i].frontCapStart, c * sizeof( newTri->indexes[0] ) );
-			newTri->numIndexes += c;
+			std::memcpy( newTri->Indexes() + newTri->NumIndexes(), shadowIndexes+indexRef[i].frontCapStart, c * sizeof( newTri->Indexes()[0] ) );
+			newTri->NumIndexes() += c;
 		}
 
 	} 
 	else 
 	{
-		newTri->shadowCapPlaneBits = 63;	// we don't have optimized index lists
-		std::memcpy( newTri->indexes, shadowIndexes, newTri->numIndexes * sizeof( newTri->indexes[0] ) );
+		newTri->ShadowCapPlaneBits() = 63;	// we don't have optimized index lists
+		std::memcpy( newTri->Indexes(), shadowIndexes, newTri->NumIndexes() * sizeof( newTri->Indexes()[0] ) );
 	}
 
 	if ( optimize == SG_OFFLINE )
@@ -2380,7 +2381,7 @@ shadowerGroups is optimized by this function, but the contents can be freed, bec
 lightShadow_t list is a further culling and optimization of the data.
 ========================
 */
-srfTriangles_t *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLight_t *light ) 
+crDrawGeometry *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLight_t *light ) 
 {
 
 	common->Printf( "----- CreateLightShadow %p -----\n", light );
@@ -2401,12 +2402,12 @@ srfTriangles_t *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLig
 	}
 
 	// find uniqued vertexes
-	srfTriangles_t	*occluders = ShareMapTriVerts( combined );
+	crDrawGeometry	*occluders = ShareMapTriVerts( combined );
 
 	FreeTriList( combined );
 
 	// find silhouette information for the triSurf
-	R_CleanupTriangles( occluders, false, true, false );
+	occluders->CleanupTriangles( false, true, false );
 
 	// let the renderer build the shadow volume normally
 	idRenderEntityLocal space;
@@ -2421,20 +2422,20 @@ srfTriangles_t *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLig
 
 	// call the normal shadow creation, but with the superOptimize flag set, which will
 	// call back to SuperOptimizeOccluders after clipping the triangles to each frustum
-	srfTriangles_t	*shadowTris;
+	crDrawGeometry	*shadowTris;
 	if ( dmapGlobals.shadowOptLevel == SO_MERGE_SURFACES )
 		shadowTris = CreateShadowVolume( &space, occluders, &light->def, SG_STATIC, cullInfo );
 	else
 		shadowTris = CreateShadowVolume( &space, occluders, &light->def, SG_OFFLINE, cullInfo );
 	
-	R_FreeStaticTriSurf( occluders );
+	occluders->FreeStaticTriSurf();
 
 	R_FreeInteractionCullInfo( cullInfo );
 
 	if ( shadowTris ) 
 	{
-		dmapGlobals.totalShadowTriangles += shadowTris->numIndexes / 3;
-		dmapGlobals.totalShadowVerts += shadowTris->numVerts / 3;
+		dmapGlobals.totalShadowTriangles += shadowTris->NumIndexes() / 3;
+		dmapGlobals.totalShadowVerts += shadowTris->NumVerts() / 3;
 	}
 
 	return shadowTris;

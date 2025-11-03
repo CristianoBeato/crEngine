@@ -70,25 +70,25 @@ idRenderModelSprite::InstantiateDynamicModel
 idRenderModel* 	idRenderModelSprite::InstantiateDynamicModel( const struct renderEntity_s* renderEntity, const viewDef_t* viewDef, idRenderModel* cachedModel )
 {
 	idRenderModelStatic* staticModel;
-	srfTriangles_t* tri;
+	crDrawGeometry* tri;
 	modelSurface_t surf;
 	
 	if( cachedModel && !r_useCachedDynamicModels.GetBool() )
 	{
 		delete cachedModel;
-		cachedModel = NULL;
+		cachedModel = nullptr;
 	}
 	
-	if( renderEntity == NULL || viewDef == NULL )
+	if( renderEntity == nullptr || viewDef == nullptr )
 	{
 		delete cachedModel;
-		return NULL;
+		return nullptr;
 	}
 	
-	if( cachedModel != NULL )
+	if( cachedModel != nullptr )
 	{
 	
-		assert( dynamic_cast<idRenderModelStatic*>( cachedModel ) != NULL );
+		assert( dynamic_cast<idRenderModelStatic*>( cachedModel ) != nullptr );
 		assert( idStr::Icmp( cachedModel->Name(), sprite_SnapshotName ) == 0 );
 		
 		staticModel = static_cast<idRenderModelStatic*>( cachedModel );
@@ -102,43 +102,43 @@ idRenderModel* 	idRenderModelSprite::InstantiateDynamicModel( const struct rende
 		staticModel = new( TAG_MODEL ) idRenderModelStatic;
 		staticModel->InitEmpty( sprite_SnapshotName );
 		
-		tri = R_AllocStaticTriSurf();
-		R_AllocStaticTriSurfVerts( tri, 4 );
-		R_AllocStaticTriSurfIndexes( tri, 6 );
+		tri = new crDrawGeometry();
+		tri->AllocStaticTriSurfVerts( 4 );
+		tri->AllocStaticTriSurfIndexes( 6 );
 		
-		tri->verts[ 0 ].Clear();
-		tri->verts[ 0 ].SetNormal( 1.0f, 0.0f, 0.0f );
-		tri->verts[ 0 ].SetTangent( 0.0f, 1.0f, 0.0f );
-		tri->verts[ 0 ].SetBiTangent( 0.0f, 0.0f, 1.0f );
-		tri->verts[ 0 ].SetTexCoord( 0.0f, 0.0f );
+		tri->Verts()[ 0 ].Clear();
+		tri->Verts()[ 0 ].SetNormal( 1.0f, 0.0f, 0.0f );
+		tri->Verts()[ 0 ].SetTangent( 0.0f, 1.0f, 0.0f );
+		tri->Verts()[ 0 ].SetBiTangent( 0.0f, 0.0f, 1.0f );
+		tri->Verts()[ 0 ].SetTexCoord( 0.0f, 0.0f );
 		
-		tri->verts[ 1 ].Clear();
-		tri->verts[ 1 ].SetNormal( 1.0f, 0.0f, 0.0f );
-		tri->verts[ 1 ].SetTangent( 0.0f, 1.0f, 0.0f );
-		tri->verts[ 1 ].SetBiTangent( 0.0f, 0.0f, 1.0f );
-		tri->verts[ 1 ].SetTexCoord( 1.0f, 0.0f );
+		tri->Verts()[ 1 ].Clear();
+		tri->Verts()[ 1 ].SetNormal( 1.0f, 0.0f, 0.0f );
+		tri->Verts()[ 1 ].SetTangent( 0.0f, 1.0f, 0.0f );
+		tri->Verts()[ 1 ].SetBiTangent( 0.0f, 0.0f, 1.0f );
+		tri->Verts()[ 1 ].SetTexCoord( 1.0f, 0.0f );
 		
-		tri->verts[ 2 ].Clear();
-		tri->verts[ 2 ].SetNormal( 1.0f, 0.0f, 0.0f );
-		tri->verts[ 2 ].SetTangent( 0.0f, 1.0f, 0.0f );
-		tri->verts[ 2 ].SetBiTangent( 0.0f, 0.0f, 1.0f );
-		tri->verts[ 2 ].SetTexCoord( 1.0f, 1.0f );
+		tri->Verts()[ 2 ].Clear();
+		tri->Verts()[ 2 ].SetNormal( 1.0f, 0.0f, 0.0f );
+		tri->Verts()[ 2 ].SetTangent( 0.0f, 1.0f, 0.0f );
+		tri->Verts()[ 2 ].SetBiTangent( 0.0f, 0.0f, 1.0f );
+		tri->Verts()[ 2 ].SetTexCoord( 1.0f, 1.0f );
 		
-		tri->verts[ 3 ].Clear();
-		tri->verts[ 3 ].SetNormal( 1.0f, 0.0f, 0.0f );
-		tri->verts[ 3 ].SetTangent( 0.0f, 1.0f, 0.0f );
-		tri->verts[ 3 ].SetBiTangent( 0.0f, 0.0f, 1.0f );
-		tri->verts[ 3 ].SetTexCoord( 0.0f, 1.0f );
+		tri->Verts()[ 3 ].Clear();
+		tri->Verts()[ 3 ].SetNormal( 1.0f, 0.0f, 0.0f );
+		tri->Verts()[ 3 ].SetTangent( 0.0f, 1.0f, 0.0f );
+		tri->Verts()[ 3 ].SetBiTangent( 0.0f, 0.0f, 1.0f );
+		tri->Verts()[ 3 ].SetTexCoord( 0.0f, 1.0f );
 		
-		tri->indexes[ 0 ] = 0;
-		tri->indexes[ 1 ] = 1;
-		tri->indexes[ 2 ] = 3;
-		tri->indexes[ 3 ] = 1;
-		tri->indexes[ 4 ] = 2;
-		tri->indexes[ 5 ] = 3;
+		tri->Indexes()[ 0 ] = 0;
+		tri->Indexes()[ 1 ] = 1;
+		tri->Indexes()[ 2 ] = 3;
+		tri->Indexes()[ 3 ] = 1;
+		tri->Indexes()[ 4 ] = 2;
+		tri->Indexes()[ 5 ] = 3;
 		
-		tri->numVerts = 4;
-		tri->numIndexes = 6;
+		tri->NumVerts() = 4;
+		tri->NumIndexes() = 6;
 		
 		surf.geometry = tri;
 		surf.id = 0;
@@ -154,33 +154,33 @@ idRenderModel* 	idRenderModelSprite::InstantiateDynamicModel( const struct rende
 	idVec3 right	= idVec3( 0.0f, renderEntity->shaderParms[ SHADERPARM_SPRITE_WIDTH ] * 0.5f, 0.0f );
 	idVec3 up		= idVec3( 0.0f, 0.0f, renderEntity->shaderParms[ SHADERPARM_SPRITE_HEIGHT ] * 0.5f );
 	
-	tri->verts[ 0 ].xyz = up + right;
-	tri->verts[ 0 ].color[ 0 ] = red;
-	tri->verts[ 0 ].color[ 1 ] = green;
-	tri->verts[ 0 ].color[ 2 ] = blue;
-	tri->verts[ 0 ].color[ 3 ] = alpha;
+	tri->Verts()[ 0 ].xyz = up + right;
+	tri->Verts()[ 0 ].color[ 0 ] = red;
+	tri->Verts()[ 0 ].color[ 1 ] = green;
+	tri->Verts()[ 0 ].color[ 2 ] = blue;
+	tri->Verts()[ 0 ].color[ 3 ] = alpha;
 	
-	tri->verts[ 1 ].xyz = up - right;
-	tri->verts[ 1 ].color[ 0 ] = red;
-	tri->verts[ 1 ].color[ 1 ] = green;
-	tri->verts[ 1 ].color[ 2 ] = blue;
-	tri->verts[ 1 ].color[ 3 ] = alpha;
+	tri->Verts()[ 1 ].xyz = up - right;
+	tri->Verts()[ 1 ].color[ 0 ] = red;
+	tri->Verts()[ 1 ].color[ 1 ] = green;
+	tri->Verts()[ 1 ].color[ 2 ] = blue;
+	tri->Verts()[ 1 ].color[ 3 ] = alpha;
 	
-	tri->verts[ 2 ].xyz = - right - up;
-	tri->verts[ 2 ].color[ 0 ] = red;
-	tri->verts[ 2 ].color[ 1 ] = green;
-	tri->verts[ 2 ].color[ 2 ] = blue;
-	tri->verts[ 2 ].color[ 3 ] = alpha;
+	tri->Verts()[ 2 ].xyz = - right - up;
+	tri->Verts()[ 2 ].color[ 0 ] = red;
+	tri->Verts()[ 2 ].color[ 1 ] = green;
+	tri->Verts()[ 2 ].color[ 2 ] = blue;
+	tri->Verts()[ 2 ].color[ 3 ] = alpha;
 	
-	tri->verts[ 3 ].xyz = right - up;
-	tri->verts[ 3 ].color[ 0 ] = red;
-	tri->verts[ 3 ].color[ 1 ] = green;
-	tri->verts[ 3 ].color[ 2 ] = blue;
-	tri->verts[ 3 ].color[ 3 ] = alpha;
+	tri->Verts()[ 3 ].xyz = right - up;
+	tri->Verts()[ 3 ].color[ 0 ] = red;
+	tri->Verts()[ 3 ].color[ 1 ] = green;
+	tri->Verts()[ 3 ].color[ 2 ] = blue;
+	tri->Verts()[ 3 ].color[ 3 ] = alpha;
 	
-	R_BoundTriSurf( tri );
+	tri->BoundTriSurf();
 	
-	staticModel->bounds = tri->bounds;
+	staticModel->bounds = tri->Bounds();
 	
 	return staticModel;
 }
@@ -195,13 +195,9 @@ idBounds idRenderModelSprite::Bounds( const struct renderEntity_s* renderEntity 
 	idBounds b;
 	
 	b.Zero();
-	if( renderEntity == NULL )
-	{
+	if( renderEntity == nullptr )
 		b.ExpandSelf( 8.0f );
-	}
 	else
-	{
 		b.ExpandSelf( Max( renderEntity->shaderParms[ SHADERPARM_SPRITE_WIDTH ], renderEntity->shaderParms[ SHADERPARM_SPRITE_HEIGHT ] ) * 0.5f );
-	}
 	return b;
 }

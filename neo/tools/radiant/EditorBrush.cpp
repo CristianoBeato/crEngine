@@ -66,14 +66,14 @@ void DrawRenderModel( idRenderModel *model, idVec3 &origin, idMat3 &axis, bool c
 
 		glBegin( GL_TRIANGLES );
 
-		const srfTriangles_t	*tri = surf->geometry;
-		for ( int j = 0; j < tri->numIndexes; j += 3 ) {
+		const crDrawGeometry	*tri = surf->geometry;
+		for ( int j = 0; j < tri->NumIndexes(); j += 3 ) {
 			for ( int k = 0; k < 3; k++ ) {
-				int		index = tri->indexes[j + k];
+				int		index = tri->Indexes()[j + k];
 				idVec3	v;
 
-				v = tri->verts[index].xyz * axis + origin;
-				glTexCoord2f( tri->verts[index].GetTexCoord()[0], tri->verts[index].GetTexCoord()[1] );
+				v = tri->Verts()[index].xyz * axis + origin;
+				glTexCoord2f( tri->Verts()[index].GetTexCoord()[0], tri->Verts()[index].GetTexCoord()[1] );
 				glVertex3fv( v.ToFloatPtr() );
 			}
 		}
@@ -2554,12 +2554,12 @@ bool Brush_ModelIntersect(brush_t *b, idVec3 origin, idVec3 dir,float &scale) {
 
 		for (int i = 0; i < model->NumSurfaces() ; i++) {
 			const modelSurface_t	*surf = model->Surface( i );
-			srfTriangles_t	*tri = surf->geometry;
-			for (int j = 0; j < tri->numIndexes; j += 3) {
+			crDrawGeometry	*tri = surf->geometry;
+			for (int j = 0; j < tri->NumIndexes(); j += 3) {
 				idVec3	v1, v2, v3;
-				v1 = tri->verts[tri->indexes[j]].xyz;
-				v2 = tri->verts[tri->indexes[j + 1]].xyz;
-				v3 = tri->verts[tri->indexes[j + 2]].xyz;
+				v1 = tri->Verts()[tri->Indexes()[j]].xyz;
+				v2 = tri->Verts()[tri->Indexes()[j + 1]].xyz;
+				v3 = tri->Verts()[tri->Indexes()[j + 2]].xyz;
 
 				if (matrix) {
 					v1 *= b->owner->rotation;
@@ -3602,7 +3602,7 @@ void DrawProjectedLight(brush_t *b, bool bSelected, bool texture) {
 	// use the renderer to get the volume outline
 	idPlane		lightProject[4];
 	idPlane		planes[6];
-	srfTriangles_t	*tri;
+	crDrawGeometry	*tri;
 
 	// use the game's epair parsing code so
 	// we can use the same renderLight generation
@@ -3617,11 +3617,11 @@ void DrawProjectedLight(brush_t *b, bool bSelected, bool texture) {
 	tri = R_PolytopeSurface(6, planes, NULL);
 
 	glColor3f(1, 0, 1);
-	for (i = 0; i < tri->numIndexes; i += 3) {
+	for (i = 0; i < tri->NumIndexes(); i += 3) {
 		glBegin(GL_LINE_LOOP);
-		glVertex3fv(tri->verts[tri->indexes[i]].xyz.ToFloatPtr());
-		glVertex3fv(tri->verts[tri->indexes[i + 1]].xyz.ToFloatPtr());
-		glVertex3fv(tri->verts[tri->indexes[i + 2]].xyz.ToFloatPtr());
+		glVertex3fv(tri->Verts()[tri->Indexes()[i]].xyz.ToFloatPtr());
+		glVertex3fv(tri->Verts()[tri->Indexes()[i + 1]].xyz.ToFloatPtr());
+		glVertex3fv(tri->Verts()[tri->Indexes()[i + 2]].xyz.ToFloatPtr());
 		glEnd();
 	}
 

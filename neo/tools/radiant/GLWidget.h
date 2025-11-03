@@ -72,11 +72,12 @@ protected:
 	int realTime;
 };
 
-class idGLDrawableWorld : public idGLDrawable {
+class idGLDrawableWorld : public idGLDrawable 
+{
 public:
 	idGLDrawableWorld();
 	~idGLDrawableWorld();
-	void AddTris(srfTriangles_t *tris, const idMaterial *mat);
+	void AddTris(crDrawGeometry *tris, const idMaterial *mat);
 	virtual void draw(int x, int y, int w, int h);
 	void InitWorld();
 protected:

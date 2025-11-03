@@ -771,9 +771,7 @@ idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers
 const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers()
 {
 	if( !R_IsInitialized() )
-	{
-		return NULL;
-	}
+		return nullptr;
 	
 	// close any gui drawing
 	guiModel->EmitFullScreen();
@@ -817,11 +815,11 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// It is important to do this first, so if the buffers overflow during
 	// scene generation, the basic surfaces needed for drawing the buffers will
 	// always be present.
-	//------------------------------
-	R_InitDrawSurfFromTri( tr.unitSquareSurface_, *tr.unitSquareTriangles );
-	R_InitDrawSurfFromTri( tr.zeroOneCubeSurface_, *tr.zeroOneCubeTriangles );
-	R_InitDrawSurfFromTri( tr.testImageSurface_, *tr.testImageTriangles );
-	
+	//------------------------------	
+	tr.unitSquareTriangles->InitDrawSurfFromTri( &tr.unitSquareSurface_ );	//R_InitDrawSurfFromTri( tr.unitSquareSurface_, *tr.unitSquareTriangles );
+	tr.zeroOneCubeTriangles->InitDrawSurfFromTri( &tr.zeroOneCubeSurface_ );	//R_InitDrawSurfFromTri( tr.zeroOneCubeSurface_, *tr.zeroOneCubeTriangles );
+	tr.testImageTriangles->InitDrawSurfFromTri( &tr.testImageSurface_ );	//R_InitDrawSurfFromTri( tr.testImageSurface_, *tr.testImageTriangles );
+
 	// Reset render crop to be the full screen
 	renderCrops[0].x1 = 0;
 	renderCrops[0].y1 = 0;

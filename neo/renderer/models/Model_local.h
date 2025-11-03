@@ -79,8 +79,8 @@ public:
 	virtual int					NumSurfaces() const;
 	virtual int					NumBaseSurfaces() const;
 	virtual const modelSurface_t* Surface( int surfaceNum ) const;
-	virtual srfTriangles_t* 	AllocSurfaceTriangles( int numVerts, int numIndexes ) const;
-	virtual void				FreeSurfaceTriangles( srfTriangles_t* tris ) const;
+	virtual crDrawGeometry* 	AllocSurfaceTriangles( int numVerts, int numIndexes ) const;
+	virtual void				FreeSurfaceTriangles( crDrawGeometry* tris ) const;
 	virtual bool				IsStaticWorldModel() const;
 	virtual dynamicModel_t		IsDynamicModel() const;
 	virtual bool				IsDefaultModel() const;
@@ -202,7 +202,7 @@ private:
 	byte* 						meshJoints;			// the joints used by this mesh
 	int							numMeshJoints;		// number of mesh joints
 	float						maxJointVertDist;	// maximum distance a vertex is separated from a joint
-	deformInfo_t* 				deformInfo;			// used to create srfTriangles_t from base frames and new vertexes
+	deformInfo_t* 				deformInfo;			// used to create crDrawGeometry from base frames and new vertexes
 	int							surfaceNum;			// number of the static surface created for this mesh
 };
 
@@ -272,7 +272,7 @@ private:
 	struct md3Header_s* 		md3;			// only if type == MOD_MESH
 	int							numLods;
 	
-	void						LerpMeshVertexes( srfTriangles_t* tri, const struct md3Surface_s* surf, const float backlerp, const int frame, const int oldframe ) const;
+	void						LerpMeshVertexes( crDrawGeometry* tri, const struct md3Surface_s* surf, const float backlerp, const int frame, const int oldframe ) const;
 };
 
 /*
@@ -317,7 +317,7 @@ private:
 	idRandom					random;
 	
 	const idMaterial* 			shader;
-	deformInfo_t* 				deformInfo;		// used to create srfTriangles_t from base frames
+	deformInfo_t* 				deformInfo;		// used to create crDrawGeometry from base frames
 	// and new vertexes
 	
 	float						density;
@@ -468,7 +468,7 @@ public:
 	
 	int							NewTrail( idVec3 pt, int duration );
 	void						UpdateTrail( int index, idVec3 pt );
-	void						DrawTrail( int index, const struct renderEntity_s* ent, srfTriangles_t* tri, float globalAlpha );
+	void						DrawTrail( int index, const struct renderEntity_s* ent, crDrawGeometry* tri, float globalAlpha );
 };
 
 /*

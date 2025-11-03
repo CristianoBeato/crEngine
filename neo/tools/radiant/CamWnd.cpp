@@ -1395,15 +1395,15 @@ void Tris_ToOBJ(const char *outFile, idTriList *tris, idMatList *mats) {
 		//idStr basePath = cvarSystem->GetCVarString( "fs_savepath" );
 		f->Printf( "mtllib %s.mtl\n", out );
 		for (i = 0; i < tris->Num(); i++) {
-			srfTriangles_t *tri = (*tris)[i];
-			for (j = 0; j < tri->numVerts; j++) {
-				f->Printf( "v %f %f %f\n", tri->verts[j].xyz.x, tri->verts[j].xyz.z, -tri->verts[j].xyz.y );
+			crDrawGeometry *tri = (*tris)[i];
+			for (j = 0; j < tri->NumVerts(); j++) {
+				f->Printf( "v %f %f %f\n", tri->Verts()[j].xyz.x, tri->Verts()[j].xyz.z, -tri->Verts()[j].xyz.y );
 			}
-			for (j = 0; j < tri->numVerts; j++) {
-				f->Printf( "vt %f %f\n", tri->verts[j].GetTexCoord()[0], 1.0f - tri->verts[j].GetTexCoord()[1] );
+			for (j = 0; j < tri->NumVerts(); j++) {
+				f->Printf( "vt %f %f\n", tri->Verts()[j].GetTexCoord()[0], 1.0f - tri->Verts()[j].GetTexCoord()[1] );
 			}
-			for (j = 0; j < tri->numVerts; j++) {
-				f->Printf( "vn %f %f %f\n", tri->verts[j].GetNormalRaw().x, tri->verts[j].GetNormalRaw().y, tri->verts[j].GetNormalRaw().z );
+			for (j = 0; j < tri->NumVerts(); j++) {
+				f->Printf( "vn %f %f %f\n", tri->Verts()[j].GetNormalRaw().x, tri->Verts()[j].GetNormalRaw().y, tri->Verts()[j].GetNormalRaw().z );
 			}
 
 			if (stricmp( (*mats)[i]->GetName(), lastMaterial)) {
@@ -1426,15 +1426,15 @@ void Tris_ToOBJ(const char *outFile, idTriList *tris, idMatList *mats) {
 				}
 			}
 
-			for (int j = 0; j < tri->numIndexes; j += 3) {
+			for (int j = 0; j < tri->NumIndexes(); j += 3) {
 				int i1, i2, i3;
-				i1 = tri->indexes[j+2] + indexBase;
-				i2 = tri->indexes[j+1] + indexBase;
-				i3 = tri->indexes[j] + indexBase; 
+				i1 = tri->Indexes()[j+2] + indexBase;
+				i2 = tri->Indexes()[j+1] + indexBase;
+				i3 = tri->Indexes()[j] + indexBase; 
 				f->Printf( "f %i/%i/%i %i/%i/%i %i/%i/%i\n", i1,i1,i1, i2,i2,i2, i3,i3,i3 );
 			}
 
-			indexBase += tri->numVerts;
+			indexBase += tri->NumVerts();
 
 		}
 		fileSystem->CloseFile( f );
@@ -1473,8 +1473,8 @@ int Brush_TransformModel(brush_t *brush, idTriList *tris, idMatList *mats) {
 
 			for (int i = 0; i < model->NumSurfaces() ; i++) {
 				const modelSurface_t	*surf = model->Surface( i );
-				srfTriangles_t	*tri = surf->geometry;
-				srfTriangles_t *tri2 = R_CopyStaticTriSurf(tri);
+				crDrawGeometry	*tri = surf->geometry;
+				crDrawGeometry *tri2 = R_CopyStaticTriSurf(tri);
 				for (int j = 0; j < tri2->numVerts; j++) {
 					idVec3	v;
 					if (matrix) {
@@ -1508,7 +1508,7 @@ int Brush_TransformModel(brush_t *brush, idTriList *tris, idMatList *mats) {
 #define	MAX_TRI_SURFACES	16384
 int Brush_ToTris(brush_t *brush, idTriList *tris, idMatList *mats, bool models, bool bmodel) {
 	int i, j;
-	srfTriangles_t	*tri;
+	crDrawGeometry	*tri;
 	//
 	// patches
 	//
@@ -1552,28 +1552,28 @@ int Brush_ToTris(brush_t *brush, idTriList *tris, idMatList *mats, bool models, 
 		height = cp->GetHeight();
 
 		// convert to srfTriangles
-		tri = R_AllocStaticTriSurf();
-		tri->numVerts = width * height;
-		tri->numIndexes = 6 * ( width - 1 ) * ( height - 1 );
-		R_AllocStaticTriSurfVerts( tri, tri->numVerts );
-		R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
-		for ( i = 0 ; i < tri->numVerts ; i++ ) {
-			tri->verts[i] = (*cp)[i];
+		tri = new crDrawGeometry();
+		tri->NumVerts() = width * height;
+		tri->NumIndexes() = 6 * ( width - 1 ) * ( height - 1 );
+		R_AllocStaticTriSurfVerts( tri, tri->NumVerts() );
+		R_AllocStaticTriSurfIndexes( tri, tri->NumIndexes() );
+		for ( i = 0 ; i < tri->NumVerts() ; i++ ) {
+			tri->Verts()[i] = (*cp)[i];
 			if (bmodel) {
-				tri->verts[i].xyz -= brush->owner->origin;
+				tri->Verts()[i].xyz -= brush->owner->origin;
 			}
 		}
 
-		tri->numIndexes = 0;
+		tri->NumIndexes() = 0;
 		for ( i = 1 ; i < width ; i++ ) {
 			for ( j = 1 ; j < height ; j++ ) {
-				tri->indexes[tri->numIndexes++] = ( j - 1 ) * width + i;
-				tri->indexes[tri->numIndexes++] = ( j - 1 ) * width + i - 1;
-				tri->indexes[tri->numIndexes++] = j * width + i - 1;
+				tri->Indexes()[tri->NumIndexes()++] = ( j - 1 ) * width + i;
+				tri->Indexes()[tri->NumIndexes()++] = ( j - 1 ) * width + i - 1;
+				tri->Indexes()[tri->NumIndexes()++] = j * width + i - 1;
 
-				tri->indexes[tri->numIndexes++] = j * width + i;
-				tri->indexes[tri->numIndexes++] = ( j - 1 ) * width + i;
-				tri->indexes[tri->numIndexes++] = j * width + i - 1;
+				tri->Indexes()[tri->NumIndexes()++] = j * width + i;
+				tri->Indexes()[tri->NumIndexes()++] = ( j - 1 ) * width + i;
+				tri->Indexes()[tri->NumIndexes()++] = j * width + i - 1;
 			}
 		}
 
@@ -1597,35 +1597,35 @@ int Brush_ToTris(brush_t *brush, idTriList *tris, idMatList *mats, bool models, 
 			continue;	// freed or degenerate face
 		}
 
-		tri = R_AllocStaticTriSurf();
-		tri->numVerts = w->GetNumPoints();
-		tri->numIndexes = ( w->GetNumPoints() - 2 ) * 3;
-		R_AllocStaticTriSurfVerts( tri, tri->numVerts );
-		R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
+		tri = new crDrawGeometry();
+		tri->NumVerts() = w->GetNumPoints();
+		tri->NumIndexes() = ( w->GetNumPoints() - 2 ) * 3;
+		R_AllocStaticTriSurfVerts( tri, tri->NumVerts() );
+		R_AllocStaticTriSurfIndexes( tri, tri->NumIndexes() );
 
-		for ( i = 0 ; i < tri->numVerts ; i++ ) {
+		for ( i = 0 ; i < tri->NumVerts() ; i++ ) {
 
-			tri->verts[i].Clear();
+			tri->Verts()[i].Clear();
 
-			tri->verts[i].xyz[0] = (*w)[i][0];
-			tri->verts[i].xyz[1] = (*w)[i][1];
-			tri->verts[i].xyz[2] = (*w)[i][2];
+			tri->Verts()[i].xyz[0] = (*w)[i][0];
+			tri->Verts()[i].xyz[1] = (*w)[i][1];
+			tri->Verts()[i].xyz[2] = (*w)[i][2];
 
 			if ( bmodel ) {
-				tri->verts[i].xyz -= brush->owner->origin;
+				tri->Verts()[i].xyz -= brush->owner->origin;
 			}
 
 			// foresthale 2014-05-10: this now uses SetTexCoord rather than blindly assigning a float to a halfFloat_t
-			tri->verts[i].SetTexCoord((*w)[i][3], (*w)[i][4]);
+			tri->Verts()[i].SetTexCoord((*w)[i][3], (*w)[i][4]);
 
-			tri->verts[i].SetNormal( face->plane.Normal() );
+			tri->Verts()[i].SetNormal( face->plane.Normal() );
 		}
 
-		tri->numIndexes = 0;
+		tri->NumIndexes() = 0;
 		for ( i = 2 ; i < w->GetNumPoints() ; i++ ) {
-			tri->indexes[tri->numIndexes++] = 0;
-			tri->indexes[tri->numIndexes++] = i-1;
-			tri->indexes[tri->numIndexes++] = i;
+			tri->Indexes()[tri->NumIndexes()++] = 0;
+			tri->Indexes()[tri->NumIndexes()++] = i-1;
+			tri->Indexes()[tri->NumIndexes()++] = i;
 		}
 
 		tris->Append(tri);

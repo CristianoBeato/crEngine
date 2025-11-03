@@ -383,20 +383,20 @@ bool idSmokeParticles::UpdateRenderEntity( renderEntity_s* renderEntity, const r
 			count++;
 		}
 		int	quads = count * stage->NumQuadsPerParticle();
-		srfTriangles_t* tri = renderEntity->hModel->AllocSurfaceTriangles( quads * 4, quads * 6 );
-		tri->numIndexes = quads * 6;
-		tri->numVerts = quads * 4;
+		crDrawGeometry* tri = renderEntity->hModel->AllocSurfaceTriangles( quads * 4, quads * 6 );
+		tri->NumIndexes() = quads * 6;
+		tri->NumVerts() = quads * 4;
 		
 		// just always draw the particles
-		tri->bounds[0][0] =
-			tri->bounds[0][1] =
-				tri->bounds[0][2] = -99999;
-		tri->bounds[1][0] =
-			tri->bounds[1][1] =
-				tri->bounds[1][2] = 99999;
+		tri->Bounds()[0][0] =
+			tri->Bounds()[0][1] =
+				tri->Bounds()[0][2] = -99999;
+		tri->Bounds()[1][0] =
+			tri->Bounds()[1][1] =
+				tri->Bounds()[1][2] = 99999;
 				
-		tri->numVerts = 0;
-		for( last = NULL, smoke = active->smokes; smoke; smoke = next )
+		tri->NumVerts() = 0;
+		for( last = nullptr, smoke = active->smokes; smoke; smoke = next )
 		{
 			next = smoke->next;
 			
@@ -435,16 +435,16 @@ bool idSmokeParticles::UpdateRenderEntity( renderEntity_s* renderEntity, const r
 			g.originalRandom = g.random;
 			g.age = g.frac * stage->particleLife;
 			
-			tri->numVerts += stage->CreateParticle( &g, tri->verts + tri->numVerts );
+			tri->NumVerts() += stage->CreateParticle( &g, tri->Verts() + tri->NumVerts() );
 			
 			last = smoke;
 		}
-		if( tri->numVerts > quads * 4 )
+		if( tri->NumVerts() > quads * 4 )
 		{
 			gameLocal.Error( "idSmokeParticles::UpdateRenderEntity: miscounted verts" );
 		}
 		
-		if( tri->numVerts == 0 )
+		if( tri->NumVerts() == 0 )
 		{
 		
 			// they were all removed
@@ -461,17 +461,17 @@ bool idSmokeParticles::UpdateRenderEntity( renderEntity_s* renderEntity, const r
 		{
 			// build the index list
 			int	indexes = 0;
-			for( int i = 0 ; i < tri->numVerts ; i += 4 )
+			for( int i = 0 ; i < tri->NumVerts() ; i += 4 )
 			{
-				tri->indexes[indexes + 0] = i;
-				tri->indexes[indexes + 1] = i + 2;
-				tri->indexes[indexes + 2] = i + 3;
-				tri->indexes[indexes + 3] = i;
-				tri->indexes[indexes + 4] = i + 3;
-				tri->indexes[indexes + 5] = i + 1;
+				tri->Indexes()[indexes + 0] = i;
+				tri->Indexes()[indexes + 1] = i + 2;
+				tri->Indexes()[indexes + 2] = i + 3;
+				tri->Indexes()[indexes + 3] = i;
+				tri->Indexes()[indexes + 4] = i + 3;
+				tri->Indexes()[indexes + 5] = i + 1;
 				indexes += 6;
 			}
-			tri->numIndexes = indexes;
+			tri->NumIndexes() = indexes;
 			
 			modelSurface_t	surf;
 			surf.geometry = tri;

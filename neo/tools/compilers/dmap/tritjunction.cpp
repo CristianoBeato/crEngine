@@ -631,7 +631,7 @@ void	FixGlobalTjunctions( uEntity_t *e ) {
 			for ( i = 0 ; i < model->NumSurfaces() ; i++ ) 
 			{
 				const modelSurface_t *surface = model->Surface( i );
-				const srfTriangles_t *tri = surface->geometry;
+				const crDrawGeometry *tri = surface->geometry;
 
 				mapTri_t	mapTri;
 				memset( &mapTri, 0, sizeof( mapTri ) );
@@ -640,8 +640,8 @@ void	FixGlobalTjunctions( uEntity_t *e ) {
 				if ( mapTri.material->IsDiscrete() || mapTri.material->IsLOD() ) { // motorsep 11-25-2014; || s->material->IsLOD() added to prevent LOD surfaces being merged into one surface
 					mapTri.mergeGroup = (void *)surface;
 				}
-				for ( int j = 0 ; j < tri->numVerts ; j += 3 ) {
-					idVec3 v = tri->verts[j].xyz * axis + origin;
+				for ( int j = 0 ; j < tri->NumVerts() ; j += 3 ) {
+					idVec3 v = tri->Verts()[j].xyz * axis + origin;
 					GetHashVert( v );
 				}
 			}

@@ -680,7 +680,7 @@ void PutPrimitivesInAreas( uEntity_t *e ) {
 			for ( i = 0 ; i < model->NumSurfaces() ; i++ ) 
 			{
 				const modelSurface_t *surface = model->Surface( i );
-				const srfTriangles_t *tri = surface->geometry;
+				const crDrawGeometry *tri = surface->geometry;
 
 				mapTri_t	mapTri;
 				memset( &mapTri, 0, sizeof( mapTri ) );
@@ -690,22 +690,22 @@ void PutPrimitivesInAreas( uEntity_t *e ) {
 					mapTri.mergeGroup = (void *)surface;
 				}
 
-				for ( int j = 0 ; j < tri->numIndexes ; j += 3 ) 
+				for ( uint32_t j = 0 ; j < tri->NumIndexes() ; j += 3 ) 
 				{
 					for ( int k = 0 ; k < 3 ; k++ ) 
 					{
-						idVec3 v = tri->verts[tri->indexes[j+k]].xyz;
+						idVec3 v = tri->Verts()[tri->Indexes()[j+k]].xyz;
 
 						mapTri.v[k].xyz = v * axis + origin;
 
 // BEATO Begin:
 #if 1
-						idVec3 normal  = tri->verts[tri->indexes[j+k]].GetNormal() * axis;
+						idVec3 normal  = tri->Verts()[tri->Indexes()[j+k]].GetNormal() * axis;
 						mapTri.v[k].SetNormal( normal );
-						std::memcpy( &mapTri.v[k].st[0], &tri->verts[tri->indexes[j+k]].st[0], sizeof( halfFloat_t ) );
+						std::memcpy( &mapTri.v[k].st[0], &tri->Verts()[tri->Indexes()[j+k]].st[0], sizeof( halfFloat_t ) );
 #else
-						mapTri.v[k].normal = tri->verts[tri->indexes[j+k]].normal * axis;
-						mapTri.v[k].st = tri->verts[tri->indexes[j+k]].st;
+						mapTri.v[k].normal = tri->Verts()[tri->Indexes()[j+k]].normal * axis;
+						mapTri.v[k].st = tri->Verts()[tri->Indexes()[j+k]].st;
 #endif
 // BEATO End
 
@@ -826,7 +826,8 @@ BuildLightShadows
 Build the beam tree and shadow volume surface for a light
 ====================
 */
-static void BuildLightShadows( uEntity_t *e, mapLight_t *light ) {
+static void BuildLightShadows( uEntity_t *e, mapLight_t *light ) 
+{
 	int			i;
 	optimizeGroup_t	*group;
 	mapTri_t	*tri;
@@ -843,36 +844,36 @@ static void BuildLightShadows( uEntity_t *e, mapLight_t *light ) {
 
 	// shadowers will contain all the triangles that will contribute to the
 	// shadow volume
-	shadowerGroups = NULL;
+	shadowerGroups = nullptr;
 	lightOrigin = light->def.globalLightOrigin;
 
 	// if the light is no-shadows, don't add any surfaces
 	// to the beam tree at all
-	if ( !light->def.parms.noShadows
-		&& light->def.lightShader->LightCastsShadows() ) {
-		for ( i = 0 ; i < e->numAreas ; i++ ) {
-			for ( group = e->areas[i].groups ; group ; group = group->nextGroup ) {
+	if ( !light->def.parms.noShadows && light->def.lightShader->LightCastsShadows() ) 
+		{
+		for ( i = 0 ; i < e->numAreas ; i++ ) 
+		{
+			for ( group = e->areas[i].groups ; group ; group = group->nextGroup ) 
+			{
 				// if the surface doesn't cast shadows, skip it
-				if ( !group->material->SurfaceCastsShadow() ) {
+				if ( !group->material->SurfaceCastsShadow() ) 
 					continue;
-				}
 
 				// if the group doesn't face away from the light, it
 				// won't contribute to the shadow volume
-				if ( dmapGlobals.mapPlanes[ group->planeNum ].Distance( lightOrigin ) > 0 ) {
+				if ( dmapGlobals.mapPlanes[ group->planeNum ].Distance( lightOrigin ) > 0 ) 
 					continue;
-				}
 
 				// if the group bounds doesn't intersect the light bounds,
 				// skip it
-				if ( !group->bounds.IntersectsBounds( light->def.frustumTris->bounds ) ) {
+				if ( !group->bounds.IntersectsBounds( light->def.frustumTris->Bounds() ) ) 
 					continue;
-				}
 
 				// build up a list of the triangle fragments inside the
 				// light frustum
-				shadowers = NULL;
-				for ( tri = group->triList ; tri ; tri = tri->next ) {
+				shadowers = nullptr;
+				for ( tri = group->triList ; tri ; tri = tri->next ) 
+				{
 					mapTri_t	*in, *out;
 
 					// clip it to the light frustum
@@ -921,8 +922,8 @@ static void BuildLightShadows( uEntity_t *e, mapLight_t *light ) {
 	light->shadowTris = CreateLightShadow( shadowerGroups, light );
 	if ( light->shadowTris && hasPerforatedSurface ) {
 		// can't ever remove front faces, because we can see through some of them
-		light->shadowTris->numShadowIndexesNoCaps = light->shadowTris->numShadowIndexesNoFrontCaps = 
-			light->shadowTris->numIndexes;
+		light->shadowTris->NumShadowIndexesNoCaps() = light->shadowTris->NumShadowIndexesNoFrontCaps() = 
+			light->shadowTris->NumIndexes();
 	}
 
 	// we don't need the original shadower triangles for anything else
@@ -954,7 +955,7 @@ static void CarveGroupsByLight( uEntity_t *e, mapLight_t *light ) {
 			// if the surface doesn't get lit, don't carve it up
 			if ( ( light->def.lightShader->IsFogLight() && !group->material->ReceivesFog() )
 				|| ( !light->def.lightShader->IsFogLight() && !group->material->ReceivesLighting() ) 
-				|| !group->bounds.IntersectsBounds( light->def.frustumTris->bounds ) 
+				|| !group->bounds.IntersectsBounds( light->def.frustumTris->Bounds() ) 
 				) {
 
 				group->nextGroup = carvedGroups;

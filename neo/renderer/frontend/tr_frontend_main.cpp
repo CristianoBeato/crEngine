@@ -210,10 +210,9 @@ void* R_StaticAlloc( int bytes, const memTag_t tag )
 	void* buf = Mem_Alloc( bytes, tag );
 	
 	// don't exit on failure on zero length allocations since the old code didn't
-	if( buf == NULL && bytes != 0 )
-	{
+	if( buf == nullptr && bytes != 0 )
 		common->FatalError( "R_StaticAlloc failed on %i bytes", bytes );
-	}
+
 	return buf;
 }
 
@@ -224,8 +223,14 @@ R_ClearedStaticAlloc
 */
 void* R_ClearedStaticAlloc( int bytes )
 {
-	void* buf = R_StaticAlloc( bytes );
-	memset( buf, 0, bytes );
+	tr.pc.c_alloc++;
+	
+	void* buf = Mem_ClearedAlloc( bytes, TAG_RENDER );
+	
+	// don't exit on failure on zero length allocations since the old code didn't
+	if( buf == nullptr && bytes != 0 )
+		common->FatalError( "R_StaticAlloc failed on %i bytes", bytes );
+		
 	return buf;
 }
 
@@ -274,7 +279,7 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 		{
 			float min = 0.0f;
 			float max = 1.0f;
-			idRenderMatrix::DepthBoundsForBounds( min, max, drawSurfs[i]->space->mvp, drawSurfs[i]->frontEndGeo->bounds );
+			idRenderMatrix::DepthBoundsForBounds( min, max, drawSurfs[i]->space->mvp, drawSurfs[i]->frontEndGeo->Bounds() );
 			dist = idMath::Ftoui16( min * 0xFFFF );
 		}
 		

@@ -408,7 +408,7 @@ void idGLDrawableMaterial::draw(int x, int y, int w, int h) {
 			width *= scale;
 			height *= scale;
 
-			srfTriangles_t *tris = worldModel->AllocSurfaceTriangles( 4, 6 );
+			crDrawGeometry *tris = worldModel->AllocSurfaceTriangles( 4, 6 );
 			tris->numVerts = 4;
 			tris->numIndexes = 6;
 
@@ -979,7 +979,7 @@ idGLDrawableWorld::~idGLDrawableWorld() {
 	delete world;
 }
 
-void idGLDrawableWorld::AddTris(srfTriangles_t *tris, const idMaterial *mat) {
+void idGLDrawableWorld::AddTris(crDrawGeometry *tris, const idMaterial *mat) {
 	modelSurface_t	surf;
 	surf.geometry = tris;
 	surf.shader = mat;

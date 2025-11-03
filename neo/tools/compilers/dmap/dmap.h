@@ -198,7 +198,7 @@ typedef struct
 {
 	char 					name[MAX_QPATH]; 	// for naming the shadow volume surface and interactions
 	idRenderLightLocal		def;
-	srfTriangles_t*			shadowTris;
+	crDrawGeometry*			shadowTris;
 } mapLight_t;
 
 #define	MAX_GROUP_LIGHTS	16
@@ -490,7 +490,7 @@ void		ClipTriList( const mapTri_t *list, const idPlane &plane, float epsilon, ma
 //=============================================================================
 
 // output.cpp
-srfTriangles_t	*ShareMapTriVerts( const mapTri_t *tris );
+crDrawGeometry	*ShareMapTriVerts( const mapTri_t *tris );
 
 void WriteOutputFile( void );
 
@@ -498,7 +498,7 @@ void WriteOutputFile( void );
 
 // shadowopt.cpp
 
-srfTriangles_t *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLight_t *light );
+crDrawGeometry *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLight_t *light );
 
 void		FreeBeamTree( struct beamTree_s *beamTree );
 

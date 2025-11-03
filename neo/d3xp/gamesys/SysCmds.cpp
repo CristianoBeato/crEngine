@@ -2464,7 +2464,7 @@ void Cmd_NextGUI_f( const idCmdArgs& args )
 	bool					newEnt;
 	renderEntity_t*			renderEnt;
 	int						surfIndex;
-	srfTriangles_t*			geom;
+	crDrawGeometry*			geom;
 	idVec3					normal;
 	idVec3					center;
 	const modelSurface_t*	surfaces[ MAX_RENDERENTITY_GUI ];
@@ -2563,20 +2563,23 @@ void Cmd_NextGUI_f( const idCmdArgs& args )
 	renderEnt = ent->GetRenderEntity();
 	surfIndex = gameLocal.lastGUI++;
 	geom = surfaces[ surfIndex ]->geometry;
-	if( geom == NULL )
+	auto verts = geom->Verts();
+	auto indexes = geom->Indexes();
+	
+	if( geom == nullptr )
 	{
 		gameLocal.Printf( "Entity \"%s\" has gui surface %d without geometry!\n", ent->name.c_str(), surfIndex );
 		return;
 	}
 	
-	const idVec3& v0 = geom->verts[geom->indexes[0]].xyz;
-	const idVec3& v1 = geom->verts[geom->indexes[1]].xyz;
-	const idVec3& v2 = geom->verts[geom->indexes[2]].xyz;
+	const idVec3& v0 = verts[indexes[0]].xyz;
+	const idVec3& v1 = verts[indexes[1]].xyz;
+	const idVec3& v2 = verts[indexes[2]].xyz;
 	
 	const idPlane plane( v0, v1, v2 );
 	
 	normal = plane.Normal() * renderEnt->axis;
-	center = geom->bounds.GetCenter() * renderEnt->axis + renderEnt->origin;
+	center = geom->Bounds().GetCenter() * renderEnt->axis + renderEnt->origin;
 	
 	origin = center + ( normal * 32.0f );
 	origin.z -= player->EyeHeight();

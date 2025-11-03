@@ -71,7 +71,7 @@ idRenderModelBeam::InstantiateDynamicModel
 idRenderModel* idRenderModelBeam::InstantiateDynamicModel( const struct renderEntity_s* renderEntity, const viewDef_t* viewDef, idRenderModel* cachedModel )
 {
 	idRenderModelStatic* staticModel;
-	srfTriangles_t* tri;
+	crDrawGeometry* tri;
 	modelSurface_t surf;
 	
 	if( cachedModel )
@@ -100,28 +100,28 @@ idRenderModel* idRenderModelBeam::InstantiateDynamicModel( const struct renderEn
 		staticModel = new( TAG_MODEL ) idRenderModelStatic;
 		staticModel->InitEmpty( beam_SnapshotName );
 		
-		tri = R_AllocStaticTriSurf();
-		R_AllocStaticTriSurfVerts( tri, 4 );
-		R_AllocStaticTriSurfIndexes( tri, 6 );
+		tri = new crDrawGeometry();
+		tri->AllocStaticTriSurfVerts( 4 );//R_AllocStaticTriSurfVerts( tri, 4 );
+		tri->AllocStaticTriSurfIndexes( 6 );//R_AllocStaticTriSurfIndexes( tri, 6 );
 		
-		tri->verts[ 0 ].Clear();
-		tri->verts[ 1 ].Clear();
-		tri->verts[ 2 ].Clear();
-		tri->verts[ 3 ].Clear();
-		tri->verts[ 0 ].SetTexCoord( 0, 0 );
-		tri->verts[ 1 ].SetTexCoord( 0, 1 );
-		tri->verts[ 2 ].SetTexCoord( 1, 0 );
-		tri->verts[ 3 ].SetTexCoord( 1, 1 );
+		tri->Verts()[ 0 ].Clear();
+		tri->Verts()[ 1 ].Clear();
+		tri->Verts()[ 2 ].Clear();
+		tri->Verts()[ 3 ].Clear();
+		tri->Verts()[ 0 ].SetTexCoord( 0, 0 );
+		tri->Verts()[ 1 ].SetTexCoord( 0, 1 );
+		tri->Verts()[ 2 ].SetTexCoord( 1, 0 );
+		tri->Verts()[ 3 ].SetTexCoord( 1, 1 );
 
-		tri->indexes[0] = 0;
-		tri->indexes[1] = 2;
-		tri->indexes[2] = 1;
-		tri->indexes[3] = 2;
-		tri->indexes[4] = 3;
-		tri->indexes[5] = 1;
+		tri->Indexes()[0] = 0;
+		tri->Indexes()[1] = 2;
+		tri->Indexes()[2] = 1;
+		tri->Indexes()[3] = 2;
+		tri->Indexes()[4] = 3;
+		tri->Indexes()[5] = 1;
 		
-		tri->numVerts = 4;
-		tri->numIndexes = 6;
+		tri->NumVerts() = 4;
+		tri->NumIndexes() = 6;
 		
 		surf.shader = tr.defaultMaterial;
 		surf.geometry = tri;
@@ -164,38 +164,38 @@ idRenderModel* idRenderModelBeam::InstantiateDynamicModel( const struct renderEn
 	int blue = idMath::Ftoi( renderEntity->shaderParms[ SHADERPARM_BLUE ] * 255.0f );
 	int alpha = idMath::Ftoi( renderEntity->shaderParms[ SHADERPARM_ALPHA ] * 255.0f );
 
-	tri->verts[0].xyz = minor;
-	tri->verts[0].color[0] = red;
-	tri->verts[0].color[1] = green;
-	tri->verts[0].color[2] = blue;
-	tri->verts[0].color[3] = alpha;
+	tri->Verts()[0].xyz = minor;
+	tri->Verts()[0].color[0] = red;
+	tri->Verts()[0].color[1] = green;
+	tri->Verts()[0].color[2] = blue;
+	tri->Verts()[0].color[3] = alpha;
 	
-	tri->verts[1].xyz = -minor;
-	tri->verts[1].color[0] = red;
-	tri->verts[1].color[1] = green;
-	tri->verts[1].color[2] = blue;
-	tri->verts[1].color[3] = alpha;
+	tri->Verts()[1].xyz = -minor;
+	tri->Verts()[1].color[0] = red;
+	tri->Verts()[1].color[1] = green;
+	tri->Verts()[1].color[2] = blue;
+	tri->Verts()[1].color[3] = alpha;
 	
-	tri->verts[2].xyz = localTarget + minor;
-	tri->verts[2].color[0] = red;
-	tri->verts[2].color[1] = green;
-	tri->verts[2].color[2] = blue;
-	tri->verts[2].color[3] = alpha;
+	tri->Verts()[2].xyz = localTarget + minor;
+	tri->Verts()[2].color[0] = red;
+	tri->Verts()[2].color[1] = green;
+	tri->Verts()[2].color[2] = blue;
+	tri->Verts()[2].color[3] = alpha;
 	
-	tri->verts[3].xyz = localTarget - minor;
-	tri->verts[3].color[0] = red;
-	tri->verts[3].color[1] = green;
-	tri->verts[3].color[2] = blue;
-	tri->verts[3].color[3] = alpha;
+	tri->Verts()[3].xyz = localTarget - minor;
+	tri->Verts()[3].color[0] = red;
+	tri->Verts()[3].color[1] = green;
+	tri->Verts()[3].color[2] = blue;
+	tri->Verts()[3].color[3] = alpha;
 	
-	tri->verts[ 0 ].SetTexCoord( 0, 0 );
-	tri->verts[ 1 ].SetTexCoord( 0, t );
-	tri->verts[ 2 ].SetTexCoord( s, 0 );
-	tri->verts[ 3 ].SetTexCoord( s, t );
+	tri->Verts()[ 0 ].SetTexCoord( 0, 0 );
+	tri->Verts()[ 1 ].SetTexCoord( 0, t );
+	tri->Verts()[ 2 ].SetTexCoord( s, 0 );
+	tri->Verts()[ 3 ].SetTexCoord( s, t );
 
-	R_BoundTriSurf( tri );
+	tri->BoundTriSurf();// R_BoundTriSurf( tri );
 	
-	staticModel->bounds = tri->bounds;
+	staticModel->bounds = tri->Bounds();
 	
 	return staticModel;
 }

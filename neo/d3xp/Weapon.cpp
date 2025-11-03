@@ -3179,13 +3179,9 @@ void idWeapon::PresentWeapon( bool showViewModel )
 	
 	// present the model
 	if( showViewModel )
-	{
 		Present();
-	}
 	else
-	{
 		FreeModelDef();
-	}
 	
 	if( worldModel.GetEntity() && worldModel.GetEntity()->GetRenderEntity() )
 	{
@@ -3203,9 +3199,7 @@ void idWeapon::PresentWeapon( bool showViewModel )
 	}
 	
 	if( nozzleFx )
-	{
 		UpdateNozzleFx();
-	}
 	
 	// muzzle smoke
 	if( showViewModel && !disabled && weaponSmoke && ( weaponSmokeStartTime != 0 ) )

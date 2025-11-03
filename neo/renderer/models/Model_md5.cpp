@@ -69,13 +69,13 @@ idMD5Mesh::idMD5Mesh
 */
 idMD5Mesh::idMD5Mesh()
 {
-	shader				= NULL;
+	shader				= nullptr;
 	numVerts			= 0;
 	numTris				= 0;
-	meshJoints			= NULL;
+	meshJoints			= nullptr;
 	numMeshJoints		= 0;
 	maxJointVertDist	= 0.0f;
-	deformInfo			= NULL;
+	deformInfo			= nullptr;
 	surfaceNum			= 0;
 }
 
@@ -84,17 +84,18 @@ idMD5Mesh::idMD5Mesh()
 idMD5Mesh::~idMD5Mesh
 ====================
 */
-idMD5Mesh::~idMD5Mesh()
+idMD5Mesh::~idMD5Mesh( void )
 {
-	if( meshJoints != NULL )
+	if( meshJoints != nullptr )
 	{
 		Mem_Free( meshJoints );
-		meshJoints = NULL;
+		meshJoints = nullptr;
 	}
-	if( deformInfo != NULL )
+
+	if( deformInfo != nullptr )
 	{
 		R_FreeDeformInfo( deformInfo );
-		deformInfo = NULL;
+		deformInfo = nullptr;
 	}
 }
 
@@ -485,74 +486,68 @@ idMD5Mesh::UpdateSurface
 void idMD5Mesh::UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints,
 							   const idJointMat* entJointsInverted, modelSurface_t* surf )
 {
-
 	tr.pc.c_deformedSurfaces++;
 	tr.pc.c_deformedVerts += deformInfo->numOutputVerts;
 	tr.pc.c_deformedIndexes += deformInfo->numIndexes;
 	
 	surf->shader = shader;
 	
-	if( surf->geometry != NULL )
+	if( surf->geometry != nullptr )
 	{
 		// if the number of verts and indexes are the same we can re-use the triangle surface
-		if( surf->geometry->numVerts == deformInfo->numOutputVerts && surf->geometry->numIndexes == deformInfo->numIndexes )
-		{
-			R_FreeStaticTriSurfVertexCaches( surf->geometry );
-		}
+		if( surf->geometry->NumVerts() == deformInfo->numOutputVerts && surf->geometry->NumIndexes() == deformInfo->numIndexes )
+			surf->geometry->FreeStaticTriSurfVertexCaches();
 		else
 		{
-			R_FreeStaticTriSurf( surf->geometry );
-			surf->geometry = R_AllocStaticTriSurf();
+			surf->geometry->FreeStaticTriSurf();
+			surf->geometry = new crDrawGeometry();
 		}
 	}
 	else
-	{
-		surf->geometry = R_AllocStaticTriSurf();
-	}
+		surf->geometry = new crDrawGeometry();
 	
-	srfTriangles_t* tri = surf->geometry;
+	crDrawGeometry* tri = surf->geometry;
 	
 	// note that some of the data is referenced, and should not be freed
-	tri->referencedIndexes = true;
-	tri->numIndexes = deformInfo->numIndexes;
-	tri->indexes = deformInfo->indexes;
-	tri->silIndexes = deformInfo->silIndexes;
-	tri->numMirroredVerts = deformInfo->numMirroredVerts;
-	tri->mirroredVerts = deformInfo->mirroredVerts;
-	tri->numDupVerts = deformInfo->numDupVerts;
-	tri->dupVerts = deformInfo->dupVerts;
-	tri->numSilEdges = deformInfo->numSilEdges;
-	tri->silEdges = deformInfo->silEdges;
+	tri->NumIndexes() = deformInfo->numIndexes;
+	tri->SilIndexes() = deformInfo->silIndexes;
+	tri->NumMirroredVerts() = deformInfo->numMirroredVerts;
+	tri->MirroredVerts() = deformInfo->mirroredVerts;
+	tri->NumDupVerts() = deformInfo->numDupVerts;
+	tri->DupVerts() = deformInfo->dupVerts;
+	tri->NumSilEdges() = deformInfo->numSilEdges;
+	tri->SilEdges() = deformInfo->silEdges;
 	
-	tri->indexCache = deformInfo->staticIndexCache;
-	
-	tri->numVerts = deformInfo->numOutputVerts;
+	// reference alloced index cache 
+	tri->ReferenceIndexCache( deformInfo->staticIndexCache, deformInfo->indexes );
+
+	tri->NumVerts() = deformInfo->numOutputVerts;
 	if( r_useGPUSkinning.GetBool() )
 	{
-		if( tri->verts != NULL && tri->verts != deformInfo->verts )
-		{
-			R_FreeStaticTriSurfVerts( tri );
-		}
-		tri->verts = deformInfo->verts;
-		tri->ambientCache = deformInfo->staticAmbientCache;
-		tri->shadowCache = deformInfo->staticShadowCache;
-		tri->referencedVerts = true;
+		if( tri->Verts() != nullptr && tri->Verts() != deformInfo->verts )
+			tri->FreeStaticTriSurfVerts();
+
+		// reference vertex cache 
+		tri->ReferenceAmbientCache( deformInfo->staticAmbientCache, deformInfo->verts );
+		tri->ShadowCache( deformInfo->staticShadowCache );
 	}
 	else
 	{
-		if( tri->verts == NULL || tri->verts == deformInfo->verts )
+		if( tri->Verts() == nullptr || tri->Verts() == deformInfo->verts )
 		{
-			tri->verts = NULL;
-			R_AllocStaticTriSurfVerts( tri, deformInfo->numOutputVerts );
-			assert( tri->verts != NULL );	// quiet analyze warning
-			memcpy( tri->verts, deformInfo->verts, deformInfo->numOutputVerts * sizeof( deformInfo->verts[0] ) );	// copy over the texture coordinates
+			tri->Verts() = nullptr;
+			tri->AllocStaticTriSurfVerts( deformInfo->numOutputVerts );
+			assert( tri->Verts() != nullptr );	// quiet analyze warning
+			std::memcpy( tri->Verts(), deformInfo->verts, deformInfo->numOutputVerts * sizeof( idDrawVert ) );	// copy over the texture coordinates
 		}
-		TransformVertsAndTangents( tri->verts, deformInfo->numOutputVerts, deformInfo->verts, entJointsInverted );
-		tri->referencedVerts = false;
+		
+		TransformVertsAndTangents( tri->Verts(), deformInfo->numOutputVerts, deformInfo->verts, entJointsInverted );
+		tri->SetReferencedVerts( false );
 	}
-	tri->tangentsCalculated = true;
+
+	tri->TangentsCalculated() = true;
 	
-	CalculateBounds( entJoints, tri->bounds );
+	CalculateBounds( entJoints, tri->Bounds() );
 }
 
 /*
@@ -562,13 +557,13 @@ idMD5Mesh::CalculateBounds
 */
 void idMD5Mesh::CalculateBounds( const idJointMat* entJoints, idBounds& bounds ) const
 {
-
 	__m128 minX = vector_float_posInfinity;
 	__m128 minY = vector_float_posInfinity;
 	__m128 minZ = vector_float_posInfinity;
 	__m128 maxX = vector_float_negInfinity;
 	__m128 maxY = vector_float_negInfinity;
 	__m128 maxZ = vector_float_negInfinity;
+
 	for( int i = 0; i < numMeshJoints; i++ )
 	{
 		const idJointMat& joint = entJoints[meshJoints[i]];
@@ -582,20 +577,22 @@ void idMD5Mesh::CalculateBounds( const idJointMat* entJoints, idBounds& bounds )
 		maxY = _mm_max_ps( maxY, y );
 		maxZ = _mm_max_ps( maxZ, z );
 	}
+
 	__m128 expand = _mm_splat_ps( _mm_load_ss( & maxJointVertDist ), 0 );
+
 	minX = _mm_sub_ps( minX, expand );
 	minY = _mm_sub_ps( minY, expand );
 	minZ = _mm_sub_ps( minZ, expand );
 	maxX = _mm_add_ps( maxX, expand );
 	maxY = _mm_add_ps( maxY, expand );
 	maxZ = _mm_add_ps( maxZ, expand );
+
 	_mm_store_ss( bounds.ToFloatPtr() + 0, _mm_splat_ps( minX, 3 ) );
 	_mm_store_ss( bounds.ToFloatPtr() + 1, _mm_splat_ps( minY, 3 ) );
 	_mm_store_ss( bounds.ToFloatPtr() + 2, _mm_splat_ps( minZ, 3 ) );
 	_mm_store_ss( bounds.ToFloatPtr() + 3, _mm_splat_ps( maxX, 3 ) );
 	_mm_store_ss( bounds.ToFloatPtr() + 4, _mm_splat_ps( maxY, 3 ) );
-	_mm_store_ss( bounds.ToFloatPtr() + 5, _mm_splat_ps( maxZ, 3 ) );
-	
+	_mm_store_ss( bounds.ToFloatPtr() + 5, _mm_splat_ps( maxZ, 3 ) );	
 }
 
 /*
@@ -667,7 +664,7 @@ void idRenderModelMD5::ParseJoint( idLexer& parser, idMD5Joint* joint, idJointQu
 	int num = parser.ParseInt();
 	if( num < 0 )
 	{
-		joint->parent = NULL;
+		joint->parent = nullptr;
 	}
 	else
 	{
@@ -731,7 +728,7 @@ bool idRenderModelMD5::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTime
 		}
 		else
 		{
-			joints[i].parent = NULL;
+			joints[i].parent = nullptr;
 		}
 	}
 	
@@ -763,7 +760,7 @@ bool idRenderModelMD5::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTime
 		file->ReadString( materialName );
 		if( materialName.IsEmpty() )
 		{
-			meshes[i].shader = NULL;
+			meshes[i].shader = nullptr;
 		}
 		else
 		{
@@ -788,45 +785,45 @@ bool idRenderModelMD5::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTime
 		file->ReadBig( deform.numDupVerts );
 		file->ReadBig( deform.numSilEdges );
 		
-		srfTriangles_t	tri;
-		memset( &tri, 0, sizeof( srfTriangles_t ) );
+		crDrawGeometry	tri;
+		memset( &tri, 0, sizeof( crDrawGeometry ) );
 		
 		if( deform.numOutputVerts > 0 )
 		{
-			R_AllocStaticTriSurfVerts( &tri, deform.numOutputVerts );
-			deform.verts = tri.verts;
+			tri.AllocStaticTriSurfVerts( deform.numOutputVerts );
+			deform.verts = tri.Verts();
 			file->ReadBigArray( deform.verts, deform.numOutputVerts );
 		}
 		
 		if( deform.numIndexes > 0 )
 		{
-			R_AllocStaticTriSurfIndexes( &tri, deform.numIndexes );
-			R_AllocStaticTriSurfSilIndexes( &tri, deform.numIndexes );
-			deform.indexes = tri.indexes;
-			deform.silIndexes = tri.silIndexes;
+			tri.AllocStaticTriSurfIndexes( deform.numIndexes );
+			tri.AllocStaticTriSurfSilIndexes( deform.numIndexes );
+			deform.indexes = tri.Indexes();
+			deform.silIndexes = tri.SilIndexes();
 			file->ReadBigArray( deform.indexes, deform.numIndexes );
 			file->ReadBigArray( deform.silIndexes, deform.numIndexes );
 		}
 		
 		if( deform.numMirroredVerts > 0 )
 		{
-			R_AllocStaticTriSurfMirroredVerts( &tri, deform.numMirroredVerts );
-			deform.mirroredVerts = tri.mirroredVerts;
+			tri.AllocStaticTriSurfMirroredVerts( deform.numMirroredVerts );
+			deform.mirroredVerts = tri.MirroredVerts();
 			file->ReadBigArray( deform.mirroredVerts, deform.numMirroredVerts );
 		}
 		
 		if( deform.numDupVerts > 0 )
 		{
-			R_AllocStaticTriSurfDupVerts( &tri, deform.numDupVerts );
-			deform.dupVerts = tri.dupVerts;
+			tri.AllocStaticTriSurfDupVerts( deform.numDupVerts );
+			deform.dupVerts = tri.DupVerts();
 			file->ReadBigArray( deform.dupVerts, deform.numDupVerts * 2 );
 		}
 		
 		if( deform.numSilEdges > 0 )
 		{
-			R_AllocStaticTriSurfSilEdges( &tri, deform.numSilEdges );
-			deform.silEdges = tri.silEdges;
-			assert( deform.silEdges != NULL );
+			tri.AllocStaticTriSurfSilEdges( deform.numSilEdges );
+			deform.silEdges = tri.SilEdges();
+			assert( deform.silEdges != nullptr );
 			for( int j = 0; j < deform.numSilEdges; j++ )
 			{
 				file->ReadBig( deform.silEdges[j].p1 );
@@ -861,7 +858,7 @@ void idRenderModelMD5::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp ) c
 
 	idRenderModelStatic::WriteBinaryModel( file );
 	
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		return;
 	}
@@ -873,7 +870,7 @@ void idRenderModelMD5::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp ) c
 	{
 		file->WriteString( joints[i].name );
 		int offset = -1;
-		if( joints[i].parent != NULL )
+		if( joints[i].parent != nullptr )
 		{
 			offset = joints[i].parent - joints.Ptr();
 		}
@@ -900,7 +897,7 @@ void idRenderModelMD5::WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp ) c
 	for( int i = 0; i < meshes.Num(); i++ )
 	{
 	
-		if( meshes[i].shader != NULL && meshes[i].shader->GetName() != NULL )
+		if( meshes[i].shader != nullptr && meshes[i].shader->GetName() != nullptr )
 		{
 			file->WriteString( meshes[i].shader->GetName() );
 		}
@@ -1076,7 +1073,7 @@ void idRenderModelMD5::LoadModel()
 	}
 	
 	// set the timestamp for reloadmodels
-	fileSystem->ReadFile( name, NULL, &timeStamp );
+	fileSystem->ReadFile( name, nullptr, &timeStamp );
 	
 	common->UpdateLevelLoadPacifier(true);
 }
@@ -1144,7 +1141,7 @@ transforming all the points
 */
 idBounds idRenderModelMD5::Bounds( const renderEntity_t* ent ) const
 {
-	if( ent == NULL )
+	if( ent == nullptr )
 	{
 		// this is the bounds for the reference pose
 		return bounds;
@@ -1306,10 +1303,10 @@ idRenderModelMD5::InstantiateDynamicModel
 */
 idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEntity_s* ent, const viewDef_t* view, idRenderModel* cachedModel )
 {
-	if( cachedModel != NULL && !r_useCachedDynamicModels.GetBool() )
+	if( cachedModel != nullptr && !r_useCachedDynamicModels.GetBool() )
 	{
 		delete cachedModel;
-		cachedModel = NULL;
+		cachedModel = nullptr;
 	}
 	
 	if( purged )
@@ -1320,23 +1317,23 @@ idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 	
 	if( !ent->joints )
 	{
-		common->Printf( "idRenderModelMD5::InstantiateDynamicModel: NULL joints on renderEntity for '%s'\n", Name() );
+		common->Printf( "idRenderModelMD5::InstantiateDynamicModel: nullptr joints on renderEntity for '%s'\n", Name() );
 		delete cachedModel;
-		return NULL;
+		return nullptr;
 	}
 	else if( ent->numJoints != joints.Num() )
 	{
 		common->Printf( "idRenderModelMD5::InstantiateDynamicModel: renderEntity has different number of joints than model for '%s'\n", Name() );
 		delete cachedModel;
-		return NULL;
+		return nullptr;
 	}
 	
 	tr.pc.c_generateMd5++;
 	
 	idRenderModelStatic* staticModel;
-	if( cachedModel != NULL )
+	if( cachedModel != nullptr )
 	{
-		assert( dynamic_cast<idRenderModelStatic*>( cachedModel ) != NULL );
+		assert( dynamic_cast<idRenderModelStatic*>( cachedModel ) != nullptr );
 		assert( idStr::Icmp( cachedModel->Name(), MD5_SnapshotName ) == 0 );
 		staticModel = static_cast<idRenderModelStatic*>( cachedModel );
 	}
@@ -1350,7 +1347,7 @@ idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 	
 	if( r_showSkel.GetInteger() )
 	{
-		if( ( view != NULL ) && ( !r_skipSuppress.GetBool() || !ent->suppressSurfaceInViewID || ( ent->suppressSurfaceInViewID != view->renderView.viewID ) ) )
+		if( ( view != nullptr ) && ( !r_skipSuppress.GetBool() || !ent->suppressSurfaceInViewID || ( ent->suppressSurfaceInViewID != view->renderView.viewID ) ) )
 		{
 			// only draw the skeleton
 			DrawJoints( ent, view );
@@ -1366,7 +1363,7 @@ idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 	
 	// update the GPU joints array
 	const int numInvertedJoints = SIMD_ROUND_JOINTS( joints.Num() );
-	if( staticModel->jointsInverted == NULL )
+	if( staticModel->jointsInverted == nullptr )
 	{
 		staticModel->numInvertedJoints = numInvertedJoints;
 		const int alignment = glConfig.uniformBufferOffsetAlignment;
@@ -1408,18 +1405,18 @@ idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 		{
 			mesh->surfaceNum = staticModel->NumSurfaces();
 			surf = &staticModel->surfaces.Alloc();
-			surf->geometry = NULL;
-			surf->shader = NULL;
+			surf->geometry = nullptr;
+			surf->shader = nullptr;
 			surf->id = i;
 		}
 		
 		mesh->UpdateSurface( ent, ent->joints, staticModel->jointsInverted, surf );
-		assert( surf->geometry != NULL );	// to get around compiler warning
+		assert( surf->geometry != nullptr );	// to get around compiler warning
 		
 		// the deformation of the tangents can be deferred until each surface is added to the view
-		surf->geometry->staticModelWithJoints = staticModel;
+		surf->geometry->StaticModelWithJoints() = staticModel;
 		
-		staticModel->bounds.AddBounds( surf->geometry->bounds );
+		staticModel->bounds.AddBounds( surf->geometry->Bounds() );
 	}
 	
 	return staticModel;
@@ -1430,7 +1427,7 @@ idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 idRenderModelMD5::IsDynamicModel
 ====================
 */
-dynamicModel_t idRenderModelMD5::IsDynamicModel() const
+dynamicModel_t idRenderModelMD5::IsDynamicModel( void ) const
 {
 	return DM_CACHED;
 }
@@ -1440,7 +1437,7 @@ dynamicModel_t idRenderModelMD5::IsDynamicModel() const
 idRenderModelMD5::NumJoints
 ====================
 */
-int idRenderModelMD5::NumJoints() const
+int idRenderModelMD5::NumJoints( void ) const
 {
 	return joints.Num();
 }

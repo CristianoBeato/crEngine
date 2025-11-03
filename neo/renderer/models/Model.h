@@ -60,83 +60,17 @@ struct dominantTri_t
 const int SHADOW_CAP_INFINITE	= 64;
 
 class idRenderModelStatic;
+class crDrawGeometry;
 struct viewDef_t;
 
-// BEATO Begin:
-// BEATO End
 
-// our only drawing geometry type
-struct srfTriangles_t
-{
-	srfTriangles_t() {}
-	
-	idBounds					bounds;					// for culling
-	
-	bool						generateNormals;		// create normals from geometry, instead of using explicit ones
-	bool						tangentsCalculated;		// set when the vertex tangents have been calculated
-	bool						perfectHull;			// true if there aren't any dangling edges
-	bool						referencedVerts;		// if true the 'verts' are referenced and should not be freed
-	bool						referencedIndexes;		// if true, indexes, silIndexes, mirrorVerts, and silEdges are
-	// pointers into the original surface, and should not be freed
-	
-	int							numVerts;				// number of vertices
-	idDrawVert* 				verts;					// vertices, allocated with special allocator
-	
-	int							numIndexes;				// for shadows, this has both front and rear end caps and silhouette planes
-	triIndex_t* 				indexes;				// indexes, allocated with special allocator
-	
-	triIndex_t* 				silIndexes;				// indexes changed to be the first vertex with same XYZ, ignoring normal and texcoords
-	
-	int							numMirroredVerts;		// this many verts at the end of the vert list are tangent mirrors
-	int* 						mirroredVerts;			// tri->mirroredVerts[0] is the mirror of tri->numVerts - tri->numMirroredVerts + 0
-	
-	int							numDupVerts;			// number of duplicate vertexes
-	int* 						dupVerts;				// pairs of the number of the first vertex and the number of the duplicate vertex
-	
-	int							numSilEdges;			// number of silhouette edges
-	silEdge_t* 					silEdges;				// silhouette edges
-	
-	dominantTri_t* 				dominantTris;			// [numVerts] for deformed surface fast tangent calculation
-	
-	int							numShadowIndexesNoFrontCaps;	// shadow volumes with front caps omitted
-	int							numShadowIndexesNoCaps;			// shadow volumes with the front and rear caps omitted
-	
-	int							shadowCapPlaneBits;		// bits 0-5 are set when that plane of the interacting light has triangles
-	// projected on it, which means that if the view is on the outside of that
-	// plane, we need to draw the rear caps of the shadow volume
-	// dynamic shadows will have SHADOW_CAP_INFINITE
-	
-	idShadowVert* 				preLightShadowVertexes;	// shadow vertices in CPU memory for pre-light shadow volumes
-	idShadowVert* 				staticShadowVertexes;	// shadow vertices in CPU memory for static shadow volumes
-	
-	srfTriangles_t* 			ambientSurface;			// for light interactions, point back at the original surface that generated
-	// the interaction, which we will get the ambientCache from
-	
-	srfTriangles_t* 			nextDeferredFree;		// chain of tris to free next frame
-	
-	// for deferred normal / tangent transformations by joints
-	// the jointsInverted list / buffer object on md5WithJoints may be
-	// shared by multiple srfTriangles_t
-	idRenderModelStatic* 		staticModelWithJoints;
-	
-	// data in vertex object space, not directly readable by the CPU
-	vertCacheHandle_t			indexCache;				// GL_INDEX_TYPE
-	vertCacheHandle_t			ambientCache;			// idDrawVert
-	vertCacheHandle_t			shadowCache;			// idVec4
-
-	bool						facePlanesCalculated;	// set when the face planes have been calculated
-	idPlane* facePlanes;
-
-	DISALLOW_COPY_AND_ASSIGN( srfTriangles_t );
-};
-
-typedef idList<srfTriangles_t*, TAG_IDLIB_LIST_TRIANGLES> idTriList;
+typedef idList<crDrawGeometry*, TAG_IDLIB_LIST_TRIANGLES> idTriList;
 
 struct modelSurface_t
 {
 	int							id;
 	const idMaterial* 			shader;
-	srfTriangles_t* 			geometry;
+	crDrawGeometry* 			geometry;
 };
 
 enum dynamicModel_t
@@ -156,7 +90,7 @@ class idMD5Joint
 public:
 	idMD5Joint()
 	{
-		parent = NULL;
+		parent = nullptr;
 	}
 	idStr						name;
 	const idMD5Joint* 			parent;
@@ -250,13 +184,13 @@ public:
 	virtual const modelSurface_t* Surface( int surfaceNum ) const = 0;
 	
 	// Allocates surface triangles.
-	// Allocates memory for srfTriangles_t::verts and srfTriangles_t::indexes
+	// Allocates memory for crDrawGeometry::verts and crDrawGeometry::indexes
 	// The allocated memory is not initialized.
-	// srfTriangles_t::numVerts and srfTriangles_t::numIndexes are set to zero.
-	virtual srfTriangles_t* 	AllocSurfaceTriangles( int numVerts, int numIndexes ) const = 0;
+	// crDrawGeometry::numVerts and crDrawGeometry::numIndexes are set to zero.
+	virtual crDrawGeometry* 	AllocSurfaceTriangles( int numVerts, int numIndexes ) const = 0;
 	
 	// Frees surfaces triangles.
-	virtual void				FreeSurfaceTriangles( srfTriangles_t* tris ) const = 0;
+	virtual void				FreeSurfaceTriangles( crDrawGeometry* tris ) const = 0;
 	
 	// models of the form "_area*" may have a prelight shadow model associated with it
 	virtual bool				IsStaticWorldModel() const = 0;

@@ -89,11 +89,13 @@ Returns the plane for the first triangle in the surface
 FIXME: check for degenerate triangle?
 =============
 */
-static void R_PlaneForSurface( const srfTriangles_t* tri, idPlane& plane )
+static void R_PlaneForSurface( const crDrawGeometry* tri, idPlane& plane )
 {
-	idDrawVert* v1 = tri->verts + tri->indexes[0];
-	idDrawVert* v2 = tri->verts + tri->indexes[1];
-	idDrawVert* v3 = tri->verts + tri->indexes[2];
+	idDrawVert* verts = const_cast<crDrawGeometry*>(tri)->Verts();
+	triIndex_t* indexes = const_cast<triIndex_t*>(tri->Indexes());
+	idDrawVert* v1 = verts + indexes[0];
+	idDrawVert* v2 = verts + indexes[1];
+	idDrawVert* v3 = verts + indexes[2];
 	plane.FromPoints( v1->xyz, v2->xyz, v3->xyz );
 }
 
@@ -112,7 +114,7 @@ OPTIMIZE: we could also take exact portal passing into consideration
 */
 bool R_PreciseCullSurface( const drawSurf_t* drawSurf, idBounds& ndcBounds )
 {
-	const srfTriangles_t* tri = drawSurf->frontEndGeo;
+	const crDrawGeometry* tri = drawSurf->frontEndGeo;
 	
 	unsigned int pointOr = 0;
 	unsigned int pointAnd = ( unsigned int )~0;
@@ -120,11 +122,11 @@ bool R_PreciseCullSurface( const drawSurf_t* drawSurf, idBounds& ndcBounds )
 	// get an exact bounds of the triangles for scissor cropping
 	ndcBounds.Clear();
 	
-	const idJointMat* joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
+	const idJointMat* joints = ( tri->StaticModelWithJoints() != nullptr && r_useGPUSkinning.GetBool() ) ? tri->StaticModelWithJoints()->jointsInverted : nullptr;
 	
-	for( int i = 0; i < tri->numVerts; i++ )
+	for( int i = 0; i < tri->NumVerts(); i++ )
 	{
-		const idVec3 vXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[i], joints );
+		const idVec3 vXYZ = idDrawVert::GetSkinnedDrawVertPosition( tri->Verts()[i], joints );
 		
 		idPlane eye, clip;
 		R_TransformModelToClip( vXYZ, drawSurf->space->modelViewMatrix, tr.viewDef->projectionMatrix, eye, clip );
@@ -156,11 +158,11 @@ bool R_PreciseCullSurface( const drawSurf_t* drawSurf, idBounds& ndcBounds )
 	idVec3 localViewOrigin;
 	R_GlobalPointToLocal( drawSurf->space->modelMatrix, tr.viewDef->renderView.vieworg, localViewOrigin );
 	
-	for( int i = 0; i < tri->numIndexes; i += 3 )
+	for( int i = 0; i < tri->NumIndexes(); i += 3 )
 	{
-		const idVec3 v1 = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[ i + 0 ] ], joints );
-		const idVec3 v2 = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[ i + 1 ] ], joints );
-		const idVec3 v3 = idDrawVert::GetSkinnedDrawVertPosition( tri->verts[ tri->indexes[ i + 2 ] ], joints );
+		const idVec3 v1 = idDrawVert::GetSkinnedDrawVertPosition( tri->Verts()[ tri->Indexes()[ i + 0 ] ], joints );
+		const idVec3 v2 = idDrawVert::GetSkinnedDrawVertPosition( tri->Verts()[ tri->Indexes()[ i + 1 ] ], joints );
+		const idVec3 v3 = idDrawVert::GetSkinnedDrawVertPosition( tri->Verts()[ tri->Indexes()[ i + 2 ] ], joints );
 		
 		// this is a hack, because R_GlobalPointToLocal doesn't work with the non-normalized
 		// axis that we get from the gui view transform.  It doesn't hurt anything, because
@@ -289,7 +291,7 @@ static viewDef_t* R_MirrorViewBySurface( const drawSurf_t* drawSurf )
 	R_MirrorVector( tr.viewDef->renderView.viewaxis[2], &surface, &camera, parms->renderView.viewaxis[2] );
 	
 	// make the view origin 16 units away from the center of the surface
-	const idVec3 center = (drawSurf->frontEndGeo->bounds[0] + drawSurf->frontEndGeo->bounds[1]) * 0.5f;
+	const idVec3 center = (drawSurf->frontEndGeo->Bounds()[0] + drawSurf->frontEndGeo->Bounds()[1]) * 0.5f;
 	const idVec3 viewOrigin = center + (originalPlane.Normal() * 16.0f);
 
 	R_LocalPointToGlobal(drawSurf->space->modelMatrix, viewOrigin, parms->initialViewAreaOrigin);
@@ -393,7 +395,7 @@ static void R_RemoteRender( const drawSurf_t* surf, textureStage_t* stage )
 	
 	// copy this rendering to the image
 	stage->dynamicFrameCount = tr.frameCount;
-	if( stage->image == NULL )
+	if( stage->image == nullptr )
 	{
 		stage->image = globalImages->scratchImage;
 	}
@@ -417,7 +419,7 @@ void R_MirrorRender( const drawSurf_t* surf, textureStage_t* stage, idScreenRect
 	
 	// issue a new view command
 	viewDef_t* parms = R_MirrorViewBySurface( surf );
-	if( parms == NULL )
+	if( parms == nullptr )
 	{
 		return;
 	}
@@ -463,7 +465,7 @@ void R_XrayRender( const drawSurf_t* surf, textureStage_t* stage, idScreenRect s
 	
 	// issue a new view command
 	viewDef_t* parms = R_XrayViewBySurface( surf );
-	if( parms == NULL )
+	if( parms == nullptr )
 	{
 		return;
 	}
@@ -520,10 +522,10 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 	
 	// never recurse through a subview surface that we are
 	// already seeing through
-	viewDef_t* parms = NULL;
-	for( parms = tr.viewDef; parms != NULL; parms = parms->superView )
+	viewDef_t* parms = nullptr;
+	for( parms = tr.viewDef; parms != nullptr; parms = parms->superView )
 	{
-		if( parms->subviewSurface != NULL
+		if( parms->subviewSurface != nullptr
 				&& parms->subviewSurface->frontEndGeo == drawSurf->frontEndGeo
 				&& parms->subviewSurface->space->entityDef == drawSurf->space->entityDef )
 		{
@@ -536,7 +538,7 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 	}
 	
 	// crop the scissor bounds based on the precise cull
-	assert( tr.viewDef != NULL );
+	assert( tr.viewDef != nullptr );
 	idScreenRect* v = &tr.viewDef->viewport;
 	idScreenRect scissor;
 	scissor.x1 = v->x1 + idMath::Ftoi( ( v->x2 - v->x1 + 1 ) * 0.5f * ( ndcBounds[0][0] + 1.0f ) );
@@ -579,10 +581,8 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 	
 	// issue a new view command
 	parms = R_MirrorViewBySurface( drawSurf );
-	if( parms == NULL )
-	{
+	if( parms == nullptr )
 		return false;
-	}
 	
 	parms->scissor = scissor;
 	parms->superView = tr.viewDef;

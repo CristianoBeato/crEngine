@@ -68,7 +68,7 @@ idRenderModelLiquid::GenerateSurface
 */
 modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp )
 {
-	srfTriangles_t*	tri;
+	crDrawGeometry*	tri;
 	int				i, base;
 	idDrawVert*		vert;
 	modelSurface_t	surf;
@@ -85,33 +85,33 @@ modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp )
 	tr.pc.c_deformedVerts += deformInfo->numOutputVerts;
 	tr.pc.c_deformedIndexes += deformInfo->numIndexes;
 	
-	tri = R_AllocStaticTriSurf();
+	tri = new crDrawGeometry();
 	
 	// note that some of the data is references, and should not be freed
-	tri->referencedIndexes = true;
+	tri->SetReferencedIndexes( true );
 	
-	tri->numIndexes = deformInfo->numIndexes;
-	tri->indexes = deformInfo->indexes;
-	tri->silIndexes = deformInfo->silIndexes;
-	tri->numMirroredVerts = deformInfo->numMirroredVerts;
-	tri->mirroredVerts = deformInfo->mirroredVerts;
-	tri->numDupVerts = deformInfo->numDupVerts;
-	tri->dupVerts = deformInfo->dupVerts;
-	tri->numSilEdges = deformInfo->numSilEdges;
-	tri->silEdges = deformInfo->silEdges;
+	tri->NumIndexes() = deformInfo->numIndexes;
+	tri->Indexes() = deformInfo->indexes;
+	tri->SilIndexes() = deformInfo->silIndexes;
+	tri->NumMirroredVerts() = deformInfo->numMirroredVerts;
+	tri->MirroredVerts() = deformInfo->mirroredVerts;
+	tri->NumDupVerts() = deformInfo->numDupVerts;
+	tri->DupVerts() = deformInfo->dupVerts;
+	tri->NumSilEdges() = deformInfo->numSilEdges;
+	tri->SilEdges() = deformInfo->silEdges;
 	
-	tri->numVerts = deformInfo->numOutputVerts;
-	R_AllocStaticTriSurfVerts( tri, tri->numVerts );
-	SIMDProcessor->Memcpy( tri->verts, verts.Ptr(), deformInfo->numSourceVerts * sizeof( tri->verts[0] ) );
+	tri->NumVerts() = deformInfo->numOutputVerts;
+	tri->AllocStaticTriSurfVerts( tri->NumVerts() );//R_AllocStaticTriSurfVerts( tri, tri->NumVerts() );
+	SIMDProcessor->Memcpy( tri->Verts(), verts.Ptr(), deformInfo->numSourceVerts * sizeof( tri->Verts()[0] ) );
 	
 	// replicate the mirror seam vertexes
 	base = deformInfo->numOutputVerts - deformInfo->numMirroredVerts;
 	for( i = 0 ; i < deformInfo->numMirroredVerts ; i++ )
 	{
-		tri->verts[base + i] = tri->verts[deformInfo->mirroredVerts[i]];
+		tri->Verts()[base + i] = tri->Verts()[deformInfo->mirroredVerts[i]];
 	}
 	
-	R_BoundTriSurf( tri );
+	tri->BoundTriSurf(); //R_BoundTriSurf( tri );
 	
 	surf.geometry	= tri;
 	surf.shader		= shader;
@@ -581,7 +581,7 @@ idRenderModel* idRenderModelLiquid::InstantiateDynamicModel( const struct render
 	
 	staticModel = new( TAG_MODEL ) idRenderModelStatic;
 	staticModel->AddSurface( surf );
-	staticModel->bounds = surf.geometry->bounds;
+	staticModel->bounds = surf.geometry->Bounds();
 	
 	return staticModel;
 }

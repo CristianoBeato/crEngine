@@ -1290,7 +1290,7 @@ guiPoint_t idRenderWorldLocal::GuiTrace( qhandle_t entityHandle, const idVec3 st
 	{
 		const modelSurface_t* surf = model->Surface( i );
 		
-		const srfTriangles_t* tri = surf->geometry;
+		const crDrawGeometry* tri = surf->geometry;
 		if( tri == NULL )
 		{
 			continue;
@@ -1558,9 +1558,9 @@ bool idRenderWorldLocal::Trace( modelTrace_t& trace, const idVec3& start, const 
 				}
 #endif
 				
-				const srfTriangles_t* tri = surf->geometry;
+				const crDrawGeometry* tri = surf->geometry;
 				
-				bounds.FromTransformedBounds( tri->bounds, def->parms.origin, def->parms.axis );
+				bounds.FromTransformedBounds( tri->Bounds(), def->parms.origin, def->parms.axis );
 				
 				// if triangle bounds do not overlap with the trace bounds
 				if( !traceBounds.IntersectsBounds( bounds ) || !bounds.LineIntersection( start, trace.point ) )

@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+#include "renderer/Geometry.h"
 #include "dmap.h"
 
 //=================================================================================
@@ -188,21 +189,21 @@ ShareMapTriVerts
 Converts independent triangles to shared vertex triangles
 ====================
 */
-srfTriangles_t	*ShareMapTriVerts( const mapTri_t *tris ) 
+crDrawGeometry	*ShareMapTriVerts( const mapTri_t *tris ) 
 {
 	int				count = 0;
 	int				i = 0, j = 0;
 	int				numVerts = 0;
 	int				numIndexes = 0;
 	const mapTri_t	*step = nullptr;
-	srfTriangles_t	*uTri = nullptr;
+	crDrawGeometry	*uTri = nullptr;
 
 	// unique the vertexes
 	count = CountTriList( tris );
 
-	uTri = R_AllocStaticTriSurf();
-	R_AllocStaticTriSurfVerts( uTri, count * 3 );
-	R_AllocStaticTriSurfIndexes( uTri, count * 3 );
+	uTri = new crDrawGeometry();
+	uTri->AllocStaticTriSurfVerts( count * 3 );
+	uTri->AllocStaticTriSurfIndexes( count * 3 );
 
 	numVerts = 0;
 	numIndexes = 0;
@@ -218,28 +219,28 @@ srfTriangles_t	*ShareMapTriVerts( const mapTri_t *tris )
 			// search for a match
 			for ( j = 0 ; j < numVerts ; j++ ) 
 			{
-				if ( MatchVert( &uTri->verts[j], dv ) ) 
+				if ( MatchVert( &uTri->Verts()[j], dv ) ) 
 					break;
 			}
 			
 			if ( j == numVerts ) 
 			{
 				numVerts++;
-				uTri->verts[j].xyz = dv->xyz;
-				uTri->verts[j].normal[0] = dv->normal[0];
-				uTri->verts[j].normal[1] = dv->normal[1];
-				uTri->verts[j].normal[2] = dv->normal[2];
-				uTri->verts[j].normal[3] = dv->normal[3];
-				uTri->verts[j].st[0] = dv->st[0];
-				uTri->verts[j].st[1] = dv->st[1];
+				uTri->Verts()[j].xyz = dv->xyz;
+				uTri->Verts()[j].normal[0] = dv->normal[0];
+				uTri->Verts()[j].normal[1] = dv->normal[1];
+				uTri->Verts()[j].normal[2] = dv->normal[2];
+				uTri->Verts()[j].normal[3] = dv->normal[3];
+				uTri->Verts()[j].st[0] = dv->st[0];
+				uTri->Verts()[j].st[1] = dv->st[1];
 			}
 
-			uTri->indexes[numIndexes++] = j;
+			uTri->Indexes()[numIndexes++] = j;
 		}
 	}
 
-	uTri->numVerts = numVerts;
-	uTri->numIndexes = numIndexes;
+	uTri->NumVerts() = numVerts;
+	uTri->NumIndexes() = numIndexes;
 
 	return uTri;
 }
@@ -249,17 +250,16 @@ srfTriangles_t	*ShareMapTriVerts( const mapTri_t *tris )
 CleanupUTriangles
 ==================
 */
-static void CleanupUTriangles( srfTriangles_t *tri ) 
+static void CleanupUTriangles( crDrawGeometry *tri ) 
 {
 	// perform cleanup operations
 
-	R_RangeCheckIndexes( tri );
-	R_CreateSilIndexes( tri );
+	tri->RangeCheckIndexes(  );
+	tri->CreateSilIndexes();
 //	R_RemoveDuplicatedTriangles( tri );	// this may remove valid overlapped transparent triangles
-	R_RemoveDegenerateTriangles( tri );
+	tri->RemoveDegenerateTriangles();
 //	R_RemoveUnusedVerts( tri );
-
-	R_FreeStaticTriSurfSilIndexes( tri );
+	tri->FreeStaticTriSurfSilIndexes();
 }
 
 /*
@@ -269,23 +269,22 @@ WriteUTriangles
 Writes text verts and indexes to procfile
 ====================
 */
-static void WriteUTriangles( const srfTriangles_t *uTris ) 
+static void WriteUTriangles( const crDrawGeometry *uTris ) 
 {
 	int			col = 0;
 	int			i = 0;
 
 	// emit this chain
-	procFile->WriteFloatString( "/* numVerts = */ %i /* numIndexes = */ %i\n", 
-		uTris->numVerts, uTris->numIndexes );
+	procFile->WriteFloatString( "/* numVerts = */ %i /* numIndexes = */ %i\n", uTris->NumVerts(), uTris->NumIndexes() );
 
 	// verts
 	col = 0;
-	for ( i = 0 ; i < uTris->numVerts ; i++ ) 
+	for ( i = 0 ; i < uTris->NumVerts() ; i++ ) 
 	{
 		float	vec[8];
 		const idDrawVert *dv = nullptr;
 
-		dv = &uTris->verts[i];
+		dv = &uTris->Verts()[i];
 
 		vec[0] = dv->xyz[0];
 		vec[1] = dv->xyz[1];
@@ -308,8 +307,9 @@ static void WriteUTriangles( const srfTriangles_t *uTris )
 
 	// indexes
 	col = 0;
-	for ( i = 0 ; i < uTris->numIndexes ; i++ ) {
-		procFile->WriteFloatString( "%i ", uTris->indexes[i] );
+	for ( i = 0 ; i < uTris->NumIndexes() ; i++ ) 
+	{
+		procFile->WriteFloatString( "%i ", uTris->Indexes()[i] );
 
 		if ( ++col == 18 ) {
 			col = 0;
@@ -329,20 +329,25 @@ WriteShadowTriangles
 Writes text verts and indexes to procfile
 ====================
 */
-static void WriteShadowTriangles( const srfTriangles_t *tri ) 
+static void WriteShadowTriangles( const crDrawGeometry *tri ) 
 {
 	int			col = 0;
 	int			i = 0;
 
 	// emit this chain
 	procFile->WriteFloatString( "/* numVerts = */ %i /* noCaps = */ %i /* noFrontCaps = */ %i /* numIndexes = */ %i /* planeBits = */ %i\n", 
-		tri->numVerts, tri->numShadowIndexesNoCaps, tri->numShadowIndexesNoFrontCaps, tri->numIndexes, tri->shadowCapPlaneBits );
+		tri->NumVerts(), 
+		tri->NumShadowIndexesNoCaps(), 
+		tri->NumShadowIndexesNoFrontCaps(), 
+		tri->NumIndexes(), 
+		tri->ShadowCapPlaneBits() );
 
 	// verts
 	col = 0;
-	for ( i = 0 ; i < tri->numVerts ; i++ ) 
+	for ( i = 0 ; i < tri->NumVerts() ; i++ ) 
 	{
-		Write1DMatrix( procFile, 3,  &tri->preLightShadowVertexes[i].xyzw[0] );
+		idShadowVert* shadowVertexes = const_cast<idShadowVert*>( tri->PreLightShadowVertexes() );
+		Write1DMatrix( procFile, 3,  shadowVertexes[i].xyzw.ToFloatPtr() );
 
 		if ( ++col == 5 ) 
 		{
@@ -356,8 +361,8 @@ static void WriteShadowTriangles( const srfTriangles_t *tri )
 
 	// indexes
 	col = 0;
-	for ( i = 0 ; i < tri->numIndexes ; i++ ) {
-		procFile->WriteFloatString( "%i ", tri->indexes[i] );
+	for ( i = 0 ; i < tri->NumIndexes() ; i++ ) {
+		procFile->WriteFloatString( "%i ", tri->Indexes()[i] );
 
 		if ( ++col == 18 ) {
 			col = 0;
@@ -403,7 +408,7 @@ static void WriteOutputSurfaces( int entityNum, int areaNum )
 	optimizeGroup_t	*group, *groupStep;
 	int			i; // , j;
 //	int			col;
-	srfTriangles_t	*uTri;
+	crDrawGeometry	*uTri;
 //	mapTri_t	*tri;
 typedef struct interactionTris_s {
 	struct interactionTris_s	*next;
@@ -500,7 +505,7 @@ typedef struct interactionTris_s {
 
 		CleanupUTriangles( uTri );
 		WriteUTriangles( uTri );
-		R_FreeStaticTriSurf( uTri );
+		uTri->FreeStaticTriSurf();
 
 		procFile->WriteFloatString( "}\n\n" );
 	}
@@ -692,7 +697,7 @@ void WriteOutputFile( void )
 		WriteShadowTriangles( light->shadowTris );
 		procFile->WriteFloatString( "}\n\n" );
 
-		R_FreeStaticTriSurf( light->shadowTris );
+		light->shadowTris->FreeStaticTriSurf();
 		light->shadowTris = nullptr;
 	}
 

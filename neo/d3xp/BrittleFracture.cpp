@@ -350,7 +350,7 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 	int i, j, k, n, msec, numTris, numDecalTris;
 	float fade;
 	dword packedColor;
-	srfTriangles_t* tris, *decalTris;
+	crDrawGeometry* tris, *decalTris;
 	modelSurface_t surface;
 	idDrawVert* v;
 	idPlane plane;
@@ -423,10 +423,13 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 		winding.GetPlane( plane );
 		tangents = ( plane.Normal() * axis ).ToMat3();
 		
+		uint32_t &numVerts = tris->NumVerts();
+		uint32_t &numIndexes =  tris->NumIndexes();
+		idDrawVert* &verts = tris->Verts();
+		triIndex_t* &indexes = tris->Indexes();
 		for( j = 2; j < winding.GetNumPoints(); j++ )
 		{
-		
-			v = &tris->verts[tris->numVerts++];
+			v = &verts[numVerts++];
 			v->Clear();
 			v->xyz = origin + winding[0].ToVec3() * axis;
 			v->SetTexCoord( winding[0].s, winding[0].t );
@@ -435,7 +438,7 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 			v->SetBiTangent( tangents[2] );
 			v->SetColor( packedColor );
 			
-			v = &tris->verts[tris->numVerts++];
+			v = &verts[numVerts++];
 			v->Clear();
 			v->xyz = origin + winding[j - 1].ToVec3() * axis;
 			v->SetTexCoord( winding[j - 1].s, winding[j - 1].t );
@@ -444,7 +447,7 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 			v->SetBiTangent( tangents[2] );
 			v->SetColor( packedColor );
 			
-			v = &tris->verts[tris->numVerts++];
+			v = &verts[numVerts++];
 			v->Clear();
 			v->xyz = origin + winding[j].ToVec3() * axis;
 			v->SetTexCoord( winding[j].s, winding[j].t );
@@ -453,16 +456,16 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 			v->SetBiTangent( tangents[2] );
 			v->SetColor( packedColor );
 			
-			tris->indexes[tris->numIndexes++] = tris->numVerts - 3;
-			tris->indexes[tris->numIndexes++] = tris->numVerts - 2;
-			tris->indexes[tris->numIndexes++] = tris->numVerts - 1;
+			indexes[numIndexes++] = numVerts - 3;
+			indexes[numIndexes++] = numVerts - 2;
+			indexes[numIndexes++] = numVerts - 1;
 			
 			if( material->ShouldCreateBackSides() )
 			{
 			
-				tris->indexes[tris->numIndexes++] = tris->numVerts - 2;
-				tris->indexes[tris->numIndexes++] = tris->numVerts - 3;
-				tris->indexes[tris->numIndexes++] = tris->numVerts - 1;
+				indexes[numIndexes++] = numVerts - 2;
+				indexes[numIndexes++] = numVerts - 3;
+				indexes[numIndexes++] = numVerts - 1;
 			}
 		}
 		
@@ -470,10 +473,14 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 		{
 			const idWinding& decalWinding = *shards[i]->decals[k];
 			
+			uint32_t &numVerts = decalTris->NumVerts();
+			uint32_t &numIndexes =  decalTris->NumIndexes();
+			idDrawVert* &verts = decalTris->Verts();
+			triIndex_t* &indexes = decalTris->Indexes();
+
 			for( j = 2; j < decalWinding.GetNumPoints(); j++ )
 			{
-			
-				v = &decalTris->verts[decalTris->numVerts++];
+				v = &verts[numVerts++];
 				v->Clear();
 				v->xyz = origin + decalWinding[0].ToVec3() * axis;
 				v->SetTexCoord( decalWinding[0].s, decalWinding[0].t );
@@ -482,7 +489,7 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 				v->SetBiTangent( tangents[2] );
 				v->SetColor( packedColor );
 				
-				v = &decalTris->verts[decalTris->numVerts++];
+				v = &verts[numVerts++];
 				v->Clear();
 				v->xyz = origin + decalWinding[j - 1].ToVec3() * axis;
 				v->SetTexCoord( decalWinding[j - 1].s, decalWinding[j - 1].t );
@@ -491,7 +498,7 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 				v->SetBiTangent( tangents[2] );
 				v->SetColor( packedColor );
 				
-				v = &decalTris->verts[decalTris->numVerts++];
+				v = &verts[numVerts++];
 				v->Clear();
 				v->xyz = origin + decalWinding[j].ToVec3() * axis;
 				v->SetTexCoord( decalWinding[j].s, decalWinding[j].t );
@@ -500,34 +507,34 @@ bool idBrittleFracture::UpdateRenderEntity( renderEntity_s* renderEntity, const 
 				v->SetBiTangent( tangents[2] );
 				v->SetColor( packedColor );
 				
-				decalTris->indexes[decalTris->numIndexes++] = decalTris->numVerts - 3;
-				decalTris->indexes[decalTris->numIndexes++] = decalTris->numVerts - 2;
-				decalTris->indexes[decalTris->numIndexes++] = decalTris->numVerts - 1;
+				indexes[numIndexes++] = numVerts - 3;
+				indexes[numIndexes++] = numVerts - 2;
+				indexes[numIndexes++] = numVerts - 1;
 				
 				if( decalMaterial->ShouldCreateBackSides() )
 				{
 				
-					decalTris->indexes[decalTris->numIndexes++] = decalTris->numVerts - 2;
-					decalTris->indexes[decalTris->numIndexes++] = decalTris->numVerts - 3;
-					decalTris->indexes[decalTris->numIndexes++] = decalTris->numVerts - 1;
+					indexes[numIndexes++] = numVerts - 2;
+					indexes[numIndexes++] = numVerts - 3;
+					indexes[numIndexes++] = numVerts - 1;
 				}
 			}
 		}
 	}
 	
-	tris->tangentsCalculated = true;
-	decalTris->tangentsCalculated = true;
+	tris->TangentsCalculated() = true;
+	decalTris->TangentsCalculated() = true;
 	
-	SIMDProcessor->MinMax( tris->bounds[0], tris->bounds[1], tris->verts, tris->numVerts );
-	SIMDProcessor->MinMax( decalTris->bounds[0], decalTris->bounds[1], decalTris->verts, decalTris->numVerts );
+	SIMDProcessor->MinMax( tris->Bounds()[0], tris->Bounds()[1], tris->Verts(), tris->NumVerts() );
+	SIMDProcessor->MinMax( decalTris->Bounds()[0], decalTris->Bounds()[1], decalTris->Verts(), decalTris->NumVerts() );
 	
-	memset( &surface, 0, sizeof( surface ) );
+	std::memset( &surface, 0, sizeof( surface ) );
 	surface.shader = material;
 	surface.id = 0;
 	surface.geometry = tris;
 	renderEntity->hModel->AddSurface( surface );
 	
-	memset( &surface, 0, sizeof( surface ) );
+	std::memset( &surface, 0, sizeof( surface ) );
 	surface.shader = decalMaterial;
 	surface.id = 1;
 	surface.geometry = decalTris;
@@ -1260,7 +1267,7 @@ void idBrittleFracture::CreateFractures( const idRenderModel* renderModel )
 		
 		for( int i = 0; i < 4; i++ )
 		{
-			const idDrawVert* v = &surf->geometry->verts[i];
+			const idDrawVert* v = &surf->geometry->Verts()[i];
 			w.AddPoint( idVec5( v->xyz, v->GetTexCoord() ) );
 		}
 		
@@ -1270,10 +1277,10 @@ void idBrittleFracture::CreateFractures( const idRenderModel* renderModel )
 	}
 	else
 	{
-		const idDrawVert* verts = surf->geometry->verts;
-		triIndex_t* indexes = surf->geometry->indexes;
+		const idDrawVert* verts = surf->geometry->Verts();
+		triIndex_t* indexes = surf->geometry->Indexes();
 		
-		for( int j = 0; j < surf->geometry->numIndexes; j += 3 )
+		for( int j = 0; j < surf->geometry->NumIndexes(); j += 3 )
 		{
 			int i0 = indexes[ j + 0 ];
 			int i1 = indexes[ j + 1 ];
@@ -1284,7 +1291,7 @@ void idBrittleFracture::CreateFractures( const idRenderModel* renderModel )
 			w.AddPoint( idVec5( verts[i0].xyz, verts[i0].GetTexCoord() ) );
 			idPlane p1;
 			w.GetPlane( p1 );
-			for( int k = j + 3; k < surf->geometry->numIndexes && ( w.GetNumPoints() + 1 < MAX_POINTS_ON_WINDING ); k += 3 )
+			for( int k = j + 3; k < surf->geometry->NumIndexes() && ( w.GetNumPoints() + 1 < MAX_POINTS_ON_WINDING ); k += 3 )
 			{
 				int i3 = indexes[ k + 0 ];
 				int i4 = indexes[ k + 1 ];

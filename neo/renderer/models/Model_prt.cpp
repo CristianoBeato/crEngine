@@ -161,20 +161,20 @@ idRenderModel* idRenderModelPrt::InstantiateDynamicModel( const struct renderEnt
 		if( staticModel->FindSurfaceWithId( stageNum, surfaceNum ) )
 		{
 			surf = &staticModel->surfaces[surfaceNum];
-			R_FreeStaticTriSurfVertexCaches( surf->geometry );
+			surf->geometry->FreeStaticTriSurfVertexCaches();
 		}
 		else
 		{
 			surf = &staticModel->surfaces.Alloc();
 			surf->id = stageNum;
 			surf->shader = stage->material;
-			surf->geometry = R_AllocStaticTriSurf();
-			R_AllocStaticTriSurfVerts( surf->geometry, 4 * count );
-			R_AllocStaticTriSurfIndexes( surf->geometry, 6 * count );
+			surf->geometry = new crDrawGeometry();
+			surf->geometry->AllocStaticTriSurfVerts( 4 * count );
+			surf->geometry->AllocStaticTriSurfIndexes( 6 * count );
 		}
 		
 		int numVerts = 0;
-		idDrawVert* verts = surf->geometry->verts;
+		idDrawVert* verts = surf->geometry->Verts();
 		
 		for( int index = 0; index < stage->totalParticles; index++ )
 		{
@@ -245,7 +245,7 @@ idRenderModel* idRenderModelPrt::InstantiateDynamicModel( const struct renderEnt
 		
 		// build the indexes
 		int	numIndexes = 0;
-		triIndex_t* indexes = surf->geometry->indexes;
+		triIndex_t* indexes = surf->geometry->Indexes();
 		for( int i = 0; i < numVerts; i += 4 )
 		{
 			indexes[numIndexes + 0] = i + 0;
@@ -257,10 +257,10 @@ idRenderModel* idRenderModelPrt::InstantiateDynamicModel( const struct renderEnt
 			numIndexes += 6;
 		}
 		
-		surf->geometry->tangentsCalculated = false;
-		surf->geometry->numVerts = numVerts;
-		surf->geometry->numIndexes = numIndexes;
-		surf->geometry->bounds = stage->bounds;		// just always draw the particles
+		surf->geometry->TangentsCalculated() = false;
+		surf->geometry->NumVerts() = numVerts;
+		surf->geometry->NumIndexes() = numIndexes;
+		surf->geometry->Bounds() = stage->bounds;		// just always draw the particles
 	}
 	
 	return staticModel;

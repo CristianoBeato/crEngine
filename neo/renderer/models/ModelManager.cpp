@@ -785,7 +785,7 @@ void idRenderModelManagerLocal::EndLevelLoad()
 		{
 			for( int j = 0; j < model->NumSurfaces(); j++ )
 			{
-				R_CreateStaticBuffersForTri( *( model->Surface( j )->geometry ) );
+				model->Surface( j )->geometry->CreateStaticBuffersForTri();
 			}
 		}
 	}

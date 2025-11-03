@@ -2198,26 +2198,26 @@ void idRenderSystemLocal::Clear()
 R_MakeFullScreenTris
 =============
 */
-static srfTriangles_t* R_MakeFullScreenTris( void )
+static crDrawGeometry* R_MakeFullScreenTris( void )
 {
 	// copy verts and indexes
-	srfTriangles_t* tri = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
+	crDrawGeometry* tri = ( crDrawGeometry* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
 	
-	tri->numIndexes = 6;
-	tri->numVerts = 4;
+	tri->NumIndexes() = 6;
+	tri->NumVerts() = 4;
 	
-	int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
+	int indexSize = tri->NumIndexes() * sizeof( tri->Indexes()[0] );
 	int allocatedIndexBytes = ALIGN( indexSize, 16 );
-	tri->indexes = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
+	tri->Indexes() = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
 	
-	int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
+	int vertexSize = tri->NumVerts() * sizeof( tri->Verts()[0] );
 	int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
-	tri->verts = ( idDrawVert* )Mem_ClearedAlloc16( allocatedVertexBytes, TAG_RENDER_TOOLS );
+	tri->Verts() = ( idDrawVert* )Mem_ClearedAlloc16( allocatedVertexBytes, TAG_RENDER_TOOLS );
 	
-	idDrawVert* verts = tri->verts;
+	idDrawVert* verts = tri->Verts();
 	
 	triIndex_t tempIndexes[6] = { 3, 0, 2, 2, 0, 1 };
-	std::memcpy( tri->indexes, tempIndexes, indexSize );
+	std::memcpy( tri->Indexes(), tempIndexes, indexSize );
 	
 	verts[0].xyz[0] = -1.0f;
 	verts[0].xyz[1] = 1.0f;
@@ -2248,22 +2248,22 @@ static srfTriangles_t* R_MakeFullScreenTris( void )
 R_MakeZeroOneCubeTris
 =============
 */
-static srfTriangles_t* R_MakeZeroOneCubeTris()
+static crDrawGeometry* R_MakeZeroOneCubeTris()
 {
-	srfTriangles_t* tri = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
+	crDrawGeometry* tri = ( crDrawGeometry* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
 	
-	tri->numVerts = 8;
-	tri->numIndexes = 36;
+	tri->NumVerts() = 8;
+	tri->NumIndexes() = 36;
 	
-	const int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
+	const int indexSize = tri->NumIndexes() * sizeof( tri->Indexes()[0] );
 	const int allocatedIndexBytes = ALIGN( indexSize, 16 );
-	tri->indexes = ( triIndex_t* )Mem_Alloc16( allocatedIndexBytes, TAG_RENDER_TOOLS );
+	tri->Indexes() = ( triIndex_t* )Mem_Alloc16( allocatedIndexBytes, TAG_RENDER_TOOLS );
 	
-	const int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
+	const int vertexSize = tri->NumVerts() * sizeof( tri->Verts()[0] );
 	const int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
-	tri->verts = ( idDrawVert* )Mem_ClearedAlloc16( allocatedVertexBytes, TAG_RENDER_TOOLS );
+	tri->Verts() = ( idDrawVert* )Mem_ClearedAlloc16( allocatedVertexBytes, TAG_RENDER_TOOLS );
 	
-	idDrawVert* verts = tri->verts;
+	idDrawVert* verts = tri->Verts();
 	
 	const float low = 0.0f;
 	const float high = 1.0f;
@@ -2286,47 +2286,47 @@ static srfTriangles_t* R_MakeZeroOneCubeTris()
 	verts[7].xyz = center + mx + py + pz;
 	
 	// bottom
-	tri->indexes[ 0 * 3 + 0] = 2;
-	tri->indexes[ 0 * 3 + 1] = 3;
-	tri->indexes[ 0 * 3 + 2] = 0;
-	tri->indexes[ 1 * 3 + 0] = 1;
-	tri->indexes[ 1 * 3 + 1] = 2;
-	tri->indexes[ 1 * 3 + 2] = 0;
+	tri->Indexes()[ 0 * 3 + 0] = 2;
+	tri->Indexes()[ 0 * 3 + 1] = 3;
+	tri->Indexes()[ 0 * 3 + 2] = 0;
+	tri->Indexes()[ 1 * 3 + 0] = 1;
+	tri->Indexes()[ 1 * 3 + 1] = 2;
+	tri->Indexes()[ 1 * 3 + 2] = 0;
 	// back
-	tri->indexes[ 2 * 3 + 0] = 5;
-	tri->indexes[ 2 * 3 + 1] = 1;
-	tri->indexes[ 2 * 3 + 2] = 0;
-	tri->indexes[ 3 * 3 + 0] = 4;
-	tri->indexes[ 3 * 3 + 1] = 5;
-	tri->indexes[ 3 * 3 + 2] = 0;
+	tri->Indexes()[ 2 * 3 + 0] = 5;
+	tri->Indexes()[ 2 * 3 + 1] = 1;
+	tri->Indexes()[ 2 * 3 + 2] = 0;
+	tri->Indexes()[ 3 * 3 + 0] = 4;
+	tri->Indexes()[ 3 * 3 + 1] = 5;
+	tri->Indexes()[ 3 * 3 + 2] = 0;
 	// left
-	tri->indexes[ 4 * 3 + 0] = 7;
-	tri->indexes[ 4 * 3 + 1] = 4;
-	tri->indexes[ 4 * 3 + 2] = 0;
-	tri->indexes[ 5 * 3 + 0] = 3;
-	tri->indexes[ 5 * 3 + 1] = 7;
-	tri->indexes[ 5 * 3 + 2] = 0;
+	tri->Indexes()[ 4 * 3 + 0] = 7;
+	tri->Indexes()[ 4 * 3 + 1] = 4;
+	tri->Indexes()[ 4 * 3 + 2] = 0;
+	tri->Indexes()[ 5 * 3 + 0] = 3;
+	tri->Indexes()[ 5 * 3 + 1] = 7;
+	tri->Indexes()[ 5 * 3 + 2] = 0;
 	// right
-	tri->indexes[ 6 * 3 + 0] = 1;
-	tri->indexes[ 6 * 3 + 1] = 5;
-	tri->indexes[ 6 * 3 + 2] = 6;
-	tri->indexes[ 7 * 3 + 0] = 2;
-	tri->indexes[ 7 * 3 + 1] = 1;
-	tri->indexes[ 7 * 3 + 2] = 6;
+	tri->Indexes()[ 6 * 3 + 0] = 1;
+	tri->Indexes()[ 6 * 3 + 1] = 5;
+	tri->Indexes()[ 6 * 3 + 2] = 6;
+	tri->Indexes()[ 7 * 3 + 0] = 2;
+	tri->Indexes()[ 7 * 3 + 1] = 1;
+	tri->Indexes()[ 7 * 3 + 2] = 6;
 	// front
-	tri->indexes[ 8 * 3 + 0] = 3;
-	tri->indexes[ 8 * 3 + 1] = 2;
-	tri->indexes[ 8 * 3 + 2] = 6;
-	tri->indexes[ 9 * 3 + 0] = 7;
-	tri->indexes[ 9 * 3 + 1] = 3;
-	tri->indexes[ 9 * 3 + 2] = 6;
+	tri->Indexes()[ 8 * 3 + 0] = 3;
+	tri->Indexes()[ 8 * 3 + 1] = 2;
+	tri->Indexes()[ 8 * 3 + 2] = 6;
+	tri->Indexes()[ 9 * 3 + 0] = 7;
+	tri->Indexes()[ 9 * 3 + 1] = 3;
+	tri->Indexes()[ 9 * 3 + 2] = 6;
 	// top
-	tri->indexes[10 * 3 + 0] = 4;
-	tri->indexes[10 * 3 + 1] = 7;
-	tri->indexes[10 * 3 + 2] = 6;
-	tri->indexes[11 * 3 + 0] = 5;
-	tri->indexes[11 * 3 + 1] = 4;
-	tri->indexes[11 * 3 + 2] = 6;
+	tri->Indexes()[10 * 3 + 0] = 4;
+	tri->Indexes()[10 * 3 + 1] = 7;
+	tri->Indexes()[10 * 3 + 2] = 6;
+	tri->Indexes()[11 * 3 + 0] = 5;
+	tri->Indexes()[11 * 3 + 1] = 4;
+	tri->Indexes()[11 * 3 + 2] = 6;
 	
 	for( int i = 0 ; i < 4 ; i++ )
 	{
@@ -2343,25 +2343,25 @@ R_MakeTestImageTriangles
 Initializes the Test Image Triangles
 ================
 */
-srfTriangles_t* R_MakeTestImageTriangles()
+crDrawGeometry* R_MakeTestImageTriangles()
 {
-	srfTriangles_t* tri = ( srfTriangles_t* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
+	crDrawGeometry* tri = ( crDrawGeometry* )Mem_ClearedAlloc( sizeof( *tri ), TAG_RENDER_TOOLS );
 	
-	tri->numIndexes = 6;
-	tri->numVerts = 4;
+	tri->NumIndexes() = 6;
+	tri->NumVerts() = 4;
 	
-	int indexSize = tri->numIndexes * sizeof( tri->indexes[0] );
+	int indexSize = tri->NumIndexes() * sizeof( tri->Indexes()[0] );
 	int allocatedIndexBytes = ALIGN( indexSize, 16 );
-	tri->indexes = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
+	tri->Indexes() = ( triIndex_t* )Mem_Alloc( allocatedIndexBytes, TAG_RENDER_TOOLS );
 	
-	int vertexSize = tri->numVerts * sizeof( tri->verts[0] );
+	int vertexSize = tri->NumVerts() * sizeof( tri->Verts()[0] );
 	int allocatedVertexBytes =  ALIGN( vertexSize, 16 );
-	tri->verts = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
+	tri->Verts() = ( idDrawVert* )Mem_ClearedAlloc( allocatedVertexBytes, TAG_RENDER_TOOLS );
 	
 	ALIGNTYPE16 triIndex_t tempIndexes[6] = { 3, 0, 2, 2, 0, 1 };
-	std::memcpy( tri->indexes, tempIndexes, indexSize );
+	std::memcpy( tri->Indexes(), tempIndexes, indexSize );
 	
-	idDrawVert* tempVerts = tri->verts;
+	idDrawVert* tempVerts = tri->Verts();
 	tempVerts[0].xyz[0] = 0.0f;
 
 	tempVerts[0].xyz[1] = 0.0f;

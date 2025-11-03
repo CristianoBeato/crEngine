@@ -899,13 +899,13 @@ static idDmapRenderModel* CombineModelSurfaces(idDmapRenderModel* model ) {
 		const dmapModelSurface_t*surf = model->Surface(i);
 		const srfDmapTriangles_t *tri = surf->geometry;
 
-		memcpy( verts + numVerts, tri->verts, tri->numVerts * sizeof( tri->verts[0] ) );
-		for ( j = 0 ; j < tri->numIndexes ; j++ ) {
-			indexes[numIndexes+j] = numVerts + tri->indexes[j];
+		memcpy( verts + numVerts, tri->Verts(), tri->NumVerts() * sizeof( tri->Verts()[0] ) );
+		for ( j = 0 ; j < tri->NumIndexes() ; j++ ) {
+			indexes[numIndexes+j] = numVerts + tri->Indexes()[j];
 		}
-		newTri->bounds.AddBounds( tri->bounds );
-		numIndexes += tri->numIndexes;
-		numVerts += tri->numVerts;
+		newTri->bounds.AddBounds( tri->Bounds() );
+		numIndexes += tri->NumIndexes();
+		numVerts += tri->NumVerts();
 	}
 
 	dmapModelSurface_t surf;

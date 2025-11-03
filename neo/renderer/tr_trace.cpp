@@ -364,15 +364,13 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 	if( d0 > 0.0f )
 	{
 		if( radiusSqr <= 0.0f )
-		{
 			return false;
-		}
+		
 		idVec3 edge = triVert0 - triVert1;
 		const float edgeLengthSqr = edge.LengthSqr();
 		if( cross0.LengthSqr() > edgeLengthSqr * radiusSqr )
-		{
 			return false;
-		}
+		
 		d0 = edge * dir0;
 		if( d0 < 0.0f )
 		{
@@ -381,9 +379,7 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 			if( d0 < 0.0f )
 			{
 				if( dir0.LengthSqr() > radiusSqr )
-				{
 					return false;
-				}
 			}
 		}
 		else if( d0 > edgeLengthSqr )
@@ -393,9 +389,7 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 			if( d0 < 0.0f )
 			{
 				if( dir1.LengthSqr() > radiusSqr )
-				{
 					return false;
-				}
 			}
 		}
 	}
@@ -407,15 +401,13 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 	if( d1 > 0.0f )
 	{
 		if( radiusSqr <= 0.0f )
-		{
 			return false;
-		}
+		
 		idVec3 edge = triVert1 - triVert2;
 		const float edgeLengthSqr = edge.LengthSqr();
 		if( cross1.LengthSqr() > edgeLengthSqr * radiusSqr )
-		{
 			return false;
-		}
+		
 		d1 = edge * dir1;
 		if( d1 < 0.0f )
 		{
@@ -424,9 +416,7 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 			if( d1 < 0.0f )
 			{
 				if( dir1.LengthSqr() > radiusSqr )
-				{
 					return false;
-				}
 			}
 		}
 		else if( d1 > edgeLengthSqr )
@@ -436,9 +426,7 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 			if( d1 < 0.0f )
 			{
 				if( dir2.LengthSqr() > radiusSqr )
-				{
 					return false;
-				}
 			}
 		}
 	}
@@ -448,15 +436,13 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 	if( d2 > 0.0f )
 	{
 		if( radiusSqr <= 0.0f )
-		{
 			return false;
-		}
+		
 		idVec3 edge = triVert2 - triVert0;
 		const float edgeLengthSqr = edge.LengthSqr();
 		if( cross2.LengthSqr() > edgeLengthSqr * radiusSqr )
-		{
 			return false;
-		}
+
 		d2 = edge * dir2;
 		if( d2 < 0.0f )
 		{
@@ -465,9 +451,7 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 			if( d2 < 0.0f )
 			{
 				if( dir2.LengthSqr() > radiusSqr )
-				{
 					return false;
-				}
 			}
 		}
 		else if( d2 > edgeLengthSqr )
@@ -477,9 +461,7 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 			if( d2 < 0.0f )
 			{
 				if( dir0.LengthSqr() > radiusSqr )
-				{
 					return false;
-				}
 			}
 		}
 	}
@@ -497,16 +479,17 @@ static bool R_LineIntersectsTriangleExpandedWithCircle( localTrace_t& hit, const
 R_LocalTrace
 ====================
 */
-localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float radius, const srfTriangles_t* tri )
+localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float radius, const crDrawGeometry* tri )
 {
 	localTrace_t hit;
 	hit.fraction = 1.0f;
 	
 	// Prevent Crashes when surface has no verticies. 
-	if( tri->numVerts == 0 )
+	if( tri->NumVerts() == 0 )
 		return hit;
 	
 	ALIGNTYPE16 idPlane planes[4];
+
 	// create two planes orthogonal to each other that intersect along the trace
 	idVec3 startDir = end - start;
 	startDir.Normalize();
@@ -520,35 +503,27 @@ localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float r
 	planes[3][3] = - end * planes[3].Normal();
 	
 	// catagorize each point against the four planes
-	byte* cullBits = ( byte* ) _alloca16( ALIGN( tri->numVerts, 4 ) );	// round up to a multiple of 4 for SIMD
+	byte* cullBits = ( byte* ) _alloca16( ALIGN( tri->NumVerts(), 4 ) );	// round up to a multiple of 4 for SIMD
 	byte totalOr = 0;
 	
-	const idJointMat* joints = ( tri->staticModelWithJoints != NULL && r_useGPUSkinning.GetBool() ) ? tri->staticModelWithJoints->jointsInverted : NULL;
-	if( joints != NULL )
-	{
-		R_TracePointCullSkinned( cullBits, totalOr, radius, planes, tri->verts, tri->numVerts, joints );
-	}
+	const idJointMat* joints = ( tri->StaticModelWithJoints() != nullptr && r_useGPUSkinning.GetBool() ) ? tri->StaticModelWithJoints()->jointsInverted : nullptr;
+	if( joints != nullptr )
+		R_TracePointCullSkinned( cullBits, totalOr, radius, planes, tri->Verts(), tri->NumVerts(), joints );
 	else
-	{
-		R_TracePointCullStatic( cullBits, totalOr, radius, planes, tri->verts, tri->numVerts );
-	}
+		R_TracePointCullStatic( cullBits, totalOr, radius, planes, tri->Verts(), tri->NumVerts() );
 	
 	// if we don't have points on both sides of both the ray planes, no intersection
 	if( ( totalOr ^ ( totalOr >> 4 ) ) & 3 )
-	{
 		return hit;
-	}
 	
 	// if we don't have any points between front and end, no intersection
 	if( ( totalOr ^ ( totalOr >> 1 ) ) & 4 )
-	{
 		return hit;
-	}
 	
 	// start streaming the indexes
-	idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 3 > indexesODS( tri->indexes, tri->numIndexes );
+	idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 3 > indexesODS( tri->Indexes(), tri->NumIndexes() );
 	
-	for( int i = 0; i < tri->numIndexes; )
+	for( int i = 0; i < tri->NumIndexes(); )
 	{
 	
 		const int nextNumIndexes = indexesODS.FetchNextBatch() - 3;
@@ -564,19 +539,15 @@ localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float r
 			
 			// if we don't have points on both sides of both the ray planes, no intersection
 			if( likely( ( triOr ^ ( triOr >> 4 ) ) & 3 ) )
-			{
 				continue;
-			}
 			
 			// if we don't have any points between front and end, no intersection
 			if( unlikely( ( triOr ^ ( triOr >> 1 ) ) & 4 ) )
-			{
 				continue;
-			}
 			
-			const idVec3 triVert0 = idDrawVert::GetSkinnedDrawVertPosition( idODSObject< idDrawVert > ( & tri->verts[i0] ), joints );
-			const idVec3 triVert1 = idDrawVert::GetSkinnedDrawVertPosition( idODSObject< idDrawVert > ( & tri->verts[i1] ), joints );
-			const idVec3 triVert2 = idDrawVert::GetSkinnedDrawVertPosition( idODSObject< idDrawVert > ( & tri->verts[i2] ), joints );
+			const idVec3 triVert0 = idDrawVert::GetSkinnedDrawVertPosition( idODSObject< idDrawVert > ( & tri->Verts()[i0] ), joints );
+			const idVec3 triVert1 = idDrawVert::GetSkinnedDrawVertPosition( idODSObject< idDrawVert > ( & tri->Verts()[i1] ), joints );
+			const idVec3 triVert2 = idDrawVert::GetSkinnedDrawVertPosition( idODSObject< idDrawVert > ( & tri->Verts()[i2] ), joints );
 			
 			if( R_LineIntersectsTriangleExpandedWithCircle( hit, start, end, radius, triVert0, triVert1, triVert2 ) )
 			{

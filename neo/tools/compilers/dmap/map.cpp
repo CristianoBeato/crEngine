@@ -515,7 +515,7 @@ static void FreeLightDefFrustum( idRenderLightLocal *ldef )
 	// free the frustum tris
 	if ( ldef->frustumTris ) 
 	{
-		R_FreeStaticTriSurf( ldef->frustumTris );
+		ldef->frustumTris->FreeStaticTriSurf();
 		ldef->frustumTris = nullptr;
 	}
 	
@@ -710,10 +710,10 @@ and optionally returns the polygon windings.
 The positive sides of the planes will be visible.
 =====================
 */
-static srfTriangles_t *PolytopeSurface( int numPlanes, const idPlane *planes, idWinding **windings ) 
+static crDrawGeometry *PolytopeSurface( int numPlanes, const idPlane *planes, idWinding **windings ) 
 {
 	int i = 0, j = 0;
-	srfTriangles_t *tri = nullptr;
+	crDrawGeometry *tri = nullptr;
 	idFixedWinding planeWindings[MAX_POLYTOPE_PLANES];
 	int numVerts = 0, numIndexes = 0;
 
@@ -748,9 +748,9 @@ static srfTriangles_t *PolytopeSurface( int numPlanes, const idPlane *planes, id
 	}
 
 	// allocate the surface
-	tri = R_AllocStaticTriSurf();
-	R_AllocStaticTriSurfVerts( tri, numVerts );
-	R_AllocStaticTriSurfIndexes( tri, numIndexes );
+	tri = new crDrawGeometry();
+	tri->AllocStaticTriSurfVerts( numVerts );
+	tri->AllocStaticTriSurfIndexes( numIndexes );
 
 	// copy the data from the windings
 	for ( i = 0; i < numPlanes; i++ ) 
@@ -761,19 +761,19 @@ static srfTriangles_t *PolytopeSurface( int numPlanes, const idPlane *planes, id
 		
 		for ( j = 0 ; j < w.GetNumPoints() ; j++ ) 
 		{
-			tri->verts[tri->numVerts + j ].Clear();
-			tri->verts[tri->numVerts + j ].xyz = w[j].ToVec3();
+			tri->Verts()[tri->NumVerts() + j ].Clear();
+			tri->Verts()[tri->NumVerts() + j ].xyz = w[j].ToVec3();
 		}
 
 		for ( j = 1 ; j < w.GetNumPoints() - 1 ; j++ ) 
 		{
-			tri->indexes[ tri->numIndexes + 0 ] = tri->numVerts;
-			tri->indexes[ tri->numIndexes + 1 ] = tri->numVerts + j;
-			tri->indexes[ tri->numIndexes + 2 ] = tri->numVerts + j + 1;
-			tri->numIndexes += 3;
+			tri->Indexes()[ tri->NumIndexes() + 0 ] = tri->NumVerts();
+			tri->Indexes()[ tri->NumIndexes() + 1 ] = tri->NumVerts() + j;
+			tri->Indexes()[ tri->NumIndexes() + 2 ] = tri->NumVerts() + j + 1;
+			tri->NumIndexes() += 3;
 		}
 		
-		tri->numVerts += w.GetNumPoints();
+		tri->NumVerts() += w.GetNumPoints();
 
 		// optionally save the winding
 		if ( windings ) 
@@ -783,7 +783,7 @@ static srfTriangles_t *PolytopeSurface( int numPlanes, const idPlane *planes, id
 		}
 	}
 
-	R_BoundTriSurf( tri );
+	tri->BoundTriSurf();
 
 	return tri;
 }

@@ -178,39 +178,37 @@ idRenderModel* idRenderWorldLocal::ParseModel( idLexer* src, const char* mapName
 		
 		( ( idMaterial* )surf.shader )->AddReference();
 		
-		srfTriangles_t* tri = R_AllocStaticTriSurf();
+		crDrawGeometry* tri = new crDrawGeometry();
 		surf.geometry = tri;
 		
-		tri->numVerts = src->ParseInt();
-		tri->numIndexes = src->ParseInt();
+		tri->NumVerts() = src->ParseInt();
+		tri->NumIndexes() = src->ParseInt();
 		
 		// parse the vertices
-		idTempArray<float> verts( tri->numVerts * 8 );
-		for( int j = 0; j < tri->numVerts; j++ )
+		idTempArray<float> verts( tri->NumVerts() * 8 );
+		for( int j = 0; j < tri->NumVerts(); j++ )
 		{
 			src->Parse1DMatrix( 8, &verts[j * 8] );
 		}
 		
 		// parse the indices
-		idTempArray<triIndex_t> indexes( tri->numIndexes );
-		for( int j = 0; j < tri->numIndexes; j++ )
+		idTempArray<triIndex_t> indexes( tri->NumIndexes() );
+		for( int j = 0; j < tri->NumIndexes(); j++ )
 		{
 			indexes[j] = src->ParseInt();
 		}
 		
 #if 1
 		// find the island that each vertex belongs to
-		idTempArray<int> vertIslands( tri->numVerts );
-		idTempArray<bool> trisVisited( tri->numIndexes );
+		idTempArray<int> vertIslands( tri->NumVerts() );
+		idTempArray<bool> trisVisited( tri->NumIndexes() );
 		vertIslands.Zero();
 		trisVisited.Zero();
 		int numIslands = 0;
-		for( int j = 0; j < tri->numIndexes; j += 3 )
+		for( int j = 0; j < tri->NumIndexes(); j += 3 )
 		{
 			if( trisVisited[j] )
-			{
 				continue;
-			}
 			
 			int islandNum = ++numIslands;
 			vertIslands[indexes[j + 0]] = islandNum;
@@ -223,12 +221,11 @@ idRenderModel* idRenderWorldLocal::ParseModel( idLexer* src, const char* mapName
 			for( int n = 0; n < queue.Num(); n++ )
 			{
 				int t = queue[n];
-				for( int k = 0; k < tri->numIndexes; k += 3 )
+				for( int k = 0; k < tri->NumIndexes(); k += 3 )
 				{
 					if( trisVisited[k] )
-					{
 						continue;
-					}
+					
 					bool connected =	indexes[t + 0] == indexes[k + 0] || indexes[t + 0] == indexes[k + 1] || indexes[t + 0] == indexes[k + 2] ||
 										indexes[t + 1] == indexes[k + 0] || indexes[t + 1] == indexes[k + 1] || indexes[t + 1] == indexes[k + 2] ||
 										indexes[t + 2] == indexes[k + 0] || indexes[t + 2] == indexes[k + 1] || indexes[t + 2] == indexes[k + 2];
@@ -251,7 +248,7 @@ idRenderModel* idRenderWorldLocal::ParseModel( idLexer* src, const char* mapName
 			float minT = idMath::INFINITY;
 			float maxS = -idMath::INFINITY;
 			float maxT = -idMath::INFINITY;
-			for( int k = 0; k < tri->numVerts; k++ )
+			for( int k = 0; k < tri->NumVerts(); k++ )
 			{
 				if( vertIslands[k] == j )
 				{
@@ -263,7 +260,7 @@ idRenderModel* idRenderWorldLocal::ParseModel( idLexer* src, const char* mapName
 			}
 			const float averageS = idMath::Ftoi( ( minS + maxS ) * 0.5f );
 			const float averageT = idMath::Ftoi( ( minT + maxT ) * 0.5f );
-			for( int k = 0; k < tri->numVerts; k++ )
+			for( int k = 0; k < tri->NumVerts(); k++ )
 			{
 				if( vertIslands[k] == j )
 				{
@@ -274,20 +271,20 @@ idRenderModel* idRenderWorldLocal::ParseModel( idLexer* src, const char* mapName
 		}
 #endif
 		
-		R_AllocStaticTriSurfVerts( tri, tri->numVerts );
-		for( int j = 0; j < tri->numVerts; j++ )
+		tri->AllocStaticTriSurfVerts( tri->NumVerts() );
+		for( int j = 0; j < tri->NumVerts(); j++ )
 		{
-			tri->verts[j].xyz[0] = verts[j * 8 + 0];
-			tri->verts[j].xyz[1] = verts[j * 8 + 1];
-			tri->verts[j].xyz[2] = verts[j * 8 + 2];
-			tri->verts[j].SetTexCoord( verts[j * 8 + 3], verts[j * 8 + 4] );
-			tri->verts[j].SetNormal( verts[j * 8 + 5], verts[j * 8 + 6], verts[j * 8 + 7] );
+			tri->Verts()[j].xyz[0] = verts[j * 8 + 0];
+			tri->Verts()[j].xyz[1] = verts[j * 8 + 1];
+			tri->Verts()[j].xyz[2] = verts[j * 8 + 2];
+			tri->Verts()[j].SetTexCoord( verts[j * 8 + 3], verts[j * 8 + 4] );
+			tri->Verts()[j].SetNormal( verts[j * 8 + 5], verts[j * 8 + 6], verts[j * 8 + 7] );
 		}
 		
-		R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
-		for( int j = 0; j < tri->numIndexes; j++ )
+		tri->AllocStaticTriSurfIndexes( tri->NumIndexes() );
+		for( int j = 0; j < tri->NumIndexes(); j++ )
 		{
-			tri->indexes[j] = indexes[j];
+			tri->Indexes()[j] = indexes[j];
 		}
 		src->ExpectTokenString( "}" );
 		
@@ -319,10 +316,9 @@ idRenderModel* idRenderWorldLocal::ReadBinaryShadowModel( idFile* fileIn )
 	idRenderModel* model = renderModelManager->AllocModel();
 	model->InitEmpty( name );
 	if( model->LoadBinaryModel( fileIn, mapTimeStamp ) )
-	{
 		return model;
-	}
-	return NULL;
+
+	return nullptr;
 }
 /*
 ================
@@ -348,43 +344,43 @@ idRenderModel* idRenderWorldLocal::ParseShadowModel( idLexer* src, idFile* fileO
 		fileOut->WriteString( token );
 	}
 	
-	srfTriangles_t* tri = R_AllocStaticTriSurf();
+	crDrawGeometry* tri = new crDrawGeometry();
 	
-	tri->numVerts = src->ParseInt();
-	tri->numShadowIndexesNoCaps = src->ParseInt();
-	tri->numShadowIndexesNoFrontCaps = src->ParseInt();
-	tri->numIndexes = src->ParseInt();
-	tri->shadowCapPlaneBits = src->ParseInt();
+	tri->NumVerts() = src->ParseInt();
+	tri->NumShadowIndexesNoCaps() = src->ParseInt();
+	tri->NumShadowIndexesNoFrontCaps() = src->ParseInt();
+	tri->NumIndexes() = src->ParseInt();
+	tri->ShadowCapPlaneBits() = src->ParseInt();
 	
-	assert( ( tri->numVerts & 1 ) == 0 );
+	assert( ( tri->NumVerts() & 1 ) == 0 );
 	
-	R_AllocStaticTriSurfPreLightShadowVerts( tri, ALIGN( tri->numVerts, 2 ) );
-	tri->bounds.Clear();
-	for( int j = 0; j < tri->numVerts; j++ )
+	tri->AllocStaticTriSurfPreLightShadowVerts( ALIGN( tri->NumVerts(), 2 ) );
+	tri->Bounds().Clear();
+	for( int j = 0; j < tri->NumVerts(); j++ )
 	{
 		float vec[8];
 		
 		src->Parse1DMatrix( 3, vec );
-		tri->preLightShadowVertexes[j].xyzw[0] = vec[0];
-		tri->preLightShadowVertexes[j].xyzw[1] = vec[1];
-		tri->preLightShadowVertexes[j].xyzw[2] = vec[2];
-		tri->preLightShadowVertexes[j].xyzw[3] = 1.0f;		// no homogenous value
+		tri->PreLightShadowVertexes()[j].xyzw[0] = vec[0];
+		tri->PreLightShadowVertexes()[j].xyzw[1] = vec[1];
+		tri->PreLightShadowVertexes()[j].xyzw[2] = vec[2];
+		tri->PreLightShadowVertexes()[j].xyzw[3] = 1.0f;		// no homogenous value
 		
-		tri->bounds.AddPoint( tri->preLightShadowVertexes[j].xyzw.ToVec3() );
+		tri->Bounds().AddPoint( tri->PreLightShadowVertexes()[j].xyzw.ToVec3() );
 	}
 	// clear the last vertex if it wasn't stored
-	if( ( tri->numVerts & 1 ) != 0 )
+	if( ( tri->NumVerts() & 1 ) != 0 )
 	{
-		tri->preLightShadowVertexes[ALIGN( tri->numVerts, 2 ) - 1].xyzw.Zero();
+		tri->PreLightShadowVertexes()[ALIGN( tri->NumVerts(), 2 ) - 1].xyzw.Zero();
 	}
 	
 	// to be consistent set the number of vertices to half the number of shadow vertices
-	tri->numVerts = ALIGN( tri->numVerts, 2 ) / 2;
+	tri->NumVerts() = ALIGN( tri->NumVerts(), 2 ) / 2;
 	
-	R_AllocStaticTriSurfIndexes( tri, tri->numIndexes );
-	for( int j = 0; j < tri->numIndexes; j++ )
+	tri->AllocStaticTriSurfIndexes( tri->NumIndexes() );
+	for( int j = 0; j < tri->NumIndexes(); j++ )
 	{
-		tri->indexes[j] = src->ParseInt();
+		tri->Indexes()[j] = src->ParseInt();
 	}
 	
 	// add the completed surface to the model

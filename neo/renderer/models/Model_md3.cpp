@@ -238,7 +238,7 @@ dynamicModel_t idRenderModelMD3::IsDynamicModel() const
 idRenderModelMD3::LerpMeshVertexes
 =================
 */
-void idRenderModelMD3::LerpMeshVertexes( srfTriangles_t* tri, const struct md3Surface_s* surf, const float backlerp, const int frame, const int oldframe ) const
+void idRenderModelMD3::LerpMeshVertexes( crDrawGeometry* tri, const struct md3Surface_s* surf, const float backlerp, const int frame, const int oldframe ) const
 {
 	short*	oldXyz, *newXyz;
 	float	oldXyzScale, newXyzScale;
@@ -259,13 +259,13 @@ void idRenderModelMD3::LerpMeshVertexes( srfTriangles_t* tri, const struct md3Su
 		for( vertNum = 0 ; vertNum < numVerts ; vertNum++, newXyz += 4 )
 		{
 		
-			idDrawVert* outvert = &tri->verts[tri->numVerts];
+			idDrawVert* outvert = &tri->Verts()[tri->NumVerts()];
 			
 			outvert->xyz.x = newXyz[0] * newXyzScale;
 			outvert->xyz.y = newXyz[1] * newXyzScale;
 			outvert->xyz.z = newXyz[2] * newXyzScale;
 			
-			tri->numVerts++;
+			tri->NumVerts()++;
 		}
 	}
 	else
@@ -280,14 +280,14 @@ void idRenderModelMD3::LerpMeshVertexes( srfTriangles_t* tri, const struct md3Su
 		for( vertNum = 0 ; vertNum < numVerts ; vertNum++, oldXyz += 4, newXyz += 4 )
 		{
 		
-			idDrawVert* outvert = &tri->verts[tri->numVerts];
+			idDrawVert* outvert = &tri->Verts()[tri->NumVerts()];
 			
 			// interpolate the xyz
 			outvert->xyz.x = oldXyz[0] * oldXyzScale + newXyz[0] * newXyzScale;
 			outvert->xyz.y = oldXyz[1] * oldXyzScale + newXyz[1] * newXyzScale;
 			outvert->xyz.z = oldXyz[2] * oldXyzScale + newXyz[2] * newXyzScale;
 			
-			tri->numVerts++;
+			tri->NumVerts()++;
 		}
 	}
 }
@@ -327,10 +327,10 @@ idRenderModel* idRenderModelMD3::InstantiateDynamicModel( const struct renderEnt
 	for( i = 0; i < md3->numSurfaces; i++ )
 	{
 	
-		srfTriangles_t* tri = R_AllocStaticTriSurf();
-		R_AllocStaticTriSurfVerts( tri, surface->numVerts );
-		R_AllocStaticTriSurfIndexes( tri, surface->numTriangles * 3 );
-		tri->bounds.Clear();
+		crDrawGeometry* tri = new crDrawGeometry();
+		tri->AllocStaticTriSurfVerts( surface->numVerts ); //R_AllocStaticTriSurfVerts( tri, surface->numVerts );
+		tri->AllocStaticTriSurfIndexes( surface->numTriangles * 3 ); //R_AllocStaticTriSurfIndexes( tri, surface->numTriangles * 3 );
+		tri->Bounds().Clear();
 		
 		modelSurface_t	surf;
 		
@@ -345,23 +345,23 @@ idRenderModel* idRenderModelMD3::InstantiateDynamicModel( const struct renderEnt
 		indexes = surface->numTriangles * 3;
 		for( j = 0 ; j < indexes ; j++ )
 		{
-			tri->indexes[j] = triangles[j];
+			tri->Indexes()[j] = triangles[j];
 		}
-		tri->numIndexes += indexes;
+		tri->NumIndexes() += indexes;
 		
 		const idVec2* texCoords = ( idVec2* )( ( byte* )surface + surface->ofsSt );
 		
 		numVerts = surface->numVerts;
 		for( j = 0; j < numVerts; j++ )
 		{
-			tri->verts[j].SetTexCoord( texCoords[j] );
+			tri->Verts()[j].SetTexCoord( texCoords[j] );
 		}
 		
-		R_BoundTriSurf( tri );
+		tri->BoundTriSurf();
 		
 		staticModel->AddSurface( surf );
-		staticModel->bounds.AddPoint( surf.geometry->bounds[0] );
-		staticModel->bounds.AddPoint( surf.geometry->bounds[1] );
+		staticModel->bounds.AddPoint( surf.geometry->Bounds()[0] );
+		staticModel->bounds.AddPoint( surf.geometry->Bounds()[1] );
 		
 		// find the next surface
 		surface = ( md3Surface_t* )( ( byte* )surface + surface->ofsEnd );
