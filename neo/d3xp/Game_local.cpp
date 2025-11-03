@@ -2123,7 +2123,7 @@ void idGameLocal::SpawnPlayer( int clientNum )
 	else
 	{
 		// precache the player
-		args.Set( "classname", gameLocal.world->spawnArgs.GetString( "def_player", "player_female" ) );
+		args.Set( "classname", gameLocal.world->spawnArgs.GetString( "def_player", "player_spawn" ) );
 	}
 	
 	// It's important that we increment numClients before calling SpawnEntityDef, because some
@@ -2133,7 +2133,7 @@ void idGameLocal::SpawnPlayer( int clientNum )
 		numClients = clientNum + 1;
 	}
 	
-	if( !SpawnEntityDef( args, &ent ) || clientNum >= MAX_GENTITIES || entities[ clientNum ] == NULL )
+	if( !SpawnEntityDef( args, &ent ) || clientNum >= MAX_GENTITIES || entities[ clientNum ] == nullptr )
 	{
 		Error( "Failed to spawn player as '%s'", args.GetString( "classname" ) );
 	}
