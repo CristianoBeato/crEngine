@@ -34,7 +34,7 @@ typedef struct primitive_s
 {
 	struct primitive_s *next;
 
-	// only one of these will be non-NULL
+	// only one of these will be non-nullptr
 	struct bspbrush_s *	brush;
 	struct mapTri_s *	tris;
 } primitive_t;
@@ -181,7 +181,7 @@ typedef struct node_s {
 
 typedef struct uPortal_s {
 	idPlane		plane;
-	node_t		*onnode;		// NULL = outside box
+	node_t		*onnode;		// nullptr = outside box
 	node_t		*nodes[2];		// [0] = front side of plane
 	struct uPortal_s	*next[2];
 	idWinding	*winding;
@@ -279,16 +279,13 @@ typedef struct {
 	shadowOptLevel_t	shadowOptLevel;
 	bool	noShadow;			// don't create optimized shadow volumes
 
-	idBounds	drawBounds;
-	bool	drawflag;
-
 	int		totalShadowTriangles;
 	int		totalShadowVerts;
 } dmapGlobals_t;
 
 extern dmapGlobals_t dmapGlobals;
 
-int FindFloatPlane( const idPlane &plane, bool *fixedDegeneracies = NULL );
+int FindFloatPlane( const idPlane &plane, bool *fixedDegeneracies = nullptr );
 
 
 //=============================================================================

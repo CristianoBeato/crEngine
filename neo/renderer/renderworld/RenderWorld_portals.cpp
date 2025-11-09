@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tr_local.h"
 
+#include "renderer/DebugDraw.hpp"
+
 // if we hit this many planes, we will just stop cropping the
 // view down, which is still correct, just conservative
 const int MAX_PORTAL_PLANES	= 20;
@@ -454,7 +456,7 @@ idRenderWorldLocal::PortalIsFoggedOut
 bool idRenderWorldLocal::PortalIsFoggedOut( const portal_t* p )
 {
 	idRenderLightLocal* ldef = p->doublePortal->fogLight;
-	if( ldef == NULL )
+	if( ldef == nullptr )
 	{
 		return false;
 	}
@@ -524,7 +526,7 @@ void idRenderWorldLocal::FloodViewThroughArea_r( const idVec3& origin, int areaN
 	}
 	
 	// go through all the portals
-	for( const portal_t* p = area->portals; p != NULL; p = p->next )
+	for( const portal_t* p = area->portals; p != nullptr; p = p->next )
 	{
 		// an enclosing door may have sealed the portal off
 		if( p->doublePortal->blockingBits & PS_BLOCK_VIEW )
@@ -542,7 +544,7 @@ void idRenderWorldLocal::FloodViewThroughArea_r( const idVec3& origin, int areaN
 		// make sure the portal isn't in our stack trace,
 		// which would cause an infinite loop
 		const portalStack_t* check = ps;
-		for( ; check != NULL; check = check->next )
+		for( ; check != nullptr; check = check->next )
 		{
 			if( check->p == p )
 			{
@@ -654,8 +656,8 @@ the planes pointing outside the volume. Zero planes assumes an unbounded volume.
 void idRenderWorldLocal::FlowViewThroughPortals( const idVec3& origin, int numPlanes, const idPlane* planes )
 {
 	portalStack_t ps;
-	ps.next = NULL;
-	ps.p = NULL;
+	ps.next = nullptr;
+	ps.p = nullptr;
 	
 	assert( numPlanes <= MAX_PORTAL_PLANES );
 	for( int i = 0; i < numPlanes; i++ )
@@ -729,7 +731,7 @@ void idRenderWorldLocal::BuildConnectedAreas()
 	}
 	
 	// start with none visible, and flood fill from the current area
-	memset( tr.viewDef->connectedAreas, 0, numPortalAreas * sizeof( tr.viewDef->connectedAreas[0] ) );
+	std::memset( tr.viewDef->connectedAreas, 0, numPortalAreas * sizeof( tr.viewDef->connectedAreas[0] ) );
 	BuildConnectedAreas_r( tr.viewDef->areaNum );
 }
 
@@ -757,8 +759,8 @@ void idRenderWorldLocal::FindViewLightsAndEntities()
 	tr.viewCount++;
 	
 	// clear the visible lightDef and entityDef lists
-	tr.viewDef->viewLights = NULL;
-	tr.viewDef->viewEntitys = NULL;
+	tr.viewDef->viewLights = nullptr;
+	tr.viewDef->viewEntitys = nullptr;
 	
 	// all areas are initially not visible, but each portal
 	// chain that leads to them will expand the visible rectangle
@@ -832,11 +834,11 @@ idRenderWorldLocal::FloodLightThroughArea_r
 void idRenderWorldLocal::FloodLightThroughArea_r( idRenderLightLocal* light, int areaNum,
 		const portalStack_t* ps )
 {
-	assert( ps != NULL ); // compiler warning
-	portal_t*		p = NULL;
+	assert( ps != nullptr ); // compiler warning
+	portal_t*		p = nullptr;
 	float			d;
-	portalArea_t* 	area = NULL;
-	const portalStack_t*	check = NULL, *firstPortalStack = NULL;
+	portalArea_t* 	area = nullptr;
+	const portalStack_t*	check = nullptr, *firstPortalStack = nullptr;
 	portalStack_t	newStack;
 	int				i, j;
 	idVec3			v1, v2;
@@ -975,7 +977,7 @@ void idRenderWorldLocal::FlowLightThroughPortals( idRenderLightLocal* light )
 	idRenderMatrix::GetFrustumPlanes( frustumPlanes, light->baseLightProject, true, true );
 	
 	portalStack_t ps;
-	memset( &ps, 0, sizeof( ps ) );
+	std::memset( &ps, 0, sizeof( ps ) );
 	ps.numPortalPlanes = 6;
 	for( int i = 0; i < 6; i++ )
 	{
@@ -1050,7 +1052,7 @@ void idRenderWorldLocal::FloodConnectedAreas( portalArea_t* area, int portalAttr
 	}
 	area->connectedAreaNum[portalAttributeIndex] = connectedAreaNum;
 	
-	for( portal_t* p = area->portals; p != NULL; p = p->next )
+	for( portal_t* p = area->portals; p != nullptr; p = p->next )
 	{
 		if( !( p->doublePortal->blockingBits & ( 1 << portalAttributeIndex ) ) )
 		{
@@ -1176,9 +1178,8 @@ void idRenderWorldLocal::ShowPortals()
 	{
 		area = &portalAreas[i];
 		if( area->viewCount != tr.viewCount )
-		{
 			continue;
-		}
+		
 		for( p = area->portals; p; p = p->next )
 		{
 			w = p->w;
@@ -1192,7 +1193,7 @@ void idRenderWorldLocal::ShowPortals()
 				// red = can't see
 				//GL_Color( 1, 0, 0 );
 				if( !r_showNvidiaHack.GetBool() )
-					glColor3f(1, 0, 0);
+					glDebugDraw::Color3f(1, 0, 0);
 				else
 					GL_Color( 1, 0, 0 );
 			}
@@ -1201,7 +1202,7 @@ void idRenderWorldLocal::ShowPortals()
 				// green = see through
 				//GL_Color( 0, 1, 0 );
 				if( !r_showNvidiaHack.GetBool() )
-					glColor3f(0, 1, 0);
+					glDebugDraw::Color3f(0, 1, 0);
 				else
 					GL_Color( 0, 1, 0 );
 			}
@@ -1210,12 +1211,14 @@ void idRenderWorldLocal::ShowPortals()
 			renderProgManager.CommitUniforms();
 			// RB end
 			
-			glBegin( GL_LINE_LOOP );
+			glDebugDraw::Begin( GL_LINE_LOOP );
+			
 			for( j = 0; j < w->GetNumPoints(); j++ )
 			{
-				glVertex3fv( ( *w )[j].ToFloatPtr() );
+				glDebugDraw::Vertex3fv( ( *w )[j].ToFloatPtr() );
 			}
-			glEnd();
+
+			glDebugDraw::End();
 		}
 	}
 }

@@ -90,6 +90,8 @@ PFNGLGETCOMPRESSEDTEXIMAGEPROC              	glGetCompressedTexImage = nullptr;
 // GL_ARB_map_buffer_range
 PFNGLMAPBUFFERRANGEPROC							glMapBufferRange = nullptr;
 
+PFNGLDRAWARRAYSPROC                          	glDrawArrays = nullptr;
+
 // GL_ARB_draw_elements_base_vertex
 PFNGLDRAWELEMENTSBASEVERTEXPROC  				glDrawElementsBaseVertex = nullptr;
 
@@ -97,6 +99,15 @@ PFNGLDRAWELEMENTSBASEVERTEXPROC  				glDrawElementsBaseVertex = nullptr;
 PFNGLGENVERTEXARRAYSPROC						glGenVertexArrays = nullptr;
 PFNGLBINDVERTEXARRAYPROC						glBindVertexArray = nullptr;
 PFNGLDELETEVERTEXARRAYSPROC                 	glDeleteVertexArrays = nullptr;
+
+//
+PFNGLCREATEVERTEXARRAYSPROC                  glCreateVertexArrays = nullptr;
+PFNGLDISABLEVERTEXARRAYATTRIBPROC            glDisableVertexArrayAttrib = nullptr;
+PFNGLENABLEVERTEXARRAYATTRIBPROC             glEnableVertexArrayAttrib = nullptr;
+PFNGLVERTEXARRAYELEMENTBUFFERPROC            glVertexArrayElementBuffer = nullptr;
+PFNGLVERTEXARRAYVERTEXBUFFERPROC             glVertexArrayVertexBuffer = nullptr;
+PFNGLVERTEXARRAYATTRIBBINDINGPROC            glVertexArrayAttribBinding = nullptr;
+PFNGLVERTEXARRAYATTRIBFORMATPROC             glVertexArrayAttribFormat = nullptr;
 
 // GL_ARB_vertex_program / GL_ARB_fragment_program
 //PFNGLPROGRAMSTRINGPROC						glProgramString;
@@ -188,22 +199,7 @@ PFNGLGETDEBUGMESSAGELOGPROC						glGetDebugMessageLog = nullptr;
 
 // TODO: Deprecate GL
 void ( APIENTRYP glRasterPos2f )( GLfloat x, GLfloat y );
-void ( APIENTRYP glOrtho )( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val );
-void ( APIENTRYP glBegin )( GLenum mode );
 void ( APIENTRYP glDrawPixels )(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
-void ( APIENTRYP glEnd )( void );
-void ( APIENTRYP glVertex3f )( GLfloat x, GLfloat y, GLfloat z );
-void ( APIENTRYP glVertex3fv )( const GLfloat *v );
-void ( APIENTRYP glColor4fv )( const GLfloat *v );
-void ( APIENTRYP glColor4ubv )(const GLubyte *v);
-void ( APIENTRYP glColor3f )( GLfloat red, GLfloat green, GLfloat blue );
-void ( APIENTRYP glColor3fv )( const GLfloat *v );
-void ( APIENTRYP glColor4f )(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-void ( APIENTRYP glLoadIdentity )( void );
-void ( APIENTRYP glPushMatrix )( void );
-void ( APIENTRYP glPopMatrix )(void);
-void ( APIENTRYP glMatrixMode )( GLenum mode );
-void ( APIENTRYP glLoadMatrixf )( const GLfloat *m );
 void ( APIENTRYP glPushAttrib )(GLbitfield mask);
 void ( APIENTRYP glPopAttrib )(void);
 void ( APIENTRYP glArrayElement )(GLint i);
@@ -572,6 +568,8 @@ bool QGL_Init( const char* dllname )
 	// GL_ARB_map_buffer_range
 	GET_GL_PROC( PFNGLMAPBUFFERRANGEPROC, glMapBufferRange );
 
+	GET_GL_PROC( PFNGLDRAWARRAYSPROC, glDrawArrays );
+
 	// GL_ARB_draw_elements_base_vertex
 	GET_GL_PROC( PFNGLDRAWELEMENTSBASEVERTEXPROC, glDrawElementsBaseVertex );
 
@@ -579,6 +577,14 @@ bool QGL_Init( const char* dllname )
 	GET_GL_PROC( PFNGLGENVERTEXARRAYSPROC, glGenVertexArrays );
 	GET_GL_PROC( PFNGLBINDVERTEXARRAYPROC, glBindVertexArray );
 	GET_GL_PROC( PFNGLDELETEVERTEXARRAYSPROC, glDeleteVertexArrays );
+
+	GET_GL_PROC( PFNGLCREATEVERTEXARRAYSPROC, glCreateVertexArrays );
+	GET_GL_PROC( PFNGLDISABLEVERTEXARRAYATTRIBPROC, glDisableVertexArrayAttrib );
+	GET_GL_PROC( PFNGLENABLEVERTEXARRAYATTRIBPROC, glEnableVertexArrayAttrib );
+	GET_GL_PROC( PFNGLVERTEXARRAYELEMENTBUFFERPROC, glVertexArrayElementBuffer );
+	GET_GL_PROC( PFNGLVERTEXARRAYVERTEXBUFFERPROC, glVertexArrayVertexBuffer );
+	GET_GL_PROC( PFNGLVERTEXARRAYATTRIBBINDINGPROC, glVertexArrayAttribBinding );
+	GET_GL_PROC( PFNGLVERTEXARRAYATTRIBFORMATPROC, glVertexArrayAttribFormat );
 
 	// GL_ARB_vertex_program / GL_ARB_fragment_program
 	GET_GL_PROC( PFNGLVERTEXATTRIBPOINTERPROC, glVertexAttribPointer );
@@ -669,22 +675,7 @@ bool QGL_Init( const char* dllname )
 
 	glRasterPos2f = (decltype(glRasterPos2f))SDL_GL_GetProcAddress( "glRasterPos2f" );
 
-	glOrtho = ( decltype( glOrtho ) )SDL_GL_GetProcAddress( "glOrtho" );
-	glBegin = ( decltype( glBegin ) )SDL_GL_GetProcAddress( "glBegin" );
 	glDrawPixels = ( decltype( glDrawPixels ) )SDL_GL_GetProcAddress( "glDrawPixels" );
-	glEnd = ( decltype( glEnd ) )SDL_GL_GetProcAddress( "glEnd" );
-	glVertex3f = ( decltype( glVertex3f ) )SDL_GL_GetProcAddress( "glVertex3f" );
-	glVertex3fv = ( decltype( glVertex3fv ) )SDL_GL_GetProcAddress( "glVertex3fv" );
-	glColor4fv = ( decltype( glColor4fv ) )SDL_GL_GetProcAddress( "glColor4fv" );
-	glColor4ubv = ( decltype( glColor4ubv ) )SDL_GL_GetProcAddress( "glColor4ubv" );
-	glColor3f = ( decltype( glColor3f ) )SDL_GL_GetProcAddress( "glColor3f" );
-	glColor3fv = ( decltype( glColor3fv ) )SDL_GL_GetProcAddress( "glColor3fv" );
-	glColor4f = ( decltype( glColor4f ) )SDL_GL_GetProcAddress( "glColor4f" );
-	glLoadIdentity = ( decltype( glLoadIdentity ) )SDL_GL_GetProcAddress( "glLoadIdentity" );
-	glPushMatrix = ( decltype( glPushMatrix ) )SDL_GL_GetProcAddress( "glPushMatrix" );
-	glPopMatrix = ( decltype( glPopMatrix ) )SDL_GL_GetProcAddress( "glPopMatrix" );
-	glMatrixMode = ( decltype( glMatrixMode ) )SDL_GL_GetProcAddress( "glMatrixMode" );
-	glLoadMatrixf = ( decltype( glLoadMatrixf ) )SDL_GL_GetProcAddress( "glLoadMatrixf" );
 	glPushAttrib = ( decltype( glPushAttrib ) )SDL_GL_GetProcAddress( "glPushAttrib" );
 	glPopAttrib = ( decltype( glPopAttrib ) )SDL_GL_GetProcAddress( "glPopAttrib" );
 	glArrayElement = ( decltype( glArrayElement ) )SDL_GL_GetProcAddress( "glArrayElement" );

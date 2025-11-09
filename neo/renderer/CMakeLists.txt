@@ -49,6 +49,8 @@ set( RENDERER_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/tr_trisurf.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/VertexCache.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/VertexCache.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/DebugDraw.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/DebugDraw.hpp
     )
 
 set( RENDERER_BACKEND_SOURCES 

@@ -146,7 +146,8 @@ bool ProcessModels( void ) {
 DmapHelp
 ============
 */
-void DmapHelp( void ) {
+void DmapHelp( void ) 
+{
 	common->Printf(
 		
 	"Usage: dmap [options] mapfile\n"
@@ -186,8 +187,12 @@ void ResetDmapGlobals( void )
 	dmapGlobals.noLightCarve = false;
 	dmapGlobals.noShadow = false;
 	dmapGlobals.shadowOptLevel = SO_NONE;
+// BEATO Begin:
+#if 0
 	dmapGlobals.drawBounds.Clear();
 	dmapGlobals.drawflag = false;
+#endif
+// BEATO End
 	dmapGlobals.totalShadowTriangles = 0;
 	dmapGlobals.totalShadowVerts = 0;
 }
@@ -247,12 +252,16 @@ void Dmap( const idCmdArgs &args )
 		{
 			common->Printf( "verbose = true\n" );
 			dmapGlobals.verbose = true;
-		} 
+		}
+// BEATO Begin:
+#if 0 
 		else if ( !idStr::Icmp( s, "draw" ) ) 
 		{
 			common->Printf( "drawflag = true\n" );
 			dmapGlobals.drawflag = true;
-		} 
+		}
+#endif
+// BEATO End 
 		else if ( !idStr::Icmp( s, "noFlood" ) ) 
 		{
 			common->Printf( "noFlood = true\n" );
@@ -432,7 +441,7 @@ void Dmap( const idCmdArgs &args )
 	//R_ShutdownTriSurfData();
 
 #ifdef _WIN32
-	//if ( com_outputMsg && com_hwndMsg != NULL ) {
+	//if ( com_outputMsg && com_hwndMsg != nullptr ) {
 	//	unsigned int msg = ::RegisterWindowMessage( DMAP_DONE );
 	//	::PostMessage( com_hwndMsg, msg, 0, 0 );
 	//}

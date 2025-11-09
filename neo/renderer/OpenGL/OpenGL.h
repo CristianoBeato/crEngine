@@ -102,6 +102,8 @@ extern PFNGLGETCOMPRESSEDTEXIMAGEPROC               glGetCompressedTexImage;
 // GL_ARB_map_buffer_range
 extern PFNGLMAPBUFFERRANGEPROC						glMapBufferRange;
 
+extern PFNGLDRAWARRAYSPROC                          glDrawArrays;
+
 // GL_ARB_draw_elements_base_vertex
 extern PFNGLDRAWELEMENTSBASEVERTEXPROC  			glDrawElementsBaseVertex;
 
@@ -109,6 +111,15 @@ extern PFNGLDRAWELEMENTSBASEVERTEXPROC  			glDrawElementsBaseVertex;
 extern PFNGLGENVERTEXARRAYSPROC						glGenVertexArrays;
 extern PFNGLBINDVERTEXARRAYPROC						glBindVertexArray;
 extern PFNGLDELETEVERTEXARRAYSPROC                  glDeleteVertexArrays;
+
+// TODO: Modernize
+extern PFNGLCREATEVERTEXARRAYSPROC                  glCreateVertexArrays;
+extern PFNGLDISABLEVERTEXARRAYATTRIBPROC            glDisableVertexArrayAttrib;
+extern PFNGLENABLEVERTEXARRAYATTRIBPROC             glEnableVertexArrayAttrib;
+extern PFNGLVERTEXARRAYELEMENTBUFFERPROC            glVertexArrayElementBuffer;
+extern PFNGLVERTEXARRAYVERTEXBUFFERPROC             glVertexArrayVertexBuffer;
+extern PFNGLVERTEXARRAYATTRIBBINDINGPROC            glVertexArrayAttribBinding;
+extern PFNGLVERTEXARRAYATTRIBFORMATPROC             glVertexArrayAttribFormat;
 
 // GL_ARB_vertex_program / GL_ARB_fragment_program
 //PFNGLPROGRAMSTRINGPROC					glProgramString;
@@ -203,22 +214,7 @@ extern PFNGLGETDEBUGMESSAGELOGPROC					glGetDebugMessageLog;
 
 // TODO: Deprecate GL
 extern void ( APIENTRYP glRasterPos2f )( GLfloat x, GLfloat y );
-extern void ( APIENTRYP glOrtho )( GLdouble left, GLdouble right, GLdouble bottom, GLdouble top, GLdouble near_val, GLdouble far_val );
-extern void ( APIENTRYP glBegin )( GLenum mode );
 extern void ( APIENTRYP glDrawPixels )(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
-extern void ( APIENTRYP glEnd )( void );
-extern void ( APIENTRYP glVertex3f )( GLfloat x, GLfloat y, GLfloat z );
-extern void ( APIENTRYP glVertex3fv )( const GLfloat *v );
-extern void ( APIENTRYP glColor4fv )( const GLfloat *v );
-extern void ( APIENTRYP glColor4ubv )(const GLubyte *v);
-extern void ( APIENTRYP glColor3f )( GLfloat red, GLfloat green, GLfloat blue );
-extern void ( APIENTRYP glColor3fv )( const GLfloat *v );
-extern void ( APIENTRYP glColor4f )(GLfloat red, GLfloat green, GLfloat blue, GLfloat alpha);
-extern void ( APIENTRYP glLoadIdentity )( void );
-extern void ( APIENTRYP glPushMatrix )( void );
-extern void ( APIENTRYP glPopMatrix )(void);
-extern void ( APIENTRYP glMatrixMode )( GLenum mode );
-extern void ( APIENTRYP glLoadMatrixf )( const GLfloat *m );
 extern void ( APIENTRYP glPushAttrib )(GLbitfield mask);
 extern void ( APIENTRYP glPopAttrib )(void);
 extern void ( APIENTRYP glArrayElement )(GLint i);
