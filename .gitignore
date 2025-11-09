@@ -3,3 +3,7 @@ base/generated_tools
 build
 build64
 .vscode 
+*.md5mesh
+*.md5anim
+*.bmd5anim
+*.blend
