@@ -53,12 +53,12 @@ const evarPrefix_t EvarPrefixes[] = {
 
 const int NumEvarPrefixes = sizeof(EvarPrefixes) / sizeof(evarPrefix_t);
 
-eclass_t	*eclass = NULL;
-eclass_t	*eclass_bad = NULL;
+eclass_t	*eclass = nullptr;
+eclass_t	*eclass_bad = nullptr;
 char		eclass_directory[1024];
 
 // md3 cache for misc_models
-eclass_t *g_md3Cache = NULL;
+eclass_t *g_md3Cache = nullptr;
 
 /*
 
@@ -80,7 +80,7 @@ void CleanEntityList( eclass_t *&pList ) {
 		delete pList;
 		pList = pTemp;
 	}
-	pList = NULL;
+	pList = nullptr;
 }
 
 
@@ -91,7 +91,7 @@ void CleanUpEntities()
 
 	if ( eclass_bad ) {
 		delete eclass_bad;
-		eclass_bad = NULL;
+		eclass_bad = nullptr;
 	}
 }
 
@@ -118,11 +118,11 @@ bool LoadModel(const char *pLocation, eclass_t *e, idVec3 &vMin, idVec3 &vMax, c
 	vMin[0] = vMin[1] = vMin[2] = 999999;
 	vMax[0] = vMax[1] = vMax[2] = -999999;
 
-	if (strstr(pLocation, ".ase") != NULL)	// FIXME: not correct!
+	if (strstr(pLocation, ".ase") != nullptr)	// FIXME: not correct!
 	{
 		idBounds b;
 		e->modelHandle = renderModelManager->FindModel( pLocation );
-		b = e->modelHandle->Bounds( NULL );
+		b = e->modelHandle->Bounds( nullptr );
 		VectorCopy(b[0], vMin);
 		VectorCopy(b[1], vMax);
 		return true;
@@ -133,21 +133,21 @@ bool LoadModel(const char *pLocation, eclass_t *e, idVec3 &vMin, idVec3 &vMax, c
 eclass_t *EClass_Alloc( void ) {
 	eclass_t *e;
 	e = new eclass_t;
-	if ( e == NULL ) {
-		return NULL;
+	if ( e == nullptr ) {
+		return nullptr;
 	}
 	e->fixedsize = false;
 	e->unknown = false;
 	e->mins.Zero();
 	e->maxs.Zero();
 	e->color.Zero();
-	memset( &e->texdef, 0, sizeof( e->texdef ) );
-	e->modelHandle = NULL;
-	e->entityModel = NULL;
+	std::memset( &e->texdef, 0, sizeof( e->texdef ) );
+	e->modelHandle = nullptr;
+	e->entityModel = nullptr;
 	e->nFrame = 0;
 	e->nShowFlags = 0;
 	e->hPlug = 0;
-	e->next = NULL;
+	e->next = nullptr;
 	return e;
 }
 
@@ -158,12 +158,12 @@ eclass_t *EClass_InitFromDict( const idDict *d, const char *name ) {
 
 	// only include entityDefs with "editor_" values in them
 	if ( !d->MatchPrefix( "editor_" ) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	e = EClass_Alloc();
 	if ( !e ) {
-		return NULL;
+		return nullptr;
 	}
 
 	e->defArgs = *d;
@@ -198,7 +198,7 @@ eclass_t *EClass_InitFromDict( const idDict *d, const char *name ) {
 	// concatenate all editor usage comments
 	text = "";
 	kv = d->MatchPrefix( "editor_usage" );
-	while( kv != NULL ) {
+	while( kv != nullptr ) {
 		text += kv->GetValue();
 		if ( !kv->GetValue().Length() || ( text[ text.Length() - 1 ] != '\n' ) ) {
 			text += "\n";
@@ -222,7 +222,7 @@ eclass_t *EClass_InitFromDict( const idDict *d, const char *name ) {
 	}
 
 /*
-	while( kv != NULL ) {
+	while( kv != nullptr ) {
 		kv->key.Right( kv->key.Length() - 11, varname );
 		str += va( "'%s':\t %s", varname.c_str(), kv->value.c_str() );
 		if ( d->GetString( varname, "", defaultStr ) && defaultStr.Length() ) {
@@ -407,7 +407,7 @@ eclass_t *Eclass_ForName (const char *name, bool has_brushes)
 
 	e = EClass_Alloc();
 	if ( !e ) {
-		return NULL;
+		return nullptr;
 	}
 	e->name = Mem_CopyString( name );
 	sprintf(buff, "%s not found in def/*.def\n", name);
@@ -426,9 +426,9 @@ eclass_t *Eclass_ForName (const char *name, bool has_brushes)
 
 eclass_t* GetCachedModel(entity_t *pEntity, const char *pName, idVec3 &vMin, idVec3 &vMax)
 {
-	eclass_t *e = NULL;
-	if (pName == NULL || strlen(pName) == 0) {
-		return NULL;
+	eclass_t *e = nullptr;
+	if (pName == nullptr || strlen(pName) == 0) {
+		return nullptr;
 	}
 
 	for (e = g_md3Cache; e ; e = e->next) {
@@ -441,15 +441,15 @@ eclass_t* GetCachedModel(entity_t *pEntity, const char *pName, idVec3 &vMin, idV
 	}
 
 	e = (eclass_t*)Mem_ClearedAlloc(sizeof(*e), TAG_RADIANT);
-	memset (e, 0, sizeof(*e));
+	std::memset (e, 0, sizeof(*e));
 	e->name = Mem_CopyString( pName );
 	e->color[0] = e->color[2] = 0.85f;
-	if (LoadModel(pName, e, vMin, vMax, NULL)) {
+	if (LoadModel(pName, e, vMin, vMax, nullptr)) {
 		EClass_InsertSortedList(g_md3Cache, e);
 		VectorCopy(vMin, e->mins);
 		VectorCopy(vMax, e->maxs);
 		pEntity->md3Class = e;
 		return e;
 	}
-	return NULL;
+	return nullptr;
 }

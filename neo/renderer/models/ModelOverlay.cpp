@@ -50,7 +50,7 @@ idRenderModelOverlay::idRenderModelOverlay() :
 	demoSerialWrite(0),
 	demoSerialCurrent( 0 )
 {
-	memset( overlays, 0, sizeof( overlays ) );
+	std::memset( overlays, 0, sizeof( overlays ) );
 }
 
 /*
@@ -101,7 +101,7 @@ void idRenderModelOverlay::FreeOverlay( overlay_t& overlay )
 	{
 		Mem_Free( overlay.indexes );
 	}
-	memset( &overlay, 0, sizeof( overlay ) );
+	std::memset( &overlay, 0, sizeof( overlay ) );
 }
 
 /*
@@ -347,7 +347,7 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel* model, const idPl
 		// start streaming the indexes
 		idODSStreamedArray< triIndex_t, 256, SBT_QUAD, 3 > indexesODS( tri->Indexes(), tri->NumIndexes() );
 		
-		memset( vertexRemap.Ptr(), -1, vertexRemap.Size() );
+		std::memset( vertexRemap.Ptr(), -1, vertexRemap.Size() );
 		int numIndexes = 0;
 		int numVerts = 0;
 		int maxReferencedVertex = 0;
@@ -413,10 +413,10 @@ void idRenderModelOverlay::CreateOverlay( const idRenderModel* model, const idPl
 		overlay.surfaceId = surf->id;
 		overlay.numIndexes = numIndexes;
 		overlay.indexes = (triIndex_t*)Mem_Alloc( numIndexes * sizeof( triIndex_t ), TAG_MODEL );
-		memcpy( overlay.indexes, overlayIndexes.Ptr(), numIndexes * sizeof( triIndex_t ) );
+		std::memcpy( overlay.indexes, overlayIndexes.Ptr(), numIndexes * sizeof( triIndex_t ) );
 		overlay.numVerts = numVerts;
 		overlay.verts = (overlayVertex_t*)Mem_Alloc( numVerts * sizeof( overlayVertex_t ), TAG_MODEL );
-		memcpy( overlay.verts, overlayVerts.Ptr(), numVerts * sizeof( overlayVertex_t ) );
+		std::memcpy( overlay.verts, overlayVerts.Ptr(), numVerts * sizeof( overlayVertex_t ) );
 		overlay.maxReferencedVertex = maxReferencedVertex;
 		overlay.writtenToDemo = false;
 		

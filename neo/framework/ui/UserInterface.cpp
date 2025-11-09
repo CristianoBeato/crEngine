@@ -124,7 +124,7 @@ void idUserInterfaceManagerLocal::SetSize( float width, float height )
 
 void idUserInterfaceManagerLocal::Preload( const char* mapName )
 {
-	if( mapName != NULL && mapName[ 0 ] != '\0' )
+	if( mapName != nullptr && mapName[ 0 ] != '\0' )
 	{
 		mapParser.LoadFromFile( va( "generated/guis/%s.bgui", mapName ) );
 	}
@@ -176,7 +176,7 @@ void idUserInterfaceManagerLocal::EndLevelLoad( const char* mapName )
 		}
 		common->UpdateLevelLoadPacifier(true,gProgress);
 	}
-	if( cvarSystem->GetCVarBool( "fs_buildresources" ) && mapName != NULL && mapName[ 0 ] != '\0' )
+	if( cvarSystem->GetCVarBool( "fs_buildresources" ) && mapName != nullptr && mapName[ 0 ] != '\0' )
 	{
 		mapParser.WriteToFile( va( "generated/guis/%s.bgui", mapName ) );
 		idFile* f = fileSystem->OpenFileRead( va( "generated/guis/%s.bgui", mapName ) );
@@ -196,7 +196,7 @@ void idUserInterfaceManagerLocal::Reload( bool all )
 	{
 		if( !all )
 		{
-			fileSystem->ReadFile( guis[i]->GetSourceFile(), NULL, &ts );
+			fileSystem->ReadFile( guis[i]->GetSourceFile(), nullptr, &ts );
 			if( ts <= guis[i]->GetTimeStamp() )
 			{
 				continue;
@@ -275,7 +275,7 @@ idUserInterface* idUserInterfaceManagerLocal::FindGui( const char* qpath, bool a
 	for( int i = 0; i < c; i++ )
 	{
 		idUserInterfaceLocal* gui = guis[i];
-		if( gui == NULL )
+		if( gui == nullptr )
 		{
 			continue;
 		}
@@ -309,7 +309,7 @@ idUserInterface* idUserInterfaceManagerLocal::FindGui( const char* qpath, bool a
 			delete gui;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 idUserInterface* idUserInterfaceManagerLocal::FindDemoGui( const char* qpath )
@@ -322,7 +322,7 @@ idUserInterface* idUserInterfaceManagerLocal::FindDemoGui( const char* qpath )
 			return demoGuis[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 idListGUI* 	idUserInterfaceManagerLocal::AllocListGUI() const
@@ -346,12 +346,12 @@ void idUserInterfaceManagerLocal::FreeListGUI( idListGUI* listgui )
 idUserInterfaceLocal::idUserInterfaceLocal()
 {
 	cursorX = cursorY = 0.0;
-	desktop = NULL;
+	desktop = nullptr;
 	loading = false;
 	active = false;
 	interactive = false;
 	uniqued = false;
-	bindHandler = NULL;
+	bindHandler = nullptr;
 	//so the reg eval in gui parsing doesn't get bogus values
 	time = 0;
 	refs = 1;
@@ -362,7 +362,7 @@ idUserInterfaceLocal::~idUserInterfaceLocal()
 	// foresthale 2014-05-29: editGUIs shutdown code doesn't remove the gui before it gets destroyed	
 	uiManagerLocal.guis.Remove( this ); // motorsep 06-02-2014 was introduced by foresthale, that's what crashes game (bug # 0000213)
 	delete desktop;
-	desktop = NULL;	
+	desktop = nullptr;	
 }
 
 const char* idUserInterfaceLocal::Name() const
@@ -402,7 +402,7 @@ bool idUserInterfaceLocal::InitFromFile( const char* qpath, bool rebuild, bool c
 		delete desktop;
 		desktop = new( TAG_OLD_UI ) idWindow( this );
 	}
-	else if( desktop == NULL )
+	else if( desktop == nullptr )
 	{
 		desktop = new( TAG_OLD_UI ) idWindow( this );
 	}
@@ -419,7 +419,7 @@ bool idUserInterfaceLocal::InitFromFile( const char* qpath, bool rebuild, bool c
 		{
 			trySource.Replace( "guis/", va( "guis/%s/", sys_lang.GetString() ) );
 		}
-		fileSystem->ReadFile( trySource, NULL, &timeStamp );
+		fileSystem->ReadFile( trySource, nullptr, &timeStamp );
 		if( timeStamp != FILE_NOT_FOUND_TIMESTAMP )
 		{
 			source = trySource;
@@ -433,7 +433,7 @@ bool idUserInterfaceLocal::InitFromFile( const char* qpath, bool rebuild, bool c
 		idParser src( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT );
 
 		//Load the timestamp so reload guis will work correctly
-		fileSystem->ReadFile(qpath, NULL, &timeStamp);
+		fileSystem->ReadFile(qpath, nullptr, &timeStamp);
 
 		src.LoadFile( qpath );
 
@@ -508,7 +508,7 @@ bool idUserInterfaceLocal::InitFromFile( const char* qpath, bool rebuild, bool c
 		}
 	}
 	interactive = desktop->Interactive();
-	if( uiManagerLocal.guis.Find( this ) == NULL )
+	if( uiManagerLocal.guis.Find( this ) == nullptr )
 	{
 		uiManagerLocal.guis.Append( this );
 	}
@@ -524,7 +524,7 @@ const char* idUserInterfaceLocal::HandleEvent( const sysEvent_t* event, int _tim
 	if( bindHandler && event->evType == SE_KEY && event->evValue2 == 1 )
 	{
 		const char* ret = bindHandler->HandleEvent( event, updateVisuals );
-		bindHandler = NULL;
+		bindHandler = nullptr;
 		return ret;
 	}
 	
@@ -685,7 +685,7 @@ void idUserInterfaceLocal::ReadFromDemoFile( class idDemoFile* f )
 	f->ReadDict( state );
 	source = state.GetString( "name" );
 	
-	if( desktop == NULL )
+	if( desktop == nullptr )
 	{
 		f->Log( "creating new gui\n" );
 		desktop = new( TAG_OLD_UI ) idWindow( this );

@@ -239,7 +239,7 @@ public:
 	///@brief find pointer to the given element
 	_type_* 		Find( _type_ const& obj ) const;					
 	
-	// find the index for the first NULL pointer in the list
+	// find the index for the first nullptr pointer in the list
 	int32_t			FindNull( void ) const;									
 	
 	///@brief returns the index for the pointer to an element in the list
@@ -370,7 +370,7 @@ Note that this only works on lists containing pointers to objects and will cause
 if called with non-pointers.  Since the list was not responsible for allocating the object, it has
 no information on whether the object still exists or not, so care must be taken to ensure that
 the pointers are still valid when this function is called.  Function will set all pointers in the
-list to NULL.
+list to nullptr.
 ================
 */
 template< typename _type_, memTag_t _tag_ >
@@ -601,7 +601,7 @@ ID_INLINE void idList<_type_, _tag_>::AssureSize( const uint32_t newSize )
 	if( newSize > size )
 	{
 	
-		if( granularity == 0 ) // this is a hack to fix our memset classes
+		if( granularity == 0 ) // this is a hack to fix our std::memset classes
 			granularity = 16;
 		
 		uint32_t newCapacity = newSize;
@@ -628,7 +628,7 @@ ID_INLINE void idList<_type_, _tag_>::AssureSize( const uint32_t newSize, const 
 	if( newSize > size )
 	{
 	
-		if( granularity == 0 )  	// this is a hack to fix our memset classes
+		if( granularity == 0 )  	// this is a hack to fix our std::memset classes
 			granularity = 16;
 		
 		uint32_t newCapacity = newSize;
@@ -664,7 +664,7 @@ ID_INLINE void idList<_type_, _tag_>::AssureSizeAlloc( const uint32_t newSize, n
 	if( newSize > size )
 	{
 	
-		if( granularity == 0 )  	// this is a hack to fix our memset classes
+		if( granularity == 0 )  	// this is a hack to fix our std::memset classes
 			granularity = 16;
 		
 		uint32_t newCapacity = newSize; 
@@ -791,7 +791,7 @@ idList<_type_,_tag_>::Ptr
 
 Returns a pointer to the begining of the array.  Useful for iterating through the list in loops.
 
-Note: may return NULL if the list is empty.
+Note: may return nullptr if the list is empty.
 
 FIXME: Create an iterator template for this kind of thing.
 ================
@@ -808,7 +808,7 @@ idList<_type_,_tag_>::Ptr
 
 Returns a pointer to the begining of the array.  Useful for iterating through the list in loops.
 
-Note: may return NULL if the list is empty.
+Note: may return nullptr if the list is empty.
 
 FIXME: Create an iterator template for this kind of thing.
 ================
@@ -857,7 +857,7 @@ ID_INLINE uint32_t idList<_type_, _tag_>::Append( _type_ const& obj )
 	{
 		uint32_t newsize;
 		
-		if( granularity == 0 )  	// this is a hack to fix our memset classes
+		if( granularity == 0 )  	// this is a hack to fix our std::memset classes
 			granularity = 16;
 		
 		newsize = size + granularity;
@@ -891,7 +891,7 @@ ID_INLINE uint32_t idList<_type_, _tag_>::Insert( _type_ const& obj, uint32_t in
 	{
 		int32_t newsize;
 		
-		if( granularity == 0 )  	// this is a hack to fix our memset classes
+		if( granularity == 0 )  	// this is a hack to fix our std::memset classes
 			granularity = 16;
 		
 		newsize = size + granularity;
@@ -925,7 +925,7 @@ ID_INLINE uint32_t idList<_type_, _tag_>::Append( const idList< _type_, _tag_ >&
 {
 	if( !list )
 	{
-		if( granularity == 0 )  	// this is a hack to fix our memset classes
+		if( granularity == 0 )  	// this is a hack to fix our std::memset classes
 			granularity = 16;
 		
 		Resize( granularity );
@@ -983,7 +983,7 @@ ID_INLINE int32_t idList<_type_, _tag_>::FindIndex( _type_ const& obj ) const
 ================
 idList<_type_,_tag_>::Find
 
-Searches for the specified data in the list and returns it's address. Returns NULL if the data is not found.
+Searches for the specified data in the list and returns it's address. Returns nullptr if the data is not found.
 ================
 */
 template< typename _type_, memTag_t _tag_ >
@@ -1001,7 +1001,7 @@ ID_INLINE _type_* idList<_type_, _tag_>::Find( _type_ const& obj ) const
 ================
 idList<_type_,_tag_>::FindNull
 
-Searches for a NULL pointer in the list.  Returns -1 if NULL is not found.
+Searches for a nullptr pointer in the list.  Returns -1 if nullptr is not found.
 
 NOTE: This function can only be called on lists containing pointers. Calling it
 on non-pointer lists will cause a compiler error.

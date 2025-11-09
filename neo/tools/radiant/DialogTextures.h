@@ -45,7 +45,7 @@ class CDialogTextures : public CDialog
 public:
 	enum { NONE, TEXTURES, MATERIALS, MODELS, SCRIPTS, SOUNDS, SOUNDPARENT, GUIS, PARTICLES, FX,NUMIDS };
 	static const char *TypeNames[NUMIDS];
-	CDialogTextures(CWnd* pParent = NULL);   // standard constructor
+	CDialogTextures(CWnd* pParent = nullptr);   // standard constructor
 	void OnCancel();
 	void CollapseEditor();
 	void SelectCurrentItem(bool collapse, const char *name, int id);

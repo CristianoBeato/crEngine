@@ -41,7 +41,7 @@ class DialogDeclEditor : public CDialog {
 	DECLARE_DYNAMIC(DialogDeclEditor)
 
 public:
-						DialogDeclEditor( CWnd* pParent = NULL );   // standard constructor
+						DialogDeclEditor( CWnd* pParent = nullptr );   // standard constructor
 	virtual				~DialogDeclEditor();
 
 	void				LoadDecl( idDecl *decl );

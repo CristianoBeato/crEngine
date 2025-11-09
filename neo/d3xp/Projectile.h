@@ -106,7 +106,7 @@ public :
 
 	struct simulatedProjectile_t
 	{
-		simulatedProjectile_t(): projectile( NULL ), startTime( 0 ) {}
+		simulatedProjectile_t(): projectile( nullptr ), startTime( 0 ) {}
 		idProjectile* projectile;
 		int	startTime;
 	};

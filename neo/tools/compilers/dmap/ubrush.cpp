@@ -83,7 +83,7 @@ uBrush_t *AllocBrush (int numsides)
 	c = BrushSizeForSides( numsides );
 
 	bb = (uBrush_t *)Mem_Alloc(c, TAG_DMAP);
-	memset (bb, 0, c);
+	std::memset (bb, 0, c);
 	c_active_brushes++;
 	return bb;
 }
@@ -143,7 +143,7 @@ uBrush_t *CopyBrush (uBrush_t *brush)
 	size = BrushSizeForSides( brush->numsides );
 
 	newbrush = AllocBrush (brush->numsides);
-	memcpy (newbrush, brush, size);
+	std::memcpy (newbrush, brush, size);
 
 	for (i=0 ; i<brush->numsides ; i++)
 	{
@@ -312,7 +312,7 @@ float BrushVolume (uBrush_t *brush) {
 
 	// grab the first valid point as the corner
 
-	w = NULL;
+	w = nullptr;
 	for ( i = 0; i < brush->numsides; i++ ) {
 		w = brush->sides[i].winding;
 		if (w)
@@ -474,7 +474,7 @@ tree_t *AllocTree (void)
 	tree_t	*tree;
 
 	tree = (tree_t *)Mem_Alloc(sizeof(*tree), TAG_DMAP);
-	memset (tree, 0, sizeof(*tree));
+	std::memset (tree, 0, sizeof(*tree));
 	tree->bounds.Clear();
 
 	return tree;
@@ -490,7 +490,7 @@ node_t *AllocNode (void)
 	node_t	*node;
 
 	node = (node_t *)Mem_Alloc(sizeof(*node), TAG_DMAP);
-	memset (node, 0, sizeof(*node));
+	std::memset (node, 0, sizeof(*node));
 
 	return node;
 }
@@ -548,7 +548,7 @@ void SplitBrush (uBrush_t *brush, int planenum, uBrush_t **front, uBrush_t **bac
 	side_t		*s, *cs;
 	float		d, d_front, d_back;
 
-	*front = *back = NULL;
+	*front = *back = nullptr;
 	idPlane &plane = dmapGlobals.mapPlanes[planenum];
 
 	// check all points
@@ -608,9 +608,9 @@ void SplitBrush (uBrush_t *brush, int planenum, uBrush_t **front, uBrush_t **bac
 
 	for ( i = 0; i < 2; i++ ) {
 		b[i] = AllocBrush (brush->numsides+1);
-		memcpy( b[i], brush, sizeof( uBrush_t ) - sizeof( brush->sides ) );
+		std::memcpy( b[i], brush, sizeof( uBrush_t ) - sizeof( brush->sides ) );
 		b[i]->numsides = 0;
-		b[i]->next = NULL;
+		b[i]->next = nullptr;
 		b[i]->original = brush->original;
 	}
 
@@ -652,7 +652,7 @@ void SplitBrush (uBrush_t *brush, int planenum, uBrush_t **front, uBrush_t **bac
 		if ( b[i]->numsides < 3 )
 		{
 			FreeBrush (b[i]);
-			b[i] = NULL;
+			b[i] = nullptr;
 		}
 	}
 
@@ -682,7 +682,7 @@ void SplitBrush (uBrush_t *brush, int planenum, uBrush_t **front, uBrush_t **bac
 		b[i]->numsides++;
 
 		cs->planenum = planenum^i^1;
-		cs->material = NULL;
+		cs->material = nullptr;
 		if (i==0)
 			cs->winding = midwinding->Copy();
 		else
@@ -699,7 +699,7 @@ void SplitBrush (uBrush_t *brush, int planenum, uBrush_t **front, uBrush_t **bac
 		if (v1 < 1.0)
 		{
 			FreeBrush (b[i]);
-			b[i] = NULL;
+			b[i] = nullptr;
 //			common->Printf ("tiny volume after clip\n");
 		}
 	}

@@ -43,7 +43,7 @@ class CCommandsDlg : public CDialog
 {
 // Construction
 public:
-	CCommandsDlg(CWnd* pParent = NULL);   // standard constructor
+	CCommandsDlg(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CCommandsDlg)

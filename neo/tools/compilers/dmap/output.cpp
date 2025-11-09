@@ -450,11 +450,11 @@ typedef struct interactionTris_s {
 		// surface, even though they couldn't be merged together to save
 		// vertexes because they had different planes, texture coordinates, or lights.
 		// Different mergeGroups will stay in separate surfaces.
-		ambient = NULL;
+		ambient = nullptr;
 
 		// each light that illuminates any of the groups in the surface will
 		// get its own list of indexes out of the original surface
-		interactions = NULL;
+		interactions = nullptr;
 
 		for ( groupStep = group ; groupStep ; groupStep = groupStep->nextGroup ) {
 			if ( groupStep->surfaceEmited ) {

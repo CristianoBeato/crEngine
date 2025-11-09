@@ -39,7 +39,7 @@ idCVar com_assertOutOfDebugger( "com_assertOutOfDebugger", "0", CVAR_BOOL, "by d
 struct skippedAssertion_t
 {
 	skippedAssertion_t() :
-		file( NULL ),
+		file( nullptr ),
 		line( -1 )
 	{
 	}

@@ -97,7 +97,7 @@ public:
 	void					Detach					( void );
 
 	bool					NewFile					( void );
-	bool					LoadFile				( const char* filename, idStr* error = NULL );
+	bool					LoadFile				( const char* filename, idStr* error = nullptr );
 	bool					SaveFile				( const char* filename );
 	const char*				GetFilename				( void );
 
@@ -251,7 +251,7 @@ protected:
 
 private:
 
-	void						PasteClipboardItem(rvGEClipboardItem *item, idWindow *parent, rvGEModifierGroup* group, idWindow *before=NULL);
+	void						PasteClipboardItem(rvGEClipboardItem *item, idWindow *parent, rvGEModifierGroup* group, idWindow *before=nullptr);
 	static rvGEClipboardItem*	CreateClipboardItem(idWindow *window);
 
 	static bool				CleanupEnumProc			( rvGEWindowWrapper* wrapper, void* data );

@@ -71,7 +71,7 @@ toolTip_t DialogAFConstraintUniversal::toolTips[] = {
 	{ IDC_EDIT_UNIVERSAL_LIMIT_CONE_ANGLE, "cone angle" },
 	{ IDC_EDIT_UNIVERSAL_LIMIT_PYRAMID_ANGLE1, "first pyramid angle" },
 	{ IDC_EDIT_UNIVERSAL_LIMIT_PYRAMID_ANGLE2, "second pyramid angle" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFConstraintUniversal, CDialog)
@@ -81,7 +81,7 @@ IMPLEMENT_DYNAMIC(DialogAFConstraintUniversal, CDialog)
 DialogAFConstraintUniversal::DialogAFConstraintUniversal
 ================
 */
-DialogAFConstraintUniversal::DialogAFConstraintUniversal(CWnd* pParent /*=NULL*/)
+DialogAFConstraintUniversal::DialogAFConstraintUniversal(CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogAFConstraintUniversal::IDD, pParent)
 	, m_anchor_x(0)
 	, m_anchor_y(0)
@@ -96,8 +96,8 @@ DialogAFConstraintUniversal::DialogAFConstraintUniversal(CWnd* pParent /*=NULL*/
 	, m_limitPitch(0)
 	, m_limitYaw(0)
 	, m_limitRoll(0)
-	, constraint(NULL)
-	, file(NULL)
+	, constraint(nullptr)
+	, file(nullptr)
 {
 	Create( IDD_DIALOG_AF_CONSTRAINT_UNIVERSAL, pParent );
 	EnableToolTips( TRUE );
@@ -185,7 +185,7 @@ DialogAFConstraintUniversal::LoadFile
 */
 void DialogAFConstraintUniversal::LoadFile( idDeclAF *af ) {
 	file = af;
-	constraint = NULL;
+	constraint = nullptr;
 	InitJointLists();
 }
 

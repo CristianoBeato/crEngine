@@ -78,7 +78,7 @@ struct surfaceInteraction_t
 	// shadow volume triangle surface
 	int						numShadowIndexes;
 	int						numShadowIndexesNoCaps;	// if the view is outside the shadow, this can be used
-	triIndex_t* 			shadowIndexes;			// only != NULL if KEEP_INTERACTION_CPU_DATA is defined
+	triIndex_t* 			shadowIndexes;			// only != nullptr if KEEP_INTERACTION_CPU_DATA is defined
 	vertCacheHandle_t		shadowIndexCache;
 };
 
@@ -94,12 +94,12 @@ public:
 	int						numSurfaces;
 	
 	// if there is a whole-entity optimized shadow hull, it will
-	// be present as a surfaceInteraction_t with a NULL ambientTris, but
+	// be present as a surfaceInteraction_t with a nullptr ambientTris, but
 	// possibly having a shader to specify the shadow sorting order
 	// (FIXME: actually try making shadow hulls?  we never did.)
 	surfaceInteraction_t* 	surfaces;
 	
-	// get space from here, if NULL, it is a pre-generated shadow volume from dmap
+	// get space from here, if nullptr, it is a pre-generated shadow volume from dmap
 	idRenderEntityLocal* 	entityDef;
 	idRenderLightLocal* 	lightDef;
 	

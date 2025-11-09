@@ -298,7 +298,7 @@ void Select_AutoCaulk()
 			// and call some other junk that Radiant wants so so we can use it later...
 			//
 			texdef_t tex;
-			memset (&tex, 0, sizeof(tex));
+			std::memset (&tex, 0, sizeof(tex));
 			tex.scale[0] = 1;
 			tex.scale[1] = 1;
 			//tex.flags = pCaulk->flags;	// field missing in Q4

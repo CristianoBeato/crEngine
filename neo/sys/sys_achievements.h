@@ -95,8 +95,8 @@ public:
 	// Should be done every frame
 	virtual void	Pump() = 0;
 	
-	// Cancels all in-flight achievements for all users if NULL, resets the system so a Init() must be re-issued
-	virtual void	Reset( idLocalUser* user = NULL ) {}
+	// Cancels all in-flight achievements for all users if nullptr, resets the system so a Init() must be re-issued
+	virtual void	Reset( idLocalUser* user = nullptr ) {}
 	
 	// Cancels all in-flight achievements, not very useful on PC
 	virtual void	Cancel( idLocalUser* user ) {}

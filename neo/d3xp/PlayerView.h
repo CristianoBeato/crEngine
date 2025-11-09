@@ -155,7 +155,7 @@ protected:
 public:
 	FullscreenFX()
 	{
-		fxman = NULL;
+		fxman = nullptr;
 	};
 	virtual					~FullscreenFX()							{ };
 	

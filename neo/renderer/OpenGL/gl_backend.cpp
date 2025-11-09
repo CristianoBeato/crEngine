@@ -247,7 +247,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 	static idImage* stereoRenderImages[2];
 	for( int i = 0; i < 2; i++ )
 	{
-		if( stereoRenderImages[i] == NULL )
+		if( stereoRenderImages[i] == nullptr )
 		{
 			stereoRenderImages[i] = globalImages->ImageFromFunction( va( "_stereoRender%i", i ), R_MakeStereoRenderImage );
 		}
@@ -280,7 +280,7 @@ void RB_StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds 
 		renderProgManager.Unbind();
 		renderProgManager.ZeroUniforms();
 		
-		for( const emptyCommand_t* cmds = allCmds; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
+		for( const emptyCommand_t* cmds = allCmds; cmds != nullptr; cmds = ( const emptyCommand_t* )cmds->next )
 		{
 			switch( cmds->commandId )
 			{
@@ -578,7 +578,7 @@ void RB_ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	// performance penalty.
 	glDrawBuffer( GL_BACK );
 	
-	for( ; cmds != NULL; cmds = ( const emptyCommand_t* )cmds->next )
+	for( ; cmds != nullptr; cmds = ( const emptyCommand_t* )cmds->next )
 	{
 		switch( cmds->commandId )
 		{

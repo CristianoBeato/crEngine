@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 // patch stuff
 patchMesh_t* MakeNewPatch(int width, int height);
 brush_t* AddBrushForPatch(patchMesh_t *pm, bool bLinkToWorld = true);
-brush_t* Patch_GenericMesh(int nWidth, int nHeight, int nOrientation = 2, bool bDeleteSource = true, bool bOverride = false, patchMesh_t *parent = NULL);
+brush_t* Patch_GenericMesh(int nWidth, int nHeight, int nOrientation = 2, bool bDeleteSource = true, bool bOverride = false, patchMesh_t *parent = nullptr);
 void Patch_ReadFile (char *name);
 void Patch_WriteFile (char *name); 
 void Patch_BuildPoints (brush_t *b);

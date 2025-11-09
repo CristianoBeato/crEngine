@@ -61,7 +61,7 @@ void	Map_RegionBrush (void);
 void	Map_RegionSelectedBrushes (void);
 bool	Map_IsBrushFiltered (brush_t *b);
 
-void	Map_SaveSelected(CMemFile* pMemFile, CMemFile* pPatchFile = NULL);
+void	Map_SaveSelected(CMemFile* pMemFile, CMemFile* pPatchFile = nullptr);
 void	Map_ImportBuffer (char* buf, bool renameEntities = true);
 int		Map_GetUniqueEntityID(const char *prefix, const char *eclass);
 

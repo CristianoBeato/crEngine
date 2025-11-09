@@ -49,8 +49,8 @@ idIK::idIK()
 {
 	ik_activate = false;
 	initialized = false;
-	self = NULL;
-	animator = NULL;
+	self = nullptr;
+	animator = nullptr;
 	modifiedAnim = 0;
 	modelOffset.Zero();
 }
@@ -74,7 +74,7 @@ void idIK::Save( idSaveGame* savefile ) const
 	savefile->WriteBool( initialized );
 	savefile->WriteBool( ik_activate );
 	savefile->WriteObject( self );
-	savefile->WriteString( animator != NULL && animator->GetAnim( modifiedAnim ) ? animator->GetAnim( modifiedAnim )->Name() : "" );
+	savefile->WriteString( animator != nullptr && animator->GetAnim( modifiedAnim ) ? animator->GetAnim( modifiedAnim )->Name() : "" );
 	savefile->WriteVec3( modelOffset );
 }
 
@@ -96,7 +96,7 @@ void idIK::Restore( idRestoreGame* savefile )
 	if( self )
 	{
 		animator = self->GetAnimator();
-		if( animator == NULL || animator->ModelDef() == NULL )
+		if( animator == nullptr || animator->ModelDef() == nullptr )
 		{
 			gameLocal.Warning( "idIK::Restore: IK for entity '%s' at (%s) has no model set.",
 							   self->name.c_str(), self->GetPhysics()->GetOrigin().ToString( 0 ) );
@@ -111,7 +111,7 @@ void idIK::Restore( idRestoreGame* savefile )
 	}
 	else
 	{
-		animator = NULL;
+		animator = nullptr;
 		modifiedAnim = 0;
 	}
 }
@@ -135,7 +135,7 @@ bool idIK::Init( idEntity* self, const char* anim, const idVec3& modelOffset )
 {
 	idRenderModel* model;
 	
-	if( self == NULL )
+	if( self == nullptr )
 	{
 		return false;
 	}
@@ -143,20 +143,20 @@ bool idIK::Init( idEntity* self, const char* anim, const idVec3& modelOffset )
 	this->self = self;
 	
 	animator = self->GetAnimator();
-	if( animator == NULL || animator->ModelDef() == NULL )
+	if( animator == nullptr || animator->ModelDef() == nullptr )
 	{
 		gameLocal.Warning( "idIK::Init: IK for entity '%s' at (%s) has no model set.",
 						   self->name.c_str(), self->GetPhysics()->GetOrigin().ToString( 0 ) );
 		return false;
 	}
-	if( animator->ModelDef()->ModelHandle() == NULL )
+	if( animator->ModelDef()->ModelHandle() == nullptr )
 	{
 		gameLocal.Warning( "idIK::Init: IK for entity '%s' at (%s) uses default model.",
 						   self->name.c_str(), self->GetPhysics()->GetOrigin().ToString( 0 ) );
 		return false;
 	}
 	model = animator->ModelHandle();
-	if( model == NULL )
+	if( model == nullptr )
 	{
 		gameLocal.Warning( "idIK::Init: IK for entity '%s' at (%s) has no model set.",
 						   self->name.c_str(), self->GetPhysics()->GetOrigin().ToString( 0 ) );
@@ -263,7 +263,7 @@ idIK_Walk::idIK_Walk()
 	int i;
 	
 	initialized = false;
-	footModel = NULL;
+	footModel = nullptr;
 	numLegs = 0;
 	enabledLegs = 0;
 	for( i = 0; i < MAX_LEGS; i++ )
@@ -707,7 +707,7 @@ void idIK_Walk::Evaluate()
 	for( i = 0; i < phys->GetNumContacts(); i++ )
 	{
 		idEntity* ent = gameLocal.entities[ phys->GetContact( i ).entityNum ];
-		if( ent != NULL && ent->IsType( idPlat::Type ) )
+		if( ent != nullptr && ent->IsType( idPlat::Type ) )
 		{
 			onPlat = true;
 			break;

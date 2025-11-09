@@ -64,7 +64,7 @@ public:
 	{
 		return idWindow::Allocated();
 	};
-	virtual idWinVar*	GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = NULL );
+	virtual idWinVar*	GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = nullptr );
 	
 	void				UpdateList();
 	

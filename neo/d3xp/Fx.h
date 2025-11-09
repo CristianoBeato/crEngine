@@ -82,7 +82,7 @@ public:
 	virtual void			ClientPredictionThink();
 	
 	// foresthale 20140402: added decalDir so that StartFx can pass it to FX_DECAL
-	static idEntityFx* 		StartFx( const char* fx, const idVec3* useOrigin, const idMat3* useAxis, idEntity* ent, bool bind, const idVec3* useDecalDir = NULL );
+	static idEntityFx* 		StartFx( const char* fx, const idVec3* useOrigin, const idMat3* useAxis, idEntity* ent, bool bind, const idVec3* useDecalDir = nullptr );
 	
 protected:
 	void					Event_Trigger( idEntity* activator );

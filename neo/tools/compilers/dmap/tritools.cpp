@@ -34,7 +34,7 @@ If you have questions concerning this license or the applicable additional terms
 
 /*
 
-  All triangle list functions should behave reasonably with NULL lists.
+  All triangle list functions should behave reasonably with nullptr lists.
 
 */
 
@@ -47,7 +47,7 @@ mapTri_t	*AllocTri( void ) {
 	mapTri_t	*tri;
 
 	tri = (mapTri_t *)Mem_Alloc( sizeof( *tri ), TAG_DMAP );
-	memset( tri, 0, sizeof( *tri ) );
+	std::memset( tri, 0, sizeof( *tri ) );
 	return tri;
 }
 
@@ -105,7 +105,7 @@ mapTri_t	*CopyTriList( const mapTri_t *a ) {
 	mapTri_t	*testList;
 	const mapTri_t	*tri;
 
-	testList = NULL;
+	testList = nullptr;
 	for ( tri = a ; tri ; tri = tri->next ) {
 		mapTri_t	*copy;
 
@@ -171,7 +171,7 @@ mapTri_t	*RemoveBadTris( const mapTri_t *list ) {
 	mapTri_t	*copy;
 	const mapTri_t	*tri;
 
-	newList = NULL;
+	newList = nullptr;
 
 	for ( tri = list ; tri ; tri = tri->next ) {
 		if ( MapTriArea( tri ) > 0 ) {
@@ -325,7 +325,7 @@ WindingToTriList
 Generates a new list of triangles with proper texcoords from a winding
 created by clipping the originalTri
 
-OriginalTri can be NULL if you don't care about texCoords
+OriginalTri can be nullptr if you don't care about texCoords
 ================
 */
 mapTri_t *WindingToTriList( const idWinding *w, const mapTri_t *originalTri ) {
@@ -341,7 +341,7 @@ mapTri_t *WindingToTriList( const idWinding *w, const mapTri_t *originalTri ) {
 	for ( i = 2 ; i < w->GetNumPoints() ; i++ ) {
 		tri = AllocTri();
 		if ( !originalTri ) {
-			memset( tri, 0, sizeof( *tri ) );
+			std::memset( tri, 0, sizeof( *tri ) );
 		} else {
 			*tri = *originalTri;
 		}
@@ -379,8 +379,8 @@ void	ClipTriList( const mapTri_t *list, const idPlane &plane, float epsilon,
 	mapTri_t		*newList;
 	idWinding		*w, *frontW, *backW;
 
-	*front = NULL;
-	*back = NULL;
+	*front = nullptr;
+	*back = nullptr;
 
 	for ( tri = list ; tri ; tri = tri->next ) {
 		w = WindingForTri( tri );

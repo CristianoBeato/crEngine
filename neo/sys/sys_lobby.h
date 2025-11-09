@@ -213,8 +213,8 @@ public:
 			numResources			= 0;
 			lastHeartBeat			= 0;
 			connectionState			= CONNECTION_FREE;
-			packetProc				= NULL;
-			snapProc				= NULL;
+			packetProc				= nullptr;
+			snapProc				= nullptr;
 			nextPing				= 0; // do it asap
 			lastPingRtt				= 0;
 			sessionID				= idPacketProcessor::SESSION_ID_INVALID;
@@ -273,7 +273,7 @@ public:
 			bandwidthChallengeStartSendTime = 0;
 			bandwidthChallengeResults	= false;
 			bandwidthChallengeSendComplete = false;
-			memset( sentBpsHistory, 0, sizeof( sentBpsHistory ) );
+			std::memset( sentBpsHistory, 0, sizeof( sentBpsHistory ) );
 			receivedBpsIndex = 0;
 			
 			debugGraphs.Clear();
@@ -299,7 +299,7 @@ public:
 			pauseSnapshots			= false;
 			
 			// Reset the snapshot processor
-			if( snapProc != NULL )
+			if( snapProc != nullptr )
 			{
 				snapProc->Reset( false );
 			}
@@ -416,11 +416,11 @@ public:
 	virtual bool						AllPeersInGame() const;
 	lobbyUser_t* 						GetLobbyUser( int index )
 	{
-		return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : NULL;
+		return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : nullptr;
 	}
 	const lobbyUser_t* 					GetLobbyUser( int index ) const
 	{
-		return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : NULL;
+		return ( index >= 0 && index < GetNumLobbyUsers() ) ? userList[index] : nullptr;
 	}
 	
 	virtual bool						IsLobbyUserConnected( int index ) const
@@ -531,7 +531,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	void								SendGoodbye( const lobbyAddress_t& remoteAddress, bool wasFull = false );
 	void								QueueReliableMessage( int peerNum, byte type )
 	{
-		QueueReliableMessage( peerNum, type, NULL, 0 );
+		QueueReliableMessage( peerNum, type, nullptr, 0 );
 	}
 	void								QueueReliableMessage( int p, byte type, const byte* data, int dataLen );
 	virtual int							GetNumConnectedPeers() const;
@@ -544,7 +544,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	
 	void								SendConnectionLess( const lobbyAddress_t& remoteAddress, byte type )
 	{
-		SendConnectionLess( remoteAddress, type, NULL, 0 );
+		SendConnectionLess( remoteAddress, type, nullptr, 0 );
 	}
 	void								SendConnectionLess( const lobbyAddress_t& remoteAddress, byte type, const byte* data, int dataLen );
 	void								SendConnectionRequest();
@@ -625,7 +625,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	const char* 						GetPeerName( int peerNum ) const;
 	virtual const char* 				GetHostUserName() const;
 	
-	void								HandleReliableMsg( int p, idBitMsg& msg, const lobbyAddress_t* remoteAddress = NULL );
+	void								HandleReliableMsg( int p, idBitMsg& msg, const lobbyAddress_t* remoteAddress = nullptr );
 	
 	// Bandwidth / Qos / Throttling
 	void								BeginBandwidthTest();
@@ -665,7 +665,7 @@ public:		// Turning this on for now, for the sake of getting this up and running
 	// This takes a session user, and converts to a controller user
 	idLocalUser* 						GetLocalUserFromLobbyUserIndex( int lobbyUserIndex );
 	
-	// Takes a controller user, and converts to a session user (will return NULL if there is no session user for this controller user)
+	// Takes a controller user, and converts to a session user (will return nullptr if there is no session user for this controller user)
 	lobbyUser_t* 						GetSessionUserFromLocalUser( const idLocalUser* controller );
 	
 	void								RemoveUsersWithDisconnectedPeers();
@@ -866,8 +866,8 @@ public:		// Turning this on for now, for the sake of getting this up and running
 				hasGameData = false;
 				hasRelaunchedMigratedGame = false;
 				
-				memset( gameData, 0, sizeof( gameData ) );
-				memset( gameDataUser, 0, sizeof( gameDataUser ) );
+				std::memset( gameData, 0, sizeof( gameData ) );
+				std::memset( gameDataUser, 0, sizeof( gameDataUser ) );
 			}
 			
 			int								ourGameData;

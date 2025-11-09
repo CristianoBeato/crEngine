@@ -41,7 +41,7 @@ IMPLEMENT_DYNCREATE(MaterialPreviewPropView, CPropTreeView)
 
 MaterialPreviewPropView::MaterialPreviewPropView() {
 	numLights = 0;
-	materialPreview = NULL;
+	materialPreview = nullptr;
 }
 
 MaterialPreviewPropView::~MaterialPreviewPropView() {
@@ -343,7 +343,7 @@ void MaterialPreviewPropView::OnPropertyButtonClick( NMHDR *nmhdr, LRESULT *lres
 
 		m_Tree.DeleteItem( item );
 
-		for( light = m_Tree.GetRootItem()->GetChild(); light != NULL; light = light->GetSibling() ) {
+		for( light = m_Tree.GetRootItem()->GetChild(); light != nullptr; light = light->GetSibling() ) {
 			idStr label = light->GetLabelText();
 
 			if ( label.Left(5) == "Light" ) {

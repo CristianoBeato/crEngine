@@ -185,7 +185,7 @@ public:
 	vertCacheHandle_t	ActuallyAlloc( geoBufferSet_t& vcs, const void* data, int bytes, cacheType_t type );
 };
 
-// platform specific code to memcpy into vertex buffers efficiently
+// platform specific code to std::memcpy into vertex buffers efficiently
 // 16 byte alignment is guaranteed
 void CopyBuffer( byte* dst, const byte* src, int numBytes );
 

@@ -92,7 +92,7 @@ bool beam_t::IsValid() const
 void beam_t::Clear()
 {
 	modelHandle = -1;
-	memset( &renderEntity, 0, sizeof( renderEntity ) );
+	std::memset( &renderEntity, 0, sizeof( renderEntity ) );
 }
 
 // List of all defs used by the player that will stay on the fast timeline
@@ -208,8 +208,8 @@ void idGameLocal::Clear( void )
 	{
 		persistentPlayerInfo[i].Clear();
 	}
-	memset( entities, 0, sizeof( entities ) );
-	memset( spawnIds, -1, sizeof( spawnIds ) );
+	std::memset( entities, 0, sizeof( entities ) );
+	std::memset( spawnIds, -1, sizeof( spawnIds ) );
 	firstFreeEntityIndex[0] = 0;
 	firstFreeEntityIndex[1] = ENTITYNUM_FIRST_NON_REPLICATED;
 	num_entities = 0;
@@ -219,18 +219,18 @@ void idGameLocal::Clear( void )
 	sortPushers = false;
 	sortTeamMasters = false;
 	persistentLevelInfo.Clear();
-	memset( globalShaderParms, 0, sizeof( globalShaderParms ) );
+	std::memset( globalShaderParms, 0, sizeof( globalShaderParms ) );
 	random.SetSeed( 0 );
-	world = NULL;
-	frameCommandThread = NULL;
-	testmodel = NULL;
-	testFx = NULL;
+	world = nullptr;
+	frameCommandThread = nullptr;
+	testmodel = nullptr;
+	testFx = nullptr;
 	clip.Shutdown();
 	pvs.Shutdown();
 	sessionCommand.Clear();
-	locationEntities = NULL;
-	smokeParticles = NULL;
-	editEntities = NULL;
+	locationEntities = nullptr;
+	smokeParticles = nullptr;
+	editEntities = nullptr;
 	entityHash.Clear( 1024, MAX_GENTITIES );
 	inCinematic = false;
 	framenum = 0;
@@ -238,13 +238,13 @@ void idGameLocal::Clear( void )
 	time = 0;
 	vacuumAreaNum = 0;
 	mapFileName.Clear();
-	mapFile = NULL;
+	mapFile = nullptr;
 	spawnCount = INITIAL_SPAWN_COUNT;
 	mapSpawnCount = 0;
-	camera = NULL;
+	camera = nullptr;
 	aasList.Clear();
 	aasNames.Clear();
-	lastAIAlertEntity = NULL;
+	lastAIAlertEntity = nullptr;
 	lastAIAlertTime = 0;
 	spawnArgs.Clear();
 	gravity.Set( 0, 0, -1 );
@@ -259,17 +259,17 @@ void idGameLocal::Clear( void )
 	entityDefBits = 0;
 	
 	nextGibTime = 0;
-	globalMaterial = NULL;
+	globalMaterial = nullptr;
 	newInfo.Clear();
-	lastGUIEnt = NULL;
+	lastGUIEnt = nullptr;
 	lastGUI = 0;
 	
 	eventQueue.Init();
 	savedEventQueue.Init();
 	
-	shellHandler = NULL;
+	shellHandler = nullptr;
 	selectedGroup = 0;
-	portalSkyEnt			= NULL;
+	portalSkyEnt			= nullptr;
 	portalSkyActive			= false;
 	
 	ResetSlowTimeVars();
@@ -354,7 +354,7 @@ void idGameLocal::Init()
 	
 	// set up the aas
 	dict = FindEntityDefDict( "aas_types" );
-	if( dict == NULL )
+	if( dict == nullptr )
 	{
 		Error( "Unable to find entityDef for 'aas_types'" );
 		return;
@@ -362,7 +362,7 @@ void idGameLocal::Init()
 	
 	// allocate space for the aas
 	const idKeyValue* kv = dict->MatchPrefix( "type" );
-	while( kv != NULL )
+	while( kv != nullptr )
 	{
 		aas = idAAS::Alloc();
 		aasList.Append( aas );
@@ -409,10 +409,10 @@ void idGameLocal::Shutdown()
 	idEvent::Shutdown();
 	
 	delete[] locationEntities;
-	locationEntities = NULL;
+	locationEntities = nullptr;
 	
 	delete smokeParticles;
-	smokeParticles = NULL;
+	smokeParticles = nullptr;
 	
 	idClass::Shutdown();
 	
@@ -424,7 +424,7 @@ void idGameLocal::Shutdown()
 	
 	// delete the .map file
 	delete mapFile;
-	mapFile = NULL;
+	mapFile = nullptr;
 	
 	// free the collision map
 	collisionModelManager->FreeMap();
@@ -499,7 +499,7 @@ void idGameLocal::SaveGame( idFile* f, idFile* strings )
 			{
 				continue;
 			}
-			for( link = ent; link != NULL; link = link->GetNextTeamEntity() )
+			for( link = ent; link != nullptr; link = link->GetNextTeamEntity() )
 			{
 				savegame.AddObject( link );
 			}
@@ -553,13 +553,13 @@ void idGameLocal::SaveGame( idFile* f, idFile* strings )
 	savegame.WriteObject( world );
 	
 	savegame.WriteInt( spawnedEntities.Num() );
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		savegame.WriteObject( ent );
 	}
 	
 	savegame.WriteInt( activeEntities.Num() );
-	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+	for( ent = activeEntities.Next(); ent != nullptr; ent = ent->activeNode.Next() )
 	{
 		savegame.WriteObject( ent );
 	}
@@ -581,8 +581,8 @@ void idGameLocal::SaveGame( idFile* f, idFile* strings )
 	// push
 	// pvs
 	
-	testmodel = NULL;
-	testFx = NULL;
+	testmodel = nullptr;
+	testFx = nullptr;
 	
 	savegame.WriteString( sessionCommand );
 	
@@ -714,7 +714,7 @@ void idGameLocal::GetSaveGameDetails( idSaveGameDetails& gameDetails )
 	// PS3 only strings that use the dict just set
 	
 	// even though we don't use this when we enumerate, when we save, we use this descriptors file later so we need the date populated now
-	gameDetails.date = ::time( NULL );
+	gameDetails.date = ::time( nullptr );
 }
 
 /*
@@ -968,7 +968,7 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 		if( !mapFile->Parse( idStr( mapName ) + ".map" ) )
 		{
 			delete mapFile;
-			mapFile = NULL;
+			mapFile = nullptr;
 			Error( "Couldn't load %s", mapName );
 		}
 	}
@@ -981,8 +981,8 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 	numClients = 0;
 	
 	// initialize all entities for this game
-	memset( entities, 0, sizeof( entities ) );
-	memset( spawnIds, -1, sizeof( spawnIds ) );
+	std::memset( entities, 0, sizeof( entities ) );
+	std::memset( spawnIds, -1, sizeof( spawnIds ) );
 	spawnCount = INITIAL_SPAWN_COUNT;
 	
 	// music volume control begins	## SS2
@@ -996,12 +996,12 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 	numEntitiesToDeactivate = 0;
 	sortTeamMasters = false;
 	sortPushers = false;
-	lastGUIEnt = NULL;
+	lastGUIEnt = nullptr;
 	lastGUI = 0;
 	
-	globalMaterial = NULL;
+	globalMaterial = nullptr;
 	
-	memset( globalShaderParms, 0, sizeof( globalShaderParms ) );
+	std::memset( globalShaderParms, 0, sizeof( globalShaderParms ) );
 	
 	// These used to be a non-pot adjustment for portal skies
 	// they're no longer needed, but we can't update the materials
@@ -1017,12 +1017,12 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 	// reset the random number generator.
 	random.SetSeed( common->IsMultiplayer() ? randseed : 0 );
 	
-	camera			= NULL;
-	world			= NULL;
-	testmodel		= NULL;
-	testFx			= NULL;
+	camera			= nullptr;
+	world			= nullptr;
+	testmodel		= nullptr;
+	testFx			= nullptr;
 	
-	lastAIAlertEntity = NULL;
+	lastAIAlertEntity = nullptr;
 	lastAIAlertTime = 0;
 	
 	previousTime	= 0;
@@ -1031,7 +1031,7 @@ void idGameLocal::LoadMap( const char* mapName, int randseed )
 	sessionCommand = "";
 	nextGibTime		= 0;
 	
-	portalSkyEnt			= NULL;
+	portalSkyEnt			= nullptr;
 	portalSkyActive			= false;
 	
 	ResetSlowTimeVars();
@@ -1385,7 +1385,7 @@ bool idGameLocal::InitFromSaveGame( const char* mapName, idRenderWorld* renderWo
 		savegame.ReadInt( spawnIds[ i ] );
 		
 		// restore the entityNumber
-		if( entities[ i ] != NULL )
+		if( entities[ i ] != nullptr )
 		{
 			entities[ i ]->entityNumber = i;
 		}
@@ -1399,7 +1399,7 @@ bool idGameLocal::InitFromSaveGame( const char* mapName, idRenderWorld* renderWo
 	assert( numLobbyUsers == 1 );
 	for( int i = 0; i < MAX_PLAYERS && lobbyUserNum < numLobbyUsers; i++ )
 	{
-		if( entities[i] == NULL )
+		if( entities[i] == nullptr )
 		{
 			continue;
 		}
@@ -1454,8 +1454,8 @@ bool idGameLocal::InitFromSaveGame( const char* mapName, idRenderWorld* renderWo
 	// push
 	// pvs
 	
-	// testmodel = "<NULL>"
-	// testFx = "<NULL>"
+	// testmodel = "<nullptr>"
+	// testFx = "<nullptr>"
 	
 	savegame.ReadString( sessionCommand );
 	
@@ -1578,7 +1578,7 @@ bool idGameLocal::InitFromSaveGame( const char* mapName, idRenderWorld* renderWo
 	Printf( "--------------------------------------\n" );
 	
 	delete pipelineFile;
-	pipelineFile = NULL;
+	pipelineFile = nullptr;
 	
 	return true;
 }
@@ -1595,7 +1595,7 @@ void idGameLocal::MapClear( bool clearClients )
 	for( i = ( clearClients ? 0 : MAX_CLIENTS ); i < MAX_GENTITIES; i++ )
 	{
 		delete entities[ i ];
-		// ~idEntity is in charge of setting the pointer to NULL
+		// ~idEntity is in charge of setting the pointer to nullptr
 		// it will also clear pending events for this entity
 		assert( !entities[ i ] );
 		spawnIds[ i ] = -1;
@@ -1617,16 +1617,16 @@ void idGameLocal::MapClear( bool clearClients )
 	}
 	
 	delete frameCommandThread;
-	frameCommandThread = NULL;
+	frameCommandThread = nullptr;
 	
 	if( editEntities )
 	{
 		delete editEntities;
-		editEntities = NULL;
+		editEntities = nullptr;
 	}
 	
 	delete[] locationEntities;
-	locationEntities = NULL;
+	locationEntities = nullptr;
 }
 
 /*
@@ -1649,7 +1649,7 @@ void idGameLocal::MapShutdown()
 	// clear out camera if we're in a cinematic
 	if( inCinematic )
 	{
-		camera = NULL;
+		camera = nullptr;
 		inCinematic = false;
 	}
 	
@@ -1687,8 +1687,8 @@ void idGameLocal::MapShutdown()
 	
 	mapFileName.Clear();
 	
-	gameRenderWorld = NULL;
-	gameSoundWorld = NULL;
+	gameRenderWorld = nullptr;
+	gameSoundWorld = nullptr;
 	
 	gamestate = GAMESTATE_NOMAP;
 	
@@ -1707,13 +1707,13 @@ void idGameLocal::GetAimAssistAngles( idAngles& angles )
 	
 	// Take a look at serializing this to the clients
 	idPlayer* player = GetLocalPlayer();
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return;
 	}
 	
 	idAimAssist* aimAssist = player->GetAimAssist();
-	if( aimAssist == NULL )
+	if( aimAssist == nullptr )
 	{
 		return;
 	}
@@ -1730,13 +1730,13 @@ float idGameLocal::GetAimAssistSensitivity()
 {
 	// Take a look at serializing this to the clients
 	idPlayer* player = GetLocalPlayer();
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return 1.0f;
 	}
 	
 	idAimAssist* aimAssist = player->GetAimAssist();
-	if( aimAssist == NULL )
+	if( aimAssist == nullptr )
 	{
 		return 1.0f;
 	}
@@ -1819,7 +1819,7 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		{
 			declManager->MediaPrint( "Precaching model %s\n", kv->GetValue().c_str() );
 			// precache model/animations
-			if( declManager->FindType( DECL_MODELDEF, kv->GetValue(), false ) == NULL )
+			if( declManager->FindType( DECL_MODELDEF, kv->GetValue(), false ) == nullptr )
 			{
 				// precache the render model
 				renderModelManager->FindModel( kv->GetValue() );
@@ -1831,13 +1831,13 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 	}
 	
 	kv = dict->FindKey( "s_shader" );
-	if( kv != NULL && kv->GetValue().Length() )
+	if( kv != nullptr && kv->GetValue().Length() )
 	{
 		declManager->FindType( DECL_SOUND, kv->GetValue() );
 	}
 	
-	kv = dict->MatchPrefix( "snd", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "snd", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1847,7 +1847,7 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 	}
 	
 	
-	kv = dict->MatchPrefix( "gui", NULL );
+	kv = dict->MatchPrefix( "gui", nullptr );
 	while( kv )
 	{
 		if( kv->GetValue().Length() )
@@ -1873,13 +1873,13 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 	}
 	
 	kv = dict->FindKey( "texture" );
-	if( kv != NULL && kv->GetValue().Length() )
+	if( kv != nullptr && kv->GetValue().Length() )
 	{
 		declManager->FindType( DECL_MATERIAL, kv->GetValue() );
 	}
 	
-	kv = dict->MatchPrefix( "mtr", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "mtr", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1889,8 +1889,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 	}
 	
 	// handles hud icons
-	kv = dict->MatchPrefix( "inv_icon", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "inv_icon", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1901,16 +1901,16 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 	
 	// handles teleport fx.. this is not ideal but the actual decision on which fx to use
 	// is handled by script code based on the teleport number
-	kv = dict->MatchPrefix( "teleport", NULL );
-	if( kv != NULL && kv->GetValue().Length() )
+	kv = dict->MatchPrefix( "teleport", nullptr );
+	if( kv != nullptr && kv->GetValue().Length() )
 	{
 		int teleportType = atoi( kv->GetValue() );
 		const char* p = ( teleportType ) ? va( "fx/teleporter%i.fx", teleportType ) : "fx/teleporter.fx";
 		declManager->FindType( DECL_FX, p );
 	}
 	
-	kv = dict->MatchPrefix( "fx", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "fx", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1920,8 +1920,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "fx", kv );
 	}
 	
-	kv = dict->MatchPrefix( "smoke", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "smoke", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1936,8 +1936,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "smoke", kv );
 	}
 	
-	kv = dict->MatchPrefix( "skin", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "skin", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1947,8 +1947,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "skin", kv );
 	}
 	
-	kv = dict->MatchPrefix( "def", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "def", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1958,8 +1958,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 	}
 	
 	// Precache all available grabber "catch" damage decls
-	kv = dict->MatchPrefix( "def_damage", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "def_damage", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1970,13 +1970,13 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 	
 	// Should have been def_monster_damage!!
 	kv = dict->FindKey( "monster_damage" );
-	if( kv != NULL && kv->GetValue().Length() )
+	if( kv != nullptr && kv->GetValue().Length() )
 	{
 		FindEntityDef( kv->GetValue(), false );
 	}
 	
-	kv = dict->MatchPrefix( "item", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "item", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1985,8 +1985,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "item", kv );
 	}
 	
-	kv = dict->MatchPrefix( "pda_name", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "pda_name", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -1995,8 +1995,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "pda_name", kv );
 	}
 	
-	kv = dict->MatchPrefix( "video", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "video", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -2005,8 +2005,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "video", kv );
 	}
 	
-	kv = dict->MatchPrefix( "audio", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "audio", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -2015,8 +2015,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "audio", kv );
 	}
 	
-	kv = dict->MatchPrefix( "email", NULL );
-	while( kv != NULL )
+	kv = dict->MatchPrefix( "email", nullptr );
+	while( kv != nullptr )
 	{
 		if( kv->GetValue().Length() )
 		{
@@ -2025,8 +2025,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "email", kv );
 	}
 
-	kv = dict->MatchPrefix( "table", NULL );
-	while ( kv != NULL )
+	kv = dict->MatchPrefix( "table", nullptr );
+	while ( kv != nullptr )
 	{
 		if ( kv->GetValue().Length() )
 		{
@@ -2035,8 +2035,8 @@ void idGameLocal::CacheDictionaryMedia( const idDict* dict )
 		kv = dict->MatchPrefix( "table", kv );
 	}
 
-	kv = dict->MatchPrefix( "table2d", NULL );
-	while ( kv != NULL )
+	kv = dict->MatchPrefix( "table2d", nullptr );
+	while ( kv != nullptr )
 	{
 		if ( kv->GetValue().Length() )
 		{
@@ -2059,7 +2059,7 @@ void idGameLocal::InitScriptForMap()
 	
 	// run the main game script function (not the level specific main)
 	const function_t* func = program.FindFunction( SCRIPT_DEFAULTFUNC );
-	if( func != NULL )
+	if( func != nullptr )
 	{
 		idThread* thread = new idThread( func );
 		if( thread->Start() )
@@ -2078,7 +2078,7 @@ idGameLocal::SetScriptFPS
 void idGameLocal::SetScriptFPS( const float engineHz )
 {
 	idVarDef* fpsDef = program.GetDef( &type_float, "GAME_FPS", &def_namespace );
-	if( fpsDef != NULL )
+	if( fpsDef != nullptr )
 	{
 		eval_t fpsValue;
 		fpsValue._float = engineHz;
@@ -2161,7 +2161,7 @@ idPlayer* idGameLocal::GetClientByNum( int current ) const
 	{
 		return static_cast<idPlayer*>( entities[ current ] );
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -2200,13 +2200,13 @@ idPlayer* idGameLocal::GetLocalPlayer() const
 {
 	if( GetLocalClientNum() < 0 )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	if( !entities[ GetLocalClientNum() ] || !entities[ GetLocalClientNum() ]->IsType( idPlayer::Type ) )
 	{
 		// not fully in game yet
-		return NULL;
+		return nullptr;
 	}
 	return static_cast<idPlayer*>( entities[ GetLocalClientNum() ] );
 }
@@ -2370,7 +2370,7 @@ void idGameLocal::UpdateGravity()
 		gravity.Set( 0, 0, -g_gravity.GetFloat() );
 		
 		// update all physics objects
-		for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+		for( ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 		{
 			if( ent->IsType( idAFEntity_Generic::Type ) )
 			{
@@ -2410,7 +2410,7 @@ void idGameLocal::SortActiveEntityList()
 	// if the active entity list needs to be reordered to place physics team masters at the front
 	if( sortTeamMasters )
 	{
-		for( ent = activeEntities.Next(); ent != NULL; ent = next_ent )
+		for( ent = activeEntities.Next(); ent != nullptr; ent = next_ent )
 		{
 			next_ent = ent->activeNode.Next();
 			master = ent->GetTeamMaster();
@@ -2426,14 +2426,14 @@ void idGameLocal::SortActiveEntityList()
 	if( sortPushers )
 	{
 	
-		for( ent = activeEntities.Next(); ent != NULL; ent = next_ent )
+		for( ent = activeEntities.Next(); ent != nullptr; ent = next_ent )
 		{
 			next_ent = ent->activeNode.Next();
 			master = ent->GetTeamMaster();
 			if( !master || master == ent )
 			{
 				// check if there is an actor on the team
-				for( part = ent; part != NULL; part = part->GetNextTeamEntity() )
+				for( part = ent; part != nullptr; part = part->GetNextTeamEntity() )
 				{
 					if( part->GetPhysics()->IsType( idPhysics_Actor::Type ) )
 					{
@@ -2449,14 +2449,14 @@ void idGameLocal::SortActiveEntityList()
 			}
 		}
 		
-		for( ent = activeEntities.Next(); ent != NULL; ent = next_ent )
+		for( ent = activeEntities.Next(); ent != nullptr; ent = next_ent )
 		{
 			next_ent = ent->activeNode.Next();
 			master = ent->GetTeamMaster();
 			if( !master || master == ent )
 			{
 				// check if there is an entity on the team using parametric physics
-				for( part = ent; part != NULL; part = part->GetNextTeamEntity() )
+				for( part = ent; part != nullptr; part = part->GetNextTeamEntity() )
 				{
 					if( part->GetPhysics()->IsType( idPhysics_Parametric::Type ) )
 					{
@@ -2506,7 +2506,7 @@ void idGameLocal::RunTimeGroup2( idUserCmdMgr& userCmdMgr )
 	
 	SelectTimeGroup( true );
 	
-	for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+	for( ent = activeEntities.Next(); ent != nullptr; ent = ent->activeNode.Next() )
 	{
 		if( ent->timeGroup != TIME_GROUP2 )
 		{
@@ -2573,7 +2573,7 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 	}
 #endif
 	
-	if( gameRenderWorld == NULL )
+	if( gameRenderWorld == nullptr )
 	{
 		return;
 	}
@@ -2667,7 +2667,7 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 		if( g_timeentities.GetFloat() )
 		{
 			num = 0;
-			for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+			for( ent = activeEntities.Next(); ent != nullptr; ent = ent->activeNode.Next() )
 			{
 				if( g_cinematic.GetBool() && inCinematic && !ent->cinematic )
 				{
@@ -2691,7 +2691,7 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 			if( inCinematic )
 			{
 				num = 0;
-				for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+				for( ent = activeEntities.Next(); ent != nullptr; ent = ent->activeNode.Next() )
 				{
 					if( g_cinematic.GetBool() && !ent->cinematic )
 					{
@@ -2705,7 +2705,7 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 			else
 			{
 				num = 0;
-				for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+				for( ent = activeEntities.Next(); ent != nullptr; ent = ent->activeNode.Next() )
 				{
 					if( ent->timeGroup != TIME_GROUP1 )
 					{
@@ -2734,7 +2734,7 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 		{
 			idEntity* next_ent;
 			int c = 0;
-			for( ent = activeEntities.Next(); ent != NULL; ent = next_ent )
+			for( ent = activeEntities.Next(); ent != nullptr; ent = next_ent )
 			{
 				next_ent = ent->activeNode.Next();
 				if( !ent->thinkFlags )
@@ -2803,7 +2803,7 @@ void idGameLocal::BuildReturnValue( gameReturn_t& ret )
 {
 	ret.sessionCommand[0] = 0;
 	
-	if( GetLocalPlayer() != NULL )
+	if( GetLocalPlayer() != nullptr )
 	{
 		GetLocalPlayer()->GetControllerShake( ret.vibrationLow, ret.vibrationHigh );
 	}
@@ -2887,7 +2887,7 @@ void idGameLocal::RunAllUserCmdsForPlayer( idUserCmdMgr& cmdMgr, const int playe
 	// Run thinks on any players that have queued up usercmds for networking.
 	assert( playerNumber < MAX_PLAYERS );
 	
-	if( entities[ playerNumber ] == NULL )
+	if( entities[ playerNumber ] == nullptr )
 	{
 		return;
 	}
@@ -3091,7 +3091,7 @@ bool idGameLocal::Draw( int clientNum )
 	
 	idPlayer* player = static_cast<idPlayer*>( entities[ clientNum ] );
 	
-	if( ( player == NULL ) || ( player->GetRenderView() == NULL ) )
+	if( ( player == nullptr ) || ( player->GetRenderView() == nullptr ) )
 	{
 		return false;
 	}
@@ -3126,7 +3126,7 @@ bool idGameLocal::HandlePlayerGuiEvent( const sysEvent_t* ev )
 	idPlayer* player = GetLocalPlayer();
 	bool handled = false;
 	
-	if( player != NULL )
+	if( player != nullptr )
 	{
 		handled = player->HandleGuiEvents( ev );
 	}
@@ -3154,7 +3154,7 @@ idMapFile* idGameLocal::GetLevelMap()
 	}
 	if( !mapFileName.Length() )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	if( mapFile )
@@ -3166,7 +3166,7 @@ idMapFile* idGameLocal::GetLevelMap()
 	if( !mapFile->Parse( mapFileName ) )
 	{
 		delete mapFile;
-		mapFile = NULL;
+		mapFile = nullptr;
 	}
 	
 	return mapFile;
@@ -3235,7 +3235,7 @@ void idGameLocal::ShowTargets()
 	
 	viewTextBounds.ExpandSelf( 128.0f );
 	viewBounds.ExpandSelf( 512.0f );
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		totalBounds = ent->GetPhysics()->GetAbsBounds();
 		for( i = 0; i < ent->targets.Num(); i++ )
@@ -3310,7 +3310,7 @@ void idGameLocal::RunDebugInfo()
 		
 		viewTextBounds.ExpandSelf( 128.0f );
 		viewBounds.ExpandSelf( 512.0f );
-		for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+		for( ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 		{
 			// don't draw the worldspawn
 			if( ent == world )
@@ -3360,7 +3360,7 @@ void idGameLocal::RunDebugInfo()
 	// debug tool to draw bounding boxes around active entities
 	if( g_showActiveEntities.GetBool() )
 	{
-		for( ent = activeEntities.Next(); ent != NULL; ent = ent->activeNode.Next() )
+		for( ent = activeEntities.Next(); ent != nullptr; ent = ent->activeNode.Next() )
 		{
 			idBounds	b = ent->GetPhysics()->GetBounds();
 			if( b.GetVolume() <= 0 )
@@ -3411,7 +3411,7 @@ void idGameLocal::RunDebugInfo()
 	
 	if( g_showCollisionModels.GetBool() )
 	{
-		clip.DrawClipModels( player->GetEyePosition(), g_maxShowDistance.GetFloat(), pm_thirdPerson.GetBool() ? NULL : player );
+		clip.DrawClipModels( player->GetEyePosition(), g_maxShowDistance.GetFloat(), pm_thirdPerson.GetBool() ? nullptr : player );
 	}
 	
 	if( g_showCollisionTraces.GetBool() )
@@ -3452,7 +3452,7 @@ void idGameLocal::RunDebugInfo()
 			obstaclePath_t path;
 			
 			seekPos = player->GetPhysics()->GetOrigin() + player->viewAxis[0] * 200.0f;
-			idAI::FindPathAroundObstacles( player->GetPhysics(), aas, NULL, player->GetPhysics()->GetOrigin(), seekPos, path );
+			idAI::FindPathAroundObstacles( player->GetPhysics(), aas, nullptr, player->GetPhysics()->GetOrigin(), seekPos, path );
 		}
 	}
 	
@@ -3484,7 +3484,7 @@ idAAS* idGameLocal::GetAAS( int num ) const
 			return aasList[ num ];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -3502,7 +3502,7 @@ idAAS* idGameLocal::GetAAS( const char* name ) const
 		{
 			if( !aasList[ i ]->GetSettings() )
 			{
-				return NULL;
+				return nullptr;
 			}
 			else
 			{
@@ -3510,7 +3510,7 @@ idAAS* idGameLocal::GetAAS( const char* name ) const
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -3604,7 +3604,7 @@ bool idGameLocal::CheatsOk( bool requirePlayer )
 	}
 	
 	idPlayer* player = GetLocalPlayer();
-	if( !requirePlayer || ( player != NULL && ( player->health > 0 ) ) )
+	if( !requirePlayer || ( player != nullptr && ( player->health > 0 ) ) )
 	{
 		return true;
 	}
@@ -3636,7 +3636,7 @@ void idGameLocal::RegisterEntity( idEntity* ent, int forceSpawnId, const idDict&
 		const int maxEntityNum = ( common->IsMultiplayer() && !ent->GetSkipReplication() ) ? ENTITYNUM_FIRST_NON_REPLICATED : ENTITYNUM_MAX_NORMAL;
 		int freeIndex = firstFreeEntityIndex[ freeListType ];
 		
-		while( entities[ freeIndex ] != NULL && freeIndex < maxEntityNum )
+		while( entities[ freeIndex ] != nullptr && freeIndex < maxEntityNum )
 		{
 			freeIndex++;
 		}
@@ -3687,7 +3687,7 @@ void idGameLocal::UnregisterEntity( idEntity* ent )
 	if( ( ent->entityNumber != ENTITYNUM_NONE ) && ( entities[ ent->entityNumber ] == ent ) )
 	{
 		ent->spawnNode.Remove();
-		entities[ ent->entityNumber ] = NULL;
+		entities[ ent->entityNumber ] = nullptr;
 		spawnIds[ ent->entityNumber ] = -1;
 		
 		int freeListType = ( common->IsMultiplayer() && ent->entityNumber >= ENTITYNUM_FIRST_NON_REPLICATED ) ? 1 : 0;
@@ -3737,7 +3737,7 @@ idEntity* idGameLocal::SpawnEntityType( const idTypeInfo& classdef, const idDict
 	
 	catch( idAllocError& )
 	{
-		obj = NULL;
+		obj = nullptr;
 	}
 	spawnArgs.Clear();
 	
@@ -3763,7 +3763,7 @@ bool idGameLocal::SpawnEntityDef( const idDict& args, idEntity** ent, bool setDe
 	
 	if( ent )
 	{
-		*ent = NULL;
+		*ent = nullptr;
 	}
 	
 	spawnArgs = args;
@@ -3773,7 +3773,7 @@ bool idGameLocal::SpawnEntityDef( const idDict& args, idEntity** ent, bool setDe
 		sprintf( error, " on '%s'", name );
 	}
 	
-	spawnArgs.GetString( "classname", NULL, &classname );
+	spawnArgs.GetString( "classname", nullptr, &classname );
 	
 	const idDeclEntityDef* def = FindEntityDef( classname, false );
 	
@@ -3805,7 +3805,7 @@ bool idGameLocal::SpawnEntityDef( const idDict& args, idEntity** ent, bool setDe
 	}
 	
 	// check if we should spawn a class object
-	spawnArgs.GetString( "spawnclass", NULL, &spawn );
+	spawnArgs.GetString( "spawnclass", nullptr, &spawn );
 	if( spawn )
 	{	
 		cls = idClass::GetClass( spawn );
@@ -3833,7 +3833,7 @@ bool idGameLocal::SpawnEntityDef( const idDict& args, idEntity** ent, bool setDe
 	}
 	
 	// check if we should call a script function to spawn
-	spawnArgs.GetString( "spawnfunc", NULL, &spawn );
+	spawnArgs.GetString( "spawnfunc", nullptr, &spawn );
 	if( spawn )
 	{
 		const function_t* func = program.FindFunction( spawn );
@@ -3858,7 +3858,7 @@ idGameLocal::FindEntityDef
 */
 const idDeclEntityDef* idGameLocal::FindEntityDef( const char* name, bool makeDefault ) const
 {
-	const idDecl* decl = NULL;
+	const idDecl* decl = nullptr;
 	if( common->IsMultiplayer() )
 	{
 		decl = declManager->FindType( DECL_ENTITYDEF, va( "%s_mp", name ), false );
@@ -3878,7 +3878,7 @@ idGameLocal::FindEntityDefDict
 const idDict* idGameLocal::FindEntityDefDict( const char* name, bool makeDefault ) const
 {
 	const idDeclEntityDef* decl = FindEntityDef( name, makeDefault );
-	return decl ? &decl->dict : NULL;
+	return decl ? &decl->dict : nullptr;
 }
 
 /*
@@ -3968,7 +3968,7 @@ void idGameLocal::SpawnMapEntities()
 	
 	Printf( "Spawning entities\n" );
 	
-	if( mapFile == NULL )
+	if( mapFile == nullptr )
 	{
 		Printf( "No mapfile present\n" );
 		return;
@@ -4010,7 +4010,7 @@ void idGameLocal::SpawnMapEntities()
 			// precache any media specified in the map entity
 			CacheDictionaryMedia( &args );
 			
-			idEntity * spawnedEntity = NULL;
+			idEntity * spawnedEntity = nullptr;
 			SpawnEntityDef(args, &spawnedEntity);
 
 			if (spawnedEntity && spawnedEntity->removeNode.InList())
@@ -4114,7 +4114,7 @@ idEntity* idGameLocal::GetTraceEntity( const trace_t& trace ) const
 	
 	if( !entities[ trace.c.entityNum ] )
 	{
-		return NULL;
+		return nullptr;
 	}
 	master = entities[ trace.c.entityNum ]->GetBindMaster();
 	if( master )
@@ -4164,7 +4164,7 @@ idEntity* idGameLocal::FindEntity( const char* name ) const
 		}
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -4173,8 +4173,8 @@ idGameLocal::FindEntityUsingDef
 
 Searches all active entities for the next one using the specified entityDef.
 
-Searches beginning at the entity after from, or the beginning if NULL
-NULL will be returned if the end of the list is reached.
+Searches beginning at the entity after from, or the beginning if nullptr
+nullptr will be returned if the end of the list is reached.
 =============
 */
 idEntity* idGameLocal::FindEntityUsingDef( idEntity* from, const char* match ) const
@@ -4190,7 +4190,7 @@ idEntity* idGameLocal::FindEntityUsingDef( idEntity* from, const char* match ) c
 		ent = from->spawnNode.Next();
 	}
 	
-	for( ; ent != NULL; ent = ent->spawnNode.Next() )
+	for( ; ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		assert( ent );
 		if( idStr::Icmp( ent->GetEntityDefName(), match ) == 0 )
@@ -4199,7 +4199,7 @@ idEntity* idGameLocal::FindEntityUsingDef( idEntity* from, const char* match ) c
 		}
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -4218,9 +4218,9 @@ idEntity* idGameLocal::FindTraceEntity( idVec3 start, idVec3 end, const idTypeIn
 	float bestScale;
 	idBounds b;
 	
-	bestEnt = NULL;
+	bestEnt = nullptr;
 	bestScale = 1.0f;
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		if( ent->IsType( c ) && ent != skip )
 		{
@@ -4251,7 +4251,7 @@ int idGameLocal::EntitiesWithinRadius( const idVec3 org, float radius, idEntity*
 	int entCount = 0;
 	
 	bo.ExpandSelf( radius );
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		if( ent->GetPhysics()->GetAbsBounds().IntersectsBounds( bo ) )
 		{
@@ -4309,12 +4309,12 @@ void idGameLocal::KillBox( idEntity* ent, bool catch_teleport )
 		}
 		
 		// nail it
-		idPlayer* otherPlayer = NULL;
+		idPlayer* otherPlayer = nullptr;
 		if( hit->IsType( idPlayer::Type ) )
 		{
 			otherPlayer = static_cast< idPlayer* >( hit );
 		}
-		if( otherPlayer != NULL )
+		if( otherPlayer != nullptr )
 		{
 			if( otherPlayer->IsInTeleport() )
 			{
@@ -4397,7 +4397,7 @@ idActor* idGameLocal::GetAlertEntity()
 		return lastAIAlertEntity.GetEntity();
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -4798,7 +4798,7 @@ void idGameLocal::BloodSplat( const idVec3& origin, const idVec3& dir, float siz
 	size = halfSize + random.RandomFloat() * halfSize;
 	trm.SetupPolygon( verts, 4 );
 	mdl.LoadModel( trm );
-	clip.Translation( results, origin, origin + dir * 64.0f, &mdl, mat3_identity, CONTENTS_SOLID, NULL );
+	clip.Translation( results, origin, origin + dir * 64.0f, &mdl, mat3_identity, CONTENTS_SOLID, nullptr );
 	ProjectDecal( results.endpos, dir, 2.0f * size, true, size, material );
 }
 
@@ -4872,7 +4872,7 @@ void idGameLocal::SetCamera( idCamera* cam )
 		if( !cam->spawnArgs.GetBool( "ignore_enemies" ) )
 		{
 			// kill any active monsters that are enemies of the player
-			for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+			for( ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 			{
 				if( ent->cinematic || ent->fl.isDormant )
 				{
@@ -4953,10 +4953,10 @@ void idGameLocal::SpreadLocations()
 	// allocate the area table
 	int	numAreas = gameRenderWorld->NumAreas();
 	locationEntities = new( TAG_GAME ) idLocationEntity *[ numAreas ];
-	memset( locationEntities, 0, numAreas * sizeof( *locationEntities ) );
+	std::memset( locationEntities, 0, numAreas * sizeof( *locationEntities ) );
 	
 	// for each location entity, make pointers from every area it touches
-	for( ent = spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		if( !ent->IsType( idLocationEntity::Type ) )
 		{
@@ -5001,7 +5001,7 @@ void idGameLocal::SpreadLocations()
 idGameLocal::LocationForPoint
 
 The player checks the location each frame to update the HUD text display
-May return NULL
+May return nullptr
 ===================
 */
 idLocationEntity* idGameLocal::LocationForPoint( const idVec3& point )
@@ -5009,13 +5009,13 @@ idLocationEntity* idGameLocal::LocationForPoint( const idVec3& point )
 	if( !locationEntities )
 	{
 		// before SpreadLocations() has been called
-		return NULL;
+		return nullptr;
 	}
 	
 	int areaNum = gameRenderWorld->PointInArea( point );
 	if( areaNum < 0 )
 	{
-		return NULL;
+		return nullptr;
 	}
 	if( areaNum >= gameRenderWorld->NumAreas() )
 	{
@@ -5088,7 +5088,7 @@ void idGameLocal::RandomizeInitialSpawns()
 	teamInitialSpots[1].Clear();
 	
 	spot.dist = 0;
-	spot.ent = FindEntityUsingDef( NULL, "info_player_deathmatch" );
+	spot.ent = FindEntityUsingDef( nullptr, "info_player_deathmatch" );
 	while( spot.ent )
 	{
 		spot.ent->spawnArgs.GetInt( "team", "-1", spot.team );
@@ -5211,7 +5211,7 @@ idEntity* idGameLocal::SelectInitialSpawnPoint( idPlayer* player )
 	
 	if( !common->IsMultiplayer() || !spawnSpots.Num() || ( mpGame.IsGametypeFlagBased() && ( !teamSpawnSpots[0].Num() || !teamSpawnSpots[1].Num() ) ) )    /* CTF */
 	{
-		spot.ent = FindEntityUsingDef( NULL, "info_player_start" );
+		spot.ent = FindEntityUsingDef( nullptr, "info_player_start" );
 		if( !spot.ent )
 		{
 			Error( "No info_player_start on map.\n" );
@@ -5463,7 +5463,7 @@ void idGameLocal::ComputeSlowScale()
 	idPlayer* player = GetLocalPlayer();
 	bool powerupOn = false;
 	
-	if( player != NULL && player->PowerUpActive( HELLTIME ) )
+	if( player != nullptr && player->PowerUpActive( HELLTIME ) )
 	{
 		powerupOn = true;
 	}
@@ -5487,7 +5487,7 @@ void idGameLocal::ComputeSlowScale()
 		slowmoState = SLOWMO_STATE_RAMPDOWN;
 		
 		// play the stop sound
-		if( player != NULL )
+		if( player != nullptr )
 		{
 			player->PlayHelltimeStopSound();
 		}
@@ -5508,7 +5508,7 @@ void idGameLocal::ComputeSlowScale()
 			slowmoScale += delta * g_slowmoStepRate.GetFloat();
 		}
 		
-		if( gameSoundWorld != NULL )
+		if( gameSoundWorld != nullptr )
 		{
 			gameSoundWorld->SetSlowmoSpeed( slowmoScale );
 		}
@@ -5527,7 +5527,7 @@ void idGameLocal::ComputeSlowScale()
 			slowmoScale += delta * g_slowmoStepRate.GetFloat();
 		}
 		
-		if( gameSoundWorld != NULL )
+		if( gameSoundWorld != nullptr )
 		{
 			gameSoundWorld->SetSlowmoSpeed( slowmoScale );
 		}
@@ -5639,7 +5639,7 @@ idGameLocal::Shell_ClearRepeater
 */
 void idGameLocal::Shell_ClearRepeater()
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->ClearWidgetActionRepeater();
 	}
@@ -5652,7 +5652,7 @@ idGameLocal::Shell_Init
 */
 void idGameLocal::Shell_Init( const char* filename, idSoundWorld* sw )
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->Initialize( filename, sw );
 	}
@@ -5665,10 +5665,10 @@ idGameLocal::Shell_Init
 */
 void idGameLocal::Shell_Cleanup()
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		delete shellHandler;
-		shellHandler = NULL;
+		shellHandler = nullptr;
 	}
 	
 	mpGame.CleanupScoreboard();
@@ -5683,7 +5683,7 @@ void idGameLocal::Shell_CreateMenu( bool inGame )
 {
 	Shell_ResetMenu();
 	
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		if( !inGame )
 		{
@@ -5712,7 +5712,7 @@ idGameLocal::Shell_ClosePause
 */
 void idGameLocal::Shell_ClosePause()
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 	
 		if( !common->IsMultiplayer() && GetLocalPlayer() && GetLocalPlayer()->health <= 0 )
@@ -5736,7 +5736,7 @@ idGameLocal::Shell_Show
 */
 void idGameLocal::Shell_Show( bool show )
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->ActivateMenu( show );
 	}
@@ -5749,7 +5749,7 @@ idGameLocal::Shell_IsActive
 */
 bool idGameLocal::Shell_IsActive() const
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		return shellHandler->IsActive();
 	}
@@ -5763,7 +5763,7 @@ idGameLocal::Shell_HandleGuiEvent
 */
 bool idGameLocal::Shell_HandleGuiEvent( const sysEvent_t* sev )
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		return shellHandler->HandleGuiEvent( sev );
 	}
@@ -5777,7 +5777,7 @@ idGameLocal::Shell_Render
 */
 void idGameLocal::Shell_Render()
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->Update();
 	}
@@ -5790,7 +5790,7 @@ idGameLocal::Shell_ResetMenu
 */
 void idGameLocal::Shell_ResetMenu()
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		delete shellHandler;
 		shellHandler = new( TAG_SWF ) idMenuHandler_Shell();
@@ -5804,7 +5804,7 @@ idGameLocal::Shell_SyncWithSession
 */
 void idGameLocal::Shell_SyncWithSession()
 {
-	if( shellHandler == NULL )
+	if( shellHandler == nullptr )
 	{
 		return;
 	}
@@ -5842,7 +5842,7 @@ void idGameLocal::Shell_SyncWithSession()
 
 void idGameLocal::Shell_SetGameComplete()
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->SetGameComplete();
 		Shell_Show( true );
@@ -5856,7 +5856,7 @@ idGameLocal::Shell_SetState_GameLobby
 */
 void idGameLocal::Shell_UpdateSavedGames()
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->UpdateSavedGames();
 	}
@@ -5869,7 +5869,7 @@ idGameLocal::Shell_SetCanContinue
 */
 void idGameLocal::Shell_SetCanContinue( bool valid )
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->SetCanContinue( valid );
 	}
@@ -5882,7 +5882,7 @@ idGameLocal::Shell_SetState_GameLobby
 */
 void idGameLocal::Shell_UpdateClientCountdown( int countdown )
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->SetTimeRemaining( countdown );
 	}
@@ -5895,7 +5895,7 @@ idGameLocal::Shell_SetState_GameLobby
 */
 void idGameLocal::Shell_UpdateLeaderboard( const idLeaderboardCallback* callback )
 {
-	if( shellHandler != NULL )
+	if( shellHandler != nullptr )
 	{
 		shellHandler->UpdateLeaderboard( callback );
 	}
@@ -5923,7 +5923,7 @@ bool idGameLocal::SimulateProjectiles()
 	// Simulate projectiles
 	for( int i = 0; i < idProjectile::MAX_SIMULATED_PROJECTILES; i++ )
 	{
-		if( idProjectile::projectilesToSimulate[i].projectile != NULL && idProjectile::projectilesToSimulate[i].startTime != 0 )
+		if( idProjectile::projectilesToSimulate[i].projectile != nullptr && idProjectile::projectilesToSimulate[i].startTime != 0 )
 		{
 			const int startTime = idProjectile::projectilesToSimulate[i].startTime;
 			const int startFrame = MSEC_TO_FRAME_FLOOR( startTime );
@@ -5932,13 +5932,13 @@ bool idGameLocal::SimulateProjectiles()
 			
 			idProjectile::projectilesToSimulate[i].projectile->SimulateProjectileFrame( endTime - startTime, endTime );
 			
-			if( idProjectile::projectilesToSimulate[i].projectile != NULL )
+			if( idProjectile::projectilesToSimulate[i].projectile != nullptr )
 			{
 				if( endTime >= previousServerTime )
 				{
 					idProjectile::projectilesToSimulate[i].projectile->PostSimulate( endTime );
 					idProjectile::projectilesToSimulate[i].startTime = 0;
-					idProjectile::projectilesToSimulate[i].projectile = NULL;
+					idProjectile::projectilesToSimulate[i].projectile = nullptr;
 				}
 				else
 				{
@@ -5959,7 +5959,7 @@ idGameLocal::DemoWriteGameInfo
 */
 void idGameLocal::DemoWriteGameInfo()
 {
-	if ( common->WriteDemo() != NULL )
+	if ( common->WriteDemo() != nullptr )
 	{
 		common->WriteDemo()->WriteInt( DS_GAME );
 		common->WriteDemo()->WriteInt( GCMD_GAMETIME );

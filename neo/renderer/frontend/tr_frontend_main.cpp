@@ -98,7 +98,7 @@ void R_ToggleSmpFrame()
 	// clear the command chain and make a RC_NOP command the only thing on the list
 	frameData->cmdHead = frameData->cmdTail = ( emptyCommand_t* )R_FrameAlloc( sizeof( *frameData->cmdHead ), FRAME_ALLOC_DRAW_COMMAND );
 	frameData->cmdHead->commandId = RC_NOP;
-	frameData->cmdHead->next = NULL;
+	frameData->cmdHead->next = nullptr;
 }
 
 /*
@@ -108,11 +108,11 @@ R_ShutdownFrameData
 */
 void R_ShutdownFrameData()
 {
-	frameData = NULL;
+	frameData = nullptr;
 	for( int i = 0; i < NUM_FRAME_DATA; i++ )
 	{
 		Mem_Free16( smpFrameData[i].frameMemory );
-		smpFrameData[i].frameMemory = NULL;
+		smpFrameData[i].frameMemory = nullptr;
 	}
 }
 
@@ -275,7 +275,7 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 		assert( sort >= 0.0f );
 		
 		uint64_t dist = 0;
-		if( drawSurfs[i]->frontEndGeo != NULL )
+		if( drawSurfs[i]->frontEndGeo != nullptr )
 		{
 			float min = 0.0f;
 			float max = 1.0f;
@@ -353,7 +353,7 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 	{
 		newDrawSurfs[i] = drawSurfs[numDrawSurfs - ( indices[i] & 0xFFFF )];
 	}
-	memcpy( drawSurfs, newDrawSurfs, numDrawSurfs * sizeof( drawSurfs[0] ) );
+	std::memcpy( drawSurfs, newDrawSurfs, numDrawSurfs * sizeof( drawSurfs[0] ) );
 	
 #else
 	

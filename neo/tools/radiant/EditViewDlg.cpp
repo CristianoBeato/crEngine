@@ -38,10 +38,10 @@ If you have questions concerning this license or the applicable additional terms
 // CEditViewDlg dialog
 
 IMPLEMENT_DYNAMIC(CEditViewDlg, CDialog)
-CEditViewDlg::CEditViewDlg(CWnd* pParent /*=NULL*/)
+CEditViewDlg::CEditViewDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CEditViewDlg::IDD, pParent)
 {
-	findDlg = NULL;
+	findDlg = nullptr;
 }
 
 CEditViewDlg::~CEditViewDlg() {
@@ -70,31 +70,31 @@ END_MESSAGE_MAP()
 
 void CEditViewDlg::OnSize(UINT nType, int cx, int cy) {
 	CDialog::OnSize(nType, cx, cy);
-	if (GetSafeHwnd() == NULL) {
+	if (GetSafeHwnd() == nullptr) {
 		return;
 	}
 	CRect rect, crect;
 	GetClientRect(rect);
 	CWnd *wnd = GetDlgItem(IDC_BUTTON_OPEN);
-	if (wnd == NULL || (wnd && wnd->GetSafeHwnd() == NULL)) {
+	if (wnd == nullptr || (wnd && wnd->GetSafeHwnd() == nullptr)) {
 		return;
 	}
 	wnd->GetWindowRect(crect);
-	wnd->SetWindowPos(NULL, 4, 4, crect.Width(), crect.Height(), SWP_SHOWWINDOW);
+	wnd->SetWindowPos(nullptr, 4, 4, crect.Width(), crect.Height(), SWP_SHOWWINDOW);
 	wnd = GetDlgItem(IDC_BUTTON_SAVE);
 	int left = 8 + crect.Width();
-	wnd->SetWindowPos(NULL, left, 4, crect.Width(), crect.Height(), SWP_SHOWWINDOW);
+	wnd->SetWindowPos(nullptr, left, 4, crect.Width(), crect.Height(), SWP_SHOWWINDOW);
 	wnd = GetDlgItem(IDOK);
-	wnd->SetWindowPos(NULL, rect.Width() - crect.Width() - 4, 4, crect.Width(), crect.Height(), SWP_SHOWWINDOW);
-	editInfo.SetWindowPos(NULL, 4, 8 + crect.Height(), rect.Width() - 8, rect.Height() - crect.Height() * 2 - 16, SWP_SHOWWINDOW);
+	wnd->SetWindowPos(nullptr, rect.Width() - crect.Width() - 4, 4, crect.Width(), crect.Height(), SWP_SHOWWINDOW);
+	editInfo.SetWindowPos(nullptr, 4, 8 + crect.Height(), rect.Width() - 8, rect.Height() - crect.Height() * 2 - 16, SWP_SHOWWINDOW);
 	wnd = GetDlgItem(IDC_BUTTON_GOTO);
-	wnd->SetWindowPos(NULL, 4, rect.Height() - 4 - crect.Height(), crect.Width(), crect.Height(), SWP_SHOWWINDOW);
+	wnd->SetWindowPos(nullptr, 4, rect.Height() - 4 - crect.Height(), crect.Width(), crect.Height(), SWP_SHOWWINDOW);
 	wnd = GetDlgItem(IDC_EDIT_GOTO);
-	wnd->SetWindowPos(NULL, 8 + crect.Width(), rect.Height() - 3 - crect.Height(), crect.Width() + 8, crect.Height() - 3, SWP_SHOWWINDOW);
+	wnd->SetWindowPos(nullptr, 8 + crect.Width(), rect.Height() - 3 - crect.Height(), crect.Width() + 8, crect.Height() - 3, SWP_SHOWWINDOW);
 	wnd = GetDlgItem(IDC_STATIC_LINE);
-	wnd->SetWindowPos(NULL, 30 + crect.Width() * 2, rect.Height() - crect.Height(), crect.Width() * 2, crect.Height(), SWP_SHOWWINDOW);
+	wnd->SetWindowPos(nullptr, 30 + crect.Width() * 2, rect.Height() - crect.Height(), crect.Width() * 2, crect.Height(), SWP_SHOWWINDOW);
 	wnd = GetDlgItem(IDC_EDIT_LINE);
-	wnd->SetWindowPos(NULL, 40 + crect.Width() * 3, rect.Height() - crect.Height(), crect.Width() + 8, crect.Height(), SWP_SHOWWINDOW);
+	wnd->SetWindowPos(nullptr, 40 + crect.Width() * 3, rect.Height() - crect.Height(), crect.Width() + 8, crect.Height(), SWP_SHOWWINDOW);
 }
 
 void CEditViewDlg::ShowFindDlg() {
@@ -102,12 +102,12 @@ void CEditViewDlg::ShowFindDlg() {
 		return;
 	}
 	findDlg = new CFindReplaceDialog();
-	findDlg->Create(TRUE, findStr, NULL, FR_DOWN, this);
+	findDlg->Create(TRUE, findStr, nullptr, FR_DOWN, this);
 
 }
 
 void CEditViewDlg::OnBnClickedButtonOpen() {
-	CPreviewDlg *dlg = NULL;
+	CPreviewDlg *dlg = nullptr;
 	dlg = ((mode == MATERIALS) ? CEntityDlg::ShowMaterialChooser() : CEntityDlg::ShowGuiChooser());
 	if (dlg) {
 		if (mode == MATERIALS) {
@@ -155,7 +155,7 @@ BOOL CEditViewDlg::OnInitDialog() {
 	CRect rct;
 	LONG lSize = sizeof(rct);
 	if (LoadRegistryInfo("Radiant::EditViewWindow", &rct, &lSize))  {
-		SetWindowPos(NULL, rct.left, rct.top, rct.Width(), rct.Height(), SWP_SHOWWINDOW);
+		SetWindowPos(nullptr, rct.left, rct.top, rct.Width(), rct.Height(), SWP_SHOWWINDOW);
 	}
 
 	editInfo.SetTabStops();
@@ -163,7 +163,7 @@ BOOL CEditViewDlg::OnInitDialog() {
 
 	UpdateEditPreview();
 
-	SetTimer(1, 250, NULL);
+	SetTimer(1, 250, nullptr);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -204,7 +204,7 @@ void CEditViewDlg::SetGuiInfo(const char *name) {
 	fileName = "";
 	line = 0;
 	void *buf;
-	int size = fileSystem->ReadFile(name, &buf, NULL);
+	int size = fileSystem->ReadFile(name, &buf, nullptr);
 	if (size > 0) {
 		fileName = name;
 		editText = (char*)buf;
@@ -274,12 +274,12 @@ BOOL CEditViewDlg::PreTranslateMessage(MSG* pMsg) {
 }
 
 LRESULT CEditViewDlg::OnFindDialogMessage(WPARAM wParam, LPARAM lParam) {
-	if (findDlg == NULL) {
+	if (findDlg == nullptr) {
 		return 0;
 	}
 
 	if (findDlg->IsTerminating()) {
-        findDlg = NULL;
+        findDlg = nullptr;
         return 0;
     }
 

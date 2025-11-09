@@ -132,7 +132,7 @@ private:
 	int						contents;		// node contents
 	idBrushList				brushList;		// list with brushes for this node
 	idBrushBSPNode *		parent;			// parent of this node
-	idBrushBSPNode *		children[2];	// both are NULL if this is a leaf node
+	idBrushBSPNode *		children[2];	// both are nullptr if this is a leaf node
 	idBrushBSPPortal *		portals;		// portals of this node
 	int						flags;			// node flags
 	int						areaNum;		// number of the area created for this node

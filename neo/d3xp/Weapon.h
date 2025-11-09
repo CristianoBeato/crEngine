@@ -501,7 +501,7 @@ ID_INLINE bool idWeapon::IsLinked()
 
 ID_INLINE bool idWeapon::IsWorldModelReady()
 {
-	return ( worldModel.GetEntity() != NULL );
+	return ( worldModel.GetEntity() != nullptr );
 }
 
 ID_INLINE idEntity* idWeapon::GetOwner()

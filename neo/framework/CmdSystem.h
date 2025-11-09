@@ -86,7 +86,7 @@ class idCommandLink
 {
 public:
 	idCommandLink( const char* cmdName, cmdFunction_t function,
-				   const char* description, argCompletion_t argCompletion = NULL );
+				   const char* description, argCompletion_t argCompletion = nullptr );
 	idCommandLink* 	next;
 	const char* 	cmdName_;
 	cmdFunction_t	function_;
@@ -96,7 +96,7 @@ public:
 
 // The command system will create commands for all the static definitions
 // when it initializes.
-idCommandLink* CommandLinks( idCommandLink* cl = NULL );
+idCommandLink* CommandLinks( idCommandLink* cl = nullptr );
 
 /*
 ================================================
@@ -150,7 +150,7 @@ public:
 	virtual void		Shutdown() = 0;
 	
 	// Registers a command and the function to call for it.
-	virtual void		AddCommand( const char* cmdName, cmdFunction_t function, int flags, const char* description, argCompletion_t argCompletion = NULL ) = 0;
+	virtual void		AddCommand( const char* cmdName, cmdFunction_t function, int flags, const char* description, argCompletion_t argCompletion = nullptr ) = 0;
 	// Removes a command.
 	virtual void		RemoveCommand( const char* cmdName ) = 0;
 	// Remove all commands with one of the flags set.
@@ -233,47 +233,47 @@ template<int type> ID_INLINE void idCmdSystem::ArgCompletion_Decl( const idCmdAr
 
 ID_INLINE void idCmdSystem::ArgCompletion_FileName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "/", true, "", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "/", true, "", nullptr );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_MapName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "maps/", true, ".map", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "maps/", true, ".map", nullptr );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_ModelName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "models/", false, ".lwo", ".ase", ".md5mesh", ".ma", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "models/", false, ".lwo", ".ase", ".md5mesh", ".ma", nullptr );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_SoundName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "sound/", false, ".wav", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "sound/", false, ".wav", nullptr );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_ImageName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "/", false, ".tga", ".dds", ".jpg", ".pcx", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "/", false, ".tga", ".dds", ".jpg", ".pcx", nullptr );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_VideoName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "/", false, ".bik", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "/", false, ".bik", nullptr );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_ConfigName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "/", true, ".cfg", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "/", true, ".cfg", nullptr );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_SaveGame( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "SaveGames/", true, ".save", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "SaveGames/", true, ".save", nullptr );
 }
 
 ID_INLINE void idCmdSystem::ArgCompletion_DemoName( const idCmdArgs& args, void( *callback )( const char* s ) )
 {
-	cmdSystem->ArgCompletion_FolderExtension( args, callback, "demos/", true, ".demo", NULL );
+	cmdSystem->ArgCompletion_FolderExtension( args, callback, "demos/", true, ".demo", nullptr );
 }
 
 #endif /* !__CMDSYSTEM_H__ */

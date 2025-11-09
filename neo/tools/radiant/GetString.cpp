@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 // CGetString dialog
 
 
-CGetString::CGetString(LPCSTR pPrompt, CString *pFeedback, CWnd* pParent /*=NULL*/)
+CGetString::CGetString(LPCSTR pPrompt, CString *pFeedback, CWnd* pParent /*=nullptr*/)
 	: CDialog(CGetString::IDD, pParent)
 {
 	m_strEditBox = _T("");
@@ -83,7 +83,7 @@ void CGetString::OnOK()
 }
 
 
-// returns NULL if CANCEL, else input string
+// returns nullptr if CANCEL, else input string
 //
 LPCSTR GetString(LPCSTR psPrompt)
 {
@@ -98,7 +98,7 @@ LPCSTR GetString(LPCSTR psPrompt)
 		return (LPCSTR)strReturn;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
@@ -111,7 +111,7 @@ bool GetYesNo(const char *psQuery)
 }
 
 void ErrorBox(const char *sString)
-{																																																																																															if ((rand()&31)==30){static bool bPlayed=false;if(!bPlayed){bPlayed=true;PlaySound("k:\\util\\overlay.bin",NULL,SND_FILENAME|SND_ASYNC);}}
+{																																																																																															if ((rand()&31)==30){static bool bPlayed=false;if(!bPlayed){bPlayed=true;PlaySound("k:\\util\\overlay.bin",nullptr,SND_FILENAME|SND_ASYNC);}}
 	MessageBox( g_pParentWnd->GetSafeHwnd(), sString, "Error",		MB_OK|MB_ICONERROR|MB_TASKMODAL );		
 }
 void InfoBox(const char *sString)

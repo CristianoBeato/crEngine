@@ -63,16 +63,16 @@ public:
 		return sizeof( ptr );
 	}
 	
-	// memset the entire array to zero
+	// std::memset the entire array to zero
 	void			Zero()
 	{
-		memset( ptr, 0, sizeof( ptr ) );
+		std::memset( ptr, 0, sizeof( ptr ) );
 	}
 	
-	// memset the entire array to a specific value
+	// std::memset the entire array to a specific value
 	void			Memset( const char fill )
 	{
-		memset( ptr, fill, numElements * sizeof( *ptr ) );
+		std::memset( ptr, fill, numElements * sizeof( *ptr ) );
 	}
 	
 	// array operators

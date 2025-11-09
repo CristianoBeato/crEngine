@@ -105,7 +105,7 @@ static optEdge_t	*AllocEdge( void ) {
 	}
 	e = &optEdges[ numOptEdges ];
 	numOptEdges++;
-	memset( e, 0, sizeof( *e ) );
+	std::memset( e, 0, sizeof( *e ) );
 
 	return e;
 }
@@ -241,7 +241,7 @@ static	void DrawAllEdges( void )
 
 	glBegin( GL_LINES );
 	for ( i = 0 ; i < numOptEdges ; i++ ) {
-		if ( optEdges[i].v1 == NULL ) {
+		if ( optEdges[i].v1 == nullptr ) {
 			continue;
 		}
 		glColor3f( 1, 0, 0 );
@@ -300,7 +300,7 @@ static	void DrawEdges( optIsland_t *island ) {
 
 	glBegin( GL_LINES );
 	for ( edge = island->edges ; edge ; edge = edge->islandLink ) {
-		if ( edge->v1 == NULL ) {
+		if ( edge->v1 == nullptr ) {
 			continue;
 		}
 		glColor3f( 1, 0, 0 );
@@ -343,7 +343,7 @@ EdgeIntersection
 Creates a new optVertex_t where the line segments cross.
 This should only be called if PointsStraddleLine returned true
 
-Will return NULL if the lines are colinear
+Will return nullptr if the lines are colinear
 ====================
 */
 static	optVertex_t *EdgeIntersection( const optVertex_t *p1, const optVertex_t *p2, const optVertex_t *l1, const optVertex_t *l2, optimizeGroup_t *opt ) 
@@ -368,7 +368,7 @@ static	optVertex_t *EdgeIntersection( const optVertex_t *p1, const optVertex_t *
 	// FIXME: how are we freeing this, since it doesn't belong to a tri?
 #if 0
 	v = static_cast<idDrawVert*>( Mem_Alloc( sizeof( *v ), TAG_DMAP ) );
-	memset( v, 0, sizeof( *v ) );
+	std::memset( v, 0, sizeof( *v ) );
 #else
 	v = static_cast<idDrawVert*>( Mem_ClearedAlloc( sizeof( *v ), TAG_DMAP ) );
 #endif
@@ -487,17 +487,21 @@ TryAddNewEdge
 
 ====================
 */
-static	bool TryAddNewEdge( optVertex_t *v1, optVertex_t *v2, optIsland_t *island ) {
+static	bool TryAddNewEdge( optVertex_t *v1, optVertex_t *v2, optIsland_t *island ) 
+{
 	optEdge_t	*e;
 
 	// if the new edge crosses any other edges, don't add it
-	for ( e = island->edges ; e ; e = e->islandLink ) {
-		if ( EdgesCross( e->v1, e->v2, v1, v2 ) ) {
+	for ( e = island->edges ; e ; e = e->islandLink ) 
+	{
+		if ( EdgesCross( e->v1, e->v2, v1, v2 ) ) 
 			return false;
-		}
 	}
 
-	if ( dmapGlobals.drawflag ) {
+// BEATO Begin:
+#if 0
+	if ( dmapGlobals.drawflag ) 
+	{
 		glBegin( GL_LINES );
 		glColor3f( 0, ( 128 + orandom.RandomInt( 127 ) )/ 255.0, 0 );
 		glVertex3fv( v1->pv.ToFloatPtr() );
@@ -505,6 +509,9 @@ static	bool TryAddNewEdge( optVertex_t *v1, optVertex_t *v2, optIsland_t *island
 		glEnd();
 		glFlush();
 	}
+#endif
+// BEATO End
+
 	// add it
 	e = AllocEdge();
 
@@ -636,8 +643,8 @@ static	void RemoveIfColinear( optVertex_t *ov, optIsland_t *island ) {
 	v2 = ov;
 
 	// we must find exactly two edges before testing for colinear
-	e1 = NULL;
-	e2 = NULL;
+	e1 = nullptr;
+	e2 = nullptr;
 	for ( e = ov->edges ; e ; ) {
 		if ( !e1 ) {
 			e1 = e;
@@ -709,7 +716,10 @@ static	void RemoveIfColinear( optVertex_t *ov, optIsland_t *island ) {
 		return;
 	}
 
-	if ( dmapGlobals.drawflag ) {
+// BEATO Begin:
+#if 0
+	if ( dmapGlobals.drawflag ) 
+	{
 		glBegin( GL_LINES );
 		glColor3f( 1, 1, 0 );
 		glVertex3fv( v1->pv.ToFloatPtr() );
@@ -723,6 +733,8 @@ static	void RemoveIfColinear( optVertex_t *ov, optIsland_t *island ) {
 		glEnd();
 		glFlush();
 	}
+#endif
+// BEATO End
 
 	// replace the two edges with a single edge
 	UnlinkEdge( e1, island );
@@ -816,7 +828,7 @@ static void FreeOptTriangles( optIsland_t *island ) {
 		Mem_Free( opt );
 	}
 
-	island->tris = NULL;
+	island->tris = nullptr;
 }
 
 
@@ -984,10 +996,13 @@ static void CreateOptTri( optVertex_t *first, optEdge_t *e1, optEdge_t *e2, optI
 		return;
 	}
 
-//DrawEdges( island );
+//BEATO Begin
+#if 0
+	DrawEdges( island );
 
 		// identify the third edge
-	if ( dmapGlobals.drawflag ) {
+	if ( dmapGlobals.drawflag ) 
+	{
 		glColor3f(1,1,0);
 		glBegin( GL_LINES );
 		glVertex3fv( e1->v1->pv.ToFloatPtr() );
@@ -1001,27 +1016,40 @@ static void CreateOptTri( optVertex_t *first, optEdge_t *e1, optEdge_t *e2, optI
 		glEnd();
 		glFlush();
 	}
+#endif 
+// BEATO End
 
-	for ( opposite = second->edges ; opposite ; ) {
-		if ( opposite != e1 && ( opposite->v1 == third || opposite->v2 == third ) ) {
+	for ( opposite = second->edges ; opposite ; ) 
+	{
+		if ( opposite != e1 && ( opposite->v1 == third || opposite->v2 == third ) )
 			break;
-		}
-		if ( opposite->v1 == second ) {
+
+		if ( opposite->v1 == second ) 
+		{
 			opposite = opposite->v1link;
-		} else if ( opposite->v2 == second ) {
+		}
+		else if ( opposite->v2 == second ) 
+		{
 			opposite = opposite->v2link;
-		} else {
+		}
+		else 
+		{
 			common->Error( "BuildOptTriangles: mislinked edge" );
 			return;
 		}
 	}
 
-	if ( !opposite ) {
+	if ( !opposite ) 
+	{
 		common->Printf( "Warning: BuildOptTriangles: couldn't locate opposite\n" );
 		return;
 	}
 
-	if ( dmapGlobals.drawflag ) {
+
+// BEATO Begin:
+#if 0
+	if ( dmapGlobals.drawflag ) 
+	{
 		glColor3f(1,0,1);
 		glBegin( GL_LINES );
 		glVertex3fv( opposite->v1->pv.ToFloatPtr() );
@@ -1029,6 +1057,8 @@ static void CreateOptTri( optVertex_t *first, optEdge_t *e1, optEdge_t *e2, optI
 		glEnd();
 		glFlush();
 	}
+#endif
+// BEATO End
 
 	// create new triangle
 	optTri = (optTri_t *)Mem_Alloc( sizeof( *optTri ), TAG_DMAP );
@@ -1039,7 +1069,10 @@ static void CreateOptTri( optVertex_t *first, optEdge_t *e1, optEdge_t *e2, optI
 	optTri->next = island->tris;
 	island->tris = optTri;
 
-	if ( dmapGlobals.drawflag ) {
+// BEATO Begin
+#if 0
+	if ( dmapGlobals.drawflag ) 
+	{
 		glColor3f( 1, 1, 1 );
 		glPointSize( 4 );
 		glBegin( GL_POINTS );
@@ -1047,20 +1080,26 @@ static void CreateOptTri( optVertex_t *first, optEdge_t *e1, optEdge_t *e2, optI
 		glEnd();
 		glFlush();
 	}
+#endif
+// BEATO End
 
 	// find the midpoint, and scan through all the original triangles to
 	// see if it is inside any of them
-	for ( tri = island->group->triList ; tri ; tri = tri->next ) {
-		if ( PointInTri( optTri->midpoint, tri, island ) ) {
+	for ( tri = island->group->triList ; tri ; tri = tri->next ) 
+	{
+		if ( PointInTri( optTri->midpoint, tri, island ) ) 
 			break;
-		}
 	}
-	if ( tri ) {
+
+	if ( tri )
 		optTri->filled = true;
-	} else {
+	else 
 		optTri->filled = false;
-	}
-	if ( dmapGlobals.drawflag ) {
+
+// BEATO Begin:
+#if 0
+	if ( dmapGlobals.drawflag ) 
+	{
 		if ( optTri->filled ) {
 			glColor3f( ( 128 + orandom.RandomInt( 127 ) )/ 255.0, 0, 0 );
 		} else {
@@ -1079,6 +1118,8 @@ static void CreateOptTri( optVertex_t *first, optEdge_t *e1, optEdge_t *e2, optI
 		glEnd();
 		glFlush();
 	}
+#endif 
+// BEATO End
 
 	// link the triangle to it's edges
 	LinkTriToEdge( optTri, e1 );
@@ -1107,7 +1148,7 @@ static void BuildOptTriangles( optIsland_t *island ) {
 
 	// clear the edge triangle links
 	for ( check = island->edges ; check ; check = check->islandLink ) {
-		check->frontTri = check->backTri = NULL;
+		check->frontTri = check->backTri = nullptr;
 	}
 
 	// check all possible triangle made up out of the
@@ -1117,89 +1158,105 @@ static void BuildOptTriangles( optIsland_t *island ) {
 			continue;
 		}
 
+// BEATO Begin: 
 #if 0
-if ( dmapGlobals.drawflag && ov == (optVertex_t *)0x1845a60 ) {
-for ( e1 = ov->edges ; e1 ; e1 = e1Next ) {
-	glBegin( GL_LINES );
-	glColor3f( 0,1,0 );
-	glVertex3fv( e1->v1->pv.ToFloatPtr() );
-	glVertex3fv( e1->v2->pv.ToFloatPtr() );
-	glEnd();
-	glFlush();
-	if ( e1->v1 == ov ) {
-		e1Next = e1->v1link;
-	} else if ( e1->v2 == ov ) {
-		e1Next = e1->v2link;
+	if ( dmapGlobals.drawflag && ov == (optVertex_t *)0x1845a60 ) 
+	{
+		for ( e1 = ov->edges ; e1 ; e1 = e1Next ) 
+		{
+			glBegin( GL_LINES );
+			glColor3f( 0,1,0 );
+			glVertex3fv( e1->v1->pv.ToFloatPtr() );
+			glVertex3fv( e1->v2->pv.ToFloatPtr() );
+			glEnd();
+			glFlush();
+
+			if ( e1->v1 == ov ) 
+				e1Next = e1->v1link;
+			else if ( e1->v2 == ov )
+				e1Next = e1->v2link;
+		}
 	}
-}
-}
 #endif
-		for ( e1 = ov->edges ; e1 ; e1 = e1Next ) {
-			if ( e1->v1 == ov ) {
+// BEATO End
+
+		for ( e1 = ov->edges ; e1 ; e1 = e1Next ) 
+		{
+			if ( e1->v1 == ov ) 
+			{
 				second = e1->v2;
 				e1Next = e1->v1link;
-			} else if ( e1->v2 == ov ) {
+			} 
+			else if ( e1->v2 == ov ) 
+			{
 				second = e1->v1;
 				e1Next = e1->v2link;
-			} else {
+			} 
+			else 
+			{
 				common->Error( "BuildOptTriangles: mislinked edge" );
 			}
 
 			// if the vertex has already been used, it can't be used again
-			if ( second->emited ) {
+			if ( second->emited ) 
 				continue;
-			}
 
-			for ( e2 = ov->edges ; e2 ; e2 = e2Next ) {
-				if ( e2->v1 == ov ) {
+			for ( e2 = ov->edges ; e2 ; e2 = e2Next ) 
+			{
+				if ( e2->v1 == ov ) 
+				{
 					third = e2->v2;
 					e2Next = e2->v1link;
-				} else if ( e2->v2 == ov ) {
+				} 
+				else if ( e2->v2 == ov ) 
+				{
 					third = e2->v1;
 					e2Next = e2->v2link;
-				} else {
+				} 
+				else 
+				{
 					common->Error( "BuildOptTriangles: mislinked edge" );
 				}
-				if ( e2 == e1 ) {
+				
+				if ( e2 == e1 )
 					continue;
-				}
 
 				// if the vertex has already been used, it can't be used again
-				if ( third->emited ) {
+				if ( third->emited )
 					continue;
-				}
 
 				// if the triangle is backwards or degenerate, don't use it
-				if ( !IsTriangleValid( ov, second, third ) ) {
+				if ( !IsTriangleValid( ov, second, third ) )
 					continue;
-				}
 
 				// see if any other edge bisects these two, which means
 				// this triangle shouldn't be used
-				for ( check = ov->edges ; check ; check = checkNext ) {
-					if ( check->v1 == ov ) {
+				for ( check = ov->edges ; check ; check = checkNext ) 
+				{
+					if ( check->v1 == ov ) 
+					{
 						middle = check->v2;
 						checkNext = check->v1link;
-					} else if ( check->v2 == ov ) {
+					} 
+					else if ( check->v2 == ov ) 
+					{
 						middle = check->v1;
 						checkNext = check->v2link;
-					} else {
+					} 
+					else 
+					{
 						common->Error( "BuildOptTriangles: mislinked edge" );
 					}
 
-					if ( check == e1 || check == e2 ) {
+					if ( check == e1 || check == e2 ) 
 						continue;
-					}
 
-					if ( IsTriangleValid( ov, second, middle ) 
-						&& IsTriangleValid( ov, middle, third ) ) {
+					if ( IsTriangleValid( ov, second, middle ) && IsTriangleValid( ov, middle, third ) )
 						break;	// should use the subdivided ones
-					}
 				}
 
-				if ( check ) {
+				if ( check )
 					continue;	// don't use it
-				}
 
 				// the triangle is valid
 				CreateOptTri( ov, e1, e2, island );
@@ -1348,14 +1405,14 @@ void AddEdgeIfNotAlready( optVertex_t *v1, optVertex_t *v2 ) {
 	e->v1 = v1;
 	e->v2 = v2;
 
-	e->islandLink = NULL;
+	e->islandLink = nullptr;
 
 	// link the edge to its verts
 	LinkEdge( e );
 }
 
-
-
+// BEATO Begin: no draw in map conpiler
+#if 0 
 /*
 =================
 DrawOriginalEdges
@@ -1379,9 +1436,11 @@ static void DrawOriginalEdges( int numOriginalEdges, originalEdges_t *originalEd
 	glEnd();
 	glFlush();
 }
+#endif
+// BEATO End
 
-
-typedef struct edgeCrossing_s {
+typedef struct edgeCrossing_s 
+{
 	struct edgeCrossing_s	*next;
 	optVertex_t		*ov;
 } edgeCrossing_t;
@@ -1472,7 +1531,8 @@ static	void AddOriginalEdges( optimizeGroup_t *opt ) {
 SplitOriginalEdgesAtCrossings
 =====================
 */
-void SplitOriginalEdgesAtCrossings( optimizeGroup_t *opt ) {
+void SplitOriginalEdgesAtCrossings( optimizeGroup_t *opt ) 
+{
 	int				i, j, k, l;
 	int				numOriginalVerts;
 	edgeCrossing_t	**crossings;
@@ -1481,6 +1541,7 @@ void SplitOriginalEdgesAtCrossings( optimizeGroup_t *opt ) {
 	// now split any crossing edges and create optEdges
 	// linked to the vertexes
 
+#if 0
 	// debug drawing bounds
 	dmapGlobals.drawBounds = optBounds;
 
@@ -1488,12 +1549,16 @@ void SplitOriginalEdgesAtCrossings( optimizeGroup_t *opt ) {
 	dmapGlobals.drawBounds[0][1] -= 2;
 	dmapGlobals.drawBounds[1][0] += 2;
 	dmapGlobals.drawBounds[1][1] += 2;
+#endif
 
 	// generate crossing points between all the original edges
 	crossings = (edgeCrossing_t **)Mem_ClearedAlloc( numOriginalEdges * sizeof( *crossings ), TAG_DMAP );
 
-	for ( i = 0 ; i < numOriginalEdges ; i++ ) {
-		if ( dmapGlobals.drawflag ) {
+	for ( i = 0 ; i < numOriginalEdges ; i++ ) 
+	{
+#if 0
+		if ( dmapGlobals.drawflag ) 
+		{
 			DrawOriginalEdges( numOriginalEdges, originalEdges );
 			glBegin( GL_LINES );
 			glColor3f( 0, 1, 0 );
@@ -1503,7 +1568,10 @@ void SplitOriginalEdgesAtCrossings( optimizeGroup_t *opt ) {
 			glEnd();
 			glFlush();
 		}
-		for ( j = i+1 ; j < numOriginalEdges ; j++ ) {
+#endif
+
+		for ( j = i+1 ; j < numOriginalEdges ; j++ ) 
+		{
 			optVertex_t	*v1, *v2, *v3, *v4;
 			optVertex_t	*newVert;
 			edgeCrossing_t	*cross;
@@ -1523,7 +1591,8 @@ void SplitOriginalEdgesAtCrossings( optimizeGroup_t *opt ) {
 			// geometry in the source triangles
 			newVert = EdgeIntersection( v1, v2, v3, v4, opt );
 
-			if ( !newVert ) {
+			if ( !newVert ) 
+			{
 //common->Printf( "lines %i (%i to %i) and %i (%i to %i) are colinear\n", i, v1 - optVerts, v2 - optVerts, 
 //		   j, v3 - optVerts, v4 - optVerts );	// !@#
 				// colinear, so add both verts of each edge to opposite
@@ -1763,7 +1832,7 @@ static void DontSeparateIslands( optimizeGroup_t *opt )
 
 //	DrawAllEdges();
 
-	memset( &island, 0, sizeof( island ) );
+	std::memset( &island, 0, sizeof( island ) );
 	island.group = opt;
 
 	// link everything together
@@ -1792,7 +1861,7 @@ static	void OptimizeOptList( optimizeGroup_t *opt ) {
 	// so we can match edges
 	// can we avoid doing this if colinear vertexes break edges?
 	oldNext = opt->nextGroup;
-	opt->nextGroup = NULL;
+	opt->nextGroup = nullptr;
 	FixAreaGroupsTjunctions( opt );
 	opt->nextGroup = oldNext;
 

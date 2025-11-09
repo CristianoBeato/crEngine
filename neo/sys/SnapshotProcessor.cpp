@@ -90,7 +90,7 @@ void idSnapshotProcessor::Reset( bool cstor )
 	
 	partialBaseSequence = -1;
 	
-	memset( &jobMemory->lzwInOutData, 0, sizeof( jobMemory->lzwInOutData ) );
+	std::memset( &jobMemory->lzwInOutData, 0, sizeof( jobMemory->lzwInOutData ) );
 }
 
 /*
@@ -249,7 +249,7 @@ int idSnapshotProcessor::GetPendingSnapDelta( byte* outBuffer, int maxLength )
 	}
 	
 	// Copy to out buffer
-	memcpy( outBuffer, deltaData, size );
+	std::memcpy( outBuffer, deltaData, size );
 	
 	// Set the sequence to what this delta actually belongs to
 	assert( jobMemory->lzwDeltas[0].snapSequence == snapSequence + 1 );
@@ -275,7 +275,7 @@ int idSnapshotProcessor::GetPendingSnapDelta( byte* outBuffer, int maxLength )
 				idLib::Error( "GetPendingSnapDelta: Size overflow for resend." );
 			}
 			
-			memcpy( outBuffer, deltas.ItemData( deltas.Num() - 1 ), resendLength );
+			std::memcpy( outBuffer, deltas.ItemData( deltas.Num() - 1 ), resendLength );
 			size = -resendLength;
 		}
 	}
@@ -561,7 +561,7 @@ void idSnapshotProcessor::AddSnapObjTemplate( int objID, idBitMsg& msg )
 {
 	extern idCVar net_ssTemplateDebug;
 	idSnapShot::objectState_t* state = templateStates.S_AddObject( objID, MAX_UNSIGNED_TYPE( uint32_t ), msg );
-	if( verify( state != NULL ) )
+	if( verify( state != nullptr ) )
 	{
 		if( net_ssTemplateDebug.GetBool() )
 		{

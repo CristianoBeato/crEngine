@@ -57,7 +57,7 @@ private:
 public:
 	inline CComPtr()
 	{
-		_ptr = NULL;
+		_ptr = nullptr;
 	}
 	
 	inline CComPtr( T* ptr )
@@ -73,7 +73,7 @@ public:
 	{
 		if( _ptr )
 			_ptr->Release();
-		_ptr = NULL;
+		_ptr = nullptr;
 	}
 	
 	inline CComPtr& operator = ( T* ptr )

@@ -45,10 +45,10 @@ constructor
 */
 rvOpenFileDialog::rvOpenFileDialog( void )
 {
-	mWnd		= NULL;
-	mInstance	= NULL;
-	mBackBitmap = NULL;
-	mImageList	= NULL;
+	mWnd		= nullptr;
+	mInstance	= nullptr;
+	mBackBitmap = nullptr;
+	mImageList	= nullptr;
 	mFlags		= 0;
 }
 
@@ -175,7 +175,7 @@ void rvOpenFileDialog::UpdateFileList ( void )
 		}
 	
 		LVITEM item;
-		memset(&item,0,sizeof(item));
+		std::memset(&item,0,sizeof(item));
 		item.mask = LVIF_TEXT;
 		item.iItem = ListView_GetItemCount ( list );
 		item.pszText = (LPSTR)files->GetFile( i );
@@ -197,7 +197,7 @@ void rvOpenFileDialog::UpdateFileList ( void )
 			}
 	
 			LVITEM item;
-			memset(&item,0,sizeof(item));
+			std::memset(&item,0,sizeof(item));
 			item.mask = LVIF_TEXT|LVIF_IMAGE;
 			item.iImage = 2;
 			item.iItem = ListView_GetItemCount( list );

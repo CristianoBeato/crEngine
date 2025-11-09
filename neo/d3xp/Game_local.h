@@ -175,7 +175,7 @@ public:
 		OUTOFORDER_SORT
 	} outOfOrderBehaviour_t;
 	
-	idEventQueue() : start( NULL ), end( NULL ) {}
+	idEventQueue() : start( nullptr ), end( nullptr ) {}
 	
 	entityNetEvent_t* 		Alloc();
 	void					Free( entityNetEvent_t* event );
@@ -472,13 +472,13 @@ public:
 	gameState_t				GameState() const;
 
 	template<typename T>
-	T*						SpawnEntity( const idDict* args = NULL ) 
+	T*						SpawnEntity( const idDict* args = nullptr ) 
 	{
 		return static_cast<T*>( SpawnEntityType( T::Type, args ) ); 
 	}
 
-	idEntity* 				SpawnEntityType( const idTypeInfo& classdef, const idDict* args = NULL );
-	bool					SpawnEntityDef( const idDict& args, idEntity** ent = NULL, bool setDefaults = true );
+	idEntity* 				SpawnEntityType( const idTypeInfo& classdef, const idDict* args = nullptr );
+	bool					SpawnEntityDef( const idDict& args, idEntity** ent = nullptr, bool setDefaults = true );
 	int						GetSpawnId( const idEntity* ent ) const;
 	
 	const idDeclEntityDef* 	FindEntityDef( const char* name, bool makeDefault = true ) const;
@@ -551,7 +551,7 @@ public:
 	idPlayer* 				GetLocalPlayer() const;
 	
 	void					SpreadLocations();
-	idLocationEntity* 		LocationForPoint( const idVec3& point );	// May return NULL
+	idLocationEntity* 		LocationForPoint( const idVec3& point );	// May return nullptr
 	idEntity* 				SelectInitialSpawnPoint( idPlayer* player );
 	
 	void					SetPortalState( qhandle_t portal, int blockingBits );
@@ -649,7 +649,7 @@ private:
 	const static int		INITIAL_SPAWN_COUNT = 1;
 	
 	idStr					mapFileName;			// name of the map, empty string if no map loaded
-	idMapFile* 				mapFile;				// will be NULL during the game unless in-game editing is used
+	idMapFile* 				mapFile;				// will be nullptr during the game unless in-game editing is used
 	bool					mapCycleLoaded;
 	
 	int						spawnCount;
@@ -791,7 +791,7 @@ ID_INLINE void idEntityPtr<type>::Restore( idRestoreGame* savefile )
 template< class type >
 ID_INLINE idEntityPtr<type>& idEntityPtr<type>::operator=( const type* ent )
 {
-	if( ent == NULL )
+	if( ent == nullptr )
 	{
 		spawnId = 0;
 	}
@@ -830,7 +830,7 @@ ID_INLINE bool idEntityPtr<type>::SetSpawnId( int id )
 template< class type >
 ID_INLINE bool idEntityPtr<type>::IsValid() const
 {
-	return GetEntity() != NULL;
+	return GetEntity() != nullptr;
 }
 
 template< class type >
@@ -919,11 +919,11 @@ ID_INLINE type* idEntityPtr<type>::GetEntity() const
 	if( gameLocal.spawnIds[ entityNum ] == ( spawnId >> GENTITYNUM_BITS ) )
 	{
 		if ( gameLocal.entities[ entityNum ] && !gameLocal.entities[ entityNum ]->GetType()->IsType( type::Type ))
-			return NULL;
+			return nullptr;
 
 		return static_cast<type*>( gameLocal.entities[ entityNum ] );
 	}
-	return NULL;
+	return nullptr;
 }
 
 class SetTimeState

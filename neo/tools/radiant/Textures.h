@@ -39,7 +39,7 @@ void		Texture_ShowInuse (void);
 void		Texture_ShowDirectory (int menunum, bool bLinked = false);
 void		Texture_ShowAll();
 void		Texture_HideAll();
-void		Texture_Cleanup(CStringList *pList = NULL);
+void		Texture_Cleanup(CStringList *pList = nullptr);
 
 // TTimo: added bNoAlpha flag to ignore alpha channel when parsing a .TGA file, transparency is usually achieved through qer_trans keyword in shaders
 // in some cases loading an empty alpha channel causes display bugs (brushes not seen)

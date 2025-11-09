@@ -47,7 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 #define	RP_IDM_STARTITEMS		0x102
 
 idList<HWND>	rvRollupPanel::mDialogs;	
-HHOOK			rvRollupPanel::mDialogHook	= NULL;
+HHOOK			rvRollupPanel::mDialogHook	= nullptr;
 
 #define DEFERPOS
 
@@ -62,7 +62,7 @@ rvRollupPanel::rvRollupPanel ( void )
 {
 	mStartYPos  = 0;
 	mItemHeight = 0;
-	mWindow		= NULL;
+	mWindow		= nullptr;
 }
 
 /*
@@ -91,13 +91,13 @@ Create the rollup panel window
 bool rvRollupPanel::Create ( DWORD dwStyle, const RECT& rect, HWND parent, unsigned int id )
 {
 	WNDCLASSEX wndClass;
-	memset ( &wndClass, 0, sizeof(wndClass) );
+	std::memset ( &wndClass, 0, sizeof(wndClass) );
 	wndClass.cbSize		   = sizeof(WNDCLASSEX);
 	wndClass.lpszClassName = "ROLLUP_PANEL";
 	wndClass.lpfnWndProc   = WindowProc;
 	wndClass.hbrBackground = (HBRUSH)GetSysColorBrush ( COLOR_3DFACE ); 
-	wndClass.hCursor       = LoadCursor((HINSTANCE) NULL, IDC_ARROW); 
-	wndClass.lpszMenuName  = NULL;
+	wndClass.hCursor       = LoadCursor((HINSTANCE) nullptr, IDC_ARROW); 
+	wndClass.lpszMenuName  = nullptr;
 	wndClass.hInstance     = win32.hInstance; 
 	wndClass.style		   = CS_VREDRAW | CS_HREDRAW;
 	RegisterClassEx ( &wndClass );
@@ -108,7 +108,7 @@ bool rvRollupPanel::Create ( DWORD dwStyle, const RECT& rect, HWND parent, unsig
 							dwStyle|WS_CLIPSIBLINGS, 
 							rect.left, rect.top, rect.right-rect.left, rect.bottom-rect.top,
 							parent, 
-							NULL, 
+							nullptr, 
 							win32.hInstance, 
 							this );
 							
@@ -145,12 +145,12 @@ int rvRollupPanel::InsertItem ( const char* caption, HWND dialog, bool autoDestr
 	// Create the GroupBox control
 	HWND groupbox = CreateWindow ( "BUTTON", "", WS_CHILD|BS_GROUPBOX, 
 								   r.left, r.top, r.right-r.left, r.bottom-r.top,
-								   mWindow, 0, win32.hInstance, NULL );
+								   mWindow, 0, win32.hInstance, nullptr );
 								   
 	// Create the expand button
 	HWND button = CreateWindow ( "BUTTON", caption, WS_CHILD|BS_AUTOCHECKBOX|BS_PUSHLIKE|BS_FLAT, 
 								   r.left, r.top, r.right-r.left, r.bottom-r.top,
-								   mWindow, 0, win32.hInstance, NULL );
+								   mWindow, 0, win32.hInstance, nullptr );
 
 	// Change the button's font
 	SendMessage ( button, WM_SETFONT, (WPARAM) GetStockObject(DEFAULT_GUI_FONT), 0 );
@@ -196,7 +196,7 @@ int rvRollupPanel::InsertItem ( const char* caption, HWND dialog, bool autoDestr
 	// One hook for all panel dialogs
 	if ( !mDialogHook )
 	{
-		mDialogHook = SetWindowsHookEx( WH_GETMESSAGE, GetMsgProc, NULL, GetCurrentThreadId() );
+		mDialogHook = SetWindowsHookEx( WH_GETMESSAGE, GetMsgProc, nullptr, GetCurrentThreadId() );
 	}
 	
 	mDialogs.Append ( dialog );
@@ -284,7 +284,7 @@ void rvRollupPanel::_RemoveItem ( int index )
 	if ( mDialogs.Num () <= 0 )
 	{
 		UnhookWindowsHookEx( mDialogHook );
-		mDialogHook = NULL;
+		mDialogHook = nullptr;
 	}
 
 	// finish up
@@ -677,7 +677,7 @@ int rvRollupPanel::GetItemIndex	( const char* caption )
 ================
 rvRollupPanel::GetItem
 
-Return NULL if the index is invalid
+Return nullptr if the index is invalid
 ================
 */
 RPITEM* rvRollupPanel::GetItem ( int index )
@@ -685,7 +685,7 @@ RPITEM* rvRollupPanel::GetItem ( int index )
 	// safety check
 	if ( index >= mItems.Num() || index < 0 ) 
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	return mItems[index];
@@ -739,7 +739,7 @@ LRESULT CALLBACK rvRollupPanel::DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
 					_this->mStartYPos += (pos.y-_this->mOldMouseYPos);
 					_this->RecallLayout();
 					_this->mOldMouseYPos = pos.y;
-					InvalidateRect ( _this->mWindow, NULL, TRUE );
+					InvalidateRect ( _this->mWindow, nullptr, TRUE );
 					return 0;
 				}
 
@@ -748,7 +748,7 @@ LRESULT CALLBACK rvRollupPanel::DialogProc(HWND hWnd, UINT uMsg, WPARAM wParam, 
 			case WM_SETCURSOR:
 				if ( (HWND)wParam == hWnd)
 				{ 
-					SetCursor ( LoadCursor (NULL, RP_ROLLCURSOR) ); 
+					SetCursor ( LoadCursor (nullptr, RP_ROLLCURSOR) ); 
 					return TRUE; 
 				}
 				break;
@@ -1068,7 +1068,7 @@ int rvRollupPanel::HandleMouseMove ( WPARAM wParam, LPARAM lParam )
 
 		RecallLayout ( );
 		
-		InvalidateRect ( mWindow, NULL, FALSE );		
+		InvalidateRect ( mWindow, nullptr, FALSE );		
 //		UpdateWindow ( mWindow );
 	}
 
@@ -1143,7 +1143,7 @@ int rvRollupPanel::HandleContextMenu ( WPARAM wParam, LPARAM lParam )
 			CheckMenuItem ( menu, RP_IDM_STARTITEMS + i, MF_CHECKED);
 		}
 
-		TrackPopupMenu ( menu, TPM_LEFTALIGN|TPM_LEFTBUTTON, point.x, point.y, 0, mWindow, NULL );
+		TrackPopupMenu ( menu, TPM_LEFTALIGN|TPM_LEFTBUTTON, point.x, point.y, 0, mWindow, nullptr );
 	}
 	
 	return 0;
@@ -1172,9 +1172,9 @@ LRESULT FAR PASCAL rvRollupPanel::GetMsgProc ( int nCode, WPARAM wParam, LPARAM 
 				{
 					// The value returned from this hookproc is ignored, 
 					// and it cannot be used to tell Windows the message has been handled.
-					// To avoid further processing, convert the message to WM_NULL 
+					// To avoid further processing, convert the message to WM_nullptr 
 					// before returning.
-					lpMsg->message = WM_NULL;
+					lpMsg->message = WM_nullptr;
 					lpMsg->lParam  = 0;
 					lpMsg->wParam  = 0;
 					break;
@@ -1211,6 +1211,6 @@ void rvRollupPanel::AutoSize ( void )
 	
 	RECT cr;
 	GetWindowRect ( mWindow, &cr );
-	SetWindowPos ( mWindow, NULL, 0, 0, width, cr.bottom-cr.top, SWP_NOMOVE|SWP_NOZORDER );
+	SetWindowPos ( mWindow, nullptr, 0, 0, width, cr.bottom-cr.top, SWP_NOMOVE|SWP_NOZORDER );
 }
 

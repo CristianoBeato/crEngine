@@ -597,7 +597,7 @@ int idDeviceContext::DrawText( float x, float y, float scale, idVec4 color, cons
 	if( text && color.w != 0.0f )
 	{
 		renderSystem->SetColor( color );
-		memcpy( &newColor[0], &color[0], sizeof( idVec4 ) );
+		std::memcpy( &newColor[0], &color[0], sizeof( idVec4 ) );
 		len = drawText.Length();
 		if( limit > 0 && len > limit )
 		{
@@ -683,7 +683,7 @@ int idDeviceContext::CharWidth( const char c, float scale )
 
 int idDeviceContext::TextWidth( const char* text, float scale, int limit )
 {
-	if( text == NULL )
+	if( text == nullptr )
 	{
 		return 0;
 	}
@@ -748,7 +748,7 @@ const idMaterial* idDeviceContext::GetScrollBarImage( int index )
 // this only supports left aligned text
 idRegion* idDeviceContext::GetTextRegion( const char* text, float textScale, idRectangle rectDraw, float xStart, float yStart )
 {
-	return NULL;
+	return nullptr;
 }
 
 void idDeviceContext::DrawEditCursor( float x, float y, float scale )
@@ -1210,7 +1210,7 @@ int idDeviceContextOptimized::DrawText( float x, float y, float scale, idVec4 co
 			float y1 = yOffset + drawY * yScale;
 			float y2 = yOffset + ( drawY + h ) * yScale;
 			idDrawVert* verts = tr_guiModel->AllocTris( 4, quadPicIndexes, 6, glyphInfo.material, 0, STEREO_DEPTH_TYPE_NONE );
-			if( verts != NULL )
+			if( verts != nullptr )
 			{
 				verts[0].xyz[0] = x1;
 				verts[0].xyz[1] = y1;

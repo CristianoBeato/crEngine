@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tools/guied/GEWindowWrapper.h"
 #if !defined(ID_ALLOW_TOOLS)
-static rvGEWindowWrapper stub_wrap( NULL, rvGEWindowWrapper::WT_UNKNOWN );
+static rvGEWindowWrapper stub_wrap( nullptr, rvGEWindowWrapper::WT_UNKNOWN );
 
 rvGEWindowWrapper::rvGEWindowWrapper( idWindow* window, EWindowType type ) { }
 

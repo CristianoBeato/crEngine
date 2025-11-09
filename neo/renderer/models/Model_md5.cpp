@@ -235,7 +235,7 @@ void idMD5Mesh::ParseMesh( idLexer& parser, int numJoints, const idJointMat* joi
 	// create pre-scaled weights and an index for the vertex/joint lookup
 	idVec4* scaledWeights = ( idVec4* ) Mem_Alloc16( numWeights * sizeof( scaledWeights[0] ), TAG_MD5_WEIGHT );
 	int* weightIndex = ( int* ) Mem_Alloc16( numWeights * 2 * sizeof( weightIndex[0] ), TAG_MD5_INDEX );
-	memset( weightIndex, 0, numWeights * 2 * sizeof( weightIndex[0] ) );
+	std::memset( weightIndex, 0, numWeights * 2 * sizeof( weightIndex[0] ) );
 	
 	count = 0;
 	for( int i = 0; i < texCoords.Num(); i++ )
@@ -786,7 +786,7 @@ bool idRenderModelMD5::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTime
 		file->ReadBig( deform.numSilEdges );
 		
 		crDrawGeometry	tri;
-		memset( &tri, 0, sizeof( crDrawGeometry ) );
+		std::memset( &tri, 0, sizeof( crDrawGeometry ) );
 		
 		if( deform.numOutputVerts > 0 )
 		{

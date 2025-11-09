@@ -71,7 +71,7 @@ idCompressor_None::idCompressor_None
 */
 idCompressor_None::idCompressor_None()
 {
-	file = NULL;
+	file = nullptr;
 	compress = true;
 }
 
@@ -321,13 +321,13 @@ void idCompressor_BitStream::Init( idFile* f, bool compress, int wordLength )
 	readLength = 0;
 	readByte = 0;
 	readBit = 0;
-	readData = NULL;
+	readData = nullptr;
 	
 	writeTotalBytes = 0;
 	writeLength = 0;
 	writeByte = 0;
 	writeBit = 0;
-	writeData = NULL;
+	writeData = nullptr;
 }
 
 /*
@@ -1015,19 +1015,19 @@ void idCompressor_Huffman::Init( idFile* f, bool compress, int wordLength )
 	compressedSize = 0;
 	unCompressedSize = 0;
 	
-	tree = NULL;
-	lhead = NULL;
-	ltail = NULL;
+	tree = nullptr;
+	lhead = nullptr;
+	ltail = nullptr;
 	for( i = 0; i < ( HMAX + 1 ); i++ )
 	{
-		loc[i] = NULL;
+		loc[i] = nullptr;
 	}
-	freelist = NULL;
+	freelist = nullptr;
 	
 	for( i = 0; i < 768; i++ )
 	{
-		memset( &nodeList[i], 0, sizeof( huffmanNode_t ) );
-		nodePtrs[i] = NULL;
+		std::memset( &nodeList[i], 0, sizeof( huffmanNode_t ) );
+		nodePtrs[i] = nullptr;
 	}
 	
 	if( compress )
@@ -1036,8 +1036,8 @@ void idCompressor_Huffman::Init( idFile* f, bool compress, int wordLength )
 		tree = lhead = loc[NYT] = &nodeList[blocNode++];
 		tree->symbol = NYT;
 		tree->weight = 0;
-		lhead->next = lhead->prev = NULL;
-		tree->parent = tree->left = tree->right = NULL;
+		lhead->next = lhead->prev = nullptr;
+		tree->parent = tree->left = tree->right = nullptr;
 	}
 	else
 	{
@@ -1045,8 +1045,8 @@ void idCompressor_Huffman::Init( idFile* f, bool compress, int wordLength )
 		tree = lhead = ltail = loc[NYT] = &nodeList[blocNode++];
 		tree->symbol = NYT;
 		tree->weight = 0;
-		lhead->next = lhead->prev = NULL;
-		tree->parent = tree->left = tree->right = NULL;
+		lhead->next = lhead->prev = nullptr;
+		tree->parent = tree->left = tree->right = nullptr;
 	}
 }
 
@@ -1262,7 +1262,7 @@ void idCompressor_Huffman::Increment( huffmanNode_t* node )
 		return;
 	}
 	
-	if( node->next != NULL && node->next->weight == node->weight )
+	if( node->next != nullptr && node->next->weight == node->weight )
 	{
 		lnode = *node->head;
 		if( lnode != node->parent )
@@ -1277,7 +1277,7 @@ void idCompressor_Huffman::Increment( huffmanNode_t* node )
 	}
 	else
 	{
-		*node->head = NULL;
+		*node->head = nullptr;
 		Free_ppnode( node->head );
 	}
 	node->weight++;
@@ -1312,7 +1312,7 @@ idCompressor_Huffman::AddRef
 void idCompressor_Huffman::AddRef( byte ch )
 {
 	huffmanNode_t* tnode, *tnode2;
-	if( loc[ch] == NULL )    /* if this is the first transmission of this node */
+	if( loc[ch] == nullptr )    /* if this is the first transmission of this node */
 	{
 		tnode = &nodeList[blocNode++];
 		tnode2 = &nodeList[blocNode++];
@@ -1366,7 +1366,7 @@ void idCompressor_Huffman::AddRef( byte ch )
 		}
 		lhead->next = tnode;
 		tnode->prev = lhead;
-		tnode->left = tnode->right = NULL;
+		tnode->left = tnode->right = nullptr;
 		
 		if( lhead->parent )
 		{
@@ -1463,7 +1463,7 @@ idCompressor_Huffman::Transmit
 void idCompressor_Huffman::Transmit( int ch, byte* fout )
 {
 	int i;
-	if( loc[ch] == NULL )
+	if( loc[ch] == nullptr )
 	{
 		/* huffmanNode_t hasn't been transmitted, send a NYT, then the symbol */
 		Transmit( NYT, fout );
@@ -1474,7 +1474,7 @@ void idCompressor_Huffman::Transmit( int ch, byte* fout )
 	}
 	else
 	{
-		Send( loc[ch], NULL, fout );
+		Send( loc[ch], nullptr, fout );
 	}
 }
 
@@ -2250,8 +2250,8 @@ void idCompressor_LZSS::CompressBlock()
 	
 	InitCompress( block, blockSize );
 	
-	memset( hashTable, -1, sizeof( hashTable ) );
-	memset( hashNext, -1, sizeof( hashNext ) );
+	std::memset( hashTable, -1, sizeof( hashTable ) );
+	std::memset( hashNext, -1, sizeof( hashNext ) );
 	
 	startWord = 0;
 	while( readByte < readLength )
@@ -2335,14 +2335,14 @@ int idCompressor_LZSS::Write( const void* inData, int inLength )
 		n = LZSS_BLOCK_SIZE - blockSize;
 		if( inLength - i >= n )
 		{
-			memcpy( block + blockSize, ( ( const byte* )inData ) + i, n );
+			std::memcpy( block + blockSize, ( ( const byte* )inData ) + i, n );
 			blockSize = LZSS_BLOCK_SIZE;
 			CompressBlock();
 			blockSize = 0;
 		}
 		else
 		{
-			memcpy( block + blockSize, ( ( const byte* )inData ) + i, inLength - i );
+			std::memcpy( block + blockSize, ( ( const byte* )inData ) + i, inLength - i );
 			n = inLength - i;
 			blockSize += n;
 		}
@@ -2397,13 +2397,13 @@ int idCompressor_LZSS::Read( void* outData, int outLength )
 		n = blockSize - blockIndex;
 		if( outLength - i >= n )
 		{
-			memcpy( ( ( byte* )outData ) + i, block + blockIndex, n );
+			std::memcpy( ( ( byte* )outData ) + i, block + blockIndex, n );
 			DecompressBlock();
 			blockIndex = 0;
 		}
 		else
 		{
-			memcpy( ( ( byte* )outData ) + i, block + blockIndex, outLength - i );
+			std::memcpy( ( ( byte* )outData ) + i, block + blockIndex, outLength - i );
 			n = outLength - i;
 			blockIndex += n;
 		}
@@ -2461,8 +2461,8 @@ void idCompressor_LZSS_WordAligned::CompressBlock()
 	
 	InitCompress( block, blockSize );
 	
-	memset( hashTable, -1, sizeof( hashTable ) );
-	memset( hashNext, -1, sizeof( hashNext ) );
+	std::memset( hashTable, -1, sizeof( hashTable ) );
+	std::memset( hashNext, -1, sizeof( hashNext ) );
 	
 	startWord = 0;
 	while( readByte < readLength )
@@ -2678,13 +2678,13 @@ int idCompressor_LZW::Read( void* outData, int outLength )
 		n = blockSize - blockIndex;
 		if( outLength - i >= n )
 		{
-			memcpy( ( ( byte* )outData ) + i, block + blockIndex, n );
+			std::memcpy( ( ( byte* )outData ) + i, block + blockIndex, n );
 			DecompressBlock();
 			blockIndex = 0;
 		}
 		else
 		{
-			memcpy( ( ( byte* )outData ) + i, block + blockIndex, outLength - i );
+			std::memcpy( ( ( byte* )outData ) + i, block + blockIndex, outLength - i );
 			n = outLength - i;
 			blockIndex += n;
 		}

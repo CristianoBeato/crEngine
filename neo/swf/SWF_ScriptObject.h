@@ -72,7 +72,7 @@ template< typename T >
 class idSWFScriptNativeVariable_Nested : public idSWFScriptNativeVariable
 {
 public:
-	idSWFScriptNativeVariable_Nested() : pThis( NULL ) { }
+	idSWFScriptNativeVariable_Nested() : pThis( nullptr ) { }
 	idSWFScriptNativeVariable_Nested* Bind( T* p )
 	{
 		pThis = p;
@@ -129,7 +129,7 @@ public:
 	}
 	idSWFSpriteInstance* 	GetSprite()
 	{
-		return ( objectType == SWF_OBJECT_SPRITE ) ? data.sprite : NULL;
+		return ( objectType == SWF_OBJECT_SPRITE ) ? data.sprite : nullptr;
 	}
 	
 	void					SetText( idSWFTextInstance* t )
@@ -139,7 +139,7 @@ public:
 	}
 	idSWFTextInstance* 		GetText()
 	{
-		return ( objectType == SWF_OBJECT_TEXT ) ? data.text : NULL;
+		return ( objectType == SWF_OBJECT_TEXT ) ? data.text : nullptr;
 	}
 	
 	// Also accessible via __proto__ property
@@ -149,7 +149,7 @@ public:
 	}
 	void					SetPrototype( idSWFScriptObject* _prototype )
 	{
-		assert( prototype == NULL );
+		assert( prototype == nullptr );
 		prototype = _prototype;
 		prototype->AddRef();
 	}
@@ -178,10 +178,10 @@ public:
 		return variables[i].name;
 	}
 	
-	idSWFScriptVar			GetNestedVar( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
-	idSWFScriptObject* 		GetNestedObj( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
-	idSWFSpriteInstance* 	GetNestedSprite( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
-	idSWFTextInstance* 		GetNestedText( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
+	idSWFScriptVar			GetNestedVar( const char* arg1, const char* arg2 = nullptr, const char* arg3 = nullptr, const char* arg4 = nullptr, const char* arg5 = nullptr, const char* arg6 = nullptr );
+	idSWFScriptObject* 		GetNestedObj( const char* arg1, const char* arg2 = nullptr, const char* arg3 = nullptr, const char* arg4 = nullptr, const char* arg5 = nullptr, const char* arg6 = nullptr );
+	idSWFSpriteInstance* 	GetNestedSprite( const char* arg1, const char* arg2 = nullptr, const char* arg3 = nullptr, const char* arg4 = nullptr, const char* arg5 = nullptr, const char* arg6 = nullptr );
+	idSWFTextInstance* 		GetNestedText( const char* arg1, const char* arg2 = nullptr, const char* arg3 = nullptr, const char* arg4 = nullptr, const char* arg5 = nullptr, const char* arg6 = nullptr );
 	
 	void					PrintToConsole() const;
 	
@@ -197,7 +197,7 @@ private:
 	};
 	struct swfNamedVar_t
 	{
-		swfNamedVar_t() : native( NULL ) { }
+		swfNamedVar_t() : native( nullptr ) { }
 		~swfNamedVar_t();
 		swfNamedVar_t& operator=( const swfNamedVar_t& other );
 		

@@ -305,7 +305,7 @@ public:
 };
 
 // if an entity / light combination has been evaluated and found to not genrate any surfaces or shadows,
-// the constant INTERACTION_EMPTY will be stored in the interaction table, int contrasts to NULL, which
+// the constant INTERACTION_EMPTY will be stored in the interaction table, int contrasts to nullptr, which
 // means that the combination has not yet been tested for having surfaces.
 static idInteraction* const INTERACTION_EMPTY = ( idInteraction* )1;
 

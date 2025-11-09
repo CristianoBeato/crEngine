@@ -194,7 +194,7 @@ void MD5_Transform( unsigned int state[4], const unsigned char block[64] )
 	state[3] += d;
 	
 	// Zeroize sensitive information.
-	memset( ( POINTER )x, 0, sizeof( x ) );
+	std::memset( ( POINTER )x, 0, sizeof( x ) );
 }
 
 /*
@@ -243,7 +243,7 @@ void MD5_Update( MD5_CTX* context, unsigned char const* input, size_t inputLen )
 	// Transform as many times as possible.
 	if( inputLen >= partLen )
 	{
-		memcpy( ( POINTER )&context->in[index], ( POINTER )input, partLen );
+		std::memcpy( ( POINTER )&context->in[index], ( POINTER )input, partLen );
 		MD5_Transform( context->state, context->in );
 		
 		for( i = partLen; i + 63 < inputLen; i += 64 )
@@ -259,7 +259,7 @@ void MD5_Update( MD5_CTX* context, unsigned char const* input, size_t inputLen )
 	}
 	
 	// Buffer remaining input
-	memcpy( ( POINTER )&context->in[index], ( POINTER )&input[i], inputLen - i );
+	std::memcpy( ( POINTER )&context->in[index], ( POINTER )&input[i], inputLen - i );
 }
 
 /*
@@ -290,7 +290,7 @@ void MD5_Final( MD5_CTX* context, unsigned char digest[16] )
 	Encode( digest, context->state, 16 );
 	
 	// Zeroize sensitive information.
-	memset( ( POINTER )context, 0, sizeof( *context ) );
+	std::memset( ( POINTER )context, 0, sizeof( *context ) );
 }
 
 /*

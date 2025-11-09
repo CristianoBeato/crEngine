@@ -249,7 +249,7 @@ public:
 	float					volumeDB;			// last volume at which this channel will play (calculated in UpdateVolume)
 	float					currentAmplitude;	// current amplitude on the hardware voice
 	
-	// hardwareVoice will be freed and NULL'd when a sound is out of range,
+	// hardwareVoice will be freed and nullptr'd when a sound is out of range,
 	// and reallocated when it comes back in range
 	idSoundVoice* 			hardwareVoice;
 	
@@ -355,7 +355,7 @@ public:
 	idSoundFade			soundClassFade[SOUND_MAX_CLASSES];
 	
 	idRenderWorld* 		renderWorld;	// for debug visualization and light amplitude sampling
-	idDemoFile* 		writeDemo;		// if not NULL, archive commands here
+	idDemoFile* 		writeDemo;		// if not nullptr, archive commands here
 	
 	float				currentCushionDB;	// channels at or below this level will be faded to 0
 	float				shakeAmp;			// last calculated shake amplitude
@@ -472,11 +472,11 @@ public:
 	virtual idSoundWorld* 	AllocSoundWorld( idRenderWorld* rw ) override;
 	virtual void			FreeSoundWorld( idSoundWorld* sw ) override;
 	
-	// specifying NULL will cause silence to be played
+	// specifying nullptr will cause silence to be played
 	virtual void			SetPlayingSoundWorld( idSoundWorld* soundWorld ) override;
 	
 	// some tools, like the sound dialog, may be used in both the game and the editor
-	// This can return NULL, so check!
+	// This can return nullptr, so check!
 	virtual idSoundWorld* 	GetPlayingSoundWorld( void ) override;
 	
 	// sends the current playing sound world information to the sound hardware
@@ -539,7 +539,7 @@ public:
 	
 	int						SoundTime() const;
 	
-	// may return NULL if there are no more voices left
+	// may return nullptr if there are no more voices left
 	idSoundVoice* 			AllocateVoice( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
 	void					FreeVoice( idSoundVoice* );
 	
@@ -566,14 +566,14 @@ public:
 		idSoundSample_XAudio2* sample;
 #else // not _MSC_VER
 		// from stub or something..
-		idSoundVoice* 	voice;
-		idSoundSample* sample;
+		idSoundVoiceSDL3*	voice;	
+		idSoundSampleSDL3*	sample;
 #endif // _MSC_VER ; DG end
 		
 		int bufferNumber;
 	};
 	
-	// Get a stream buffer from the free pool, returns NULL if none are available
+	// Get a stream buffer from the free pool, returns nullptr if none are available
 	bufferContext_t* 			ObtainStreamBufferContext();
 	void						ReleaseStreamBufferContext( bufferContext_t* p );
 	

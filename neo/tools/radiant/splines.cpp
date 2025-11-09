@@ -302,7 +302,7 @@ void idSplineList::clear() {
 	clearControl();
 	clearSpline();
 	splineTime.Clear();
-	selected = NULL;
+	selected = nullptr;
 	dirty = true;
 	activeSegment = 0;
 	granularity = 0.025f;
@@ -590,7 +590,7 @@ void idSplineList::setSelectedPoint(idVec3 *p) {
 			}
 		}
 	} else {
-		selected = NULL;
+		selected = nullptr;
 	}
 }
 
@@ -765,7 +765,7 @@ void idCameraDef::clear() {
 		delete events[i];
 	}
 	delete cameraPosition;
-	cameraPosition = NULL;
+	cameraPosition = nullptr;
 	events.Clear();
 	targetPositions.Clear();
 }
@@ -793,7 +793,7 @@ idCameraDef::addTarget
 ================
 */
 void idCameraDef::addTarget(const char *name, idCameraPosition::positionType type) {
-	const char *text = (name == NULL) ? va("target0%d", numTargets()+1) : name;
+	const char *text = (name == nullptr) ? va("target0%d", numTargets()+1) : name;
 	idCameraPosition *pos = newFromType(type);
 	if (pos) {
 		pos->setName(name);
@@ -813,7 +813,7 @@ idCameraDef::getActiveTarget
 */
 idCameraPosition *idCameraDef::getActiveTarget() {
 	if (targetPositions.Num() == 0) {
-		addTarget(NULL, idCameraPosition::FIXED);
+		addTarget(nullptr, idCameraPosition::FIXED);
 	}
 	return targetPositions[activeTarget];
 }
@@ -825,7 +825,7 @@ idCameraDef::getActiveTarget
 */
 idCameraPosition *idCameraDef::getActiveTarget(int index) {
 	if (targetPositions.Num() == 0) {
-		addTarget(NULL, idCameraPosition::FIXED);
+		addTarget(nullptr, idCameraPosition::FIXED);
 		return targetPositions[0];
 	}
 	return targetPositions[index];
@@ -935,7 +935,7 @@ idCameraDef::getPositionObj
 ================
 */
 idCameraPosition *idCameraDef::getPositionObj() {
-	if (cameraPosition == NULL) {
+	if (cameraPosition == nullptr) {
 		cameraPosition = new idFixedPosition();
 	}
 	return cameraPosition;
@@ -1011,10 +1011,10 @@ bool idCameraDef::getCameraInfo(long time, idVec3 &origin, idVec3 &direction, fl
 					}
 #endif
 				} else if (events[i]->getType() == idCameraEvent::EVENT_FOV) {
-					memset(buff, 0, sizeof(buff));
+					std::memset(buff, 0, sizeof(buff));
 					strcpy(buff, events[i]->getParam());
 					const char *param1 = strtok(buff, " \t,\0");
-					const char *param2 = strtok(NULL, " \t,\0");
+					const char *param2 = strtok(nullptr, " \t,\0");
 					fov.reset(fov.GetFOV(time), atof(param1), time, atoi(param2)); 
 					//*fv = fov = atof(events[i]->getParam());
 				} else if (events[i]->getType() == idCameraEvent::EVENT_CAMERA) {
@@ -1402,7 +1402,7 @@ idCameraPosition *idCameraDef::newFromType( idCameraPosition::positionType t ) {
 		case idCameraPosition::INTERPOLATED : return new idInterpolatedPosition();
 		case idCameraPosition::SPLINE : return new idSplinePosition();
 	};
-	return NULL;
+	return nullptr;
 }
 
 
@@ -1514,7 +1514,7 @@ idCameraPosition::positionStr
 void idCameraPosition::clearVelocities() {
 	for (int i = 0; i < velocities.Num(); i++) {
 		delete velocities[i];
-		velocities[i] = NULL;
+		velocities[i] = nullptr;
 	}
 	velocities.Clear();
 }

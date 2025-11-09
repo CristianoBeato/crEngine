@@ -88,7 +88,7 @@ public:
 
 	bool				TranslateAccelerator	( LPMSG msg );
 
-	rvGEWorkspace*		GetActiveWorkspace		( HWND* retwnd = NULL );
+	rvGEWorkspace*		GetActiveWorkspace		( HWND* retwnd = nullptr );
 	rvGENavigator&		GetNavigator			( void );
 	rvGEProperties&		GetProperties			( void );
 	rvGETransformer&	GetTransformer			( void );

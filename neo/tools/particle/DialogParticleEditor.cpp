@@ -132,7 +132,7 @@ const int EditEnableID[] = {
 const int EditIDCount = sizeof (EditEnableID) / sizeof (const int);
 
 
-CDialogParticleEditor *g_ParticleDialog = NULL;
+CDialogParticleEditor *g_ParticleDialog = nullptr;
 
 
 /*
@@ -148,17 +148,17 @@ void ParticleEditorInit(const idDict *spawnArgs) {
 		return;
 	}
 
-	if (g_ParticleDialog == NULL) {
+	if (g_ParticleDialog == nullptr) {
 		InitAfx();
 		g_ParticleDialog = new CDialogParticleEditor();
 	}
 
-	if (g_ParticleDialog->GetSafeHwnd() == NULL) {
+	if (g_ParticleDialog->GetSafeHwnd() == nullptr) {
 		g_ParticleDialog->Create(IDD_DIALOG_PARTICLE_EDITOR);
 		/*
 		// FIXME: restore position
 		CRect rct;
-		g_AFDialog->SetWindowPos( NULL, rct.left, rct.top, 0, 0, SWP_NOSIZE );
+		g_AFDialog->SetWindowPos( nullptr, rct.left, rct.top, 0, 0, SWP_NOSIZE );
 		*/
 	}
 
@@ -190,7 +190,7 @@ void ParticleEditorRun(void) {
 	MSG *msg = &m_msgCur;
 #endif
 
-	while (::PeekMessage(msg, NULL, NULL, NULL, PM_NOREMOVE)) {
+	while (::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE)) {
 		// pump message
 		if (!AfxGetApp()->PumpMessage()) {
 		}
@@ -204,14 +204,14 @@ ParticleEditorShutdown
 */
 void ParticleEditorShutdown(void) {
 	delete g_ParticleDialog;
-	g_ParticleDialog = NULL;
+	g_ParticleDialog = nullptr;
 }
 
 
 // CDialogParticleEditor dialog
 
 IMPLEMENT_DYNAMIC(CDialogParticleEditor, CDialog)
-CDialogParticleEditor::CDialogParticleEditor(CWnd* pParent /*=NULL*/)
+CDialogParticleEditor::CDialogParticleEditor(CWnd* pParent /*=nullptr*/)
 : CDialog(CDialogParticleEditor::IDD, pParent)
 , matName(_T(""))
 , animFrames(_T(""))
@@ -390,7 +390,7 @@ void CDialogParticleEditor::OnBnClickedParticleMode() {
 
 void CDialogParticleEditor::OnBnClickedButtonSaveAs() {
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 	DialogName dlg("New Particle");
@@ -399,7 +399,7 @@ void CDialogParticleEditor::OnBnClickedButtonSaveAs() {
 			MessageBox("Particle already exists!", "Particle exists", MB_OK);
 			return;
 		}
-		CFileDialog dlgSave(TRUE, "prt", NULL, OFN_CREATEPROMPT, "Particle Files (*.prt)|*.prt||All Files (*.*)|*.*||", AfxGetMainWnd());
+		CFileDialog dlgSave(TRUE, "prt", nullptr, OFN_CREATEPROMPT, "Particle Files (*.prt)|*.prt||All Files (*.*)|*.*||", AfxGetMainWnd());
 		if (dlgSave.DoModal() == IDOK) {
 			idStr fileName;
 			fileName = fileSystem->OSPathToRelativePath(dlgSave.m_ofn.lpstrFile);
@@ -459,7 +459,7 @@ void CDialogParticleEditor::OnBnClickedButtonBrowsecolor() {
 	int r, g, b;
 	float ob;
 	idParticleStage *ps = GetCurStage();
-	if (ps == NULL) {
+	if (ps == nullptr) {
 		return;
 	}
 	r = ps->color.x * 255.0f;
@@ -519,7 +519,7 @@ void CDialogParticleEditor::OnBnClickedButtonBrowsefadecolor() {
 	int r, g, b;
 	float ob;
 	idParticleStage *ps = GetCurStage();
-	if (ps == NULL) {
+	if (ps == nullptr) {
 		return;
 	}
 	r = ps->fadeColor.x * 255.0f;
@@ -550,7 +550,7 @@ void CDialogParticleEditor::SelectParticle(const char *name) {
 idDeclParticle *CDialogParticleEditor::GetCurParticle() {
 	int sel = comboParticle.GetCurSel();
 	if (sel == CB_ERR) {
-		return NULL;
+		return nullptr;
 	}
 	int index = comboParticle.GetItemData(sel);
 	return static_cast<idDeclParticle *>(const_cast<idDecl *>(declManager->DeclByIndex(DECL_PARTICLE, index)));
@@ -560,7 +560,7 @@ void CDialogParticleEditor::UpdateParticleData() {
 
 	listStages.ResetContent();
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 	for (int i = 0; i < idp->stages.Num(); i++) {
@@ -609,7 +609,7 @@ void CDialogParticleEditor::UpdateControlInfo() {
 	}
 
 	idParticleStage *ps = GetCurStage();
-	if (ps == NULL) {
+	if (ps == nullptr) {
 		return;
 	}
 	sliderBunching.SetValuePos(ps->spawnBunching);
@@ -736,7 +736,7 @@ void CDialogParticleEditor::SetParticleVisualization(int i) {
 
 void CDialogParticleEditor::SetParticleView() {
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 	cmdSystem->BufferCommandText(CMD_EXEC_NOW, "testmodel");
@@ -785,7 +785,7 @@ void CDialogParticleEditor::SetSelectedModel(const char *val) {
 	if (count) {
 		for (int i = 0; i < count; i++) {
 			const idDict *dict = gameEdit->EntityGetSpawnArgs(list[i]);
-			if (dict == NULL) {
+			if (dict == nullptr) {
 				continue;
 			}
 			const char *name = dict->GetString("name");
@@ -828,7 +828,7 @@ void CDialogParticleEditor::OnBnClickedEntityColor() {
 void CDialogParticleEditor::AddStage() {
 
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 
@@ -836,7 +836,7 @@ void CDialogParticleEditor::AddStage() {
 
 	if ((GetAsyncKeyState(VK_CONTROL) & 0x8000)) {
 		idParticleStage *source = GetCurStage();
-		if (source == NULL) {
+		if (source == nullptr) {
 			delete stage;
 			return;
 		}
@@ -855,7 +855,7 @@ void CDialogParticleEditor::AddStage() {
 
 void CDialogParticleEditor::RemoveStage() {
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 
@@ -884,7 +884,7 @@ void CDialogParticleEditor::RemoveStage() {
 
 void CDialogParticleEditor::ShowStage() {
 	idParticleStage *ps = GetCurStage();
-	if (ps == NULL) {
+	if (ps == nullptr) {
 		return;
 	}
 	ps->hidden = false;
@@ -899,7 +899,7 @@ void CDialogParticleEditor::ShowStage() {
 
 void CDialogParticleEditor::HideStage() {
 	idParticleStage *ps = GetCurStage();
-	if (ps == NULL) {
+	if (ps == nullptr) {
 		return;
 	}
 	ps->hidden = true;
@@ -916,8 +916,8 @@ idParticleStage *CDialogParticleEditor::GetCurStage() {
 	idDeclParticle *idp = GetCurParticle();
 	int sel = listStages.GetCurSel();
 	int index = listStages.GetItemData(sel);
-	if (idp == NULL || sel == LB_ERR || index >= idp->stages.Num()) {
-		return NULL;
+	if (idp == nullptr || sel == LB_ERR || index >= idp->stages.Num()) {
+		return nullptr;
 	}
 	return idp->stages[index];
 }
@@ -970,14 +970,14 @@ void CDialogParticleEditor::CurStageToDlgVars() {
 
 	// go ahead and get the two system vars too
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 
 	depthHack = va("%.3f", idp->depthHack);
 
 	idParticleStage *ps = GetCurStage();
-	if (ps == NULL) {
+	if (ps == nullptr) {
 		return;
 	}
 	matName = ps->material->GetName();
@@ -1035,13 +1035,13 @@ void CDialogParticleEditor::DlgVarsToCurStage() {
 
 	// go ahead and set the two system vars too
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 	idp->depthHack = atof(depthHack);
 
 	idParticleStage *ps = GetCurStage();
-	if (ps == NULL) {
+	if (ps == nullptr) {
 		return;
 	}
 	ps->material = declManager->FindMaterial(matName);
@@ -1097,7 +1097,7 @@ void CDialogParticleEditor::DlgVarsToCurStage() {
 void CDialogParticleEditor::ShowCurrentStage() {
 	ClearDlgVars();
 	idParticleStage *ps = GetCurStage();
-	if (ps == NULL) {
+	if (ps == nullptr) {
 		return;
 	}
 	CurStageToDlgVars();
@@ -1112,7 +1112,7 @@ void CDialogParticleEditor::OnLbnSelchangeListStages() {
 void CDialogParticleEditor::OnBnClickedButtonNew() {
 	DialogName dlg("New Particle");
 	if (dlg.DoModal() == IDOK) {
-		CFileDialog dlgSave(TRUE, "prt", NULL, OFN_CREATEPROMPT, "Particle Files (*.prt)|*.prt||All Files (*.*)|*.*||", AfxGetMainWnd());
+		CFileDialog dlgSave(TRUE, "prt", nullptr, OFN_CREATEPROMPT, "Particle Files (*.prt)|*.prt||All Files (*.*)|*.*||", AfxGetMainWnd());
 		if (dlgSave.DoModal() == IDOK) {
 			if (declManager->FindType(DECL_PARTICLE, dlg.m_strName, false)) {
 				MessageBox("Particle already exists!", "Particle exists", MB_OK);
@@ -1139,13 +1139,13 @@ void CDialogParticleEditor::OnBnClickedButtonNew() {
 
 void CDialogParticleEditor::OnBnClickedButtonSave() {
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 
 	if (strstr(idp->GetFileName(), "implicit")) {
 		// defaulted, need to choose a file
-		CFileDialog dlgSave(FALSE, "prt", NULL, OFN_OVERWRITEPROMPT, "Particle Files (*.prt)|*.prt||All Files (*.*)|*.*||", AfxGetMainWnd());
+		CFileDialog dlgSave(FALSE, "prt", nullptr, OFN_OVERWRITEPROMPT, "Particle Files (*.prt)|*.prt||All Files (*.*)|*.*||", AfxGetMainWnd());
 		if (dlgSave.DoModal() == IDOK) {
 			idStr fileName;
 			fileName = fileSystem->OSPathToRelativePath(dlgSave.m_ofn.lpstrFile);
@@ -1194,7 +1194,7 @@ void CDialogParticleEditor::SetVectorControlUpdate(idQuat rotation) {
 		if (count) {
 			for (int i = 0; i < count; i++) {
 				const idDict *dict = gameEdit->EntityGetSpawnArgs(list[i]);
-				if (dict == NULL) {
+				if (dict == nullptr) {
 					continue;
 				}
 				const char *name = dict->GetString("name");
@@ -1409,7 +1409,7 @@ void CDialogParticleEditor::UpdateSelectedOrigin(float x, float y, float z) {
 	if (count) {
 		for (int i = 0; i < count; i++) {
 			const idDict *dict = gameEdit->EntityGetSpawnArgs(list[i]);
-			if (dict == NULL) {
+			if (dict == nullptr) {
 				continue;
 			}
 			const char *name = dict->GetString("name");
@@ -1476,7 +1476,7 @@ void CDialogParticleEditor::OnBtnDrop()
 	args.Set("angle", va("%f", viewAngles.yaw + 180));
 
 	idDeclParticle *idp = GetCurParticle();
-	if (idp == NULL) {
+	if (idp == nullptr) {
 		return;
 	}
 	idStr str = idp->GetName();
@@ -1505,10 +1505,10 @@ void CDialogParticleEditor::OnBtnDrop()
 
 	args.Set("name", name.c_str());
 
-	idEntity *ent = NULL;
+	idEntity *ent = nullptr;
 	gameEdit->SpawnEntityDef(args, &ent);
 	if (ent) {
-		gameEdit->EntityUpdateChangeableSpawnArgs(ent, NULL);
+		gameEdit->EntityUpdateChangeableSpawnArgs(ent, nullptr);
 		gameEdit->ClearEntitySelection();
 		gameEdit->AddSelectedEntity(ent);
 	}

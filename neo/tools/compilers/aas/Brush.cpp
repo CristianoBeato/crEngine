@@ -76,7 +76,7 @@ idBrushSide::idBrushSide
 idBrushSide::idBrushSide( void ) {
 	flags = 0;
 	planeNum = -1;
-	winding = NULL;
+	winding = nullptr;
 }
 
 /*
@@ -88,7 +88,7 @@ idBrushSide::idBrushSide( const idPlane &plane, int planeNum ) {
 	this->flags = 0;
 	this->plane = plane;
 	this->planeNum = planeNum;
-	this->winding = NULL;
+	this->winding = nullptr;
 }
 
 /*
@@ -116,7 +116,7 @@ idBrushSide *idBrushSide::Copy( void ) const {
 		side->winding = winding->Copy();
 	}
 	else {
-		side->winding = NULL;
+		side->winding = nullptr;
 	}
 	return side;
 }
@@ -131,7 +131,7 @@ int idBrushSide::Split( const idPlane &splitPlane, idBrushSide **front, idBrushS
 
 	assert( winding );
 
-	*front = *back = NULL;
+	*front = *back = nullptr;
 
 	winding->Split( splitPlane, 0.0f, &frontWinding, &backWinding );
 
@@ -171,7 +171,7 @@ idBrush::idBrush
 ============
 */
 idBrush::idBrush( void ) {
-	next = NULL;
+	next = nullptr;
 	entityNum = 0;
 	primitiveNum = 0;
 	contents = flags = 0;
@@ -443,7 +443,7 @@ float idBrush::GetVolume( void ) const {
 	float d, area, volume;
 
 	// grab the first valid point as a corner
-	w = NULL;
+	w = nullptr;
 	for ( i = 0; i < sides.Num(); i++ ) {
 		w = sides[i]->winding;
 		if ( w ) {
@@ -631,10 +631,10 @@ int idBrush::Split( const idPlane &plane, int planeNum, idBrush **front, idBrush
 	assert( windingsValid );
 
 	if ( front ) {
-		*front = NULL;
+		*front = nullptr;
 	}
 	if ( back ) {
-		*back = NULL;
+		*back = nullptr;
 	}
 
 	res = bounds.PlaneSide( plane, -BRUSH_EPSILON );
@@ -709,7 +709,7 @@ int idBrush::Split( const idPlane &plane, int planeNum, idBrush **front, idBrush
 	if ( mid ) {
 		if ( mid->IsTiny() ) {
 			delete mid;
-			mid = NULL;
+			mid = nullptr;
 		}
 		else if ( mid->IsHuge() ) {
 			// if the winding is huge then the brush is unbounded
@@ -718,7 +718,7 @@ int idBrush::Split( const idPlane &plane, int planeNum, idBrush **front, idBrush
 							bounds[0][0], bounds[0][1], bounds[0][2], bounds[1][0], bounds[1][1], bounds[1][2],
 							bounds[1][0]-bounds[0][0], bounds[1][1]-bounds[0][1], bounds[1][2]-bounds[0][2] );
 			delete mid;
-			mid = NULL;
+			mid = nullptr;
 		}
 	}
 
@@ -1027,7 +1027,7 @@ idBrushList::idBrushList
 */
 idBrushList::idBrushList( void ) {
 	numBrushes = numBrushSides = 0;
-	head = tail = NULL;
+	head = tail = nullptr;
 }
 
 /*
@@ -1060,7 +1060,7 @@ idBrushList::AddToTail
 ============
 */
 void idBrushList::AddToTail( idBrush *brush ) {
-	brush->next = NULL;
+	brush->next = nullptr;
 	if ( tail ) {
 		tail->next = brush;
 	}
@@ -1082,7 +1082,7 @@ void idBrushList::AddToTail( idBrushList &list ) {
 
 	for ( brush = list.head; brush; brush = next ) {
 		next = brush->next;
-		brush->next = NULL;
+		brush->next = nullptr;
 		if ( tail ) {
 			tail->next = brush;
 		}
@@ -1093,7 +1093,7 @@ void idBrushList::AddToTail( idBrushList &list ) {
 		numBrushes++;
 		numBrushSides += brush->sides.Num();
 	}
-	list.head = list.tail = NULL;
+	list.head = list.tail = nullptr;
 	list.numBrushes = 0;
 }
 
@@ -1130,7 +1130,7 @@ void idBrushList::AddToFront( idBrushList &list ) {
 		numBrushes++;
 		numBrushSides += brush->sides.Num();
 	}
-	list.head = list.tail = NULL;
+	list.head = list.tail = nullptr;
 	list.numBrushes = 0;
 }
 
@@ -1142,7 +1142,7 @@ idBrushList::Remove
 void idBrushList::Remove( idBrush *brush ) {
 	idBrush	*b, *last;
 
-	last = NULL;
+	last = nullptr;
 	for ( b = head; b; b = b->next ) {
 		if ( b == brush ) {
 			if ( last ) {
@@ -1170,7 +1170,7 @@ idBrushList::Delete
 void idBrushList::Delete( idBrush *brush ) {
 	idBrush	*b, *last;
 
-	last = NULL;
+	last = nullptr;
 	for ( b = head; b; b = b->next ) {
 		if ( b == brush ) {
 			if ( last ) {
@@ -1220,7 +1220,7 @@ void idBrushList::Free( void ) {
 		next = brush->next;
 		delete brush;
 	}
-	head = tail = NULL;
+	head = tail = nullptr;
 	numBrushes = numBrushSides = 0;
 }
 

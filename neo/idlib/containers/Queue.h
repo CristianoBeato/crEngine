@@ -54,13 +54,13 @@ private:
 template< class type, int nextOffset >
 idQueueTemplate<type, nextOffset>::idQueueTemplate()
 {
-	first = last = NULL;
+	first = last = nullptr;
 }
 
 template< class type, int nextOffset >
 void idQueueTemplate<type, nextOffset>::Add( type* element )
 {
-	QUEUE_NEXT_PTR( element ) = NULL;
+	QUEUE_NEXT_PTR( element ) = nullptr;
 	if( last )
 	{
 		QUEUE_NEXT_PTR( last ) = element;
@@ -83,9 +83,9 @@ type* idQueueTemplate<type, nextOffset>::Get()
 		first = QUEUE_NEXT_PTR( first );
 		if( last == element )
 		{
-			last = NULL;
+			last = nullptr;
 		}
-		QUEUE_NEXT_PTR( element ) = NULL;
+		QUEUE_NEXT_PTR( element ) = nullptr;
 	}
 	return element;
 }
@@ -101,7 +101,7 @@ class idQueueNode
 public:
 	idQueueNode()
 	{
-		next = NULL;
+		next = nullptr;
 	}
 	
 	type* 		GetNext() const
@@ -149,7 +149,7 @@ idQueue<type,nodePtr>::idQueue
 template< typename type, idQueueNode<type> type::*nodePtr >
 idQueue<type, nodePtr>::idQueue()
 {
-	first = last = NULL;
+	first = last = nullptr;
 }
 
 /*
@@ -160,7 +160,7 @@ idQueue<type,nodePtr>::Add
 template< typename type, idQueueNode<type> type::*nodePtr >
 void idQueue<type, nodePtr>::Add( type* element )
 {
-	( element->*nodePtr ).SetNext( NULL );
+	( element->*nodePtr ).SetNext( nullptr );
 	if( last )
 	{
 		( last->*nodePtr ).SetNext( element );
@@ -188,9 +188,9 @@ type* idQueue<type, nodePtr>::RemoveFirst()
 		first = ( first->*nodePtr ).GetNext();
 		if( last == element )
 		{
-			last = NULL;
+			last = nullptr;
 		}
-		( element->*nodePtr ).SetNext( NULL );
+		( element->*nodePtr ).SetNext( nullptr );
 	}
 	return element;
 }
@@ -214,7 +214,7 @@ idQueue<type,nodePtr>::IsEmpty
 template< typename type, idQueueNode<type> type::*nodePtr >
 bool idQueue<type, nodePtr>::IsEmpty()
 {
-	return ( first == NULL );
+	return ( first == nullptr );
 }
 
 /*

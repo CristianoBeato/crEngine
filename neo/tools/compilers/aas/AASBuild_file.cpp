@@ -302,8 +302,8 @@ bool idAASBuild::GetAreaForLeafNode( idBrushBSPNode *node, int *areaNum ) {
 	area.contents = node->GetContents();
 	area.firstFace = file->faceIndex.Num();
 	area.numFaces = 0;
-	area.reach = NULL;
-	area.rev_reach = NULL;
+	area.reach = nullptr;
+	area.rev_reach = nullptr;
 
 	for ( p = node->GetPortals(); p; p = p->Next(s) ) {
 		s = (p->GetNode(1) == node);
@@ -436,7 +436,7 @@ void idAASBuild::SetSizeEstimate( const idBrushBSP &bsp, idAASFileLocal *file ) 
 	size.numAreas = 1;
 	size.numNodes = 1;
 
-	GetSizeEstimate_r( NULL, bsp.GetRootNode(), size );
+	GetSizeEstimate_r( nullptr, bsp.GetRootNode(), size );
 
 	file->planeList.Resize( size.numNodes / 2, 1024 );
 	file->vertices.Resize( size.numEdgeIndexes / 3, 1024 );
@@ -471,19 +471,19 @@ bool idAASBuild::StoreFile( const idBrushBSP &bsp ) {
 	SetSizeEstimate( bsp, file );
 
 	// the first edge is a dummy
-	memset( &edge, 0, sizeof( edge ) );
+	std::memset( &edge, 0, sizeof( edge ) );
 	file->edges.Append( edge );
 
 	// the first face is a dummy
-	memset( &face, 0, sizeof( face ) );
+	std::memset( &face, 0, sizeof( face ) );
 	file->faces.Append( face );
 
 	// the first area is a dummy
-	memset( &area, 0, sizeof( area ) );
+	std::memset( &area, 0, sizeof( area ) );
 	file->areas.Append( area );
 
 	// the first node is a dummy
-	memset( &node, 0, sizeof( node ) );
+	std::memset( &node, 0, sizeof( node ) );
 	file->nodes.Append( node );
 
 	// store the tree

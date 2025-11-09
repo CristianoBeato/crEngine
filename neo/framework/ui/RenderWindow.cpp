@@ -92,7 +92,7 @@ void idRenderWindow::PreRender()
 {
 	if( needsRender )
 	{
-		world->InitFromMap( NULL );
+		world->InitFromMap( nullptr );
 		idDict spawnArgs;
 		spawnArgs.Set( "classname", "light" );
 		spawnArgs.Set( "name", "light_1" );
@@ -104,7 +104,7 @@ void idRenderWindow::PreRender()
 		{
 			common->Warning( "Window '%s' in gui '%s': no model set", GetName(), GetGui()->GetSourceFile() );
 		}
-		memset( &worldEntity, 0, sizeof( worldEntity ) );
+		std::memset( &worldEntity, 0, sizeof( worldEntity ) );
 		spawnArgs.Clear();
 		spawnArgs.Set( "classname", "func_static" );
 		spawnArgs.Set( "model", modelName );
@@ -158,7 +158,7 @@ void idRenderWindow::Draw( int time, float x, float y )
 	PreRender();
 	Render( time );
 	
-	memset( &refdef, 0, sizeof( refdef ) );
+	std::memset( &refdef, 0, sizeof( refdef ) );
 	refdef.vieworg = viewOffset.ToVec3();;
 	//refdef.vieworg.Set(-128, 0, 0);
 	

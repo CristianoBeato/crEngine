@@ -41,7 +41,7 @@ class CEntityDlg : public CDialog
 {
 	DECLARE_DYNAMIC(CEntityDlg)
 public:
-	CEntityDlg(CWnd* pParent = NULL);   // standard constructor
+	CEntityDlg(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CEntityDlg();
 	void SetDict(idDict *_dict) {
 		dict = dict;

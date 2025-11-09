@@ -36,7 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 rvGEHideModifier::rvGEHideModifier ( const char* name, idWindow* window, bool hide ) :
 	rvGEModifier ( name, window )
 {
-	mParent		= NULL;
+	mParent		= nullptr;
 	mHide		= hide;
 	mUndoHide	= mWrapper->IsHidden ( );
 
@@ -45,7 +45,7 @@ rvGEHideModifier::rvGEHideModifier ( const char* name, idWindow* window, bool hi
 	if ( !hide )
 	{
 		mParent = mWindow;
-		while ( NULL != (mParent = mParent->GetParent ( ) ) )
+		while ( nullptr != (mParent = mParent->GetParent ( ) ) )
 		{
 			if ( rvGEWindowWrapper::GetWrapper(mParent)->IsHidden ( ) )
 			{

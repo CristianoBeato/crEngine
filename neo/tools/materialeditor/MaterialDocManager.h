@@ -62,7 +62,7 @@ public:
 	bool			IsAnyModified();
 
 	//Adding or deleting a material
-	void			AddMaterial(const char* name, const char* filename, const char* sourceText = NULL, bool addUndo = true);
+	void			AddMaterial(const char* name, const char* filename, const char* sourceText = nullptr, bool addUndo = true);
 	void			RedoAddMaterial(const char* name, bool clearData = true);
 	void			DeleteMaterial(MaterialDoc* material, bool addUndo = true);
 
@@ -86,7 +86,7 @@ public:
 	MaterialDoc* 	GetInProgressDoc(idMaterial* material);
 
 	//Copy Paste
-	void			CopyMaterial(MaterialDoc* materialDoc = NULL, bool cut = false);
+	void			CopyMaterial(MaterialDoc* materialDoc = nullptr, bool cut = false);
 	void			ClearCopy();
 	bool			IsCopyMaterial();
 	idStr			GetCopyMaterialName();

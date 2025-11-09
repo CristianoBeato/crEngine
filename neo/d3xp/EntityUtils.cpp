@@ -52,11 +52,11 @@ turretController_t::turretController_t()
 	, trackingEnabled( false )
 	, anglesIdeal( vec3_zero )
 	, anglesCurrent( vec3_zero )
-	/*, projectileDecl( NULL )
+	/*, projectileDecl( nullptr )
 	, projectileSpeed( 500.0f )
 	, projectileGravity( gameLocal.GetGravity() )
 	, projectileMaxHeight( 1.0f )
-	, projectileClipModel( NULL )
+	, projectileClipModel( nullptr )
 	, projectileClipMask( MASK_SHOT_RENDERMODEL )*/	
 {
 }
@@ -121,7 +121,7 @@ void turretController_t::Update( idAI * owner )
 
 	if ( trackingEnabled )
 	{
-		if ( target != NULL )
+		if ( target != nullptr )
 		{
 			const idVec3 targetPos = target->GetPhysics()->GetOrigin() + target->GetPhysics()->GetBounds().GetCenter();
 
@@ -259,5 +259,5 @@ idActor * FindEnemy( idEntity * attacker, bool useFov )
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }

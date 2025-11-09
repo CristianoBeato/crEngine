@@ -71,7 +71,7 @@ public:
 	bool					Load( idEntity* ent, const char* fileName );
 	bool					IsLoaded() const
 	{
-		return isLoaded && self != NULL;
+		return isLoaded && self != nullptr;
 	}
 	const char* 			GetName() const
 	{

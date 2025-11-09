@@ -50,7 +50,7 @@ void idRegister::SetToRegs( float* registers )
 	idVec3 v3;
 	idRectangle rect;
 	
-	if( !enabled || var == NULL || ( var && ( var->GetDict() || !var->GetEval() ) ) )
+	if( !enabled || var == nullptr || ( var && ( var->GetDict() || !var->GetEval() ) ) )
 	{
 		return;
 	}
@@ -120,7 +120,7 @@ void idRegister::GetFromRegs( float* registers )
 	idVec4 v;
 	idRectangle rect;
 	
-	if( !enabled || var == NULL || ( var && ( var->GetDict() || !var->GetEval() ) ) )
+	if( !enabled || var == nullptr || ( var && ( var->GetDict() || !var->GetEval() ) ) )
 	{
 		return;
 	}
@@ -258,7 +258,7 @@ idRegisterList::AddReg
 */
 void idRegisterList::AddReg( const char* name, int type, idVec4 data, idWindow* win, idWinVar* var )
 {
-	if( FindReg( name ) == NULL )
+	if( FindReg( name ) == nullptr )
 	{
 		assert( type >= 0 && type < idRegister::NUMTYPES );
 		int numRegs = idRegister::REGCOUNT[type];
@@ -284,7 +284,7 @@ void idRegisterList::AddReg( const char* name, int type, idTokenParser* src, idW
 	
 	reg = FindReg( name );
 	
-	if( reg == NULL )
+	if( reg == nullptr )
 	{
 		assert( type >= 0 && type < idRegister::NUMTYPES );
 		int numRegs = idRegister::REGCOUNT[type];
@@ -303,7 +303,7 @@ void idRegisterList::AddReg( const char* name, int type, idTokenParser* src, idW
 		{
 			for( int i = 0; i < numRegs; i++ )
 			{
-				reg->regs[i] = win->ParseExpression( src, NULL );
+				reg->regs[i] = win->ParseExpression( src, nullptr );
 				if( i < numRegs - 1 )
 				{
 					src->ExpectTokenString( "," );
@@ -329,7 +329,7 @@ void idRegisterList::AddReg( const char* name, int type, idTokenParser* src, idW
 		{
 			for( int i = 0; i < numRegs; i++ )
 			{
-				reg->regs[i] = win->ParseExpression( src, NULL );
+				reg->regs[i] = win->ParseExpression( src, nullptr );
 				if( i < numRegs - 1 )
 				{
 					src->ExpectTokenString( "," );
@@ -344,7 +344,7 @@ void idRegisterList::AddReg( const char *name, int type, idParser *src, idWindow
 
 	reg = FindReg( name );
 
-	if ( reg == NULL ) {
+	if ( reg == nullptr ) {
 		assert(type >= 0 && type < idRegister::NUMTYPES);
 		int numRegs = idRegister::REGCOUNT[type];
 		reg = new idRegister( name, type );
@@ -357,7 +357,7 @@ void idRegisterList::AddReg( const char *name, int type, idParser *src, idWindow
 			}
 		} else {
 			for ( int i = 0; i < numRegs; i++ ) {
-				reg->regs[i] = win->ParseExpression(src, NULL);
+				reg->regs[i] = win->ParseExpression(src, nullptr);
 				if ( i < numRegs-1 ) {
 					src->ExpectTokenString(",");
 				}
@@ -375,7 +375,7 @@ void idRegisterList::AddReg( const char *name, int type, idParser *src, idWindow
 			}
 		} else {
 			for ( int i = 0; i < numRegs; i++ ) {
-				reg->regs[i] = win->ParseExpression( src, NULL );
+				reg->regs[i] = win->ParseExpression( src, nullptr );
 				if ( i < numRegs-1 ) {
 					src->ExpectTokenString(",");
 				}
@@ -428,7 +428,7 @@ idRegister* idRegisterList::FindReg( const char* name )
 			return regs[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*

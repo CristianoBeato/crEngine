@@ -99,12 +99,12 @@ public:
 	// FIXME: this is a bad name when having multiple sound backends... and maybe it's not even needed
 	void* 		GetIXAudio2() const // NOTE: originally this returned IXAudio2*, but that was casted to void later anyway
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	idSoundVoice* 	AllocateVoice( const idSoundSample* leadinSample, const idSoundSample* loopingSample )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	void			FreeVoice( idSoundVoice* voice ) {}

@@ -67,12 +67,12 @@ const char *CDialogTextures::TypeNames[] = {
 //    CDialogTextures dialog
 // =======================================================================================================================
 //
-CDialogTextures::CDialogTextures(CWnd *pParent /* =NULL */ ) :
+CDialogTextures::CDialogTextures(CWnd *pParent /* =nullptr */ ) :
 	CDialog(CDialogTextures::IDD, pParent) {
 		setTexture  = true;
 		ignoreCollapse = false;
 		mode = TEXTURES;
-		editMaterial = NULL;
+		editMaterial = nullptr;
 		editGui = "";
 	//{{AFX_DATA_INIT(CDialogTextures)
 	//}}AFX_DATA_INIT
@@ -143,7 +143,7 @@ BOOL CDialogTextures::OnInitDialog() {
  */
 bool CDialogTextures::loadTree( HTREEITEM item, const idStr &name, CWaitDlg *dlg ) {
 
-	if ( item == NULL ) {
+	if ( item == nullptr ) {
 		return true;
 	}
 
@@ -153,7 +153,7 @@ bool CDialogTextures::loadTree( HTREEITEM item, const idStr &name, CWaitDlg *dlg
 		HTREEITEM nextItem;
 		HTREEITEM childItem = m_treeTextures.GetChildItem(item);
 
-		while ( childItem != NULL ) {
+		while ( childItem != nullptr ) {
 
 			nextItem = m_treeTextures.GetNextItem( childItem, TVGN_NEXT );
 			childName = name + "/" + (const char *)m_treeTextures.GetItemText( childItem );
@@ -184,13 +184,13 @@ bool CDialogTextures::loadTree( HTREEITEM item, const idStr &name, CWaitDlg *dlg
 }
 
 HTREEITEM CDialogTextures::findItem(const char *name, HTREEITEM item, HTREEITEM *foundItem) {
-	if (*foundItem || item == NULL) {
+	if (*foundItem || item == nullptr) {
 		return *foundItem;
 	}
 	if (m_treeTextures.ItemHasChildren(item)) { 
 		HTREEITEM nextItem;
 		HTREEITEM childItem = m_treeTextures.GetChildItem(item);
-		while (childItem != NULL && *foundItem == NULL) {
+		while (childItem != nullptr && *foundItem == nullptr) {
 			nextItem = childItem;
 			if (m_treeTextures.ItemHasChildren(nextItem)) {
 				findItem(name, nextItem, foundItem);
@@ -239,7 +239,7 @@ void CDialogTextures::SelectCurrentItem(bool collapse, const char *name, int id)
 	HTREEITEM root = m_treeTextures.GetRootItem();
 	idStr qt;
 	if ((id == TEXTURES) || (id == MATERIALS)) {
-		HTREEITEM matItem = NULL;
+		HTREEITEM matItem = nullptr;
 		HTREEITEM *matPtr = &matItem;
 
 		// FIXME: This is a hack.  How should this really work?
@@ -253,7 +253,7 @@ void CDialogTextures::SelectCurrentItem(bool collapse, const char *name, int id)
 				CollapseChildren(root);
 			}
 
-			HTREEITEM *check = NULL;
+			HTREEITEM *check = nullptr;
 			qt = TypeNames[id];
 			qt += "/";
 			if (id == TEXTURES && !idStr::Icmpn( name, "textures/", 9 ) ) {
@@ -265,7 +265,7 @@ void CDialogTextures::SelectCurrentItem(bool collapse, const char *name, int id)
 			if (quickTree.Get(qt, &check)) {
 				matItem = *check;
 			}
-			if (matItem == NULL) {
+			if (matItem == nullptr) {
 				matItem = findItem(name, root, matPtr);
 			}
 			if (matItem) {
@@ -278,7 +278,7 @@ void CDialogTextures::SelectCurrentItem(bool collapse, const char *name, int id)
 			if (collapse && !ignoreCollapse) {
 				CollapseChildren(root);
 			}
-			HTREEITEM sel = FindTreeItem(&m_treeTextures, root, name, NULL);
+			HTREEITEM sel = FindTreeItem(&m_treeTextures, root, name, nullptr);
 			if (sel) {
 				m_treeTextures.SelectItem(sel);
 			}
@@ -314,7 +314,7 @@ const char *CDialogTextures::buildItemName(HTREEITEM item, const char *rootName)
 		strParent += itemName;
 		itemName = strParent;
 		parent = m_treeTextures.GetParentItem(parent);
-		if (parent == NULL) {
+		if (parent == nullptr) {
 			break;
 		}
 	}
@@ -401,10 +401,10 @@ void CDialogTextures::OnRefresh() {
  =======================================================================================================================
  */
 HTREEITEM FindTreeItem(CTreeCtrl *tree, HTREEITEM root, const char *text, HTREEITEM forceParent) {
-	HTREEITEM	theItem = NULL;
+	HTREEITEM	theItem = nullptr;
 	if (root) {
-		if ((theItem = tree->GetNextSiblingItem(root)) != NULL) {
-			theItem = FindTreeItem(tree, theItem, text, NULL);
+		if ((theItem = tree->GetNextSiblingItem(root)) != nullptr) {
+			theItem = FindTreeItem(tree, theItem, text, nullptr);
 			if (theItem) {
 				if (forceParent) {
 					if (tree->GetParentItem(theItem) == forceParent) {
@@ -417,8 +417,8 @@ HTREEITEM FindTreeItem(CTreeCtrl *tree, HTREEITEM root, const char *text, HTREEI
 		}
 	}
 
-	if ((theItem = tree->GetChildItem(root)) != NULL) {
-		theItem = FindTreeItem(tree, theItem, text, NULL);
+	if ((theItem = tree->GetChildItem(root)) != nullptr) {
+		theItem = FindTreeItem(tree, theItem, text, nullptr);
 		if (theItem) {
 			if (forceParent) {
 				if (tree->GetParentItem(theItem) == forceParent) {
@@ -436,7 +436,7 @@ HTREEITEM FindTreeItem(CTreeCtrl *tree, HTREEITEM root, const char *text, HTREEI
 
 	if (theItem && forceParent) {
 		if (tree->GetParentItem(theItem) != forceParent) {
-			theItem = NULL;
+			theItem = nullptr;
 		}
 	}
 	return theItem;
@@ -508,7 +508,7 @@ void CDialogTextures::OnSelchangedTreeTextures(NMHDR *pNMHDR, LRESULT *pResult) 
 	NM_TREEVIEW *pNMTreeView = (NM_TREEVIEW *) pNMHDR;
 	*pResult = 0;
 
-	editMaterial = NULL;
+	editMaterial = nullptr;
 	editGui = "";
 	mediaName = "";
 	currentFile.Empty();
@@ -531,7 +531,7 @@ void CDialogTextures::OnSelchangedTreeTextures(NMHDR *pNMHDR, LRESULT *pResult) 
 				strParent += matName;
 				matName = strParent;
 				parent = m_treeTextures.GetParentItem(parent);
-				if (parent == NULL) {
+				if (parent == nullptr) {
 					break;
 				}
 			}
@@ -562,7 +562,7 @@ void CDialogTextures::OnSelchangedTreeTextures(NMHDR *pNMHDR, LRESULT *pResult) 
 				strParent += modelName;
 				modelName = strParent;
 				parent = m_treeTextures.GetParentItem(parent);
-				if (parent == NULL) {
+				if (parent == nullptr) {
 					break;
 				}
 			}
@@ -589,7 +589,7 @@ void CDialogTextures::OnSelchangedTreeTextures(NMHDR *pNMHDR, LRESULT *pResult) 
 				strParent += modelName;
 				modelName = strParent;
 				parent = m_treeTextures.GetParentItem(parent);
-				if (parent == NULL) {
+				if (parent == nullptr) {
 					break;
 				}
 			}
@@ -614,7 +614,7 @@ void CDialogTextures::OnSelchangedTreeTextures(NMHDR *pNMHDR, LRESULT *pResult) 
 				strParent += modelName;
 				modelName = strParent;
 				parent = m_treeTextures.GetParentItem(parent);
-				if (parent == NULL) {
+				if (parent == nullptr) {
 					break;
 				}
 			}
@@ -648,7 +648,7 @@ void CDialogTextures::addMaterials( bool rootItems ) {
 		for ( int i = 0; i < count; i++ ) {
 			const idMaterial *mat = declManager->MaterialByIndex( i, false );
 			if ( !rootItems ) {
-				if ( strchr( mat->GetName(), '/' ) == NULL && strchr( mat->GetName(), '\\' ) == NULL ) {
+				if ( strchr( mat->GetName(), '/' ) == nullptr && strchr( mat->GetName(), '\\' ) == nullptr ) {
 					continue;
 				}
 			}
@@ -677,7 +677,7 @@ void CDialogTextures::addParticles( bool rootItems ) {
 		for (int i = 0; i < count; i++) {
 			const idDecl *ips = declManager->DeclByIndex( DECL_PARTICLE, i, false );
 			if (!rootItems) {
-				if (strchr(ips->GetName(), '/') == NULL && strchr(ips->GetName(), '\\') == NULL) {
+				if (strchr(ips->GetName(), '/') == nullptr && strchr(ips->GetName(), '\\') == nullptr) {
 					continue;
 				}
 			}
@@ -737,7 +737,7 @@ void CDialogTextures::addStrList( const char *root, const idStrList &list, int i
 		base = m_treeTextures.GetNextSiblingItem(base);
 	}
 
-	if (base == NULL) {
+	if (base == nullptr) {
 		base = m_treeTextures.InsertItem(root);
 	}
 
@@ -783,8 +783,8 @@ void CDialogTextures::addStrList( const char *root, const idStrList &list, int i
 		while (index >= 0) {
 			index = name.Find('/');
 			if (index >= 0) {
-				HTREEITEM newItem = NULL;
-				HTREEITEM *check = NULL;
+				HTREEITEM newItem = nullptr;
+				HTREEITEM *check = nullptr;
 				name.Left( index, out );
 				path += out;
 				qt = root;
@@ -794,7 +794,7 @@ void CDialogTextures::addStrList( const char *root, const idStrList &list, int i
 					newItem = *check;
 				}
 				//HTREEITEM	newItem = FindTreeItem(&m_treeTextures, item, name.Left(index, out), item);
-				if (newItem == NULL) {
+				if (newItem == nullptr) {
 					newItem = m_treeTextures.InsertItem(out, item);
 					qt = root;
 					qt += "/";
@@ -937,7 +937,7 @@ void CDialogTextures::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 	
-	if (m_btnLoad.GetSafeHwnd() == NULL) {
+	if (m_btnLoad.GetSafeHwnd() == nullptr) {
 		return;
 	}
 
@@ -945,8 +945,8 @@ void CDialogTextures::OnSize(UINT nType, int cx, int cy)
 	GetClientRect(rect);
 	m_btnLoad.GetWindowRect(rect2);
 
-	m_btnLoad.SetWindowPos(NULL, rect.left + 4, rect.top + 4, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
-	m_btnRefresh.SetWindowPos(NULL, rect.left + rect2.Width() + 4, rect.top + 4, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
+	m_btnLoad.SetWindowPos(nullptr, rect.left + 4, rect.top + 4, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
+	m_btnRefresh.SetWindowPos(nullptr, rect.left + rect2.Width() + 4, rect.top + 4, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
 
 
 	int right = rect.right - 4 - rect3.Width() - 4;
@@ -955,13 +955,13 @@ void CDialogTextures::OnSize(UINT nType, int cx, int cy)
 	right = rect3.right - 4 - rect3.Width() - 4;
 
 	m_chkHideRoot.GetWindowRect(rect3);
-	m_chkHideRoot.SetWindowPos(NULL, right - rect3.Width() * 2, rect.top + 4, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
+	m_chkHideRoot.SetWindowPos(nullptr, right - rect3.Width() * 2, rect.top + 4, 0, 0, SWP_NOSIZE | SWP_SHOWWINDOW);
 	m_chkHideRoot.ShowWindow(SW_HIDE);
 	
 	int verticalSpace = (rect.Height() - rect2.Height() - 12) / 2;
 
-	m_treeTextures.SetWindowPos(NULL, rect.left + 4, rect.top + 8 + rect2.Height(), (rect.Width() - 8), verticalSpace, SWP_SHOWWINDOW);
-	m_wndPreview.SetWindowPos(NULL, rect.left + 4, rect.top + 12 + rect2.Height() + verticalSpace, (rect.Width() - 8), verticalSpace, SWP_SHOWWINDOW);
+	m_treeTextures.SetWindowPos(nullptr, rect.left + 4, rect.top + 8 + rect2.Height(), (rect.Width() - 8), verticalSpace, SWP_SHOWWINDOW);
+	m_wndPreview.SetWindowPos(nullptr, rect.left + 4, rect.top + 12 + rect2.Height() + verticalSpace, (rect.Width() - 8), verticalSpace, SWP_SHOWWINDOW);
 
 	RedrawWindow();
 }

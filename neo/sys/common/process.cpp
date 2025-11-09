@@ -7,7 +7,7 @@
 
 #if __PLATFORM_WINDOWS__
     #include <windows.h>
-    static HANDLE g_singletonMutex = NULL;
+    static HANDLE g_singletonMutex = nullptr;
 #else
     #include <sys/file.h>
     #include <unistd.h>
@@ -36,7 +36,7 @@ void Sys_ReleaseAlreadyRunningLock( void )
 #if defined(_WIN32)
     if (g_singletonMutex) {
         CloseHandle(g_singletonMutex);
-        g_singletonMutex = NULL;
+        g_singletonMutex = nullptr;
     }
 #else
     if (g_lockFile >= 0) {

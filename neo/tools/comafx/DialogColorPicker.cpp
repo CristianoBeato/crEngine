@@ -46,7 +46,7 @@ class CMyColorDialog : public CColorDialog
   DECLARE_DYNCREATE(CMyColorDialog);
      // Construction
 public:
-     CMyColorDialog( COLORREF clrInit = 0, DWORD dwFlags = 0, CWnd *pParentWnd = NULL );
+     CMyColorDialog( COLORREF clrInit = 0, DWORD dwFlags = 0, CWnd *pParentWnd = nullptr );
 	 virtual INT_PTR DoModal();
 
 protected:
@@ -453,7 +453,7 @@ HSVType RGBType::toHSV()
 // CDialogColorPicker dialog
 
 
-CDialogColorPicker::CDialogColorPicker( COLORREF c, CWnd* pParent /*=NULL*/)
+CDialogColorPicker::CDialogColorPicker( COLORREF c, CWnd* pParent /*=nullptr*/)
 	: CDialog(CDialogColorPicker::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDialogColorPicker)
@@ -475,7 +475,7 @@ CDialogColorPicker::CDialogColorPicker( COLORREF c, CWnd* pParent /*=NULL*/)
 	m_bInitOver = FALSE;
 	m_bInDrawAll = FALSE;
 	overBright = 1.0f;
-	UpdateParent = NULL;
+	UpdateParent = nullptr;
 }
 
 CDialogColorPicker::~CDialogColorPicker()
@@ -678,7 +678,7 @@ BOOL CDialogColorPicker::OnInitDialog()
 	ScreenToClient(&NewColorRect);
 
 	
-	CWindowDC dc(NULL);
+	CWindowDC dc(nullptr);
 	CSize bmSize;
 
 	//	Set Up HSB
@@ -735,7 +735,7 @@ BOOL CDialogColorPicker::OnInitDialog()
 
 	m_bInitOver = TRUE;
 
-	SetTimer(0, 50, NULL);
+	SetTimer(0, 50, nullptr);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	              // EXCEPTION: OCX Property Pages should return FALSE
@@ -751,7 +751,7 @@ void CDialogColorPicker::DrawMarkers(CDC *pDC)
 		CRect cr = m_CurrentRect;
 
 		oldPen = (CPen *)pDC->SelectStockObject(WHITE_PEN);
-		oldBrush = (CBrush *)pDC->SelectStockObject(NULL_BRUSH);
+		oldBrush = (CBrush *)pDC->SelectStockObject(nullptr_BRUSH);
 
 		oldMode = pDC->SetROP2(R2_XORPEN);
 
@@ -843,7 +843,7 @@ void CDialogColorPicker::CreateBrightDIB()
 	d.Create(brightRect.Width(),brightRect.Height(),8);
 	for(int i=0; i < d.Height(); i++)
 	{
-		memset(d.GetLinePtr(i),i,d.Width());
+		std::memset(d.GetLinePtr(i),i,d.Width());
 	}
 }
 
@@ -969,7 +969,7 @@ void CDialogColorPicker::DrawXorRect(CDC *pDC,CRect& cr)
 
 	pen.CreatePen(PS_SOLID,1,RGB(255,255,255));
 	oldPen = (CPen *)pDC->SelectObject(&pen);
-	oldBrush = (CBrush *)pDC->SelectStockObject(NULL_BRUSH);
+	oldBrush = (CBrush *)pDC->SelectStockObject(nullptr_BRUSH);
 	oldMode =pDC->SetROP2(R2_XORPEN);
 	pDC->Rectangle(&cr);
 	pDC->SetROP2(oldMode);

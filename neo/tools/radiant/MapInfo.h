@@ -43,7 +43,7 @@ class CMapInfo : public CDialog
 {
 // Construction
 public:
-	CMapInfo(CWnd* pParent = NULL);   // standard constructor
+	CMapInfo(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CMapInfo)

@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 void idSWFParmList::Append( const idSWFScriptVar& other )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		*var = other;
 	}
@@ -41,7 +41,7 @@ void idSWFParmList::Append( const idSWFScriptVar& other )
 void idSWFParmList::Append( idSWFScriptObject* o )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		var->SetObject( o );
 	}
@@ -49,7 +49,7 @@ void idSWFParmList::Append( idSWFScriptObject* o )
 void idSWFParmList::Append( idSWFScriptFunction* f )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		var->SetFunction( f );
 	}
@@ -57,7 +57,7 @@ void idSWFParmList::Append( idSWFScriptFunction* f )
 void idSWFParmList::Append( const char* s )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		var->SetString( s );
 	}
@@ -65,7 +65,7 @@ void idSWFParmList::Append( const char* s )
 void idSWFParmList::Append( const idStr& s )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		var->SetString( s );
 	}
@@ -73,7 +73,7 @@ void idSWFParmList::Append( const idStr& s )
 void idSWFParmList::Append( idSWFScriptString* s )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		var->SetString( s );
 	}
@@ -81,7 +81,7 @@ void idSWFParmList::Append( idSWFScriptString* s )
 void idSWFParmList::Append( const float f )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		var->SetFloat( f );
 	}
@@ -89,7 +89,7 @@ void idSWFParmList::Append( const float f )
 void idSWFParmList::Append( const int32_t i )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		var->SetInteger( i );
 	}
@@ -97,7 +97,7 @@ void idSWFParmList::Append( const int32_t i )
 void idSWFParmList::Append( const bool b )
 {
 	idSWFScriptVar* var = Alloc();
-	if( var != NULL )
+	if( var != nullptr )
 	{
 		var->SetBool( b );
 	}

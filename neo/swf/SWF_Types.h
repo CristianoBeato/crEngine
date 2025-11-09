@@ -406,13 +406,13 @@ ID_INLINE swfDisplayEntry_t::swfDisplayEntry_t() :
 	clipDepth( 0 ),
 	blendMode( 0 ),
 	ratio( 0.0f ),
-	spriteInstance( NULL ),
-	textInstance( NULL )
+	spriteInstance( nullptr ),
+	textInstance( nullptr )
 {
 }
 
 ID_INLINE swfRenderState_t::swfRenderState_t() :
-	material( NULL ),
+	material( nullptr ),
 	materialWidth( 0 ),
 	materialHeight( 0 ),
 	activeMasks( 0 ),

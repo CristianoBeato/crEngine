@@ -72,7 +72,7 @@ idSoundSample_XAudio2::idSoundSample_XAudio2()
 	neverPurge = false;
 	levelLoadReferenced = false;
 	
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	
 	totalBufferSize = 0;
 	
@@ -152,7 +152,7 @@ idSoundSample_XAudio2::LoadGeneratedSound
 bool idSoundSample_XAudio2::LoadGeneratedSample( const idStr& filename )
 {
 	idFileLocal fileIn( fileSystem->OpenFileReadMemory( filename ) );
-	if( fileIn != NULL )
+	if( fileIn != nullptr )
 	{
 		uint32_t magic;
 		fileIn->ReadBig( magic );
@@ -287,7 +287,7 @@ bool idSoundSample_XAudio2::LoadWav( const idStr& filename )
 	LoadAmplitude( sampleName );
 	
 	const char* formatError = wave.ReadWaveFormat( format );
-	if( formatError != NULL )
+	if( formatError != nullptr )
 	{
 		idLib::Warning( "LoadWav( %s ) : %s", filename.c_str(), formatError );
 		MakeDefault();
@@ -453,7 +453,7 @@ void idSoundSample_XAudio2::MakeDefault()
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
 	loaded = true;
 	
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	format.basic.formatTag = idWaveFile::FORMAT_PCM;
 	format.basic.numChannels = 1;
 	format.basic.bitsPerSample = 16;
@@ -503,7 +503,7 @@ void idSoundSample_XAudio2::FreeData()
 	amplitude.Clear();
 	
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	loaded = false;
 	totalBufferSize = 0;
 	playBegin = 0;
@@ -519,7 +519,7 @@ bool idSoundSample_XAudio2::LoadAmplitude( const idStr& name )
 {
 	amplitude.Clear();
 	idFileLocal f( fileSystem->OpenFileRead( name ) );
-	if( f == NULL )
+	if( f == nullptr )
 	{
 		return false;
 	}

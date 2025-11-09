@@ -72,7 +72,7 @@ idItem::idItem() :
 	lastCycle = 0;
 	lastRenderViewTime = -1;
 	itemShellHandle = -1;
-	shellMaterial = NULL;
+	shellMaterial = nullptr;
 	orgOrigin.Zero();
 	canPickUp = true;
 	fl.networkSync = true;
@@ -251,9 +251,9 @@ bool idItem::ModelCallback( renderEntity_t* renderEntity, const renderView_t* re
 	}
 	
 	ent = static_cast<idItem*>( gameLocal.entities[ renderEntity->entityNum ] );
-	if( ent == NULL )
+	if( ent == nullptr )
 	{
-		gameLocal.Error( "idItem::ModelCallback: callback with NULL game entity" );
+		gameLocal.Error( "idItem::ModelCallback: callback with nullptr game entity" );
 		return false;
 	}
 	
@@ -363,7 +363,7 @@ void idItem::Spawn()
 			gameLocal.Error( "Item couldn't find owner '%s'", giveTo.c_str() );
 		}
 		
-		// RB: 64 bit fixes, changed NULL to 0
+		// RB: 64 bit fixes, changed nullptr to 0
 		PostEventMS( &EV_Touch, 0, ent, 0 );
 		// RB end
 	}
@@ -415,7 +415,7 @@ idItem::GiveToPlayer
 */
 bool idItem::GiveToPlayer( idPlayer* player, unsigned int giveFlags )
 {
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return false;
 	}
@@ -453,7 +453,7 @@ bool idItem::Pickup( idPlayer* player )
 	}
 	
 	// play pickup sound
-	StartSound( "snd_acquire", SND_CHANNEL_ITEM, 0, false, NULL );
+	StartSound( "snd_acquire", SND_CHANNEL_ITEM, 0, false, nullptr );
 	
 	// clear our contents so the object isn't picked up twice
 	GetPhysics()->SetContents( 0 );
@@ -496,7 +496,7 @@ bool idItem::Pickup( idPlayer* player )
 	if( respawn && !dropped && !no_respawn )
 	{
 		const char* sfx = spawnArgs.GetString( "fxRespawn" );
-		if( sfx != NULL && *sfx != '\0' )
+		if( sfx != nullptr && *sfx != '\0' )
 		{
 			PostEventSec( &EV_RespawnFx, respawn - 0.5f );
 		}
@@ -620,7 +620,7 @@ void idItem::Event_DropToFloor()
 	trace_t trace;
 	
 	// don't drop the floor if bound to another entity
-	if( GetBindMaster() != NULL && GetBindMaster() != this )
+	if( GetBindMaster() != nullptr && GetBindMaster() != this )
 	{
 		return;
 	}
@@ -677,7 +677,7 @@ void idItem::Event_Respawn()
 {
 	if( common->IsServer() )
 	{
-		ServerSendEvent( EVENT_RESPAWN, NULL, false );
+		ServerSendEvent( EVENT_RESPAWN, nullptr, false );
 	}
 	BecomeActive( TH_THINK );
 	Show();
@@ -685,7 +685,7 @@ void idItem::Event_Respawn()
 	lastCycle = -1;
 	GetPhysics()->SetContents( CONTENTS_TRIGGER );
 	SetOrigin( orgOrigin );
-	StartSound( "snd_respawn", SND_CHANNEL_ITEM, 0, false, NULL );
+	StartSound( "snd_respawn", SND_CHANNEL_ITEM, 0, false, nullptr );
 	CancelEvents( &EV_RespawnItem ); // don't double respawn
 }
 
@@ -698,12 +698,12 @@ void idItem::Event_RespawnFx()
 {
 	if( common->IsServer() )
 	{
-		ServerSendEvent( EVENT_RESPAWNFX, NULL, false );
+		ServerSendEvent( EVENT_RESPAWNFX, nullptr, false );
 	}
 	const char* sfx = spawnArgs.GetString( "fxRespawn" );
-	if( sfx != NULL && *sfx != '\0' )
+	if( sfx != nullptr && *sfx != '\0' )
 	{
-		idEntityFx::StartFx( sfx, NULL, NULL, this, true );
+		idEntityFx::StartFx( sfx, nullptr, nullptr, this, true );
 	}
 }
 
@@ -821,13 +821,13 @@ idItemTeam::idItemTeam()
 	
 	itemGlowHandle = -1;
 	
-	skinDefault	= NULL;
-	skinCarried	= NULL;
+	skinDefault	= nullptr;
+	skinCarried	= nullptr;
 	
-	scriptTaken		= NULL;
-	scriptDropped	= NULL;
-	scriptReturned	= NULL;
-	scriptCaptured	= NULL;
+	scriptTaken		= nullptr;
+	scriptDropped	= nullptr;
+	scriptReturned	= nullptr;
+	scriptCaptured	= nullptr;
 	
 	lastNuggetDrop	= 0;
 	nuggetName		= 0;
@@ -867,7 +867,7 @@ void idItemTeam::Spawn()
 	nuggetName = spawnArgs.GetString( "nugget_name", "" );
 	if( !nuggetName[0] )
 	{
-		nuggetName = NULL;
+		nuggetName = nullptr;
 	}
 	
 	scriptTaken		= LoadScript( "script_taken" );
@@ -881,7 +881,7 @@ void idItemTeam::Spawn()
 	idVec3 lightOffset( 0.0f, 20.0f, 0.0f );
 	
 	// Set up the flag's dynamic light
-	memset( &itemGlow, 0, sizeof( itemGlow ) );
+	std::memset( &itemGlow, 0, sizeof( itemGlow ) );
 	itemGlow.axis = mat3_identity;
 	itemGlow.lightRadius.x = 128.0f;
 	itemGlow.lightRadius.y = itemGlow.lightRadius.z = itemGlow.lightRadius.x;
@@ -914,12 +914,12 @@ idItemTeam::LoadScript
 */
 function_t* idItemTeam::LoadScript( const char* script )
 {
-	function_t* function = NULL;
+	function_t* function = nullptr;
 	idStr funcname = spawnArgs.GetString( script, "" );
 	if( funcname.Length() )
 	{
 		function = gameLocal.program.FindFunction( funcname );
-		if( function == NULL )
+		if( function == nullptr )
 		{
 #ifdef _DEBUG
 			gameLocal.Warning( "idItemTeam '%s' at (%s) calls unknown function '%s'", name.c_str(), GetPhysics()->GetOrigin().ToString( 0 ), funcname.c_str() );
@@ -1022,9 +1022,9 @@ bool idItemTeam::ClientReceiveEvent( int event, int time, const idBitMsg& msg )
 		case EVENT_TAKEFLAG:
 		{
 			idPlayer* player = static_cast<idPlayer*>( gameLocal.entities[ msg.ReadBits( GENTITYNUM_BITS ) ] );
-			if( player == NULL )
+			if( player == nullptr )
 			{
-				gameLocal.Warning( "NULL player takes flag?\n" );
+				gameLocal.Warning( "nullptr player takes flag?\n" );
 				return false;
 			}
 			
@@ -1159,7 +1159,7 @@ void idItemTeam::Event_TakeFlag( idPlayer* player )
 {
 	gameLocal.DPrintf( "Event_TakeFlag()!\n" );
 	
-	assert( player != NULL );
+	assert( player != nullptr );
 	
 	if( player->carryingFlag )
 	{
@@ -1321,7 +1321,7 @@ void idItemTeam::Event_FlagReturn( idPlayer* player )
 	
 	if( common->IsServer() )
 	{
-		ServerSendEvent( EVENT_FLAGRETURN, NULL, false );
+		ServerSendEvent( EVENT_FLAGRETURN, nullptr, false );
 		
 		if( gameLocal.mpGame.IsFlagMsgOn() )
 		{
@@ -1377,7 +1377,7 @@ void idItemTeam::Event_FlagCapture()
 		int playerIdx = gameLocal.mpGame.GetFlagCarrier( 1 - team );
 		if( playerIdx != -1 )
 		{
-			ServerSendEvent( EVENT_FLAGCAPTURE, NULL, false );
+			ServerSendEvent( EVENT_FLAGCAPTURE, nullptr, false );
 			
 			gameLocal.mpGame.PlayTeamSound( 1 - team,	SND_FLAG_CAPTURED_THEIRS );
 			gameLocal.mpGame.PlayTeamSound( team,	SND_FLAG_CAPTURED_YOURS );
@@ -1450,7 +1450,7 @@ void idItemTeam::SpawnNugget( idVec3 pos )
 	idEntity* ent = idMoveableItem::DropItem( nuggetName, pos, GetPhysics()->GetAxis(), angle.ToMat3() * idVec3( velocity, velocity, velocity ), 0, spawnArgs.GetInt( "nugget_removedelay" ) );
 	idPhysics_RigidBody* physics = static_cast<idPhysics_RigidBody*>( ent->GetPhysics() );
 	
-	if( physics != NULL && physics->IsType( idPhysics_RigidBody::Type ) )
+	if( physics != nullptr && physics->IsType( idPhysics_RigidBody::Type ) )
 	{
 		physics->DisableImpact();
 	}
@@ -1717,7 +1717,7 @@ void idObjective::Event_Trigger( idEntity* activator )
 	{
 		//Pickup( player );
 		
-		if( spawnArgs.GetString( "inv_objective", NULL ) )
+		if( spawnArgs.GetString( "inv_objective", nullptr ) )
 		{
 			if( player )
 			{
@@ -1801,12 +1801,12 @@ idVideoCDItem::GiveToPlayer
 */
 bool idVideoCDItem::GiveToPlayer( idPlayer* player, unsigned int giveFlags )
 {
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return false;
 	}
 	const idDeclVideo* video = static_cast<const idDeclVideo* >( declManager->FindType( DECL_VIDEO, spawnArgs.GetString( "video" ), false ) );
-	if( video == NULL )
+	if( video == nullptr )
 	{
 		return false;
 	}
@@ -1835,19 +1835,19 @@ idPDAItem::GiveToPlayer
 */
 bool idPDAItem::GiveToPlayer( idPlayer* player, unsigned int giveFlags )
 {
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return false;
 	}
 	const char* pdaName = spawnArgs.GetString( "pda_name" );
 	const char* invName = spawnArgs.GetString( "inv_name" );
-	const idDeclPDA* pda = NULL;
-	if( pdaName != NULL && pdaName[0] != 0 )
+	const idDeclPDA* pda = nullptr;
+	if( pdaName != nullptr && pdaName[0] != 0 )
 	{
 		// An empty PDA name is legitimate, it means the personal PDA
 		// But if the PDA name is not empty, it should be valid
 		pda = static_cast<const idDeclPDA*>( declManager->FindType( DECL_PDA, pdaName, false ) );
-		if( pda == NULL )
+		if( pda == nullptr )
 		{
 			idLib::Warning( "PDA Item '%s' references unknown PDA %s", GetName(), pdaName );
 			return false;
@@ -1880,8 +1880,8 @@ idMoveableItem::idMoveableItem
 */
 idMoveableItem::idMoveableItem()
 {
-	trigger = NULL;
-	smoke = NULL;
+	trigger = nullptr;
+	smoke = nullptr;
 	smokeTime = 0;
 	nextSoundTime = 0;
 	repeatSmoke = false;
@@ -1997,7 +1997,7 @@ void idMoveableItem::Spawn()
 		physicsObj.PutToRest();
 	}
 	
-	smoke = NULL;
+	smoke = nullptr;
 	smokeTime = 0;
 	nextSoundTime = 0;
 	const char* smokeName = spawnArgs.GetString( "smoke_trail" );
@@ -2077,7 +2077,7 @@ bool idMoveableItem::Collide( const trace_t& collision, const idVec3& velocity )
 	if( v > 80 && gameLocal.time > nextSoundTime )
 	{
 		f = v > 200 ? 1.0f : idMath::Sqrt( v - 80 ) * 0.091f;
-		if( StartSound( "snd_bounce", SND_CHANNEL_ANY, 0, false, NULL ) )
+		if( StartSound( "snd_bounce", SND_CHANNEL_ANY, 0, false, nullptr ) )
 		{
 			// don't set the volume unless there is a bounce sound as it overrides the entire channel
 			// which causes footsteps on ai's to not honor their shader parms
@@ -2090,8 +2090,8 @@ bool idMoveableItem::Collide( const trace_t& collision, const idVec3& velocity )
 		float	fx_collide_interval;
 		fxCollide = spawnArgs.GetString( "fx_collide" );
 		// foresthale 20140402: pass collision.c.normal as decalDir
-		//idEntityFx::StartFx( fxCollide, &collision.c.point, NULL, this, false );
-		idEntityFx::StartFx( fxCollide, &collision.c.point, NULL, this, false, &collision.c.normal );
+		//idEntityFx::StartFx( fxCollide, &collision.c.point, nullptr, this, false );
+		idEntityFx::StartFx( fxCollide, &collision.c.point, nullptr, this, false, &collision.c.normal );
 		
 		fx_collide_interval = spawnArgs.GetFloat( "fx_collide_interval" );
 
@@ -2193,7 +2193,7 @@ void idMoveableItem::DropItems( idAnimatedEntity*  ent, const char* type, idList
 	idEntity* item;
 	
 	// drop all items
-	kv = ent->spawnArgs.MatchPrefix( va( "def_drop%sItem", type ), NULL );
+	kv = ent->spawnArgs.MatchPrefix( va( "def_drop%sItem", type ), nullptr );
 	while( kv )
 	{
 	
@@ -2345,19 +2345,19 @@ idMoveablePDAItem::GiveToPlayer
 */
 bool idMoveablePDAItem::GiveToPlayer( idPlayer* player, unsigned int giveFlags )
 {
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return false;
 	}
 	const char* pdaName = spawnArgs.GetString( "pda_name" );
 	const char* invName = spawnArgs.GetString( "inv_name" );
-	const idDeclPDA* pda = NULL;
-	if( pdaName != NULL && pdaName[0] != 0 )
+	const idDeclPDA* pda = nullptr;
+	if( pdaName != nullptr && pdaName[0] != 0 )
 	{
 		// An empty PDA name is legitimate, it means the personal PDA
 		// But if the PDA name is not empty, it should be valid
 		pda = static_cast<const idDeclPDA*>( declManager->FindType( DECL_PDA, pdaName, false ) );
-		if( pda == NULL )
+		if( pda == nullptr )
 		{
 			idLib::Warning( "PDA Item '%s' references unknown PDA %s", GetName(), pdaName );
 			return false;
@@ -2487,7 +2487,7 @@ void idObjectiveComplete::Event_Trigger( idEntity* activator )
 	{
 		RemoveItem( player );
 				
-		if( spawnArgs.GetString( "inv_objective", NULL ) )
+		if( spawnArgs.GetString( "inv_objective", nullptr ) )
 		{		
 			// ###################################################### SR
 			

@@ -82,19 +82,19 @@ idPVS::idPVS()
 	numAreas = 0;
 	numPortals = 0;
 	
-	connectedAreas = NULL;
-	areaQueue = NULL;
-	areaPVS = NULL;
+	connectedAreas = nullptr;
+	areaQueue = nullptr;
+	areaPVS = nullptr;
 	
 	for( i = 0; i < MAX_CURRENT_PVS; i++ )
 	{
 		currentPVS[i].handle.i = -1;
 		currentPVS[i].handle.h = 0;
-		currentPVS[i].pvs = NULL;
+		currentPVS[i].pvs = nullptr;
 	}
 	
-	pvsAreas = NULL;
-	pvsPortals = NULL;
+	pvsAreas = nullptr;
+	pvsPortals = nullptr;
 }
 
 /*
@@ -144,7 +144,7 @@ void idPVS::CreatePVSData()
 	
 	pvsPortals = new( TAG_PVS ) pvsPortal_t[numPortals];
 	pvsAreas = new( TAG_PVS ) pvsArea_t[numAreas];
-	memset( pvsAreas, 0, numAreas * sizeof( *pvsAreas ) );
+	std::memset( pvsAreas, 0, numAreas * sizeof( *pvsAreas ) );
 	
 	cp = 0;
 	portalPtrs = new( TAG_PVS ) pvsPortal_t*[numPortals];
@@ -169,9 +169,9 @@ void idPVS::CreatePVSData()
 			p->areaNum = portal.areas[1];	// area[1] is always the area the portal leads to
 			
 			p->vis = new( TAG_PVS ) byte[portalVisBytes];
-			memset( p->vis, 0, portalVisBytes );
+			std::memset( p->vis, 0, portalVisBytes );
 			p->mightSee = new( TAG_PVS ) byte[portalVisBytes];
-			memset( p->mightSee, 0, portalVisBytes );
+			std::memset( p->mightSee, 0, portalVisBytes );
 			p->w->GetBounds( p->bounds );
 			p->w->GetPlane( p->plane );
 			// plane normal points to outside the area
@@ -206,7 +206,7 @@ void idPVS::DestroyPVSData()
 	
 	// delete all areas
 	delete[] pvsAreas;
-	pvsAreas = NULL;
+	pvsAreas = nullptr;
 	
 	// delete portal data
 	for( i = 0; i < numPortals; i++ )
@@ -218,7 +218,7 @@ void idPVS::DestroyPVSData()
 	
 	// delete portals
 	delete[] pvsPortals;
-	pvsPortals = NULL;
+	pvsPortals = nullptr;
 }
 
 /*
@@ -381,7 +381,7 @@ pvsStack_t* idPVS::FloodPassagePVS_r( pvsPortal_t* source, const pvsPortal_t* po
 	{
 		stack = reinterpret_cast<pvsStack_t*>( new byte[sizeof( pvsStack_t ) + portalVisBytes] );
 		stack->mightSee = ( reinterpret_cast<byte*>( stack ) ) + sizeof( pvsStack_t );
-		stack->next = NULL;
+		stack->next = nullptr;
 		prevStack->next = stack;
 	}
 	
@@ -480,14 +480,14 @@ void idPVS::PassagePVS() const
 	// allocate first stack entry
 	stack = reinterpret_cast<pvsStack_t*>( new byte[sizeof( pvsStack_t ) + portalVisBytes] );
 	stack->mightSee = ( reinterpret_cast<byte*>( stack ) ) + sizeof( pvsStack_t );
-	stack->next = NULL;
+	stack->next = nullptr;
 	
 	// calculate portal PVS by flooding through the passages
 	for( i = 0; i < numPortals; i++ )
 	{
 		source = &pvsPortals[i];
-		memset( source->vis, 0, portalVisBytes );
-		memcpy( stack->mightSee, source->mightSee, portalVisBytes );
+		std::memset( source->vis, 0, portalVisBytes );
+		std::memcpy( stack->mightSee, source->mightSee, portalVisBytes );
 		FloodPassagePVS_r( source, source, stack );
 		source->done = true;
 	}
@@ -683,7 +683,7 @@ void idPVS::CreatePassages() const
 			{
 				// not all portals in the area have to be visible because areas are not necesarily convex
 				// also no passage has to be created for the portal which is the opposite of the source
-				passage->canSee = NULL;
+				passage->canSee = nullptr;
 				continue;
 			}
 			
@@ -828,7 +828,7 @@ void idPVS::CopyPortalPVSToMightSee() const
 	for( i = 0; i < numPortals; i++ )
 	{
 		p = &pvsPortals[i];
-		memcpy( p->mightSee, p->vis, portalVisBytes );
+		std::memcpy( p->mightSee, p->vis, portalVisBytes );
 	}
 }
 
@@ -853,7 +853,7 @@ int idPVS::AreaPVSFromPortalPVS() const
 		return totalVisibleAreas;
 	}
 	
-	memset( areaPVS, 0, numAreas * areaVisBytes );
+	std::memset( areaPVS, 0, numAreas * areaVisBytes );
 	
 	for( i = 0; i < numAreas; i++ )
 	{
@@ -939,7 +939,7 @@ void idPVS::Init()
 	// RB end
 	
 	areaPVS = new( TAG_PVS ) byte[numAreas * areaVisBytes];
-	memset( areaPVS, 0xFF, numAreas * areaVisBytes );
+	std::memset( areaPVS, 0xFF, numAreas * areaVisBytes );
 	
 	numPortals = GetPortalCount();
 	
@@ -953,7 +953,7 @@ void idPVS::Init()
 		currentPVS[i].handle.i = -1;
 		currentPVS[i].handle.h = 0;
 		currentPVS[i].pvs = new( TAG_PVS ) byte[areaVisBytes];
-		memset( currentPVS[i].pvs, 0, areaVisBytes );
+		std::memset( currentPVS[i].pvs, 0, areaVisBytes );
 	}
 	
 	idTimer timer;
@@ -997,22 +997,22 @@ void idPVS::Shutdown()
 	if( connectedAreas )
 	{
 		delete connectedAreas;
-		connectedAreas = NULL;
+		connectedAreas = nullptr;
 	}
 	if( areaQueue )
 	{
 		delete areaQueue;
-		areaQueue = NULL;
+		areaQueue = nullptr;
 	}
 	if( areaPVS )
 	{
 		delete areaPVS;
-		areaPVS = NULL;
+		areaPVS = nullptr;
 	}
 	for( int i = 0; i < MAX_CURRENT_PVS; i++ )
 	{
 		delete currentPVS[i].pvs;
-		currentPVS[i].pvs = NULL;
+		currentPVS[i].pvs = nullptr;
 	}
 }
 
@@ -1126,17 +1126,17 @@ pvsHandle_t idPVS::SetupCurrentPVS( const int sourceArea, const pvsType_t type )
 	
 	if( sourceArea < 0 || sourceArea >= numAreas )
 	{
-		memset( currentPVS[handle.i].pvs, 0, areaVisBytes );
+		std::memset( currentPVS[handle.i].pvs, 0, areaVisBytes );
 		return handle;
 	}
 	
 	if( type != PVS_CONNECTED_AREAS )
 	{
-		memcpy( currentPVS[handle.i].pvs, areaPVS + sourceArea * areaVisBytes, areaVisBytes );
+		std::memcpy( currentPVS[handle.i].pvs, areaPVS + sourceArea * areaVisBytes, areaVisBytes );
 	}
 	else
 	{
-		memset( currentPVS[handle.i].pvs, -1, areaVisBytes );
+		std::memset( currentPVS[handle.i].pvs, -1, areaVisBytes );
 	}
 	
 	if( type == PVS_ALL_PORTALS_OPEN )
@@ -1144,7 +1144,7 @@ pvsHandle_t idPVS::SetupCurrentPVS( const int sourceArea, const pvsType_t type )
 		return handle;
 	}
 	
-	memset( connectedAreas, 0, numAreas * sizeof( *connectedAreas ) );
+	std::memset( connectedAreas, 0, numAreas * sizeof( *connectedAreas ) );
 	
 	GetConnectedAreas( sourceArea, connectedAreas );
 	
@@ -1182,14 +1182,14 @@ pvsHandle_t idPVS::SetupCurrentPVS( const int* sourceAreas, const int numSourceA
 	
 	if( !numSourceAreas || sourceAreas[0] < 0 || sourceAreas[0] >= numAreas )
 	{
-		memset( currentPVS[handle.i].pvs, 0, areaVisBytes );
+		std::memset( currentPVS[handle.i].pvs, 0, areaVisBytes );
 		return handle;
 	}
 	
 	if( type != PVS_CONNECTED_AREAS )
 	{
 		// merge PVS of all areas the source is in
-		memcpy( currentPVS[handle.i].pvs, areaPVS + sourceAreas[0] * areaVisBytes, areaVisBytes );
+		std::memcpy( currentPVS[handle.i].pvs, areaPVS + sourceAreas[0] * areaVisBytes, areaVisBytes );
 		for( i = 1; i < numSourceAreas; i++ )
 		{
 		
@@ -1207,7 +1207,7 @@ pvsHandle_t idPVS::SetupCurrentPVS( const int* sourceAreas, const int numSourceA
 	}
 	else
 	{
-		memset( currentPVS[handle.i].pvs, -1, areaVisBytes );
+		std::memset( currentPVS[handle.i].pvs, -1, areaVisBytes );
 	}
 	
 	if( type == PVS_ALL_PORTALS_OPEN )
@@ -1215,7 +1215,7 @@ pvsHandle_t idPVS::SetupCurrentPVS( const int* sourceAreas, const int numSourceA
 		return handle;
 	}
 	
-	memset( connectedAreas, 0, numAreas * sizeof( *connectedAreas ) );
+	std::memset( connectedAreas, 0, numAreas * sizeof( *connectedAreas ) );
 	
 	// get all areas connected to any of the source areas
 	for( i = 0; i < numSourceAreas; i++ )

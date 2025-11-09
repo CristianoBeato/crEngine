@@ -51,7 +51,7 @@ public:
 		threadTime(),
 		threadGameTime(),
 		threadRenderTime(),
-		userCmdMgr( NULL ),
+		userCmdMgr( nullptr ),
 		ret(),
 		numGameFrames(),
 		isClient()

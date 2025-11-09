@@ -1583,7 +1583,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 	// the modeling programs can save out multiple surfaces with a common
 	// material, but we would like to merge them together where possible
 	mergeTo = ( int* )_alloca( i * sizeof( mergeTo[0] ) );
-	memset( &surf, 0, sizeof( surf ) );
+	std::memset( &surf, 0, sizeof( surf ) );
 	
 	if( !r_mergeModelSurfaces.GetBool() )
 	{
@@ -2128,7 +2128,7 @@ struct aseModel_s* idRenderModelStatic::ConvertLWOToASE( const struct st_lwObjec
 		mesh->numTVFaces = faceIndex;
 		
 		aseFace_t* newFaces = ( aseFace_t* )Mem_Alloc( mesh->numFaces * sizeof( mesh->faces[0] ), TAG_MODEL );
-		memcpy( newFaces, mesh->faces, sizeof( mesh->faces[0] ) * mesh->numFaces );
+		std::memcpy( newFaces, mesh->faces, sizeof( mesh->faces[0] ) * mesh->numFaces );
 		Mem_Free( mesh->faces );
 		mesh->faces = newFaces;
 	}

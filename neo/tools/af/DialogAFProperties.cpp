@@ -61,7 +61,7 @@ toolTip_t DialogAFProperties::toolTips[] = {
 	{ IDC_EDIT_MAXIMUM_MOVE_TIME, "always suspend simulation after running for this many seconds" },
 	{ IDC_EDIT_LINEAR_TOLERANCE, "maximum translation considered no movement" },
 	{ IDC_EDIT_ANGULAR_TOLERANCE, "maximum rotation considered no movement" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFProperties, CDialog)
@@ -71,7 +71,7 @@ IMPLEMENT_DYNAMIC(DialogAFProperties, CDialog)
 DialogAFProperties::DialogAFProperties
 ================
 */
-DialogAFProperties::DialogAFProperties(CWnd* pParent /*=NULL*/)
+DialogAFProperties::DialogAFProperties(CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogAFProperties::IDD, pParent)
 	, m_selfCollision(false)
 	, m_linearFriction(0)
@@ -88,7 +88,7 @@ DialogAFProperties::DialogAFProperties(CWnd* pParent /*=NULL*/)
 	, m_maxMoveTime(0)
 	, m_linearTolerance(0)
 	, m_angularTolerance(0)
-	, file(NULL)
+	, file(nullptr)
 {
 	Create( IDD_DIALOG_AF_PROPERTIES, pParent );
 	EnableToolTips( TRUE );

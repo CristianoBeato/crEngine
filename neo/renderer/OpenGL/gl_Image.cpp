@@ -497,7 +497,7 @@ void idImage::AllocImage()
 	assert( texnum != TEXTURE_NOT_LOADED );
 	
 	//----------------------------------------------------
-	// allocate all the mip levels with NULL data
+	// allocate all the mip levels with nullptr data
 	//----------------------------------------------------
 	
 	int numSides;
@@ -537,7 +537,7 @@ void idImage::AllocImage()
 		int h = opts.height;
 		if( opts.textureType == TT_2D_ARRAY )
 		{
-			glTexImage3D( uploadTarget, 0, internalFormat, opts.width, opts.height, numSides, 0, dataFormat, GL_UNSIGNED_BYTE, NULL );
+			glTexImage3D( uploadTarget, 0, internalFormat, opts.width, opts.height, numSides, 0, dataFormat, GL_UNSIGNED_BYTE, nullptr );
 			break;
 		}
 		if( opts.textureType == TT_CUBIC )
@@ -554,11 +554,11 @@ void idImage::AllocImage()
 			{
 				int compressedSize = ( ( ( w + 3 ) / 4 ) * ( ( h + 3 ) / 4 ) * int64_t( 16 ) * BitsForFormat( opts.format ) ) / 8;
 				
-				// Even though the OpenGL specification allows the 'data' pointer to be NULL, for some
+				// Even though the OpenGL specification allows the 'data' pointer to be nullptr, for some
 				// drivers we actually need to upload data to get it to allocate the texture.
 				// However, on 32-bit systems we may fail to allocate a large block of memory for large
 				// textures. We handle this case by using HeapAlloc directly and allowing the allocation
-				// to fail in which case we simply pass down NULL to glCompressedTexImage2D and hope for the best.
+				// to fail in which case we simply pass down nullptr to glCompressedTexImage2D and hope for the best.
 				// As of 2011-10-6 using NVIDIA hardware and drivers we have to allocate the memory with HeapAlloc
 				// with the exact size otherwise large image allocation (for instance for physical page textures)
 				// may fail on Vista 32-bit.
@@ -567,14 +567,14 @@ void idImage::AllocImage()
 #if defined(_WIN32)
 				void* data = HeapAlloc( GetProcessHeap(), 0, compressedSize );
 				glCompressedTexImage2DARB( uploadTarget + side, level, internalFormat, w, h, 0, compressedSize, data );
-				if( data != NULL )
+				if( data != nullptr )
 				{
 					HeapFree( GetProcessHeap(), 0, data );
 				}
 #else
 				byte* data = ( byte* )Mem_Alloc( compressedSize, TAG_TEMP );
 				glCompressedTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, compressedSize, data );
-				if( data != NULL )
+				if( data != nullptr )
 				{
 					Mem_Free( data );
 				}
@@ -583,7 +583,7 @@ void idImage::AllocImage()
 			}
 			else
 			{
-				glTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, NULL );
+				glTexImage2D( uploadTarget + side, level, internalFormat, w, h, 0, dataFormat, dataType, nullptr );
 			}
 			
 			GL_CheckErrors();
@@ -612,7 +612,7 @@ void idImage::PurgeImage()
 {
 	if( texnum != TEXTURE_NOT_LOADED )
 	{
-		// foresthale 2014-10-05: hitting quit in the launch console crashes if we call glDeleteTextures (which is NULL at the time)
+		// foresthale 2014-10-05: hitting quit in the launch console crashes if we call glDeleteTextures (which is nullptr at the time)
 		if ( glDeleteTextures )
 			glDeleteTextures( 1, ( GLuint* )&texnum );	// this should be the ONLY place it is ever called!
 		texnum = TEXTURE_NOT_LOADED;

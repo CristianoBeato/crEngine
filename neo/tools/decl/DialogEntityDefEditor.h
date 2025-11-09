@@ -40,7 +40,7 @@ class DialogEntityDefEditor : public CDialog {
 	DECLARE_DYNAMIC(DialogEntityDefEditor)
 
 public:
-						DialogEntityDefEditor( CWnd* pParent = NULL );   // standard constructor
+						DialogEntityDefEditor( CWnd* pParent = nullptr );   // standard constructor
 	virtual				~DialogEntityDefEditor();
 
 	void				LoadDecl( idDeclEntityDef *decl );

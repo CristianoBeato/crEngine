@@ -46,7 +46,7 @@ toolTip_t DialogAFConstraintSlider::toolTips[] = {
 	{ IDC_COMBO_SLIDER_AXIS_JOINT2, "bone end joint" },
 	{ IDC_EDIT_SLIDER_AXIS_PITCH, "pitch angle" },
 	{ IDC_EDIT_SLIDER_AXIS_YAW, "yaw angle" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFConstraintSlider, CDialog)
@@ -56,12 +56,12 @@ IMPLEMENT_DYNAMIC(DialogAFConstraintSlider, CDialog)
 DialogAFConstraintSlider::DialogAFConstraintSlider
 ================
 */
-DialogAFConstraintSlider::DialogAFConstraintSlider(CWnd* pParent /*=NULL*/)
+DialogAFConstraintSlider::DialogAFConstraintSlider(CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogAFConstraintSlider::IDD, pParent)
 	, m_axisPitch(0)
 	, m_axisYaw(0)
-	, constraint(NULL)
-	, file(NULL)
+	, constraint(nullptr)
+	, file(nullptr)
 {
 	Create( IDD_DIALOG_AF_CONSTRAINT_SLIDER, pParent );
 	EnableToolTips( TRUE );
@@ -123,7 +123,7 @@ DialogAFConstraintSlider::LoadFile
 */
 void DialogAFConstraintSlider::LoadFile( idDeclAF *af ) {
 	file = af;
-	constraint = NULL;
+	constraint = nullptr;
 	InitJointLists();
 }
 

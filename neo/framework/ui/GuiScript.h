@@ -37,7 +37,7 @@ struct idGSWinVar
 {
 	idGSWinVar()
 	{
-		var = NULL;
+		var = nullptr;
 		own = false;
 	}
 	idWinVar* var;

@@ -98,9 +98,9 @@ void idSWFBitStream::Free()
 		Mem_Free( ( void* )startp );
 	}
 	free = false;
-	startp = NULL;
-	endp = NULL;
-	readp = NULL;
+	startp = nullptr;
+	endp = nullptr;
+	readp = nullptr;
 	ResetBits();
 }
 
@@ -117,7 +117,7 @@ void idSWFBitStream::Load( const byte* data, uint32_t len, bool copy )
 	{
 		free = true;
 		startp = ( const byte* )Mem_Alloc( len, TAG_SWF );
-		memcpy( ( byte* )startp, data, len );
+		std::memcpy( ( byte* )startp, data, len );
 	}
 	else
 	{

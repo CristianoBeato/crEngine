@@ -66,7 +66,7 @@ idAASFile* idAASFileManagerLocal::LoadAAS( const char* fileName, unsigned int ma
 	if( !file->Load( fileName, mapFileCRC ) )
 	{
 		delete file;
-		return NULL;
+		return nullptr;
 	}
 	return file;
 }

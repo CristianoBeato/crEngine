@@ -47,7 +47,7 @@ void idMenuWidget_ItemAssignment::FindFreeSpot()
 	slotIndex = 0;
 	for( int i = 0; i < NUM_QUICK_SLOTS; ++i )
 	{
-		if( images[ i ] == NULL )
+		if( images[ i ] == nullptr )
 		{
 			slotIndex = i;
 			break;
@@ -63,7 +63,7 @@ idMenuWidget_ItemAssignment::Update
 void idMenuWidget_ItemAssignment::Update()
 {
 
-	if( GetSWFObject() == NULL )
+	if( GetSWFObject() == nullptr )
 	{
 		return;
 	}
@@ -77,7 +77,7 @@ void idMenuWidget_ItemAssignment::Update()
 	
 	idSWFSpriteInstance* dpad = GetSprite()->GetScriptObject()->GetNestedSprite( "dpad" );
 	
-	if( dpad != NULL )
+	if( dpad != nullptr )
 	{
 		dpad->StopFrame( slotIndex + 2 );
 	}
@@ -85,7 +85,7 @@ void idMenuWidget_ItemAssignment::Update()
 	for( int i = 0; i < NUM_QUICK_SLOTS; ++i )
 	{
 		idSWFSpriteInstance* item = GetSprite()->GetScriptObject()->GetNestedSprite( va( "item%d", i ) );
-		if( item != NULL )
+		if( item != nullptr )
 		{
 			if( i == slotIndex )
 			{
@@ -98,9 +98,9 @@ void idMenuWidget_ItemAssignment::Update()
 		}
 		
 		idSWFSpriteInstance* itemIcon = GetSprite()->GetScriptObject()->GetNestedSprite( va( "item%d", i ), "img" );
-		if( itemIcon != NULL )
+		if( itemIcon != nullptr )
 		{
-			if( images[ i ] != NULL )
+			if( images[ i ] != nullptr )
 			{
 				itemIcon->SetVisible( true );
 				itemIcon->SetMaterial( images[ i ] );
@@ -112,9 +112,9 @@ void idMenuWidget_ItemAssignment::Update()
 		}
 		
 		itemIcon = GetSprite()->GetScriptObject()->GetNestedSprite( va( "item%d", i ), "imgTop" );
-		if( itemIcon != NULL )
+		if( itemIcon != nullptr )
 		{
-			if( images[ i ] != NULL )
+			if( images[ i ] != nullptr )
 			{
 				itemIcon->SetVisible( true );
 				itemIcon->SetMaterial( images[ i ] );

@@ -53,7 +53,7 @@ toolTip_t DialogDeclEditor::toolTips[] = {
 	{ IDC_DECLEDITOR_BUTTON_TEST, "test decl" },
 	{ IDOK, "save decl" },
 	{ IDCANCEL, "cancel" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 
@@ -64,12 +64,12 @@ IMPLEMENT_DYNAMIC(DialogDeclEditor, CDialog)
 DialogDeclEditor::DialogDeclEditor
 ================
 */
-DialogDeclEditor::DialogDeclEditor( CWnd* pParent /*=NULL*/ )
+DialogDeclEditor::DialogDeclEditor( CWnd* pParent /*=nullptr*/ )
 	: CDialog(DialogDeclEditor::IDD, pParent)
-	, findDlg(NULL)
+	, findDlg(nullptr)
 	, matchCase(false)
 	, matchWholeWords(false)
-	, decl(NULL)
+	, decl(nullptr)
 	, firstLine(0)
 {
 }
@@ -548,12 +548,12 @@ DialogDeclEditor::OnFindDialogMessage
 ================
 */
 LRESULT DialogDeclEditor::OnFindDialogMessage( WPARAM wParam, LPARAM lParam ) {
-	if ( findDlg == NULL ) {
+	if ( findDlg == nullptr ) {
 		return 0;
 	}
 
 	if ( findDlg->IsTerminating() ) {
-        findDlg = NULL;
+        findDlg = nullptr;
         return 0;
     }
 

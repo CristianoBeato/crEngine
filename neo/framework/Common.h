@@ -227,7 +227,7 @@ public:
 	virtual void				UpdateLevelLoadPacifier(bool updateSecondary, int Progress) = 0;
 	
 	// Checks for and removes command line "+set var arg" constructs.
-	// If match is NULL, all set commands will be executed, otherwise
+	// If match is nullptr, all set commands will be executed, otherwise
 	// only a set with the exact name.
 	virtual void				StartupVariable( const char* match ) = 0;
 	

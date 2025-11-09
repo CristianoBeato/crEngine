@@ -205,14 +205,14 @@ void idCollisionModelManagerLocal::Clear()
 	checkCount = 0;
 	maxModels = 0;
 	numModels = 0;
-	models = NULL;
-	memset( trmPolygons, 0, sizeof( trmPolygons ) );
-	trmBrushes[0] = NULL;
-	trmMaterial = NULL;
+	models = nullptr;
+	std::memset( trmPolygons, 0, sizeof( trmPolygons ) );
+	trmBrushes[0] = nullptr;
+	trmMaterial = nullptr;
 	numProcNodes = 0;
-	procNodes = NULL;
+	procNodes = nullptr;
 	getContacts = false;
-	contacts = NULL;
+	contacts = nullptr;
 	maxContacts = 0;
 	numContacts = 0;
 }
@@ -232,7 +232,7 @@ void idCollisionModelManagerLocal::RemovePolygonReferences_r( cm_node_t* node, c
 		{
 			if( pref->p == p )
 			{
-				pref->p = NULL;
+				pref->p = nullptr;
 				// cannot return here because we can have links down the tree due to polygon merging
 				//return;
 			}
@@ -273,7 +273,7 @@ void idCollisionModelManagerLocal::RemoveBrushReferences_r( cm_node_t* node, cm_
 		{
 			if( bref->b == b )
 			{
-				bref->b = NULL;
+				bref->b = nullptr;
 				return;
 			}
 		}
@@ -340,7 +340,7 @@ void idCollisionModelManagerLocal::FreePolygon( cm_model_t* model, cm_polygon_t*
 {
 	model->numPolygons--;
 	model->polygonMemory -= sizeof( cm_polygon_t ) + ( poly->numEdges - 1 ) * sizeof( poly->edges[0] );
-	if( model->polygonBlock == NULL )
+	if( model->polygonBlock == nullptr )
 	{
 		Mem_Free( poly );
 	}
@@ -355,7 +355,7 @@ void idCollisionModelManagerLocal::FreeBrush( cm_model_t* model, cm_brush_t* bru
 {
 	model->numBrushes--;
 	model->brushMemory -= sizeof( cm_brush_t ) + ( brush->numPlanes - 1 ) * sizeof( brush->planes[0] );
-	if( model->brushBlock == NULL )
+	if( model->brushBlock == nullptr )
 	{
 		Mem_Free( brush );
 	}
@@ -403,9 +403,9 @@ void idCollisionModelManagerLocal::FreeTree_r( cm_model_t* model, cm_node_t* hea
 	if( node->planeType != -1 )
 	{
 		FreeTree_r( model, headNode, node->children[0] );
-		node->children[0] = NULL;
+		node->children[0] = nullptr;
 		FreeTree_r( model, headNode, node->children[1] );
-		node->children[1] = NULL;
+		node->children[1] = nullptr;
 	}
 	FreeNode( node );
 }
@@ -510,8 +510,8 @@ void idCollisionModelManagerLocal::FreeTrmModelStructure()
 	}
 	FreeBrush( models[MAX_SUBMODELS], trmBrushes[0]->b );
 	
-	models[MAX_SUBMODELS]->node->polygons = NULL;
-	models[MAX_SUBMODELS]->node->brushes = NULL;
+	models[MAX_SUBMODELS]->node->polygons = nullptr;
+	models[MAX_SUBMODELS]->node->brushes = nullptr;
 	FreeModel( models[MAX_SUBMODELS] );
 }
 
@@ -623,16 +623,16 @@ cm_model_t* idCollisionModelManagerLocal::AllocModel()
 	model->isConvex = false;
 	model->maxVertices = 0;
 	model->numVertices = 0;
-	model->vertices = NULL;
+	model->vertices = nullptr;
 	model->maxEdges = 0;
 	model->numEdges = 0;
-	model->edges = NULL;
-	model->node = NULL;
-	model->nodeBlocks = NULL;
-	model->polygonRefBlocks = NULL;
-	model->brushRefBlocks = NULL;
-	model->polygonBlock = NULL;
-	model->brushBlock = NULL;
+	model->edges = nullptr;
+	model->node = nullptr;
+	model->nodeBlocks = nullptr;
+	model->polygonRefBlocks = nullptr;
+	model->brushRefBlocks = nullptr;
+	model->polygonBlock = nullptr;
+	model->brushBlock = nullptr;
 	model->numPolygons = model->polygonMemory =
 							 model->numBrushes = model->brushMemory =
 										 model->numNodes = model->numBrushRefs =
@@ -666,12 +666,12 @@ cm_node_t* idCollisionModelManagerLocal::AllocNode( cm_model_t* model, int block
 			node->parent = node + 1;
 			node = node->parent;
 		}
-		node->parent = NULL;
+		node->parent = nullptr;
 	}
 	
 	node = model->nodeBlocks->nextNode;
 	model->nodeBlocks->nextNode = node->parent;
-	node->parent = NULL;
+	node->parent = nullptr;
 	
 	return node;
 }
@@ -699,7 +699,7 @@ cm_polygonRef_t* idCollisionModelManagerLocal::AllocPolygonReference( cm_model_t
 			pref->next = pref + 1;
 			pref = pref->next;
 		}
-		pref->next = NULL;
+		pref->next = nullptr;
 	}
 	
 	pref = model->polygonRefBlocks->nextRef;
@@ -731,7 +731,7 @@ cm_brushRef_t* idCollisionModelManagerLocal::AllocBrushReference( cm_model_t* mo
 			bref->next = bref + 1;
 			bref = bref->next;
 		}
-		bref->next = NULL;
+		bref->next = nullptr;
 	}
 	
 	bref = model->brushRefBlocks->nextRef;
@@ -902,14 +902,14 @@ cmHandle_t idCollisionModelManagerLocal::SetupTrmModel( const idTraceModel& trm,
 	
 	assert( models );
 	
-	if( material == NULL )
+	if( material == nullptr )
 	{
 		material = trmMaterial;
 	}
 	
 	model = models[MAX_SUBMODELS];
-	model->node->brushes = NULL;
-	model->node->polygons = NULL;
+	model->node->brushes = nullptr;
+	model->node->polygons = nullptr;
 	// if not a valid trace model
 	if( trm.type == TRM_INVALID || !trm.numPolys )
 	{
@@ -1076,7 +1076,7 @@ int idCollisionModelManagerLocal::ChoppedAwayByProcBSP( const idFixedWinding& w,
 	idVec3 origin;
 	
 	// if the .proc file has no BSP tree
-	if( procNodes == NULL )
+	if( procNodes == nullptr )
 	{
 		return false;
 	}
@@ -1376,7 +1376,7 @@ idFixedWinding* idCollisionModelManagerLocal::WindingOutsideBrushes( idFixedWind
 	//
 	if( !cm_windingList->numWindings )
 	{
-		return NULL;
+		return nullptr;
 	}
 	if( cm_windingList->numWindings == 1 )
 	{
@@ -1404,7 +1404,7 @@ idFixedWinding* idCollisionModelManagerLocal::WindingOutsideBrushes( idFixedWind
 	{
 		return &cm_windingList->w[windingLeft];
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1431,7 +1431,7 @@ void idCollisionModelManagerLocal::ReplacePolygons( cm_model_t* model, cm_node_t
 	while( 1 )
 	{
 		linked = false;
-		lastpref = NULL;
+		lastpref = nullptr;
 		for( pref = node->polygons; pref; pref = nextpref )
 		{
 			nextpref = pref->next;
@@ -1509,25 +1509,25 @@ cm_polygon_t* idCollisionModelManagerLocal::TryMergePolygons( cm_model_t* model,
 	
 	if( p1->material != p2->material )
 	{
-		return NULL;
+		return nullptr;
 	}
 	if( idMath::Fabs( p1->plane.Dist() - p2->plane.Dist() ) > NORMAL_EPSILON )
 	{
-		return NULL;
+		return nullptr;
 	}
 	for( i = 0; i < 3; i++ )
 	{
 		if( idMath::Fabs( p1->plane.Normal()[i] - p2->plane.Normal()[i] ) > NORMAL_EPSILON )
 		{
-			return NULL;
+			return nullptr;
 		}
 		if( p1->bounds[0][i] > p2->bounds[1][i] )
 		{
-			return NULL;
+			return nullptr;
 		}
 		if( p1->bounds[1][i] < p2->bounds[0][i] )
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 	// this allows for merging polygons with multiple shared edges
@@ -1569,7 +1569,7 @@ cm_polygon_t* idCollisionModelManagerLocal::TryMergePolygons( cm_model_t* model,
 	}
 	if( p1BeforeShare < 0 || p1AfterShare < 0 || p2BeforeShare < 0 || p2AfterShare < 0 )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	// check if the new polygon would still be convex
@@ -1587,7 +1587,7 @@ cm_polygon_t* idCollisionModelManagerLocal::TryMergePolygons( cm_model_t* model,
 			
 	dot = delta * normal;
 	if( dot < -CONTINUOUS_EPSILON )
-		return NULL;			// not a convex polygon
+		return nullptr;			// not a convex polygon
 	keep1 = ( bool )( dot > CONTINUOUS_EPSILON );
 	
 	edgeNum = p2->edges[p2BeforeShare];
@@ -1604,7 +1604,7 @@ cm_polygon_t* idCollisionModelManagerLocal::TryMergePolygons( cm_model_t* model,
 			
 	dot = delta * normal;
 	if( dot < -CONTINUOUS_EPSILON )
-		return NULL;			// not a convex polygon
+		return nullptr;			// not a convex polygon
 	keep2 = ( bool )( dot > CONTINUOUS_EPSILON );
 	
 	newEdgeNum1 = newEdgeNum2 = 0;
@@ -1681,8 +1681,8 @@ cm_polygon_t* idCollisionModelManagerLocal::TryMergePolygons( cm_model_t* model,
 	}
 	
 	newp = AllocPolygon( model, newNumEdges );
-	memcpy( newp, p1, sizeof( cm_polygon_t ) );
-	memcpy( newp->edges, newEdges, newNumEdges * sizeof( int ) );
+	std::memcpy( newp, p1, sizeof( cm_polygon_t ) );
+	std::memcpy( newp->edges, newEdges, newNumEdges * sizeof( int ) );
 	newp->numEdges = newNumEdges;
 	newp->checkcount = 0;
 	// increase usage count for the edges of this polygon
@@ -2257,7 +2257,7 @@ CM_R_InsideAllChildren
 */
 static int CM_R_InsideAllChildren( cm_node_t* node, const idBounds& bounds )
 {
-	assert( node != NULL );
+	assert( node != nullptr );
 	if( node->planeType != -1 )
 	{
 		if( bounds[0][node->planeType] >= node->planeDist )
@@ -2287,7 +2287,7 @@ idCollisionModelManagerLocal::R_FilterPolygonIntoTree
 */
 void idCollisionModelManagerLocal::R_FilterPolygonIntoTree( cm_model_t* model, cm_node_t* node, cm_polygonRef_t* pref, cm_polygon_t* p )
 {
-	assert( node != NULL );
+	assert( node != nullptr );
 	while( node->planeType != -1 )
 	{
 		if( CM_R_InsideAllChildren( node, p->bounds ) )
@@ -2304,7 +2304,7 @@ void idCollisionModelManagerLocal::R_FilterPolygonIntoTree( cm_model_t* model, c
 		}
 		else
 		{
-			R_FilterPolygonIntoTree( model, node->children[1], NULL, p );
+			R_FilterPolygonIntoTree( model, node->children[1], nullptr, p );
 			node = node->children[0];
 		}
 	}
@@ -2326,7 +2326,7 @@ idCollisionModelManagerLocal::R_FilterBrushIntoTree
 */
 void idCollisionModelManagerLocal::R_FilterBrushIntoTree( cm_model_t* model, cm_node_t* node, cm_brushRef_t* pref, cm_brush_t* b )
 {
-	assert( node != NULL );
+	assert( node != nullptr );
 	while( node->planeType != -1 )
 	{
 		if( CM_R_InsideAllChildren( node, b->bounds ) )
@@ -2343,7 +2343,7 @@ void idCollisionModelManagerLocal::R_FilterBrushIntoTree( cm_model_t* model, cm_
 		}
 		else
 		{
-			R_FilterBrushIntoTree( model, node->children[1], NULL, b );
+			R_FilterBrushIntoTree( model, node->children[1], nullptr, b );
 			node = node->children[0];
 		}
 	}
@@ -2382,12 +2382,12 @@ cm_node_t* idCollisionModelManagerLocal::R_CreateAxialBSPTree( cm_model_t* model
 	}
 	// create two child nodes
 	frontNode = AllocNode( model, NODE_BLOCK_SIZE_LARGE );
-	memset( frontNode, 0, sizeof( cm_node_t ) );
+	std::memset( frontNode, 0, sizeof( cm_node_t ) );
 	frontNode->parent = node;
 	frontNode->planeType = -1;
 	//
 	backNode = AllocNode( model, NODE_BLOCK_SIZE_LARGE );
-	memset( backNode, 0, sizeof( cm_node_t ) );
+	std::memset( backNode, 0, sizeof( cm_node_t ) );
 	backNode->parent = node;
 	backNode->planeType = -1;
 	//
@@ -2407,7 +2407,7 @@ cm_node_t* idCollisionModelManagerLocal::R_CreateAxialBSPTree( cm_model_t* model
 	// filter polygons and brushes down the tree if necesary
 	for( n = node; n; n = n->parent )
 	{
-		prevpref = NULL;
+		prevpref = nullptr;
 		for( pref = n->polygons; pref; pref = nextpref )
 		{
 			nextpref = pref->next;
@@ -2430,7 +2430,7 @@ cm_node_t* idCollisionModelManagerLocal::R_CreateAxialBSPTree( cm_model_t* model
 				prevpref = pref;
 			}
 		}
-		prevbref = NULL;
+		prevbref = nullptr;
 		for( bref = n->brushes; bref; bref = nextbref )
 		{
 			nextbref = bref->next;
@@ -2571,15 +2571,15 @@ idCollisionModelManagerLocal::ShutdownHash
 void idCollisionModelManagerLocal::ShutdownHash()
 {
 	delete cm_vertexHash;
-	cm_vertexHash = NULL;
+	cm_vertexHash = nullptr;
 	delete cm_edgeHash;
-	cm_edgeHash = NULL;
+	cm_edgeHash = nullptr;
 	delete cm_tmpList;
-	cm_tmpList = NULL;
+	cm_tmpList = nullptr;
 	delete cm_outList;
-	cm_outList = NULL;
+	cm_outList = nullptr;
 	delete cm_windingList;
-	cm_windingList = NULL;
+	cm_windingList = nullptr;
 }
 
 /*
@@ -2682,7 +2682,7 @@ int idCollisionModelManagerLocal::GetVertex( cm_model_t* model, const idVec3& v,
 		model->maxVertices = ( float ) model->maxVertices * 1.5f + 1;
 		oldVertices = model->vertices;
 		model->vertices = ( cm_vertex_t* ) Mem_ClearedAlloc( model->maxVertices * sizeof( cm_vertex_t ), TAG_COLLISION );
-		memcpy( model->vertices, oldVertices, model->numVertices * sizeof( cm_vertex_t ) );
+		std::memcpy( model->vertices, oldVertices, model->numVertices * sizeof( cm_vertex_t ) );
 		Mem_Free( oldVertices );
 		
 		cm_vertexHash->ResizeIndex( model->maxVertices );
@@ -2774,7 +2774,7 @@ int idCollisionModelManagerLocal::GetEdge( cm_model_t* model, const idVec3& v1, 
 		model->maxEdges = ( float ) model->maxEdges * 1.5f + 1;
 		oldEdges = model->edges;
 		model->edges = ( cm_edge_t* ) Mem_ClearedAlloc( model->maxEdges * sizeof( cm_edge_t ), TAG_COLLISION );
-		memcpy( model->edges, oldEdges, model->numEdges * sizeof( cm_edge_t ) );
+		std::memcpy( model->edges, oldEdges, model->numEdges * sizeof( cm_edge_t ) );
 		Mem_Free( oldEdges );
 		
 		cm_edgeHash->ResizeIndex( model->maxEdges );
@@ -2863,7 +2863,7 @@ void idCollisionModelManagerLocal::CreatePolygon( cm_model_t* model, idFixedWind
 		edgeNum = polyEdges[i];
 		p->edges[i] = edgeNum;
 	}
-	R_FilterPolygonIntoTree( model, model->node, NULL, p );
+	R_FilterPolygonIntoTree( model, model->node, nullptr, p );
 }
 
 /*
@@ -3143,7 +3143,7 @@ void idCollisionModelManagerLocal::ConvertBrush( cm_model_t* model, const idMapB
 	cm_brush_t* brush;
 	idPlane* planes;
 	idFixedWinding w;
-	const idMaterial* material = NULL;
+	const idMaterial* material = nullptr;
 	
 	contents = 0;
 	bounds.Clear();
@@ -3404,7 +3404,7 @@ void idCollisionModelManagerLocal::OptimizeArrays( cm_model_t* model )
 	model->vertices = ( cm_vertex_t* ) Mem_ClearedAlloc( model->numVertices * sizeof( cm_vertex_t ), TAG_COLLISION );
 	if( oldVertices )
 	{
-		memcpy( model->vertices, oldVertices, model->numVertices * sizeof( cm_vertex_t ) );
+		std::memcpy( model->vertices, oldVertices, model->numVertices * sizeof( cm_vertex_t ) );
 		Mem_Free( oldVertices );
 	}
 	
@@ -3414,7 +3414,7 @@ void idCollisionModelManagerLocal::OptimizeArrays( cm_model_t* model )
 	model->edges = ( cm_edge_t* ) Mem_ClearedAlloc( model->numEdges * sizeof( cm_edge_t ), TAG_COLLISION );
 	if( oldEdges )
 	{
-		memcpy( model->edges, oldEdges, model->numEdges * sizeof( cm_edge_t ) );
+		std::memcpy( model->edges, oldEdges, model->numEdges * sizeof( cm_edge_t ) );
 		Mem_Free( oldEdges );
 	}
 }
@@ -3470,13 +3470,13 @@ cm_model_t* idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile* file,
 	file->ReadBig( magic );
 	if( magic != BCM_MAGIC )
 	{
-		return NULL;
+		return nullptr;
 	}
 	ID_TIME_T storedTimeStamp = FILE_NOT_FOUND_TIMESTAMP;
 	file->ReadBig( storedTimeStamp );
 	if( !fileSystem->InProductionMode() && storedTimeStamp != sourceTimeStamp && sourceTimeStamp>0 )
 	{
-		return NULL;
+		return nullptr;
 	}
 	cm_model_t* model = AllocModel();
 	file->ReadString( model->name );
@@ -3540,7 +3540,7 @@ cm_model_t* idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile* file,
 		file->ReadString( materialName );
 		if( materialName.IsEmpty() )
 		{
-			materials[i] = NULL;
+			materials[i] = nullptr;
 		}
 		else
 		{
@@ -3617,9 +3617,9 @@ cm_model_t* idCollisionModelManagerLocal::LoadBinaryModelFromFile( idFile* file,
 	local::ReadNodeTree( file, model, model->node, polys, brushes );
 	
 	// We should have only allocated a single block, and used every entry in the block
-	// assert( model->nodeBlocks != NULL && model->nodeBlocks->next == NULL && model->nodeBlocks->nextNode == NULL );
-	assert( model->brushRefBlocks == NULL || ( model->brushRefBlocks->next == NULL && model->brushRefBlocks->nextRef == NULL ) );
-	assert( model->polygonRefBlocks == NULL || ( model->polygonRefBlocks->next == NULL && model->polygonRefBlocks->nextRef == NULL ) );
+	// assert( model->nodeBlocks != nullptr && model->nodeBlocks->next == nullptr && model->nodeBlocks->nextNode == nullptr );
+	assert( model->brushRefBlocks == nullptr || ( model->brushRefBlocks->next == nullptr && model->brushRefBlocks->nextRef == nullptr ) );
+	assert( model->polygonRefBlocks == nullptr || ( model->polygonRefBlocks->next == nullptr && model->polygonRefBlocks->nextRef == nullptr ) );
 	
 	// RB: FIXME
 #if !defined(__x86_64__) && !defined(_WIN64)
@@ -3646,9 +3646,9 @@ idCollisionModelManagerLocal::LoadBinaryModel
 cm_model_t* idCollisionModelManagerLocal::LoadBinaryModel( const char* fileName, ID_TIME_T sourceTimeStamp )
 {
 	idFileLocal file( fileSystem->OpenFileReadMemory( fileName ) );
-	if( file == NULL )
+	if( file == nullptr )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return LoadBinaryModelFromFile( file, sourceTimeStamp );
 }
@@ -3702,11 +3702,11 @@ void idCollisionModelManagerLocal::WriteBinaryModelToFile( cm_model_t* model, id
 	{
 		static void BuildUniqueLists( cm_node_t* node, idList< cm_polygon_t* >& polys, idList< cm_brush_t* >& brushes )
 		{
-			for( cm_polygonRef_t* pr = node->polygons; pr != NULL; pr = pr->next )
+			for( cm_polygonRef_t* pr = node->polygons; pr != nullptr; pr = pr->next )
 			{
 				polys.AddUnique( pr->p );
 			}
-			for( cm_brushRef_t* br = node->brushes; br != NULL; br = br->next )
+			for( cm_brushRef_t* br = node->brushes; br != nullptr; br = br->next )
 			{
 				brushes.AddUnique( br->b );
 			}
@@ -3720,12 +3720,12 @@ void idCollisionModelManagerLocal::WriteBinaryModelToFile( cm_model_t* model, id
 		{
 			file->WriteBig( node->planeType );
 			file->WriteBig( node->planeDist );
-			for( cm_polygonRef_t* pr = node->polygons; pr != NULL; pr = pr->next )
+			for( cm_polygonRef_t* pr = node->polygons; pr != nullptr; pr = pr->next )
 			{
 				file->WriteBig( polys.FindIndex( pr->p ) );
 			}
 			file->WriteBig( -1 );
-			for( cm_brushRef_t* br = node->brushes; br != NULL; br = br->next )
+			for( cm_brushRef_t* br = node->brushes; br != nullptr; br = br->next )
 			{
 				file->WriteBig( brushes.FindIndex( br->b ) );
 			}
@@ -3755,7 +3755,7 @@ void idCollisionModelManagerLocal::WriteBinaryModelToFile( cm_model_t* model, id
 	file->WriteBig( materials.Num() );
 	for( int i = 0; i < materials.Num(); i++ )
 	{
-		if( materials[i] == NULL )
+		if( materials[i] == nullptr )
 		{
 			file->WriteString( "" );
 		}
@@ -3795,7 +3795,7 @@ idCollisionModelManagerLocal::WriteBinaryModel
 void idCollisionModelManagerLocal::WriteBinaryModel( cm_model_t* model, const char* fileName, ID_TIME_T sourceTimeStamp )
 {
 	idFileLocal file( fileSystem->OpenFileWrite( fileName, "fs_basepath" ) );
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		common->Printf( "Failed to open %s\n", fileName );
 		return;
@@ -3824,13 +3824,13 @@ cm_model_t* idCollisionModelManagerLocal::LoadRenderModel( const char* fileName 
 	idStr( fileName ).ExtractFileExtension( extension );
 	if( ( extension.Icmp( "ase" ) != 0 ) && ( extension.Icmp( "lwo" ) != 0 ) && ( extension.Icmp( "ma" ) != 0 ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	renderModel = renderModelManager->CheckModel( fileName );
 	if( !renderModel )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	idStrStatic< MAX_OSPATH > generatedFileName = "generated/collision/";
@@ -3839,7 +3839,7 @@ cm_model_t* idCollisionModelManagerLocal::LoadRenderModel( const char* fileName 
 	
 	ID_TIME_T sourceTimeStamp = renderModel->Timestamp();
 	model = LoadBinaryModel( generatedFileName, sourceTimeStamp );
-	if( model != NULL )
+	if( model != nullptr )
 	{
 		return model;
 	}
@@ -3856,7 +3856,7 @@ cm_model_t* idCollisionModelManagerLocal::LoadRenderModel( const char* fileName 
 	model->maxEdges = 0;
 	model->numEdges = 0;
 	
-	bounds = renderModel->Bounds( NULL );
+	bounds = renderModel->Bounds( nullptr );
 	collisionSurface = false;
 	surfCount = renderModel->NumSurfaces();
 	for( i = 0; i < surfCount; i++ )
@@ -3951,7 +3951,7 @@ cm_model_t* idCollisionModelManagerLocal::CollisionModelForMapEntity( const idMa
 	// if the entity has no primitives
 	if( mapEnt->GetNumPrimitives() < 1 )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	// get a name for the collision model
@@ -4206,7 +4206,7 @@ void idCollisionModelManagerLocal::AccumulateModelInfo( cm_model_t* model )
 {
 	int i;
 	
-	memset( model, 0, sizeof( *model ) );
+	std::memset( model, 0, sizeof( *model ) );
 	// accumulate statistics of all loaded models
 	for( i = 0; i < numModels; i++ )
 	{
@@ -4315,7 +4315,7 @@ void idCollisionModelManagerLocal::BuildModels( const idMapFile* mapFile )
 		
 		// free the proc bsp which is only used for data optimization
 		Mem_Free( procNodes );
-		procNodes = NULL;
+		procNodes = nullptr;
 		
 		// write the collision models to a file
 		WriteCollisionModelsToFile( mapFile->GetName(), 0, numModels, mapFile->GetGeometryCRC() );
@@ -4375,7 +4375,7 @@ void idCollisionModelManagerLocal::BuildModelsDmap( const idMapFile* mapFile )
 		
 		// free the proc bsp which is only used for data optimization
 		Mem_Free( procNodes );
-		procNodes = NULL;
+		procNodes = nullptr;
 		
 		// write the collision models to a file
 		WriteCollisionModelsToFile( mapFile->GetName(), 0, numModels, mapFile->GetGeometryCRC() );
@@ -4438,9 +4438,9 @@ idCollisionModelManagerLocal::LoadMap
 void idCollisionModelManagerLocal::LoadMap( const idMapFile* mapFile )
 {
 
-	if( mapFile == NULL )
+	if( mapFile == nullptr )
 	{
-		common->Error( "idCollisionModelManagerLocal::LoadMap: NULL mapFile" );
+		common->Error( "idCollisionModelManagerLocal::LoadMap: nullptr mapFile" );
 		return;
 	}
 	
@@ -4500,7 +4500,7 @@ void idCollisionModelManagerLocal::LoadMapDmap( const idMapFile* mapFile )
 {
 	if( mapFile == nullptr )
 	{
-		common->Error( "idCollisionModelManagerLocal::LoadMap: NULL mapFile" );
+		common->Error( "idCollisionModelManagerLocal::LoadMap: nullptr mapFile" );
 		return;
 	}
 	
@@ -4707,7 +4707,7 @@ cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName )
 	ID_TIME_T sourceTimeStamp = fileSystem->GetTimestamp( modelName );
 	
 	models[ numModels ] = LoadBinaryModel( generatedFileName, sourceTimeStamp );
-	if( models[ numModels ] != NULL )
+	if( models[ numModels ] != nullptr )
 	{
 		numModels++;
 		if( cvarSystem->GetCVarBool( "fs_buildresources" ) )
@@ -4736,7 +4736,7 @@ cmHandle_t idCollisionModelManagerLocal::LoadModel( const char* modelName )
 	
 	// try to load a .ASE or .LWO model and convert it to a collision model
 	models[ numModels ] = LoadRenderModel( modelName );
-	if( models[ numModels ] != NULL )
+	if( models[ numModels ] != nullptr )
 	{
 		numModels++;
 		return ( numModels - 1 );
@@ -4858,7 +4858,7 @@ bool idCollisionModelManagerLocal::TrmFromModel( const cm_model_t* model, idTrac
 	trm.numEdges = model->numEdges - 1;
 	
 	// each edge should be used exactly twice
-	memset( numEdgeUsers, 0, sizeof( numEdgeUsers ) );
+	std::memset( numEdgeUsers, 0, sizeof( numEdgeUsers ) );
 	for( i = 0; i < trm.numPolys; i++ )
 	{
 		for( j = 0; j < trm.polys[i].numEdges; j++ )

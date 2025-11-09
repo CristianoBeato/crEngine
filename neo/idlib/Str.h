@@ -443,7 +443,7 @@ ID_INLINE void idStr::Construct()
 	len = 0;
 	data[ 0 ] = '\0';
 #ifdef ID_DEBUG_UNINITIALIZED_MEMORY
-	memset( baseBuffer, 0, sizeof( baseBuffer ) );
+	std::memset( baseBuffer, 0, sizeof( baseBuffer ) );
 #endif
 }
 
@@ -682,7 +682,7 @@ ID_INLINE void idStr::operator=( const idStr& text )
 	
 	l = text.Length();
 	EnsureAlloced( l + 1, false );
-	memcpy( data, text.data, l );
+	std::memcpy( data, text.data, l );
 	data[l] = '\0';
 	len = l;
 }
@@ -1128,7 +1128,7 @@ ID_INLINE void idStr::Fill( const char ch, int newlen )
 {
 	EnsureAlloced( newlen + 1 );
 	len = newlen;
-	memset( data, ch, len );
+	std::memset( data, ch, len );
 	data[ len ] = 0;
 }
 

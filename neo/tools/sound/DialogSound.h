@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 class CDialogSound : public CDialog {
 public:
-							CDialogSound(CWnd* pParent = NULL);   // standard constructor\
+							CDialogSound(CWnd* pParent = nullptr);   // standard constructor\
 
 	void					Set( const idDict *source );
 	void					Get( idDict *dest );
@@ -128,7 +128,7 @@ private:
 	void					AddSpeakers();
 	void					AddInUseSounds();
 	void					ApplyChanges( bool volumeOnly = false , bool updateInUseTree = true );
-	void					SetWaveSize( const char *p = NULL );
+	void					SetWaveSize( const char *p = nullptr );
 	void					SetVolume( float f );
 	virtual BOOL			PreTranslateMessage(MSG* pMsg);
 };

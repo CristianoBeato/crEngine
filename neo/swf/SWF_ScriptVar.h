@@ -155,10 +155,10 @@ public:
 		type = SWF_VAR_FLOAT;
 		value.f = f;
 	}
-	void SetNULL()
+	void Setnullptr()
 	{
 		Free();
-		type = SWF_VAR_NULL;
+		type = SWF_VAR_nullptr;
 	}
 	void SetUndefined()
 	{
@@ -204,10 +204,10 @@ public:
 	idSWFSpriteInstance* 	ToSprite();
 	idSWFTextInstance* 		ToText();
 	
-	idSWFScriptVar			GetNestedVar( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
-	idSWFScriptObject* 		GetNestedObj( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
-	idSWFSpriteInstance* 	GetNestedSprite( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
-	idSWFTextInstance* 		GetNestedText( const char* arg1, const char* arg2 = NULL, const char* arg3 = NULL, const char* arg4 = NULL, const char* arg5 = NULL, const char* arg6 = NULL );
+	idSWFScriptVar			GetNestedVar( const char* arg1, const char* arg2 = nullptr, const char* arg3 = nullptr, const char* arg4 = nullptr, const char* arg5 = nullptr, const char* arg6 = nullptr );
+	idSWFScriptObject* 		GetNestedObj( const char* arg1, const char* arg2 = nullptr, const char* arg3 = nullptr, const char* arg4 = nullptr, const char* arg5 = nullptr, const char* arg6 = nullptr );
+	idSWFSpriteInstance* 	GetNestedSprite( const char* arg1, const char* arg2 = nullptr, const char* arg3 = nullptr, const char* arg4 = nullptr, const char* arg5 = nullptr, const char* arg6 = nullptr );
+	idSWFTextInstance* 		GetNestedText( const char* arg1, const char* arg2 = nullptr, const char* arg3 = nullptr, const char* arg4 = nullptr, const char* arg5 = nullptr, const char* arg6 = nullptr );
 	
 	const char* 			TypeOf() const;
 	
@@ -218,9 +218,9 @@ public:
 	{
 		return ( type == SWF_VAR_STRING ) || ( type == SWF_VAR_STRINGID );
 	}
-	bool IsNULL()		const
+	bool Isnullptr()		const
 	{
-		return ( type == SWF_VAR_NULL );
+		return ( type == SWF_VAR_nullptr );
 	}
 	bool IsUndefined()	const
 	{
@@ -228,7 +228,7 @@ public:
 	}
 	bool IsValid()		const
 	{
-		return ( type != SWF_VAR_UNDEF ) && ( type != SWF_VAR_NULL );
+		return ( type != SWF_VAR_UNDEF ) && ( type != SWF_VAR_nullptr );
 	}
 	bool IsFunction()	const
 	{
@@ -248,7 +248,7 @@ public:
 		SWF_VAR_STRINGID,
 		SWF_VAR_STRING,
 		SWF_VAR_FLOAT,
-		SWF_VAR_NULL,
+		SWF_VAR_nullptr,
 		SWF_VAR_UNDEF,
 		SWF_VAR_BOOL,
 		SWF_VAR_INTEGER,

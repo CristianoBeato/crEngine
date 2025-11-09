@@ -72,9 +72,9 @@ idSoundVoice_XAudio2::idSoundVoice_XAudio2
 ========================
 */
 idSoundVoice_XAudio2::idSoundVoice_XAudio2()
-	:	pSourceVoice( NULL ),
-		leadinSample( NULL ),
-		loopingSample( NULL ),
+	:	pSourceVoice( nullptr ),
+		leadinSample( nullptr ),
+		loopingSample( nullptr ),
 		formatTag( 0 ),
 		numChannels( 0 ),
 		sampleRate( 0 ),
@@ -101,7 +101,7 @@ idSoundVoice_XAudio2::CompatibleFormat
 */
 bool idSoundVoice_XAudio2::CompatibleFormat( idSoundSample_XAudio2* s )
 {
-	if( pSourceVoice == NULL )
+	if( pSourceVoice == nullptr )
 	{
 		// If this voice has never been allocated, then it's compatible with everything
 		return true;
@@ -125,7 +125,7 @@ void idSoundVoice_XAudio2::Create( const idSoundSample* leadinSample_, const idS
 	leadinSample = ( idSoundSample_XAudio2* )leadinSample_;
 	loopingSample = ( idSoundSample_XAudio2* )loopingSample_;
 	
-	if( pSourceVoice != NULL && CompatibleFormat( leadinSample ) )
+	if( pSourceVoice != nullptr && CompatibleFormat( leadinSample ) )
 	{
 		sampleRate = leadinSample->format.basic.samplesPerSec;
 	}
@@ -137,14 +137,14 @@ void idSoundVoice_XAudio2::Create( const idSoundSample* leadinSample_, const idS
 		sampleRate = leadinSample->format.basic.samplesPerSec;
 		
 		soundSystemLocal.hardware.pXAudio2->CreateSourceVoice( &pSourceVoice, ( const WAVEFORMATEX* )&leadinSample->format, XAUDIO2_VOICE_USEFILTER, 4.0f, &streamContext );
-		if( pSourceVoice == NULL )
+		if( pSourceVoice == nullptr )
 		{
 			// If this hits, then we are most likely passing an invalid sample format, which should have been caught by the loader (and the sample defaulted)
 			return;
 		}
 		if( s_debugHardware.GetBool() )
 		{
-			if( loopingSample == NULL || loopingSample == leadinSample )
+			if( loopingSample == nullptr || loopingSample == leadinSample )
 			{
 				idLib::Printf( "%dms: %p created for %s\n", Sys_Milliseconds(), pSourceVoice, leadinSample ? leadinSample->GetName() : "<null>" );
 			}
@@ -166,14 +166,14 @@ idSoundVoice_XAudio2::DestroyInternal
 */
 void idSoundVoice_XAudio2::DestroyInternal()
 {
-	if( pSourceVoice != NULL )
+	if( pSourceVoice != nullptr )
 	{
 		if( s_debugHardware.GetBool() )
 		{
 			idLib::Printf( "%dms: %p destroyed\n", Sys_Milliseconds(), pSourceVoice );
 		}
 		pSourceVoice->DestroyVoice();
-		pSourceVoice = NULL;
+		pSourceVoice = nullptr;
 		hasVUMeter = false;
 	}
 }
@@ -213,7 +213,7 @@ void idSoundVoice_XAudio2::Start( int offsetMS, int ssFlags )
 		
 		if( flicker )
 		{
-			IUnknown* vuMeter = NULL;
+			IUnknown* vuMeter = nullptr;
 			if( XAudio2CreateVolumeMeter( &vuMeter, 0 ) == S_OK )
 			{
 			
@@ -233,13 +233,13 @@ void idSoundVoice_XAudio2::Start( int offsetMS, int ssFlags )
 		}
 		else
 		{
-			pSourceVoice->SetEffectChain( NULL );
+			pSourceVoice->SetEffectChain( nullptr );
 		}
 	}
 	
 	assert( offsetMS >= 0 );
 	int offsetSamples = MsecToSamples( offsetMS, leadinSample->SampleRate() );
-	if( loopingSample == NULL && offsetSamples >= leadinSample->playLength )
+	if( loopingSample == nullptr && offsetSamples >= leadinSample->playLength )
 	{
 		return;
 	}
@@ -261,7 +261,7 @@ int idSoundVoice_XAudio2::RestartAt( int offsetSamples )
 	idSoundSample_XAudio2* sample = leadinSample;
 	if( offsetSamples >= leadinSample->playLength )
 	{
-		if( loopingSample != NULL )
+		if( loopingSample != nullptr )
 		{
 			offsetSamples %= loopingSample->playLength;
 			sample = loopingSample;
@@ -293,12 +293,12 @@ idSoundVoice_XAudio2::SubmitBuffer
 int idSoundVoice_XAudio2::SubmitBuffer( idSoundSample_XAudio2* sample, int bufferNumber, int offset )
 {
 
-	if( sample == NULL || ( bufferNumber < 0 ) || ( bufferNumber >= sample->buffers.Num() ) )
+	if( sample == nullptr || ( bufferNumber < 0 ) || ( bufferNumber >= sample->buffers.Num() ) )
 	{
 		return 0;
 	}
 	idSoundSystemLocal::bufferContext_t* bufferContext = soundSystemLocal.ObtainStreamBufferContext();
-	if( bufferContext == NULL )
+	if( bufferContext == nullptr )
 	{
 		idLib::Warning( "No free buffer contexts!" );
 		return 0;
@@ -322,7 +322,7 @@ int idSoundVoice_XAudio2::SubmitBuffer( idSoundSample_XAudio2* sample, int buffe
 	buffer.AudioBytes = sample->buffers[bufferNumber].bufferSize;
 	buffer.pAudioData = ( BYTE* )sample->buffers[bufferNumber].buffer;
 	buffer.pContext = bufferContext;
-	if( ( loopingSample == NULL ) && ( bufferNumber == sample->buffers.Num() - 1 ) )
+	if( ( loopingSample == nullptr ) && ( bufferNumber == sample->buffers.Num() - 1 ) )
 	{
 		buffer.Flags = XAUDIO2_END_OF_STREAM;
 	}
@@ -338,7 +338,7 @@ idSoundVoice_XAudio2::Update
 */
 bool idSoundVoice_XAudio2::Update()
 {
-	if( pSourceVoice == NULL || leadinSample == NULL )
+	if( pSourceVoice == nullptr || leadinSample == nullptr )
 	{
 		return false;
 	}
@@ -375,7 +375,7 @@ idSoundVoice_XAudio2::IsPlaying
 */
 bool idSoundVoice_XAudio2::IsPlaying()
 {
-	if( pSourceVoice == NULL )
+	if( pSourceVoice == nullptr )
 	{
 		return false;
 	}
@@ -391,7 +391,7 @@ idSoundVoice_XAudio2::FlushSourceBuffers
 */
 void idSoundVoice_XAudio2::FlushSourceBuffers()
 {
-	if( pSourceVoice != NULL )
+	if( pSourceVoice != nullptr )
 	{
 		pSourceVoice->FlushSourceBuffers();
 	}
@@ -508,7 +508,7 @@ idSoundVoice_XAudio2::ResetSampleRate
 */
 void idSoundVoice_XAudio2::SetSampleRate( uint32_t newSampleRate, uint32_t operationSet )
 {
-	if( pSourceVoice == NULL || leadinSample == NULL )
+	if( pSourceVoice == nullptr || leadinSample == nullptr )
 	{
 		return;
 	}
@@ -563,7 +563,7 @@ void idSoundVoice_XAudio2::OnBufferStart( idSoundSample_XAudio2* sample, int buf
 	{
 		if( sample == leadinSample )
 		{
-			if( loopingSample == NULL )
+			if( loopingSample == nullptr )
 			{
 				return;
 			}

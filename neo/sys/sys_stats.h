@@ -62,7 +62,7 @@ public:
 		idArray< int64_t, MAX_LEADERBOARD_COLUMNS > 	columns;
 	};
 	
-	idLeaderboardCallback() : def( NULL ), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
+	idLeaderboardCallback() : def( nullptr ), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
 	virtual idLeaderboardCallback* Clone() const = 0;
 	
 	// Used by the platform handlers to set data

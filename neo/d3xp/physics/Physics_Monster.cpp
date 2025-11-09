@@ -50,7 +50,7 @@ void idPhysics_Monster::CheckGround( monsterPState_t& state )
 	if( gravityNormal == vec3_zero )
 	{
 		state.onGround = false;
-		groundEntityPtr = NULL;
+		groundEntityPtr = nullptr;
 		return;
 	}
 	
@@ -60,7 +60,7 @@ void idPhysics_Monster::CheckGround( monsterPState_t& state )
 	if( groundTrace.fraction == 1.0f )
 	{
 		state.onGround = false;
-		groundEntityPtr = NULL;
+		groundEntityPtr = nullptr;
 		return;
 	}
 	
@@ -100,7 +100,7 @@ monsterMoveResult_t idPhysics_Monster::SlideMove( idVec3& start, idVec3& velocit
 	trace_t tr;
 	idVec3 move;
 	
-	blockingEntity = NULL;
+	blockingEntity = nullptr;
 	move = delta;
 	for( i = 0; i < 3; i++ )
 	{
@@ -278,7 +278,7 @@ idPhysics_Monster::idPhysics_Monster
 idPhysics_Monster::idPhysics_Monster()
 {
 
-	memset( &current, 0, sizeof( current ) );
+	std::memset( &current, 0, sizeof( current ) );
 	current.atRest = -1;
 	saved = current;
 	
@@ -290,7 +290,7 @@ idPhysics_Monster::idPhysics_Monster()
 	fly = false;
 	useVelocityMove = false;
 	noImpact = false;
-	blockingEntity = NULL;
+	blockingEntity = nullptr;
 }
 
 /*
@@ -499,7 +499,7 @@ bool idPhysics_Monster::Evaluate( int timeStepMSec, int endTimeMSec )
 	timeStep = MS2SEC( timeStepMSec );
 	
 	moveResult = MM_OK;
-	blockingEntity = NULL;
+	blockingEntity = nullptr;
 	oldOrigin = current.origin;
 	
 	// if bound to a master
@@ -846,7 +846,7 @@ void idPhysics_Monster::SetMaster( idEntity* master, BindFlags flags )
 	{
 		if( masterEntity )
 		{
-			masterEntity = NULL;
+			masterEntity = nullptr;
 			Activate();
 		}
 	}

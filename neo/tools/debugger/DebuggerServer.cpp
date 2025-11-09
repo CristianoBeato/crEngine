@@ -52,12 +52,12 @@ rvDebuggerServer::rvDebuggerServer ( )
 	mBreak				= false;
 	mBreakStepOver		= false;
 	mBreakStepInto		= false;
-	mGameThread			= NULL;
+	mGameThread			= nullptr;
 	mLastStatementLine	= -1;
-	mBreakStepOverFunc1 = NULL;
-	mBreakStepOverFunc2 = NULL;
-	mBreakProgram		= NULL;
-	mBreakInterpreter	= NULL;
+	mBreakStepOverFunc1 = nullptr;
+	mBreakStepOverFunc2 = nullptr;
+	mBreakProgram		= nullptr;
+	mBreakInterpreter	= nullptr;
 	mBreakStepOverDepth = 0;
 	mBreakInstructionPointer = 0;
 	mLastThreadSyncTime = 0;
@@ -226,7 +226,7 @@ bool rvDebuggerServer::ProcessMessages ( void )
 				}
 				else
 				{
-					mBreakStepOverFunc2 = NULL;
+					mBreakStepOverFunc2 = nullptr;
 				}
 				Resume ( );
 				break;

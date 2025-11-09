@@ -79,12 +79,12 @@ public:
 	// Writes an object state packet which is delta compressed against the old snapshot
 	struct objectBuffer_t
 	{
-		objectBuffer_t() : data( NULL ), size( 0 ) { }
-		objectBuffer_t( int s ) : data( NULL ), size( s )
+		objectBuffer_t() : data( nullptr ), size( 0 ) { }
+		objectBuffer_t( int s ) : data( nullptr ), size( s )
 		{
 			Alloc( s );
 		}
-		objectBuffer_t( const objectBuffer_t& o ) : data( NULL ), size( 0 )
+		objectBuffer_t( const objectBuffer_t& o ) : data( nullptr ), size( 0 )
 		{
 			*this = o;
 		}
@@ -95,7 +95,7 @@ public:
 		void Alloc( int size );
 		int NumRefs()
 		{
-			return data == NULL ? 0 : data[size];
+			return data == nullptr ? 0 : data[size];
 		}
 		objectSize_t Size() const
 		{
@@ -103,7 +103,7 @@ public:
 		}
 		byte* Ptr()
 		{
-			return data == NULL ? NULL : data ;
+			return data == nullptr ? nullptr : data ;
 		}
 		byte& operator[]( int i )
 		{
@@ -167,15 +167,15 @@ public:
 	bool WriteDelta( idSnapShot& old, int visIndex, idFile* file, int maxLength, int optimalLength = 0 );
 	
 	// Adds an object to the state, overwrites any existing object with the same number
-	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const idBitMsg& msg, const char* tag = NULL )
+	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const idBitMsg& msg, const char* tag = nullptr )
 	{
 		return S_AddObject( objectNum, visMask, msg.GetReadData(), msg.GetSize(), tag );
 	}
-	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const byte* buffer, int size, const char* tag = NULL )
+	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const byte* buffer, int size, const char* tag = nullptr )
 	{
 		return S_AddObject( objectNum, visMask, ( const char* )buffer, size, tag );
 	}
-	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const char* buffer, int size, const char* tag = NULL );
+	objectState_t* S_AddObject( int objectNum, uint32_t visMask, const char* buffer, int size, const char* tag = nullptr );
 	bool CopyObject( const idSnapShot& oldss, int objectNum, bool forceStale = false );
 	int CompareObject( const idSnapShot* oldss, int objectNum, int start = 0, int end = 0, int oldStart = 0 );
 	
@@ -197,7 +197,7 @@ public:
 	// returns the object index or -1 if it's not found
 	int FindObjectIndexByID( int objectNum ) const;
 	
-	// returns the object by id, or NULL if not found
+	// returns the object by id, or nullptr if not found
 	objectState_t* 	FindObjectByID( int objectNum ) const;
 	
 	// Returns whether or not an object is stale
@@ -213,7 +213,7 @@ public:
 	void UpdateExpectedSeq( int newSeq );
 	
 	void			ApplyToExistingState( int objId, idBitMsg& msg );
-	objectState_t* 	GetTemplateState( int objNum, idSnapShot* templateStates, objectState_t* newState = NULL );
+	objectState_t* 	GetTemplateState( int objNum, idSnapShot* templateStates, objectState_t* newState = nullptr );
 	
 	void	RemoveObject( int objId );
 	
@@ -229,8 +229,8 @@ private:
 	objectState_t& 	FindOrCreateObjectByID( int objectNum );					// objIndex is optional parm for returning the index of the obj
 	
 	void			SubmitObjectJob(	const submitDeltaJobsInfo_t& 	submitDeltaJobsInfo,		// Struct containing parameters originally passed in to SubmitWriteDeltaToJobs
-										objectState_t* 					newState,					// New obj state (can be NULL, which means deleted)
-										objectState_t* 					oldState,					// Old obj state (can be NULL, which means new)
+										objectState_t* 					newState,					// New obj state (can be nullptr, which means deleted)
+										objectState_t* 					oldState,					// Old obj state (can be nullptr, which means new)
 										objParms_t*&					baseObjParm,				// Starting obj parm of current stream
 										objParms_t*&					curObjParm,					// Current obj parm of current stream
 										objHeader_t*&					curHeader,					// Current header dest

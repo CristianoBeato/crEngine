@@ -264,7 +264,7 @@ public:
 		{
 			return &rects[index];
 		}
-		return NULL;
+		return nullptr;
 	}
 	
 protected:

@@ -315,7 +315,7 @@ void idMarkerWindow::Activate(bool activate, idStr &act) {
 				markerTimes.Append(md);
 			}
 			fileSystem->FreeFileList( markers );
-			memset(imageBuff, 0, 512*64*4);
+			std::memset(imageBuff, 0, 512*64*4);
 			float step = 511.0f / (numStats - 1);
 			float startX = 0;
 			float x1, y1, x2, y2;

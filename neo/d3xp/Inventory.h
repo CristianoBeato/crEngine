@@ -143,7 +143,7 @@ public:
 	
 	int						HasAmmo( ammo_t type, int amount );
 	bool					UseAmmo( ammo_t type, int amount );
-	int						HasAmmo( const char* weapon_classname, bool includeClip = false, idPlayer* owner = NULL );			// _D3XP
+	int						HasAmmo( const char* weapon_classname, bool includeClip = false, idPlayer* owner = nullptr );			// _D3XP
 	
 	bool					HasEmptyClipCannotRefill( const char* weapon_classname, idPlayer* owner );
 	

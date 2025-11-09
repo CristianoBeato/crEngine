@@ -43,8 +43,8 @@ IMPLEMENT_DYNAMIC(CTearoffContainerWindow, CWnd)
 CTearoffContainerWindow::CTearoffContainerWindow()
 {
 	m_DragPreviewActive = false;
-	m_ContainedDialog = NULL;
-	m_DockManager = NULL;
+	m_ContainedDialog = nullptr;
+	m_DockManager = nullptr;
 }
 
 CTearoffContainerWindow::~CTearoffContainerWindow()

@@ -85,7 +85,7 @@ void Script_SetFocus( idWindow* window, idList<idGSWinVar, TAG_OLD_UI>* src )
 	if( parm )
 	{
 		drawWin_t* win = window->GetGui()->GetDesktop()->FindChildByName( *parm );
-		if( win != NULL && win->win != NULL )
+		if( win != nullptr && win->win != nullptr )
 		{
 			window->SetFocus( win->win );
 		}
@@ -174,18 +174,18 @@ Script_ResetTime
 void Script_ResetTime( idWindow* window, idList<idGSWinVar, TAG_OLD_UI>* src )
 {
 	idWinStr* parm = dynamic_cast<idWinStr*>( ( *src )[0].var );
-	drawWin_t* win = NULL;
-	if( parm != NULL && src->Num() > 1 )
+	drawWin_t* win = nullptr;
+	if( parm != nullptr && src->Num() > 1 )
 	{
 		win = window->GetGui()->GetDesktop()->FindChildByName( *parm );
 		parm = dynamic_cast<idWinStr*>( ( *src )[1].var );
 	}
-	if( parm == NULL )
+	if( parm == nullptr )
 	{
 		return;
 	}
 	
-	if( win != NULL && win->win != NULL )
+	if( win != nullptr && win->win != nullptr )
 	{
 		win->win->ResetTime( atoi( *parm ) );
 		win->win->EvalRegs( -1, true );
@@ -217,18 +217,18 @@ void Script_Transition( idWindow* window, idList<idGSWinVar, TAG_OLD_UI>* src )
 	// transitions always affect rect or vec4 vars
 	if( src->Num() >= 4 )
 	{
-		idWinRectangle* rect = NULL;
+		idWinRectangle* rect = nullptr;
 		idWinVec4* vec4 = dynamic_cast<idWinVec4*>( ( *src )[0].var );
 		//
 		//  added float variable
-		idWinFloat* val = NULL;
+		idWinFloat* val = nullptr;
 		//
-		if( vec4 == NULL )
+		if( vec4 == nullptr )
 		{
 			rect = dynamic_cast<idWinRectangle*>( ( *src )[0].var );
 			//
 			//  added float variable
-			if( NULL == rect )
+			if( nullptr == rect )
 			{
 				val = dynamic_cast<idWinFloat*>( ( *src )[0].var );
 			}
@@ -311,10 +311,10 @@ idGuiScript::idGuiScript
 */
 idGuiScript::idGuiScript()
 {
-	ifList = NULL;
-	elseList = NULL;
+	ifList = nullptr;
+	elseList = nullptr;
 	conditionReg = -1;
-	handler = NULL;
+	handler = nullptr;
 	parms.SetGranularity( 2 );
 }
 
@@ -414,7 +414,7 @@ bool idGuiScript::Parse( idTokenParser* src )
 		return false;
 	}
 	
-	handler	= NULL;
+	handler	= nullptr;
 	
 	for( i = 0; i < scriptCommandCount ; i++ )
 	{
@@ -425,7 +425,7 @@ bool idGuiScript::Parse( idTokenParser* src )
 		}
 	}
 	
-	if( handler == NULL )
+	if( handler == nullptr )
 	{
 		src->Error( "Uknown script call %s", token.c_str() );
 	}
@@ -482,7 +482,7 @@ bool idGuiScript::Parse(idParser *src) {
 		return false;
 	}
 
-	handler	= NULL;
+	handler	= nullptr;
 	
 	for ( i = 0; i < scriptCommandCount ; i++ ) {
 		if ( idStr::Icmp(token, commandList[i].name) == 0 ) {
@@ -491,7 +491,7 @@ bool idGuiScript::Parse(idParser *src) {
 		}
 	}
 
-	if (handler == NULL) {
+	if (handler == nullptr) {
 		src->Error("Uknown script call %s", token.c_str());
 	}
 	// now read parms til ;
@@ -584,7 +584,7 @@ void idGuiScript::FixupParms( idWindow* win )
 			parms[0].var = dest;
 			parms[0].own = false;
 			
-			if( dynamic_cast<idWinBackground*>( dest ) != NULL )
+			if( dynamic_cast<idWinBackground*>( dest ) != nullptr )
 			{
 				precacheBackground = true;
 			}
@@ -696,7 +696,7 @@ void idGuiScript::FixupParms( idWindow* win )
 			parms[c].var = v4;
 			parms[c].own = true;
 			
-			drawWin_t* owner = NULL;
+			drawWin_t* owner = nullptr;
 			
 			if( ( *str[0] ) == '$' )
 			{
@@ -704,14 +704,14 @@ void idGuiScript::FixupParms( idWindow* win )
 			}
 			else
 			{
-				dest = NULL;
+				dest = nullptr;
 			}
 			
 			if( dest )
 			{
 				idWindow* ownerparent;
 				idWindow* destparent;
-				if( owner != NULL )
+				if( owner != nullptr )
 				{
 					ownerparent = owner->simp ? owner->simp->GetParent() : owner->win->GetParent();
 					destparent  = destowner->simp ? destowner->simp->GetParent() : destowner->win->GetParent();

@@ -105,7 +105,7 @@ void glTexturedBox(idVec3 &point, float size, const idMaterial *mat) {
 idGLWidget::idGLWidget()
 {
 	initialized = false;
-	drawable = NULL;
+	drawable = nullptr;
 }
 
 idGLWidget::~idGLWidget()
@@ -397,7 +397,7 @@ void idGLDrawableMaterial::draw(int x, int y, int w, int h) {
 				}
 			}
 
-			if (img == NULL) {
+			if (img == nullptr) {
 				common->Warning("Unable to load image for preview for %s", mat->GetName());
 				return;
 			}
@@ -457,7 +457,7 @@ void idGLDrawableMaterial::draw(int x, int y, int w, int h) {
 			
 			renderEntity_t worldEntity;
 
-			memset( &worldEntity, 0, sizeof( worldEntity ) );
+			std::memset( &worldEntity, 0, sizeof( worldEntity ) );
 			if ( mat->HasGui() ) {
 				worldEntity.gui[ 0 ] = mat->GlobalGui();
 			}
@@ -481,7 +481,7 @@ void idGLDrawableMaterial::draw(int x, int y, int w, int h) {
 		tr.Editor_BeginView(x + w, y + h, originalNativeWidth, originalNativeHeight);
 
 		//renderSystem->BeginFrame(w, h);
-		memset( &refdef, 0, sizeof( refdef ) );
+		std::memset( &refdef, 0, sizeof( refdef ) );
 		refdef.vieworg.Set(viewAngle, 0, 0);
 
 		refdef.viewaxis = idAngles(0,0,0).ToMat3();
@@ -512,11 +512,11 @@ void idGLDrawableMaterial::draw(int x, int y, int w, int h) {
 }
 
 void idGLDrawableMaterial::setMedia(const char *name) {
-	idImage *img = NULL;
+	idImage *img = nullptr;
 	if (name && *name) {
 		material = declManager->FindMaterial(name);
 		if (material) {
-			//const shaderStage_t *stage = (material->GetNumStages() > 0) ? material->GetStage(0) : NULL;
+			//const shaderStage_t *stage = (material->GetNumStages() > 0) ? material->GetStage(0) : nullptr;
 			//if (stage) {
 			//	img = stage->texture.image;
 			//} else {
@@ -541,7 +541,7 @@ void idGLDrawableMaterial::setMedia(const char *name) {
 			}
 		}
 	} else {
-		material = NULL;
+		material = nullptr;
 	}
 	// set scale to get a good fit
 
@@ -692,7 +692,7 @@ void idGLDrawableModel::draw(int x, int y, int w, int h) {
 
 	if (worldDirty) {
 		//InitWorld();
-		world->InitFromMap( NULL );
+		world->InitFromMap( nullptr );
 		renderLight_t	parms;
 		idDict spawnArgs;
 		spawnArgs.Set("classname", "light");
@@ -705,7 +705,7 @@ void idGLDrawableModel::draw(int x, int y, int w, int h) {
 		lightDef = world->AddLightDef( &parms );
 
 		renderEntity_t worldEntity;
-		memset( &worldEntity, 0, sizeof( worldEntity ) );
+		std::memset( &worldEntity, 0, sizeof( worldEntity ) );
 		spawnArgs.Clear();
 		spawnArgs.Set("classname", "func_static");
 		spawnArgs.Set("name", spawnArgs.GetString("model"));
@@ -734,7 +734,7 @@ void idGLDrawableModel::draw(int x, int y, int w, int h) {
 	int originalNativeWidth, originalNativeHeight;
 	tr.Editor_BeginView(x + w, y + h, originalNativeWidth, originalNativeHeight);
 
-	memset( &refdef, 0, sizeof( refdef ) );
+	std::memset( &refdef, 0, sizeof( refdef ) );
 	refdef.vieworg.Set(zOffset, xOffset, -yOffset);
 
 	refdef.viewaxis = idAngles(0,0,0).ToMat3();
@@ -861,7 +861,7 @@ void idGLWidget::OnRButtonUp(UINT nFlags, CPoint point)
 void idGLWidget::setDrawable(idGLDrawable *d) {
 	drawable = d;
 	if (d->getRealTime()) {
-		SetTimer(1, d->getRealTime(), NULL);
+		SetTimer(1, d->getRealTime(), nullptr);
 	}
 }
 
@@ -910,7 +910,7 @@ void idGLConsoleWidget::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	sysEvent_t	ev;
 
-	memset( &ev, 0, sizeof( ev ) );
+	std::memset( &ev, 0, sizeof( ev ) );
 	ev.evType = SE_KEY;
 	ev.evValue2 = 1;
 	ev.evValue = nChar;
@@ -934,7 +934,7 @@ void idGLConsoleWidget::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	sysEvent_t	ev;
 
-	memset( &ev, 0, sizeof( ev ) );
+	std::memset( &ev, 0, sizeof( ev ) );
 	ev.evType = SE_KEY;
 	ev.evValue2 = 0;
 	ev.evValue = nChar;
@@ -950,7 +950,7 @@ void idGLConsoleWidget::OnChar(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	sysEvent_t	ev;
 
-	memset( &ev, 0, sizeof( ev ) );
+	std::memset( &ev, 0, sizeof( ev ) );
 	ev.evType = SE_CHAR;
 	ev.evValue = nChar;
 
@@ -970,8 +970,8 @@ BOOL idGLWidget::OnEraseBkgnd(CDC* pDC)
 
 
 idGLDrawableWorld::idGLDrawableWorld() {
-	world = NULL;
-	worldModel = NULL;
+	world = nullptr;
+	worldModel = nullptr;
 	InitWorld();
 }
 
@@ -991,12 +991,12 @@ void idGLDrawableWorld::draw(int x, int y, int w, int h) {
 }
 
 void idGLDrawableWorld::InitWorld() {
-	if ( world == NULL ) {
+	if ( world == nullptr ) {
 		world = renderSystem->AllocRenderWorld();
 	}
-	if ( worldModel == NULL ) {
+	if ( worldModel == nullptr ) {
 		worldModel = renderModelManager->AllocModel();
 	}
-	world->InitFromMap( NULL );
+	world->InitFromMap( nullptr );
 	worldModel->InitEmpty( va( "GLWorldModel_%i", Sys_Milliseconds() ) );
 }

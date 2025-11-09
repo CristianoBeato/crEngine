@@ -352,7 +352,7 @@ byte* R_MipMapWithGamma( const byte* in, int width, int height )
 	
 	if( width < 1 || height < 1 || ( width + height == 2 ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	row = width * 4;
@@ -423,7 +423,7 @@ byte* R_MipMap( const byte* in, int width, int height )
 	
 	if( width < 1 || height < 1 || ( width + height == 2 ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	row = width * 4;
@@ -555,7 +555,7 @@ void R_RotatePic( byte* data, int width )
 		}
 	}
 	
-	memcpy( data, temp, width * width * 4 );
+	std::memcpy( data, temp, width * width * 4 );
 	
 	R_StaticFree( temp );
 }

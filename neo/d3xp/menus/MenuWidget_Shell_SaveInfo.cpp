@@ -40,9 +40,9 @@ idMenuWidget_Shell_SaveInfo::idMenuWidget_Shell_SaveInfo()
 {
 	loadIndex = 0;
 	forSaveScreen = false;
-	saveThumbDefault = NULL;
+	saveThumbDefault = nullptr;
 	for(int i = 0; i < MAX_SAVEGAMES; i++) {
-		saveGameThumbnails[i] = NULL;
+		saveGameThumbnails[i] = nullptr;
 	}
 }
 
@@ -83,13 +83,13 @@ idMenuWidget_Shell_SaveInfo::Update
 void idMenuWidget_Shell_SaveInfo::Update()
 {
 
-	if( GetSWFObject() == NULL )
+	if( GetSWFObject() == nullptr )
 	{
 		return;
 	}
 	
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	if( !BindSprite( root ) || GetSprite() == NULL )
+	if( !BindSprite( root ) || GetSprite() == nullptr )
 	{
 		return;
 	}
@@ -170,24 +170,24 @@ void idMenuWidget_Shell_SaveInfo::Update()
 	}
 	
 	idSWFTextInstance* infoSprite = GetSprite()->GetScriptObject()->GetNestedText( "txtDesc" );
-	if( infoSprite != NULL )
+	if( infoSprite != nullptr )
 	{
 		infoSprite->SetText( info );
 	}
 	
 	idSWFSpriteInstance* img = GetSprite()->GetScriptObject()->GetNestedSprite( "img" );
-	if( img != NULL )
+	if( img != nullptr )
 	{
 	    // TODO_SPARTY: until we have a thumbnail hide the image
 		if(forSaveScreen )
 			img->SetVisible( false );
 		else
 			img->SetVisible( true );
-	    if(	saveGameThumbnails[loadIndex] != NULL ) {
+	    if(	saveGameThumbnails[loadIndex] != nullptr ) {
 		    // Use Detected Thumbnail
 		    img->SetMaterial( saveGameThumbnails[loadIndex] );
 	    } else {
-		    if(saveThumbDefault != NULL) {
+		    if(saveThumbDefault != nullptr) {
 			    // Use Default Thumbnail.
 			    img->SetMaterial( saveThumbDefault );
 		    } else {
@@ -209,7 +209,7 @@ void idMenuWidget_Shell_SaveInfo::UpdateSavePreviews()
 	saveGameDetailsList_t sortedSaves = saveGameInfo;
 	idStr thumbNailFile;
 	for(int i = 0; i < MAX_SAVEGAMES; i++) {
-		saveGameThumbnails[i] = NULL;
+		saveGameThumbnails[i] = nullptr;
 	}
 
 	/*
@@ -234,7 +234,7 @@ void idMenuWidget_Shell_SaveInfo::UpdateSavePreviews()
 		for(int i =0; i < sortedSaves.Num();i++ )
 		{
 			const idSaveGameDetails& details = sortedSaves[ i ];
-			if(saveGameThumbnails[i] != NULL)
+			if(saveGameThumbnails[i] != nullptr)
 				continue;
 			/* Check for pre-generated Thumbnail */
 			thumbNailFile = "maps/";
@@ -253,14 +253,14 @@ idMenuWidget_Help::ObserveEvent
 void idMenuWidget_Shell_SaveInfo::ObserveEvent( const idMenuWidget& widget, const idWidgetEvent& event )
 {
 	const idMenuWidget_Button* const button = dynamic_cast< const idMenuWidget_Button* >( &widget );
-	if( button == NULL )
+	if( button == nullptr )
 	{
 		return;
 	}
 	
 	const idMenuWidget* const listWidget = button->GetParent();
 	
-	if( listWidget == NULL )
+	if( listWidget == nullptr )
 	{
 		return;
 	}

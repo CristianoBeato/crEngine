@@ -38,7 +38,7 @@ class CMediaPreviewDlg : public CDialog
 
 public:
 	enum { MATERIALS, GUIS };
-	CMediaPreviewDlg(CWnd* pParent = NULL);   // standard constructor
+	CMediaPreviewDlg(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CMediaPreviewDlg();
 
 	void SetMode(int _mode) {

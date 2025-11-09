@@ -146,7 +146,7 @@ int idPacketProcessor::FinalizeRead( idBitMsg& inMsg, idBitMsg& outMsg, int& use
 						idLib::Printf( "Reliable msg count overflow.\n" );
 						return RETURN_TYPE_NONE;
 					}
-					memcpy( reliableBuffer + bufferPos, uncompMem, reliableDataLength );
+					std::memcpy( reliableBuffer + bufferPos, uncompMem, reliableDataLength );
 					reliableMsgSize[ numReliable ] = reliableDataLength;
 					reliableMsgPtrs[ numReliable++ ] = &reliableBuffer[ bufferPos ];
 					bufferPos += reliableDataLength;
@@ -430,7 +430,7 @@ bool idPacketProcessor::GetSendFragment( const int time, sessionId_t sessionID, 
 		
 		outMsg.WriteLong( fragmentSequence );
 		outMsg.WriteData( unsentMsg.GetReadData() + unsentMsg.GetReadCount(), currentSize );
-		unsentMsg.ReadData( NULL, currentSize );
+		unsentMsg.ReadData( nullptr, currentSize );
 		
 		assert( moreFragments == unsentMsg.GetRemainingData() > 0 );
 		fragmentedSend = moreFragments;
@@ -514,7 +514,7 @@ int idPacketProcessor::ProcessIncoming( int time, sessionId_t expectedSessionID,
 		idLib::Error( "ProcessIncoming: Fragmented msg buffer overflow." );
 	}
 	
-	memcpy( msgBuffer + msgWritePos, msg.GetReadData() + msg.GetReadCount(), msg.GetRemainingData() );
+	std::memcpy( msgBuffer + msgWritePos, msg.GetReadData() + msg.GetReadCount(), msg.GetRemainingData() );
 	msgWritePos += msg.GetRemainingData();
 	
 	if( header.Value() == FRAGMENT_END )
@@ -633,7 +633,7 @@ void idPacketProcessor::VerifyEmptyReliableQueue( byte keepMsgBelowThis, byte re
 		RELIABLE_VERBOSE( "pushing a fake game reliable\n" );
 		const char* garbage = "garbage";
 		QueueReliableMessage( keepMsgBelowThis + 4, ( const byte* )garbage, 8 );
-		QueueReliableMessage( replaceWithThisMsg, NULL, 0 );
+		QueueReliableMessage( replaceWithThisMsg, nullptr, 0 );
 	}
 	if( reliable.Num() == 0 )
 	{

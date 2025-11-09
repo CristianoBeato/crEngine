@@ -88,7 +88,7 @@ CRadiantApp & Radiant()
 	return theApp;
 }
 
-HINSTANCE g_DoomInstance = NULL;
+HINSTANCE g_DoomInstance = nullptr;
 bool g_editorAlive = false;
 
 void RadiantPrint( const char *text ) {
@@ -121,11 +121,11 @@ void RadiantInit( void ) {
 	g_editorAlive = true;
 
 	// allocate a renderWorld and a soundWorld
-	if ( g_qeglobals.rw == NULL ) {
+	if ( g_qeglobals.rw == nullptr ) {
 		g_qeglobals.rw = renderSystem->AllocRenderWorld();
-		g_qeglobals.rw->InitFromMap( NULL );
+		g_qeglobals.rw->InitFromMap( nullptr );
 	}
-	if ( g_qeglobals.sw == NULL ) {
+	if ( g_qeglobals.sw == nullptr ) {
 		g_qeglobals.sw = soundSystem->AllocSoundWorld( g_qeglobals.rw );
 	}
 
@@ -172,7 +172,7 @@ void RadiantInit( void ) {
 extern void Map_VerifyCurrentMap(const char *map);
 
 void RadiantSync( const char *mapName, const idVec3 &viewOrg, const idAngles &viewAngles ) {
-	if ( g_DoomInstance == NULL ) {
+	if ( g_DoomInstance == nullptr ) {
 		RadiantInit();
 	}
 
@@ -200,12 +200,12 @@ void RadiantRun( void ) {
 			Radiant().Run();
 			//glPopAttrib();
 			//qwglMakeCurrent(0, 0);
-			if (win32.hDC != NULL && win32.hGLRC != NULL)
+			if (win32.hDC != nullptr && win32.hGLRC != nullptr)
 				qwglMakeCurrent(win32.hDC, win32.hGLRC);
 		}
 	}
 	catch( idException &ex ) {
-		::MessageBox(NULL, ex.GetError(), "Exception error", MB_OK);
+		::MessageBox(nullptr, ex.GetError(), "Exception error", MB_OK);
 		RadiantShutdown();
 	}
 }
@@ -213,8 +213,8 @@ void RadiantRun( void ) {
 /////////////////////////////////////////////////////////////////////////////
 // CRadiantApp initialization
 
-HINSTANCE g_hOpenGL32 = NULL;
-HINSTANCE g_hOpenGL = NULL;
+HINSTANCE g_hOpenGL32 = nullptr;
+HINSTANCE g_hOpenGL = nullptr;
 bool g_bBuildList = false;
 
 BOOL CRadiantApp::InitInstance()
@@ -237,7 +237,7 @@ BOOL CRadiantApp::InitInstance()
 	// If there's a .INI file in the directory use it instead of registry
 
 	char RadiantPath[_MAX_PATH];
-	GetModuleFileName( NULL, RadiantPath, _MAX_PATH );
+	GetModuleFileName( nullptr, RadiantPath, _MAX_PATH );
 
 	// search for exe
 	CFileFind Finder;
@@ -271,8 +271,8 @@ BOOL CRadiantApp::InitInstance()
 			{
 				// this key doesn't exist, so it's the one we'll use
 				strcpy( g_qeglobals.use_ini_registry, key.GetBuffer(0) );
-				RegCreateKeyEx( HKEY_CURRENT_USER, key, 0, NULL, 
-					REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hkResult, &dwDisp );
+				RegCreateKeyEx( HKEY_CURRENT_USER, key, 0, nullptr, 
+					REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, nullptr, &hkResult, &dwDisp );
 				RegSetValueEx( hkResult, "RadiantName", 0, REG_SZ, reinterpret_cast<CONST BYTE *>(RadiantPath), strlen( RadiantPath )+1 );
 				RegCloseKey( hkResult );
 				break;
@@ -354,7 +354,7 @@ BOOL CRadiantApp::InitInstance()
 int CRadiantApp::ExitInstance() 
 {
 	common->Shutdown();
-	g_pParentWnd = NULL;
+	g_pParentWnd = nullptr;
 	int ret = CWinApp::ExitInstance();
 	ExitProcess(0);
 	return ret;
@@ -371,7 +371,7 @@ BOOL CRadiantApp::OnIdle(LONG lCount) {
 
 void CRadiantApp::OnHelp()
 {
-	ShellExecute(m_pMainWnd->GetSafeHwnd(), "open", "http://www.idDevNet.com", NULL, NULL, SW_SHOW);
+	ShellExecute(m_pMainWnd->GetSafeHwnd(), "open", "http://www.idDevNet.com", nullptr, nullptr, SW_SHOW);
 }
 
 int CRadiantApp::Run( void ) 
@@ -387,7 +387,7 @@ int CRadiantApp::Run( void )
 #endif
 
 	// phase1: check to see if we can do idle work
-	while (bIdle &&	!::PeekMessage(msg, NULL, NULL, NULL, PM_NOREMOVE)) {
+	while (bIdle &&	!::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE)) {
 		// call OnIdle while in bIdle state
 		if (!OnIdle(lIdleCount++)) {
 			bIdle = FALSE; // assume "no idle" state
@@ -407,7 +407,7 @@ int CRadiantApp::Run( void )
 			lIdleCount = 0;
 		}
 
-	} while (::PeekMessage(msg, NULL, NULL, NULL, PM_NOREMOVE));
+	} while (::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE));
 
 	return 0;
 }
@@ -441,7 +441,7 @@ bool SaveWindowState(HWND hWnd, const char *pszName)
 	    if (::GetParent(hWnd) != g_pParentWnd->GetSafeHwnd()) {
 	      ::SetParent(hWnd, g_pParentWnd->GetSafeHwnd());
 	    }
-		MapWindowPoints(NULL, g_pParentWnd->GetSafeHwnd(), (POINT *)&rc, 2);
+		MapWindowPoints(nullptr, g_pParentWnd->GetSafeHwnd(), (POINT *)&rc, 2);
 	}
 	return SaveRegistryInfo(pszName, &rc, sizeof(rc));
 }

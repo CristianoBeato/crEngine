@@ -42,8 +42,8 @@ idPhysics_Static::idPhysics_Static
 */
 idPhysics_Static::idPhysics_Static()
 {
-	self = NULL;
-	clipModel = NULL;
+	self = nullptr;
+	clipModel = nullptr;
 	current.origin.Zero();
 	current.axis.Identity();
 	current.localOrigin.Zero();
@@ -65,7 +65,7 @@ idPhysics_Static::~idPhysics_Static()
 {
 	if( self && self->GetPhysics() == this )
 	{
-		self->SetPhysics( NULL );
+		self->SetPhysics( nullptr );
 	}
 	idForce::DeletePhysics( this );
 	if( clipModel )
@@ -164,7 +164,7 @@ idPhysics_Static::GetNumClipModels
 */
 int idPhysics_Static::GetNumClipModels() const
 {
-	return ( clipModel != NULL );
+	return ( clipModel != nullptr );
 }
 
 /*
@@ -342,7 +342,7 @@ idPhysics_Static::GetImpactInfo
 */
 void idPhysics_Static::GetImpactInfo( const int id, const idVec3& point, impactInfo_t* info ) const
 {
-	memset( info, 0, sizeof( *info ) );
+	std::memset( info, 0, sizeof( *info ) );
 }
 
 /*
@@ -681,7 +681,7 @@ int idPhysics_Static::ClipContents( const idClipModel* model ) const
 		}
 		else
 		{
-			return gameLocal.clip.Contents( clipModel->GetOrigin(), clipModel, clipModel->GetAxis(), -1, NULL );
+			return gameLocal.clip.Contents( clipModel->GetOrigin(), clipModel, clipModel->GetAxis(), -1, nullptr );
 		}
 	}
 	return 0;
@@ -767,7 +767,7 @@ idPhysics_Static::GetContact
 const contactInfo_t& idPhysics_Static::GetContact( int num ) const
 {
 	static contactInfo_t info;
-	memset( &info, 0, sizeof( info ) );
+	std::memset( &info, 0, sizeof( info ) );
 	return info;
 }
 
@@ -909,7 +909,7 @@ idPhysics_Static::GetBlockingInfo
 */
 const trace_t* idPhysics_Static::GetBlockingInfo() const
 {
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -919,7 +919,7 @@ idPhysics_Static::GetBlockingEntity
 */
 idEntity* idPhysics_Static::GetBlockingEntity() const
 {
-	return NULL;
+	return nullptr;
 }
 
 /*

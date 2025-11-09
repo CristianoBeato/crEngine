@@ -38,7 +38,7 @@ class DialogGoToLine : public CDialog {
 
 public:
 
-						DialogGoToLine( CWnd* pParent = NULL );   // standard constructor
+						DialogGoToLine( CWnd* pParent = nullptr );   // standard constructor
 	virtual				~DialogGoToLine();
 
 	enum				{ IDD = IDD_DIALOG_GOTOLINE };

@@ -46,13 +46,13 @@ idAASBuild::idAASBuild
 ============
 */
 idAASBuild::idAASBuild( void ) {
-	file = NULL;
-	procNodes = NULL;
+	file = nullptr;
+	procNodes = nullptr;
 	numProcNodes = 0;
 	numGravitationalSubdivisions = 0;
 	numMergedLeafNodes = 0;
 	numLedgeSubdivisions = 0;
-	ledgeMap = NULL;
+	ledgeMap = nullptr;
 }
 
 /*
@@ -70,10 +70,10 @@ idAASBuild::Shutdown
 ================
 */
 void idAASBuild::Shutdown( void ) {
-	aasSettings = NULL;
+	aasSettings = nullptr;
 	if ( file ) {
 		delete file;
-		file = NULL;
+		file = nullptr;
 	}
 	DeleteProcBSP();
 	numGravitationalSubdivisions = 0;
@@ -82,7 +82,7 @@ void idAASBuild::Shutdown( void ) {
 	ledgeList.Clear();
 	if ( ledgeMap ) {
 		delete ledgeMap;
-		ledgeMap = NULL;
+		ledgeMap = nullptr;
 	}
 }
 
@@ -189,7 +189,7 @@ idAASBuild::DeleteProcBSP
 void idAASBuild::DeleteProcBSP( void ) {
 	if ( procNodes ) {
 		Mem_Free( procNodes );
-		procNodes = NULL;
+		procNodes = nullptr;
 	}
 	numProcNodes = 0;
 }
@@ -266,7 +266,7 @@ void idAASBuild::ClipBrushSidesWithProcBSP( idBrushList &brushList ) {
 	idVec3 origin;
 
 	// if the .proc file has no BSP tree
-	if ( idAASBuild::procNodes == NULL ) {
+	if ( idAASBuild::procNodes == nullptr ) {
 		return;
 	}
 
@@ -908,7 +908,7 @@ void RunAAS_f( const idCmdArgs &args ) {
 	}
 
 	const idKeyValue *kv = dict->MatchPrefix( "type" );
-	while( kv != NULL ) {
+	while( kv != nullptr ) {
 		const idDict *settingsDict = gameEdit->FindEntityDefDict( kv->GetValue(), false );
 		if ( !settingsDict ) {
 			common->Warning( "Unable to find '%s' in def/aas.def", kv->GetValue().c_str() );
@@ -968,7 +968,7 @@ void RunAASDir_f( const idCmdArgs &args ) {
 		}
 
 		const idKeyValue *kv = dict->MatchPrefix( "type" );
-		while( kv != NULL ) {
+		while( kv != nullptr ) {
 			const idDict *settingsDict = gameEdit->FindEntityDefDict( kv->GetValue(), false );
 			if ( !settingsDict ) {
 				common->Warning( "Unable to find '%s' in def/aas.def", kv->GetValue().c_str() );
@@ -1016,7 +1016,7 @@ void RunReach_f( const idCmdArgs &args ) {
 	}
 
 	const idKeyValue *kv = dict->MatchPrefix( "type" );
-	while( kv != NULL ) {
+	while( kv != nullptr ) {
 		const idDict *settingsDict = gameEdit->FindEntityDefDict( kv->GetValue(), false );
 		if ( !settingsDict ) {
 			common->Warning( "Unable to find '%s' in def/aas.def", kv->GetValue().c_str() );

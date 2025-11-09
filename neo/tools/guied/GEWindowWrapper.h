@@ -72,7 +72,7 @@ public:
 	void				SetState			( const idDict& dict );
 	void				SetStateKey			( const char* key, const char* value, bool update = true );
 	void				DeleteStateKey		( const char* key );
-	bool				VerfiyStateKey		( const char* name, const char* value, idStr* result = NULL );
+	bool				VerfiyStateKey		( const char* name, const char* value, idStr* result = nullptr );
 
 	bool				IsFlippedHorz		( void );
 	bool				IsFlippedVert		( void );

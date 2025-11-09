@@ -39,7 +39,7 @@ class CEditViewDlg : public CDialog
 
 public:
 	enum {MATERIALS, GUIS};
-	CEditViewDlg(CWnd* pParent = NULL);   // standard constructor
+	CEditViewDlg(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CEditViewDlg();
 
 	void SetMode(int _mode) {

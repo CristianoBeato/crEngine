@@ -335,7 +335,7 @@ ID_INLINE void idDxtEncoder::ExtractBlock( const byte* inPtr, int width, byte* c
 {
 	for( int j = 0; j < 4; j++ )
 	{
-		memcpy( &colorBlock[j * 4 * 4], inPtr, 4 * 4 );
+		std::memcpy( &colorBlock[j * 4 * 4], inPtr, 4 * 4 );
 		inPtr += width * 4;
 	}
 }
@@ -348,9 +348,9 @@ SwapColors
 void SwapColors( byte* c1, byte* c2 )
 {
 	byte tm[3];
-	memcpy( tm, c1, 3 );
-	memcpy( c1, c2, 3 );
-	memcpy( c2, tm, 3 );
+	std::memcpy( tm, c1, 3 );
+	std::memcpy( c1, c2, 3 );
+	std::memcpy( c2, tm, 3 );
 }
 
 /*
@@ -378,8 +378,8 @@ void idDxtEncoder::GetMinMaxColorsMaxDist( const byte* colorBlock, byte* minColo
 			if( dc > maxDistC )
 			{
 				maxDistC = dc;
-				memcpy( minColor, colorBlock + i, 3 );
-				memcpy( maxColor, colorBlock + j, 3 );
+				std::memcpy( minColor, colorBlock + i, 3 );
+				std::memcpy( maxColor, colorBlock + j, 3 );
 			}
 			int da = AlphaDistance( colorBlock[i + 3], colorBlock[j + 3] );
 			if( da > maxDistA )
@@ -419,12 +419,12 @@ void idDxtEncoder::GetMinMaxColorsLuminance( const byte* colorBlock, byte* minCo
 		if( luminance > maxLumC )
 		{
 			maxLumC = luminance;
-			memcpy( maxColor, colorBlock + i * 4, 3 );
+			std::memcpy( maxColor, colorBlock + i * 4, 3 );
 		}
 		if( luminance < minLumC )
 		{
 			minLumC = luminance;
-			memcpy( minColor, colorBlock + i * 4, 3 );
+			std::memcpy( minColor, colorBlock + i * 4, 3 );
 		}
 		int alpha = colorBlock[i * 4 + 3];
 		if( alpha > maxAlpha )
@@ -1002,8 +1002,8 @@ int idDxtEncoder::GetMinMaxCTX1HQ( const byte* colorBlock, byte* minColor, byte*
 					if( error < bestError )
 					{
 						bestError = error;
-						memcpy( minColor, curMinColor, 2 );
-						memcpy( maxColor, curMaxColor, 2 );
+						std::memcpy( minColor, curMinColor, 2 );
+						std::memcpy( maxColor, curMaxColor, 2 );
 					}
 				}
 			}
@@ -1721,10 +1721,10 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte* colorBlock, byte* minColor
 							if( error < bestError )
 							{
 								bestError = error;
-								memcpy( minColor, tmin, 4 );
-								memcpy( maxColor, tmax, 4 );
+								std::memcpy( minColor, tmin, 4 );
+								std::memcpy( maxColor, tmax, 4 );
 								colorIndices = tempColorIndices;
-								memcpy( alphaIndices, tempAlphaIndices, 6 );
+								std::memcpy( alphaIndices, tempAlphaIndices, 6 );
 							}
 							
 							tmin[3] = ( byte )i3;
@@ -1735,10 +1735,10 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQ( const byte* colorBlock, byte* minColor
 
 							{
 								bestError = error;
-								memcpy( minColor, tmin, 4 );
-								memcpy( maxColor, tmax, 4 );
+								std::memcpy( minColor, tmin, 4 );
+								std::memcpy( maxColor, tmax, 4 );
 								colorIndices = tempColorIndices;
-								memcpy( alphaIndices, tempAlphaIndices, 6 );
+								std::memcpy( alphaIndices, tempAlphaIndices, 6 );
 							}
 						}
 					}
@@ -1908,8 +1908,8 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte* colorBlock, byte* minC
 	
 	bestError = MAX_TYPE( int );
 	
-	memcpy( tmin, minColor, 4 );
-	memcpy( tmax, maxColor, 4 );
+	std::memcpy( tmin, minColor, 4 );
+	std::memcpy( tmax, maxColor, 4 );
 	
 	for( i3 = bboxMin[3]; i3 <= bboxMax[3]; i3++ )
 	{
@@ -1927,10 +1927,10 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte* colorBlock, byte* minC
 			if( error < bestError )
 			{
 				bestError = error;
-				memcpy( minColor, tmin, 4 );
-				memcpy( maxColor, tmax, 4 );
+				std::memcpy( minColor, tmin, 4 );
+				std::memcpy( maxColor, tmax, 4 );
 				colorIndices = tempColorIndices;
-				memcpy( alphaIndices, tempAlphaIndices, 6 );
+				std::memcpy( alphaIndices, tempAlphaIndices, 6 );
 			}
 			
 			tmin[3] = ( byte )i3;
@@ -1940,10 +1940,10 @@ int idDxtEncoder::GetMinMaxNormalsDXT5HQFast( const byte* colorBlock, byte* minC
 			if( error < bestError )
 			{
 				bestError = error;
-				memcpy( minColor, tmin, 4 );
-				memcpy( maxColor, tmax, 4 );
+				std::memcpy( minColor, tmin, 4 );
+				std::memcpy( maxColor, tmax, 4 );
 				colorIndices = tempColorIndices;
-				memcpy( alphaIndices, tempAlphaIndices, 6 );
+				std::memcpy( alphaIndices, tempAlphaIndices, 6 );
 			}
 		}
 	}
@@ -5305,7 +5305,7 @@ void idDxtEncoder::ConvertNormalMapDXN2_DXT5( const byte* inBuf, byte* outBuf, i
 			DecodeDXNAlphaValues( inBuf + 0, values );
 			
 			// copy normal X
-			memcpy( outBuf + 0, inBuf + 8, 8 );
+			std::memcpy( outBuf + 0, inBuf + 8, 8 );
 			
 			// get the min/max Y
 			byte minNormalY = 255;
@@ -5456,7 +5456,7 @@ void idDxtEncoder::ConvertNormalMapDXT5_DXN2( const byte* inBuf, byte* outBuf, i
 			// decode normal Y stored as a DXT5 alpha channel
 			DecodeNormalYValues( inBuf + 8, minNormalY, maxNormalY, values );
 			
-			memcpy( outBuf + 8, inBuf + 0, 8 );
+			std::memcpy( outBuf + 8, inBuf + 0, 8 );
 			
 			// encode normal Y into DXT5 green channel
 			EncodeDXNAlphaValues( outBuf + 0, minNormalY, maxNormalY, values );

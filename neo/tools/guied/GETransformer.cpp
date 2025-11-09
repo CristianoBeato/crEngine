@@ -35,25 +35,25 @@ If you have questions concerning this license or the applicable additional terms
 #include "GEApp.h"
 #include "../common/MaskEdit.h"
 
-HHOOK	gTransHook	 = NULL;
-HWND	gTransDlg	 = NULL;
+HHOOK	gTransHook	 = nullptr;
+HWND	gTransDlg	 = nullptr;
 
 rvGETransformer::rvGETransformer ( )
 {
-	mWnd		= NULL;
-	mWorkspace	= NULL;
+	mWnd		= nullptr;
+	mWorkspace	= nullptr;
 }
 
 bool rvGETransformer::Create ( HWND parent, bool visible )
 {
 	WNDCLASSEX wndClass;
-	memset ( &wndClass, 0, sizeof(wndClass) );
+	std::memset ( &wndClass, 0, sizeof(wndClass) );
 	wndClass.cbSize = sizeof(WNDCLASSEX);
 	wndClass.lpszClassName = "GUIEDITOR_TRANSFORMER_CLASS";
 	wndClass.lpfnWndProc = rvGETransformer::WndProc;
 	wndClass.hbrBackground = (HBRUSH)GetStockObject( LTGRAY_BRUSH );;
-	wndClass.hCursor       = LoadCursor((HINSTANCE) NULL, IDC_ARROW);
-	wndClass.lpszMenuName  = NULL;
+	wndClass.hCursor       = LoadCursor((HINSTANCE) nullptr, IDC_ARROW);
+	wndClass.lpszMenuName  = nullptr;
 	wndClass.hInstance     = win32.hInstance;
 	RegisterClassEx ( &wndClass );
 
@@ -63,7 +63,7 @@ bool rvGETransformer::Create ( HWND parent, bool visible )
 							WS_SYSMENU|WS_CAPTION|WS_POPUP|WS_OVERLAPPED|WS_BORDER|WS_CLIPSIBLINGS|WS_CHILD,
 							0, 0, 200,192,
 							parent,
-							NULL,
+							nullptr,
 							win32.hInstance,
 							this );
 
@@ -79,7 +79,7 @@ bool rvGETransformer::Create ( HWND parent, bool visible )
 
 		GetWindowRect ( parent, &rParent );
 		GetWindowRect ( mWnd, &rTrans );
-		SetWindowPos ( mWnd, NULL,
+		SetWindowPos ( mWnd, nullptr,
 					rParent.right - 10 - (rTrans.right-rTrans.left),
 					rParent.bottom - 10 - (rTrans.bottom-rTrans.top),
 					0,0,
@@ -134,7 +134,7 @@ LRESULT CALLBACK rvGETransformer::WndProc ( HWND hWnd, UINT msg, WPARAM wParam, 
 			GetClientRect ( trans->mWnd, &rClient );
 			GetWindowRect ( trans->mDlg, &rDlg );
 
-			SetWindowPos ( trans->mWnd, NULL, 0, 0,
+			SetWindowPos ( trans->mWnd, nullptr, 0, 0,
 						   (rWindow.right-rWindow.left)-(rClient.right-rClient.left) + (rDlg.right-rDlg.left),
 						   (rWindow.bottom-rWindow.top)-(rClient.bottom-rClient.top) + (rDlg.bottom-rDlg.top),
 						   SWP_NOZORDER );
@@ -160,7 +160,7 @@ INT_PTR CALLBACK rvGETransformer::DlgProc ( HWND hWnd, UINT msg, WPARAM wParam, 
 			{
 				UnhookWindowsHookEx( gTransHook );
 			}
-			gTransDlg = NULL;
+			gTransDlg = nullptr;
 			break;
 
 		case WM_INITDIALOG:
@@ -172,7 +172,7 @@ INT_PTR CALLBACK rvGETransformer::DlgProc ( HWND hWnd, UINT msg, WPARAM wParam, 
 			NumberEdit_Attach ( GetDlgItem ( hWnd, IDC_GUIED_ITEMRECTW ) );
 			NumberEdit_Attach ( GetDlgItem ( hWnd, IDC_GUIED_ITEMRECTH ) );
 			gTransDlg = hWnd;
-			gTransHook = SetWindowsHookEx( WH_GETMESSAGE, GetMsgProc, NULL, GetCurrentThreadId() );
+			gTransHook = SetWindowsHookEx( WH_GETMESSAGE, GetMsgProc, nullptr, GetCurrentThreadId() );
 			break;
 
 		case WM_COMMAND:
@@ -304,7 +304,7 @@ void rvGETransformer::Update ( void )
 {
 	bool state = false;
 
-	mRelative = NULL;
+	mRelative = nullptr;
 
 	if ( mWorkspace && mWorkspace->GetSelectionMgr ( ).Num ( ) )
 	{
@@ -364,9 +364,9 @@ LRESULT FAR PASCAL rvGETransformer::GetMsgProc ( int nCode, WPARAM wParam, LPARA
 		 {
 			// The value returned from this hookproc is ignored,
 			// and it cannot be used to tell Windows the message has been handled.
-			// To avoid further processing, convert the message to WM_NULL
+			// To avoid further processing, convert the message to WM_nullptr
 			// before returning.
-			lpMsg->message = WM_NULL;
+			lpMsg->message = WM_nullptr;
 			lpMsg->lParam  = 0;
 			lpMsg->wParam  = 0;
 		 }

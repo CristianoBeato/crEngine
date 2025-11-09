@@ -65,7 +65,7 @@ void CFindTextureDlg::updateTextures(const char *p)
   }
 }
 
-CFindTextureDlg::CFindTextureDlg(CWnd* pParent /*=NULL*/)
+CFindTextureDlg::CFindTextureDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CFindTextureDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CFindTextureDlg)
@@ -120,7 +120,7 @@ void CFindTextureDlg::OnOK()
 
 void CFindTextureDlg::show()
 {
-  if (g_dlgFind.GetSafeHwnd() == NULL || IsWindow(g_dlgFind.GetSafeHwnd()) == FALSE)
+  if (g_dlgFind.GetSafeHwnd() == nullptr || IsWindow(g_dlgFind.GetSafeHwnd()) == FALSE)
   {
     g_dlgFind.Create(IDD_DIALOG_FINDREPLACE);
     g_dlgFind.ShowWindow(SW_SHOW);
@@ -132,13 +132,13 @@ void CFindTextureDlg::show()
   CRect rct;
   LONG lSize = sizeof(rct);
   if (LoadRegistryInfo("Radiant::TextureFindWindow", &rct, &lSize))
-    g_dlgFind.SetWindowPos(NULL, rct.left, rct.top, 0,0, SWP_NOSIZE | SWP_SHOWWINDOW);
+    g_dlgFind.SetWindowPos(nullptr, rct.left, rct.top, 0,0, SWP_NOSIZE | SWP_SHOWWINDOW);
 }		
 
 
 bool CFindTextureDlg::isOpen()
 {
-  return (g_dlgFind.GetSafeHwnd() == NULL || ::IsWindowVisible(g_dlgFind.GetSafeHwnd()) == FALSE) ? false : true;
+  return (g_dlgFind.GetSafeHwnd() == nullptr || ::IsWindowVisible(g_dlgFind.GetSafeHwnd()) == FALSE) ? false : true;
 }
 
 void CFindTextureDlg::setFindStr(const char * p)

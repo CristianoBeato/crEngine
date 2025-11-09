@@ -44,7 +44,7 @@ If you have questions concerning this license or the applicable additional terms
 class idHashIndex
 {
 public:
-	static const int NULL_INDEX = -1;
+	static const int nullptr_INDEX = -1;
 	idHashIndex();
 	idHashIndex( const int initialHashSize, const int initialIndexSize );
 	~idHashIndex();
@@ -205,8 +205,8 @@ ID_INLINE idHashIndex& idHashIndex::operator=( const idHashIndex& other )
 			indexSize = other.indexSize;
 			indexChain = new( TAG_IDLIB_HASH ) int[indexSize];
 		}
-		memcpy( hash, other.hash, hashSize * sizeof( hash[0] ) );
-		memcpy( indexChain, other.indexChain, indexSize * sizeof( indexChain[0] ) );
+		std::memcpy( hash, other.hash, hashSize * sizeof( hash[0] ) );
+		std::memcpy( indexChain, other.indexChain, indexSize * sizeof( indexChain[0] ) );
 	}
 	
 	return *this;
@@ -387,7 +387,7 @@ ID_INLINE void idHashIndex::Clear()
 	// only clear the hash table because clearing the indexChain is not really needed
 	if( hash != INVALID_INDEX )
 	{
-		memset( hash, 0xff, hashSize * sizeof( hash[0] ) );
+		std::memset( hash, 0xff, hashSize * sizeof( hash[0] ) );
 	}
 }
 

@@ -81,7 +81,7 @@ public:
 
 class CLightDlg : public CDialog {
 public:
-					CLightDlg(CWnd* pParent = NULL);   // standard constructor
+					CLightDlg(CWnd* pParent = nullptr);   // standard constructor
 					~CLightDlg();
 
 	void			UpdateDialogFromLightInfo( void );

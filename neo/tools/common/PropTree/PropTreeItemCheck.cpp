@@ -71,7 +71,7 @@ END_MESSAGE_MAP()
 
 void CPropTreeItemCheck::DrawAttribute(CDC* pDC, const RECT& rc)
 {
-	ASSERT(m_pProp!=NULL);
+	ASSERT(m_pProp!=nullptr);
 
 	// verify the window has been created
 	if (!IsWindow(m_hWnd))
@@ -112,7 +112,7 @@ void CPropTreeItemCheck::SetItemValue(LPARAM lParam)
 void CPropTreeItemCheck::OnMove()
 {
 	if (IsWindow(m_hWnd))
-		SetWindowPos(NULL, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
+		SetWindowPos(nullptr, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
 }
 
 
@@ -135,25 +135,25 @@ void CPropTreeItemCheck::OnActivate(int activateType, CPoint point)
 			SetCheckState(!GetCheckState());
 			CommitChanges();
 		} else {
-			SetWindowPos(NULL, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_SHOWWINDOW);
+			SetWindowPos(nullptr, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_SHOWWINDOW);
 			SetFocus();
 		}
 	} else {
-		SetWindowPos(NULL, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_SHOWWINDOW);
+		SetWindowPos(nullptr, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_SHOWWINDOW);
 		SetFocus();
 	}
 }
 
 
 bool CPropTreeItemCheck::CreateCheckBox() {
-	ASSERT(m_pProp!=NULL);
+	ASSERT(m_pProp!=nullptr);
 
 	if (IsWindow(m_hWnd))
 		DestroyWindow();
 
 	DWORD dwStyle = (WS_CHILD|BS_CHECKBOX|BS_NOTIFY|BS_FLAT );
 
-	if (!Create(NULL, dwStyle, CRect(0,0,0,0), m_pProp->GetCtrlParent(), GetCtrlID()))
+	if (!Create(nullptr, dwStyle, CRect(0,0,0,0), m_pProp->GetCtrlParent(), GetCtrlID()))
 	{
 		TRACE0("CPropTreeItemCombo::CreateComboBox() - failed to create combo box\n");
 		return FALSE;

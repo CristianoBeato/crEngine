@@ -97,7 +97,7 @@ struct leaderboardDefinition_t
 	leaderboardDefinition_t() :
 		id( -1 ),
 		numColumns( 0 ),
-		columnDefs( NULL ),
+		columnDefs( nullptr ),
 		rankOrder( RANK_GREATEST_FIRST ),
 		supportsAttachments( false ),
 		checkAgainstCurrent( false )
@@ -191,7 +191,7 @@ public:
 //		CSteamID	user_id;
 	};
 	
-	idLeaderboardCallback() : def( NULL ), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
+	idLeaderboardCallback() : def( nullptr ), startIndex( -1 ), localIndex( -1 ), numRowsInLeaderboard( -1 ), errorCode( LEADERBOARD_ERROR_NONE ) { }
 	virtual idLeaderboardCallback* Clone() const = 0;
 	
 	// Used by the platform handlers to set data

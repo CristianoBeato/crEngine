@@ -43,7 +43,7 @@ extern HTREEITEM FindTreeItem(CTreeCtrl *tree, HTREEITEM root, const char *text,
 // CPreviewDlg dialog
 
 IMPLEMENT_DYNAMIC(CPreviewDlg, CDialog)
-CPreviewDlg::CPreviewDlg(CWnd* pParent /*=NULL*/)
+CPreviewDlg::CPreviewDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CPreviewDlg::IDD, pParent)
 {
 	currentMode = MODELS;
@@ -92,7 +92,7 @@ BOOL CPreviewDlg::OnInitDialog()
 
 	if ( mediaName.Length() ) {
 		HTREEITEM root = treeMedia.GetRootItem();
-		HTREEITEM sel = FindTreeItem(&treeMedia, root, mediaName, NULL );
+		HTREEITEM sel = FindTreeItem(&treeMedia, root, mediaName, nullptr );
 		if (sel) {
 			treeMedia.SelectItem(sel);
 		}
@@ -165,12 +165,12 @@ void CPreviewDlg::RebuildTree( const char *_data ) {
 }
 
 void CPreviewDlg::AddCommentedItems() {
-	const char *buffer = NULL;
+	const char *buffer = nullptr;
 	const char *path;
 	items.Clear();
 	path = (currentMode == GUIS) ? "guis/guis.commented" : "models/models.commented";
 	idParser src( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_ALLOWMULTICHARLITERALS | LEXFL_ALLOWBACKSLASHSTRINGCONCAT );
-	if (fileSystem->ReadFile(path, (void**)&buffer, NULL) && buffer) {
+	if (fileSystem->ReadFile(path, (void**)&buffer, nullptr) && buffer) {
 		src.LoadMemory(buffer, strlen(buffer), path);
 		if (src.IsLoaded()) {
 			idToken token, tok1, tok2, tok3;
@@ -208,11 +208,11 @@ void CPreviewDlg::AddStrList( const char *root, const idStrList &list, int id ) 
 	if (base) {
 		out = treeMedia.GetItemText(base);
 		if (stricmp(root, out)) {
-			base = NULL;
+			base = nullptr;
 		}
 	}
 
-	if (base == NULL) {
+	if (base == nullptr) {
 		base = treeMedia.InsertItem(root);
 		treeMedia.SetItemData(base, PARENTID);
 	}
@@ -259,8 +259,8 @@ void CPreviewDlg::AddStrList( const char *root, const idStrList &list, int id ) 
 		while (index >= 0) {
 			index = name.Find('/');
 			if (index >= 0) {
-				HTREEITEM newItem = NULL;
-				HTREEITEM *check = NULL;
+				HTREEITEM newItem = nullptr;
+				HTREEITEM *check = nullptr;
 				name.Left( index, out );
 				path += out;
 				qt = root;
@@ -270,7 +270,7 @@ void CPreviewDlg::AddStrList( const char *root, const idStrList &list, int id ) 
 					newItem = *check;
 				}
 				//HTREEITEM	newItem = FindTreeItem(&treeMedia, item, name.Left(index, out), item);
-				if (newItem == NULL) {
+				if (newItem == nullptr) {
 					newItem = treeMedia.InsertItem(out, item);
 					qt = root;
 					qt += "/";
@@ -320,7 +320,7 @@ void CPreviewDlg::OnTvnSelchangedTreeMedia(NMHDR *pNMHDR, LRESULT *pResult)
 
 			// have to build the name back up
 			HTREEITEM parent = treeMedia.GetParentItem( item );
-			while ( parent != NULL ) {
+			while ( parent != nullptr ) {
 				idStr strParent = treeMedia.GetItemText( parent );
 				strParent += "/";
 				strParent += mediaName;
@@ -365,7 +365,7 @@ void CPreviewDlg::OnTvnSelchangedTreeMedia(NMHDR *pNMHDR, LRESULT *pResult)
 				modelMedia = data;
 			}
 			if ( modelMedia.Length() ) {
-				int size = fileSystem->ReadFile( modelMedia, NULL, NULL );
+				int size = fileSystem->ReadFile( modelMedia, nullptr, nullptr );
 				int lsize;
 				if ( strstr( modelMedia, ".lwo" ) ) {
 					lsize = 128 * 1024;
@@ -557,7 +557,7 @@ void CPreviewDlg::SetMode( int mode, const char *preSelect ) {
 		mediaName = preSelect;
 	}
 
-	if (GetSafeHwnd() == NULL) {
+	if (GetSafeHwnd() == nullptr) {
 		return;
 	}
 
@@ -639,7 +639,7 @@ void CPreviewDlg::AddMaterials(bool rootItems) {
 		for (int i = 0; i < count; i++) {
 			const idMaterial *mat = declManager->MaterialByIndex(i, false);
 			if (!rootItems) {
-				if (strchr(mat->GetName(), '/') == NULL && strchr(mat->GetName(), '\\') == NULL) {
+				if (strchr(mat->GetName(), '/') == nullptr && strchr(mat->GetName(), '\\') == nullptr) {
 					continue;
 				}
 			}
@@ -670,7 +670,7 @@ void CPreviewDlg::AddParticles(bool rootItems) {
 		for (int i = 0; i < count; i++) {
 			const idDecl *ips = declManager->DeclByIndex( DECL_PARTICLE, i );
 			if (!rootItems) {
-				if (strchr(ips->GetName(), '/') == NULL && strchr(ips->GetName(), '\\') == NULL) {
+				if (strchr(ips->GetName(), '/') == nullptr && strchr(ips->GetName(), '\\') == nullptr) {
 					continue;
 				}
 			}
@@ -690,7 +690,7 @@ void CPreviewDlg::AddSkins( bool rootItems ) {
 		for (int i = 0; i < count; i++) {
 			const idDeclSkin *skin = declManager->SkinByIndex(i);
 			if (!rootItems) {
-				if (strchr(skin->GetName(), '/') == NULL && strchr(skin->GetName(), '\\') == NULL) {
+				if (strchr(skin->GetName(), '/') == nullptr && strchr(skin->GetName(), '\\') == nullptr) {
 					continue;
 				}
 			}

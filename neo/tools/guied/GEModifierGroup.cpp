@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "GEModifierGroup.h"
 
 rvGEModifierGroup::rvGEModifierGroup ( ) :
-	rvGEModifier ( "Group", NULL )
+	rvGEModifier ( "Group", nullptr )
 {
 }
 

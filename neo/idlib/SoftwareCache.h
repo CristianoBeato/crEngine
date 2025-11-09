@@ -104,8 +104,8 @@ COMMON MISTAKES:
    and output memory may get overwritten and the results will be undefined. Finding stack
    overflows is painful.
 
-3. While you can setup a regular DMA list entry to use a NULL pointer with zero size, do not use
-   a NULL pointer for a cache DMA list entry. This confuses SPURS and can cause your SPU binary
+3. While you can setup a regular DMA list entry to use a nullptr pointer with zero size, do not use
+   a nullptr pointer for a cache DMA list entry. This confuses SPURS and can cause your SPU binary
    to get corrupted.
 
 ================================================================================================

@@ -206,7 +206,7 @@ void PC_EndFrame()
 		totalCPU += ev->cpuTime;
 	}
 	idLib::Printf( "%2d: %1.2f (GPU) %1.3f (CPU) = total\n", numPixEvents, totalGPU / 1000000.0f, totalCPU / 1000.0f );
-	memset( pixEvents, 0, numPixLevels * sizeof( pixEvents[0] ) );
+	std::memset( pixEvents, 0, numPixLevels * sizeof( pixEvents[0] ) );
 	
 	numPixEvents = 0;
 	numPixLevels = 0;
@@ -236,7 +236,7 @@ idRenderLog::idRenderLog()
 	activeLevel = 0;
 	indentString[0] = '\0';
 	indentLevel = 0;
-	logFile = NULL;
+	logFile = nullptr;
 	
 	frameStartTime = 0;
 	closeBlockTime = 0;
@@ -283,14 +283,14 @@ void idRenderLog::StartFrame()
 	
 	common->SetRefreshOnPrint( false );	// problems are caused if this print causes a refresh...
 	
-	if( logFile != NULL )
+	if( logFile != nullptr )
 	{
 		fileSystem->CloseFile( logFile );
-		logFile = NULL;
+		logFile = nullptr;
 	}
 	
 	logFile = fileSystem->OpenFileWrite( ospath );
-	if( logFile == NULL )
+	if( logFile == nullptr )
 	{
 		idLib::Warning( "Failed to open logfile %s", ospath );
 		return;
@@ -318,7 +318,7 @@ void idRenderLog::EndFrame()
 {
 	PC_EndFrame();
 	
-	if( logFile != NULL )
+	if( logFile != nullptr )
 	{
 		if( r_logFile.GetInteger() == 1 )
 		{
@@ -338,12 +338,12 @@ idRenderLog::Close
 */
 void idRenderLog::Close()
 {
-	if( logFile != NULL )
+	if( logFile != nullptr )
 	{
 		CloseBlock();
 		idLib::Printf( "Closing logfile\n" );
 		fileSystem->CloseFile( logFile );
-		logFile = NULL;
+		logFile = nullptr;
 		activeLevel = 0;
 	}
 }
@@ -376,9 +376,9 @@ void idRenderLog::OpenBlock( const char* label )
 	// Allow the PIX functionality even when logFile is not running.
 	PC_BeginNamedEvent( label );
 	
-	if( logFile != NULL )
+	if( logFile != nullptr )
 	{
-		LogOpenBlock( RENDER_LOG_INDENT_MAIN_BLOCK, label, NULL );
+		LogOpenBlock( RENDER_LOG_INDENT_MAIN_BLOCK, label, nullptr );
 	}
 }
 
@@ -391,7 +391,7 @@ void idRenderLog::CloseBlock()
 {
 	PC_EndNamedEvent();
 	
-	if( logFile != NULL )
+	if( logFile != nullptr )
 	{
 		LogCloseBlock( RENDER_LOG_INDENT_MAIN_BLOCK );
 	}
@@ -409,7 +409,7 @@ void idRenderLog::Printf( const char* fmt, ... )
 		return;
 	}
 	
-	if( logFile == NULL )
+	if( logFile == nullptr )
 	{
 		return;
 	}
@@ -432,7 +432,7 @@ void idRenderLog::LogOpenBlock( renderLogIndentLabel_t label, const char* fmt, v
 
 	uint64_t now = Sys_Microseconds();
 	
-	if( logFile != NULL )
+	if( logFile != nullptr )
 	{
 		if( now - closeBlockTime >= 1000 )
 		{
@@ -468,7 +468,7 @@ void idRenderLog::LogCloseBlock( renderLogIndentLabel_t label )
 	
 	Outdent( label );
 	
-	if( logFile != NULL )
+	if( logFile != nullptr )
 	{
 	}
 }

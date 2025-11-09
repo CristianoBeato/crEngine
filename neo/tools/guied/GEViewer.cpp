@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 
 rvGEViewer::rvGEViewer ( )
 {
-	mInterface = NULL;
+	mInterface = nullptr;
 	mPaused    = true;
 	mTime	   = 0;
 }
@@ -49,7 +49,7 @@ bool rvGEViewer::Create ( HWND parent )
 	WNDCLASSEX	wndClass;
 
 	// Make sure the alpha slider window class is registered
-	memset ( &wndClass, 0, sizeof(wndClass) );
+	std::memset ( &wndClass, 0, sizeof(wndClass) );
 	wndClass.cbSize			= sizeof(WNDCLASSEX);
 	wndClass.lpszClassName	= "GUIED_VIEWER";
 	wndClass.lpfnWndProc	= rvGEViewer::WndProc;
@@ -61,7 +61,7 @@ bool rvGEViewer::Create ( HWND parent )
 	mWnd = CreateWindowEx ( WS_EX_TOOLWINDOW, "GUIED_VIEWER", "GUI Viewer",
 							WS_SYSMENU|WS_THICKFRAME|WS_CAPTION|WS_POPUP|WS_OVERLAPPED|WS_BORDER|WS_CLIPSIBLINGS|WS_CHILD,
 							CW_USEDEFAULT, CW_USEDEFAULT, SCREEN_WIDTH/2, SCREEN_HEIGHT/2,
-							parent, NULL, gApp.GetInstance(), this );
+							parent, nullptr, gApp.GetInstance(), this );
 
 	gApp.GetOptions().GetWindowPlacement ( "viewer", mWnd );
 
@@ -135,7 +135,7 @@ bool rvGEViewer::OpenFile ( const char* filename )
 	// Make sure the gui directory exists
 	idStr createDir = ospath;
 	createDir.StripFilename ( );
-	CreateDirectory ( createDir, NULL );
+	CreateDirectory ( createDir, nullptr );
 
 	SetFileAttributes ( ospath, FILE_ATTRIBUTE_NORMAL );
 	DeleteFile ( ospath );
@@ -362,7 +362,7 @@ LRESULT CALLBACK rvGEViewer::WndProc ( HWND hwnd, UINT msg, WPARAM wParam, LPARA
 			break;
 
 		case WM_CLOSE:
-			viewer->mInterface = NULL;
+			viewer->mInterface = nullptr;
 			gApp.CloseViewer ( );
 			return 0;
 
@@ -375,7 +375,7 @@ LRESULT CALLBACK rvGEViewer::WndProc ( HWND hwnd, UINT msg, WPARAM wParam, LPARA
 			viewer->mWnd = hwnd;
 			viewer->SetupPixelFormat ( );
 
-			viewer->mToolbar = CreateWindowEx ( 0, TOOLBARCLASSNAME, "", CCS_BOTTOM|WS_CHILD|WS_VISIBLE,0,0,0,0, hwnd, (HMENU)IDR_GUIED_VIEWERTOOLBAR, gApp.GetInstance(), NULL );
+			viewer->mToolbar = CreateWindowEx ( 0, TOOLBARCLASSNAME, "", CCS_BOTTOM|WS_CHILD|WS_VISIBLE,0,0,0,0, hwnd, (HMENU)IDR_GUIED_VIEWERTOOLBAR, gApp.GetInstance(), nullptr );
 
 			// Send the TB_BUTTONSTRUCTSIZE message, which is required for backward compatibility.
 			SendMessage( viewer->mToolbar, TB_BUTTONSTRUCTSIZE, ( WPARAM )sizeof( TBBUTTON ), 0 );
@@ -424,7 +424,7 @@ LRESULT CALLBACK rvGEViewer::WndProc ( HWND hwnd, UINT msg, WPARAM wParam, LPARA
 		}
 
 		case WM_SETCURSOR:
-			SetCursor ( NULL );
+			SetCursor ( nullptr );
 			break;
 	}
 
@@ -460,7 +460,7 @@ bool rvGEViewer::SetupPixelFormat ( void )
 	int pixelFormat = ChoosePixelFormat(hDC, &win32.pfd);
 	if (pixelFormat > 0)
 	{
-		if (SetPixelFormat(hDC, pixelFormat, &win32.pfd) == NULL)
+		if (SetPixelFormat(hDC, pixelFormat, &win32.pfd) == nullptr)
 		{
 			result = false;
 		}
@@ -519,7 +519,7 @@ void rvGEViewer::Render	( HDC dc )
 	if ( mInterface )
 	{
 		viewDef_t viewDef;
-		memset ( &viewDef, 0, sizeof(viewDef) );
+		std::memset ( &viewDef, 0, sizeof(viewDef) );
 		tr.viewDef = &viewDef;
 		viewDef.renderView.x = 0;
 		viewDef.renderView.y = mToolbarHeight;

@@ -30,7 +30,7 @@ The cvar system must already be setup
 void Sys_Init() 
 {
 #if __PLATFORM_WINDOWS__
-	CoInitialize( NULL );
+	CoInitialize( nullptr );
 #endif
 
 // BEATO Begin:
@@ -153,7 +153,7 @@ void Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats )
 	statex.dwLength = sizeof( statex );
 	GlobalMemoryStatusEx( &statex );
 	
-	memset( &stats, 0, sizeof( stats ) );
+	std::memset( &stats, 0, sizeof( stats ) );
 	
 	stats.memoryLoad = statex.dwMemoryLoad;
 	

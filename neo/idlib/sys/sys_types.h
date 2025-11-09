@@ -91,7 +91,7 @@ class idFile;
 #else
 struct idNullPtr
 {
-	// one pointer member initialized to zero so you can pass NULL as a vararg
+	// one pointer member initialized to zero so you can pass nullptr as a vararg
 	void* value;
 	idNullPtr() : value( 0 ) { }
 	
@@ -108,11 +108,11 @@ struct idNullPtr
 	}
 };
 
-//#undef NULL
+//#undef nullptr
 //#if defined( ID_PC_WIN ) && !defined( ID_TOOL_EXTERNAL ) && !defined( _lint )
-//#define NULL					idNullPtr()
+//#define nullptr					idNullPtr()
 //#else
-//#define NULL					0
+//#define nullptr					0
 //#endif
 
 // C99 Standard

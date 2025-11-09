@@ -121,11 +121,11 @@ typedef enum
 typedef struct obstaclePath_s
 {
 	idVec3				seekPos;					// seek position avoiding obstacles
-	idEntity* 			firstObstacle;				// if != NULL the first obstacle along the path
+	idEntity* 			firstObstacle;				// if != nullptr the first obstacle along the path
 	idVec3				startPosOutsideObstacles;	// start position outside obstacles
-	idEntity* 			startPosObstacle;			// if != NULL the obstacle containing the start position
+	idEntity* 			startPosObstacle;			// if != nullptr the obstacle containing the start position
 	idVec3				seekPosOutsideObstacles;	// seek position outside obstacles
-	idEntity* 			seekPosObstacle;			// if != NULL the obstacle containing the seek position
+	idEntity* 			seekPosObstacle;			// if != nullptr the obstacle containing the seek position
 } obstaclePath_t;
 
 // path prediction
@@ -176,7 +176,7 @@ typedef struct particleEmitter_s
 {
 	particleEmitter_s()
 	{
-		particle = NULL;
+		particle = nullptr;
 		time = 0;
 		joint = INVALID_JOINT;
 	};

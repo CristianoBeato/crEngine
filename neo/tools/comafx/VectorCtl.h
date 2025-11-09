@@ -120,13 +120,13 @@ public:
     void ClipToFront (BOOL bEnable)                     { m_bFrontVector = bEnable; }
     
         // Set user-defined callback function to call whenever the vector has changed.
-        // Set to NULL to disable callback.
+        // Set to nullptr to disable callback.
     void SetVectorChangingCallback (VectorCtlCallbackProc proc)
         { m_procVectorChanging = proc; }
 
         // Set user-defined callback function to call whenever the vector has finished
         // changing (user dropped track-ball).
-        // Set to NULL to disable callback.
+        // Set to nullptr to disable callback.
     void SetVectorChangedCallback (VectorCtlCallbackProc proc)
         { m_procVectorChanged = proc; }
 

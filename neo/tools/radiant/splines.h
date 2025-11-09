@@ -43,7 +43,7 @@ public:
 	virtual void		addPoint( const float x, const float y, const float z ) {}
 	virtual void		addPoint( const idVec3 &v ) {}
 	virtual void		removePoint( int index ) {}
-	virtual idVec3 *	getPoint( int index ) { return NULL; }
+	virtual idVec3 *	getPoint( int index ) { return nullptr; }
 	
 	int					numSelectedPoints() { return selectedPoints.Num(); }
 	idVec3 *			getSelectedPoint( int index );
@@ -167,7 +167,7 @@ public:
 	float				getVelocity( long t );
 	float				getBaseVelocity() { return baseVelocity; }
 	void				addVelocity( long start, long duration, float speed ) { velocities.Append(new idVelocity(start, duration, speed)); }
-	virtual const idVec3 *getPosition( long t ) { return NULL; }
+	virtual const idVec3 *getPosition( long t ) { return nullptr; }
 	virtual void		draw( bool editMode ) {};
 	virtual void		parse( idParser *src ) {};
 	virtual void		write( idFile *f, const char *name);
@@ -333,7 +333,7 @@ protected:
 
 class idCameraDef {
 public:
-						idCameraDef() { cameraPosition = NULL; clear(); }
+						idCameraDef() { cameraPosition = nullptr; clear(); }
 						~idCameraDef() { clear(); }
 
 	void				clear();

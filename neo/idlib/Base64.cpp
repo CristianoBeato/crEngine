@@ -110,7 +110,7 @@ int idBase64::Decode( byte* to ) const
 	
 	if( !tab_init )
 	{
-		memset( base64_to_sixtet, 0, 256 );
+		std::memset( base64_to_sixtet, 0, 256 );
 		for( i = 0; ( j = sixtet_to_base64[i] ) != '\0'; ++i )
 		{
 			base64_to_sixtet[j] = i;
@@ -226,7 +226,7 @@ void idBase64_TestBase64()
 		idLib::common->Printf( "read idDict.test:\n" );
 		test_dict.Print();
 		idLib::fileSystem->CloseFile( file );
-		file = NULL;
+		file = nullptr;
 	}
 	else
 	{

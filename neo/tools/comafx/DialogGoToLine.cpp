@@ -48,7 +48,7 @@ IMPLEMENT_DYNAMIC(DialogGoToLine, CDialog)
 DialogGoToLine::DialogGoToLine
 ================
 */
-DialogGoToLine::DialogGoToLine( CWnd* pParent /*=NULL*/ )
+DialogGoToLine::DialogGoToLine( CWnd* pParent /*=nullptr*/ )
 	: CDialog(DialogGoToLine::IDD, pParent)
 	, firstLine(0)
 	, lastLine(0)

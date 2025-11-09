@@ -224,7 +224,7 @@ private:
 	int				currentFileNumber;
 	int				errorCount;
 	
-	idVarDef*		scope;				// the function being parsed, or NULL
+	idVarDef*		scope;				// the function being parsed, or nullptr
 	const idVarDef*	basetype;			// for accessing fields
 	
 	float			Divide( float numerator, float denominator );

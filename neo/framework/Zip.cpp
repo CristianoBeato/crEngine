@@ -259,7 +259,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 	// attempt to check the file out
 	if( !Sys_IsFileWritable( zipFileName ) )
 	{
-		if( ( idLib::sourceControl == NULL ) || !idLib::sourceControl->CheckOut( zipFileName ) )
+		if( ( idLib::sourceControl == nullptr ) || !idLib::sourceControl->CheckOut( zipFileName ) )
 		{
 			idLib::Warning( "READONLY zip file couldn't be checked out: %s", zipFileName.c_str() );
 		}
@@ -275,10 +275,10 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 	{
 		idLib::PrintfIf( zip_verbosity.GetBool(), "Overwriting zip file: '%s'\n", zipFileName.c_str() );
 		idFile* zipFile = fileSystem->OpenExplicitFileWrite( zipFileName );
-		if( zipFile != NULL )
+		if( zipFile != nullptr )
 		{
 			delete zipFile;
-			zipFile = NULL;
+			zipFile = nullptr;
 		}
 	}
 	else
@@ -313,7 +313,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 	
 	// open the zip file
 	zipFile zf = zipOpen( zipFileName, appendFiles ? APPEND_STATUS_ADDINZIP : 0 );
-	if( zf == NULL )
+	if( zf == nullptr )
 	{
 		idLib::Warning( "[%s] - error opening file '%s'!", __FUNCTION__, zipFileName.c_str() );
 		return false;
@@ -325,7 +325,7 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 	
 		// add each file to the zip file
 		zip_fileinfo zi;
-		memset( &zi, 0, sizeof( zip_fileinfo ) );
+		std::memset( &zi, 0, sizeof( zip_fileinfo ) );
 		
 		idStr filename = files->GetFile( i );
 		
@@ -351,9 +351,9 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 			compressionMethod = 0;
 		}
 		
-		int errcode = zipOpenNewFileInZip3( zf, filenameInZip, &zi, NULL, 0, NULL, 0, NULL /* comment*/,
+		int errcode = zipOpenNewFileInZip3( zf, filenameInZip, &zi, nullptr, 0, nullptr, 0, nullptr /* comment*/,
 											compressionMethod,	DEFAULT_COMPRESSION_LEVEL, 0, -MAX_WBITS, DEF_MEM_LEVEL,
-											Z_DEFAULT_STRATEGY, NULL /*password*/, 0 /*fileCRC*/ );
+											Z_DEFAULT_STRATEGY, nullptr /*password*/, 0 /*fileCRC*/ );
 											
 		if( errcode != ZIP_OK )
 		{
@@ -399,13 +399,13 @@ bool idZipBuilder::CreateZipFile( bool appendFiles )
 	}
 	
 	// free the file list
-	if( files != NULL )
+	if( files != nullptr )
 	{
 		fileSystem->FreeFileList( files );
 	}
 	
 	// close the zip file
-	int closeError = zipClose( zf, NULL );
+	int closeError = zipClose( zf, nullptr );
 	if( closeError != ZIP_OK )
 	{
 		idLib::Warning( "[%s] - error closing file '%s'!", __FUNCTION__, zipFileName.c_str() );
@@ -459,7 +459,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 	
 	// open the zip file
 	zipFile zf = zipOpen( zipFileName, 0 );
-	if( zf == NULL )
+	if( zf == nullptr )
 	{
 		idLib::Warning( "[%s] - error opening file '%s'!", __FUNCTION__, zipFileName.c_str() );
 		return false;
@@ -471,7 +471,7 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 	
 		// add each file to the zip file
 		zip_fileinfo zi;
-		memset( &zi, 0, sizeof( zip_fileinfo ) );
+		std::memset( &zi, 0, sizeof( zip_fileinfo ) );
 		
 		idFile_Memory* src = srcFiles[i];
 		src->MakeReadOnly();
@@ -484,9 +484,9 @@ bool idZipBuilder::CreateZipFileFromFiles( const idList< idFile_Memory* >& srcFi
 			compressionMethod = 0;
 		}
 		
-		int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, NULL, 0, NULL, 0, NULL /* comment*/,
+		int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, nullptr, 0, nullptr, 0, nullptr /* comment*/,
 											compressionMethod,	DEFAULT_COMPRESSION_LEVEL, 0, -MAX_WBITS, DEF_MEM_LEVEL,
-											Z_DEFAULT_STRATEGY, NULL /*password*/, 0 /*fileCRC*/ );
+											Z_DEFAULT_STRATEGY, nullptr /*password*/, 0 /*fileCRC*/ );
 											
 		if( errcode != ZIP_OK )
 		{
@@ -551,12 +551,12 @@ zipFile idZipBuilder::CreateZipFile( const char* name )
 	if( !Sys_IsFileWritable( name ) )
 	{
 		idLib::PrintfIf( zip_verbosity.GetBool(), "File %s not writeable, cannot proceed.\n", name );
-		return NULL;
+		return nullptr;
 	}
 	
 	// open the zip file
 	zipFile zf = zipOpen( name, 0 );
-	if( zf == NULL )
+	if( zf == nullptr )
 	{
 		idLib::Warning( "[%s] - error opening file '%s'!", __FUNCTION__, name );
 	}
@@ -574,7 +574,7 @@ bool idZipBuilder::AddFile( zipFile zf, idFile_Memory* src, bool deleteFile )
 {
 	// add each file to the zip file
 	zip_fileinfo zi;
-	memset( &zi, 0, sizeof( zip_fileinfo ) );
+	std::memset( &zi, 0, sizeof( zip_fileinfo ) );
 	
 	
 	src->MakeReadOnly();
@@ -587,9 +587,9 @@ bool idZipBuilder::AddFile( zipFile zf, idFile_Memory* src, bool deleteFile )
 		compressionMethod = Z_NO_COMPRESSION;
 	}
 	
-	int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, NULL, 0, NULL, 0, NULL /* comment*/,
+	int errcode = zipOpenNewFileInZip3( zf, src->GetName(), &zi, nullptr, 0, nullptr, 0, nullptr /* comment*/,
 										compressionMethod,	DEFAULT_COMPRESSION_LEVEL, 0, -MAX_WBITS, DEF_MEM_LEVEL,
-										Z_DEFAULT_STRATEGY, NULL /*password*/, 0 /*fileCRC*/ );
+										Z_DEFAULT_STRATEGY, nullptr /*password*/, 0 /*fileCRC*/ );
 										
 	if( errcode != ZIP_OK )
 	{
@@ -796,7 +796,7 @@ idZipBuilder::CombineFiles
 */
 idFile_Memory* idZipBuilder::CombineFiles( const idList< idFile_Memory* >& srcFiles )
 {
-	idFile_Memory* destFile = NULL;
+	idFile_Memory* destFile = nullptr;
 	
 #if 0
 //#ifdef ID_PC
@@ -821,7 +821,7 @@ idFile_Memory* idZipBuilder::CombineFiles( const idList< idFile_Memory* >& srcFi
 		{
 			assert( false && "couldn't read the combined file" );
 			delete destFile;
-			destFile = NULL;
+			destFile = nullptr;
 		}
 		
 		// delete the temp file
@@ -867,7 +867,7 @@ CONSOLE_COMMAND( testZipBuilderCombineFiles, "test routine for memory zip file b
 	// combine the files into a single memory file
 	idZipBuilder zip;
 	idFile_Memory* file = zip.CombineFiles( list );
-	if( file != NULL )
+	if( file != nullptr )
 	{
 		file->MakeReadOnly();
 		
@@ -929,7 +929,7 @@ bool idZipBuilder::ExtractFiles( idFile_Memory*& srcFile, idList< idFile_Memory*
 			numFiles++;
 			unz_file_info curFileInfo;
 			char fileName[MAX_OSPATH];
-			unzGetCurrentFileInfo( zip, &curFileInfo, fileName, MAX_OSPATH, NULL, 0, NULL, 0 );
+			unzGetCurrentFileInfo( zip, &curFileInfo, fileName, MAX_OSPATH, nullptr, 0, nullptr, 0 );
 			
 			idLib::PrintfIf( zip_verbosity.GetBool(), "%d: %s, size: %d \\ %d\n", numFiles, fileName, curFileInfo.compressed_size, curFileInfo.uncompressed_size );
 			
@@ -1000,7 +1000,7 @@ CONSOLE_COMMAND( testZipBuilderExtractFiles, "test routine for memory zip file e
 		idZipBuilder zip;
 		zipfile = zip.CombineFiles( list );
 		
-		success = ( zipfile != NULL );
+		success = ( zipfile != nullptr );
 		overallSuccess &= success;
 		idLib::Printf( "Zip file created: %s\n", success ? "^2PASS" : "^1FAIL" );
 		
@@ -1047,7 +1047,7 @@ CONSOLE_COMMAND( testZipBuilderExtractFiles, "test routine for memory zip file e
 		list.DeleteContents();
 	}
 	
-	if( zipfile != NULL )
+	if( zipfile != nullptr )
 	{
 		delete zipfile;
 	}

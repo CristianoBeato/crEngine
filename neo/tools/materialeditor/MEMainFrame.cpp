@@ -102,8 +102,8 @@ static UINT indicators[] =
 */
 MEMainFrame::MEMainFrame() {
 	
-	currentDoc = NULL;
-	m_find = NULL;
+	currentDoc = nullptr;
+	m_find = nullptr;
 
 	searchData.searched = false;
 
@@ -421,7 +421,7 @@ void MEMainFrame::OnFileSaveMaterialUpdate(CCmdUI *pCmdUI) {
 
 	MaterialDoc* pDoc = materialDocManager.GetCurrentMaterialDoc();
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -439,7 +439,7 @@ void MEMainFrame::OnFileSaveMaterialUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnFileSaveFileUpdate(CCmdUI *pCmdUI) {
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -456,7 +456,7 @@ void MEMainFrame::OnFileSaveFileUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnFileSaveAllUpdate(CCmdUI *pCmdUI) {
 	
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -502,7 +502,7 @@ void MEMainFrame::OnApplyAll() {
 void MEMainFrame::OnApplyMaterialUpdate(CCmdUI *pCmdUI) {
 	MaterialDoc* pDoc = materialDocManager.GetCurrentMaterialDoc();
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -520,7 +520,7 @@ void MEMainFrame::OnApplyMaterialUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnApplyFileUpdate(CCmdUI *pCmdUI) {
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -540,7 +540,7 @@ void MEMainFrame::OnApplyFileUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnApplyAllUpdate(CCmdUI *pCmdUI) {
 	
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -627,7 +627,7 @@ void MEMainFrame::OnEditRename() {
 */
 void MEMainFrame::OnEditCutUpdate(CCmdUI *pCmdUI) {
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -657,7 +657,7 @@ void MEMainFrame::OnEditCutUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnEditCopyUpdate(CCmdUI *pCmdUI) {
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -687,7 +687,7 @@ void MEMainFrame::OnEditCopyUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnEditPasteUpdate(CCmdUI *pCmdUI) {
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -717,7 +717,7 @@ void MEMainFrame::OnEditPasteUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnEditDeleteUpdate(CCmdUI *pCmdUI) {
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -748,7 +748,7 @@ void MEMainFrame::OnEditDeleteUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnEditRenameUpdate(CCmdUI *pCmdUI) {
 
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -775,7 +775,7 @@ void MEMainFrame::OnEditRenameUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnEditFind() {
 
-	if (m_find== NULL)
+	if (m_find== nullptr)
 	{
 		m_find = new FindDialog(this);
 		m_find->Create();
@@ -789,7 +789,7 @@ void MEMainFrame::OnEditFind() {
 * Performs a search with the previously selected search parameters.
 */
 void MEMainFrame::OnEditFindNext() {
-	FindNext(NULL);
+	FindNext(nullptr);
 }
 
 /**
@@ -831,7 +831,7 @@ void MEMainFrame::OnEditRedo() {
 */
 void MEMainFrame::OnEditUndoUpdate(CCmdUI *pCmdUI) {
 	
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -852,7 +852,7 @@ void MEMainFrame::OnEditUndoUpdate(CCmdUI *pCmdUI) {
 */
 void MEMainFrame::OnEditRedoUpdate(CCmdUI *pCmdUI) {
 	
-	if(pCmdUI->m_pMenu == NULL) {
+	if(pCmdUI->m_pMenu == nullptr) {
 		pCmdUI->Enable(TRUE);
 		return;
 	}
@@ -906,7 +906,7 @@ void MEMainFrame::OnReloadImages() {
 * Called by the find dialog when it is closing.
 */
 void MEMainFrame::CloseFind() {
-	m_find = NULL;
+	m_find = nullptr;
 }
 
 /**

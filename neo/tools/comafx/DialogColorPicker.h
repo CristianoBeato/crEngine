@@ -75,7 +75,7 @@ class CDialogColorPicker : public CDialog
 {
 // Construction
 public:
-					CDialogColorPicker(COLORREF c,CWnd* pParent = NULL);   // standard constructor
+					CDialogColorPicker(COLORREF c,CWnd* pParent = nullptr);   // standard constructor
 					~CDialogColorPicker();
 
 	COLORREF		GetColor() { return color.color();};
@@ -189,6 +189,6 @@ protected:
 	float			overBright;
 };
 
-bool DoNewColor( int* i1, int* i2, int* i3, float *overBright, void (*Update)( float, float, float, float ) = NULL );
+bool DoNewColor( int* i1, int* i2, int* i3, float *overBright, void (*Update)( float, float, float, float ) = nullptr );
 
 #endif /* !__DIALOGCOLORPICKER__ */

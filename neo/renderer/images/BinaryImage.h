@@ -88,7 +88,7 @@ private:
 	public:
 		byte* data;
 		
-		idBinaryImageData() : data( NULL ) { }
+		idBinaryImageData() : data( nullptr ) { }
 		~idBinaryImageData()
 		{
 			Free();
@@ -101,15 +101,15 @@ private:
 			}
 			
 			Alloc( other.dataSize );
-			memcpy( data, other.data, other.dataSize );
+			std::memcpy( data, other.data, other.dataSize );
 			return *this;
 		}
 		void Free()
 		{
-			if( data != NULL )
+			if( data != nullptr )
 			{
 				Mem_Free( data );
-				data = NULL;
+				data = nullptr;
 				dataSize = 0;
 			}
 		}

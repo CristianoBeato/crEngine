@@ -144,11 +144,11 @@ public:
 	float				GetFloat( const char* key, const float defaultFloat = 0.0f ) const;
 	int					GetInt( const char* key, const int defaultInt = 0 ) const;
 	bool				GetBool( const char* key, const bool defaultBool = false ) const;
-	idVec3				GetVector( const char* key, const char* defaultString = NULL ) const;
-	idVec2				GetVec2( const char* key, const char* defaultString = NULL ) const;
-	idVec4				GetVec4( const char* key, const char* defaultString = NULL ) const;
-	idAngles			GetAngles( const char* key, const char* defaultString = NULL ) const;
-	idMat3				GetMatrix( const char* key, const char* defaultString = NULL ) const;
+	idVec3				GetVector( const char* key, const char* defaultString = nullptr ) const;
+	idVec2				GetVec2( const char* key, const char* defaultString = nullptr ) const;
+	idVec4				GetVec4( const char* key, const char* defaultString = nullptr ) const;
+	idAngles			GetAngles( const char* key, const char* defaultString = nullptr ) const;
+	idMat3				GetMatrix( const char* key, const char* defaultString = nullptr ) const;
 	
 	bool				GetString( const char* key, const char* defaultString, const char** out ) const;
 	bool				GetString( const char* key, const char* defaultString, idStr& out ) const;
@@ -167,7 +167,7 @@ public:
 	int					GetNumKeyVals() const;
 	const idKeyValue* 	GetKeyVal( int index ) const;
 	// returns the key/value pair with the given key
-	// returns NULL if the key/value pair does not exist
+	// returns nullptr if the key/value pair does not exist
 	const idKeyValue* 	FindKey( const char* key ) const;
 	// returns the index to the key/value pair with the given key
 	// returns -1 if the key/value pair does not exist
@@ -176,7 +176,7 @@ public:
 	void				Delete( const char* key );
 	// finds the next key/value pair with the given key prefix.
 	// lastMatch can be used to do additional searches past the first match.
-	const idKeyValue* 	MatchPrefix( const char* prefix, const idKeyValue* lastMatch = NULL ) const;
+	const idKeyValue* 	MatchPrefix( const char* prefix, const idKeyValue* lastMatch = nullptr ) const;
 	// randomly chooses one of the key/value pairs with the given key prefix and returns it's value
 	const char* 		RandomPrefix( const char* prefix, idRandom& random ) const;
 	
@@ -403,7 +403,7 @@ ID_INLINE const idKeyValue* idDict::GetKeyVal( int index ) const
 	{
 		return &args[ index ];
 	}
-	return NULL;
+	return nullptr;
 }
 
 #endif /* !__DICT_H__ */

@@ -43,7 +43,7 @@ class CPrefsDlg : public CDialog
 {
 // Construction
 public:
-						CPrefsDlg(CWnd* pParent = NULL);   // standard constructor
+						CPrefsDlg(CWnd* pParent = nullptr);   // standard constructor
 
 	void				LoadPrefs();
 	void				SavePrefs();

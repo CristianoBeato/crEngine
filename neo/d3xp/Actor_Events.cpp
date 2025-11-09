@@ -61,28 +61,28 @@ const idEventDef AI_EnableAnim( "enableAnim", "dd" );
 const idEventDef AI_PreventPain( "preventPain", "f" );
 const idEventDef AI_DisablePain( "disablePain" );
 const idEventDef AI_EnablePain( "enablePain" );
-const idEventDef AI_GetPainAnim( "getPainAnim", NULL, 's' );
+const idEventDef AI_GetPainAnim( "getPainAnim", nullptr, 's' );
 const idEventDef AI_SetAnimPrefix( "setAnimPrefix", "s" );
 const idEventDef AI_HasAnim( "hasAnim", "ds", 'f' );
 const idEventDef AI_CheckAnim( "checkAnim", "ds" );
 const idEventDef AI_ChooseAnim( "chooseAnim", "ds", 's' );
 const idEventDef AI_AnimLength( "animLength", "ds", 'f' );
 const idEventDef AI_AnimDistance( "animDistance", "ds", 'f' );
-const idEventDef AI_HasEnemies( "hasEnemies", NULL, 'd' );
+const idEventDef AI_HasEnemies( "hasEnemies", nullptr, 'd' );
 const idEventDef AI_NextEnemy( "nextEnemy", "E", 'e' );
 const idEventDef AI_ClosestEnemyToPoint( "closestEnemyToPoint", "v", 'e' );
 const idEventDef AI_SetNextState( "setNextState", "s" );
 const idEventDef AI_SetState( "setState", "s" );
-const idEventDef AI_GetState( "getState", NULL, 's' );
-const idEventDef AI_GetHead( "getHead", NULL, 'e' );
+const idEventDef AI_GetState( "getState", nullptr, 's' );
+const idEventDef AI_GetHead( "getHead", nullptr, 'e' );
 const idEventDef EV_SetDamageGroupScale( "setDamageGroupScale", "sf" );
 const idEventDef EV_SetDamageGroupScaleAll( "setDamageGroupScaleAll", "f" );
 const idEventDef EV_GetDamageGroupScale( "getDamageGroupScale", "s", 'f' );
 const idEventDef EV_SetDamageCap( "setDamageCap", "f" );
 const idEventDef EV_SetWaitState( "setWaitState" , "s" );
-const idEventDef EV_GetWaitState( "getWaitState", NULL, 's' );
+const idEventDef EV_GetWaitState( "getWaitState", nullptr, 's' );
 const idEventDef AI_SetTeam( "setTeam", "f" );
-const idEventDef AI_GetTeam( "getTeam", NULL, 'f' );
+const idEventDef AI_GetTeam( "getTeam", nullptr, 'f' );
 
 CLASS_DECLARATION( idAFEntity_Gibbable, idActor )
 EVENT( AI_EnableEyeFocus,			idActor::Event_EnableEyeFocus )
@@ -146,7 +146,7 @@ idActor::Event_EnableEyeFocus
 */
 void idActor::PlayFootStepSound()
 {
-	const char* sound = NULL;
+	const char* sound = nullptr;
 	const idMaterial* material;
 	
 	if( !GetPhysics()->HasGroundContacts() )
@@ -156,17 +156,17 @@ void idActor::PlayFootStepSound()
 	
 	// start footstep sound based on material type
 	material = GetPhysics()->GetContact( 0 ).material;
-	if( material != NULL )
+	if( material != nullptr )
 	{
 		sound = spawnArgs.GetString( va( "snd_footstep_%s", gameLocal.sufaceTypeNames[ material->GetSurfaceType() ] ) );
 	}
-	if( sound != NULL && *sound == '\0' )
+	if( sound != nullptr && *sound == '\0' )
 	{
 		sound = spawnArgs.GetString( "snd_footstep" );
 	}
-	if( sound != NULL && *sound != '\0' )
+	if( sound != nullptr && *sound != '\0' )
 	{
-		StartSoundShader( declManager->FindSound( sound ), SND_CHANNEL_BODY, 0, false, NULL );
+		StartSoundShader( declManager->FindSound( sound ), SND_CHANNEL_BODY, 0, false, nullptr );
 	}
 }
 
@@ -919,7 +919,7 @@ void idActor::Event_NextEnemy( idEntity* ent )
 		}
 	}
 	
-	for( ; actor != NULL; actor = actor->enemyNode.Next() )
+	for( ; actor != nullptr; actor = actor->enemyNode.Next() )
 	{
 		if( !actor->fl.hidden )
 		{
@@ -928,7 +928,7 @@ void idActor::Event_NextEnemy( idEntity* ent )
 		}
 	}
 	
-	idThread::ReturnEntity( NULL );
+	idThread::ReturnEntity( nullptr );
 }
 
 /*
@@ -970,7 +970,7 @@ void idActor::Event_SetNextState( const char* name )
 	idealState = GetScriptFunction( name );
 	if( idealState == state )
 	{
-		state = NULL;
+		state = nullptr;
 	}
 }
 
@@ -984,7 +984,7 @@ void idActor::Event_SetState( const char* name )
 	idealState = GetScriptFunction( name );
 	if( idealState == state )
 	{
-		state = NULL;
+		state = nullptr;
 	}
 	scriptThread->DoneProcessing();
 }

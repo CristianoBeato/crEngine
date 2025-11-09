@@ -190,7 +190,7 @@ attribInfo_t attribsPC[] =
 	{ "half4",		"htexcoord15",	"TEXCOORD15",	"vofi_TexCoord15",		0,	AT_PS_IN,		0 },
 	{ "float",		"fog",			"FOG",			"gl_FogFragCoord",		0,	AT_VS_OUT,		0 },
 	{ "float4",		"fog",			"FOG",			"gl_FogFragCoord",		0,	AT_PS_IN,		0 },
-	{ NULL,			NULL,			NULL,			NULL,					0,	0,				0 }
+	{ nullptr,			nullptr,			nullptr,			nullptr,					0,	0,				0 }
 };
 
 const char* types[] =
@@ -626,7 +626,7 @@ struct typeConversion_t
 	
 	{ "sampler2DMS",		"sampler2DMS" },
 	
-	{ NULL, NULL }
+	{ nullptr, nullptr }
 };
 
 const char* vertexInsert =
@@ -694,7 +694,7 @@ struct builtinConversion_t
 	{ "ddx",		"dFdx" },
 	{ "ddy",		"dFdy" },
 	
-	{ NULL, NULL }
+	{ nullptr, nullptr }
 };
 
 struct inOutVariable_t
@@ -735,7 +735,7 @@ void ParseInOutStruct( idLexer& src, int attribType, idList< inOutVariable_t >& 
 		src.ExpectTokenString( ";" );
 		
 		// convert the type
-		for( int i = 0; typeConversion[i].typeCG != NULL; i++ )
+		for( int i = 0; typeConversion[i].typeCG != nullptr; i++ )
 		{
 			if( var.type.Cmp( typeConversion[i].typeCG ) == 0 )
 			{
@@ -745,7 +745,7 @@ void ParseInOutStruct( idLexer& src, int attribType, idList< inOutVariable_t >& 
 		}
 		
 		// convert the semantic to a GLSL name
-		for( int i = 0; attribsPC[i].semantic != NULL; i++ )
+		for( int i = 0; attribsPC[i].semantic != nullptr; i++ )
 		{
 			if( ( attribsPC[i].flags & attribType ) != 0 )
 			{
@@ -950,7 +950,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 		
 		// check for a type conversion
 		bool foundType = false;
-		for( int i = 0; typeConversion[i].typeCG != NULL; i++ )
+		for( int i = 0; typeConversion[i].typeCG != nullptr; i++ )
 		{
 			if( token.Cmp( typeConversion[i].typeCG ) == 0 )
 			{
@@ -1051,7 +1051,7 @@ idStr ConvertCG2GLSL( const idStr& in, const char* name, bool isVertexProgram, i
 		
 		// check for a function conversion
 		bool foundFunction = false;
-		for( int i = 0; builtinConversion[i].nameCG != NULL; i++ )
+		for( int i = 0; builtinConversion[i].nameCG != nullptr; i++ )
 		{
 			if( token.Cmp( builtinConversion[i].nameCG ) == 0 )
 			{
@@ -1154,10 +1154,10 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	
 	// first check whether we already have a valid GLSL file and compare it to the hlsl timestamp;
 	ID_TIME_T hlslTimeStamp;
-	int hlslFileLength = fileSystem->ReadFile( inFile.c_str(), NULL, &hlslTimeStamp );
+	int hlslFileLength = fileSystem->ReadFile( inFile.c_str(), nullptr, &hlslTimeStamp );
 	
 	ID_TIME_T glslTimeStamp;
-	int glslFileLength = fileSystem->ReadFile( outFileGLSL.c_str(), NULL, &glslTimeStamp );
+	int glslFileLength = fileSystem->ReadFile( outFileGLSL.c_str(), nullptr, &glslTimeStamp );
 	
 	// if the glsl file doesn't exist or we have a newer HLSL file we need to recreate the glsl file.
 	idStr programGLSL;
@@ -1171,7 +1171,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 			return false;
 		}
 		
-		void* hlslFileBuffer = NULL;
+		void* hlslFileBuffer = nullptr;
 		int len = fileSystem->ReadFile( inFile.c_str(), &hlslFileBuffer );
 		if( len <= 0 )
 		{
@@ -1191,7 +1191,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	else
 	{
 		// read in the glsl file
-		void* fileBufferGLSL = NULL;
+		void* fileBufferGLSL = nullptr;
 		int lengthGLSL = fileSystem->ReadFile( outFileGLSL.c_str(), &fileBufferGLSL );
 		if( lengthGLSL <= 0 )
 		{
@@ -1203,7 +1203,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 		if( r_useUniformArrays.GetBool() )
 		{
 			// read in the uniform file
-			void* fileBufferUniforms = NULL;
+			void* fileBufferUniforms = nullptr;
 			int lengthUniforms = fileSystem->ReadFile( outFileUniforms.c_str(), &fileBufferUniforms );
 			if( lengthUniforms <= 0 )
 			{
@@ -1254,7 +1254,7 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 	{
 		const char* source[1] = { programGLSL.c_str() };
 		
-		glShaderSource( shader, 1, source, NULL );
+		glShaderSource( shader, 1, source, nullptr );
 		glCompileShader( shader );
 		
 		int infologLength = 0;
@@ -1266,8 +1266,8 @@ GLuint idRenderProgManager::LoadGLSLShader( GLenum target, const char* name, idL
 			glGetShaderInfoLog( shader, infologLength, &charsWritten, infoLog.Ptr() );
 			
 			// catch the strings the ATI and Intel drivers output on success
-			if( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != NULL ||
-					strstr( infoLog.Ptr(), "No errors." ) != NULL )
+			if( strstr( infoLog.Ptr(), "successfully compiled to run on hardware" ) != nullptr ||
+					strstr( infoLog.Ptr(), "No errors." ) != nullptr )
 			{
 				//idLib::Printf( "%s program %s from %s compiled to run on hardware\n", typeName, GetName(), GetFileName() );
 			}
@@ -1452,7 +1452,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 		}
 		
 		// bind vertex attribute locations
-		for( int i = 0; attribsPC[i].glsl != NULL; i++ )
+		for( int i = 0; attribsPC[i].glsl != nullptr; i++ )
 		{
 			if( ( attribsPC[i].flags & AT_VS_IN ) != 0 )
 			{
@@ -1471,7 +1471,7 @@ void idRenderProgManager::LoadGLSLProgram( const int programIndex, const int ver
 			glGetProgramInfoLog( program, infologLength, &charsWritten, infoLog );
 			
 			// catch the strings the ATI and Intel drivers output on success
-			if( strstr( infoLog, "Vertex shader(s) linked, fragment shader(s) linked." ) != NULL || strstr( infoLog, "No errors." ) != NULL )
+			if( strstr( infoLog, "Vertex shader(s) linked, fragment shader(s) linked." ) != nullptr || strstr( infoLog, "No errors." ) != nullptr )
 			{
 				//idLib::Printf( "render prog %s from %s linked\n", GetName(), GetFileName() );
 			}
@@ -1576,6 +1576,6 @@ idRenderProgManager::ZeroUniforms
 */
 void idRenderProgManager::ZeroUniforms()
 {
-	memset( glslUniforms.Ptr(), 0, glslUniforms.Allocated() );
+	std::memset( glslUniforms.Ptr(), 0, glslUniforms.Allocated() );
 }
 

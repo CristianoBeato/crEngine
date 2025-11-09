@@ -76,7 +76,7 @@ public:
 	
 	void					Zero()
 	{
-		memset( m, 0, sizeof( m ) );
+		std::memset( m, 0, sizeof( m ) );
 	}
 	ID_INLINE void			Identity();
 	

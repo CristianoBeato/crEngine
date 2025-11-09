@@ -208,7 +208,7 @@ public:
 	void WriteManifest( const char* fileName );
 	void WriteManifestToFile( idFile* outFile )
 	{
-		if( outFile == NULL )
+		if( outFile == nullptr )
 		{
 			return;
 		}

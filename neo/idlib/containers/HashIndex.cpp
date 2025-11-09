@@ -61,10 +61,10 @@ void idHashIndex::Allocate( const int newHashSize, const int newIndexSize )
 	Free();
 	hashSize = newHashSize;
 	hash = new( TAG_IDLIB_HASH ) int[hashSize];
-	memset( hash, 0xff, hashSize * sizeof( hash[0] ) );
+	std::memset( hash, 0xff, hashSize * sizeof( hash[0] ) );
 	indexSize = newIndexSize;
 	indexChain = new( TAG_IDLIB_HASH ) int[indexSize];
-	memset( indexChain, 0xff, indexSize * sizeof( indexChain[0] ) );
+	std::memset( indexChain, 0xff, indexSize * sizeof( indexChain[0] ) );
 	hashMask = hashSize - 1;
 	lookupMask = -1;
 }
@@ -121,8 +121,8 @@ void idHashIndex::ResizeIndex( const int newIndexSize )
 	
 	oldIndexChain = indexChain;
 	indexChain = new( TAG_IDLIB_HASH ) int[newSize];
-	memcpy( indexChain, oldIndexChain, indexSize * sizeof( int ) );
-	memset( indexChain + indexSize, 0xff, ( newSize - indexSize ) * sizeof( int ) );
+	std::memcpy( indexChain, oldIndexChain, indexSize * sizeof( int ) );
+	std::memset( indexChain + indexSize, 0xff, ( newSize - indexSize ) * sizeof( int ) );
 	delete[] oldIndexChain;
 	indexSize = newSize;
 }

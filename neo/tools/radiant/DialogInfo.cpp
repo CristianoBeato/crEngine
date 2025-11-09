@@ -70,7 +70,7 @@ void HideInfoDialog()
 }
 
 
-CDialogInfo::CDialogInfo(CWnd* pParent /*=NULL*/)
+CDialogInfo::CDialogInfo(CWnd* pParent /*=nullptr*/)
 	: CDialog(CDialogInfo::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDialogInfo)

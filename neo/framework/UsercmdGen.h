@@ -296,7 +296,7 @@ public:
 	{
 		for( int i = 0; i < USERCMD_BUFFER_SIZE; i++ )
 		{
-			memset( &cmdBuffer[i][playerIndex], 0, sizeof( usercmd_t ) );
+			std::memset( &cmdBuffer[i][playerIndex], 0, sizeof( usercmd_t ) );
 		}
 		writeFrame[ playerIndex ] = 0;
 		readFrame[ playerIndex ] = -1;

@@ -54,7 +54,7 @@ BOEntity::BOEntity( idGameBustOutWindow* _game )
 	visible = true;
 	
 	materialName = "";
-	material = NULL;
+	material = nullptr;
 	width = height = 8;
 	color = colorWhite;
 	powerup = POWERUP_NONE;
@@ -215,7 +215,7 @@ void BOEntity::Draw()
 */
 BOBrick::BOBrick()
 {
-	ent = NULL;
+	ent = nullptr;
 	x = y = width = height = 0;
 	powerup = POWERUP_NONE;
 	isBroken = false;
@@ -708,7 +708,7 @@ void idGameBustOutWindow::CommonInit()
 	
 	numLevels = 0;
 	boardDataLoaded = false;
-	levelBoardData = NULL;
+	levelBoardData = nullptr;
 	
 	// Create Paddle
 	ent = new( TAG_OLD_UI ) BOEntity( this );
@@ -812,7 +812,7 @@ idGameBustOutWindow::GetWinVarByName
 */
 idWinVar* idGameBustOutWindow::GetWinVarByName( const char* _name, bool winLookup, drawWin_t** owner )
 {
-	idWinVar* retVar = NULL;
+	idWinVar* retVar = nullptr;
 	
 	if( idStr::Icmp( _name, "gamerunning" ) == 0 )
 	{
@@ -1010,14 +1010,14 @@ void idGameBustOutWindow::LoadBoardFiles()
 		
 		R_LoadImage( name, &pic, &w, &h, &time, false );
 		
-		if( pic != NULL )
+		if( pic != nullptr )
 		{
 			if( w != 9 || h != 12 )
 			{
 				common->DWarning( "Hell Bust-Out level image not correct dimensions! (%d x %d)", w, h );
 			}
 			
-			memcpy( currentBoard, pic, boardSize );
+			std::memcpy( currentBoard, pic, boardSize );
 			Mem_Free( pic );
 		}
 		
@@ -1372,7 +1372,7 @@ void idGameBustOutWindow::UpdateBall()
 					
 					if( brick->powerup > POWERUP_NONE )
 					{
-						verify( CreatePowerup( brick ) != NULL );
+						verify( CreatePowerup( brick ) != nullptr );
 					}
 					
 					numBricks--;

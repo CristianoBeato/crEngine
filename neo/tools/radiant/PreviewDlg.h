@@ -44,10 +44,10 @@ class CPreviewDlg : public CDialog
 {
 public:
 	enum {MODELS, GUIS, SOUNDS, MATERIALS, SCRIPTS, SOUNDPARENT, WAVES, PARTICLES, MODELPARENT, GUIPARENT, COMMENTED, SKINS};
-	CPreviewDlg(CWnd* pParent = NULL);   // standard constructor
+	CPreviewDlg(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CPreviewDlg();
 	void SetOnlyFilter(bool gOnly, idStr filter);
-	void SetMode( int mode, const char *preSelect = NULL );
+	void SetMode( int mode, const char *preSelect = nullptr );
 	void RebuildTree( const char *data );
 	void SetDisablePreview( bool b ) {
 		disablePreview = b;
@@ -94,7 +94,7 @@ protected:
 
 public:
 	afx_msg void OnTvnSelchangedTreeMedia(NMHDR *pNMHDR, LRESULT *pResult);
-	virtual BOOL Create(LPCTSTR lpszTemplateName, CWnd* pParentWnd = NULL);
+	virtual BOOL Create(LPCTSTR lpszTemplateName, CWnd* pParentWnd = nullptr);
 protected:
 	virtual void OnCancel();
 	virtual void OnOK();

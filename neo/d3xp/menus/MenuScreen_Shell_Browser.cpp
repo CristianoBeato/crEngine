@@ -101,7 +101,7 @@ void idMenuScreen_Shell_GameBrowser::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
 	
-	if( data != NULL )
+	if( data != nullptr )
 	{
 		menuGUI = data->GetGUI();
 	}
@@ -151,7 +151,7 @@ idMenuScreen_Shell_GameBrowser::ShowScreen
 void idMenuScreen_Shell_GameBrowser::ShowScreen( const mainMenuTransition_t transitionType )
 {
 	idMenuHandler_Shell* const mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
-	if( mgr == NULL )
+	if( mgr == nullptr )
 	{
 		return;
 	}
@@ -160,14 +160,14 @@ void idMenuScreen_Shell_GameBrowser::ShowScreen( const mainMenuTransition_t tran
 	if( BindSprite( root ) )
 	{
 		idSWFTextInstance* heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if( heading != NULL )
+		if( heading != nullptr )
 		{
 			heading->SetText( "#str_swf_pwf_heading" );	// MULTIPLAYER
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 		
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if( gradient != NULL && heading != NULL )
+		if( gradient != nullptr && heading != nullptr )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
@@ -175,7 +175,7 @@ void idMenuScreen_Shell_GameBrowser::ShowScreen( const mainMenuTransition_t tran
 	
 	listWidget->ClearGames();
 	
-	if( mgr->GetCmdBar() != NULL )
+	if( mgr->GetCmdBar() != nullptr )
 	{
 		idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
 		
@@ -207,7 +207,7 @@ idMenuScreen_Shell_GameBrowser::HideScreen
 void idMenuScreen_Shell_GameBrowser::HideScreen( const mainMenuTransition_t transitionType )
 {
 	idMenuHandler_Shell* const mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
-	if( mgr == NULL )
+	if( mgr == nullptr )
 	{
 		return;
 	}
@@ -228,7 +228,7 @@ void idMenuScreen_Shell_GameBrowser::UpdateServerList()
 {
 	idMenuHandler_Shell* const mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
 	
-	if( mgr == NULL )
+	if( mgr == nullptr )
 	{
 		return;
 	}
@@ -256,7 +256,7 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady()
 {
 	idMenuHandler_Shell* const mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
 	
-	if( mgr == NULL )
+	if( mgr == nullptr )
 	{
 		return;
 	}
@@ -267,7 +267,7 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady()
 	for( int i = 0; i < session->NumServers(); ++i )
 	{
 		const serverInfo_t* const server = session->ServerInfo( i );
-		if( server != NULL && server->joinable )
+		if( server != nullptr && server->joinable )
 		{
 			idPair< serverInfo_t, int >& serverPair = servers.Alloc();
 			serverPair.first = *server;
@@ -300,7 +300,7 @@ void idMenuScreen_Shell_GameBrowser::OnServerListReady()
 		listWidget->SetFocusIndex( 0 );
 	}
 	
-	if( mgr->GetCmdBar() != NULL )
+	if( mgr->GetCmdBar() != nullptr )
 	{
 		idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
 		
@@ -393,7 +393,7 @@ bool idMenuScreen_Shell_GameBrowser::HandleAction( idWidgetAction& action, const
 {
 	idMenuHandler_Shell* const mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
 	
-	if( mgr == NULL )
+	if( mgr == nullptr )
 	{
 		return false;
 	}

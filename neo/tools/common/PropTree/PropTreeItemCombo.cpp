@@ -74,7 +74,7 @@ END_MESSAGE_MAP()
 
 void CPropTreeItemCombo::DrawAttribute(CDC* pDC, const RECT& rc)
 {
-	ASSERT(m_pProp!=NULL);
+	ASSERT(m_pProp!=nullptr);
 
 	// verify the window has been created
 	if (!IsWindow(m_hWnd))
@@ -116,7 +116,7 @@ void CPropTreeItemCombo::SetItemValue(LPARAM lParam)
 void CPropTreeItemCombo::OnMove()
 {
 	if (IsWindow(m_hWnd) && IsWindowVisible())
-		SetWindowPos(NULL, m_rc.left, m_rc.top, m_rc.Width() + 1, m_rc.Height(), SWP_NOZORDER|SWP_SHOWWINDOW);
+		SetWindowPos(nullptr, m_rc.left, m_rc.top, m_rc.Width() + 1, m_rc.Height(), SWP_NOZORDER|SWP_SHOWWINDOW);
 }
 
 
@@ -146,7 +146,7 @@ void CPropTreeItemCombo::OnCommit()
 void CPropTreeItemCombo::OnActivate(int activateType, CPoint point)
 {
 	// activate the combo box
-	SetWindowPos(NULL, m_rc.left, m_rc.top, m_rc.Width() + 1, m_rc.Height() + m_nDropHeight, SWP_NOZORDER|SWP_SHOWWINDOW);
+	SetWindowPos(nullptr, m_rc.left, m_rc.top, m_rc.Width() + 1, m_rc.Height() + m_nDropHeight, SWP_NOZORDER|SWP_SHOWWINDOW);
 	SetFocus();
 
 	if (GetCount())
@@ -156,7 +156,7 @@ void CPropTreeItemCombo::OnActivate(int activateType, CPoint point)
 
 BOOL CPropTreeItemCombo::CreateComboBox(DWORD dwStyle)
 {
-	ASSERT(m_pProp!=NULL);
+	ASSERT(m_pProp!=nullptr);
 
 	if (IsWindow(m_hWnd))
 		DestroyWindow();
@@ -178,7 +178,7 @@ BOOL CPropTreeItemCombo::CreateComboBox(DWORD dwStyle)
 
 BOOL CPropTreeItemCombo::CreateComboBoxBool()
 {
-	ASSERT(m_pProp!=NULL);
+	ASSERT(m_pProp!=nullptr);
 
 	if (IsWindow(m_hWnd))
 		DestroyWindow();

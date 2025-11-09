@@ -104,8 +104,8 @@ template< class type >
 ID_INLINE idInterpolate<type>::idInterpolate()
 {
 	startTime = duration = 0;
-	memset( &startValue, 0, sizeof( startValue ) );
-	memset( &endValue, 0, sizeof( endValue ) );
+	std::memset( &startValue, 0, sizeof( startValue ) );
+	std::memset( &endValue, 0, sizeof( endValue ) );
 }
 
 /*
@@ -237,7 +237,7 @@ template< class type >
 ID_INLINE idInterpolateAccelDecelLinear<type>::idInterpolateAccelDecelLinear()
 {
 	startTime = accelTime = linearTime = decelTime = 0;
-	memset( &startValue, 0, sizeof( startValue ) );
+	std::memset( &startValue, 0, sizeof( startValue ) );
 	endValue = startValue;
 }
 
@@ -440,8 +440,8 @@ template< class type >
 ID_INLINE idInterpolateAccelDecelSine<type>::idInterpolateAccelDecelSine()
 {
 	startTime = accelTime = linearTime = decelTime = 0;
-	memset( &startValue, 0, sizeof( startValue ) );
-	memset( &endValue, 0, sizeof( endValue ) );
+	std::memset( &startValue, 0, sizeof( startValue ) );
+	std::memset( &endValue, 0, sizeof( endValue ) );
 }
 
 /*

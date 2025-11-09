@@ -393,19 +393,19 @@ idClipModel::Init
 void idClipModel::Init()
 {
 	enabled = true;
-	entity = NULL;
+	entity = nullptr;
 	id = 0;
-	owner = NULL;
+	owner = nullptr;
 	origin.Zero();
 	axis.Identity();
 	bounds.Zero();
 	absBounds.Zero();
-	material = NULL;
+	material = nullptr;
 	contents = CONTENTS_BODY;
 	collisionModelHandle = 0;
 	renderModelHandle = -1;
 	traceModelIndex = -1;
-	clipLinks = NULL;
+	clipLinks = nullptr;
 	touchCount = -1;
 }
 
@@ -488,7 +488,7 @@ idClipModel::idClipModel( const idClipModel* model )
 		LoadModel( *GetCachedTraceModel( model->traceModelIndex ) );
 	}
 	renderModelHandle = model->renderModelHandle;
-	clipLinks = NULL;
+	clipLinks = nullptr;
 	touchCount = -1;
 }
 
@@ -534,7 +534,7 @@ void idClipModel::Save( idSaveGame* savefile ) const
 	}
 	savefile->WriteInt( traceModelIndex );
 	savefile->WriteInt( renderModelHandle );
-	savefile->WriteBool( clipLinks != NULL );
+	savefile->WriteBool( clipLinks != nullptr );
 	savefile->WriteInt( touchCount );
 }
 
@@ -579,7 +579,7 @@ void idClipModel::Restore( idRestoreGame* savefile )
 	
 	// the render model will be set when the clip model is linked
 	renderModelHandle = -1;
-	clipLinks = NULL;
+	clipLinks = nullptr;
 	touchCount = -1;
 	
 	if( linked )
@@ -703,7 +703,7 @@ void idClipModel::Link_r( struct clipSector_s* node )
 	link->clipModel = this;
 	link->sector = node;
 	link->nextInSector = node->clipLinks;
-	link->prevInSector = NULL;
+	link->prevInSector = nullptr;
 	if( node->clipLinks )
 	{
 		node->clipLinks->prevInSector = link;
@@ -809,7 +809,7 @@ idClip::idClip
 idClip::idClip()
 {
 	numClipSectors = 0;
-	clipSectors = NULL;
+	clipSectors = nullptr;
 	worldBounds.Zero();
 	numRotations = numTranslations = numMotions = numRenderModelTraces = numContents = numContacts = 0;
 }
@@ -834,7 +834,7 @@ clipSector_t* idClip::CreateClipSectors_r( const int depth, const idBounds& boun
 	if( depth == MAX_SECTOR_DEPTH )
 	{
 		anode->axis = -1;
-		anode->children[0] = anode->children[1] = NULL;
+		anode->children[0] = anode->children[1] = nullptr;
 		
 		for( i = 0; i < 3; i++ )
 		{
@@ -885,7 +885,7 @@ void idClip::Init()
 	
 	// clear clip sectors
 	clipSectors = new( TAG_PHYSICS_CLIP ) clipSector_t[MAX_SECTORS];
-	memset( clipSectors, 0, MAX_SECTORS * sizeof( clipSector_t ) );
+	std::memset( clipSectors, 0, MAX_SECTORS * sizeof( clipSector_t ) );
 	numClipSectors = 0;
 	touchCount = -1;
 	// get world map bounds
@@ -913,7 +913,7 @@ idClip::Shutdown
 void idClip::Shutdown()
 {
 	delete[] clipSectors;
-	clipSectors = NULL;
+	clipSectors = nullptr;
 	
 	// free the trace model used for the temporaryClipModel
 	if( temporaryClipModel.traceModelIndex != -1 )
@@ -1109,7 +1109,7 @@ int idClip::GetTraceClipModels( const idBounds& bounds, int contentMask, const i
 	}
 	else
 	{
-		passOwner = NULL;
+		passOwner = nullptr;
 	}
 	
 	for( i = 0; i < num; i++ )
@@ -1120,21 +1120,21 @@ int idClip::GetTraceClipModels( const idBounds& bounds, int contentMask, const i
 		// check if we should ignore this entity
 		if( cm->entity == passEntity )
 		{
-			clipModelList[i] = NULL;			// don't clip against the pass entity
+			clipModelList[i] = nullptr;			// don't clip against the pass entity
 		}
 		else if( cm->entity == passOwner )
 		{
-			clipModelList[i] = NULL;			// missiles don't clip with their owner
+			clipModelList[i] = nullptr;			// missiles don't clip with their owner
 		}
 		else if( cm->owner )
 		{
 			if( cm->owner == passEntity )
 			{
-				clipModelList[i] = NULL;		// don't clip against own missiles
+				clipModelList[i] = nullptr;		// don't clip against own missiles
 			}
 			else if( cm->owner == passOwner )
 			{
-				clipModelList[i] = NULL;		// don't clip against other missiles from same owner
+				clipModelList[i] = nullptr;		// don't clip against other missiles from same owner
 			}
 		}
 	}
@@ -1185,7 +1185,7 @@ const idTraceModel* idClip::TraceModelForClipModel( const idClipModel* mdl ) con
 {
 	if( !mdl )
 	{
-		return NULL;
+		return nullptr;
 	}
 	else
 	{
@@ -1211,7 +1211,7 @@ idClip::TestHugeTranslation
 */
 ID_INLINE bool TestHugeTranslation( trace_t& results, const idClipModel* mdl, const idVec3& start, const idVec3& end, const idMat3& trmAxis )
 {
-	if( mdl != NULL && ( end - start ).LengthSqr() > Square( CM_MAX_TRACE_DIST ) )
+	if( mdl != nullptr && ( end - start ).LengthSqr() > Square( CM_MAX_TRACE_DIST ) )
 	{
 #ifndef CTF
 		// May be important: This occurs in CTF when a player connects and spawns
@@ -1225,7 +1225,7 @@ ID_INLINE bool TestHugeTranslation( trace_t& results, const idClipModel* mdl, co
 		results.fraction = 0.0f;
 		results.endpos = start;
 		results.endAxis = trmAxis;
-		memset( &results.c, 0, sizeof( results.c ) );
+		std::memset( &results.c, 0, sizeof( results.c ) );
 		results.c.point = start;
 		
 		if( mdl->GetEntity() )
@@ -1349,7 +1349,7 @@ bool idClip::Translation( trace_t& results, const idVec3& start, const idVec3& e
 	}
 	else
 	{
-		memset( &results, 0, sizeof( results ) );
+		std::memset( &results, 0, sizeof( results ) );
 		results.fraction = 1.0f;
 		results.endpos = end;
 		results.endAxis = trmAxis;
@@ -1433,7 +1433,7 @@ bool idClip::Rotation( trace_t& results, const idVec3& start, const idRotation& 
 	}
 	else
 	{
-		memset( &results, 0, sizeof( results ) );
+		std::memset( &results, 0, sizeof( results ) );
 		results.fraction = 1.0f;
 		results.endpos = start;
 		results.endAxis = trmAxis * rotation.ToMat3();
@@ -1508,7 +1508,7 @@ bool idClip::Motion( trace_t& results, const idVec3& start, const idVec3& end, c
 		return true;
 	}
 	
-	if( mdl != NULL && rotation.GetAngle() != 0.0f && rotation.GetVec() != vec3_origin )
+	if( mdl != nullptr && rotation.GetAngle() != 0.0f && rotation.GetVec() != vec3_origin )
 	{
 		// if no translation
 		if( start == end )
@@ -1544,7 +1544,7 @@ bool idClip::Motion( trace_t& results, const idVec3& start, const idVec3& end, c
 	}
 	else
 	{
-		memset( &translationalTrace, 0, sizeof( translationalTrace ) );
+		std::memset( &translationalTrace, 0, sizeof( translationalTrace ) );
 		translationalTrace.fraction = 1.0f;
 		translationalTrace.endpos = end;
 		translationalTrace.endAxis = trmAxis;
@@ -1620,7 +1620,7 @@ bool idClip::Motion( trace_t& results, const idVec3& start, const idVec3& end, c
 	}
 	else
 	{
-		memset( &rotationalTrace, 0, sizeof( rotationalTrace ) );
+		std::memset( &rotationalTrace, 0, sizeof( rotationalTrace ) );
 		rotationalTrace.fraction = 1.0f;
 		rotationalTrace.endpos = endPosition;
 		rotationalTrace.endAxis = trmAxis * rotation.ToMat3();
@@ -1916,7 +1916,7 @@ bool idClip::GetModelContactFeature( const contactInfo_t& contact, const idClipM
 	handle = -1;
 	winding.Clear();
 	
-	if( clipModel == NULL )
+	if( clipModel == nullptr )
 	{
 		handle = 0;
 	}

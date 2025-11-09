@@ -179,7 +179,7 @@ patchMesh_t * Patch_MakeNew( patchMesh_t *p,int newWidth,int newHeight ) {
 
 void Patch_Combine( patchMesh_t *p,patchMesh_t *p2,int sourceCol1,int sourceCol2,int sourceRow1,int sourceRow2,bool invert1,bool invert2 ) {
 	int			i, j, out;
-	patchMesh_t	*newPatch	= NULL;
+	patchMesh_t	*newPatch	= nullptr;
 	if ( sourceCol1 >= 0 ) {
 		// adding width
 		if ( sourceCol2 >= 0 ) {
@@ -564,7 +564,7 @@ void Patch_Weld( patchMesh_t *p,patchMesh_t *p2 ) {
 
 
 // used for a save spot
-patchMesh_t	*patchSave				= NULL;
+patchMesh_t	*patchSave				= nullptr;
 
 // Tracks the selected patch for point manipulation/update. FIXME: Need to revert back to a generalized 
 // brush approach
@@ -840,7 +840,7 @@ void Brush_RebuildBrush( brush_t *b,idVec3 vMins,idVec3 vMaxs,bool patch ) {
 		Face_Free(f);
 	}
 
-	b->brush_faces = NULL;
+	b->brush_faces = nullptr;
 
 	// left the last face so we can use its texdef
 
@@ -1119,7 +1119,7 @@ int	Interior3ByCount	= sizeof(Interior3By) / sizeof(int[2]);
 int	Interior5ByCount	= sizeof(Interior5By) / sizeof(int[2]);
 
 face_t * Patch_GetAxisFace( patchMesh_t *p ) {
-	face_t	*f	= NULL;
+	face_t	*f	= nullptr;
 	idVec3	vTemp;
 	brush_t	*b	= p->pSymbiot;
 
@@ -1139,7 +1139,7 @@ face_t * Patch_GetAxisFace( patchMesh_t *p ) {
 		}
 	}
 
-	if ( f == NULL ) {
+	if ( f == nullptr ) {
 		f = b->brush_faces;
 	}
 	return f;
@@ -1149,7 +1149,7 @@ int	g_nFaceCycle	= 0;
 
 face_t * nextFace( patchMesh_t *p ) {
 	brush_t	*b	= p->pSymbiot;
-	face_t	*f	= NULL;
+	face_t	*f	= nullptr;
 	int		n	= 0;
 	for ( f = b->brush_faces ; f && n <= g_nFaceCycle; f = f->next ) {
 		n++;
@@ -1234,7 +1234,7 @@ brush_t * Cap( patchMesh_t *pParent,bool bByColumn,bool bFirst ) {
 
 	if ( !b ) {
 		Sys_Status("Unable to cap. You may need to ungroup the patch.\n");
-		return NULL;
+		return nullptr;
 	}
 
 	p = b->pPatch;
@@ -1292,9 +1292,9 @@ brush_t * Cap( patchMesh_t *pParent,bool bByColumn,bool bFirst ) {
 		idDrawVert	vertTemp;
 		for ( i = 0; i < p->width; i++ ) {
 			for ( j = 0; j < p->height / 2; j++ ) {
-				memcpy(&vertTemp, &p->ctrl(i, p->height - 1 - j), sizeof(idDrawVert));
-				memcpy(&p->ctrl(i, p->height - 1 - j), &p->ctrl(i, j), sizeof(idDrawVert));
-				memcpy(&p->ctrl(i, j), &vertTemp, sizeof(idDrawVert));
+				std::memcpy(&vertTemp, &p->ctrl(i, p->height - 1 - j), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(i, p->height - 1 - j), &p->ctrl(i, j), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(i, j), &vertTemp, sizeof(idDrawVert));
 			}
 		}
 	}
@@ -1318,7 +1318,7 @@ brush_t * CapSpecial( patchMesh_t *pParent,int nType,bool bFirst ) {
 
 	if ( !b ) {
 		Sys_Status("Unable to cap. Make sure you ungroup before re-capping.");
-		return NULL;
+		return nullptr;
 	}
 
 	p = b->pPatch;
@@ -1416,9 +1416,9 @@ brush_t * CapSpecial( patchMesh_t *pParent,int nType,bool bFirst ) {
 		idDrawVert	vertTemp;
 		for ( i = 0; i < p->width; i++ ) {
 			for ( j = 0; j < p->height / 2; j++ ) {
-				memcpy(&vertTemp, &p->ctrl(i, p->height - 1 - j), sizeof(idDrawVert));
-				memcpy(&p->ctrl(i, p->height - 1 - j), &p->ctrl(i, j), sizeof(idDrawVert));
-				memcpy(&p->ctrl(i, j), &vertTemp, sizeof(idDrawVert));
+				std::memcpy(&vertTemp, &p->ctrl(i, p->height - 1 - j), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(i, p->height - 1 - j), &p->ctrl(i, j), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(i, j), &vertTemp, sizeof(idDrawVert));
 			}
 		}
 	}
@@ -1432,10 +1432,10 @@ brush_t * CapSpecial( patchMesh_t *pParent,int nType,bool bFirst ) {
 
 
 void Patch_CapCurrent( bool bInvertedBevel,bool bInvertedEndcap ) {
-	patchMesh_t	*pParent	= NULL;
+	patchMesh_t	*pParent	= nullptr;
 	brush_t		*b[4];
-	brush_t		*pCap		= NULL;
-	b[0] = b[1] = b[2] = b[3] = NULL;
+	brush_t		*pCap		= nullptr;
+	b[0] = b[1] = b[2] = b[3] = nullptr;
 	int	nIndex	= 0;
 
 	if ( !QE_SingleBrush() ) {
@@ -1444,7 +1444,7 @@ void Patch_CapCurrent( bool bInvertedBevel,bool bInvertedEndcap ) {
 	}
 
 
-	for ( brush_t*pb = selected_brushes.next ; pb != NULL && pb != &selected_brushes ; pb = pb->next ) {
+	for ( brush_t*pb = selected_brushes.next ; pb != nullptr && pb != &selected_brushes ; pb = pb->next ) {
 		if ( pb->pPatch ) {
 			pParent = pb->pPatch;
 			// decide which if any ends we are going to cap
@@ -1453,25 +1453,25 @@ void Patch_CapCurrent( bool bInvertedBevel,bool bInvertedEndcap ) {
 			// then we need to ask which kind of cap to add
 			if ( pParent->ctrl(0, 0).xyz.Compare(pParent->ctrl(pParent->width - 1, 0).xyz) ) {
 				pCap = Cap(pParent, true, false);
-				if ( pCap != NULL ) {
+				if ( pCap != nullptr ) {
 					b[nIndex++] = pCap;
 				}
 			}
 			if ( pParent->ctrl(0, pParent->height - 1).xyz.Compare(pParent->ctrl(pParent->width - 1, pParent->height - 1).xyz) ) {
 				pCap = Cap(pParent, true, true);
-				if ( pCap != NULL ) {
+				if ( pCap != nullptr ) {
 					b[nIndex++] = pCap;
 				}
 			}
 			if ( pParent->ctrl(0, 0).xyz.Compare(pParent->ctrl(0, pParent->height - 1).xyz) ) {
 				pCap = Cap(pParent, false, false);
-				if ( pCap != NULL ) {
+				if ( pCap != nullptr ) {
 					b[nIndex++] = pCap;
 				}
 			}
 			if ( pParent->ctrl(pParent->width - 1, 0).xyz.Compare(pParent->ctrl(pParent->width - 1, pParent->height - 1).xyz) ) {
 				pCap = Cap(pParent, false, true);
-				if ( pCap != NULL ) {
+				if ( pCap != nullptr ) {
 					b[nIndex++] = pCap;
 				}
 			}
@@ -1697,9 +1697,9 @@ void GenerateEndCaps( brush_t *brushParent,bool bBevel,bool bEndcap,bool bInvert
 			}
 
 			for ( j = 0; j < p->height / 2; j++ ) {
-				memcpy(&vertTemp, &p->ctrl(i, p->height - 1 - j), sizeof(idDrawVert));
-				memcpy(&p->ctrl(i, p->height - 1 - j), &p->ctrl(i, j), sizeof(idDrawVert));
-				memcpy(&p->ctrl(i, j), &vertTemp, sizeof(idDrawVert));
+				std::memcpy(&vertTemp, &p->ctrl(i, p->height - 1 - j), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(i, p->height - 1 - j), &p->ctrl(i, j), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(i, j), &vertTemp, sizeof(idDrawVert));
 			}
 		}
 		//Select_Delete();
@@ -1905,12 +1905,12 @@ Patch_GenericMesh
 brush_t * Patch_GenericMesh( int width,int height,int orientation,bool bDeleteSource,bool bOverride,patchMesh_t *parent ) {
 	if ( height < 3 || height> 15 || width < 3 || width> 15 ) {
 		Sys_Status("Invalid patch width or height.\n");
-		return NULL;
+		return nullptr;
 	}
 
 	if ( !bOverride && !QE_SingleBrush() ) {
 		Sys_Status("Cannot generate a patch from multiple selections.\n");
-		return NULL;
+		return nullptr;
 	}
 
 	brush_t		*b	= selected_brushes.next;
@@ -2714,7 +2714,7 @@ Patch_Delete
 */
 void Patch_Delete( patchMesh_t *p ) {
 	if ( p->pSymbiot ) {
-		p->pSymbiot->pPatch = NULL;
+		p->pSymbiot->pPatch = nullptr;
 	}
 
 	Mem_Free(p->verts);
@@ -2723,7 +2723,7 @@ void Patch_Delete( patchMesh_t *p ) {
 	}
 	Mem_Free(p);
 
-	p = NULL;
+	p = nullptr;
 
 	UpdatePatchInspector();
 }
@@ -2888,18 +2888,18 @@ void Patch_InsertColumn( patchMesh_t *p,bool bAdd ) {
 				vTemp[i] /= 3;
 			}
 
-			memcpy(&p->ctrl(j + 2, h), &p->ctrl(j, h), sizeof(idDrawVert));
-			memcpy(&p->ctrl(j, h), &p->ctrl(j - 1, h), sizeof(idDrawVert));
+			std::memcpy(&p->ctrl(j + 2, h), &p->ctrl(j, h), sizeof(idDrawVert));
+			std::memcpy(&p->ctrl(j, h), &p->ctrl(j - 1, h), sizeof(idDrawVert));
 
 			VectorAdd(p->ctrl(j, h).xyz, vTemp, p->ctrl(j, h).xyz);
-			memcpy(&p->ctrl(j + 1, h), &p->ctrl(j, h), sizeof(idDrawVert));
+			std::memcpy(&p->ctrl(j + 1, h), &p->ctrl(j, h), sizeof(idDrawVert));
 			VectorAdd(p->ctrl(j + 1, h).xyz, vTemp, p->ctrl(j + 1, h).xyz);
 		}
 	} else {
 		for ( h = 0; h < p->height; h++ ) {
 			w = p->width - 3;
 			while ( w >= 0 ) {
-				memcpy(&p->ctrl(w + 2, h), &p->ctrl(w, h), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(w + 2, h), &p->ctrl(w, h), sizeof(idDrawVert));
 				w--;
 			}
 			VectorSubtract(p->ctrl(1, h).xyz, p->ctrl(0, h).xyz, vTemp);
@@ -2941,18 +2941,18 @@ void Patch_InsertRow( patchMesh_t *p,bool bAdd ) {
 				vTemp[i] /= 3;
 			}
 
-			memcpy(&p->ctrl(w, j + 2), &p->ctrl(w, j), sizeof(idDrawVert));
-			memcpy(&p->ctrl(w, j), &p->ctrl(w, j - 1), sizeof(idDrawVert));
+			std::memcpy(&p->ctrl(w, j + 2), &p->ctrl(w, j), sizeof(idDrawVert));
+			std::memcpy(&p->ctrl(w, j), &p->ctrl(w, j - 1), sizeof(idDrawVert));
 
 			VectorAdd(p->ctrl(w, j).xyz, vTemp, p->ctrl(w, j).xyz);
-			memcpy(&p->ctrl(w, j + 1), &p->ctrl(w, j), sizeof(idDrawVert));
+			std::memcpy(&p->ctrl(w, j + 1), &p->ctrl(w, j), sizeof(idDrawVert));
 			VectorAdd(p->ctrl(w, j + 1).xyz, vTemp, p->ctrl(w, j + 1).xyz);
 		}
 	} else {
 		for ( w = 0; w < p->width; w++ ) {
 			h = p->height - 3;
 			while ( h >= 0 ) {
-				memcpy(&p->ctrl(w, h + 2), &p->ctrl(w, h), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(w, h + 2), &p->ctrl(w, h), sizeof(idDrawVert));
 				h--;
 			}
 			VectorSubtract(p->ctrl(w, 1).xyz, p->ctrl(w, 0).xyz, vTemp);
@@ -2984,7 +2984,7 @@ void Patch_RemoveRow( patchMesh_t *p,bool bFirst ) {
 	if ( bFirst ) {
 		for ( int w = 0; w < p->width; w++ ) {
 			for ( int h = 0; h < p->height - 2; h++ ) {
-				memcpy(&p->ctrl(w, h), &p->ctrl(w, h + 2), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(w, h), &p->ctrl(w, h + 2), sizeof(idDrawVert));
 			}
 		}
 	}
@@ -3008,7 +3008,7 @@ void Patch_RemoveColumn( patchMesh_t *p,bool bFirst ) {
 	if ( bFirst ) {
 		for ( int h = 0; h < p->height; h++ ) {
 			for ( int w = 0; w < p->width - 2; w++ ) {
-				memcpy(&p->ctrl(w, h), &p->ctrl(w + 2, h), sizeof(idDrawVert));
+				std::memcpy(&p->ctrl(w, h), &p->ctrl(w + 2, h), sizeof(idDrawVert));
 			}
 		}
 	}
@@ -3157,14 +3157,14 @@ void Parse3DMatrix( int z,int y,int x,float *p ) {
 
 // parses a patch
 brush_t * Patch_Parse( bool bOld ) {
-	const idMaterial *tex = declManager->FindMaterial(NULL);
+	const idMaterial *tex = declManager->FindMaterial(nullptr);
 	GetToken(true);
 
 	if ( strcmp(token, "{") ) {
-		return NULL;
+		return nullptr;
 	}
 
-	patchMesh_t	*pm	= NULL;
+	patchMesh_t	*pm	= nullptr;
 
 	if ( g_qeglobals.bSurfacePropertiesPlugin ) {
 		assert(true);
@@ -3186,7 +3186,7 @@ brush_t * Patch_Parse( bool bOld ) {
 		}   			
 
 		if ( strcmp(token, "(") ) {
-			return NULL;
+			return nullptr;
 		}
 
 		// width, height, flags (currently only negative)
@@ -3224,7 +3224,7 @@ brush_t * Patch_Parse( bool bOld ) {
 
 		GetToken(false);
 		if ( strcmp(token, ")") )
-			return NULL;
+			return nullptr;
 	}
 
 
@@ -3256,7 +3256,7 @@ brush_t * Patch_Parse( bool bOld ) {
 	}
 
 	if ( strcmp(token, "}") ) {
-		return NULL;
+		return nullptr;
 	}
 
 	brush_t	*b	= AddBrushForPatch(pm, false);
@@ -3439,9 +3439,9 @@ void patchInvert( patchMesh_t *p ) {
 	Patch_MakeDirty(p);
 	for ( int i = 0 ; i < p->width ; i++ ) {
 		for ( int j = 0; j < p->height / 2; j++ ) {
-			memcpy(&vertTemp, &p->ctrl(i, p->height - 1 - j), sizeof(idDrawVert));
-			memcpy(&p->ctrl(i, p->height - 1 - j), &p->ctrl(i, j), sizeof(idDrawVert));
-			memcpy(&p->ctrl(i, j), &vertTemp, sizeof(idDrawVert));
+			std::memcpy(&vertTemp, &p->ctrl(i, p->height - 1 - j), sizeof(idDrawVert));
+			std::memcpy(&p->ctrl(i, p->height - 1 - j), &p->ctrl(i, j), sizeof(idDrawVert));
+			std::memcpy(&p->ctrl(i, j), &vertTemp, sizeof(idDrawVert));
 		}
 	}
 }
@@ -3528,7 +3528,7 @@ void Patch_Save( patchMesh_t *p ) {
 	}
 
 	patchSave = MakeNewPatch(p->width, p->height);
-	memcpy(patchSave->verts, p->verts, sizeof(p->verts[0]) * p->width * p->height);
+	std::memcpy(patchSave->verts, p->verts, sizeof(p->verts[0]) * p->width * p->height);
 }
 
 
@@ -3541,10 +3541,10 @@ void Patch_Restore( patchMesh_t *p ) {
 	if ( patchSave ) {
 		p->width = patchSave->width;
 		p->height = patchSave->height;
-		memcpy(p->verts, patchSave->verts, sizeof(p->verts[0]) * p->width * p->height);
+		std::memcpy(p->verts, patchSave->verts, sizeof(p->verts[0]) * p->width * p->height);
 		Mem_Free(patchSave->verts);
 		Mem_Free(patchSave);
-		patchSave = NULL;
+		patchSave = nullptr;
 	}
 }
 
@@ -3638,7 +3638,7 @@ patchMesh_t * SinglePatchSelected() {
 	if ( selected_brushes.next->pPatch ) {
 		return selected_brushes.next->pPatch;
 	}
-	return NULL;
+	return nullptr;
 }
 
 void Patch_BendToggle() {
@@ -4042,7 +4042,7 @@ patchMesh_t * Patch_Duplicate( patchMesh_t *pFrom ) {
 	p->bOverlay = false;
 	p->nListID = -1;
 
-	memcpy(p->verts, pFrom->verts, p->width * p->height * sizeof(idDrawVert));
+	std::memcpy(p->verts, pFrom->verts, p->width * p->height * sizeof(idDrawVert));
 
 	AddBrushForPatch(p);
 	return p;
@@ -4253,12 +4253,12 @@ void Patch_Transpose() {
 					for ( j = i + 1 ; j < p->width ; j++ ) {
 						if ( j < p->height ) {
 							// swap the value
-							memcpy(&dv, &p->ctrl(j, i), sizeof(idDrawVert));
-							memcpy(&p->ctrl(j, i), &p->ctrl(i, j), sizeof(idDrawVert));
-							memcpy(&p->ctrl(i, j), &dv, sizeof(idDrawVert));
+							std::memcpy(&dv, &p->ctrl(j, i), sizeof(idDrawVert));
+							std::memcpy(&p->ctrl(j, i), &p->ctrl(i, j), sizeof(idDrawVert));
+							std::memcpy(&p->ctrl(i, j), &dv, sizeof(idDrawVert));
 						} else {
 							// just copy
-							memcpy(&p->ctrl(j, i), &p->ctrl(i, j), sizeof(idDrawVert));
+							std::memcpy(&p->ctrl(j, i), &p->ctrl(i, j), sizeof(idDrawVert));
 						}
 					}
 				}
@@ -4267,12 +4267,12 @@ void Patch_Transpose() {
 					for ( j = i + 1 ; j < p->height ; j++ ) {
 						if ( j < p->width ) {
 							// swap the value
-							memcpy(&dv, &p->ctrl(i, j), sizeof(idDrawVert));
-							memcpy(&p->ctrl(i, j), &p->ctrl(j, i), sizeof(idDrawVert));
-							memcpy(&p->ctrl(j, i), &dv, sizeof(idDrawVert));
+							std::memcpy(&dv, &p->ctrl(i, j), sizeof(idDrawVert));
+							std::memcpy(&p->ctrl(i, j), &p->ctrl(j, i), sizeof(idDrawVert));
+							std::memcpy(&p->ctrl(j, i), &dv, sizeof(idDrawVert));
 						} else {
 							// just copy
-							memcpy(&p->ctrl(i, j), &p->ctrl(j, i), sizeof(idDrawVert));
+							std::memcpy(&p->ctrl(i, j), &p->ctrl(j, i), sizeof(idDrawVert));
 						}
 					}
 				}
@@ -4396,7 +4396,7 @@ sets an epair for the given patch
 */
 void Patch_SetEpair( patchMesh_t *p,const char *pKey,const char *pValue ) {
 	if ( g_qeglobals.m_bBrushPrimitMode ) {
-		if ( p->epairs == NULL ) {
+		if ( p->epairs == nullptr ) {
 			p->epairs = new idDict;
 		}
 		p->epairs->Set(pKey, pValue);

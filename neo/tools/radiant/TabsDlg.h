@@ -39,11 +39,11 @@ class CTabsDlg : public CDialog
 	// Construction
 public:
 	
-	CTabsDlg(UINT ID ,CWnd* pParent = NULL);	// standard constructor
+	CTabsDlg(UINT ID ,CWnd* pParent = nullptr);	// standard constructor
 
 	typedef void (*pfnOnDockEvent)( bool , int , CWnd* );
 
-	void AddDockedWindow ( CWnd* wnd , int ID , int imageID , const CString& title , bool dock , pfnOnDockEvent dockCallback = NULL);
+	void AddDockedWindow ( CWnd* wnd , int ID , int imageID , const CString& title , bool dock , pfnOnDockEvent dockCallback = nullptr);
 	void DockWindow ( int ID , bool dock );
 	bool RectWithinDockManager ( CRect& rect );
 	void FocusWindow ( int ID );
@@ -69,7 +69,7 @@ protected:
 
 	//private struct that holds the info we need about each window
 	struct DockedWindowInfo {
-		DockedWindowInfo ( CWnd* wnd , int ID , int imageID , const CString& title = "" , pfnOnDockEvent dockCallback = NULL)
+		DockedWindowInfo ( CWnd* wnd , int ID , int imageID , const CString& title = "" , pfnOnDockEvent dockCallback = nullptr)
 		{
 			ASSERT ( wnd );
 			m_Window = wnd;

@@ -45,7 +45,7 @@ void idMenuScreen_Scoreboard::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
 	
-	if( data != NULL )
+	if( data != nullptr )
 	{
 		menuGUI = data->GetGUI();
 	}
@@ -85,10 +85,10 @@ idMenuScreen_Scoreboard::Update
 void idMenuScreen_Scoreboard::Update()
 {
 
-	if( menuData != NULL )
+	if( menuData != nullptr )
 	{
 		idMenuWidget_CommandBar* cmdBar = dynamic_cast< idMenuWidget_CommandBar* const >( menuData->GetChildFromIndex( SCOREBOARD_WIDGET_CMD_BAR ) );
-		if( cmdBar != NULL )
+		if( cmdBar != nullptr )
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
@@ -135,14 +135,14 @@ void idMenuScreen_Scoreboard::ShowScreen( const mainMenuTransition_t transitionT
 		{
 		
 			idSWFTextInstance* txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtScoreboard" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( "#str_02618" );
 				txtVal->SetStrokeInfo( true, 0.9f, 2.0f );
 			}
 			
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtGameType" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				idStr mode = idLocalization::GetString( "#str_02376" );
 				mode.Append( ": " );
@@ -154,13 +154,13 @@ void idMenuScreen_Scoreboard::ShowScreen( const mainMenuTransition_t transitionT
 			}
 			
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtNameHeading" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( "#str_02181" );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtScore" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				if( gameLocal.gameType == GAME_LASTMAN )
 				{
@@ -177,26 +177,26 @@ void idMenuScreen_Scoreboard::ShowScreen( const mainMenuTransition_t transitionT
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtWins" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( "#str_02619" );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtPing" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( "#str_02048" );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
 			
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtNameHeading2" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( "#str_02181" );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtScore2" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				if( gameLocal.gameType == GAME_LASTMAN )
 				{
@@ -213,13 +213,13 @@ void idMenuScreen_Scoreboard::ShowScreen( const mainMenuTransition_t transitionT
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtWins2" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( "#str_02619" );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtPing2" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( "#str_02048" );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
@@ -237,14 +237,14 @@ idMenuScreen_Scoreboard::SetPlayerData
 */
 void idMenuScreen_Scoreboard::SetPlayerData( idList< scoreboardInfo_t, TAG_IDLIB_LIST_MENU > data )
 {
-	if( playerList != NULL )
+	if( playerList != nullptr )
 	{
 		for( int i = 0; i < data.Num(); ++i )
 		{
 			if( i < playerList->GetChildren().Num() )
 			{
 				idMenuWidget_ScoreboardButton* button = dynamic_cast< idMenuWidget_ScoreboardButton* >( &playerList->GetChildByIndex( i ) );
-				if( button != NULL )
+				if( button != nullptr )
 				{
 					button->SetButtonInfo( data[i].index, data[i].values, data[i].voiceState );
 				}
@@ -269,7 +269,7 @@ void idMenuScreen_Scoreboard::UpdateGameInfo( idStr gameInfo )
 		{
 		
 			idSWFTextInstance* txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtGameInfo" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( gameInfo );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
@@ -293,7 +293,7 @@ void idMenuScreen_Scoreboard::UpdateSpectating( idStr spectating, idStr follow )
 		{
 		
 			idSWFTextInstance* txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtSpectating" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->tooltip = true;
 				txtVal->SetText( spectating );
@@ -301,7 +301,7 @@ void idMenuScreen_Scoreboard::UpdateSpectating( idStr spectating, idStr follow )
 			}
 			
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtFollow" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( follow );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
@@ -325,14 +325,14 @@ void idMenuScreen_Scoreboard::UpdateTeamScores( int r, int b )
 		{
 		
 			idSWFTextInstance* txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtRedScore" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( va( "%i", r ) );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
 			}
 			
 			txtVal = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtBlueScore" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( va( "%i", b ) );
 				txtVal->SetStrokeInfo( true, 0.75f, 1.75f );
@@ -349,7 +349,7 @@ idMenuScreen_Scoreboard::UpdateHighlight
 void idMenuScreen_Scoreboard::UpdateHighlight()
 {
 
-	if( playerList == NULL || menuData == NULL )
+	if( playerList == nullptr || menuData == nullptr )
 	{
 		return;
 	}
@@ -406,7 +406,7 @@ idMenuScreen_Scoreboard::HandleAction
 bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled )
 {
 
-	if( menuData == NULL )
+	if( menuData == nullptr )
 	{
 		return true;
 	}
@@ -443,7 +443,7 @@ bool idMenuScreen_Scoreboard::HandleAction( idWidgetAction& action, const idWidg
 		case WIDGET_ACTION_PRESS_FOCUSED:
 		{
 		
-			if( playerList == NULL )
+			if( playerList == nullptr )
 			{
 				return true;
 			}
@@ -617,7 +617,7 @@ void idMenuScreen_Scoreboard_CTF::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
 	
-	if( data != NULL )
+	if( data != nullptr )
 	{
 		menuGUI = data->GetGUI();
 	}
@@ -663,7 +663,7 @@ void idMenuScreen_Scoreboard_Team::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
 	
-	if( data != NULL )
+	if( data != nullptr )
 	{
 		menuGUI = data->GetGUI();
 	}

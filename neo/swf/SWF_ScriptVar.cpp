@@ -112,9 +112,9 @@ void idSWFScriptVar::Free()
 	{
 		value.function->Release();
 	}
-	value.string = NULL;
-	value.function = NULL;
-	value.object = NULL;
+	value.string = nullptr;
+	value.function = nullptr;
+	value.object = nullptr;
 	type = SWF_VAR_UNDEF;
 }
 
@@ -126,9 +126,9 @@ idSWFScriptVar::SetObject
 void idSWFScriptVar::SetObject( idSWFScriptObject* o )
 {
 	Free();
-	if( o == NULL )
+	if( o == nullptr )
 	{
-		type = SWF_VAR_NULL;
+		type = SWF_VAR_nullptr;
 	}
 	else
 	{
@@ -146,9 +146,9 @@ idSWFScriptVar::SetFunction
 void idSWFScriptVar::SetFunction( idSWFScriptFunction* f )
 {
 	Free();
-	if( f == NULL )
+	if( f == nullptr )
 	{
-		type = SWF_VAR_NULL;
+		type = SWF_VAR_nullptr;
 	}
 	else
 	{
@@ -181,7 +181,7 @@ bool idSWFScriptVar::StrictEquals( const idSWFScriptVar& other )
 			return ( value.b == other.value.b );
 		case SWF_VAR_INTEGER:
 			return ( value.i == other.value.i );
-		case SWF_VAR_NULL:
+		case SWF_VAR_nullptr:
 			return true;
 		case SWF_VAR_UNDEF:
 			return true;
@@ -216,7 +216,7 @@ bool idSWFScriptVar::AbstractEquals( const idSWFScriptVar& other )
 				return ( value.b == other.value.b );
 			case SWF_VAR_INTEGER:
 				return ( value.i == other.value.i );
-			case SWF_VAR_NULL:
+			case SWF_VAR_nullptr:
 				return true;
 			case SWF_VAR_UNDEF:
 				return true;
@@ -255,10 +255,10 @@ bool idSWFScriptVar::AbstractEquals( const idSWFScriptVar& other )
 			return ( other.ToBool() == value.b );
 		case SWF_VAR_INTEGER:
 			return ( other.ToInteger() == value.i );
-		case SWF_VAR_NULL:
+		case SWF_VAR_nullptr:
 			return ( other.type == SWF_VAR_UNDEF );
 		case SWF_VAR_UNDEF:
-			return ( other.type == SWF_VAR_NULL );
+			return ( other.type == SWF_VAR_nullptr );
 		case SWF_VAR_OBJECT:
 			switch( other.type )
 			{
@@ -302,7 +302,7 @@ idStr idSWFScriptVar::ToString() const
 		case SWF_VAR_INTEGER:
 			return va( "%i", value.i );
 			
-		case SWF_VAR_NULL:
+		case SWF_VAR_nullptr:
 			return "[null]";
 		case SWF_VAR_UNDEF:
 			return "[undefined]";
@@ -346,7 +346,7 @@ float idSWFScriptVar::ToFloat() const
 			return value.object->DefaultValue( false ).ToFloat();
 			
 		case SWF_VAR_FUNCTION:
-		case SWF_VAR_NULL:
+		case SWF_VAR_nullptr:
 		case SWF_VAR_UNDEF:
 			return 0.0f;
 		default:
@@ -378,7 +378,7 @@ bool idSWFScriptVar::ToBool() const
 			return value.object->DefaultValue( false ).ToBool();
 			
 		case SWF_VAR_FUNCTION:
-		case SWF_VAR_NULL:
+		case SWF_VAR_nullptr:
 		case SWF_VAR_UNDEF:
 			return false;
 		default:
@@ -411,7 +411,7 @@ int32_t idSWFScriptVar::ToInteger() const
 			return value.object->DefaultValue( false ).ToInteger();
 			
 		case SWF_VAR_FUNCTION:
-		case SWF_VAR_NULL:
+		case SWF_VAR_nullptr:
 		case SWF_VAR_UNDEF:
 			return 0;
 		default:
@@ -427,12 +427,12 @@ idSWFScriptVar::ToSprite
 */
 idSWFSpriteInstance* idSWFScriptVar::ToSprite()
 {
-	if( IsObject() && value.object != NULL )
+	if( IsObject() && value.object != nullptr )
 	{
 		return value.object->GetSprite();
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -442,12 +442,12 @@ idSWFScriptVar::ToText
 */
 idSWFTextInstance* idSWFScriptVar::ToText()
 {
-	if( IsObject() && value.object != NULL )
+	if( IsObject() && value.object != nullptr )
 	{
 		return value.object->GetText();
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -474,7 +474,7 @@ idSWFScriptObject* idSWFScriptVar::GetNestedObj( const char* arg1, const char* a
 {
 	if( !IsObject() )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	return GetObject()->GetNestedObj( arg1, arg2, arg3, arg4, arg5, arg6 );
@@ -489,7 +489,7 @@ idSWFSpriteInstance* idSWFScriptVar::GetNestedSprite( const char* arg1, const ch
 {
 	if( !IsObject() )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	return GetObject()->GetNestedSprite( arg1, arg2, arg3, arg4, arg5, arg6 );
@@ -504,7 +504,7 @@ idSWFTextInstance* idSWFScriptVar::GetNestedText( const char* arg1, const char* 
 {
 	if( !IsObject() )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	return GetObject()->GetNestedText( arg1, arg2, arg3, arg4, arg5, arg6 );
@@ -532,11 +532,11 @@ const char* idSWFScriptVar::TypeOf() const
 			return "number";
 			
 		case SWF_VAR_OBJECT:
-			if( value.object->GetSprite() != NULL )
+			if( value.object->GetSprite() != nullptr )
 			{
 				return "movieclip";
 			}
-			else if( value.object->GetText() != NULL )
+			else if( value.object->GetText() != nullptr )
 			{
 				return "text";
 			}
@@ -547,7 +547,7 @@ const char* idSWFScriptVar::TypeOf() const
 			
 		case SWF_VAR_FUNCTION:
 			return "function";
-		case SWF_VAR_NULL:
+		case SWF_VAR_nullptr:
 			return "null";
 		case SWF_VAR_UNDEF:
 			return "undefined";

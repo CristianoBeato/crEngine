@@ -69,15 +69,15 @@ void MaterialPropTreeView::SetPropertyListType(int listType, int stageNum) {
 
 	m_Tree.DeleteAllItems();
 
-	//idList<MaterialProp_t*>* propList = NULL;
+	//idList<MaterialProp_t*>* propList = nullptr;
 	MaterialDefList* propList = MaterialDefManager::GetMaterialDefs(currentListType);
 	currentPropDefs = propList;
 
 	if(!propList)
 		return;
 
-	CPropTreeItem* pCurrentGroup = NULL;
-	CPropTreeItem* pCurrentNode = NULL;
+	CPropTreeItem* pCurrentGroup = nullptr;
+	CPropTreeItem* pCurrentNode = nullptr;
 
 	for(int i = 0; i < propList->Num(); i++) {
 		switch((*propList)[i]->type) {
@@ -207,7 +207,7 @@ MaterialDef* MaterialPropTreeView::FindDefForTreeID(UINT treeID) {
 			return (*currentPropDefs)[i];
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /**

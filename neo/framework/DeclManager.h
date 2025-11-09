@@ -140,7 +140,7 @@ public:
 	// an immediate call to FreeData() does no harm.
 	idDecl()
 	{
-		base = NULL;
+		base = nullptr;
 	}
 	virtual 				~idDecl() {};
 	
@@ -362,7 +362,7 @@ public:
 	virtual declType_t		GetDeclTypeFromName( const char* typeName ) const = 0;
 	
 	// If makeDefault is true, a default decl of appropriate type will be created
-	// if an explicit one isn't found. If makeDefault is false, NULL will be returned
+	// if an explicit one isn't found. If makeDefault is false, nullptr will be returned
 	// if the decl wasn't explcitly defined.
 	virtual const idDecl* 	FindType( declType_t type, const char* name, bool makeDefault = true ) = 0;
 	

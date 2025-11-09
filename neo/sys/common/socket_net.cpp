@@ -270,7 +270,7 @@ Net_NetadrToSockadr
 */
 void Net_NetadrToSockadr( const netadr_t* a, sockaddr_in* s )
 {
-	memset( s, 0, sizeof( *s ) );
+	std::memset( s, 0, sizeof( *s ) );
 	
 	if( a->type == NA_BROADCAST )
 	{
@@ -336,7 +336,7 @@ static bool Net_ExtractPort( const char* src, char* buf, int bufsize, int* port 
 	}
 	*p = '\0';
 	
-	long lport = strtol( p + 1, NULL, 10 );
+	long lport = strtol( p + 1, nullptr, 10 );
 	if( lport == 0 || lport == LONG_MIN || lport == LONG_MAX )
 	{
 		*port = 0;
@@ -363,7 +363,7 @@ static bool Net_StringToSockaddr( const char* s, sockaddr_in* sadr, bool doDNSRe
 	char buf[256];
 	int port;
 	
-	memset( sadr, 0, sizeof( *sadr ) );
+	std::memset( sadr, 0, sizeof( *sadr ) );
 	
 	sadr->sin_family = AF_INET;
 	sadr->sin_port = 0;
@@ -376,7 +376,7 @@ static bool Net_StringToSockaddr( const char* s, sockaddr_in* sadr, bool doDNSRe
 	}
 	// buf contains the host, even if Net_ExtractPort returned false
 	h = gethostbyname( buf );
-	if( h == NULL )
+	if( h == nullptr )
 	{
 		return false;
 	}
@@ -516,7 +516,7 @@ void NET_OpenSocks( int port )
 	}
 	
 	h = gethostbyname( net_socksServer.GetString() );
-	if( h == NULL )
+	if( h == nullptr )
 	{
 		idLib::Printf( "WARNING: NET_OpenSocks: gethostbyname: %s\n", NET_ErrorString() );
 		return;
@@ -606,12 +606,12 @@ void NET_OpenSocks( int port )
 		buf[1] = ulen;
 		if( ulen )
 		{
-			memcpy( &buf[2], net_socksUsername.GetString(), ulen );
+			std::memcpy( &buf[2], net_socksUsername.GetString(), ulen );
 		}
 		buf[2 + ulen] = plen;
 		if( plen )
 		{
-			memcpy( &buf[3 + ulen], net_socksPassword.GetString(), plen );
+			std::memcpy( &buf[3 + ulen], net_socksPassword.GetString(), plen );
 		}
 		
 		// send it
@@ -679,7 +679,7 @@ void NET_OpenSocks( int port )
 	socksRelayAddr.sin_family = AF_INET;
 	socksRelayAddr.sin_addr.s_addr = *( int* )&buf[4];
 	socksRelayAddr.sin_port = *( short* )&buf[8];
-	memset( socksRelayAddr.sin_zero, 0, sizeof( socksRelayAddr.sin_zero ) );
+	std::memset( socksRelayAddr.sin_zero, 0, sizeof( socksRelayAddr.sin_zero ) );
 	
 	usingSocks = true;
 }
@@ -711,7 +711,7 @@ bool Net_WaitForData( int netSocket, int timeout )
 	tv.tv_sec = timeout / 1000;
 	tv.tv_usec = ( timeout % 1000 ) * 1000;
 	
-	ret = select( netSocket + 1, &set, NULL, NULL, &tv );
+	ret = select( netSocket + 1, &set, nullptr, nullptr, &tv );
 	
 	if( ret == -1 )
 	{
@@ -765,7 +765,7 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 	// - and if netSocket is 0 (so this would be true) recvfrom above will already fail
 	if( static_cast<unsigned int>( netSocket ) == ip_socket )
 	{
-		memset( from.sin_zero, 0, sizeof( from.sin_zero ) );
+		std::memset( from.sin_zero, 0, sizeof( from.sin_zero ) );
 	}
 	
 	if( usingSocks && static_cast<unsigned int>( netSocket ) == ip_socket && memcmp( &from, &socksRelayAddr, fromlen ) == 0 )
@@ -827,7 +827,7 @@ void Net_SendUDPPacket( int netSocket, int length, const void* data, const netad
 		socksBuf[3] = 1;	// address type: IPV4
 		*( int* )&socksBuf[4] = addr.sin_addr.s_addr;
 		*( short* )&socksBuf[8] = addr.sin_port;
-		memcpy( &socksBuf[10], data, length );
+		std::memcpy( &socksBuf[10], data, length );
 		ret = sendto( netSocket, socksBuf, length + 10, 0, ( sockaddr* )&socksRelayAddr, sizeof( socksRelayAddr ) );
 	}
 	else
@@ -881,7 +881,7 @@ void Sys_InitNetworking()
 	idLib::Printf( "Winsock Initialized\n" );
 	
 	PIP_ADAPTER_INFO pAdapterInfo;
-	PIP_ADAPTER_INFO pAdapter = NULL;
+	PIP_ADAPTER_INFO pAdapter = nullptr;
 	DWORD dwRetVal = 0;
 	PIP_ADDR_STRING pIPAddrString;
 	ULONG ulOutBufLen;
@@ -932,7 +932,7 @@ void Sys_InitNetworking()
 				//skip null netmasks
 				if( !ip_m )
 				{
-					idLib::Printf( "%s NULL netmask - skipped\n", pIPAddrString->IpAddress.String );
+					idLib::Printf( "%s nullptr netmask - skipped\n", pIPAddrString->IpAddress.String );
 					pIPAddrString = pIPAddrString->Next;
 					continue;
 				}
@@ -1274,7 +1274,7 @@ const char* Sys_GetLocalIP( int i )
 {
 	if( ( i < 0 ) || ( i >= num_interfaces ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return netint[i].addr;
 }
@@ -1288,7 +1288,7 @@ msg_t::msg_t(int bufferSize, bool compressed)
 	, mCompressed(compressed)
 {
 	mData = new char[mDataMaxSize];
-	memset(mData, 0, sizeof(mData));
+	std::memset(mData, 0, sizeof(mData));
 }
 msg_t::~msg_t()
 {
@@ -1308,7 +1308,7 @@ bool msg_t::ReadBytes(char * bytes, int numBytes)
 
 	char * ptr = mData + mDataOffset;
 	mDataOffset += numBytes;
-	memcpy(bytes, ptr, numBytes);
+	std::memcpy(bytes, ptr, numBytes);
 	return true;
 }
 
@@ -1326,7 +1326,7 @@ bool msg_t::WriteBytes(const char * bytes, int numBytes)
 
 	char * ptr = mData + mDataOffset;
 	mDataOffset += numBytes;
-	memcpy(ptr, bytes, numBytes);
+	std::memcpy(ptr, bytes, numBytes);
 	return true;
 }
 
@@ -1410,7 +1410,7 @@ idUDP::idUDP
 idUDP::idUDP( void )
 {
 	netSocket = 0;
-	memset( &bound_to, 0, sizeof( bound_to ) );
+	std::memset( &bound_to, 0, sizeof( bound_to ) );
 	silent = false;
 	packetsRead = 0;
 	bytesRead = 0;
@@ -1437,12 +1437,12 @@ bool idUDP::InitForPort( int portNumber )
 {
 	// DG: don't specify an IP to bind for (and certainly not net_ip)
 	// => it'll listen on all addresses (0.0.0.0 / INADDR_ANY)
-	netSocket = NET_IPSocket( NULL, portNumber, &bound_to );
+	netSocket = NET_IPSocket( nullptr, portNumber, &bound_to );
 	// DG end
 	if( netSocket <= 0 )
 	{
 		netSocket = 0;
-		memset( &bound_to, 0, sizeof( bound_to ) );
+		std::memset( &bound_to, 0, sizeof( bound_to ) );
 		return false;
 	}
 	
@@ -1460,7 +1460,7 @@ void idUDP::Close()
 	{
 		closesocket( netSocket );
 		netSocket = 0;
-		memset( &bound_to, 0, sizeof( bound_to ) );
+		std::memset( &bound_to, 0, sizeof( bound_to ) );
 	}
 }
 

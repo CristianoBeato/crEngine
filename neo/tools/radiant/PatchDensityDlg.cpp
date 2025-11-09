@@ -47,7 +47,7 @@ static char THIS_FILE[] = __FILE__;
 // CPatchDensityDlg dialog
 
 
-CPatchDensityDlg::CPatchDensityDlg(CWnd* pParent /*=NULL*/)
+CPatchDensityDlg::CPatchDensityDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CPatchDensityDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CPatchDensityDlg)

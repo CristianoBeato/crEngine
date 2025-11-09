@@ -88,9 +88,9 @@ idRenderModelManagerLocal::idRenderModelManagerLocal
 */
 idRenderModelManagerLocal::idRenderModelManagerLocal()
 {
-	defaultModel = NULL;
-	beamModel = NULL;
-	spriteModel = NULL;
+	defaultModel = nullptr;
+	beamModel = nullptr;
+	spriteModel = nullptr;
 	insideLevelLoad = false;
 }
 
@@ -280,7 +280,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 
 	if( !_modelName || !_modelName[0] )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	idStrStatic< MAX_OSPATH > canonical = _modelName;
@@ -333,7 +333,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	
 	// determine which subclass of idRenderModel to initialize
 	
-	idRenderModel* model = NULL;
+	idRenderModel* model = nullptr;
 	
 	if( ( extension.Icmp( "ase" ) == 0 ) || ( extension.Icmp( "lwo" ) == 0 ) || ( extension.Icmp( "flt" ) == 0 ) || ( extension.Icmp( "ma" ) == 0 ) )
 	{
@@ -358,7 +358,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	
 	idStrStatic< MAX_OSPATH > generatedFileName;
 	
-	if( model != NULL )
+	if( model != nullptr )
 	{
 	
 		generatedFileName = "generated/rendermodels/";
@@ -395,7 +395,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	}
 	
 	// Not one of the known formats
-	if( model == NULL )
+	if( model == nullptr )
 	{
 	
 		if( extension.Length() )
@@ -405,7 +405,7 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 		
 		if( !createIfNotFound )
 		{
-			return NULL;
+			return nullptr;
 		}
 		
 		idRenderModelStatic*	smodel = new( TAG_MODEL ) idRenderModelStatic;
@@ -424,9 +424,9 @@ idRenderModel* idRenderModelManagerLocal::GetModel( const char* _modelName, bool
 	if( !createIfNotFound && model->IsDefaultModel() )
 	{
 		delete model;
-		model = NULL;
+		model = nullptr;
 		
-		return NULL;
+		return nullptr;
 	}
 	
 	if( cvarSystem->GetCVarBool( "fs_buildgame" ) )
@@ -575,7 +575,7 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 			// check timestamp
 			ID_TIME_T current;
 			
-			fileSystem->ReadFile( model->Name(), NULL, &current );
+			fileSystem->ReadFile( model->Name(), nullptr, &current );
 			if( current <= model->Timestamp() )
 			{
 				continue;
@@ -692,7 +692,7 @@ void idRenderModelManagerLocal::Preload( const idPreloadManifest& manifest )
 			if( p.resType == PRELOAD_MODEL )
 			{
 				idRenderModel* model = FindModel( p.resourceName );
-				if( model != NULL )
+				if( model != nullptr )
 				{
 					model->SetLevelLoadReferenced( true );
 				}

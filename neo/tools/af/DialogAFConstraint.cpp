@@ -61,7 +61,7 @@ c_type_t constraintTypes[] = {
 	{ DECLAF_CONSTRAINT_HINGE, "hinge" },
 	{ DECLAF_CONSTRAINT_SLIDER, "slider" },
 	{ DECLAF_CONSTRAINT_SPRING, "spring" },
-	{ DECLAF_CONSTRAINT_INVALID, NULL }
+	{ DECLAF_CONSTRAINT_INVALID, nullptr }
 };
 
 
@@ -95,7 +95,7 @@ toolTip_t DialogAFConstraint::toolTips[] = {
 	{ IDC_COMBO_CONSTRAINT_BODY1, "first constrained body" },
 	{ IDC_COMBO_CONSTRAINT_BODY2, "second constrained body" },
 	{ IDC_EDIT_CONSTRAINT_FRICTION, "constraint friction" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFConstraint, CDialog)
@@ -105,12 +105,12 @@ IMPLEMENT_DYNAMIC(DialogAFConstraint, CDialog)
 DialogAFConstraint::DialogAFConstraint
 ================
 */
-DialogAFConstraint::DialogAFConstraint( CWnd* pParent /*=NULL*/ )
+DialogAFConstraint::DialogAFConstraint( CWnd* pParent /*=nullptr*/ )
 	: CDialog(DialogAFConstraint::IDD, pParent)
 	, m_friction(0)
-	, constraint(NULL)
-	, file(NULL)
-	, constraintDlg(NULL)
+	, constraint(nullptr)
+	, file(nullptr)
+	, constraintDlg(nullptr)
 {
 	Create( IDD_DIALOG_AF_CONSTRAINT, pParent );
 	EnableToolTips( TRUE );
@@ -265,7 +265,7 @@ DialogAFConstraint::LoadFile
 */
 void DialogAFConstraint::LoadFile( idDeclAF *af ) {
 	file = af;
-	constraint = NULL;
+	constraint = nullptr;
 	ballAndSocketDlg->LoadFile( af );
 	universalDlg->LoadFile( af );
 	hingeDlg->LoadFile( af );
@@ -402,7 +402,7 @@ BOOL DialogAFConstraint::OnInitDialog()  {
 	springDlg = new DialogAFConstraintSpring( this );
 	springDlg->ShowWindow( SW_HIDE );
 
-	constraintDlg = NULL;
+	constraintDlg = nullptr;
 
 	InitNewRenameDeleteButtons();
 
@@ -517,7 +517,7 @@ void DialogAFConstraint::OnBnClickedButtonDeleteconstraint() {
 			m_comboConstraintList.GetLBText( i, str );
 			// delete current constraint
 			file->DeleteConstraint( str );
-			constraint = NULL;
+			constraint = nullptr;
 			m_comboConstraintList.DeleteString( i );
 			OnCbnSelchangeComboConstraints();
 			gameEdit->AF_UpdateEntities( file->GetName() );

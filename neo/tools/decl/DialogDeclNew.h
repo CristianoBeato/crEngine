@@ -40,7 +40,7 @@ class DialogDeclNew : public CDialog {
 	DECLARE_DYNAMIC(DialogDeclNew)
 
 public:
-						DialogDeclNew( CWnd* pParent = NULL );   // standard constructor
+						DialogDeclNew( CWnd* pParent = nullptr );   // standard constructor
 	virtual				~DialogDeclNew();
 
 	void				SetDeclTree( CPathTreeCtrl *tree ) { declTree = tree; }

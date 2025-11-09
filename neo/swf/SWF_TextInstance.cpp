@@ -53,7 +53,7 @@ idSWFTextInstance::idSWFTextInstance
 */
 idSWFTextInstance::idSWFTextInstance()
 {
-	swf = NULL;
+	swf = nullptr;
 }
 
 /*
@@ -63,7 +63,7 @@ idSWFTextInstance::~idSWFTextInstance
 */
 idSWFTextInstance::~idSWFTextInstance()
 {
-	scriptObject.SetText( NULL );
+	scriptObject.SetText( nullptr );
 	scriptObject.Clear();
 	scriptObject.Release();
 	
@@ -164,7 +164,7 @@ float idSWFTextInstance::GetTextLength()
 	idStr txtLengthCheck = "";
 	
 	float len = 0.0f;
-	if( verify( swf != NULL ) )
+	if( verify( swf != nullptr ) )
 	{
 	
 		if( !variable.IsEmpty() )
@@ -771,25 +771,25 @@ int idSWFTextInstance::CalcMaxScroll( int numLines )
 		return 0;
 	}
 	
-	if( swf == NULL )
+	if( swf == nullptr )
 	{
 		return 0;
 	}
 	
 	idSWFDictionaryEntry* fontEntry = swf->FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );
-	if( fontEntry == NULL )
+	if( fontEntry == nullptr )
 	{
 		return 0;
 	}
 	
 	idSWFFont* swfFont = fontEntry->font;
-	if( swfFont == NULL )
+	if( swfFont == nullptr )
 	{
 		return 0;
 	}
 	
 	const idFont* fontInfo = swfFont->fontID;
-	if( fontInfo == NULL )
+	if( fontInfo == nullptr )
 	{
 		return 0;
 	}
@@ -919,7 +919,7 @@ int idSWFTextInstance::CalcNumLines()
 	}
 	
 	idSWFDictionaryEntry* fontEntry = swf->FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );
-	if( fontEntry == NULL )
+	if( fontEntry == nullptr )
 	{
 		return 1;
 	}
@@ -940,7 +940,7 @@ int idSWFTextInstance::CalcNumLines()
 		return 1;
 	}
 	
-	if( swf == NULL )
+	if( swf == nullptr )
 	{
 		return 1;
 	}
@@ -1041,9 +1041,9 @@ idSWFScriptObject_TextInstancePrototype
 #define SWF_TEXT_NATIVE_VAR_DEFINE_GET( x ) idSWFScriptVar idSWFScriptObject_TextInstancePrototype::idSWFScriptNativeVar_##x::Get( class idSWFScriptObject * object )
 #define SWF_TEXT_NATIVE_VAR_DEFINE_SET( x ) void  idSWFScriptObject_TextInstancePrototype::idSWFScriptNativeVar_##x::Set( class idSWFScriptObject * object, const idSWFScriptVar & value )
 
-#define SWF_TEXT_PTHIS_FUNC( x ) idSWFTextInstance * pThis = thisObject ? thisObject->GetText() : NULL; if ( !verify( pThis != NULL ) ) { idLib::Warning( "SWF: tried to call " x " on NULL edittext" ); return idSWFScriptVar(); }
-#define SWF_TEXT_PTHIS_GET( x ) idSWFTextInstance * pThis = object ? object->GetText() : NULL; if ( pThis == NULL ) { return idSWFScriptVar(); }
-#define SWF_TEXT_PTHIS_SET( x ) idSWFTextInstance * pThis = object ? object->GetText() : NULL; if ( pThis == NULL ) { return; }
+#define SWF_TEXT_PTHIS_FUNC( x ) idSWFTextInstance * pThis = thisObject ? thisObject->GetText() : nullptr; if ( !verify( pThis != nullptr ) ) { idLib::Warning( "SWF: tried to call " x " on nullptr edittext" ); return idSWFScriptVar(); }
+#define SWF_TEXT_PTHIS_GET( x ) idSWFTextInstance * pThis = object ? object->GetText() : nullptr; if ( pThis == nullptr ) { return idSWFScriptVar(); }
+#define SWF_TEXT_PTHIS_SET( x ) idSWFTextInstance * pThis = object ? object->GetText() : nullptr; if ( pThis == nullptr ) { return; }
 
 #define SWF_TEXT_FUNCTION_SET( x ) scriptFunction_##x.AddRef(); Set( #x, &scriptFunction_##x );
 #define SWF_TEXT_NATIVE_VAR_SET( x ) SetNative( #x, &swfScriptVar_##x );

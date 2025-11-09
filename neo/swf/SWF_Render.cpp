@@ -170,8 +170,8 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 		gui->SetGLState( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 		gui->SetColor( idVec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		idVec2 mouse = renderState.matrix.Transform( idVec2( mouseX - 1, mouseY - 2 ) );
-		//idSWFScriptObject * hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, NULL );
-		if( !hasHitObject )    //hitObject == NULL ) {
+		//idSWFScriptObject * hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, nullptr );
+		if( !hasHitObject )    //hitObject == nullptr ) {
 		{
 			// foresthale 2014-05-20: motorsep requested that I put a comment here - we had an issue where the mouse cursor image was 33x34 and this code expects 32x32, so the image was slightly fuzzier (worse, it was actually using a corrupted mipmap, but that has been fixed)
 			DrawStretchPic( mouse.x, mouse.y, 32.0f, 32.0f, 0, 0, 1, 1, guiCursor_arrow );
@@ -222,7 +222,7 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 	auto renderSystem = idRenderSystem::Get();
 	if( spriteInstance == nullptr )
 	{
-		idLib::Warning( "%s: RenderSprite: spriteInstance == NULL", filename.c_str() );
+		idLib::Warning( "%s: RenderSprite: spriteInstance == nullptr", filename.c_str() );
 		return;
 	}
 	if( !spriteInstance->isVisible )
@@ -256,7 +256,7 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 			continue;
 		}
 		idSWFDictionaryEntry* entry = FindDictionaryEntry( display.characterID );
-		if( entry == NULL )
+		if( entry == nullptr )
 		{
 			continue;
 		}
@@ -285,7 +285,7 @@ void idSWF::RenderSprite( idRenderSystem* gui, idSWFSpriteInstance* spriteInstan
 		}
 		renderState2.activeMasks = renderState.activeMasks + activeMasks.Num();
 		
-		if( spriteInstance->materialOverride != NULL )
+		if( spriteInstance->materialOverride != nullptr )
 		{
 			renderState2.material = spriteInstance->materialOverride;
 			renderState2.materialWidth = spriteInstance->materialWidth;
@@ -522,19 +522,19 @@ idSWF::RenderMorphShape
 */
 void idSWF::RenderMorphShape( idRenderSystem* gui, const idSWFShape* shape, const swfRenderState_t& renderState )
 {
-	if( shape == NULL )
+	if( shape == nullptr )
 	{
-		idLib::Warning( "%s: RenderMorphShape: shape == NULL", filename.c_str() );
+		idLib::Warning( "%s: RenderMorphShape: shape == nullptr", filename.c_str() );
 		return;
 	}
 	
 	for( int i = 0; i < shape->fillDraws.Num(); i++ )
 	{
 		const idSWFShapeDrawFill& fill = shape->fillDraws[i];
-		const idMaterial* material = NULL;
+		const idMaterial* material = nullptr;
 		swfColorXform_t color;
 		
-		if( renderState.material != NULL )
+		if( renderState.material != nullptr )
 		{
 			material = renderState.material;
 		}
@@ -593,7 +593,7 @@ void idSWF::RenderMorphShape( idRenderSystem* gui, const idSWFShape* shape, cons
 		gui->SetGLState( GLStateForRenderState( renderState ) );
 		
 		idDrawVert* verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );
-		if( verts == NULL )
+		if( verts == nullptr )
 		{
 			continue;
 		}
@@ -628,16 +628,16 @@ idSWF::RenderShape
 */
 void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swfRenderState_t& renderState )
 {
-	if( shape == NULL )
+	if( shape == nullptr )
 	{
-		idLib::Warning( "%s: RenderShape: shape == NULL", filename.c_str() );
+		idLib::Warning( "%s: RenderShape: shape == nullptr", filename.c_str() );
 		return;
 	}
 	
 	for( int i = 0; i < shape->fillDraws.Num(); i++ )
 	{
 		const idSWFShapeDrawFill& fill = shape->fillDraws[i];
-		const idMaterial* material = NULL;
+		const idMaterial* material = nullptr;
 		swfColorXform_t color;
 		
 		swfMatrix_t invMatrix;
@@ -647,7 +647,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		
 		idVec2 size( 1.0f, 1.0f );
 		
-		if( renderState.material != NULL )
+		if( renderState.material != nullptr )
 		{
 			material = renderState.material;
 			invMatrix.xx = invMatrix.yy = ( 1.0f / 20.0f );
@@ -708,7 +708,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		gui->SetGLState( GLStateForRenderState( renderState ) );
 		
 		idDrawVert* verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );
-		if( verts == NULL )
+		if( verts == nullptr )
 		{
 			continue;
 		}
@@ -780,7 +780,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
 		
 		idDrawVert* verts = gui->AllocTris( line.startVerts.Num(), line.indices.Ptr(), line.indices.Num(), white, renderState.stereoDepth );
-		if( verts == NULL )
+		if( verts == nullptr )
 		{
 			continue;
 		}
@@ -824,9 +824,9 @@ idSWF::RenderEditText
 */
 void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance, const swfRenderState_t& renderState, int time, bool isSplitscreen )
 {
-	if( textInstance == NULL )
+	if( textInstance == nullptr )
 	{
-		idLib::Warning( "%s: RenderEditText: textInstance == NULL", filename.c_str() );
+		idLib::Warning( "%s: RenderEditText: textInstance == nullptr", filename.c_str() );
 		return;
 	}
 	
@@ -942,9 +942,9 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 	matrix.yx *= invYScale;
 	
 	idSWFDictionaryEntry* fontEntry = FindDictionaryEntry( shape->fontID, SWF_DICT_FONT );
-	if( fontEntry == NULL )
+	if( fontEntry == nullptr )
 	{
-		idLib::Warning( "idSWF::RenderEditText: NULL Font" );
+		idLib::Warning( "idSWF::RenderEditText: nullptr Font" );
 		return;
 	}
 	idSWFFont* swfFont = fontEntry->font;

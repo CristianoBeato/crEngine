@@ -154,7 +154,7 @@ else( )
 endif( )
 
 # link external libraries
-target_link_libraries( crEngine PUBLIC ZLIB::ZLIB PNG::PNG JPEG::JPEG OpenGL::OpenGL OpenAL::OpenAL SDL3 )
+target_link_libraries( crEngine PUBLIC ZLIB::ZLIB PNG::PNG JPEG::JPEG OpenGL::OpenGL OpenAL::OpenAL SDL3 ${OGG_LIBRARY} ${VORBISFILE_LIBRARY} )
 
 #set the idLib root dir as include
 target_include_directories( crEngine PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 

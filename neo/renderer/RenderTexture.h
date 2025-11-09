@@ -54,11 +54,11 @@ public:
 	
 	ID_INLINE int			GetWidth() const
 	{
-		return ( colorImage != NULL ) ? colorImage->GetUploadWidth() : depthImage->GetUploadWidth();
+		return ( colorImage != nullptr ) ? colorImage->GetUploadWidth() : depthImage->GetUploadWidth();
 	}
 	ID_INLINE int			GetHeight() const
 	{
-		return ( colorImage != NULL ) ? colorImage->GetUploadHeight() : depthImage->GetUploadHeight();
+		return ( colorImage != nullptr ) ? colorImage->GetUploadHeight() : depthImage->GetUploadHeight();
 	}
 	
 	ID_INLINE idImage* 		GetColorImage() const

@@ -103,14 +103,14 @@ rvGEWindowWrapper * rvGEWindowWrapper::GetWrapper( idWindow *window ) {
 #if 0
 	idWinInt *var;
 	var = dynamic_cast< idWinInt*>(window->GetWinVarByName("guied_wrapper"));
-	return var ? ((rvGEWindowWrapper *) (int) (*var)) : NULL;
+	return var ? ((rvGEWindowWrapper *) (int) (*var)) : nullptr;
 #else
 	// DG: use idWinStr, because idWinInt can't cold 64bit pointers
 	idWinStr* var = ( idWinStr* )window->GetWinVarByName( "guied_wrapper" );
-	if( var == NULL )
-		return NULL;
+	if( var == nullptr )
+		return nullptr;
 	
-	ULONG_PTR thisULP = ( ULONG_PTR )_strtoui64( var->c_str(), NULL, 16 );
+	ULONG_PTR thisULP = ( ULONG_PTR )_strtoui64( var->c_str(), nullptr, 16 );
 	return ( rvGEWindowWrapper* )thisULP;
 #endif
 }
@@ -165,7 +165,7 @@ void rvGEWindowWrapper::CalcScreenRect( void ) {
 
 	mScreenRect = mClientRect;
 
-	if ( NULL != (parent = mWindow->GetParent()) ) {
+	if ( nullptr != (parent = mWindow->GetParent()) ) {
 		rvGEWindowWrapper *wrapper = GetWrapper(parent);
 		assert(wrapper);
 
@@ -342,7 +342,7 @@ idWindow * rvGEWindowWrapper::WindowFromPoint( float x,float y,bool visibleOnly 
 
 	// If the window isnt visible then skip it
 	if ( visibleOnly && (mHidden || mDeleted) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// Now check our children next
@@ -369,7 +369,7 @@ idWindow * rvGEWindowWrapper::WindowFromPoint( float x,float y,bool visibleOnly 
 	// We have to check this last because a child could be out outside of the parents
 	// rectangle and we still want it selectable.
 	if ( !mScreenRect.Contains(x, y) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	return mWindow;

@@ -51,7 +51,7 @@ void idMenuScreen_Shell_Controls::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
 	
-	if( data != NULL )
+	if( data != nullptr )
 	{
 		menuGUI = data->GetGUI();
 	}
@@ -139,10 +139,10 @@ idMenuScreen_Shell_Controls::Update
 void idMenuScreen_Shell_Controls::Update()
 {
 
-	if( menuData != NULL )
+	if( menuData != nullptr )
 	{
 		idMenuWidget_CommandBar* cmdBar = menuData->GetCmdBar();
-		if( cmdBar != NULL )
+		if( cmdBar != nullptr )
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
@@ -166,7 +166,7 @@ void idMenuScreen_Shell_Controls::Update()
 	if( BindSprite( root ) )
 	{
 		idSWFTextInstance* heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if( heading != NULL )
+		if( heading != nullptr )
 		{
 			idStr controls( idLocalization::GetString( "#str_swf_header_controls" ) );
 			controls.ToUpper();
@@ -175,13 +175,13 @@ void idMenuScreen_Shell_Controls::Update()
 		}
 		
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if( gradient != NULL && heading != NULL )
+		if( gradient != nullptr && heading != nullptr )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
 	
-	if( btnBack != NULL )
+	if( btnBack != nullptr )
 	{
 		btnBack->BindSprite( root );
 	}
@@ -213,10 +213,10 @@ void idMenuScreen_Shell_Controls::HideScreen( const mainMenuTransition_t transit
 		controlData.CommitData();
 	}
 	
-	if( menuData != NULL )
+	if( menuData != nullptr )
 	{
 		idMenuHandler_Shell* handler = dynamic_cast< idMenuHandler_Shell* >( menuData );
-		if( handler != NULL )
+		if( handler != nullptr )
 		{
 			handler->SetupPCOptions();
 		}
@@ -233,7 +233,7 @@ idMenuScreen_Shell_Controls::HandleAction
 bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled )
 {
 
-	if( menuData == NULL )
+	if( menuData == nullptr )
 	{
 		return true;
 	}
@@ -257,7 +257,7 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 		case WIDGET_ACTION_COMMAND:
 		{
 		
-			if( options == NULL )
+			if( options == nullptr )
 			{
 				return true;
 			}
@@ -289,7 +289,7 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 				case CONTROLS_CMD_INVERT:
 				{
 					controlData.AdjustField( idMenuDataSource_ControlSettings::CONTROLS_FIELD_INVERT_MOUSE, 1 );
-					if( options != NULL )
+					if( options != nullptr )
 					{
 						options->Update();
 					}
@@ -298,7 +298,7 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 				case CONTROLS_CMD_MOUSE_SENS:
 				{
 					controlData.AdjustField( idMenuDataSource_ControlSettings::CONTROLS_FIELD_MOUSE_SENS, 1 );
-					if( options != NULL )
+					if( options != nullptr )
 					{
 						options->Update();
 					}
@@ -307,7 +307,7 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 				case CONTROLS_CMD_GAMEPAD_ENABLED:
 				{
 					controlData.AdjustField( idMenuDataSource_ControlSettings::CONTROLS_FIELD_GAMEPAD_ENABLED, 1 );
-					if( options != NULL )
+					if( options != nullptr )
 					{
 						options->Update();
 					}
@@ -320,7 +320,7 @@ bool idMenuScreen_Shell_Controls::HandleAction( idWidgetAction& action, const id
 		case WIDGET_ACTION_START_REPEATER:
 		{
 		
-			if( options == NULL )
+			if( options == nullptr )
 			{
 				return true;
 			}

@@ -64,7 +64,7 @@ static INT_PTR CALLBACK GEOptionsDlg_GeneralProc ( HWND hwnd, UINT msg, WPARAM w
 					col.lStructSize = sizeof(col);
 					col.lpCustColors = gApp.GetOptions().GetCustomColors ( );
 					col.hwndOwner = hwnd;
-					col.hInstance = NULL;
+					col.hInstance = nullptr;
 					col.Flags = CC_RGBINIT;
 					col.rgbResult = ColorButton_GetColor ( GetDlgItem ( hwnd, IDC_GUIED_SELECTIONCOLOR ) );
 					if ( ChooseColor ( &col ) )
@@ -149,7 +149,7 @@ static INT_PTR CALLBACK GEOptionsDlg_GridProc ( HWND hwnd, UINT msg, WPARAM wPar
 					col.lStructSize = sizeof(col);
 					col.lpCustColors = gApp.GetOptions().GetCustomColors ( );
 					col.hwndOwner = hwnd;
-					col.hInstance = NULL;
+					col.hInstance = nullptr;
 					col.Flags = CC_RGBINIT;
 					col.rgbResult = RGB(gApp.GetOptions().GetGridColor()[0]*255,gApp.GetOptions().GetGridColor()[1]*255,gApp.GetOptions().GetGridColor()[2]*255);
 					if ( ChooseColor ( &col ) )

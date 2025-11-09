@@ -47,7 +47,7 @@ such that for each 0 <= i < n one of the following holds:
 Partly-bounded or unbounded variables can have lo[i] and/or hi[i] set to negative/positive
 idMath::INFITITY, respectively.
 
-If boxIndex != NULL and boxIndex[i] != -1, then
+If boxIndex != nullptr and boxIndex[i] != -1, then
 
 	lo[i] = - fabs( lo[i] * x[boxIndex[i]] )
 	hi[i] = fabs( hi[i] * x[boxIndex[i]] )
@@ -66,7 +66,7 @@ public:
 	virtual			~idLCP();
 	
 	virtual bool	Solve( const idMatX& A, idVecX& x, const idVecX& b, const idVecX& lo,
-						   const idVecX& hi, const int* boxIndex = NULL ) = 0;
+						   const idVecX& hi, const int* boxIndex = nullptr ) = 0;
 						   
 	virtual void	SetMaxIterations( int max );
 	virtual int		GetMaxIterations();

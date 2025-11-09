@@ -44,7 +44,7 @@ class idListGUILocal : protected idList<idStr, TAG_OLD_UI>, public idListGUI
 public:
 	idListGUILocal()
 	{
-		m_pGUI = NULL;
+		m_pGUI = nullptr;
 		m_water = 0;
 		m_stateUpdates = true;
 	}

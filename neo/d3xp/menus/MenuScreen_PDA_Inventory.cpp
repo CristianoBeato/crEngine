@@ -44,13 +44,13 @@ void idMenuScreen_PDA_Inventory::Initialize( idMenuHandler* data )
 	AddEventAction( WIDGET_EVENT_TAB_NEXT ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_TAB_NEXT, WIDGET_EVENT_TAB_NEXT ) );
 	AddEventAction( WIDGET_EVENT_TAB_PREV ).Set( new( TAG_SWF ) idWidgetActionHandler( this, WIDGET_ACTION_EVENT_TAB_PREV, WIDGET_EVENT_TAB_PREV ) );
 	
-	if( data != NULL )
+	if( data != nullptr )
 	{
 		menuGUI = data->GetGUI();
 	}
 	SetSpritePath( "menuItems" );
 	
-	if( menuGUI != NULL )
+	if( menuGUI != nullptr )
 	{
 		idSWFScriptObject& root = menuGUI->GetRootObject();
 		BindSprite( root );
@@ -97,7 +97,7 @@ idMenuScreen_PDA_Inventory::ShowScreen
 void idMenuScreen_PDA_Inventory::ShowScreen( const mainMenuTransition_t transitionType )
 {
 	idPlayer* player = gameLocal.GetLocalPlayer();
-	if( player != NULL )
+	if( player != nullptr )
 	{	
 		int numItems = player->GetInventory()->items.Num();
 		for( int j = 0; j < numItems; j++ )
@@ -111,7 +111,7 @@ void idMenuScreen_PDA_Inventory::ShowScreen( const mainMenuTransition_t transiti
 				iname = iname;
 				iicon = iicon;
 				itext = itext;
-				const idKeyValue* kv = item->MatchPrefix( "inv_id", NULL );
+				const idKeyValue* kv = item->MatchPrefix( "inv_id", nullptr );
 				if( kv )
 				{
 					//objectiveSystem->SetStateString( va( "inv_id_%i", j ), kv->GetValue() );
@@ -124,7 +124,7 @@ void idMenuScreen_PDA_Inventory::ShowScreen( const mainMenuTransition_t transiti
 		{
 		
 			const char* weap = GetWeaponName( j );
-			if( weap == NULL || *weap == '\0' )
+			if( weap == nullptr || *weap == '\0' )
 			{
 				continue;
 			}
@@ -135,7 +135,7 @@ void idMenuScreen_PDA_Inventory::ShowScreen( const mainMenuTransition_t transiti
 			}
 			
 			const idDeclEntityDef* weaponDef = gameLocal.FindEntityDef( weap, false );
-			if( weaponDef != NULL )
+			if( weaponDef != nullptr )
 			{
 				weaponIcons.Append( declManager->FindMaterial( weaponDef->dict.GetString( "hudIcon" ), false ) );
 			}
@@ -170,9 +170,9 @@ const char* idMenuScreen_PDA_Inventory::GetWeaponName( int index )
 {
 
 	idPlayer* player = gameLocal.GetLocalPlayer();
-	if( player == NULL )
+	if( player == nullptr )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	const char* weaponDefName = va( "def_weapon%d", index );
@@ -181,7 +181,7 @@ const char* idMenuScreen_PDA_Inventory::GetWeaponName( int index )
 		return player->spawnArgs.GetString( weaponDefName );
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -193,7 +193,7 @@ bool idMenuScreen_PDA_Inventory::IsVisibleWeapon( int index )
 {
 
 	idPlayer* player = gameLocal.GetLocalPlayer();
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return false;
 	}
@@ -216,7 +216,7 @@ void idMenuScreen_PDA_Inventory::Update()
 {
 
 	idPlayer* player = gameLocal.GetLocalPlayer();
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		idMenuScreen::Update();
 		return;
@@ -227,7 +227,7 @@ void idMenuScreen_PDA_Inventory::Update()
 	{
 	
 		const char* weap = GetWeaponName( j );
-		if( weap == NULL || *weap == '\0' )
+		if( weap == nullptr || *weap == '\0' )
 		{
 			continue;
 		}
@@ -238,7 +238,7 @@ void idMenuScreen_PDA_Inventory::Update()
 		}
 		
 		const idDeclEntityDef* weaponDef = gameLocal.FindEntityDef( weap, false );
-		if( weaponDef == NULL )
+		if( weaponDef == nullptr )
 		{
 			continue;
 		}
@@ -254,19 +254,19 @@ void idMenuScreen_PDA_Inventory::Update()
 		validIndex++;
 	}
 	
-	if( GetSprite() != NULL )
+	if( GetSprite() != nullptr )
 	{
 		idSWFSpriteInstance* dpad = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "dpad" );
-		if( dpad != NULL )
+		if( dpad != nullptr )
 		{
 			dpad->SetVisible( false );
 		}
 	}
 	
-	if( menuData != NULL )
+	if( menuData != nullptr )
 	{
 		idMenuWidget_CommandBar* cmdBar = dynamic_cast< idMenuWidget_CommandBar* const >( menuData->GetChildFromIndex( PDA_WIDGET_CMD_BAR ) );
-		if( cmdBar != NULL )
+		if( cmdBar != nullptr )
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
@@ -304,7 +304,7 @@ void idMenuScreen_PDA_Inventory::EquipWeapon()
 	}
 	
 	idPlayer* player = gameLocal.GetLocalPlayer();
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return;
 	}
@@ -314,7 +314,7 @@ void idMenuScreen_PDA_Inventory::EquipWeapon()
 	{
 	
 		const char* weap = GetWeaponName( j );
-		if( weap == NULL || *weap == '\0' )
+		if( weap == nullptr || *weap == '\0' )
 		{
 			continue;
 		}
@@ -345,7 +345,7 @@ idMenuScreen_PDA_Inventory::HandleAction
 bool idMenuScreen_PDA_Inventory::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled )
 {
 
-	if( menuData == NULL )
+	if( menuData == nullptr )
 	{
 		return true;
 	}

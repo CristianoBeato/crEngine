@@ -192,7 +192,7 @@ template< typename T >
 class idSysInterlockedPointer
 {
 public:
-	idSysInterlockedPointer() : ptr( NULL ) {}
+	idSysInterlockedPointer() : ptr( nullptr ) {}
 	
 	// atomically sets the pointer and returns the previous pointer value
 	T* 		Set( T* newPtr )

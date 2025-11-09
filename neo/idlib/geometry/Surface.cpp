@@ -94,7 +94,7 @@ int idSurface::Split( const idPlane& plane, const float epsilon, idSurface** fro
 		counts[sides[i]]++;
 	}
 	
-	*front = *back = NULL;
+	*front = *back = nullptr;
 	
 	// if coplanar, put on the front side if the normals match
 	if( !counts[SIDE_FRONT] && !counts[SIDE_BACK] )
@@ -165,9 +165,9 @@ int idSurface::Split( const idPlane& plane, const float epsilon, idSurface** fro
 	
 	// allocate indexes to construct the triangle indexes for the front and back surface
 	vertexRemap[0] = ( int* ) _alloca( verts.Num() * sizeof( int ) );
-	memset( vertexRemap[0], -1, verts.Num() * sizeof( int ) );
+	std::memset( vertexRemap[0], -1, verts.Num() * sizeof( int ) );
 	vertexRemap[1] = ( int* ) _alloca( verts.Num() * sizeof( int ) );
-	memset( vertexRemap[1], -1, verts.Num() * sizeof( int ) );
+	std::memset( vertexRemap[1], -1, verts.Num() * sizeof( int ) );
 	
 	vertexCopyIndex[0] = ( int* ) _alloca( ( numEdgeSplitVertexes + verts.Num() ) * sizeof( int ) );
 	vertexCopyIndex[1] = ( int* ) _alloca( ( numEdgeSplitVertexes + verts.Num() ) * sizeof( int ) );
@@ -382,13 +382,13 @@ int idSurface::Split( const idPlane& plane, const float epsilon, idSurface** fro
 	
 	if( frontOnPlaneEdges )
 	{
-		memcpy( frontOnPlaneEdges, onPlaneEdges[0], numOnPlaneEdges[0] * sizeof( int ) );
+		std::memcpy( frontOnPlaneEdges, onPlaneEdges[0], numOnPlaneEdges[0] * sizeof( int ) );
 		frontOnPlaneEdges[numOnPlaneEdges[0]] = -1;
 	}
 	
 	if( backOnPlaneEdges )
 	{
-		memcpy( backOnPlaneEdges, onPlaneEdges[1], numOnPlaneEdges[1] * sizeof( int ) );
+		std::memcpy( backOnPlaneEdges, onPlaneEdges[1], numOnPlaneEdges[1] * sizeof( int ) );
 		backOnPlaneEdges[numOnPlaneEdges[1]] = -1;
 	}
 	
@@ -501,7 +501,7 @@ bool idSurface::ClipInPlace( const idPlane& plane, const float epsilon, const bo
 	
 	// allocate indexes to construct the triangle indexes for the front and back surface
 	vertexRemap = ( int* ) _alloca( verts.Num() * sizeof( int ) );
-	memset( vertexRemap, -1, verts.Num() * sizeof( int ) );
+	std::memset( vertexRemap, -1, verts.Num() * sizeof( int ) );
 	
 	vertexCopyIndex = ( int* ) _alloca( ( numEdgeSplitVertexes + verts.Num() ) * sizeof( int ) );
 	
@@ -692,7 +692,7 @@ bool idSurface::IsConnected() const
 	numIslands = 0;
 	numTris = indexes.Num() / 3;
 	islandNum = ( int* ) _alloca16( numTris * sizeof( int ) );
-	memset( islandNum, -1, numTris * sizeof( int ) );
+	std::memset( islandNum, -1, numTris * sizeof( int ) );
 	queue = ( int* ) _alloca16( numTris * sizeof( int ) );
 	
 	for( i = 0; i < numTris; i++ )
@@ -968,7 +968,7 @@ void idSurface::GenerateEdgeIndexes()
 	surfaceEdge_t e[3];
 	
 	vertexEdges = ( int* ) _alloca16( verts.Num() * sizeof( int ) );
-	memset( vertexEdges, -1, verts.Num() * sizeof( int ) );
+	std::memset( vertexEdges, -1, verts.Num() * sizeof( int ) );
 	edgeChain = ( int* ) _alloca16( indexes.Num() * sizeof( int ) );
 	
 	edgeIndexes.SetNum( indexes.Num() );

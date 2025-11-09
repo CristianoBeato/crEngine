@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 // CMediaPreviewDlg dialog
 
 IMPLEMENT_DYNAMIC(CMediaPreviewDlg, CDialog)
-CMediaPreviewDlg::CMediaPreviewDlg(CWnd* pParent /*=NULL*/)
+CMediaPreviewDlg::CMediaPreviewDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CMediaPreviewDlg::IDD, pParent)
 {
 	mode = MATERIALS;
@@ -96,12 +96,12 @@ BOOL CMediaPreviewDlg::OnInitDialog()
 	CRect rct;
 	LONG lSize = sizeof(rct);
 	if (LoadRegistryInfo("Radiant::EditPreviewWindow", &rct, &lSize))  {
-		SetWindowPos(NULL, rct.left, rct.top, rct.Width(), rct.Height(), SWP_SHOWWINDOW);
+		SetWindowPos(nullptr, rct.left, rct.top, rct.Width(), rct.Height(), SWP_SHOWWINDOW);
 	}
 
 	GetClientRect(rct);
 	int h = (mode == GUIS) ? (rct.Width() - 8) / 1.333333f : rct.Height() - 8;
-	wndPreview.SetWindowPos(NULL, 4, 4, rct.Width() - 8, h, SWP_SHOWWINDOW);
+	wndPreview.SetWindowPos(nullptr, 4, 4, rct.Width() - 8, h, SWP_SHOWWINDOW);
 	
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -110,14 +110,14 @@ BOOL CMediaPreviewDlg::OnInitDialog()
 void CMediaPreviewDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
-	if (wndPreview.GetSafeHwnd() == NULL) {
+	if (wndPreview.GetSafeHwnd() == nullptr) {
 		return;
 	}
 	CRect rect;
 	GetClientRect(rect);
 	//int h = (mode == GUIS) ? (rect.Width() - 8) / 1.333333f : rect.Height() - 8;
 	int h = rect.Height() - 8;
-	wndPreview.SetWindowPos(NULL, 4, 4, rect.Width() - 8, h, SWP_SHOWWINDOW);
+	wndPreview.SetWindowPos(nullptr, 4, 4, rect.Width() - 8, h, SWP_SHOWWINDOW);
 }
 
 void CMediaPreviewDlg::OnDestroy()
@@ -137,7 +137,7 @@ void CMediaPreviewDlg::OnLButtonDown(UINT nFlags, CPoint point)
 		idUserInterface *gui = uiManager->FindGui( media );
 		if (gui) {
 			sysEvent_t  ev;
-			memset( &ev, 0, sizeof( ev ) );
+			std::memset( &ev, 0, sizeof( ev ) );
 			ev.evType = SE_KEY;
 			ev.evValue = K_MOUSE1;
 			ev.evValue2 = 1;
@@ -153,7 +153,7 @@ void CMediaPreviewDlg::OnLButtonUp(UINT nFlags, CPoint point)
 		idUserInterface *gui = uiManager->FindGui( media );
 		if (gui) {
 			sysEvent_t  ev;
-			memset( &ev, 0, sizeof( ev ) );
+			std::memset( &ev, 0, sizeof( ev ) );
 			ev.evType = SE_KEY;
 			ev.evValue = K_MOUSE1;
 			ev.evValue2 = 0;
@@ -171,7 +171,7 @@ void CMediaPreviewDlg::OnMouseMove(UINT nFlags, CPoint point)
 			CRect rct;
 			wndPreview.GetClientRect(rct);
 			sysEvent_t  ev;
-			memset( &ev, 0, sizeof( ev ) );
+			std::memset( &ev, 0, sizeof( ev ) );
 			ev.evType = SE_MOUSE;
 			ev.evValue = (point.x / rct.Width()) * 640.0f;
 			ev.evValue2 = (point.y / rct.Height()) * 480.0f;

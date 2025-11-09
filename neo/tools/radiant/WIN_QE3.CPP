@@ -73,17 +73,17 @@ void Sys_SetTitle(const char *text) {
 HCURSOR waitcursor;
 
 void Sys_BeginWait(void) {
-	waitcursor = SetCursor(LoadCursor(NULL, IDC_WAIT));
+	waitcursor = SetCursor(LoadCursor(nullptr, IDC_WAIT));
 }
 
 bool Sys_Waiting() {
-	return (waitcursor != NULL);
+	return (waitcursor != nullptr);
 }
 
 void Sys_EndWait(void) {
 	if (waitcursor) {
 		SetCursor(waitcursor);
-		waitcursor = NULL;
+		waitcursor = nullptr;
 	}
 }
 
@@ -179,7 +179,7 @@ int WINAPI QEW_SetupPixelFormat(HDC hDC, bool zbuffer)
 
 	int pixelFormat = ChoosePixelFormat(hDC, &win32.pfd);
 	if (pixelFormat > 0) {
-		if (SetPixelFormat(hDC, pixelFormat, &win32.pfd) == NULL) {
+		if (SetPixelFormat(hDC, pixelFormat, &win32.pfd) == nullptr) {
 			Error("SetPixelFormat failed.");
 		}
 	}

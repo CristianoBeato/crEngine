@@ -77,8 +77,8 @@ ID_INLINE idVectorSet<type, dimension>::idVectorSet()
 {
 	hash.Clear( idMath::IPow( boxHashSize, dimension ), 128 );
 	boxHashSize = 16;
-	memset( boxInvSize, 0, dimension * sizeof( boxInvSize[0] ) );
-	memset( boxHalfSize, 0, dimension * sizeof( boxHalfSize[0] ) );
+	std::memset( boxInvSize, 0, dimension * sizeof( boxInvSize[0] ) );
+	std::memset( boxHalfSize, 0, dimension * sizeof( boxHalfSize[0] ) );
 }
 
 template< class type, int dimension >
@@ -223,8 +223,8 @@ ID_INLINE idVectorSubset<type, dimension>::idVectorSubset()
 {
 	hash.Clear( idMath::IPow( boxHashSize, dimension ), 128 );
 	boxHashSize = 16;
-	memset( boxInvSize, 0, dimension * sizeof( boxInvSize[0] ) );
-	memset( boxHalfSize, 0, dimension * sizeof( boxHalfSize[0] ) );
+	std::memset( boxInvSize, 0, dimension * sizeof( boxInvSize[0] ) );
+	std::memset( boxHalfSize, 0, dimension * sizeof( boxHalfSize[0] ) );
 }
 
 template< class type, int dimension >

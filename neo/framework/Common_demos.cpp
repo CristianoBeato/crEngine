@@ -44,7 +44,7 @@ static idStr FindUnusedFileName( const char* format )
 	for( int i = 0 ; i < 999 ; i++ )
 	{
 		filename.Format( format, i );
-		int len = fileSystem->ReadFile( filename, NULL, NULL );
+		int len = fileSystem->ReadFile( filename, nullptr, nullptr );
 		if( len <= 0 )
 		{
 			return filename;	// file doesn't exist
@@ -108,7 +108,7 @@ void idCommonLocal::StartRecordingRenderDemo( const char* demoName )
 	{
 		common->Printf( "error opening %s\n", demoName );
 		delete writeDemo;
-		writeDemo = NULL;
+		writeDemo = nullptr;
 		return;
 	}
 	
@@ -140,7 +140,7 @@ void idCommonLocal::StopRecordingRenderDemo()
 	writeDemo->Close();
 	common->Printf( "stopped recording %s.\n", writeDemo->GetName() );
 	delete writeDemo;
-	writeDemo = NULL;
+	writeDemo = nullptr;
 	com_smp.SetInteger(1); // motorsep 12-30-2014; turn multithreading back on
 }
 
@@ -172,7 +172,7 @@ void idCommonLocal::StopPlayingRenderDemo()
 	common->Printf( "stopped playing %s.\n", readDemo->GetName() );
 
 	delete readDemo;
-	readDemo = NULL;
+	readDemo = nullptr;
 	
 	if( timeDemo )
 	{
@@ -243,7 +243,7 @@ void idCommonLocal::StartPlayingRenderDemo( idStr demoName )
 	{
 		common->Printf( "couldn't open %s\n", demoName.c_str() );
 		delete readDemo;
-		readDemo = NULL;
+		readDemo = nullptr;
 		Stop();
 		StartMenu();
 		return;
@@ -526,7 +526,7 @@ void idCommonLocal::AdvanceRenderDemo( bool singleFrameOnly )
 Common_DemoShot_f
 ================
 */
-CONSOLE_COMMAND( demoShot, "writes a screenshot as a demo", NULL )
+CONSOLE_COMMAND( demoShot, "writes a screenshot as a demo", nullptr )
 {
 	if( args.Argc() != 2 )
 	{
@@ -544,7 +544,7 @@ CONSOLE_COMMAND( demoShot, "writes a screenshot as a demo", NULL )
 Common_RecordDemo_f
 ================
 */
-CONSOLE_COMMAND( recordDemo, "records a demo", NULL )
+CONSOLE_COMMAND( recordDemo, "records a demo", nullptr )
 {
 	if( args.Argc() != 2 )
 	{
@@ -583,7 +583,7 @@ CONSOLE_COMMAND( compressDemo, "compresses a demo file", idCmdSystem::ArgComplet
 Common_StopRecordingDemo_f
 ================
 */
-CONSOLE_COMMAND( stopRecording, "stops demo recording", NULL )
+CONSOLE_COMMAND( stopRecording, "stops demo recording", nullptr )
 {
 	commonLocal.StopRecordingRenderDemo();
 }
@@ -639,7 +639,7 @@ CONSOLE_COMMAND( aviDemo, "writes AVIs for a demo", idCmdSystem::ArgCompletion_D
 Common_AVIGame_f
 ================
 */
-CONSOLE_COMMAND( aviGame, "writes AVIs for the current game", NULL )
+CONSOLE_COMMAND( aviGame, "writes AVIs for the current game", nullptr )
 {
 	commonLocal.AVIGame( args.Argv( 1 ) );
 }

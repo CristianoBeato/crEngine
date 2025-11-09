@@ -99,7 +99,7 @@ ID_INLINE idPluecker::idPluecker()
 
 ID_INLINE idPluecker::idPluecker( const float* a )
 {
-	memcpy( p, a, 6 * sizeof( float ) );
+	std::memcpy( p, a, 6 * sizeof( float ) );
 }
 
 ID_INLINE idPluecker::idPluecker( const idVec3& start, const idVec3& end )

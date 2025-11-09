@@ -50,7 +50,7 @@ CPropTreeItemStatic::~CPropTreeItemStatic()
 
 void CPropTreeItemStatic::DrawAttribute(CDC* pDC, const RECT& rc)
 {
-	ASSERT(m_pProp!=NULL);
+	ASSERT(m_pProp!=nullptr);
 
 	pDC->SelectObject(m_pProp->GetNormalFont());
 	pDC->SetTextColor(RGB(0,0,0));

@@ -136,7 +136,7 @@ protected:
 	constraintType_t		type;						// constraint type
 	idStr					name;						// name of constraint
 	idAFBody* 				body1;						// first constrained body
-	idAFBody* 				body2;						// second constrained body, NULL for world
+	idAFBody* 				body2;						// second constrained body, nullptr for world
 	idPhysics_AF* 			physics;					// for adding additional constraints like limits
 	
 	// simulation variables set by Evaluate

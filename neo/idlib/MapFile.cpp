@@ -93,14 +93,14 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 	
 	if( !src.ExpectTokenString( "{" ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	// read the material (we had an implicit 'textures/' in the old format...)
 	if( !src.ReadToken( &token ) )
 	{
 		src.Error( "idMapPatch::Parse: unexpected EOF" );
-		return NULL;
+		return nullptr;
 	}
 	
 	// Parse it
@@ -109,7 +109,7 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 		if( !src.Parse1DMatrix( 7, info ) )
 		{
 			src.Error( "idMapPatch::Parse: unable to Parse patchDef3 info" );
-			return NULL;
+			return nullptr;
 		}
 	}
 	else
@@ -117,7 +117,7 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 		if( !src.Parse1DMatrix( 5, info ) )
 		{
 			src.Error( "idMapPatch::Parse: unable to parse patchDef2 info" );
-			return NULL;
+			return nullptr;
 		}
 	}
 	
@@ -144,7 +144,7 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 	{
 		src.Error( "idMapPatch::Parse: bad size" );
 		delete patch;
-		return NULL;
+		return nullptr;
 	}
 	
 	// these were written out in the wrong order, IMHO
@@ -152,7 +152,7 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 	{
 		src.Error( "idMapPatch::Parse: bad patch vertex data" );
 		delete patch;
-		return NULL;
+		return nullptr;
 	}
 	
 	
@@ -162,7 +162,7 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 		{
 			src.Error( "idMapPatch::Parse: bad vertex row data" );
 			delete patch;
-			return NULL;
+			return nullptr;
 		}
 		for( i = 0; i < patch->GetHeight(); i++ )
 		{
@@ -172,7 +172,7 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 			{
 				src.Error( "idMapPatch::Parse: bad vertex column data" );
 				delete patch;
-				return NULL;
+				return nullptr;
 			}
 			
 			vert = &( ( *patch )[i * patch->GetWidth() + j] );
@@ -185,7 +185,7 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 		{
 			delete patch;
 			src.Error( "idMapPatch::Parse: unable to parse patch control points" );
-			return NULL;
+			return nullptr;
 		}
 	}
 	
@@ -193,7 +193,7 @@ idMapPatch* idMapPatch::Parse( idLexer& src, const idVec3& origin, bool patchDef
 	{
 		src.Error( "idMapPatch::Parse: unable to parse patch control points, no closure" );
 		delete patch;
-		return NULL;
+		return nullptr;
 	}
 	
 	// read any key/value pairs
@@ -291,7 +291,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 	
 	if( !src.ExpectTokenString( "{" ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	do
@@ -300,7 +300,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 		{
 			src.Error( "idMapBrush::Parse: unexpected EOF" );
 			sides.DeleteContents( true );
-			return NULL;
+			return nullptr;
 		}
 		if( token == "}" )
 		{
@@ -320,7 +320,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 			{
 				src.Error( "idMapBrush::Parse: unexpected %s, expected ( or epair key string", token.c_str() );
 				sides.DeleteContents( true );
-				return NULL;
+				return nullptr;
 			}
 			
 			idStr key = token;
@@ -329,7 +329,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 			{
 				src.Error( "idMapBrush::Parse: expected epair value string not found" );
 				sides.DeleteContents( true );
-				return NULL;
+				return nullptr;
 			}
 			
 			epairs.Set( key, token );
@@ -339,7 +339,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 			{
 				src.Error( "idMapBrush::Parse: unexpected EOF" );
 				sides.DeleteContents( true );
-				return NULL;
+				return nullptr;
 			}
 		}
 		while( 1 );
@@ -355,7 +355,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 			{
 				src.Error( "idMapBrush::Parse: unable to read brush side plane definition" );
 				sides.DeleteContents( true );
-				return NULL;
+				return nullptr;
 			}
 		}
 		else
@@ -367,7 +367,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 			{
 				src.Error( "idMapBrush::Parse: unable to read brush side plane definition" );
 				sides.DeleteContents( true );
-				return NULL;
+				return nullptr;
 			}
 			
 			planepts[0] -= origin;
@@ -383,7 +383,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 		{
 			src.Error( "idMapBrush::Parse: unable to read brush side texture matrix" );
 			sides.DeleteContents( true );
-			return NULL;
+			return nullptr;
 		}
 		side->origin = origin;
 		
@@ -392,7 +392,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 		{
 			src.Error( "idMapBrush::Parse: unable to read brush side material" );
 			sides.DeleteContents( true );
-			return NULL;
+			return nullptr;
 		}
 		
 		// we had an implicit 'textures/' in the old format...
@@ -421,7 +421,7 @@ idMapBrush* idMapBrush::Parse( idLexer& src, const idVec3& origin, bool newForma
 	if( !src.ExpectTokenString( "}" ) )
 	{
 		sides.DeleteContents( true );
-		return NULL;
+		return nullptr;
 	}
 	
 	idMapBrush* brush = new( TAG_IDLIB ) idMapBrush();
@@ -467,7 +467,7 @@ idMapBrush* idMapBrush::ParseQ3( idLexer& src, const idVec3& origin )
 		{
 			src.Error( "idMapBrush::ParseQ3: unable to read brush side plane definition" );
 			sides.DeleteContents( true );
-			return NULL;
+			return nullptr;
 		}
 		
 		planepts[0] -= origin;
@@ -481,7 +481,7 @@ idMapBrush* idMapBrush::ParseQ3( idLexer& src, const idVec3& origin )
 		{
 			src.Error( "idMapBrush::ParseQ3: unable to read brush side material" );
 			sides.DeleteContents( true );
-			return NULL;
+			return nullptr;
 		}
 		
 		// we have an implicit 'textures/' in the old format
@@ -587,13 +587,13 @@ idMapEntity* idMapEntity::Parse( idLexer& src, bool worldSpawn, float version )
 	
 	if( !src.ReadToken( &token ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	if( token != "{" )
 	{
 		src.Error( "idMapEntity::Parse: { not found, found %s", token.c_str() );
-		return NULL;
+		return nullptr;
 	}
 	
 	mapEnt = new( TAG_IDLIB ) idMapEntity();
@@ -610,7 +610,7 @@ idMapEntity* idMapEntity::Parse( idLexer& src, bool worldSpawn, float version )
 		if( !src.ReadToken( &token ) )
 		{
 			src.Error( "idMapEntity::Parse: EOF without closing brace" );
-			return NULL;
+			return nullptr;
 		}
 		if( token == "}" )
 		{
@@ -623,7 +623,7 @@ idMapEntity* idMapEntity::Parse( idLexer& src, bool worldSpawn, float version )
 			if( !src.ReadToken( &token ) )
 			{
 				src.Error( "idMapEntity::Parse: unexpected EOF" );
-				return NULL;
+				return nullptr;
 			}
 			
 			if( worldent )
@@ -637,7 +637,7 @@ idMapEntity* idMapEntity::Parse( idLexer& src, bool worldSpawn, float version )
 				mapBrush = idMapBrush::Parse( src, origin, ( !token.Icmp( "brushDef2" ) || !token.Icmp( "brushDef3" ) ), version );
 				if( !mapBrush )
 				{
-					return NULL;
+					return nullptr;
 				}
 				mapEnt->AddPrimitive( mapBrush );
 			}
@@ -647,7 +647,7 @@ idMapEntity* idMapEntity::Parse( idLexer& src, bool worldSpawn, float version )
 				mapPatch = idMapPatch::Parse( src, origin, !token.Icmp( "patchDef3" ), version );
 				if( !mapPatch )
 				{
-					return NULL;
+					return nullptr;
 				}
 				mapEnt->AddPrimitive( mapPatch );
 			}
@@ -658,7 +658,7 @@ idMapEntity* idMapEntity::Parse( idLexer& src, bool worldSpawn, float version )
 				mapBrush = idMapBrush::ParseQ3( src, origin );
 				if( !mapBrush )
 				{
-					return NULL;
+					return nullptr;
 				}
 				mapEnt->AddPrimitive( mapBrush );
 			}
@@ -839,7 +839,7 @@ bool idMapFile::Parse( const char* filename, bool ignoreRegion, bool osPath )
 	{
 	
 		// "removeEntities" "classname" can be set in the worldspawn to remove all entities with the given classname
-		const idKeyValue* removeEntities = entities[0]->epairs.MatchPrefix( "removeEntities", NULL );
+		const idKeyValue* removeEntities = entities[0]->epairs.MatchPrefix( "removeEntities", nullptr );
 		while( removeEntities )
 		{
 			RemoveEntities( removeEntities->GetValue() );
@@ -1065,7 +1065,7 @@ bool idMapFile::NeedsReload()
 	if( name.Length() )
 	{
 		ID_TIME_T time = FILE_NOT_FOUND_TIMESTAMP;
-		if( idLib::fileSystem->ReadFile( name, NULL, &time ) > 0 )
+		if( idLib::fileSystem->ReadFile( name, nullptr, &time ) > 0 )
 		{
 			return ( time > fileTime );
 		}

@@ -195,7 +195,7 @@ static void OutlineNormalMap( byte *data, int width, int height, int emptyR, int
 	byte	*out;
 
 	orig = (byte *)Mem_Alloc( width * height * 4, TAG_RENDERBUMP );
-	memcpy( orig, data, width * height * 4 );
+	std::memcpy( orig, data, width * height * 4 );
 
 	for ( i = 0 ; i < width ; i++ ) {
 		for ( j = 0 ; j < height ; j++ ) {
@@ -250,7 +250,7 @@ static void OutlineColorMap( byte *data, int width, int height, int emptyR, int 
 	byte	*out;
 
 	orig = (byte *)Mem_Alloc( width * height * 4, TAG_RENDERBUMP);
-	memcpy( orig, data, width * height * 4 );
+	std::memcpy( orig, data, width * height * 4 );
 
 	for ( i = 0 ; i < width ; i++ ) {
 		for ( j = 0 ; j < height ; j++ ) {
@@ -319,7 +319,7 @@ static triHash_t *CreateTriHash( const srfDmapTriangles_t *highMesh ) {
 	int			maxLinks, numLinks;
 
 	hash = (triHash_t *)Mem_Alloc( sizeof( *hash ), TAG_RENDERBUMP);
-	memset( hash, 0, sizeof( *hash ) );
+	std::memset( hash, 0, sizeof( *hash ) );
 
 	// find the bounding volume for the mesh
 	bounds.Clear();
@@ -340,7 +340,7 @@ static triHash_t *CreateTriHash( const srfDmapTriangles_t *highMesh ) {
 	}
 
 	// a -1 link number terminated the link chain
-	memset( hash->binLinks, -1, sizeof( hash->binLinks ) );
+	std::memset( hash->binLinks, -1, sizeof( hash->binLinks ) );
 
 	numLinks = 0;
 
@@ -899,7 +899,7 @@ static idDmapRenderModel* CombineModelSurfaces(idDmapRenderModel* model ) {
 		const dmapModelSurface_t*surf = model->Surface(i);
 		const srfDmapTriangles_t *tri = surf->geometry;
 
-		memcpy( verts + numVerts, tri->Verts(), tri->NumVerts() * sizeof( tri->Verts()[0] ) );
+		std::memcpy( verts + numVerts, tri->Verts(), tri->NumVerts() * sizeof( tri->Verts()[0] ) );
 		for ( j = 0 ; j < tri->NumIndexes() ; j++ ) {
 			indexes[numIndexes+j] = numVerts + tri->Indexes()[j];
 		}
@@ -1166,7 +1166,7 @@ void RenderBump_f( const idCmdArgs &args ) {
 	int		i, j;
 	const char	*cmdLine;
 	int		numRenderBumps;
-	renderBump_t	*renderBumps, *rb = NULL;
+	renderBump_t	*renderBumps, *rb = nullptr;
 	renderBump_t	opt;
 	int		startTime, endTime;
 
@@ -1199,7 +1199,7 @@ void RenderBump_f( const idCmdArgs &args ) {
 		const dmapModelSurface_t	*ms = lowPoly->Surface( i );
 		commonLocal.LoadPacifierBinarizeInfo(va("Surface (%d / %d)", i,lowPolySurf));
 		// default options
-		memset( &opt, 0, sizeof( opt ) );
+		std::memset( &opt, 0, sizeof( opt ) );
 		opt.width = 512;
 		opt.height = 512;
 		opt.antiAlias = 1;
@@ -1452,11 +1452,11 @@ void RenderBumpFlat_f( const idCmdArgs &args ) {
 	int		sample;
 
 	sumBuffer = (int *)Mem_Alloc( width * height * 4 * 4, TAG_RENDERBUMP);
-	memset( sumBuffer, 0, width * height * 4 * 4 );
+	std::memset( sumBuffer, 0, width * height * 4 * 4 );
 	buffer = (byte *)Mem_Alloc( width * height * 4, TAG_RENDERBUMP);
 
 	colorSumBuffer = (int *)Mem_Alloc( width * height * 4 * 4, TAG_RENDERBUMP);
-	memset( sumBuffer, 0, width * height * 4 * 4 );
+	std::memset( sumBuffer, 0, width * height * 4 * 4 );
 
 	flat = false;
 //flat = true;
@@ -1510,9 +1510,9 @@ void RenderBumpFlat_f( const idCmdArgs &args ) {
 
 							plane.FromPoints( *a, *b, *c );
 
-							// NULLNORMAL is used by the artists to force an area to reflect no
+							// nullptrNORMAL is used by the artists to force an area to reflect no
 							// light at all
-							if ( surf->shader->GetSurfaceFlags() & SURF_NULLNORMAL ) {
+							if ( surf->shader->GetSurfaceFlags() & SURF_nullptrNORMAL ) {
 								glColor3f( 0.5, 0.5, 0.5 );
 							} else {
 								glColor3f( 0.5 + 0.5*plane[0], 0.5 - 0.5*plane[2], 0.5 - 0.5*plane[1] );
@@ -1530,9 +1530,9 @@ void RenderBumpFlat_f( const idCmdArgs &args ) {
 								v = mesh->indexes[j+k];
 								n = mesh->verts[v].normal.ToFloatPtr();
 
-								// NULLNORMAL is used by the artists to force an area to reflect no
+								// nullptrNORMAL is used by the artists to force an area to reflect no
 								// light at all
-								if ( surf->shader->GetSurfaceFlags() & SURF_NULLNORMAL ) {
+								if ( surf->shader->GetSurfaceFlags() & SURF_nullptrNORMAL ) {
 									glColor3f( 0.5, 0.5, 0.5 );
 								} else {
 								// we are going to flip the normal Z direction

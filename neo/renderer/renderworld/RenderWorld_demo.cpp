@@ -90,7 +90,7 @@ void idRenderWorldLocal::StartWritingDemo( idDemoFile* demo )
 
 void idRenderWorldLocal::StopWritingDemo()
 {
-	//	writeDemo = NULL;
+	//	writeDemo = nullptr;
 }
 
 /*
@@ -728,9 +728,9 @@ void idRenderWorldLocal::ReadRenderLight()
 		common->Printf( "DC_UPDATE_LIGHTDEF: init %i\n", index );
 	}
 	/* Initialize Pointers */
-	light.prelightModel = NULL;
-	light.shader = NULL;
-	light.referenceSound = NULL;
+	light.prelightModel = nullptr;
+	light.shader = nullptr;
+	light.referenceSound = nullptr;
 
 	common->ReadDemo()->ReadMat3( light.axis );
 	common->ReadDemo()->ReadVec3( light.origin );
@@ -848,11 +848,11 @@ void idRenderWorldLocal::ReadRenderEntity()
 	//tr.pc.c_entityUpdates++;
 	while ( index >= entityDefs.Num() )
 	{
-		entityDefs.Append( NULL );
+		entityDefs.Append( nullptr );
 	}
 
 	idRenderEntityLocal* def = entityDefs[ index ];
-	if ( def == NULL )
+	if ( def == nullptr )
 	{
 		def = new(TAG_RENDER_ENTITY)idRenderEntityLocal;
 		def->world = this;

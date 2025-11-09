@@ -257,7 +257,7 @@ char	*TranslateString (char *buf);
 
 void ProjectDialog (void);
 
-void FillTextureMenu (CStringArray* pArray = NULL);
+void FillTextureMenu (CStringArray* pArray = nullptr);
 void FillBSPMenu (void);
 
 BOOL CALLBACK Win_Dialog (
@@ -352,7 +352,7 @@ extern void Brush_FlipTexture_BrushPrimit(brush_t *b, bool y);
 // new brush primitive stuff
 //void ComputeAxisBase( idVec3 &normal,idVec3 &texS,idVec3 &texT );
 void FaceToBrushPrimitFace(face_t *f);
-void EmitBrushPrimitTextureCoordinates(face_t *, idWinding *, patchMesh_t *patch = NULL);
+void EmitBrushPrimitTextureCoordinates(face_t *, idWinding *, patchMesh_t *patch = nullptr);
 // EmitTextureCoordinates, is old code used for brush to brush primitive conversion
 void EmitTextureCoordinates ( idVec5 &xyzst, const idMaterial *q, face_t *f, bool force = false);
 void BrushPrimit_Parse(brush_t *, bool newFormat, const idVec3 origin);

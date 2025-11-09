@@ -431,7 +431,7 @@ idLZWCompressor::ClearHash
 */
 void idLZWCompressor::ClearHash()
 {
-	memset( hash, 0xFF, sizeof( hash ) );
+	std::memset( hash, 0xFF, sizeof( hash ) );
 }
 
 /*
@@ -460,7 +460,7 @@ bool idZeroRunLengthCompressor::WriteRun()
 			maxSize = -1;
 			return false;
 		}
-		if( comp != NULL )
+		if( comp != nullptr )
 		{
 			comp->WriteByte( 0 );
 			comp->WriteByte( ( uint8_t )zeroCount );
@@ -494,7 +494,7 @@ bool idZeroRunLengthCompressor::WriteByte( uint8_t value )
 			maxSize = -1;
 			return false;
 		}
-		if( comp != NULL )
+		if( comp != nullptr )
 		{
 			comp->WriteByte( value );
 		}
@@ -565,7 +565,7 @@ int idZeroRunLengthCompressor::End()
 int idZeroRunLengthCompressor::ReadInternal()
 {
 	compressed++;
-	if( comp != NULL )
+	if( comp != nullptr )
 	{
 		return comp->ReadByte();
 	}

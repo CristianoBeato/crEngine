@@ -54,7 +54,7 @@ If you have questions concerning this license or the applicable additional terms
 
 rvGESelectionMgr::rvGESelectionMgr ( )
 {
-	mWorkspace = NULL;
+	mWorkspace = nullptr;
 }
 
 /*
@@ -478,7 +478,7 @@ idWindow* rvGESelectionMgr::GetBottomMost ( void )
 	int			i;
 
 	depth  = 9999;
-	bottom = NULL;
+	bottom = nullptr;
 
 	// Loop through all the selections and find the bottom most window
 	for ( i = 0; i < mSelections.Num(); i ++ )

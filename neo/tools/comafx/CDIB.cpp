@@ -54,8 +54,8 @@ static unsigned char masktable[] = { 0x80,0x40,0x20,0x10,0x08,0x04,0x02,0x01 };
 
 CDIB::CDIB(HANDLE hDib,int nBits)
 {
-	m_pVoid = NULL;
-	m_pLinePtr = NULL;
+	m_pVoid = nullptr;
+	m_pLinePtr = nullptr;
 	m_bUseGamma=FALSE;
 	width=height=0;
 	if(hDib)
@@ -72,9 +72,9 @@ CDIB::~CDIB()
 void CDIB::DestroyDIB()
 {
 	if(m_pVoid) free(m_pVoid);
-	m_pVoid = NULL;
+	m_pVoid = nullptr;
 	if(m_pLinePtr) free(m_pLinePtr);
-	m_pLinePtr = NULL;
+	m_pLinePtr = nullptr;
 }
 
 
@@ -88,7 +88,7 @@ BOOL CDIB::Create(int width,int height,int bits)
 
 BITMAPINFOHEADER bmInfo;
 	
-	memset(&bmInfo,0,sizeof(BITMAPINFOHEADER));
+	std::memset(&bmInfo,0,sizeof(BITMAPINFOHEADER));
 	bmInfo.biSize = sizeof(BITMAPINFOHEADER);
 	bmInfo.biWidth = width;
 	bmInfo.biHeight = height;
@@ -112,7 +112,7 @@ BOOL CDIB::Create(BITMAPINFOHEADER& bmInfo)
 	if(!m_pVoid) return FALSE;
 
 	m_pInfo = (PBITMAPINFO )m_pVoid;
-	memcpy((void *)&m_pInfo->bmiHeader,(void *)&bmInfo,sizeof(BITMAPINFOHEADER));
+	std::memcpy((void *)&m_pInfo->bmiHeader,(void *)&bmInfo,sizeof(BITMAPINFOHEADER));
 	m_pRGB = (RGBQUAD *)((unsigned char *)m_pVoid + sizeof(BITMAPINFOHEADER)) ;
 	m_pBits = (unsigned char *)(m_pVoid) + sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD)*GetPaletteSize();
 
@@ -159,7 +159,7 @@ void CDIB::SetPalette(RGBQUAD *pRGB)
 int size;
 	if(!pRGB) return;
 	size = GetPaletteSize();
-	memcpy(m_pRGB,pRGB,size*sizeof(RGBQUAD));
+	std::memcpy(m_pRGB,pRGB,size*sizeof(RGBQUAD));
 }
 
 
@@ -232,7 +232,7 @@ CBitmap *CDIB::GetTempBitmap(CDC& dc)
 {
 HBITMAP hBitmap;
 CBitmap *temp;
-	ASSERT(m_pVoid != NULL);
+	ASSERT(m_pVoid != nullptr);
 	hBitmap = CreateDIBitmap(dc.m_hDC,
 				(PBITMAPINFOHEADER)m_pInfo,
 				CBM_INIT,
@@ -240,7 +240,7 @@ CBitmap *temp;
 				m_pInfo,
 				DIB_RGB_COLORS);
 
-	if(hBitmap == NULL) return NULL;
+	if(hBitmap == nullptr) return nullptr;
 	temp = CBitmap::FromHandle(hBitmap);
 	return temp;
 }
@@ -249,7 +249,7 @@ CBitmap *CDIB::GetBitmap(CDC& dc)
 {
 HBITMAP hBitmap;
 CBitmap *temp;
-	ASSERT(m_pVoid != NULL);
+	ASSERT(m_pVoid != nullptr);
 	hBitmap = CreateDIBitmap(dc.m_hDC,
 				(PBITMAPINFOHEADER)m_pInfo,
 				CBM_INIT,
@@ -257,7 +257,7 @@ CBitmap *temp;
 				m_pInfo,
 				DIB_RGB_COLORS);
 
-	if(hBitmap == NULL) return NULL;
+	if(hBitmap == nullptr) return nullptr;
 	temp = CBitmap::FromHandle(hBitmap);
 	if(temp)
 	{
@@ -265,7 +265,7 @@ CBitmap *temp;
 		LPVOID lpVoid;
 		temp->GetBitmap(&bmp);
 		lpVoid = malloc(bmp.bmWidthBytes*bmp.bmHeight);
-		if(!lpVoid) return NULL;
+		if(!lpVoid) return nullptr;
 		temp->GetBitmapBits(bmp.bmWidthBytes*bmp.bmHeight,lpVoid);
 		CBitmap *newBmp = new CBitmap;
 		newBmp->CreateBitmapIndirect(&bmp);
@@ -273,7 +273,7 @@ CBitmap *temp;
 		free(lpVoid);
 		return newBmp;
 	}
-	else return NULL;
+	else return nullptr;
 
 }
 
@@ -285,7 +285,7 @@ unsigned char *src,*dst;
 	if(source == dest) return;
 	src = GetLinePtr(source);
 	dst = GetLinePtr(dest);
-	memcpy(dst,src,bytes);
+	std::memcpy(dst,src,bytes);
 }
 
 void CDIB::InitDIB(COLORREF color)
@@ -304,7 +304,7 @@ unsigned char *ptr;
 			ptr = m_pBits + i*bytes;
 			for(j=0; j < width ; j++,ptr+=3)
 			{
-				memcpy(ptr,col,3);
+				std::memcpy(ptr,col,3);
 			}
 		}
 	}
@@ -312,7 +312,7 @@ unsigned char *ptr;
 	{
 		for(i=0,ptr = m_pBits; i < height; i++,ptr+=bytes)
 		{
-			memset(ptr,(BYTE)color,bytes);
+			std::memset(ptr,(BYTE)color,bytes);
 		}
 	}
 }
@@ -367,20 +367,20 @@ unsigned char *buffer,*srcPtr,*destPtr,*ptr;
 		ptr = buffer;
 		for(j=0; j < xNum; j++,ptr+=xRatio)
 		{
-			memset(ptr,*(srcPtr+j),xRatio);
+			std::memset(ptr,*(srcPtr+j),xRatio);
 			k=*(srcPtr+j);
 		}
-		memset(ptr,(unsigned char)k,xErr);
+		std::memset(ptr,(unsigned char)k,xErr);
 		for(j=0; j < yRatio ; j++,nYDest++)
 		{
 			destPtr = GetLinePtr(nYDest) + nXDest;
-			memcpy(destPtr,buffer,nDWidth);		
+			std::memcpy(destPtr,buffer,nDWidth);		
 		}
 	}
 	for(j=0; j < yErr; j++,nYDest++)
 	{
 		destPtr = GetLinePtr(nYDest) + nXDest;
-		memcpy(destPtr,buffer,nDWidth);		
+		std::memcpy(destPtr,buffer,nDWidth);		
 	}
 	free(buffer);
 }
@@ -450,7 +450,7 @@ int xErr,yErr;
 		while(m < nDHeight && y < k)
 		{
 			destPix = GetLinePtr(m+nYDest) + nXDest;
-			memcpy(destPix,tempPtr,nDWidth);
+			std::memcpy(destPix,tempPtr,nDWidth);
 			m++;
 			y++;
 		}
@@ -458,7 +458,7 @@ int xErr,yErr;
 	while(m < nDHeight )
 	{
 		destPix = GetLinePtr(m+nYDest) + nXDest;
-		memcpy(destPix,tempPtr,nDWidth);
+		std::memcpy(destPix,tempPtr,nDWidth);
 		m++;
 	}
 	free(tempPtr);
@@ -513,7 +513,7 @@ unsigned char *srcPtr,*destPtr;
 			{
 				srcPtr = dibSrc.GetLinePtr(k);
 				destPtr = GetLinePtr(l);
-				memcpy(destPtr+nXDest,srcPtr+nSrcX,nWidth);
+				std::memcpy(destPtr+nXDest,srcPtr+nSrcX,nWidth);
 			}
 		}
 	}
@@ -551,7 +551,7 @@ BOOL CDIB::CopyDIB(CDIB& dib)
 	if(Create(dib.m_pInfo->bmiHeader))
 	{
 		SetPalette(dib.m_pRGB);
-		memcpy(m_pBits,dib.m_pBits,height*bytes);
+		std::memcpy(m_pBits,dib.m_pBits,height*bytes);
 		return TRUE;
 	}
 	return FALSE;
@@ -605,17 +605,17 @@ int nSize;
 HANDLE hMem;
 	nSize = sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD)*GetPaletteSize() + bytes*height;
 	hMem = GlobalAlloc(GMEM_DDESHARE | GMEM_MOVEABLE,nSize);
-	if(hMem  == NULL) return NULL;
+	if(hMem  == nullptr) return nullptr;
 UCHAR *lpVoid,*pBits;
 LPBITMAPINFOHEADER pHead;
 RGBQUAD *pRgb;
 	lpVoid = (UCHAR *)GlobalLock(hMem);
 	pHead = (LPBITMAPINFOHEADER )lpVoid;
-	memcpy(pHead,&m_pInfo->bmiHeader,sizeof(BITMAPINFOHEADER));
+	std::memcpy(pHead,&m_pInfo->bmiHeader,sizeof(BITMAPINFOHEADER));
 	pRgb = (RGBQUAD *)(lpVoid + sizeof(BITMAPINFOHEADER) );
-	memcpy(pRgb,m_pRGB,sizeof(RGBQUAD)*GetPaletteSize());
+	std::memcpy(pRgb,m_pRGB,sizeof(RGBQUAD)*GetPaletteSize());
 	pBits = lpVoid + sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD)*GetPaletteSize();
-	memcpy(pBits,m_pBits,height*bytes);
+	std::memcpy(pBits,m_pBits,height*bytes);
 	GlobalUnlock(lpVoid);
 	return hMem;
 }
@@ -650,9 +650,9 @@ RGBQUAD *pRgb;
 		return FALSE;
 	}
 	pRgb = (RGBQUAD *)(lpVoid + sizeof(BITMAPINFOHEADER) );
-	memcpy(m_pRGB,pRgb,sizeof(RGBQUAD)*GetPaletteSize());
+	std::memcpy(m_pRGB,pRgb,sizeof(RGBQUAD)*GetPaletteSize());
 	pBits = lpVoid + sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD)*GetPaletteSize();
-	memcpy(m_pBits,pBits,height*bytes);
+	std::memcpy(m_pBits,pBits,height*bytes);
 	GlobalUnlock(lpVoid);
 	return TRUE;
 }
@@ -718,7 +718,7 @@ int i,j,w,h;
 unsigned char *sPtr,*dPtr;
 	w = Width();
 	h = Height();
-	memset(CachePtr,0,sizeof(CachePtr));
+	std::memset(CachePtr,0,sizeof(CachePtr));
 	for(i=0; i < h; i++)
 	{
 		dPtr = GetLinePtr(i);
@@ -740,7 +740,7 @@ unsigned char *sPtr,*dPtr;
 unsigned char cols[2];
 	w = Width();
 	h = Height();
-	memset(CachePtr,0,sizeof(CachePtr));
+	std::memset(CachePtr,0,sizeof(CachePtr));
 	cols[0]=ClosestColor(dib.m_pRGB);
 	cols[1]=ClosestColor(dib.m_pRGB+1);
 	for(i=0; i < h; i++)
@@ -763,7 +763,7 @@ unsigned char *sPtr,*dPtr;
 unsigned char cols[16];
 	w = Width();
 	h = Height();
-	memset(CachePtr,0,sizeof(CachePtr));
+	std::memset(CachePtr,0,sizeof(CachePtr));
 	for(i=0; i < 16; i++)
 	{
 		cols[i]=ClosestColor(dib.m_pRGB+i);
@@ -793,7 +793,7 @@ unsigned char *sPtr,*dPtr;
 unsigned char cols[256];
 	w = Width();
 	h = Height();
-	memset(CachePtr,0,sizeof(CachePtr));
+	std::memset(CachePtr,0,sizeof(CachePtr));
 	for(i=0; i < 256; i++)
 	{
 		cols[i]=ClosestColor(dib.m_pRGB+i);
@@ -896,7 +896,7 @@ CFile file;
 		return FALSE;
 	}
 	::ZeroMemory(&bFile,sizeof(bFile));
-	memcpy((void *)&bFile.bfType,"BM",2);
+	std::memcpy((void *)&bFile.bfType,"BM",2);
 	bFile.bfSize = GetDIBSize() + sizeof(bFile);
 	bFile.bfOffBits = sizeof(BITMAPINFOHEADER) + GetPaletteSize()*sizeof(RGBQUAD) + sizeof(BITMAPFILEHEADER);
 	file.Write(&bFile,sizeof(bFile));
@@ -943,7 +943,7 @@ BYTE colors[256],*ptr;
 int nNum=0,i,j,w,d;
 	w = Width();
 	d = Height();
-	memset(colors,0,256);
+	std::memset(colors,0,256);
 	for(i=0; i < d; i++)
 	{
 		ptr = GetLinePtr(i);
@@ -966,7 +966,7 @@ BYTE *ptr;
 int nNum=0,i,j,w,d;
 	w = Width();
 	d = Height();
-	memset(array,0,256);
+	std::memset(array,0,256);
 	for(i=0; i < d; i++)
 	{
 		ptr = GetLinePtr(i);
@@ -993,13 +993,13 @@ BOOL CDIB::SwitchFrom24(CDIB& dib)
 {
 int i,j,w,h,c;
 unsigned char *sPtr,*dPtr;
-BYTE *index_ptr=NULL;
+BYTE *index_ptr=nullptr;
 RGBQUAD rgb;
 	w = Width();
 	h = Height();
 	index_ptr = (BYTE *)malloc(0x7FFF+1);
 	if(!index_ptr) return FALSE;
-	memset(CachePtr,0,sizeof(CachePtr));
+	std::memset(CachePtr,0,sizeof(CachePtr));
 	for(i=0; i <= 0x7FFF; i++)
 	{
 		rgb.rgbRed = (((i & 0x7C00)>>10) << 3) | 0x07;

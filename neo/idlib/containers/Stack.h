@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-#define idStack( type, next )		idStackTemplate<type, (int)&(((type*)NULL)->next)>
+#define idStack( type, next )		idStackTemplate<type, (int)&(((type*)nullptr)->next)>
 
 template< class type, int nextOffset >
 class idStackTemplate
@@ -58,7 +58,7 @@ private:
 template< class type, int nextOffset >
 idStackTemplate<type, nextOffset>::idStackTemplate()
 {
-	top = bottom = NULL;
+	top = bottom = nullptr;
 }
 
 template< class type, int nextOffset >
@@ -83,9 +83,9 @@ type* idStackTemplate<type, nextOffset>::Get()
 		top = STACK_NEXT_PTR( top );
 		if( bottom == element )
 		{
-			bottom = NULL;
+			bottom = nullptr;
 		}
-		STACK_NEXT_PTR( element ) = NULL;
+		STACK_NEXT_PTR( element ) = nullptr;
 	}
 	return element;
 }

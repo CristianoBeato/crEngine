@@ -244,7 +244,7 @@ ID_INLINE bool idClipModel::IsTraceModel() const
 
 ID_INLINE bool idClipModel::IsLinked() const
 {
-	return ( clipLinks != NULL );
+	return ( clipLinks != nullptr );
 }
 
 ID_INLINE bool idClipModel::IsEnabled() const
@@ -261,7 +261,7 @@ ID_INLINE const idTraceModel* idClipModel::GetTraceModel() const
 {
 	if( !IsTraceModel() )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return idClipModel::GetCachedTraceModel( traceModelIndex );
 }
@@ -361,7 +361,7 @@ private:
 
 ID_INLINE bool idClip::TracePoint( trace_t& results, const idVec3& start, const idVec3& end, int contentMask, const idEntity* passEntity )
 {
-	Translation( results, start, end, NULL, mat3_identity, contentMask, passEntity );
+	Translation( results, start, end, nullptr, mat3_identity, contentMask, passEntity );
 	return ( results.fraction < 1.0f );
 }
 

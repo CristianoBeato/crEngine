@@ -136,14 +136,14 @@ public:
 	// Returns the root item of the tree
 	CPropTreeItem* GetRootItem();
 
-	// Returns the focused item or NULL for none
+	// Returns the focused item or nullptr for none
 	CPropTreeItem* GetFocusedItem();
 
 	// Enumerates an item and all its child items
 	BOOL EnumItems(CPropTreeItem* pItem, ENUMPROPITEMPROC proc, LPARAM lParam = 0L);
 
 	// Insert a created CPropTreeItem into the control
-	CPropTreeItem* InsertItem(CPropTreeItem* pItem, CPropTreeItem* pParent = NULL);
+	CPropTreeItem* InsertItem(CPropTreeItem* pItem, CPropTreeItem* pParent = nullptr);
 
 	// Delete an item and ALL its children
 	void DeleteItem(CPropTreeItem* pItem);
@@ -228,7 +228,7 @@ public:
 	void SetOriginOffset(LONG nOffset);
 	void UpdatedItems();
 	void UpdateMoveAllItems();
-	void RefreshItems(CPropTreeItem* pItem = NULL);
+	void RefreshItems(CPropTreeItem* pItem = nullptr);
 
 	// enable or disable tree input
 	void DisableInput(BOOL bDisable = TRUE);
@@ -255,7 +255,7 @@ public:
 	// Focus on the next item
 	CPropTreeItem *FocusNext();
 
-	LRESULT SendNotify(UINT nNotifyCode, CPropTreeItem* pItem = NULL);
+	LRESULT SendNotify(UINT nNotifyCode, CPropTreeItem* pItem = nullptr);
 
 protected:
 	// Resize the child windows to fit the exact dimensions the CPropTree control

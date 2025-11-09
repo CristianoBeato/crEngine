@@ -64,7 +64,7 @@ bool rvRegistryOptions::Save ( void )
 	int		i;
 
 	// Create the top level key
-	if (ERROR_SUCCESS != RegCreateKeyEx(HKEY_CURRENT_USER, mBaseKey, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &hKey, NULL))
+	if (ERROR_SUCCESS != RegCreateKeyEx(HKEY_CURRENT_USER, mBaseKey, 0, nullptr, 0, KEY_ALL_ACCESS, nullptr, &hKey, nullptr))
 	{
 		return false;
 	}
@@ -113,12 +113,12 @@ bool rvRegistryOptions::Load ( void )
 	// Read in the values and recent files
 	keyname[0] = 0;
 	dwSize = MAX_PATH;
-	for ( i = 0; RegEnumValue ( hKey, i, keyname, &dwSize, NULL, NULL, NULL, NULL ) == ERROR_SUCCESS; i ++ )
+	for ( i = 0; RegEnumValue ( hKey, i, keyname, &dwSize, nullptr, nullptr, nullptr, nullptr ) == ERROR_SUCCESS; i ++ )
 	{
 		temp[0] = '\0';	
 		dwSize = MAX_PATH;
 		
-		if ( ERROR_SUCCESS != RegQueryValueEx ( hKey, keyname, NULL, &dwType, (LPBYTE)temp, &dwSize ) )
+		if ( ERROR_SUCCESS != RegQueryValueEx ( hKey, keyname, nullptr, &dwType, (LPBYTE)temp, &dwSize ) )
 		{
 			continue;
 		}
@@ -138,7 +138,7 @@ bool rvRegistryOptions::Load ( void )
 	for ( i = 0; i < MAX_MRU_SIZE; i ++ )
 	{
 		dwSize = MAX_PATH;
-		if ( ERROR_SUCCESS != RegQueryValueEx ( hKey, va("mru%d", i ), NULL, &dwType, (LPBYTE)temp, &dwSize ) )
+		if ( ERROR_SUCCESS != RegQueryValueEx ( hKey, va("mru%d", i ), nullptr, &dwType, (LPBYTE)temp, &dwSize ) )
 		{	
 			continue;
 		}
@@ -288,7 +288,7 @@ void rvRegistryOptions::GetColumnWidths ( const char* name, HWND list )
 	parse = widths;
 	index = 0;
 	
-	while ( NULL != (next = strchr ( parse, ' ' ) ) )
+	while ( nullptr != (next = strchr ( parse, ' ' ) ) )
 	{
 		int width;
 		

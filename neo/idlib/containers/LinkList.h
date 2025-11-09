@@ -85,7 +85,7 @@ Node is initialized to be the head of an empty list
 template< class type >
 idLinkList<type>::idLinkList()
 {
-	owner	= NULL;
+	owner	= nullptr;
 	head	= this;
 	next	= this;
 	prev	= this;
@@ -278,7 +278,7 @@ idLinkList<type>* idLinkList<type>::ListHead() const
 ================
 idLinkList<type>::Next
 
-Returns the next object in the list, or NULL if at the end.
+Returns the next object in the list, or nullptr if at the end.
 ================
 */
 template< class type >
@@ -286,7 +286,7 @@ type* idLinkList<type>::Next() const
 {
 	if( !next || ( next == head ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return next->owner;
 }
@@ -295,7 +295,7 @@ type* idLinkList<type>::Next() const
 ================
 idLinkList<type>::Prev
 
-Returns the previous object in the list, or NULL if at the beginning.
+Returns the previous object in the list, or nullptr if at the beginning.
 ================
 */
 template< class type >
@@ -303,7 +303,7 @@ type* idLinkList<type>::Prev() const
 {
 	if( !prev || ( prev == head ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return prev->owner;
 }
@@ -312,7 +312,7 @@ type* idLinkList<type>::Prev() const
 ================
 idLinkList<type>::NextNode
 
-Returns the next node in the list, or NULL if at the end.
+Returns the next node in the list, or nullptr if at the end.
 ================
 */
 template< class type >
@@ -320,7 +320,7 @@ idLinkList<type>* idLinkList<type>::NextNode() const
 {
 	if( next == head )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return next;
 }
@@ -329,7 +329,7 @@ idLinkList<type>* idLinkList<type>::NextNode() const
 ================
 idLinkList<type>::PrevNode
 
-Returns the previous node in the list, or NULL if at the beginning.
+Returns the previous node in the list, or nullptr if at the beginning.
 ================
 */
 template< class type >
@@ -337,7 +337,7 @@ idLinkList<type>* idLinkList<type>::PrevNode() const
 {
 	if( prev == head )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return prev;
 }

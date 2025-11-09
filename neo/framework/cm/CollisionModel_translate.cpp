@@ -846,7 +846,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 	assert( ( ( byte* )&end ) < ( ( byte* )results ) || ( ( byte* )&end ) >= ( ( ( byte* )results ) + sizeof( trace_t ) ) );
 	assert( ( ( byte* )&trmAxis ) < ( ( byte* )results ) || ( ( byte* )&trmAxis ) >= ( ( ( byte* )results ) + sizeof( trace_t ) ) );
 	
-	memset( results, 0, sizeof( *results ) );
+	std::memset( results, 0, sizeof( *results ) );
 	
 	if( model < 0 || model > MAX_SUBMODELS || model > idCollisionModelManagerLocal::maxModels )
 	{
@@ -980,7 +980,7 @@ void idCollisionModelManagerLocal::Translation( trace_t* results, const idVec3& 
 		results->endpos = start;
 		results->endAxis = trmAxis;
 		results->c.normal = vec3_origin;
-		results->c.material = NULL;
+		results->c.material = nullptr;
 		results->c.point = start;
 		if( common->RW() )
 		{

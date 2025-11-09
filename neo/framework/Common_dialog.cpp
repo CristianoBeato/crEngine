@@ -240,7 +240,7 @@ idCommonDialog::AddDialogIntVal
 */
 void idCommonDialog::AddDialogIntVal( const char* name, int val )
 {
-	if( dialog != NULL )
+	if( dialog != nullptr )
 	{
 		dialog->SetGlobal( name, val );
 	}
@@ -261,9 +261,9 @@ void idCommonDialog::AddDialog( gameDialogMessages_t msg, dialogType_t type, idS
 	// TODO_D3_PORT:
 	//sys->ClearEvents();
 	
-	idLib::PrintfIf( popupDialog_debug.GetBool(), "[%s] msg: %s, pause: %d from: %s:%d\n", __FUNCTION__, dialogStateToString[msg], pause, location == NULL ? "NULL" : location, lineNumber );
+	idLib::PrintfIf( popupDialog_debug.GetBool(), "[%s] msg: %s, pause: %d from: %s:%d\n", __FUNCTION__, dialogStateToString[msg], pause, location == nullptr ? "nullptr" : location, lineNumber );
 	
-	if( dialog == NULL )
+	if( dialog == nullptr )
 	{
 		return;
 	}
@@ -293,7 +293,7 @@ void idCommonDialog::AddDynamicDialog( gameDialogMessages_t msg, const idStaticL
 									   bool leaveOnMapHeapReset, bool waitOnAtlas, bool renderDuringLoad )
 {
 
-	if( dialog == NULL )
+	if( dialog == nullptr )
 	{
 		return;
 	}
@@ -304,10 +304,10 @@ void idCommonDialog::AddDynamicDialog( gameDialogMessages_t msg, const idStaticL
 	info.type = DIALOG_DYNAMIC;
 	info.pause = pause;
 	info.leaveOnClear = leaveOnMapHeapReset;
-	info.acceptCB = 0 < callbacks.Num() ? callbacks[0] : NULL;
-	info.cancelCB = 1 < callbacks.Num() ? callbacks[1] : NULL;
-	info.altCBOne = 2 < callbacks.Num() ? callbacks[2] : NULL;
-	info.altCBTwo = 3 < callbacks.Num() ? callbacks[3] : NULL;
+	info.acceptCB = 0 < callbacks.Num() ? callbacks[0] : nullptr;
+	info.cancelCB = 1 < callbacks.Num() ? callbacks[1] : nullptr;
+	info.altCBOne = 2 < callbacks.Num() ? callbacks[2] : nullptr;
+	info.altCBTwo = 3 < callbacks.Num() ? callbacks[3] : nullptr;
 	info.txt1 = 0 < optionText.Num() ? optionText[0] : idStrId();
 	info.txt2 = 1 < optionText.Num() ? optionText[1] : idStrId();
 	info.txt3 = 2 < optionText.Num() ? optionText[2] : idStrId();
@@ -330,7 +330,7 @@ void idCommonDialog::AddDialogInternal( idDialogInfo& info )
 {
 
 	// don't add the dialog if it's already in the list, we never want to show a duplicate dialog
-	if( HasDialogMsg( info.msg, NULL ) )
+	if( HasDialogMsg( info.msg, nullptr ) )
 	{
 		return;
 	}
@@ -338,36 +338,36 @@ void idCommonDialog::AddDialogInternal( idDialogInfo& info )
 	// Remove the delete confirmation if we remove the device and ask for a storage confirmation
 	if( info.msg == GDM_STORAGE_REQUIRED )
 	{
-		if( HasDialogMsg( GDM_DELETE_SAVE, NULL ) )
+		if( HasDialogMsg( GDM_DELETE_SAVE, nullptr ) )
 		{
-			ClearDialog( GDM_DELETE_SAVE, NULL, 0 );
+			ClearDialog( GDM_DELETE_SAVE, nullptr, 0 );
 		}
-		if( HasDialogMsg( GDM_DELETE_AUTOSAVE, NULL ) )
+		if( HasDialogMsg( GDM_DELETE_AUTOSAVE, nullptr ) )
 		{
-			ClearDialog( GDM_DELETE_AUTOSAVE, NULL, 0 );
+			ClearDialog( GDM_DELETE_AUTOSAVE, nullptr, 0 );
 		}
-		if( HasDialogMsg( GDM_LOAD_DAMAGED_FILE, NULL ) )
+		if( HasDialogMsg( GDM_LOAD_DAMAGED_FILE, nullptr ) )
 		{
-			ClearDialog( GDM_LOAD_DAMAGED_FILE, NULL, 0 );
+			ClearDialog( GDM_LOAD_DAMAGED_FILE, nullptr, 0 );
 		}
 	}
 	
-	if( info.acceptCB != NULL )
+	if( info.acceptCB != nullptr )
 	{
 		info.acceptCB->AddRef();
 	}
 	
-	if( info.cancelCB != NULL )
+	if( info.cancelCB != nullptr )
 	{
 		info.cancelCB->AddRef();
 	}
 	
-	if( info.altCBOne != NULL )
+	if( info.altCBOne != nullptr )
 	{
 		info.altCBOne->AddRef();
 	}
 	
-	if( info.altCBTwo != NULL )
+	if( info.altCBTwo != nullptr )
 	{
 		info.altCBTwo->AddRef();
 	}
@@ -410,7 +410,7 @@ idCommonDialog::ActivateDialog
 void idCommonDialog::ActivateDialog( bool activate )
 {
 	dialogInUse = activate;
-	if( dialog != NULL )
+	if( dialog != nullptr )
 	{
 		dialog->Activate( activate );
 	}
@@ -452,7 +452,7 @@ void idCommonDialog::ShowDialog( const idDialogInfo& info )
 	}
 	dialog->SetGlobal( "Infotype", info.type );
 	
-	if( info.acceptCB == NULL && ( info.type != DIALOG_WAIT && info.type != DIALOG_WAIT_BLACKOUT ) )
+	if( info.acceptCB == nullptr && ( info.type != DIALOG_WAIT && info.type != DIALOG_WAIT_BLACKOUT ) )
 	{
 		class idSWFScriptFunction_Accept : public idSWFScriptFunction_RefCounted
 		{
@@ -520,7 +520,7 @@ void idCommonDialog::ShowSaveIndicator( bool show )
 	{
 		idStr msg = idStrId( "#str_dlg_pc_saving" ).GetLocalizedString();
 		
-		common->Dialog().AddDialog( GDM_SAVING, DIALOG_WAIT, NULL, NULL, true, "", 0, false, true, true );
+		common->Dialog().AddDialog( GDM_SAVING, DIALOG_WAIT, nullptr, nullptr, true, "", 0, false, true, true );
 	}
 	else
 	{
@@ -592,7 +592,7 @@ bool idCommonDialog::HasDialogMsg( gameDialogMessages_t msg, bool* isNowActive )
 		
 		if( info.msg == msg && !info.clear )
 		{
-			if( isNowActive != NULL )
+			if( isNowActive != nullptr )
 			{
 				*isNowActive = ( index == 0 );
 			}
@@ -600,7 +600,7 @@ bool idCommonDialog::HasDialogMsg( gameDialogMessages_t msg, bool* isNowActive )
 		}
 	}
 	
-	if( isNowActive != NULL )
+	if( isNowActive != nullptr )
 	{
 		*isNowActive = false;
 	}
@@ -660,7 +660,7 @@ void idCommonDialog::ClearDialog( gameDialogMessages_t msg, const char* location
 			}
 			assert( info.msg >= GDM_INVALID && info.msg < GDM_MAX );	// not sure why /analyze complains about this
 			idLib::PrintfIf( popupDialog_debug.GetBool(), "[%s] msg: %s, from: %s:%d, topMessageCleared = %d, m.clear = %d, m.waitClear = %d, m.killTime = %d\n",
-							 __FUNCTION__, dialogStateToString[info.msg], location == NULL ? "NULL" : location, lineNumber,
+							 __FUNCTION__, dialogStateToString[info.msg], location == nullptr ? "nullptr" : location, lineNumber,
 							 topMessageCleared, messageList[index].clear,
 							 messageList[index].waitClear, messageList[index].killTime );
 			break;
@@ -683,28 +683,28 @@ void idCommonDialog::ReleaseCallBacks( int index )
 
 	if( index < messageList.Num() )
 	{
-		if( messageList[index].acceptCB != NULL )
+		if( messageList[index].acceptCB != nullptr )
 		{
 			messageList[index].acceptCB->Release();
-			messageList[index].acceptCB = NULL;
+			messageList[index].acceptCB = nullptr;
 		}
 		
-		if( messageList[index].cancelCB != NULL )
+		if( messageList[index].cancelCB != nullptr )
 		{
 			messageList[index].cancelCB->Release();
-			messageList[index].cancelCB = NULL;
+			messageList[index].cancelCB = nullptr;
 		}
 		
-		if( messageList[index].altCBOne != NULL )
+		if( messageList[index].altCBOne != nullptr )
 		{
 			messageList[index].altCBOne->Release();
-			messageList[index].altCBOne = NULL;
+			messageList[index].altCBOne = nullptr;
 		}
 		
-		if( messageList[index].altCBTwo != NULL )
+		if( messageList[index].altCBTwo != nullptr )
 		{
 			messageList[index].altCBTwo->Release();
-			messageList[index].altCBTwo = NULL;
+			messageList[index].altCBTwo = nullptr;
 		}
 	}
 }
@@ -719,7 +719,7 @@ void idCommonDialog::Render( bool loading )
 
 	dialogPause = false;
 	
-	if( dialog == NULL )
+	if( dialog == nullptr )
 	{
 		return;
 	}
@@ -771,10 +771,10 @@ void idCommonDialog::Render( bool loading )
 		
 		if( timeRemaining <= 0 )
 		{
-			if( messageList[0].cancelCB != NULL )
+			if( messageList[0].cancelCB != nullptr )
 			{
 				idSWFParmList parms;
-				messageList[0].cancelCB->Call( NULL, parms );
+				messageList[0].cancelCB->Call( nullptr, parms );
 			}
 			messageList[0].clear = true;
 		}
@@ -811,7 +811,7 @@ void idCommonDialog::Init()
 	saveIndicator = new( TAG_SWF ) idSWF( "save_indicator" );
 	
 #define BIND_DIALOG_CONSTANT( x ) dialog->SetGlobal( #x, x )
-	if( dialog != NULL )
+	if( dialog != nullptr )
 	{
 		BIND_DIALOG_CONSTANT( DIALOG_ACCEPT );
 		BIND_DIALOG_CONSTANT( DIALOG_CONTINUE );
@@ -842,10 +842,10 @@ void idCommonDialog::Shutdown()
 	ClearDialogs();
 	
 	delete dialog;
-	dialog = NULL;
+	dialog = nullptr;
 	
 	delete saveIndicator;
-	saveIndicator = NULL;
+	saveIndicator = nullptr;
 }
 
 /*
@@ -1554,7 +1554,7 @@ idCommonDialog::HandleDialogEvent
 bool idCommonDialog::HandleDialogEvent( const sysEvent_t* sev )
 {
 
-	if( dialog != NULL && dialog->IsLoaded() && dialog->IsActive() )
+	if( dialog != nullptr && dialog->IsLoaded() && dialog->IsActive() )
 	{
 		if( saveIndicator->IsActive() )
 		{
@@ -1583,7 +1583,7 @@ idCommonDialog::IsDialogActive
 */
 bool idCommonDialog::IsDialogActive()
 {
-	if( dialog != NULL )
+	if( dialog != nullptr )
 	{
 		return dialog->IsActive();
 	}
@@ -1599,7 +1599,7 @@ CONSOLE_COMMAND( commonDialogClear, "clears all dialogs that may be hung", 0 )
 CONSOLE_COMMAND( testShowDialog, "show a dialog", 0 )
 {
 	int dialogId = atoi( args.Argv( 1 ) );
-	common->Dialog().AddDialog( ( gameDialogMessages_t )dialogId, DIALOG_ACCEPT, NULL, NULL, false );
+	common->Dialog().AddDialog( ( gameDialogMessages_t )dialogId, DIALOG_ACCEPT, nullptr, nullptr, false );
 }
 
 CONSOLE_COMMAND( testShowDynamicDialog, "show a dynamic dialog", 0 )
@@ -1645,5 +1645,5 @@ CONSOLE_COMMAND( testShowDialogBug, "show a dynamic dialog", 0 )
 	// This locks the game because it thinks it's paused because we're passing in pause = true but the
 	// dialog isn't ever added because of the abuse of dialog->isActive when the save indicator is shown.
 	int dialogId = atoi( args.Argv( 1 ) );
-	common->Dialog().AddDialog( ( gameDialogMessages_t )dialogId, DIALOG_ACCEPT, NULL, NULL, true );
+	common->Dialog().AddDialog( ( gameDialogMessages_t )dialogId, DIALOG_ACCEPT, nullptr, nullptr, true );
 }

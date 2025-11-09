@@ -54,7 +54,7 @@ void idTarget_EndLevel::Spawn( void )
 {
 	idStr		guiName;
 	
-	gui = NULL;
+	gui = nullptr;
 	noGui = spawnArgs.GetBool( "noGui" );
 	if( !noGui )
 	{
@@ -129,7 +129,7 @@ void idTarget_EndLevel::Draw()
 	
 	renderView_t			renderView;
 	
-	memset( &renderView, 0, sizeof( renderView ) );
+	std::memset( &renderView, 0, sizeof( renderView ) );
 	
 	renderView.width = SCREEN_WIDTH;
 	renderView.height = SCREEN_HEIGHT;
@@ -184,7 +184,7 @@ const char* idTarget_EndLevel::ExitCommand()
 {
 	if( !readyToExit )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	idStr nextMap;

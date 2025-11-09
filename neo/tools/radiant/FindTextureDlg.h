@@ -48,7 +48,7 @@ public:
 	static bool isOpen();
   static void show();
   static void updateTextures(const char* p);
-	CFindTextureDlg(CWnd* pParent = NULL);   // standard constructor
+	CFindTextureDlg(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CFindTextureDlg)

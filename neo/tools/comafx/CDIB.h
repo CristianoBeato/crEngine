@@ -40,7 +40,7 @@ public:
 		GIF,
 		TIFF
 	};
-					CDIB( HANDLE hDib = NULL,int nBits = 8 );
+					CDIB( HANDLE hDib = nullptr,int nBits = 8 );
 	virtual			~CDIB();
 
 	CDIB &			operator=( CDIB& dib );
@@ -72,7 +72,7 @@ public:
 	COLORREF		GetPixel(int x,int y);
 	void			GetPixel(UINT x,UINT y,int& pixel);
 	void			BitBlt(HDC hDest,int nXDest,int nYDest,int nWidth,int nHeight,int xSrc,int ySrc);
-	void			BitBlt(int nXDest,int nYDest,int nWidth,int nHeight,CDIB& dibSrc,int nSrcX,int nSrcY,BYTE *colors=NULL);
+	void			BitBlt(int nXDest,int nYDest,int nWidth,int nHeight,CDIB& dibSrc,int nSrcX,int nSrcY,BYTE *colors=nullptr);
 	void			StretchBlt(HDC hDest,int nXDest,int nYDest,int nDWidth,int nDHeight,int xSrc,int ySrc,int  nSWidth,int nSHeight);
 	void			StretchBlt(int nXDest,int nYDest,int nDWidth,int nDHeight,CDIB& dibSrc,int xSrc,int ySrc,int  nSWidth,int nSHeight);
 	void			ExpandBlt(int nXDest,int nYDest,int xRatio,int yRatio,CDIB& dibSrc,int xSrc,int ySrc,int  nSWidth,int nSHeight);

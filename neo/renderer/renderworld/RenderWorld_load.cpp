@@ -71,23 +71,23 @@ void idRenderWorldLocal::FreeWorld()
 	if( portalAreas )
 	{
 		R_StaticFree( portalAreas );
-		portalAreas = NULL;
+		portalAreas = nullptr;
 		numPortalAreas = 0;
 		R_StaticFree( areaScreenRect );
-		areaScreenRect = NULL;
+		areaScreenRect = nullptr;
 	}
 	
 	if( doublePortals )
 	{
 		R_StaticFree( doublePortals );
-		doublePortals = NULL;
+		doublePortals = nullptr;
 		numInterAreaPortals = 0;
 	}
 	
 	if( areaNodes )
 	{
 		R_StaticFree( areaNodes );
-		areaNodes = NULL;
+		areaNodes = nullptr;
 	}
 	
 	// free all the inline idRenderModels
@@ -132,7 +132,7 @@ idRenderModel* idRenderWorldLocal::ReadBinaryModel( idFile* fileIn )
 	{
 		return model;
 	}
-	return NULL;
+	return nullptr;
 }
 
 extern idCVar r_binaryLoadRenderModels;
@@ -154,7 +154,7 @@ idRenderModel* idRenderWorldLocal::ParseModel( idLexer* src, const char* mapName
 	idRenderModel* model = renderModelManager->AllocModel();
 	model->InitEmpty( token );
 	
-	if( fileOut != NULL )
+	if( fileOut != nullptr )
 	{
 		// write out the type so the binary reader knows what to instantiate
 		fileOut->WriteString( "shadowmodel" );
@@ -296,7 +296,7 @@ idRenderModel* idRenderWorldLocal::ParseModel( idLexer* src, const char* mapName
 	
 	model->FinishSurfaces();
 	
-	if( fileOut != NULL && model->SupportsBinaryModel() && r_binaryLoadRenderModels.GetBool() )
+	if( fileOut != nullptr && model->SupportsBinaryModel() && r_binaryLoadRenderModels.GetBool() )
 	{
 		model->WriteBinaryModel( fileOut, &mapTimeStamp );
 	}
@@ -395,7 +395,7 @@ idRenderModel* idRenderWorldLocal::ParseShadowModel( idLexer* src, idFile* fileO
 	
 	// NOTE: we do NOT do a model->FinishSurfaceces, because we don't need sil edges, planes, tangents, etc.
 	
-	if( fileOut != NULL && model->SupportsBinaryModel() && r_binaryLoadRenderModels.GetBool() )
+	if( fileOut != nullptr && model->SupportsBinaryModel() && r_binaryLoadRenderModels.GetBool() )
 	{
 		model->WriteBinaryModel( fileOut, &mapTimeStamp );
 	}
@@ -437,7 +437,7 @@ void idRenderWorldLocal::ParseInterAreaPortals( idLexer* src, idFile* fileOut )
 		return;
 	}
 	
-	if( fileOut != NULL )
+	if( fileOut != nullptr )
 	{
 		// write out the type so the binary reader knows what to instantiate
 		fileOut->WriteString( "interAreaPortals" );
@@ -457,7 +457,7 @@ void idRenderWorldLocal::ParseInterAreaPortals( idLexer* src, idFile* fileOut )
 		return;
 	}
 	
-	if( fileOut != NULL )
+	if( fileOut != nullptr )
 	{
 		fileOut->WriteBig( numPortalAreas );
 		fileOut->WriteBig( numInterAreaPortals );
@@ -476,7 +476,7 @@ void idRenderWorldLocal::ParseInterAreaPortals( idLexer* src, idFile* fileOut )
 		a1 = src->ParseInt();
 		a2 = src->ParseInt();
 		
-		if( fileOut != NULL )
+		if( fileOut != nullptr )
 		{
 			fileOut->WriteBig( numPoints );
 			fileOut->WriteBig( a1 );
@@ -489,7 +489,7 @@ void idRenderWorldLocal::ParseInterAreaPortals( idLexer* src, idFile* fileOut )
 		{
 			src->Parse1DMatrix( 3, ( *w )[j].ToFloatPtr() );
 			
-			if( fileOut != NULL )
+			if( fileOut != nullptr )
 			{
 				fileOut->WriteBig( ( *w )[j].x );
 				fileOut->WriteBig( ( *w )[j].y );
@@ -611,13 +611,13 @@ void idRenderWorldLocal::ParseNodes( idLexer* src, idFile* fileOut )
 	}
 	areaNodes = ( areaNode_t* )R_ClearedStaticAlloc( numAreaNodes * sizeof( areaNodes[0] ) );
 	
-	if( fileOut != NULL )
+	if( fileOut != nullptr )
 	{
 		// write out the type so the binary reader knows what to instantiate
 		fileOut->WriteString( "nodes" );
 	}
 	
-	if( fileOut != NULL )
+	if( fileOut != nullptr )
 	{
 		fileOut->WriteBig( numAreaNodes );
 	}
@@ -633,7 +633,7 @@ void idRenderWorldLocal::ParseNodes( idLexer* src, idFile* fileOut )
 		node->children[0] = src->ParseInt();
 		node->children[1] = src->ParseInt();
 		
-		if( fileOut != NULL )
+		if( fileOut != nullptr )
 		{
 			fileOut->WriteBig( node->plane[ 0 ] );
 			fileOut->WriteBig( node->plane[ 1 ] );
@@ -753,17 +753,17 @@ void idRenderWorldLocal::FreeDefs()
 	if( interactionTable )
 	{
 		R_StaticFree( interactionTable );
-		interactionTable = NULL;
+		interactionTable = nullptr;
 	}
 	
 	// free all lightDefs
 	for( int i = 0; i < lightDefs.Num(); i++ )
 	{
 		idRenderLightLocal* light = lightDefs[i];
-		if( light != NULL && light->world == this )
+		if( light != nullptr && light->world == this )
 		{
 			FreeLightDef( i );
-			lightDefs[i] = NULL;
+			lightDefs[i] = nullptr;
 		}
 	}
 	
@@ -771,10 +771,10 @@ void idRenderWorldLocal::FreeDefs()
 	for( int i = 0; i < entityDefs.Num(); i++ )
 	{
 		idRenderEntityLocal*	 mod = entityDefs[i];
-		if( mod != NULL && mod->world == this )
+		if( mod != nullptr && mod->world == this )
 		{
 			FreeEntityDef( i );
-			entityDefs[i] = NULL;
+			entityDefs[i] = nullptr;
 		}
 	}
 	
@@ -795,7 +795,7 @@ void idRenderWorldLocal::FreeDefs()
 =================
 idRenderWorldLocal::InitFromMap
 
-A NULL or empty name will make a world without a map model, which
+A nullptr or empty name will make a world without a map model, which
 is still useful for displaying a bare model
 =================
 */
@@ -874,7 +874,7 @@ bool idRenderWorldLocal::InitFromMap( const char* name )
 					if( type == "model" )
 					{
 						idRenderModel* lastModel = ReadBinaryModel( file );
-						if( lastModel == NULL )
+						if( lastModel == nullptr )
 						{
 							loaded = false;
 							break;
@@ -939,7 +939,7 @@ bool idRenderWorldLocal::InitFromMap( const char* name )
 		
 		int numEntries = 0;
 		idFileLocal outputFile( fileSystem->OpenFileWrite( generatedFileName, "fs_basepath" ) );
-		if( outputFile != NULL )
+		if( outputFile != nullptr )
 		{
 			int magic = BPROC_MAGIC;
 			outputFile->WriteBig( magic );
@@ -1009,7 +1009,7 @@ bool idRenderWorldLocal::InitFromMap( const char* name )
 		
 		delete src;
 		
-		if( outputFile != NULL )
+		if( outputFile != nullptr )
 		{
 			outputFile->Seek( 0, FS_SEEK_SET );
 			int magic = BPROC_MAGIC;

@@ -64,11 +64,11 @@ toolTip_t DialogDeclBrowser::toolTips[] = {
 	{ IDC_DECLBROWSER_BUTTON_RELOAD, "reload declarations" },
 	{ IDOK, "ok" },
 	{ IDCANCEL, "cancel" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 
-static DialogDeclBrowser *g_DeclDialog = NULL;
+static DialogDeclBrowser *g_DeclDialog = nullptr;
 
 
 IMPLEMENT_DYNAMIC(DialogDeclBrowser, CDialog)
@@ -78,10 +78,10 @@ IMPLEMENT_DYNAMIC(DialogDeclBrowser, CDialog)
 DialogDeclBrowser::DialogDeclBrowser
 ================
 */
-DialogDeclBrowser::DialogDeclBrowser( CWnd* pParent /*=NULL*/ )
+DialogDeclBrowser::DialogDeclBrowser( CWnd* pParent /*=nullptr*/ )
 	: CDialog(DialogDeclBrowser::IDD, pParent)
-	, m_pchTip(NULL)
-	, m_pwchTip(NULL)
+	, m_pchTip(nullptr)
+	, m_pwchTip(nullptr)
 {
 }
 
@@ -141,7 +141,7 @@ void DialogDeclBrowser::AddDeclTypeToTree( declType_t type, const char *root, CP
 	rootStr = root;
 	rootStr += "/";
 
-	stack.PushRoot( NULL );
+	stack.PushRoot( nullptr );
 
 	for ( i = 0; i < decls.Num(); i++) {
 		declName = rootStr + decls[i]->GetName();
@@ -166,7 +166,7 @@ void DialogDeclBrowser::AddScriptsToTree( CPathTreeCtrl &tree ) {
 
 	files = fileSystem->ListFilesTree( "script", ".script", true );
 
-	stack.PushRoot( NULL );
+	stack.PushRoot( nullptr );
 
 	for ( i = 0; i < files->GetNumFiles(); i++) {
 		scriptName = files->GetFile( i );
@@ -193,7 +193,7 @@ void DialogDeclBrowser::AddGUIsToTree( CPathTreeCtrl &tree ) {
 
 	files = fileSystem->ListFilesTree( "guis", ".gui", true );
 
-	stack.PushRoot( NULL );
+	stack.PushRoot( nullptr );
 
 	for ( i = 0; i < files->GetNumFiles(); i++) {
 		scriptName = files->GetFile( i );
@@ -256,7 +256,7 @@ const idDecl *DialogDeclBrowser::GetDeclFromTreeItem( HTREEITEM item ) const {
 	const idDecl *decl;
 
 	if ( declTree.GetChildItem( item ) ) {
-		return NULL;
+		return nullptr;
 	}
 
 	id = declTree.GetItemData( item );
@@ -264,7 +264,7 @@ const idDecl *DialogDeclBrowser::GetDeclFromTreeItem( HTREEITEM item ) const {
 	index = GetIndexFromId( id );
 
 	if ( type < 0 || type >= declManager->GetNumDeclTypes() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	decl = declManager->DeclByIndex( type, index, false );
@@ -450,17 +450,17 @@ void DeclBrowserInit( const idDict *spawnArgs ) {
 		return;
 	}
 
-	if ( g_DeclDialog == NULL ) {
+	if ( g_DeclDialog == nullptr ) {
 		InitAfx();
 		g_DeclDialog = new DialogDeclBrowser();
 	}
 
-	if ( g_DeclDialog->GetSafeHwnd() == NULL) {
+	if ( g_DeclDialog->GetSafeHwnd() == nullptr) {
 		g_DeclDialog->Create( IDD_DIALOG_DECLBROWSER );
 /*
 		// FIXME: restore position
 		CRect rct;
-		g_DeclDialog->SetWindowPos( NULL, rct.left, rct.top, 0, 0, SWP_NOSIZE );
+		g_DeclDialog->SetWindowPos( nullptr, rct.left, rct.top, 0, 0, SWP_NOSIZE );
 */
 	}
 
@@ -485,7 +485,7 @@ void DeclBrowserRun( void ) {
 	MSG *msg = &m_msgCur;
 #endif
 
-	while( ::PeekMessage(msg, NULL, NULL, NULL, PM_NOREMOVE) ) {
+	while( ::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE) ) {
 		// pump message
 		if ( !AfxGetApp()->PumpMessage() ) {
 		}
@@ -499,7 +499,7 @@ DeclBrowserShutdown
 */
 void DeclBrowserShutdown( void ) {
 	delete g_DeclDialog;
-	g_DeclDialog = NULL;
+	g_DeclDialog = nullptr;
 }
 
 /*

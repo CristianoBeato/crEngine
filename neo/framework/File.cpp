@@ -756,8 +756,8 @@ idFile_Memory::idFile_Memory()
 	granularity = 16384;
 	
 	mode = ( 1 << FS_WRITE );
-	filePtr = NULL;
-	curPtr = NULL;
+	filePtr = nullptr;
+	curPtr = nullptr;
 }
 
 /*
@@ -774,8 +774,8 @@ idFile_Memory::idFile_Memory( const char* name )
 	granularity = 16384;
 	
 	mode = ( 1 << FS_WRITE );
-	filePtr = NULL;
-	curPtr = NULL;
+	filePtr = nullptr;
+	curPtr = nullptr;
 }
 
 /*
@@ -823,7 +823,7 @@ this also makes the file read only
 */
 void idFile_Memory::TakeDataOwnership()
 {
-	if( filePtr != NULL && fileSize > 0 )
+	if( filePtr != nullptr && fileSize > 0 )
 	{
 		maxSize = 0;
 		mode = ( 1 << FS_READ );
@@ -862,20 +862,22 @@ int idFile_Memory::Read( void* buffer, int len )
 	{
 		len = filePtr + fileSize - curPtr;
 	}
-	memcpy( buffer, curPtr, len );
+	std::memcpy( buffer, curPtr, len );
 	curPtr += len;
 	return len;
 }
 
 idCVar memcpyImpl( "memcpyImpl", "0", 0, "Which implementation of memcpy to use for idFile_Memory::Write() [0/1 - standard (1 eliminates branch misprediction), 2 - auto-vectorized]" );
-void* memcpy2( void* __restrict b, const void* __restrict a, size_t n )
+inline static void* memcpy2( void* __restrict b, const void* __restrict a, size_t n )
 {
-	char* s1 = ( char* )b;
-	const char* s2 = ( const char* )a;
+	char* s1 = static_cast<char*>( b );
+	const char* s2 = static_cast<const char*>( a );
+
 	for( ; 0 < n; --n )
 	{
 		*s1++ = *s2++;
 	}
+
 	return b;
 }
 
@@ -928,10 +930,11 @@ int idFile_Memory::Write( const void* buffer, int len )
 		char* newPtr = ( char* ) Mem_Alloc( allocated + extra, TAG_IDFILE );
 		if( allocated )
 		{
-			memcpy( newPtr, filePtr, allocated );
+			std::memcpy( newPtr, filePtr, allocated );
 		}
 		allocated += extra;
 		curPtr = newPtr + ( curPtr - filePtr );
+		
 		if( filePtr )
 		{
 			Mem_Free( filePtr );
@@ -959,7 +962,7 @@ int idFile_Memory::Write( const void* buffer, int len )
 	
 #if 0
 	int* value;
-	if( histogram.Get( len, &value ) && value != NULL )
+	if( histogram.Get( len, &value ) && value != nullptr )
 	{
 		( *value )++;
 	}
@@ -1012,11 +1015,11 @@ void idFile_Memory::PreAllocate( size_t len )
 		char* newPtr = ( char* )Mem_Alloc( len, TAG_IDFILE );
 		if( allocated > 0 )
 		{
-			memcpy( newPtr, filePtr, allocated );
+			std::memcpy( newPtr, filePtr, allocated );
 		}
 		allocated = len;
 		curPtr = newPtr + ( curPtr - filePtr );
-		if( filePtr != NULL )
+		if( filePtr != nullptr )
 		{
 			Mem_Free( filePtr );
 		}
@@ -1158,8 +1161,8 @@ void idFile_Memory::Clear( bool freeMemory )
 	{
 		allocated = 0;
 		Mem_Free( filePtr );
-		filePtr = NULL;
-		curPtr = NULL;
+		filePtr = nullptr;
+		curPtr = nullptr;
 	}
 	else
 	{
@@ -1361,7 +1364,7 @@ idFile_Permanent::idFile_Permanent
 idFile_Permanent::idFile_Permanent()
 {
 	name = "invalid";
-	o = NULL;
+	o = nullptr;
 	mode = 0;
 	fileSize = 0;
 	handleSync = false;
@@ -1422,7 +1425,7 @@ int idFile_Permanent::Read( void* buffer, int len )
 		// RB begin
 #if defined(_WIN32)
 		DWORD bytesRead;
-		if( !ReadFile( o, buf, block, &bytesRead, NULL ) )
+		if( !ReadFile( o, buf, block, &bytesRead, nullptr ) )
 		{
 			idLib::Warning( "idFile_Permanent::Read failed with %d from %s", GetLastError(), name.c_str() );
 		}
@@ -1493,7 +1496,7 @@ int idFile_Permanent::Write( const void* buffer, int len )
 		// RB begin
 #if defined(_WIN32)
 		DWORD bytesWritten;
-		WriteFile( o, buf, block, &bytesWritten, NULL );
+		WriteFile( o, buf, block, &bytesWritten, nullptr );
 		written = bytesWritten;
 #else
 		written = fwrite( buf, 1, block, o );
@@ -1541,7 +1544,7 @@ void idFile_Permanent::ForceFlush()
 #if defined(_WIN32)
 	FlushFileBuffers( o );
 #else
-	setvbuf( o, NULL, _IONBF, 0 );
+	setvbuf( o, nullptr, _IONBF, 0 );
 #endif
 	// RB end
 }
@@ -1571,7 +1574,7 @@ int idFile_Permanent::Tell() const
 {
 	// RB begin
 #if defined(_WIN32)
-	return SetFilePointer( o, 0, NULL, FILE_CURRENT );
+	return SetFilePointer( o, 0, nullptr, FILE_CURRENT );
 #else
 	return ftell( o );
 #endif
@@ -1614,13 +1617,13 @@ int idFile_Permanent::Seek( long offset, fsOrigin_t origin )
 	switch( origin )
 	{
 		case FS_SEEK_CUR:
-			retVal = SetFilePointer( o, offset, NULL, FILE_CURRENT );
+			retVal = SetFilePointer( o, offset, nullptr, FILE_CURRENT );
 			break;
 		case FS_SEEK_END:
-			retVal = SetFilePointer( o, offset, NULL, FILE_END );
+			retVal = SetFilePointer( o, offset, nullptr, FILE_END );
 			break;
 		case FS_SEEK_SET:
-			retVal = SetFilePointer( o, offset, NULL, FILE_BEGIN );
+			retVal = SetFilePointer( o, offset, nullptr, FILE_BEGIN );
 			break;
 	}
 	return ( retVal == INVALID_SET_FILE_POINTER ) ? -1 : 0;
@@ -1676,7 +1679,7 @@ idFile_Cached::idFile_Cached() : idFile_Permanent()
 	internalFilePos = 0;
 	bufferedStartOffset = 0;
 	bufferedEndOffset = 0;
-	buffered = NULL;
+	buffered = nullptr;
 }
 
 /*
@@ -1722,7 +1725,7 @@ int idFile_Cached::Read( void* buffer, int len )
 	if( internalFilePos >= bufferedStartOffset && internalFilePos + len < bufferedEndOffset )
 	{
 		// this is in the buffer
-		memcpy( buffer, ( void* )&buffered[ internalFilePos - bufferedStartOffset ], len );
+		std::memcpy( buffer, ( void* )&buffered[ internalFilePos - bufferedStartOffset ], len );
 		internalFilePos += len;
 		return len;
 	}
@@ -1786,7 +1789,7 @@ idFile_InZip::idFile_InZip()
 	name = "invalid";
 	zipFilePos = 0;
 	fileSize = 0;
-	memset( &z, 0, sizeof( z ) );
+	std::memset( &z, 0, sizeof( z ) );
 }
 
 /*
@@ -1958,7 +1961,7 @@ idFile_InnerResource::idFile_InnerResource( const char* _name, idFile* rezFile, 
 	length = _len;
 	resourceFile = rezFile;
 	internalFilePos = 0;
-	resourceBuffer = NULL;
+	resourceBuffer = nullptr;
 }
 
 /*
@@ -1968,7 +1971,7 @@ idFile_InnerResource::~idFile_InnerResource
 */
 idFile_InnerResource::~idFile_InnerResource()
 {
-	if( resourceBuffer != NULL )
+	if( resourceBuffer != nullptr )
 	{
 		fileSystem->FreeResourceBuffer();
 	}
@@ -1983,7 +1986,7 @@ Properly handles partial reads
 */
 int idFile_InnerResource::Read( void* buffer, int len )
 {
-	if( resourceFile == NULL )
+	if( resourceFile == nullptr )
 	{
 		return 0;
 	}
@@ -1997,9 +2000,9 @@ int idFile_InnerResource::Read( void* buffer, int len )
 	
 	if( read != len )
 	{
-		if( resourceBuffer != NULL )
+		if( resourceBuffer != nullptr )
 		{
-			memcpy( buffer, &resourceBuffer[ internalFilePos ], len );
+			std::memcpy( buffer, &resourceBuffer[ internalFilePos ], len );
 			read = len;
 		}
 		else
@@ -2086,10 +2089,10 @@ Destructor that will destroy (close) the managed file when this wrapper class go
 */
 idFileLocal::~idFileLocal()
 {
-	if( file != NULL )
+	if( file != nullptr )
 	{
 		delete file;
-		file = NULL;
+		file = nullptr;
 	}
 }
 
@@ -2136,7 +2139,7 @@ struct testEndianNess_t
 CONSOLE_COMMAND( testEndianNessWrite, "Tests the read/write compatibility between platforms", 0 )
 {
 	idFileLocal file( fileSystem->OpenFileWrite( testEndianNessFilename ) );
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		idLib::Printf( "Couldn't open the %s testfile.\n", testEndianNessFilename );
 		return;
@@ -2158,7 +2161,7 @@ CONSOLE_COMMAND( testEndianNessWrite, "Tests the read/write compatibility betwee
 CONSOLE_COMMAND( testEndianNessRead, "Tests the read/write compatibility between platforms", 0 )
 {
 	idFileLocal file( fileSystem->OpenFileRead( testEndianNessFilename ) );
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		idLib::Printf( "Couldn't find the %s testfile.\n", testEndianNessFilename );
 		return;
@@ -2167,7 +2170,7 @@ CONSOLE_COMMAND( testEndianNessRead, "Tests the read/write compatibility between
 	testEndianNess_t srcData;
 	testEndianNess_t testData;
 	
-	memset( &testData, 0, sizeof( testData ) );
+	std::memset( &testData, 0, sizeof( testData ) );
 	
 	file->ReadBig( testData.a );
 	file->ReadBig( testData.b );

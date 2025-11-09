@@ -48,7 +48,7 @@ static char THIS_FILE[] = __FILE__;
 
 CPatchDialog g_PatchDialog;
 
-CPatchDialog::CPatchDialog(CWnd* pParent /*=NULL*/)
+CPatchDialog::CPatchDialog(CWnd* pParent /*=nullptr*/)
 	: CDialog(CPatchDialog::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CPatchDialog)
@@ -64,7 +64,7 @@ CPatchDialog::CPatchDialog(CWnd* pParent /*=NULL*/)
 	m_fVScale = 0.05f;
 	m_fVShift = 0.05f;
 	//}}AFX_DATA_INIT
-	m_Patch = NULL;
+	m_Patch = nullptr;
 }
 
 
@@ -163,7 +163,7 @@ void CPatchDialog::OnSelchangeComboType()
 
 void CPatchDialog::OnOK() 
 {
-  m_Patch = NULL;
+  m_Patch = nullptr;
 	
 	CDialog::OnOK();
 }
@@ -198,7 +198,7 @@ BOOL CPatchDialog::OnInitDialog()
 void CPatchDialog::GetPatchInfo()
 {
   m_Patch = SinglePatchSelected();
-  if (m_Patch != NULL)
+  if (m_Patch != nullptr)
   {
     CString str;
     int i;
@@ -227,14 +227,14 @@ void CPatchDialog::SetPatchInfo()
 
 void DoPatchInspector()
 {
-  if (g_PatchDialog.GetSafeHwnd() == NULL)
+  if (g_PatchDialog.GetSafeHwnd() == nullptr)
   {
     g_PatchDialog.Create(IDD_DIALOG_PATCH);
     CRect rct;
 	  LONG lSize = sizeof(rct);
 	  if (LoadRegistryInfo("Radiant::PatchWindow", &rct, &lSize))
     {
-      g_PatchDialog.SetWindowPos(NULL, rct.left, rct.top, 0,0, SWP_NOSIZE);
+      g_PatchDialog.SetWindowPos(nullptr, rct.left, rct.top, 0,0, SWP_NOSIZE);
     }
   }
   g_PatchDialog.ShowWindow(SW_SHOW);
@@ -243,7 +243,7 @@ void DoPatchInspector()
 
 void UpdatePatchInspector()
 {
-  if (g_PatchDialog.GetSafeHwnd() != NULL)
+  if (g_PatchDialog.GetSafeHwnd() != nullptr)
   {
     g_PatchDialog.UpdateInfo();
   }
@@ -265,7 +265,7 @@ void CPatchDialog::UpdateRowColInfo()
 {
   m_fX = m_fY = m_fZ = m_fS = m_fT = 0.0;
 
-  if (m_Patch != NULL)
+  if (m_Patch != nullptr)
   {
     int r = m_wndRows.GetCurSel();
     int c = m_wndCols.GetCurSel();
@@ -289,7 +289,7 @@ void CPatchDialog::UpdateInfo()
 void CPatchDialog::OnApply() 
 {
 	UpdateData(TRUE);
-  if (m_Patch != NULL)
+  if (m_Patch != nullptr)
   {
     int r = m_wndRows.GetCurSel();
     int c = m_wndCols.GetCurSel();

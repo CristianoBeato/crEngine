@@ -50,7 +50,7 @@ toolTip_t DialogEntityDefEditor::toolTips[] = {
 	{ IDC_DECLEDITOR_BUTTON_TEST, "Test Decl" },
 	{ IDOK, "Save Decl" },
 	{ IDCANCEL, "Cancel" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 
@@ -61,9 +61,9 @@ IMPLEMENT_DYNAMIC(DialogEntityDefEditor, CDialog)
 DialogEntityDefEditor::DialogEntityDefEditor
 ================
 */
-DialogEntityDefEditor::DialogEntityDefEditor( CWnd* pParent /*=NULL*/ )
+DialogEntityDefEditor::DialogEntityDefEditor( CWnd* pParent /*=nullptr*/ )
 	: CDialog(DialogEntityDefEditor::IDD, pParent)
-	, decl(NULL)
+	, decl(nullptr)
 	, firstLine(0)
 {
 }

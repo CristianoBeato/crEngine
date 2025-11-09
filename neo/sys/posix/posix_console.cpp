@@ -223,7 +223,7 @@ void tty_FlushIn()
 ================
 Posix_ConsoleInput
 Checks for a complete line of text typed in at the sys_con.
-Return NULL if a complete line is not ready.
+Return nullptr if a complete line is not ready.
 ================
 */
 char* Posix_ConsoleInput( void )
@@ -284,7 +284,7 @@ char* Posix_ConsoleInput( void )
 						tty_FlushIn();
 						assert( hidden );
 						tty_Show();
-						return NULL;
+						return nullptr;
 					}
 					switch( key )
 					{
@@ -296,7 +296,7 @@ char* Posix_ConsoleInput( void )
 								tty_FlushIn();
 								assert( hidden );
 								tty_Show();
-								return NULL;
+								return nullptr;
 							}
 							switch( key )
 							{
@@ -313,7 +313,7 @@ char* Posix_ConsoleInput( void )
 									tty_FlushIn();
 									assert( hidden );
 									tty_Show();
-									return NULL;
+									return nullptr;
 							}
 							break;
 						case 91:
@@ -325,7 +325,7 @@ char* Posix_ConsoleInput( void )
 								tty_FlushIn();
 								assert( hidden );
 								tty_Show();
-								return NULL;
+								return nullptr;
 							}
 							switch( key )
 							{
@@ -338,7 +338,7 @@ char* Posix_ConsoleInput( void )
 										tty_FlushIn();
 										assert( hidden );
 										tty_Show();
-										return NULL;
+										return nullptr;
 									}
 									// only screen and linux terms
 									sys_con.input_field.SetCursor( 0 );
@@ -353,7 +353,7 @@ char* Posix_ConsoleInput( void )
 										tty_FlushIn();
 										assert( hidden );
 										tty_Show();
-										return NULL;
+										return nullptr;
 									}
 									// all terms
 									sys_con.input_field.KeyDownEvent( K_INS );
@@ -368,7 +368,7 @@ char* Posix_ConsoleInput( void )
 										tty_FlushIn();
 										assert( hidden );
 										tty_Show();
-										return NULL;
+										return nullptr;
 									}
 									// only screen and linux terms
 									sys_con.input_field.SetCursor( strlen( sys_con.input_field.GetBuffer() ) );
@@ -383,7 +383,7 @@ char* Posix_ConsoleInput( void )
 										tty_FlushIn();
 										assert( hidden );
 										tty_Show();
-										return NULL;
+										return nullptr;
 									}
 									if( key == 126 )
 									{
@@ -434,7 +434,7 @@ char* Posix_ConsoleInput( void )
 									}
 									assert( hidden );
 									tty_Show();
-									return NULL;
+									return nullptr;
 								}
 								case 67:
 									sys_con.input_field.KeyDownEvent( K_RIGHTARROW );
@@ -447,7 +447,7 @@ char* Posix_ConsoleInput( void )
 									tty_FlushIn();
 									assert( hidden );
 									tty_Show();
-									return NULL;
+									return nullptr;
 							}
 							break;
 						}
@@ -456,7 +456,7 @@ char* Posix_ConsoleInput( void )
 							tty_FlushIn();
 							assert( hidden );
 							tty_Show();
-							return NULL;
+							return nullptr;
 					}
 					break;
 				}
@@ -470,7 +470,7 @@ char* Posix_ConsoleInput( void )
 					tty_FlushIn();
 					assert( hidden );
 					tty_Show();
-					return NULL;
+					return nullptr;
 			}
 		}
 
@@ -493,7 +493,7 @@ char* Posix_ConsoleInput( void )
 		FD_SET( STDIN_FILENO, &fdset );
 		timeout.tv_sec = 0;
 		timeout.tv_usec = 0;
-		if( select( 1, &fdset, NULL, NULL, &timeout ) == -1 || !FD_ISSET( 0, &fdset ) )
+		if( select( 1, &fdset, nullptr, nullptr, &timeout ) == -1 || !FD_ISSET( 0, &fdset ) )
 			return nullptr;
 		
 		len = read( 0, sys_con.input_ret, sizeof( sys_con.input_ret ) );

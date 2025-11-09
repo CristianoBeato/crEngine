@@ -46,7 +46,7 @@ static char THIS_FILE[] = __FILE__;
 #define PROPTREEITEM_EXPANDCOLUMN		16			// width of the expand column
 #define PROPTREEITEM_COLRNG				5			// width of splitter
 
-//static AFX_EXTENSION_MODULE PropTreeDLL = {NULL, NULL};
+//static AFX_EXTENSION_MODULE PropTreeDLL = {nullptr, nullptr};
 static const CString strOfficeFontName	= _T("Tahoma");
 static const CString strDefaultFontName = _T("MS Sans Serif");
 
@@ -80,7 +80,7 @@ void InitPropTree(HINSTANCE hInstance) {
 
 static int CALLBACK FontFamilyProcFonts(const LOGFONT FAR* lplf, const TEXTMETRIC FAR*, ULONG, LPARAM)
 {
-	ASSERT(lplf != NULL);
+	ASSERT(lplf != nullptr);
 	CString strFont = lplf->lfFaceName;
 	return strFont.CollateNoCase (strOfficeFontName) == 0 ? 0 : 1;
 }
@@ -96,10 +96,10 @@ CPropTreeItem* CPropTree::s_pFound;
 CPropTree::CPropTree() :
 	m_bShowInfo(TRUE),
 	m_nInfoHeight(50),
-	m_pVisbleList(NULL),
+	m_pVisbleList(nullptr),
 	m_Origin(100,0),
 	m_nLastUID(1),
-	m_pFocus(NULL),
+	m_pFocus(nullptr),
 	m_bDisableInput(FALSE)
 {
 	m_Root.Expand();
@@ -146,7 +146,7 @@ BOOL CPropTree::Create(DWORD dwStyle, const RECT& rect, CWnd* pParentWnd, UINT n
 {
 	CWnd* pWnd = this;
 
-	LPCTSTR pszCreateClass = AfxRegisterWndClass(CS_HREDRAW|CS_VREDRAW, ::LoadCursor(NULL, IDC_ARROW));
+	LPCTSTR pszCreateClass = AfxRegisterWndClass(CS_HREDRAW|CS_VREDRAW, ::LoadCursor(nullptr, IDC_ARROW));
 
 	return pWnd->Create(pszCreateClass, _T(""), dwStyle, rect, pParentWnd, nID);
 }
@@ -231,10 +231,10 @@ void CPropTree::InitGlobalResources()
 	::SystemParametersInfo(SPI_GETNONCLIENTMETRICS, sizeof(info), &info, 0);
 
 	LOGFONT lf;
-	memset(&lf, 0, sizeof (LOGFONT));
+	std::memset(&lf, 0, sizeof (LOGFONT));
 
-	CWindowDC dc(NULL);
-	lf.lfCharSet = (BYTE)GetTextCharsetInfo(dc.GetSafeHdc(), NULL, 0);
+	CWindowDC dc(nullptr);
+	lf.lfCharSet = (BYTE)GetTextCharsetInfo(dc.GetSafeHdc(), nullptr, 0);
 
 	lf.lfHeight = info.lfMenuFont.lfHeight;
 	lf.lfWeight = info.lfMenuFont.lfWeight;
@@ -247,7 +247,7 @@ void CPropTree::InitGlobalResources()
 	if (!fUseSystemFont)
 	{
 		// check for "Tahoma" font existance:
-		if (::EnumFontFamilies(dc.GetSafeHdc(), NULL, FontFamilyProcFonts, 0)==0)
+		if (::EnumFontFamilies(dc.GetSafeHdc(), nullptr, FontFamilyProcFonts, 0)==0)
 		{
 			// Found! Use MS Office font!
 			_tcscpy(lf.lfFaceName, strOfficeFontName);
@@ -273,13 +273,13 @@ void CPropTree::FreeGlobalResources()
 	if (s_pNormalFont)
 	{
 		delete s_pNormalFont;
-		s_pNormalFont = NULL;
+		s_pNormalFont = nullptr;
 	}
 
 	if (s_pBoldFont)
 	{
 		delete s_pBoldFont;
-		s_pBoldFont = NULL;
+		s_pBoldFont = nullptr;
 	}
 }
 
@@ -310,7 +310,7 @@ CPropTreeItem* CPropTree::GetRootItem()
 
 void CPropTree::ClearVisibleList()
 {
-	m_pVisbleList = NULL;
+	m_pVisbleList = nullptr;
 }
 
 
@@ -340,7 +340,7 @@ void CPropTree::AddToVisibleList(CPropTreeItem* pItem)
 		pNext->SetNextVisible(pItem);
 	}
 
-	pItem->SetNextVisible(NULL);
+	pItem->SetNextVisible(nullptr);
 }
 
 
@@ -390,7 +390,7 @@ void CPropTree::UpdatedItems()
 
 void CPropTree::DeleteAllItems()
 {
-	Delete(NULL);
+	Delete(nullptr);
 	UpdatedItems();
 	m_nLastUID = 1; // reset uid counter
 }
@@ -431,7 +431,7 @@ void CPropTree::Delete(CPropTreeItem* pItem)
 	if (pItem && pItem!=&m_Root && SendNotify(PTN_DELETEITEM, pItem))
 		return;
 
-	// passing in a NULL item is the same as calling DeleteAllItems
+	// passing in a nullptr item is the same as calling DeleteAllItems
 	if (!pItem)
 		pItem = &m_Root;
 
@@ -470,7 +470,7 @@ void CPropTree::Delete(CPropTreeItem* pItem)
 	if (pItem!=&m_Root)
 	{
 		if (pItem==GetFocusedItem())
-			SetFocusedItem(NULL);
+			SetFocusedItem(nullptr);
 		delete pItem;
 	}
 }
@@ -556,7 +556,7 @@ void CPropTree::EnsureVisible(CPropTreeItem* pItem)
 		else
 			oy = pt.y - rc.Height() + pItem->GetHeight();
 
-		m_List.OnVScroll(SB_THUMBTRACK, oy, NULL);
+		m_List.OnVScroll(SB_THUMBTRACK, oy, nullptr);
 	}
 }
 
@@ -564,7 +564,7 @@ void CPropTree::EnsureVisible(CPropTreeItem* pItem)
 CPropTreeItem* CPropTree::InsertItem(CPropTreeItem* pItem, CPropTreeItem* pParent)
 {
 	if (!pItem)
-		return NULL;
+		return nullptr;
 
 	if (!pParent)
 		pParent = &m_Root;
@@ -607,7 +607,7 @@ LONG CPropTree::HitTest(const POINT& pt)
 	// convert screen to tree coordinates
 	p.y += m_Origin.y;
 
-	if ((pItem = FindItem(pt))!=NULL)
+	if ((pItem = FindItem(pt))!=nullptr)
 	{
 		if (!pItem->IsRootLevel() && pt.x >= m_Origin.x - PROPTREEITEM_COLRNG && pt.x <= m_Origin.x + PROPTREEITEM_COLRNG)
 			return HTCOLUMN;
@@ -649,13 +649,13 @@ CPropTreeItem* CPropTree::FindItem(const POINT& pt)
 			return pItem;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 
 CPropTreeItem* CPropTree::FindItem(UINT nCtrlID)
 {
-	s_pFound = NULL;
+	s_pFound = nullptr;
 
 	EnumItems(&m_Root, EnumFindItem, nCtrlID);
 
@@ -665,7 +665,7 @@ CPropTreeItem* CPropTree::FindItem(UINT nCtrlID)
 
 BOOL CALLBACK CPropTree::EnumFindItem(CPropTree*, CPropTreeItem* pItem, LPARAM lParam)
 {
-	ASSERT(pItem!=NULL);
+	ASSERT(pItem!=nullptr);
 
 	if (pItem->GetCtrlID()==(UINT)lParam)
 	{
@@ -689,7 +689,7 @@ void CPropTree::DisableInput(BOOL bDisable)
 
 	CWnd* pWnd;
 
-	if ((pWnd = GetParent())!=NULL)
+	if ((pWnd = GetParent())!=nullptr)
 		pWnd->EnableWindow(!bDisable);
 }
 
@@ -713,7 +713,7 @@ CPropTreeItem* CPropTree::FocusFirst()
 
 	if (m_pFocus)
 	{
-		SelectItems(NULL, FALSE);
+		SelectItems(nullptr, FALSE);
 		m_pFocus->Select();
 	}
 
@@ -742,7 +742,7 @@ CPropTreeItem* CPropTree::FocusLast()
 
 		if (m_pFocus)
 		{
-			SelectItems(NULL, FALSE);
+			SelectItems(nullptr, FALSE);
 			m_pFocus->Select();
 		}
 	}
@@ -761,7 +761,7 @@ CPropTreeItem* CPropTree::FocusPrev()
 
 	pChange = m_pFocus;
 
-	if (m_pFocus==NULL)
+	if (m_pFocus==nullptr)
 	{
 		// get the last visible item
 		pNext = m_pVisbleList;
@@ -780,7 +780,7 @@ CPropTreeItem* CPropTree::FocusPrev()
 	
 	if (m_pFocus)
 	{
-		SelectItems(NULL, FALSE);
+		SelectItems(nullptr, FALSE);
 		m_pFocus->Select();
 	}
 
@@ -798,20 +798,20 @@ CPropTreeItem* CPropTree::FocusNext()
 
 	pChange = m_pFocus;
 
-	if (m_pFocus==NULL)
+	if (m_pFocus==nullptr)
 		pNext = m_pVisbleList;
 	else
 	if (m_pFocus->GetNextVisible())
 		pNext = m_pFocus->GetNextVisible();
 	else
-		pNext = NULL;
+		pNext = nullptr;
 
 	if (pNext)
 		SetFocusedItem(pNext);
 
 	if (m_pFocus)
 	{
-		SelectItems(NULL, FALSE);
+		SelectItems(nullptr, FALSE);
 		m_pFocus->Select();
 	}
 
@@ -883,7 +883,7 @@ LRESULT CPropTree::SendNotify(UINT nNotifyCode, CPropTreeItem* pItem)
 	NMPROPTREE nmmp;
 	LPNMHDR lpnm;
 
-	lpnm = NULL;
+	lpnm = nullptr;
 
 	switch (nNotifyCode)
 	{

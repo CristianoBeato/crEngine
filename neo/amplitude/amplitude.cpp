@@ -243,7 +243,7 @@ bool Process( FILE* in, FILE* out )
 	unsigned int numSamples = dataSize / expectedSampleSize;
 	
 	void* inputData = malloc( dataSize );
-	if( inputData == NULL )
+	if( inputData == nullptr )
 	{
 		printf( "Out of memory\n" );
 		return false;
@@ -255,7 +255,7 @@ bool Process( FILE* in, FILE* out )
 	float* min = ( float* )malloc( numOutputSamples * sizeof( float ) );
 	float* max = ( float* )malloc( numOutputSamples * sizeof( float ) );
 	unsigned char* outputData = ( unsigned char* )malloc( numOutputSamples );
-	if( min == NULL || max == NULL || outputData == NULL )
+	if( min == nullptr || max == nullptr || outputData == nullptr )
 	{
 		printf( "Out of memory\n" );
 		free( inputData );
@@ -366,7 +366,7 @@ int main( int argc, char* argv[] )
 	
 	printf( "Processing %s: ", inputFileName );
 	
-	FILE* in = NULL;
+	FILE* in = nullptr;
 	if( fopen_s( &in, inputFileName, "rb" ) != 0 )
 	{
 		printf( "Could not open input file\n" );
@@ -379,7 +379,7 @@ int main( int argc, char* argv[] )
 		return E_ARGS;
 	}
 	char* dot = strrchr( outputFileName, '.' );
-	if( dot == NULL )
+	if( dot == nullptr )
 	{
 		dot = outputFileName + strlen( outputFileName );
 	}
@@ -389,7 +389,7 @@ int main( int argc, char* argv[] )
 		return E_ARGS;
 	}
 	
-	FILE* out = NULL;
+	FILE* out = nullptr;
 	if( fopen_s( &out, outputFileName, "wb" ) != 0 )
 	{
 		printf( "Could not open output file %s\n", outputFileName );

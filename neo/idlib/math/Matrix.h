@@ -133,7 +133,7 @@ ID_INLINE idMat2::idMat2( const float xx, const float xy, const float yx, const 
 
 ID_INLINE idMat2::idMat2( const float src[ 2 ][ 2 ] )
 {
-	memcpy( mat, src, 2 * 2 * sizeof( float ) );
+	std::memcpy( mat, src, 2 * 2 * sizeof( float ) );
 }
 
 ID_INLINE const idVec2& idMat2::operator[]( int index ) const
@@ -496,7 +496,7 @@ ID_INLINE idMat3::idMat3( const float xx, const float xy, const float xz, const 
 
 ID_INLINE idMat3::idMat3( const float src[ 3 ][ 3 ] )
 {
-	memcpy( mat, src, 3 * 3 * sizeof( float ) );
+	std::memcpy( mat, src, 3 * 3 * sizeof( float ) );
 }
 
 ID_INLINE const idVec3& idMat3::operator[]( int index ) const
@@ -699,7 +699,7 @@ ID_INLINE bool idMat3::operator!=( const idMat3& a ) const
 
 ID_INLINE void idMat3::Zero()
 {
-	memset( mat, 0, sizeof( idMat3 ) );
+	std::memset( mat, 0, sizeof( idMat3 ) );
 }
 
 ID_INLINE void idMat3::Identity()
@@ -1027,7 +1027,7 @@ ID_INLINE idMat4::idMat4( const idMat3& rotation, const idVec3& translation )
 
 ID_INLINE idMat4::idMat4( const float src[ 4 ][ 4 ] )
 {
-	memcpy( mat, src, 4 * 4 * sizeof( float ) );
+	std::memcpy( mat, src, 4 * 4 * sizeof( float ) );
 }
 
 ID_INLINE const idVec4& idMat4::operator[]( int index ) const
@@ -1270,7 +1270,7 @@ ID_INLINE bool idMat4::operator!=( const idMat4& a ) const
 
 ID_INLINE void idMat4::Zero()
 {
-	memset( mat, 0, sizeof( idMat4 ) );
+	std::memset( mat, 0, sizeof( idMat4 ) );
 }
 
 ID_INLINE void idMat4::Identity()
@@ -1454,7 +1454,7 @@ ID_INLINE idMat5::idMat5()
 
 ID_INLINE idMat5::idMat5( const float src[ 5 ][ 5 ] )
 {
-	memcpy( mat, src, 5 * 5 * sizeof( float ) );
+	std::memcpy( mat, src, 5 * 5 * sizeof( float ) );
 }
 
 ID_INLINE idMat5::idMat5( const idVec5& v0, const idVec5& v1, const idVec5& v2, const idVec5& v3, const idVec5& v4 )
@@ -1703,7 +1703,7 @@ ID_INLINE bool idMat5::operator!=( const idMat5& a ) const
 
 ID_INLINE void idMat5::Zero()
 {
-	memset( mat, 0, sizeof( idMat5 ) );
+	std::memset( mat, 0, sizeof( idMat5 ) );
 }
 
 ID_INLINE void idMat5::Identity()
@@ -1876,7 +1876,7 @@ ID_INLINE idMat6::idMat6( const idVec6& v0, const idVec6& v1, const idVec6& v2, 
 
 ID_INLINE idMat6::idMat6( const float src[ 6 ][ 6 ] )
 {
-	memcpy( mat, src, 6 * 6 * sizeof( float ) );
+	std::memcpy( mat, src, 6 * 6 * sizeof( float ) );
 }
 
 ID_INLINE const idVec6& idMat6::operator[]( int index ) const
@@ -2154,7 +2154,7 @@ ID_INLINE bool idMat6::operator!=( const idMat6& a ) const
 
 ID_INLINE void idMat6::Zero()
 {
-	memset( mat, 0, sizeof( idMat6 ) );
+	std::memset( mat, 0, sizeof( idMat6 ) );
 }
 
 ID_INLINE void idMat6::Identity()

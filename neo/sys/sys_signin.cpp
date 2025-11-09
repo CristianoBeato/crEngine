@@ -69,7 +69,7 @@ idSignInManagerBase::GetDefaultProfile
 */
 idPlayerProfile* idSignInManagerBase::GetDefaultProfile()
 {
-	if( defaultProfile == NULL )
+	if( defaultProfile == nullptr )
 	{
 		// Create a new profile
 		defaultProfile = idPlayerProfile::CreatePlayerProfile( 0 );
@@ -92,7 +92,7 @@ idLocalUser* idSignInManagerBase::GetLocalUserByInputDevice( int index )
 		}
 	}
 	
-	return NULL;		// Not found
+	return nullptr;		// Not found
 }
 
 /*
@@ -110,7 +110,7 @@ idLocalUser* idSignInManagerBase::GetLocalUserByHandle( localUserHandle_t handle
 		}
 	}
 	
-	return NULL;		// Not found
+	return nullptr;		// Not found
 }
 
 /*
@@ -121,8 +121,8 @@ idSignInManagerBase::GetPlayerProfileByInputDevice
 idPlayerProfile* idSignInManagerBase::GetPlayerProfileByInputDevice( int index )
 {
 	idLocalUser* user = session->GetSignInManager().GetLocalUserByInputDevice( index );
-	idPlayerProfile* profile = NULL;
-	if( user != NULL )
+	idPlayerProfile* profile = nullptr;
+	if( user != nullptr )
 	{
 		profile = user->GetProfile();
 	}
@@ -177,10 +177,10 @@ void idSignInManagerBase::SaveUserProfiles()
 	for( int i = 0; i < GetNumLocalUsers(); i++ )
 	{
 		idLocalUser* localUser = GetLocalUserByIndex( i );
-		if( localUser != NULL )
+		if( localUser != nullptr )
 		{
 			idPlayerProfile* profile = localUser->GetProfile();
-			if( profile != NULL )
+			if( profile != nullptr )
 			{
 				profile->SaveSettings( false );
 			}

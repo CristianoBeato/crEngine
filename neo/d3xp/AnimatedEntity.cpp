@@ -73,7 +73,7 @@ idAnimatedEntity::idAnimatedEntity
 idAnimatedEntity::idAnimatedEntity()
 {
 	animator.SetEntity( this );
-	damageEffects = NULL;
+	damageEffects = nullptr;
 }
 
 /*
@@ -318,13 +318,13 @@ void idAnimatedEntity::AddDamageEffect( const trace_t& collision, const idVec3& 
 	idVec3 origin, dir, localDir, localOrigin, localNormal;
 	idMat3 axis;
 	
-	if( !g_bloodEffects.GetBool() || renderEntity.joints == NULL )
+	if( !g_bloodEffects.GetBool() || renderEntity.joints == nullptr )
 	{
 		return;
 	}
 	
 	const idDeclEntityDef* def = gameLocal.FindEntityDef( damageDefName, false );
-	if( def == NULL )
+	if( def == nullptr )
 	{
 		return;
 	}
@@ -396,7 +396,7 @@ void idAnimatedEntity::AddLocalDamageEffect( jointHandle_t jointNum, const idVec
 	}
 	if( *sound != '\0' )
 	{
-		StartSoundShader( declManager->FindSound( sound ), SND_CHANNEL_BODY, 0, false, NULL );
+		StartSoundShader( declManager->FindSound( sound ), SND_CHANNEL_BODY, 0, false, nullptr );
 	}
 	
 	// blood splats are thrown onto nearby surfaces

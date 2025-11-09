@@ -76,7 +76,7 @@ void CSG_MakeHollow (void)
 Brush_Merge
 
  Returns a new brush that is created by merging brush1 and brush2.
- May return NULL if brush1 and brush2 do not create a convex brush when merged.
+ May return nullptr if brush1 and brush2 do not create a convex brush when merged.
  The input brushes brush1 and brush2 stay intact.
 
  if onlyshape is true then the merge is allowed based on the shape only
@@ -97,7 +97,7 @@ brush_t *Brush_Merge(brush_t *brush1, brush_t *brush2, int onlyshape)
 				|| brush1->maxs[i] < brush2->mins[i] - ON_EPSILON)
 		{
 			// never merge if the brushes overlap
-			return NULL;
+			return nullptr;
 		}
 	}
 	//
@@ -113,7 +113,7 @@ brush_t *Brush_Merge(brush_t *brush1, brush_t *brush2, int onlyshape)
 				shared++;
 				// there may only be ONE shared side
 				if (shared > 1)
-					return NULL;
+					return nullptr;
 				break;
 			}
 		}
@@ -136,14 +136,14 @@ brush_t *Brush_Merge(brush_t *brush1, brush_t *brush2, int onlyshape)
 			{
 				//if the texture/shader references should be the same but are not
 				if (!onlyshape && stricmp(face1->texdef.name, face2->texdef.name) != 0)
-					return NULL;
+					return nullptr;
 				continue;
 			}
 			//
 			if ( face1->face_winding->PlanesConcave( *face2->face_winding,
 							face1->plane.Normal(), face2->plane.Normal(), -face1->plane[3], -face2->plane[3]))
 			{
-				return NULL;
+				return nullptr;
 			} //end if
 		} //end for
 	} //end for
@@ -237,7 +237,7 @@ brush_t *Brush_MergeListPairs(brush_t *brushlist, int onlyshape)
 	brush_t *b1, *b2, *tail, *newbrush, *newbrushlist;
 	brush_t *lastb2;
 
-	if (!brushlist) return NULL;
+	if (!brushlist) return nullptr;
 
 	nummerges = 0;
 	do
@@ -247,7 +247,7 @@ brush_t *Brush_MergeListPairs(brush_t *brushlist, int onlyshape)
 			if (!tail->next) break;
 		}
 		merged = 0;
-		newbrushlist = NULL;
+		newbrushlist = nullptr;
 		for (b1 = brushlist; b1; b1 = brushlist)
 		{
 			lastb2 = b1;
@@ -259,8 +259,8 @@ brush_t *Brush_MergeListPairs(brush_t *brushlist, int onlyshape)
 					tail->next = newbrush;
 					lastb2->next = b2->next;
 					brushlist = brushlist->next;
-					b1->next = b1->prev = NULL;
-					b2->next = b2->prev = NULL;
+					b1->next = b1->prev = nullptr;
+					b2->next = b2->prev = nullptr;
 					Brush_Free(b1);
 					Brush_Free(b2);
 					for (tail = brushlist; tail; tail = tail->next)
@@ -293,7 +293,7 @@ Brush_MergeList
 
  Tries to merge all brushes in the list into one new brush.
  The input brush list stays intact.
- Returns NULL if no merged brush can be created.
+ Returns nullptr if no merged brush can be created.
  To create a new brush the brushes in the list may not overlap and
  the outer faces of the brushes together should make a new convex brush.
 
@@ -307,7 +307,7 @@ brush_t *Brush_MergeList(brush_t *brushlist, int onlyshape)
 	brush_t *brush1, *brush2, *brush3, *newbrush;
 	face_t *face1, *face2, *face3, *newface, *f;
 
-	if (!brushlist) return NULL;
+	if (!brushlist) return nullptr;
 	for (brush1 = brushlist; brush1; brush1 = brush1->next)
 	{
 		// check if the new brush would be convex... flipped planes make a brush concave
@@ -354,14 +354,14 @@ brush_t *Brush_MergeList(brush_t *brushlist, int onlyshape)
 					{
 						//if the texture/shader references should be the same but are not
 						if (!onlyshape && stricmp(face1->texdef.name, face2->texdef.name) != 0)
-							return NULL;
+							return nullptr;
 						continue;
 					}
 					//
 					if ( face1->face_winding->PlanesConcave( *face2->face_winding,
 							face1->plane.Normal(), face2->plane.Normal(), -face1->plane[3], -face2->plane[3]))
 					{
-						return NULL;
+						return nullptr;
 					}
 				}
 			}
@@ -434,7 +434,7 @@ brush_t *Brush_Subtract(brush_t *a, brush_t *b)
 	face_t *f;
 
 	in = a;
-	out = NULL;
+	out = nullptr;
 	for (f = b->brush_faces; f && in; f = f->next)
 	{
 		Brush_SplitBrushByFace(in, f, &front, &back);
@@ -456,7 +456,7 @@ brush_t *Brush_Subtract(brush_t *a, brush_t *b)
 		for (b = out; b; b = next)
 		{
 			next = b->next;
-			b->next = b->prev = NULL;
+			b->next = b->prev = nullptr;
 			Brush_Free(b);
 		}
 		return a;
@@ -516,7 +516,7 @@ void CSG_Subtract (void)
 			for (frag = fragments; frag; frag = nextfragment)
 			{
 				nextfragment = frag->next;
-				frag->next = NULL;
+				frag->next = nullptr;
 				frag->owner = s->owner;
 				Brush_AddToList(frag, &fragmentlist);
 			}
@@ -559,7 +559,7 @@ void CSG_Subtract (void)
 			for (frag = fragments; frag; frag = nextfragment)
 			{
 				nextfragment = frag->next;
-				frag->next = NULL;
+				frag->next = nullptr;
 				frag->owner = s->owner;
 				Brush_AddToList(frag, &fragmentlist);
 			}
@@ -647,14 +647,14 @@ void CSG_Merge(void)
 
 	}
 
-	newlist = NULL;
+	newlist = nullptr;
 	for (b = selected_brushes.next; b != &selected_brushes; b = next)
 	{
 		next = b->next;
 
 		Brush_RemoveFromList(b);
 		b->next = newlist;
-		b->prev = NULL;
+		b->prev = nullptr;
 		newlist = b;
 	}
 
@@ -666,8 +666,8 @@ void CSG_Merge(void)
 		for (b = newlist; b; b = next)
 		{
 			next = b->next;
-			b->next = NULL;
-			b->prev = NULL;
+			b->next = nullptr;
+			b->prev = nullptr;
 			Brush_AddToList(b, &selected_brushes);
 		}
 		Sys_Status("Cannot add a set of brushes with a concave hull.\n");
@@ -677,8 +677,8 @@ void CSG_Merge(void)
 	for (b = newlist; b; b = next)
 	{
 		next = b->next;
-		b->next = NULL;
-		b->prev = NULL;
+		b->next = nullptr;
+		b->prev = nullptr;
 		Brush_Free(b);
 	}
 	Brush_AddToList(newbrush, &selected_brushes);

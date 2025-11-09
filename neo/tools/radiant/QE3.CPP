@@ -51,7 +51,7 @@ void WINAPI QE_CheckOpenGLForErrors(void) {
 			// exiting?", gluErrorString((GLenum)i));
 			//
 			if (g_pParentWnd->MessageBox(strMsg, EDITOR_WINDOWTEXT " Error", MB_YESNO) == IDYES) {
-				Map_SaveFile(NULL, false);
+				Map_SaveFile(nullptr, false);
 			}
 
 			exit(1);
@@ -412,8 +412,8 @@ void QE_CountBrushesAndUpdateStatusBar(void) {
 	g_numbrushes = 0;
 	g_numentities = 0;
 
-	if (active_brushes.next != NULL) {
-		for (b = active_brushes.next; b != NULL && b != &active_brushes; b = next) {
+	if (active_brushes.next != nullptr) {
+		for (b = active_brushes.next; b != nullptr && b != &active_brushes; b = next) {
 			next = b->next;
 			if (b->brush_faces) {
 				if (!b->owner->eclass->fixedsize) {
@@ -427,7 +427,7 @@ void QE_CountBrushesAndUpdateStatusBar(void) {
 	}
 
 	/*
-	 * if ( entities.next != NULL ) { for ( e = entities.next ; e != &entities &&
+	 * if ( entities.next != nullptr ) { for ( e = entities.next ; e != &entities &&
 	 * g_numentities != MAX_MAP_ENTITIES ; e = e->next) { g_numentities++; } }
 	 */
 	if (((g_numbrushes != s_lastbrushcount) || (g_numentities != s_lastentitycount)) || (!s_didonce)) {

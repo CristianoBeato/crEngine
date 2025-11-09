@@ -41,7 +41,7 @@ void idSWF::DefineFont2( idSWFBitStream& bitstream )
 {
 	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_FONT );
-	if( entry == NULL )
+	if( entry == nullptr )
 	{
 		return;
 	}
@@ -50,7 +50,7 @@ void idSWF::DefineFont2( idSWFBitStream& bitstream )
 	
 	char fontName[257];
 	uint8_t fontNameLength = bitstream.ReadU8();
-	memcpy( fontName, bitstream.ReadData( fontNameLength ), fontNameLength );
+	std::memcpy( fontName, bitstream.ReadData( fontNameLength ), fontNameLength );
 	fontName[ fontNameLength ] = 0;
 	
 	entry->font->fontID = idRenderSystem::Get()->RegisterFont( fontName );
@@ -171,7 +171,7 @@ void idSWF::DefineTextX( idSWFBitStream& bitstream, bool rgba )
 {
 	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_TEXT );
-	if( entry == NULL )
+	if( entry == nullptr )
 	{
 		return;
 	}
@@ -259,7 +259,7 @@ void idSWF::DefineEditText( idSWFBitStream& bitstream )
 {
 	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_EDITTEXT );
-	if( entry == NULL )
+	if( entry == nullptr )
 	{
 		return;
 	}

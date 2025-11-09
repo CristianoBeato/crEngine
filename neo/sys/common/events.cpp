@@ -62,7 +62,7 @@ extern idCVar r_windowHeight;
 
 const char* kbdNames[] =
 {
-	"english", "french", "german", "italian", "spanish", "turkish", "norwegian", NULL
+	"english", "french", "german", "italian", "spanish", "turkish", "norwegian", nullptr
 };
 
 idCVar in_keyboard( "in_keyboard", "english", CVAR_SYSTEM | CVAR_ARCHIVE | CVAR_NOCHEAT, "keyboard layout", kbdNames, idCmdSystem::ArgCompletion_String<kbdNames> );
@@ -838,7 +838,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 				//c = key;
 				Sys_QueEvent( SE_CHAR, K_BACKSPACE, 0, 0, nullptr, 0 );
 			}
-			//Sys_QueEvent( SE_CHAR, c, 0, 0, NULL, 0 );
+			//Sys_QueEvent( SE_CHAR, c, 0, 0, nullptr, 0 );
 			return false;
 
 		}
@@ -941,7 +941,7 @@ bool SDLCALL sys_HandleSDL_Events( void *userdata, SDL_Event *event )
 		case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
 		case SDL_EVENT_GAMEPAD_BUTTON_UP:
 		{
-			//Sys_QueEvent( SE_KEY, key, value, 0, NULL, inputDeviceNum );
+			//Sys_QueEvent( SE_KEY, key, value, 0, nullptr, inputDeviceNum );
 			return true;
 		}
 		case SDL_EVENT_GAMEPAD_AXIS_MOTION:

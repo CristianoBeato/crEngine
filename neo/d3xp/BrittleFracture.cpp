@@ -50,8 +50,8 @@ idBrittleFracture::idBrittleFracture
 */
 idBrittleFracture::idBrittleFracture()
 {
-	material = NULL;
-	decalMaterial = NULL;
+	material = nullptr;
+	decalMaterial = nullptr;
 	decalSize = 0.0f;
 	maxShardArea = 0.0f;
 	maxShatterRadius = 0.0f;
@@ -200,7 +200,7 @@ void idBrittleFracture::Restore( idRestoreGame* savefile )
 		
 		if( restoredEvent.eventType == EVENT_PROJECT_DECAL )
 		{
-			ProjectDecal( restoredEvent.point, restoredEvent.vector, gameLocal.time, NULL );
+			ProjectDecal( restoredEvent.point, restoredEvent.vector, gameLocal.time, nullptr );
 		}
 		else
 		{
@@ -272,7 +272,7 @@ void idBrittleFracture::Spawn()
 	spawnArgs.SetBool( "bleed", 1 );
 	
 	// check for xray surface
-	if( renderEntity.hModel != NULL )
+	if( renderEntity.hModel != nullptr )
 	{
 		const idRenderModel* model = renderEntity.hModel;
 		
@@ -553,9 +553,9 @@ bool idBrittleFracture::ModelCallback( renderEntity_s* renderEntity, const rende
 	const idBrittleFracture* ent;
 	
 	ent = static_cast<idBrittleFracture*>( gameLocal.entities[ renderEntity->entityNum ] );
-	if( ent == NULL )
+	if( ent == nullptr )
 	{
-		gameLocal.Error( "idBrittleFracture::ModelCallback: callback with NULL game entity" );
+		gameLocal.Error( "idBrittleFracture::ModelCallback: callback with nullptr game entity" );
 		return false;
 	}
 	
@@ -772,8 +772,8 @@ void idBrittleFracture::ProjectDecal( const idVec3& point, const idVec3& dir, co
 	if( time >= gameLocal.time )
 	{
 		// try to get the sound from the damage def
-		const idDeclEntityDef* damageDef = NULL;
-		const idSoundShader* sndShader = NULL;
+		const idDeclEntityDef* damageDef = nullptr;
+		const idSoundShader* sndShader = nullptr;
 		if( damageDefName )
 		{
 			damageDef = gameLocal.FindEntityDef( damageDefName, false );
@@ -789,11 +789,11 @@ void idBrittleFracture::ProjectDecal( const idVec3& point, const idVec3& dir, co
 		
 		if( sndShader )
 		{
-			StartSoundShader( sndShader, SND_CHANNEL_ANY, 0, false, NULL );
+			StartSoundShader( sndShader, SND_CHANNEL_ANY, 0, false, nullptr );
 		}
 		else
 		{
-			StartSound( "snd_bullethole", SND_CHANNEL_ANY, 0, false, NULL );
+			StartSound( "snd_bullethole", SND_CHANNEL_ANY, 0, false, nullptr );
 		}
 	}
 	
@@ -893,7 +893,7 @@ void idBrittleFracture::DropShard( shard_t* shard, const idVec3& point, const id
 	
 	// remove the clip model from the static physics object
 	clipModelId = shard->clipModel->GetId();
-	physicsObj.SetClipModel( NULL, 1.0f, clipModelId, false );
+	physicsObj.SetClipModel( nullptr, 1.0f, clipModelId, false );
 	
 	origin = shard->clipModel->GetOrigin();
 	axis = shard->clipModel->GetAxis();
@@ -961,7 +961,7 @@ void idBrittleFracture::Shatter( const idVec3& point, const idVec3& impulse, con
 	
 	if( time > ( gameLocal.time - SHARD_ALIVE_TIME ) )
 	{
-		StartSound( "snd_shatter", SND_CHANNEL_ANY, 0, false, NULL );
+		StartSound( "snd_shatter", SND_CHANNEL_ANY, 0, false, nullptr );
 	}
 	
 	if( !IsBroken() )
@@ -1541,7 +1541,7 @@ bool idBrittleFracture::ClientReceiveEvent( int event, int time, const idBitMsg&
 			dir[0] = msg.ReadFloat();
 			dir[1] = msg.ReadFloat();
 			dir[2] = msg.ReadFloat();
-			ProjectDecal( point, dir, time, NULL );
+			ProjectDecal( point, dir, time, nullptr );
 			return true;
 		}
 		case EVENT_SHATTER:

@@ -77,10 +77,10 @@ idHierarchy<type>::idHierarchy
 template< class type >
 idHierarchy<type>::idHierarchy()
 {
-	owner	= NULL;
-	parent	= NULL;
-	sibling	= NULL;
-	child	= NULL;
+	owner	= nullptr;
+	parent	= nullptr;
+	sibling	= nullptr;
+	child	= nullptr;
 }
 
 /*
@@ -195,8 +195,8 @@ void idHierarchy<type>::RemoveFromParent()
 		}
 	}
 	
-	parent = NULL;
-	sibling = NULL;
+	parent = nullptr;
+	sibling = nullptr;
 }
 
 /*
@@ -245,7 +245,7 @@ type* idHierarchy<type>::GetParent() const
 	{
 		return parent->owner;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -260,7 +260,7 @@ type* idHierarchy<type>::GetChild() const
 	{
 		return child->owner;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -275,14 +275,14 @@ type* idHierarchy<type>::GetSibling() const
 	{
 		return sibling->owner;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
 ================
 idHierarchy<type>::GetPriorSiblingNode
 
-Returns NULL if no parent, or if it is the first child.
+Returns nullptr if no parent, or if it is the first child.
 ================
 */
 template< class type >
@@ -290,15 +290,15 @@ idHierarchy<type>* idHierarchy<type>::GetPriorSiblingNode() const
 {
 	if( !parent || ( parent->child == this ) )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	idHierarchy<type>* prev;
 	idHierarchy<type>* node;
 	
 	node = parent->child;
-	prev = NULL;
-	while( ( node != this ) && ( node != NULL ) )
+	prev = nullptr;
+	while( ( node != this ) && ( node != nullptr ) )
 	{
 		prev = node;
 		node = node->sibling;
@@ -316,7 +316,7 @@ idHierarchy<type>* idHierarchy<type>::GetPriorSiblingNode() const
 ================
 idHierarchy<type>::GetPriorSibling
 
-Returns NULL if no parent, or if it is the first child.
+Returns nullptr if no parent, or if it is the first child.
 ================
 */
 template< class type >
@@ -330,7 +330,7 @@ type* idHierarchy<type>::GetPriorSibling() const
 		return prior->owner;
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -352,7 +352,7 @@ type* idHierarchy<type>::GetNext() const
 	else
 	{
 		node = this;
-		while( node && node->sibling == NULL )
+		while( node && node->sibling == nullptr )
 		{
 			node = node->parent;
 		}
@@ -362,7 +362,7 @@ type* idHierarchy<type>::GetNext() const
 		}
 		else
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 }
@@ -391,7 +391,7 @@ type* idHierarchy<type>::GetNextLeaf() const
 	else
 	{
 		node = this;
-		while( node && node->sibling == NULL )
+		while( node && node->sibling == nullptr )
 		{
 			node = node->parent;
 		}
@@ -406,7 +406,7 @@ type* idHierarchy<type>::GetNextLeaf() const
 		}
 		else
 		{
-			return NULL;
+			return nullptr;
 		}
 	}
 }

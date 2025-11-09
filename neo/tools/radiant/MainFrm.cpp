@@ -74,7 +74,7 @@ static char THIS_FILE[] = __FILE__;
 
 // globals
 CString			g_strAppPath;						// holds the full path of the executable
-CMainFrame		*g_pParentWnd = NULL;				// used to precast to CMainFrame
+CMainFrame		*g_pParentWnd = nullptr;				// used to precast to CMainFrame
 CPrefsDlg		g_Preferences;						// global prefs instance
 CPrefsDlg		&g_PrefsDlg = g_Preferences;		// reference used throughout
 int				g_nUpdateBits = 0;					// window update flags
@@ -755,12 +755,12 @@ void CMainFrame::OnBSPDone(UINT wParam, long lParam) {
 CMainFrame::CMainFrame() {
 	m_bDoLoop = false;
 	g_pParentWnd = this;
-	m_pXYWnd = NULL;
-	m_pCamWnd = NULL;
-	m_pZWnd = NULL;
-	m_pYZWnd = NULL;
-	m_pXZWnd = NULL;
-	m_pActiveXY = NULL;
+	m_pXYWnd = nullptr;
+	m_pCamWnd = nullptr;
+	m_pZWnd = nullptr;
+	m_pYZWnd = nullptr;
+	m_pXZWnd = nullptr;
+	m_pActiveXY = nullptr;
 	m_bCamPreview = true;
 	nurbMode = 0;
 }
@@ -956,7 +956,7 @@ void CMainFrame::ShowMenuItemKeyBindings(CMenu *pMenu) {
 
 	// return;
 	for (i = 0; i < g_nCommandCount; i++) {
-		memset(&MenuItemInfo, 0, sizeof(MENUITEMINFO));
+		std::memset(&MenuItemInfo, 0, sizeof(MENUITEMINFO));
 		MenuItemInfo.cbSize = sizeof(MENUITEMINFO);
 		MenuItemInfo.fMask = MIIM_TYPE;
 		MenuItemInfo.dwTypeData = key;
@@ -1000,7 +1000,7 @@ void CMainFrame::ShowMenuItemKeyBindings(CMenu *pMenu) {
 			sprintf(&key[strlen(key)], "%c", g_Commands[i].m_nKey);
 		}
 
-		memset(&MenuItemInfo, 0, sizeof(MENUITEMINFO));
+		std::memset(&MenuItemInfo, 0, sizeof(MENUITEMINFO));
 		MenuItemInfo.cbSize = sizeof(MENUITEMINFO);
 		MenuItemInfo.fMask = MIIM_TYPE;
 		MenuItemInfo.fType = MFT_STRING;
@@ -1017,7 +1017,7 @@ MFCCreate
 */
 void MFCCreate( HINSTANCE hInstance )
 {
-	HMENU hMenu = NULL;
+	HMENU hMenu = nullptr;
 	int i = sizeof(g_qeglobals.d_savedinfo);
 	long l = i;
 
@@ -1086,7 +1086,7 @@ void MFCCreate( HINSTANCE hInstance )
  */
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	char	*pBuffer = g_strAppPath.GetBufferSetLength(_MAX_PATH + 1);
-	int		nResult = ::GetModuleFileName(NULL, pBuffer, _MAX_PATH);
+	int		nResult = ::GetModuleFileName(nullptr, pBuffer, _MAX_PATH);
 	ASSERT(nResult != 0);
 	pBuffer[g_strAppPath.ReverseFind('\\') + 1] = '\0';
 	g_strAppPath.ReleaseBuffer();
@@ -1182,7 +1182,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 	SetActiveXY(m_pXYWnd);
 	m_pXYWnd->SetFocus();
 
-	PostMessage(WM_KEYDOWN, 'O', NULL);
+	PostMessage(WM_KEYDOWN, 'O', nullptr);
 
 	if ( radiant_entityMode.GetBool() ) {
 		g_qeglobals.d_savedinfo.exclude |= (EXCLUDE_PATHS | EXCLUDE_CLIP | EXCLUDE_CAULK | EXCLUDE_VISPORTALS | EXCLUDE_NODRAW | EXCLUDE_TRIGGERS);
@@ -1308,7 +1308,7 @@ void CMainFrame::CreateQEChildren() {
 	}
 
 	if (!bProjectLoaded) {
-		CFileDialog dlgFile( true, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, EDITOR_WINDOWTEXT " Project files (*.qe4, *.prj)|*.qe4|*.prj||",	this );
+		CFileDialog dlgFile( true, nullptr, nullptr, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, EDITOR_WINDOWTEXT " Project files (*.qe4, *.prj)|*.qe4|*.prj||",	this );
 		if (dlgFile.DoModal() == IDOK) {
 			bProjectLoaded = QE_LoadProject(dlgFile.GetPathName().GetBuffer(0));
 		}
@@ -1323,8 +1323,8 @@ void CMainFrame::CreateQEChildren() {
 	common->Printf("Entering message loop\n");
 
 	m_bDoLoop = true;
-	SetTimer(QE_TIMER0, 100, NULL);
-	SetTimer(QE_TIMER1, g_PrefsDlg.m_nAutoSave * 60 * 1000, NULL);
+	SetTimer(QE_TIMER0, 100, nullptr);
+	SetTimer(QE_TIMER1, g_PrefsDlg.m_nAutoSave * 60 * 1000, nullptr);
 }
 
 /*
@@ -1492,35 +1492,35 @@ void CMainFrame::OnDestroy() {
 	}
 
 	delete m_pXYWnd;
-	m_pXYWnd = NULL;
+	m_pXYWnd = nullptr;
 
 	if (m_pYZWnd->GetSafeHwnd()) {
 		m_pYZWnd->SendMessage(WM_DESTROY, 0, 0);
 	}
 
 	delete m_pYZWnd;
-	m_pYZWnd = NULL;
+	m_pYZWnd = nullptr;
 
 	if (m_pXZWnd->GetSafeHwnd()) {
 		m_pXZWnd->SendMessage(WM_DESTROY, 0, 0);
 	}
 
 	delete m_pXZWnd;
-	m_pXZWnd = NULL;
+	m_pXZWnd = nullptr;
 
 	if (m_pZWnd->GetSafeHwnd()) {
 		m_pZWnd->SendMessage(WM_DESTROY, 0, 0);
 	}
 
 	delete m_pZWnd;
-	m_pZWnd = NULL;
+	m_pZWnd = nullptr;
 
 	if (m_pCamWnd->GetSafeHwnd()) {
 		m_pCamWnd->SendMessage(WM_DESTROY, 0, 0);
 	}
 
 	delete m_pCamWnd;
-	m_pCamWnd = NULL;
+	m_pCamWnd = nullptr;
 
 	if ( idStr::Icmp(currentmap, "unnamed.map") != 0 ) {
 		g_PrefsDlg.m_strLastMap = currentmap;
@@ -1549,7 +1549,7 @@ void CMainFrame::OnDestroy() {
 	g_qeglobals.d_project_entity->epairs.Clear();
 
 	entity_t	*pEntity = g_qeglobals.d_project_entity->next;
-	while (pEntity != NULL && pEntity != g_qeglobals.d_project_entity) {
+	while (pEntity != nullptr && pEntity != g_qeglobals.d_project_entity) {
 		entity_t	*pNextEntity = pEntity->next;
 		Entity_Free(pEntity);
 		pEntity = pNextEntity;
@@ -1918,7 +1918,7 @@ void CMainFrame::OnFileSave() {
 	}
 
 	// DHM - _D3XP
-	SetTimer(QE_TIMER1, g_PrefsDlg.m_nAutoSave * 60 * 1000, NULL);
+	SetTimer(QE_TIMER1, g_PrefsDlg.m_nAutoSave * 60 * 1000, nullptr);
 }
 
 /*
@@ -1939,7 +1939,7 @@ void CMainFrame::OnFileSaveCopy() {
 	char aTitle[260] = "Save a Copy\0";
 	OPENFILENAME afn;
 
-	memset( &afn, 0, sizeof(OPENFILENAME) );
+	std::memset( &afn, 0, sizeof(OPENFILENAME) );
 
 	CString strPath = ValueForKey(g_qeglobals.d_project_entity, "basepath");
 	AddSlash(strPath);
@@ -1958,7 +1958,7 @@ void CMainFrame::OnFileSaveCopy() {
 	afn.nFilterIndex = 1;
 	afn.lpstrFile = aFile;
 	afn.nMaxFile = sizeof(aFile);
-	afn.lpstrFileTitle = NULL;
+	afn.lpstrFileTitle = nullptr;
 	afn.nMaxFileTitle = 0;
 	afn.lpstrInitialDir = strPath;
 	afn.lpstrTitle = aTitle;
@@ -2184,7 +2184,7 @@ void RunBsp (const char *command) {
 		}
 		
 		::GetStartupInfo (&startupinfo);
-		if (!CreateProcess(NULL, sys, NULL, NULL, FALSE, 0, NULL, NULL, &startupinfo, &ProcessInformation)) {
+		if (!CreateProcess(nullptr, sys, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &startupinfo, &ProcessInformation)) {
 			common->Printf("Could not start bsp process %s %s/n", buff, sys);  
 		}
 		g_pParentWnd->SetFocus();
@@ -2211,7 +2211,7 @@ void CMainFrame::OnBspCommand(unsigned int nID) {
 	RunBsp(bsp_commands[LOWORD(nID - CMD_BSPCOMMAND)]);
 
 	// DHM - _D3XP
-	SetTimer(QE_TIMER1, g_PrefsDlg.m_nAutoSave * 60 * 1000, NULL);
+	SetTimer(QE_TIMER1, g_PrefsDlg.m_nAutoSave * 60 * 1000, nullptr);
 }
 
 /*
@@ -2678,7 +2678,7 @@ bool DoColor( int iIndex ) {
 extern void Select_SetKeyVal(const char *key, const char *val);
 void CMainFrame::OnMiscSelectentitycolor() {
 
-	entity_t *ent = NULL;
+	entity_t *ent = nullptr;
 	if (QE_SingleBrush(true, true)) {
 		ent = selected_brushes.next->owner;
 		CString strColor = ValueForKey(ent, "_color");
@@ -2710,7 +2710,7 @@ CString strReplaceKey;
 CString strReplaceValue;
 bool    gbWholeStringMatchOnly = true;
 bool	gbSelectAllMatchingEnts= false;
-brush_t* gpPrevEntBrushFound = NULL;
+brush_t* gpPrevEntBrushFound = nullptr;
 
 // all this because there's no ansi stristr(), sigh...
 //
@@ -2736,7 +2736,7 @@ LPCSTR String_ToLower(LPCSTR psString)
 }
 
 
-bool FindNextBrush(brush_t* pPrevFoundBrush)	// can be NULL for fresh search
+bool FindNextBrush(brush_t* pPrevFoundBrush)	// can be nullptr for fresh search
 {	
 	bool bFoundSomething = false;
 	entity_t *pLastFoundEnt;
@@ -2752,7 +2752,7 @@ bool FindNextBrush(brush_t* pPrevFoundBrush)	// can be NULL for fresh search
 
 	if (pPrevFoundBrush && !gbSelectAllMatchingEnts)
 	{
-		brush_t *pPrev = NULL;
+		brush_t *pPrev = nullptr;
 		for (brush_t* b = active_brushes.next ; b != &active_brushes ; b = b->next)
 		{
 			if (pPrev == pPrevFoundBrush && pPrevFoundBrush)
@@ -2929,7 +2929,7 @@ void CMainFrame::OnMiscFindOrReplaceEntity()
 	{
 		case ID_RET_REPLACE:
 		{	
-			brush_t* next = NULL;
+			brush_t* next = nullptr;
 			int iOccurences = 0;
 			for (brush_t* b = active_brushes.next ; b != &active_brushes ; b = next)
 			{
@@ -2973,8 +2973,8 @@ void CMainFrame::OnMiscFindOrReplaceEntity()
 		break;
 		case ID_RET_FIND:
 		{
-			gpPrevEntBrushFound = NULL;
-			FindNextBrush(NULL);
+			gpPrevEntBrushFound = nullptr;
+			FindNextBrush(nullptr);
 		}
 		break;
 	}
@@ -2985,8 +2985,8 @@ void CMainFrame::OnMiscFindNextEntity()
 	//
 	if (!FindNextBrush(gpPrevEntBrushFound))
 	{
-		gpPrevEntBrushFound = NULL;
-		FindNextBrush(NULL);
+		gpPrevEntBrushFound = nullptr;
+		FindNextBrush(nullptr);
 	}
 }
 
@@ -3947,32 +3947,32 @@ void CMainFrame::UpdateWindows(int nBits) {
 
 	if (nBits & (W_XY | W_XY_OVERLAY)) {
 		if (m_pXYWnd) {
-			m_pXYWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+			m_pXYWnd->RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 		}
 
 		if (m_pXZWnd) {
-			m_pXZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+			m_pXZWnd->RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 		}
 
 		if (m_pYZWnd) {
-			m_pYZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+			m_pYZWnd->RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 		}
 	}
 
 	if (nBits & W_CAMERA || ((nBits & W_CAMERA_IFON) && m_bCamPreview)) {
 		if (m_pCamWnd) {
-			m_pCamWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+			m_pCamWnd->RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 		}
 	}
 
 	if (nBits & (W_Z | W_Z_OVERLAY)) {
 		if (m_pZWnd) {
-			m_pZWnd->RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+			m_pZWnd->RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 		}
 	}
 
 	if (nBits & W_TEXTURE) {
-		g_Inspectors->texWnd.RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+		g_Inspectors->texWnd.RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 	}
 }
 
@@ -4989,12 +4989,12 @@ void CMainFrame::OnTexturesLoad() {
 	CString		strPath;
 	char		*p = strPath.GetBuffer(MAX_PATH + 1);
 	bi.hwndOwner = GetSafeHwnd();
-	bi.pidlRoot = NULL;
+	bi.pidlRoot = nullptr;
 	bi.pszDisplayName = p;
 	bi.lpszTitle = "Load textures from path";
 	bi.ulFlags = 0;
-	bi.lpfn = NULL;
-	bi.lParam = NULL;
+	bi.lpfn = nullptr;
+	bi.lParam = nullptr;
 	bi.iImage = 0;
 
 	LPITEMIDLIST	pidlBrowse;
@@ -5091,7 +5091,7 @@ void CMainFrame::OnCurveSphere() {
  =======================================================================================================================
  */
 void CMainFrame::OnFileImportmap() {
-	CFileDialog dlgFile(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Map files (*.map)|*.map||", this);
+	CFileDialog dlgFile(TRUE, nullptr, nullptr, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Map files (*.map)|*.map||", this);
 	if (dlgFile.DoModal() == IDOK) {
 		Map_ImportFile(dlgFile.GetPathName().GetBuffer(0));
 	}
@@ -5102,7 +5102,7 @@ void CMainFrame::OnFileImportmap() {
  =======================================================================================================================
  */
 void CMainFrame::OnFileExportmap() {
-	CFileDialog dlgFile(FALSE, "map", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Map files (*.map)|*.map||", this);
+	CFileDialog dlgFile(FALSE, "map", nullptr, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Map files (*.map)|*.map||", this);
 	if (dlgFile.DoModal() == IDOK) {
 		Map_SaveSelected(dlgFile.GetPathName().GetBuffer(0));
 	}
@@ -6143,7 +6143,7 @@ void CMainFrame::OnEditSaveprefab() {
 				(
 					FALSE,
 					"pfb",
-					NULL,
+					nullptr,
 					OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
 					"Prefab files (*.pfb)|*.pfb||",
 					this
@@ -6166,7 +6166,7 @@ void CMainFrame::OnEditLoadprefab() {
 				(
 					TRUE,
 					"pfb",
-					NULL,
+					nullptr,
 					OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
 					"Prefab files (*.pfb)|*.pfb||",
 					this
@@ -6293,7 +6293,7 @@ void CMainFrame::OnSelectionInvert() {
  =======================================================================================================================
  */
 void CMainFrame::OnProjectedLight() {
-	LightEditorInit( NULL );
+	LightEditorInit( nullptr );
 }
 
 /*
@@ -6570,12 +6570,12 @@ void CMainFrame::OnSelectionCombine()
 extern void Patch_Weld(patchMesh_t *p, patchMesh_t *p2);
 void CMainFrame::OnPatchCombine() {
 	patchMesh_t *p, *p2;
-	p = p2 = NULL;
+	p = p2 = nullptr;
 	for (brush_t *b = selected_brushes.next; b != &selected_brushes; b = b->next) {
 		if (b->pPatch) {
-			if (p == NULL) {
+			if (p == nullptr) {
 				p = b->pPatch;
-			} else if (p2 == NULL) {
+			} else if (p2 == nullptr) {
 				p2 = b->pPatch;
 				Patch_Weld(p, p2);
 				return;
@@ -6802,8 +6802,8 @@ void CMainFrame::OnSelectAlltargets()
 
 void CMainFrame::OnSelectCompleteEntity()
 {
-    brush_t* b = NULL;
-    entity_t* e = NULL;
+    brush_t* b = nullptr;
+    entity_t* e = nullptr;
 
     b = selected_brushes.next;
     if ( b == &selected_brushes )
@@ -6860,7 +6860,7 @@ void CMainFrame::OnGenerateMaterialsList()
 
 		}
 		else {
-			for ( face_t* f = b->brush_faces ; f != NULL ; f=f->next)
+			for ( face_t* f = b->brush_faces ; f != nullptr ; f=f->next)
 			{
 				mtrName = f->d_texture->GetName();
 				if ( !mtrList.Find( mtrName) ) {

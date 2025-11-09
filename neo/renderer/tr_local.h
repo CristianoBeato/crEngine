@@ -117,7 +117,7 @@ struct drawSurf_t
 	vertCacheHandle_t		shadowCache;		// idShadowVert / idShadowVertSkinned
 	vertCacheHandle_t		jointCache;			// idJointMat
 	const viewEntity_t* 	space;
-	const idMaterial* 		material;			// may be NULL for shadow volumes
+	const idMaterial* 		material;			// may be nullptr for shadow volumes
 	uint64_t					extraGLState;		// Extra GL state |'d with material->stage[].drawStateBits
 	float					sort;				// material->sort, modified by gui / entity sort offsets
 	const float* 				shaderRegisters;	// evaluated and adjusted for referenceShaders
@@ -134,8 +134,8 @@ struct areaReference_t
 	areaReference_t* 		areaNext;				// chain in the area
 	areaReference_t* 		areaPrev;
 	areaReference_t* 		ownerNext;				// chain on either the entityDef or lightDef
-	idRenderEntityLocal* 	entity;					// only one of entity / light will be non-NULL
-	idRenderLightLocal* 	light;					// only one of entity / light will be non-NULL
+	idRenderEntityLocal* 	entity;					// only one of entity / light will be non-nullptr
+	idRenderLightLocal* 	light;					// only one of entity / light will be non-nullptr
 	struct portalArea_s*		area;					// so owners can find all the areas they are in
 };
 
@@ -835,7 +835,7 @@ public:
 	virtual void			Preload( const idPreloadManifest& manifest, const char* mapName );
 	virtual void			BeginAutomaticBackgroundSwaps( autoRenderIconType_t icon = AUTORENDER_DEFAULTICON );
 	virtual void			EndAutomaticBackgroundSwaps();
-	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t* usingAlternateIcon = NULL ) const;
+	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t* usingAlternateIcon = nullptr ) const;
 	
 // BEATO Begin:
 	virtual void			UpdateRenderSize( const uint32_t in_width, const uint32_t in_height );
@@ -1038,7 +1038,7 @@ extern idCVar r_skipFrontEnd;				// bypasses all front end work, but 2D gui rend
 extern idCVar r_skipBackEnd;				// don't draw anything
 extern idCVar r_skipCopyTexture;			// do all rendering, but don't actually copyTexSubImage2D
 extern idCVar r_skipRender;					// skip 3D rendering, but pass 2D
-extern idCVar r_skipRenderContext;			// NULL the rendering context during backend 3D rendering
+extern idCVar r_skipRenderContext;			// nullptr the rendering context during backend 3D rendering
 extern idCVar r_skipTranslucent;			// skip the translucent interaction rendering
 extern idCVar r_skipAmbient;				// bypasses all non-interaction drawing
 extern idCVar r_skipNewAmbient;				// bypasses all vertex/fragment program ambients
@@ -1219,7 +1219,7 @@ void* R_FrameAlloc( int bytes, frameAllocType_t type = FRAME_ALLOC_UNKNOWN );
 void* R_ClearedFrameAlloc( int bytes, frameAllocType_t type = FRAME_ALLOC_UNKNOWN );
 
 void* R_StaticAlloc( int bytes, const memTag_t tag = TAG_RENDER_STATIC );		// just malloc with error checking
-void* R_ClearedStaticAlloc( int bytes );	// with memset
+void* R_ClearedStaticAlloc( int bytes );	// with std::memset
 void R_StaticFree( void* data );
 
 void R_RenderView( viewDef_t* parms );
@@ -1340,7 +1340,7 @@ struct deformInfo_t
 };
 
 
-// if outputVertexes is not NULL, it will point to a newly allocated set of verts that includes the mirrored ones
+// if outputVertexes is not nullptr, it will point to a newly allocated set of verts that includes the mirrored ones
 deformInfo_t* 		R_BuildDeformInfo( int numVerts, const idDrawVert* verts, int numIndexes, const int* indexes,
 									   bool useUnsmoothedTangents );
 void				R_FreeDeformInfo( deformInfo_t* deformInfo );

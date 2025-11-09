@@ -70,8 +70,8 @@ public:
 		
 protected:		
 
-	bool					FindPrev			( const char* text = NULL );
-	bool					FindNext			( const char* text = NULL );
+	bool					FindPrev			( const char* text = nullptr );
+	bool					FindNext			( const char* text = nullptr );
 
 	void					UpdateWatch			( void );
 	void					UpdateWindowMenu	( void );

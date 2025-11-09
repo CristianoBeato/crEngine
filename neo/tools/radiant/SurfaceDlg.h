@@ -46,7 +46,7 @@ class CSurfaceDlg : public CDialog
 
 	// Construction
 public:
-	CSurfaceDlg(CWnd* pParent = NULL);   // standard constructor
+	CSurfaceDlg(CWnd* pParent = nullptr);   // standard constructor
   void SetTexMods();
 
 // Dialog Data

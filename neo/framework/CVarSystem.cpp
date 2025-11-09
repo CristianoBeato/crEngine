@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-idCVar* idCVar::staticVars = NULL;
+idCVar* idCVar::staticVars = nullptr;
 
 extern idCVar net_allowCheats;
 
@@ -99,7 +99,7 @@ idInternalCVar::idInternalCVar( const char* newName, const char* newValue, int n
 	flags = ( newFlags & ~CVAR_STATIC ) | CVAR_MODIFIED;
 	valueMin = 1;
 	valueMax = -1;
-	valueStrings = NULL;
+	valueStrings = nullptr;
 	valueCompletion = 0;
 	UpdateValue();
 	UpdateCheat();
@@ -138,7 +138,7 @@ idInternalCVar::~idInternalCVar
 idInternalCVar::~idInternalCVar()
 {
 	Mem_Free( valueStrings );
-	valueStrings = NULL;
+	valueStrings = nullptr;
 }
 
 
@@ -155,11 +155,11 @@ const char** idInternalCVar::CopyValueStrings( const char** strings )
 	
 	if( !strings )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	totalLength = 0;
-	for( i = 0; strings[i] != NULL; i++ )
+	for( i = 0; strings[i] != nullptr; i++ )
 	{
 		totalLength += idStr::Length( strings[i] ) + 1;
 	}
@@ -167,13 +167,13 @@ const char** idInternalCVar::CopyValueStrings( const char** strings )
 	ptr = ( const char** ) Mem_Alloc( ( i + 1 ) * sizeof( char* ) + totalLength, TAG_CVAR );
 	str = ( char* )( ( ( byte* )ptr ) + ( i + 1 ) * sizeof( char* ) );
 	
-	for( i = 0; strings[i] != NULL; i++ )
+	for( i = 0; strings[i] != nullptr; i++ )
 	{
 		ptr[i] = str;
 		strcpy( str, strings[i] );
 		str += idStr::Length( strings[i] ) + 1;
 	}
-	ptr[i] = NULL;
+	ptr[i] = nullptr;
 	
 	return ptr;
 }
@@ -603,7 +603,7 @@ idInternalCVar* idCVarSystemLocal::FindInternal( const char* name ) const
 			return cvars[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -838,7 +838,7 @@ bool idCVarSystemLocal::Command( const idCmdArgs& args )
 	
 	internal = FindInternal( args.Argv( 0 ) );
 	
-	if( internal == NULL )
+	if( internal == nullptr )
 	{
 		return false;
 	}
@@ -941,7 +941,7 @@ void idCVarSystemLocal::ResetFlaggedVariables( int flags )
 		idInternalCVar* cvar = cvars[i];
 		if( cvar->GetFlags() & flags )
 		{
-			cvar->Set( NULL, true, true );
+			cvar->Set( nullptr, true, true );
 		}
 	}
 }
@@ -958,7 +958,7 @@ void idCVarSystemLocal::RemoveFlaggedAutoCompletion( int flags )
 		idInternalCVar* cvar = cvars[i];
 		if( cvar->GetFlags() & flags )
 		{
-			cvar->valueCompletion = NULL;
+			cvar->valueCompletion = nullptr;
 		}
 	}
 }
@@ -1048,7 +1048,7 @@ void idCVarSystemLocal::Toggle_f( const idCmdArgs& args )
 	
 	idInternalCVar* cvar = localCVarSystem.FindInternal( args.Argv( 1 ) );
 	
-	if( cvar == NULL )
+	if( cvar == nullptr )
 	{
 		common->Warning( "Toggle_f: cvar \"%s\" not found", args.Argv( 1 ) );
 		return;
@@ -1360,7 +1360,7 @@ void idCVarSystemLocal::ListByFlags( const idCmdArgs& args, cvarFlags_t flags )
 				else if( cvar->GetValueStrings() )
 				{
 					common->Printf( FORMAT_STRING S_COLOR_WHITE "string " S_COLOR_WHITE "[", cvar->GetName() );
-					for( int j = 0; cvar->GetValueStrings()[j] != NULL; j++ )
+					for( int j = 0; cvar->GetValueStrings()[j] != nullptr; j++ )
 					{
 						if( j )
 						{

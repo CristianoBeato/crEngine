@@ -43,7 +43,7 @@ class CWaitDlg : public CDialog
 {
 // Construction
 public:
-	CWaitDlg(CWnd* pParent = NULL, const char *msg = "Wait...");   // standard constructor
+	CWaitDlg(CWnd* pParent = nullptr, const char *msg = "Wait...");   // standard constructor
 	~CWaitDlg();
 	void SetText(const char *msg, bool append = false);
 	void AllowCancel( bool enable );

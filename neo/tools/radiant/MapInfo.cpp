@@ -47,7 +47,7 @@ static char THIS_FILE[] = __FILE__;
 // CMapInfo dialog
 
 
-CMapInfo::CMapInfo(CWnd* pParent /*=NULL*/)
+CMapInfo::CMapInfo(CWnd* pParent /*=nullptr*/)
 	: CDialog(CMapInfo::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CMapInfo)

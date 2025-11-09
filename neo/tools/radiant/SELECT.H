@@ -99,7 +99,7 @@ void Select_Deselect (bool bDeselectFaces = true);
 void Select_Invert(void);
 void Select_Clone (void);
 void Select_Move (idVec3 delta, bool bSnap = true);
-void WINAPI Select_SetTexture (texdef_t *texdef, brushprimit_texdef_t *brushprimit_texdef, bool bFitScale = false, void* pPlugTexdef = NULL, bool update = true);
+void WINAPI Select_SetTexture (texdef_t *texdef, brushprimit_texdef_t *brushprimit_texdef, bool bFitScale = false, void* pPlugTexdef = nullptr, bool update = true);
 void Select_FlipAxis (int axis);
 void Select_RotateAxis (int axis, float deg, bool bPaint = true, bool bMouse = false);
 void Select_CompleteTall (void);

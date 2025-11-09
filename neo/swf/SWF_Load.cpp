@@ -45,7 +45,7 @@ bool idSWF::LoadSWF( const char* fullpath )
 {
 
 	idFile* rawfile = fileSystem->OpenFileRead( fullpath );
-	if( rawfile == NULL )
+	if( rawfile == nullptr )
 	{
 		// motorsep 01-16-2015; only print that debug warning when "developer" cvar is set to 1
 		if( com_developer.GetBool() )
@@ -146,7 +146,7 @@ idSWF::LoadBinary
 bool idSWF::LoadBinary( const char* bfilename, ID_TIME_T sourceTime )
 {
 	idFile* f = fileSystem->OpenFileReadMemory( bfilename );
-	if( f == NULL || f->Length() <= 0 )
+	if( f == nullptr || f->Length() <= 0 )
 	{
 		return false;
 	}
@@ -193,7 +193,7 @@ bool idSWF::LoadBinary( const char* bfilename, ID_TIME_T sourceTime )
 				if( imageName[0] == '.' )
 				{
 					// internal image in the atlas
-					dictionary[i].material = NULL;
+					dictionary[i].material = nullptr;
 				}
 				else
 				{
@@ -366,7 +366,7 @@ idSWF::WriteBinary
 void idSWF::WriteBinary( const char* bfilename )
 {
 	idFileLocal file( fileSystem->OpenFileWrite( bfilename, "fs_basepath" ) );
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		return;
 	}

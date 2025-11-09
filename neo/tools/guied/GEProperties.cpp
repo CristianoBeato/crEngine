@@ -46,9 +46,9 @@ constructor
 */
 rvGEProperties::rvGEProperties( void )
 {
-	mWrapper   = NULL;
-	mWnd	   = NULL;
-	mWorkspace = NULL;
+	mWrapper   = nullptr;
+	mWnd	   = nullptr;
+	mWorkspace = nullptr;
 }
 
 /*
@@ -61,13 +61,13 @@ Create the property window as a child of the given window
 bool rvGEProperties::Create ( HWND parent, bool visible )
 {
 	WNDCLASSEX wndClass;
-	memset ( &wndClass, 0, sizeof(wndClass) );
+	std::memset ( &wndClass, 0, sizeof(wndClass) );
 	wndClass.cbSize = sizeof(WNDCLASSEX);
 	wndClass.lpszClassName = "GUIEDITOR_PROPERTIES_CLASS";
 	wndClass.lpfnWndProc   = WndProc;
 	wndClass.hbrBackground = (HBRUSH)GetSysColorBrush ( COLOR_3DFACE );
-	wndClass.hCursor       = LoadCursor((HINSTANCE) NULL, IDC_ARROW);
-	wndClass.lpszMenuName  = NULL;
+	wndClass.hCursor       = LoadCursor((HINSTANCE) nullptr, IDC_ARROW);
+	wndClass.lpszMenuName  = nullptr;
 	wndClass.hInstance     = win32.hInstance;
 	RegisterClassEx ( &wndClass );
 
@@ -77,7 +77,7 @@ bool rvGEProperties::Create ( HWND parent, bool visible )
 							WS_SYSMENU|WS_THICKFRAME|WS_CAPTION|WS_POPUP|WS_OVERLAPPED|WS_BORDER|WS_CLIPSIBLINGS|WS_CHILD,
 							0, 0, 200,300,
 							parent,
-							NULL,
+							nullptr,
 							win32.hInstance,
 							this );
 
@@ -93,7 +93,7 @@ bool rvGEProperties::Create ( HWND parent, bool visible )
 
 		GetWindowRect ( parent, &rParent );
 		GetWindowRect ( mWnd, &rClient );
-		SetWindowPos ( mWnd, NULL,
+		SetWindowPos ( mWnd, nullptr,
 					rParent.right - 10 - (rClient.right-rClient.left),
 					rParent.bottom - 10 - (rClient.bottom-rClient.top),
 					0,0,
@@ -135,7 +135,7 @@ void rvGEProperties::Update ( void )
 	}
 	else
 	{
-		mWrapper = NULL;
+		mWrapper = nullptr;
 	}
 
 	ShowWindow ( mGrid.GetWindow ( ), mWrapper?SW_SHOW:SW_HIDE );
@@ -277,7 +277,7 @@ LRESULT CALLBACK rvGEProperties::WndProc ( HWND hWnd, UINT msg, WPARAM wParam, L
 
 			kv->mGrid.Create ( hWnd, 999, PGS_ALLOWINSERT );
 
-			kv->SetWorkspace ( NULL );
+			kv->SetWorkspace ( nullptr );
 			kv->Update ( );
 
 			break;

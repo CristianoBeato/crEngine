@@ -391,7 +391,7 @@ rvDebuggerBreakpoint* rvDebuggerClient::FindBreakpoint ( const char* filename, i
 		}
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*

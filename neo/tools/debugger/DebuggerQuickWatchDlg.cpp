@@ -228,7 +228,7 @@ void rvDebuggerQuickWatchDlg::SetVariable ( const char* varname, bool force )
 	}
 
 	// Throw up a wait cursor	
-	SetCursor ( LoadCursor ( NULL, IDC_WAIT ) );
+	SetCursor ( LoadCursor ( nullptr, IDC_WAIT ) );
 
 	// Clear the current value list control
 	ListView_DeleteAllItems ( GetDlgItem ( mWnd, IDC_DBG_CURVALUE ) );
@@ -264,5 +264,5 @@ void rvDebuggerQuickWatchDlg::SetVariable ( const char* varname, bool force )
 
 	// Give focus back to the variable edit control and set the cursor back to an arrow
 	SetFocus ( GetDlgItem ( mWnd, IDC_DBG_VARIABLE ) );
-	SetCursor ( LoadCursor ( NULL, IDC_ARROW ) );
+	SetCursor ( LoadCursor ( nullptr, IDC_ARROW ) );
 }

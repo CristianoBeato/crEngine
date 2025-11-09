@@ -460,7 +460,7 @@ cm_node_t* idCollisionModelManagerLocal::PointNode( const idVec3& p, cm_model_t*
 			node = node->children[1];
 		}
 		
-		assert( node != NULL );
+		assert( node != nullptr );
 	}
 	return node;
 }

@@ -50,7 +50,7 @@ toolTip_t DialogDeclNew::toolTips[] = {
 	{ IDC_DECLNEW_BUTTON_NEW_FILE, "select existing file to add the declaration to" },
 	{ IDOK, "create new declaration" },
 	{ IDCANCEL, "cancel" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 
@@ -61,10 +61,10 @@ IMPLEMENT_DYNAMIC(DialogDeclNew, CDialog)
 DialogDeclNew::DialogDeclNew
 ================
 */
-DialogDeclNew::DialogDeclNew( CWnd* pParent /*=NULL*/ )
+DialogDeclNew::DialogDeclNew( CWnd* pParent /*=nullptr*/ )
 	: CDialog(DialogDeclNew::IDD, pParent)
-	, declTree(NULL)
-	, newDecl(NULL)
+	, declTree(nullptr)
+	, newDecl(nullptr)
 {
 }
 

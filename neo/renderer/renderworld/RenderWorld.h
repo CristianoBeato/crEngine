@@ -111,7 +111,7 @@ typedef struct renderEntity_s
 	// deferred until their bounds are found to be in view, in the frustum
 	// of a shadowing light that is in view, or contacted by a trace / overlay test.
 	// This is also used to do visual cueing on items in the view
-	// The renderView may be NULL if the callback is being issued for a non-view related
+	// The renderView may be nullptr if the callback is being issued for a non-view related
 	// source.
 	// The callback function should clear renderEntity->callback if it doesn't
 	// want to be called again next time the entity is referenced (ie, if the
@@ -157,7 +157,7 @@ typedef struct renderEntity_s
 	
 	int						numJoints;
 	idJointMat* 			joints;					// array of joints that will modify vertices.
-	// NULL if non-deformable model.  NOT freed by renderer
+	// nullptr if non-deformable model.  NOT freed by renderer
 	
 	float					modelDepthHack;			// squash depth range so particle effects don't clip into walls
 	
@@ -225,7 +225,7 @@ typedef struct renderLight_s
 	int						lightId;
 	
 	
-	const idMaterial* 		shader;				// NULL = either lights/defaultPointLight or lights/defaultProjectedLight
+	const idMaterial* 		shader;				// nullptr = either lights/defaultPointLight or lights/defaultProjectedLight
 	float					shaderParms[MAX_ENTITY_SHADER_PARMS];		// can be used in any way by shader
 	idSoundEmitter* 		referenceSound;		// for shader sound tables, allowing effects to vary with sounds
 } renderLight_t;
@@ -308,7 +308,7 @@ public:
 	virtual					~idRenderWorld() {};
 	
 	// The same render world can be reinitialized as often as desired
-	// a NULL or empty mapName will create an empty, single area world
+	// a nullptr or empty mapName will create an empty, single area world
 	virtual bool			InitFromMap( const char* mapName ) = 0;
 	
 	// This fixes a crash when switching between expansion packs in the same game session

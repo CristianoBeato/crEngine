@@ -345,7 +345,7 @@ void Drag_Begin( int x, int y, int buttons,
 			brushprimit_texdef_t bp_local;
 			if (t.brush && t.brush->pPatch) {
 				texdef_t localtd;
-				memset(&bp_local.coords, 0, sizeof(bp_local.coords));
+				std::memset(&bp_local.coords, 0, sizeof(bp_local.coords));
 				bp_local.coords[0][0] = 1.0f;
 				bp_local.coords[1][1] = 1.0f;
 				localtd.SetName(t.brush->pPatch->d_texture->GetName());
@@ -353,7 +353,7 @@ void Drag_Begin( int x, int y, int buttons,
 				Select_CopyPatchTextureCoords ( t.brush->pPatch );
 			} else {
 				Select_ProjectFaceOntoPatch( t.face );
-				ConvertTexMatWithQTexture(&t.face->brushprimit_texdef, t.face->d_texture, &bp_local, NULL);
+				ConvertTexMatWithQTexture(&t.face->brushprimit_texdef, t.face->d_texture, &bp_local, nullptr);
 				Texture_SetTexture(&t.face->texdef, &bp_local, false, true);
 			}
 			UpdateSurfaceDialog();
@@ -649,7 +649,7 @@ static void MoveSelection( const idVec3 &orgMove ) {
 
 				// if (!Patch_DragScale(b->nPatchID, vTemp2, move))
 				if (!Patch_DragScale(b->pPatch, vTemp2, move)) {
-					b = NULL;
+					b = nullptr;
 					break;
 				}
 			}

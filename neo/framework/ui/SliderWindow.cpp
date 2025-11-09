@@ -47,9 +47,9 @@ void idSliderWindow::CommonInit()
 	high = 100.0;
 	stepSize = 1.0;
 	thumbMat = declManager->FindMaterial( "_default" );
-	buddyWin = NULL;
+	buddyWin = nullptr;
 	
-	cvar = NULL;
+	cvar = nullptr;
 	cvar_init = false;
 	liveUpdate = true;
 	
@@ -434,7 +434,7 @@ void idSliderWindow::InitCvar( )
 			common->Warning( "idSliderWindow::InitCvar: gui '%s' window '%s' has an empty cvar string", gui->GetSourceFile(), name.c_str() );
 		}
 		cvar_init = true;
-		cvar = NULL;
+		cvar = nullptr;
 		return;
 	}
 	

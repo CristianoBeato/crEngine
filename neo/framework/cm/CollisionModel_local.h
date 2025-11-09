@@ -145,7 +145,7 @@ typedef struct cm_brush_s
 	{
 		checkcount = 0;
 		contents = 0;
-		material = NULL;
+		material = nullptr;
 		primitiveNum = 0;
 		numPlanes = 0;
 	}

@@ -57,7 +57,7 @@ const COLORREF MULTILINE_COMMENT_BACK_COLOR		= SRE_COLOR_WHITE - 1;
 #define IDC_EDITBOX_FUNCPARMS			701
 
 static keyWord_t defaultKeyWords[] = {
-	{ NULL, SRE_COLOR_BLACK, "" }
+	{ nullptr, SRE_COLOR_BLACK, "" }
 };
 
 BEGIN_MESSAGE_MAP(CSyntaxRichEditCtrl, CRichEditCtrl)
@@ -85,10 +85,10 @@ CSyntaxRichEditCtrl::CSyntaxRichEditCtrl
 ================
 */
 CSyntaxRichEditCtrl::CSyntaxRichEditCtrl( void ) {
-	m_TextDoc = NULL;
+	m_TextDoc = nullptr;
 	keyWords = defaultKeyWords;
-	keyWordColors = NULL;
-	keyWordLengths = NULL;
+	keyWordColors = nullptr;
+	keyWordLengths = nullptr;
 	caseSensitive = false;
 	allowPathNames = true;
 	keyWordAutoCompletion = true;
@@ -101,14 +101,14 @@ CSyntaxRichEditCtrl::CSyntaxRichEditCtrl( void ) {
 	funcParmToolTipStart = -1;
 	bracedSection[0] = -1;
 	bracedSection[1] = -1;
-	GetObjectMembers = NULL;
-	GetFunctionParms = NULL;
-	GetToolTip = NULL;
+	GetObjectMembers = nullptr;
+	GetFunctionParms = nullptr;
+	GetToolTip = nullptr;
 	mousePoint.x = 0;
 	mousePoint.y = 0;
-	keyWordToolTip = NULL;
-	m_pchTip = NULL;
-	m_pwchTip = NULL;
+	keyWordToolTip = nullptr;
+	m_pchTip = nullptr;
+	m_pwchTip = nullptr;
 }
 
 /*
@@ -135,7 +135,7 @@ void CSyntaxRichEditCtrl::InitFont( void ) {
 	int logx, tabSize;
 
 	// set the font
-	memset( &lf, 0, sizeof( lf ) );
+	std::memset( &lf, 0, sizeof( lf ) );
 	lf.lfHeight = FONT_HEIGHT * 10;
 	lf.lfWidth = FONT_WIDTH * 10;
 	lf.lfCharSet = ANSI_CHARSET;
@@ -150,7 +150,7 @@ void CSyntaxRichEditCtrl::InitFont( void ) {
 	tabSize = TAB_SIZE * FONT_WIDTH * 1440 / logx;
 
 	// set the tabs
-	memset( &pf, 0, sizeof( PARAFORMAT ) );
+	std::memset( &pf, 0, sizeof( PARAFORMAT ) );
 	pf.cbSize = sizeof( PARAFORMAT );
 	pf.dwMask = PFM_TABSTOPS;
 	for ( pf.cTabCount = 0; pf.cTabCount < MAX_TAB_STOPS; pf.cTabCount++ ) {
@@ -159,7 +159,7 @@ void CSyntaxRichEditCtrl::InitFont( void ) {
 
 	SetParaFormat( pf );
 
-	memset( &defaultCharFormat, 0, sizeof( defaultCharFormat ) );
+	std::memset( &defaultCharFormat, 0, sizeof( defaultCharFormat ) );
 	defaultCharFormat.dwMask = CFM_CHARSET | CFM_FACE | CFM_SIZE | CFM_BOLD | CFM_COLOR | CFM_PROTECTED | CFM_BACKCOLOR;
 	defaultCharFormat.yHeight = FONT_HEIGHT * 20;
 	defaultCharFormat.bCharSet = ANSI_CHARSET;
@@ -231,8 +231,8 @@ void CSyntaxRichEditCtrl::Init( void ) {
 	// get the Rich Edit ITextDocument to use the wonky TOM interface
 	IRichEditOle *ire = GetIRichEditOle();
 	IUnknown *iu = (IUnknown *)ire;
-	if ( iu == NULL || iu->QueryInterface( tom::IID_ITextDocument, (void**) &m_TextDoc ) != S_OK ) {
-		m_TextDoc = NULL;
+	if ( iu == nullptr || iu->QueryInterface( tom::IID_ITextDocument, (void**) &m_TextDoc ) != S_OK ) {
+		m_TextDoc = nullptr;
 	}
 
 	InitFont();
@@ -383,9 +383,9 @@ bool CSyntaxRichEditCtrl::LoadKeyWordsFromFile( const char *fileName ) {
 		}
 	}
 
-	keyword.keyWord = NULL;
+	keyword.keyWord = nullptr;
 	keyword.color = RGB( 255, 255, 255 );
-	keyword.description = NULL;
+	keyword.description = nullptr;
 	keyWordsFromFile.Append( keyword );
 
 	SetKeyWords( keyWordsFromFile.Ptr() );
@@ -547,9 +547,9 @@ void CSyntaxRichEditCtrl::SetDefaultFont( int startCharIndex, int endCharIndex )
 
 	m_TextDoc->Range( startCharIndex, endCharIndex, &range );
 
-	m_TextDoc->Undo( tom::tomSuspend, NULL );
+	m_TextDoc->Undo( tom::tomSuspend, nullptr );
 	range->put_Font( m_DefaultFont );
-	m_TextDoc->Undo( tom::tomResume, NULL );
+	m_TextDoc->Undo( tom::tomResume, nullptr );
 
 	range->Release();
 
@@ -858,7 +858,7 @@ void CSyntaxRichEditCtrl::UpdateVisibleRange( void ) {
 			update = true;
 			break;
 		}
-		if ( range->Move( tom::tomCharFormat, 1, NULL ) != S_OK ) {
+		if ( range->Move( tom::tomCharFormat, 1, nullptr ) != S_OK ) {
 			break;
 		}
 	}
@@ -961,7 +961,7 @@ bool CSyntaxRichEditCtrl::FindNext( const char *find, bool matchCase, bool match
 
 	if ( range->FindShit( A2BSTR(find), search, flags, &length ) == S_OK ) {
 
-		m_TextDoc->Freeze( NULL );
+		m_TextDoc->Freeze( nullptr );
 
 		range->get_Start( &start );
 		range->Release();
@@ -973,7 +973,7 @@ bool CSyntaxRichEditCtrl::FindNext( const char *find, bool matchCase, bool match
 
 		UpdateVisibleRange();
 
-		m_TextDoc->Unfreeze( NULL );
+		m_TextDoc->Unfreeze( nullptr );
 		return true;
 	} else {
 		range->Release();
@@ -996,7 +996,7 @@ int CSyntaxRichEditCtrl::ReplaceAll( const char *find, const char *replace, bool
 		return 0;
 	}
 
-	m_TextDoc->Freeze( NULL );
+	m_TextDoc->Freeze( nullptr );
 
 	GetSel( selStart, selEnd );
 
@@ -1016,7 +1016,7 @@ int CSyntaxRichEditCtrl::ReplaceAll( const char *find, const char *replace, bool
 
 	range->Release();
 
-	m_TextDoc->Unfreeze( NULL );
+	m_TextDoc->Unfreeze( nullptr );
 
 	return numReplaced;
 }
@@ -1346,11 +1346,11 @@ void CSyntaxRichEditCtrl::GoToLine( int line ) {
 
 	int index = LineIndex( line );
 
-	m_TextDoc->Freeze( NULL );
+	m_TextDoc->Freeze( nullptr );
 
 	SetSel( index, index );
 
-	m_TextDoc->Unfreeze( NULL );
+	m_TextDoc->Unfreeze( nullptr );
 
 	UpdateVisibleRange();
 
@@ -1392,7 +1392,7 @@ BOOL CSyntaxRichEditCtrl::OnToolTipNotify( UINT id, NMHDR *pNMHDR, LRESULT *pRes
 	if ( GetNameForMousePosition( name ) ) {
 		CString toolTip;
 
-		if ( GetToolTip == NULL || !GetToolTip( name, toolTip ) ) {
+		if ( GetToolTip == nullptr || !GetToolTip( name, toolTip ) ) {
 
 			int keyWordIndex = FindKeyWord( name, name.Length() );
 
@@ -1459,7 +1459,7 @@ CSyntaxRichEditCtrl::OnKeyDown
 */
 void CSyntaxRichEditCtrl::OnKeyDown( UINT nKey, UINT nRepCnt, UINT nFlags ) {
 
-	if ( m_TextDoc == NULL ) {
+	if ( m_TextDoc == nullptr ) {
 		return;
 	}
 
@@ -1589,13 +1589,13 @@ void CSyntaxRichEditCtrl::OnKeyDown( UINT nKey, UINT nRepCnt, UINT nFlags ) {
 		}
 	}
 
-	m_TextDoc->Freeze( NULL );
+	m_TextDoc->Freeze( nullptr );
 
 	CRichEditCtrl::OnKeyDown( nKey, nRepCnt, nFlags );
 
 	UpdateVisibleRange();
 
-	m_TextDoc->Unfreeze( NULL );
+	m_TextDoc->Unfreeze( nullptr );
 }
 
 /*
@@ -1750,13 +1750,13 @@ BOOL CSyntaxRichEditCtrl::OnMouseWheel( UINT nFlags, short zDelta, CPoint pt ) {
 		return TRUE;
 	}
 
-	m_TextDoc->Freeze( NULL );
+	m_TextDoc->Freeze( nullptr );
 
 	LineScroll( -3 * ( (int) zDelta ) / WHEEL_DELTA, 0 );
 
 	UpdateVisibleRange();
 
-	m_TextDoc->Unfreeze( NULL );
+	m_TextDoc->Unfreeze( nullptr );
 
 	return TRUE;
 }
@@ -1786,11 +1786,11 @@ CSyntaxRichEditCtrl::OnSize
 ================
 */
 void CSyntaxRichEditCtrl::OnSize( UINT nType, int cx, int cy ) {
-	m_TextDoc->Freeze( NULL );
+	m_TextDoc->Freeze( nullptr );
 
 	CRichEditCtrl::OnSize( nType, cx, cy );
 
-	m_TextDoc->Unfreeze( NULL );
+	m_TextDoc->Unfreeze( nullptr );
 
 	UpdateVisibleRange();
 }
@@ -1801,7 +1801,7 @@ CSyntaxRichEditCtrl::OnVScroll
 ================
 */
 void CSyntaxRichEditCtrl::OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* pScrollBar ) {
-	m_TextDoc->Freeze( NULL );
+	m_TextDoc->Freeze( nullptr );
 
 	CRichEditCtrl::OnVScroll( nSBCode, nPos, pScrollBar );
 
@@ -1809,7 +1809,7 @@ void CSyntaxRichEditCtrl::OnVScroll( UINT nSBCode, UINT nPos, CScrollBar* pScrol
 
 	UpdateVisibleRange();
 
-	m_TextDoc->Unfreeze( NULL );
+	m_TextDoc->Unfreeze( nullptr );
 }
 
 /*

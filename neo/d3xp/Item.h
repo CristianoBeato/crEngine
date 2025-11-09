@@ -244,7 +244,7 @@ public:
 	virtual void			Think( void );
 	
 	void					Drop( bool death = false );	// was the drop caused by death of carrier?
-	void					Return( idPlayer* player = NULL );
+	void					Return( idPlayer* player = nullptr );
 	void					Capture();
 	
 	virtual void			FreeLightDef();
@@ -283,7 +283,7 @@ private:
 
 	void					Event_TakeFlag( idPlayer* player );
 	void					Event_DropFlag( bool death );
-	void					Event_FlagReturn( idPlayer* player = NULL );
+	void					Event_FlagReturn( idPlayer* player = nullptr );
 	void					Event_FlagCapture();
 	
 	void					PrivateReturn();

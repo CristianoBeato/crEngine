@@ -106,7 +106,7 @@ idCommonLocal::StartNewGame
 */
 void idCommonLocal::StartNewGame( const char* mapName, bool devmap, int gameMode )
 {
-	if( session->GetSignInManager().GetMasterLocalUser() == NULL )
+	if( session->GetSignInManager().GetMasterLocalUser() == nullptr )
 	{
 		// For development make sure a controller is registered
 		// Can't just register the local user because it will be removed because of it's persistent state
@@ -289,13 +289,13 @@ void idCommonLocal::LoadLoadingGui( const char* mapName, bool& hellMap )
 		loadTipList[i] = i;
 	}
 	
-	if( loadGUI != NULL )
+	if( loadGUI != nullptr )
 	{
 		loadGUI->Activate( true );
 		nextLoadTip = Sys_Milliseconds() + LOAD_TIP_CHANGE_INTERVAL;
 		
 		idSWFSpriteInstance* bgImg = loadGUI->GetRootObject().GetSprite( "bgImage" );
-		if( bgImg != NULL )
+		if( bgImg != nullptr )
 		{
 			bgImg->SetMaterial( mat );
 		}
@@ -303,11 +303,11 @@ void idCommonLocal::LoadLoadingGui( const char* mapName, bool& hellMap )
 		idSWFSpriteInstance* overlay = loadGUI->GetRootObject().GetSprite( "overlay" );
 		
 		const idDeclEntityDef* mapDef = static_cast<const idDeclEntityDef*>( declManager->FindType( DECL_MAPDEF, mapName, false ) );
-		if( mapDef != NULL )
+		if( mapDef != nullptr )
 		{
 			isHellMap = mapDef->dict.GetBool( "hellMap", false );
 			
-			if( isHellMap && overlay != NULL )
+			if( isHellMap && overlay != nullptr )
 			{
 				overlay->SetVisible( false );
 			}
@@ -315,12 +315,12 @@ void idCommonLocal::LoadLoadingGui( const char* mapName, bool& hellMap )
 			idStr desc;
 			idStr subTitle;
 			idStr displayName;
-			idSWFTextInstance* txtVal = NULL;
+			idSWFTextInstance* txtVal = nullptr;
 			
 			txtVal = loadGUI->GetRootObject().GetNestedText( "txtRegLoad" );
 			displayName = idLocalization::GetString( mapDef->dict.GetString( "name", mapName ) );
 			
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( "#str_swf_map_loading" ); // "LOADING"
 				txtVal->SetStrokeInfo( true, 2.0f, 1.0f );
@@ -349,21 +349,21 @@ void idCommonLocal::LoadLoadingGui( const char* mapName, bool& hellMap )
 			{
 				txtVal = loadGUI->GetRootObject().GetNestedText( "txtHellName" );
 			}
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				txtVal->SetText( displayName );
 				txtVal->SetStrokeInfo( true, 2.0f, 1.0f );
 			}
 			
 			txtVal = loadGUI->GetRootObject().GetNestedText( "txtSub" );
-			if( txtVal != NULL && !isHellMap )
+			if( txtVal != nullptr && !isHellMap )
 			{
 				txtVal->SetText( subTitle );
 				txtVal->SetStrokeInfo( true, 1.75f, 0.75f );
 			}
 			
 			txtVal = loadGUI->GetRootObject().GetNestedText( "txtDesc" );
-			if( txtVal != NULL )
+			if( txtVal != nullptr )
 			{
 				if( isHellMap )
 				{
@@ -685,7 +685,7 @@ void idCommonLocal::ExecuteMapChange( void )
 	console->ClearNotifyLines();
 		// at this point we should be done with the loading gui so we kill it
 	delete loadGUI;
-	loadGUI = NULL;
+	loadGUI = nullptr;
 	
 	
 	// capture the current screen and start a wipe
@@ -824,11 +824,11 @@ void idCommonLocal::UpdateLevelLoadPacifier(bool updateSecondary, int mProgress)
 			UpdateScreen( false );
 		}
 	}
-	if(loadGUI != NULL) {
+	if(loadGUI != nullptr) {
 		idSWFSpriteInstance* loadingBar = loadGUI->GetRootObject().GetNestedSprite( "loadingBar" );
 		idSWFSpriteInstance* subLoadingBar = loadGUI->GetRootObject().GetNestedSprite( "subLoadingBar" );
 		if(updateSecondary) {
-			if(subLoadingBar !=NULL) {
+			if(subLoadingBar !=nullptr) {
 				if(mProgress < 1) {
 					subLoadingBar->StopFrame(1);
 				} else {
@@ -840,10 +840,10 @@ void idCommonLocal::UpdateLevelLoadPacifier(bool updateSecondary, int mProgress)
 				}
 			}
 		} else {
-			if(subLoadingBar !=NULL) {
+			if(subLoadingBar !=nullptr) {
 				subLoadingBar->SetVisible(false);
 			}
-			if(loadingBar != NULL) {
+			if(loadingBar != nullptr) {
 				if(mProgress < 1) {
 					loadingBar->StopFrame(1);
 				} else {
@@ -856,7 +856,7 @@ void idCommonLocal::UpdateLevelLoadPacifier(bool updateSecondary, int mProgress)
 			}
 		}
 	}
-	if( time >= nextLoadTip && loadGUI != NULL && loadTipList.Num() > 0 && !defaultLoadscreen )
+	if( time >= nextLoadTip && loadGUI != nullptr && loadTipList.Num() > 0 && !defaultLoadscreen )
 	{
 		if( autoswapsRunning )
 		{
@@ -869,7 +869,7 @@ void idCommonLocal::UpdateLevelLoadPacifier(bool updateSecondary, int mProgress)
 		loadTipList.RemoveIndex( rnd );
 		
 		idSWFTextInstance* txtVal = loadGUI->GetRootObject().GetNestedText( "txtDesc" );
-		if( txtVal != NULL )
+		if( txtVal != nullptr )
 		{
 			if( isHellMap )
 			{
@@ -1054,7 +1054,7 @@ bool idCommonLocal::SaveGame( const char* saveName )
     	ThumbnailFile.Clear( false );
    		common->Dialog().ShowSaveIndicator( false );
 	    game->Shell_Show(false);
-	    renderSystem->TakeScreenshot( SAVEGAME_THUMB_WIDTH,SAVEGAME_THUMB_HEIGHT,  &ThumbnailFile, 1, NULL );
+	    renderSystem->TakeScreenshot( SAVEGAME_THUMB_WIDTH,SAVEGAME_THUMB_HEIGHT,  &ThumbnailFile, 1, nullptr );
    		game->Shell_Show(activeShell);
 		//TODO: Generate mini-shot for in-game gui
 		Dialog().ShowSaveIndicator( true );
@@ -1172,11 +1172,11 @@ bool idCommonLocal::LoadGame( const char* saveName )
 		return false;
 	}
 	
-	if( session->GetSignInManager().GetMasterLocalUser() == NULL )
+	if( session->GetSignInManager().GetMasterLocalUser() == nullptr )
 	{
 		return false;
 	}
-	if( mapSpawnData.savegameFile != NULL )
+	if( mapSpawnData.savegameFile != nullptr )
 	{
 		return false;
 	}
@@ -1233,7 +1233,7 @@ bool idCommonLocal::LoadGame( const char* saveName )
 	{
 		return true;
 	}
-	mapSpawnData.savegameFile = NULL;
+	mapSpawnData.savegameFile = nullptr;
 	if( wipeForced )
 	{
 		ClearWipe();
@@ -1269,7 +1269,7 @@ bool HandleCommonErrors( const idSaveLoadParms& parms )
 	if( parms.GetError() & SAVEGAME_E_CORRUPTED )
 	{
 		// This one might need to be handled by the game
-		common->Dialog().AddDialog( GDM_CORRUPT_CONTINUE, DIALOG_CONTINUE, NULL, NULL, false );
+		common->Dialog().AddDialog( GDM_CORRUPT_CONTINUE, DIALOG_CONTINUE, nullptr, nullptr, false );
 		
 		// Find the game in the enumerated details, mark as corrupt so the menus can show as corrupt
 		saveGameDetailsList_t& list = session->GetSaveGameManager().GetEnumeratedSavegamesNonConst();
@@ -1289,7 +1289,7 @@ bool HandleCommonErrors( const idSaveLoadParms& parms )
 	}
 	else if( parms.GetError() & SAVEGAME_E_UNABLE_TO_SELECT_STORAGE_DEVICE && saveGame_enable.GetBool() )
 	{
-		common->Dialog().AddDialog( GDM_UNABLE_TO_USE_SELECTED_STORAGE_DEVICE, DIALOG_CONTINUE, NULL, NULL, false );
+		common->Dialog().AddDialog( GDM_UNABLE_TO_USE_SELECTED_STORAGE_DEVICE, DIALOG_CONTINUE, nullptr, nullptr, false );
 		return true;
 	}
 	else if( parms.GetError() & SAVEGAME_E_INVALID_FILENAME )
@@ -1299,17 +1299,17 @@ bool HandleCommonErrors( const idSaveLoadParms& parms )
 	}
 	else if( parms.GetError() & SAVEGAME_E_DLC_NOT_FOUND )
 	{
-		common->Dialog().AddDialog( GDM_DLC_ERROR_MISSING_GENERIC, DIALOG_CONTINUE, NULL, NULL, false );
+		common->Dialog().AddDialog( GDM_DLC_ERROR_MISSING_GENERIC, DIALOG_CONTINUE, nullptr, nullptr, false );
 		return true;
 	}
 	else if( parms.GetError() & SAVEGAME_E_DISC_SWAP )
 	{
-		common->Dialog().AddDialog( GDM_DISC_SWAP, DIALOG_CONTINUE, NULL, NULL, false );
+		common->Dialog().AddDialog( GDM_DISC_SWAP, DIALOG_CONTINUE, nullptr, nullptr, false );
 		return true;
 	}
 	else if( parms.GetError() & SAVEGAME_E_INCOMPATIBLE_NEWER_VERSION )
 	{
-		common->Dialog().AddDialog( GDM_INCOMPATIBLE_NEWER_SAVE, DIALOG_CONTINUE, NULL, NULL, false );
+		common->Dialog().AddDialog( GDM_INCOMPATIBLE_NEWER_SAVE, DIALOG_CONTINUE, nullptr, nullptr, false );
 		return true;
 	}
 	
@@ -1323,9 +1323,9 @@ idCommonLocal::OnSaveCompleted
 */
 void idCommonLocal::OnSaveCompleted( idSaveLoadParms& parms )
 {
-	assert( pipelineFile != NULL );
+	assert( pipelineFile != nullptr );
 	delete pipelineFile;
-	pipelineFile = NULL;
+	pipelineFile = nullptr;
 	
 	if( parms.GetError() == SAVEGAME_E_NONE )
 	{
@@ -1334,7 +1334,7 @@ void idCommonLocal::OnSaveCompleted( idSaveLoadParms& parms )
 	
 	if( !HandleCommonErrors( parms ) )
 	{
-		common->Dialog().AddDialog( GDM_ERROR_SAVING_SAVEGAME, DIALOG_CONTINUE, NULL, NULL, false );
+		common->Dialog().AddDialog( GDM_ERROR_SAVING_SAVEGAME, DIALOG_CONTINUE, nullptr, nullptr, false );
 	}
 }
 
@@ -1347,7 +1347,7 @@ void idCommonLocal::OnLoadCompleted( idSaveLoadParms& parms )
 {
 	if( !HandleCommonErrors( parms ) )
 	{
-		common->Dialog().AddDialog( GDM_ERROR_LOADING_SAVEGAME, DIALOG_CONTINUE, NULL, NULL, false );
+		common->Dialog().AddDialog( GDM_ERROR_LOADING_SAVEGAME, DIALOG_CONTINUE, nullptr, nullptr, false );
 	}
 }
 
@@ -1358,7 +1358,7 @@ idCommonLocal::OnLoadFilesCompleted
 */
 void idCommonLocal::OnLoadFilesCompleted( idSaveLoadParms& parms )
 {
-	if( ( mapSpawnData.savegameFile != NULL ) && ( parms.GetError() == SAVEGAME_E_NONE ) )
+	if( ( mapSpawnData.savegameFile != nullptr ) && ( parms.GetError() == SAVEGAME_E_NONE ) )
 	{
 		// just need to make the file readable
 		( ( idFile_Memory* )mapSpawnData.savegameFile )->MakeReadOnly();
@@ -1407,7 +1407,7 @@ void idCommonLocal::OnLoadFilesCompleted( idSaveLoadParms& parms )
 		}
 	}
 	// If we got here then we didn't actually load the save game for some reason
-	mapSpawnData.savegameFile = NULL;
+	mapSpawnData.savegameFile = nullptr;
 }
 
 /*
@@ -1461,7 +1461,7 @@ CONSOLE_COMMAND_SHIP( loadGame, "loads a game", idCmdSystem::ArgCompletion_SaveG
 SaveGame_f
 ===============
 */
-CONSOLE_COMMAND_SHIP( saveGame, "saves a game", NULL )
+CONSOLE_COMMAND_SHIP( saveGame, "saves a game", nullptr )
 {
 	const char* savename = ( args.Argc() > 1 ) ? args.Argv( 1 ) : "quick";
 
@@ -1490,7 +1490,7 @@ CONSOLE_COMMAND_SHIP( map, "loads a map", idCmdSystem::ArgCompletion_MapName )
 Common_RestartMap_f
 ==================
 */
-CONSOLE_COMMAND_SHIP( restartMap, "restarts the current map", NULL )
+CONSOLE_COMMAND_SHIP( restartMap, "restarts the current map", nullptr )
 {
 	if( g_demoMode.GetBool() )
 	{

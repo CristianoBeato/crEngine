@@ -116,7 +116,7 @@ void Sys_DoStartProcess( const char* exeName, bool dofork )
 				else
 				{
 					printf( "execl %s\n", exeName );
-					execl( exeName, exeName, NULL );
+					execl( exeName, exeName, nullptr );
 					printf( "execl failed: %s\n", strerror( errno ) );
 					_exit( -1 );
 				}
@@ -134,7 +134,7 @@ void Sys_DoStartProcess( const char* exeName, bool dofork )
 		else
 		{
 			printf( "execl %s\n", exeName );
-			execl( exeName, exeName, NULL );
+			execl( exeName, exeName, nullptr );
 			printf( "execl failed: %s\n", strerror( errno ) );
 		}
 		// terminate
@@ -236,7 +236,7 @@ Posix_EarlyInit
 */
 void Posix_EarlyInit()
 {
-	//memset( &asyncThread, 0, sizeof( asyncThread ) );
+	//std::memset( &asyncThread, 0, sizeof( asyncThread ) );
 	
 	exit_spawn[0] = '\0';
 	Posix_InitSigs();
@@ -357,14 +357,14 @@ void Sys_ReLaunch( void * data, const unsigned int dataSize )
 		
 		// close all FDs (except for stdin/out/err) so we don't leak FDs
 		DIR* devfd = opendir( "/dev/fd" );
-		if( devfd != NULL )
+		if( devfd != nullptr )
 		{
 			struct dirent entry;
 			struct dirent* result;
 			while( readdir_r( devfd, &entry, &result ) == 0 )
 			{
 				const char* filename = result->d_name;
-				char* endptr = NULL;
+				char* endptr = nullptr;
 				long int fd = strtol( filename, &endptr, 0 );
 				if( endptr != filename && fd > STDERR_FILENO )
 					close( fd );
@@ -376,7 +376,7 @@ void Sys_ReLaunch( void * data, const unsigned int dataSize )
 		}
 		
 		// + 3 because "+set" "com_skipIntroVideos" "1" - and note that while we'll skip
-		// one (the first) cmdargv argument, we need one more pointer for NULL at the end.
+		// one (the first) cmdargv argument, we need one more pointer for nullptr at the end.
 		int argc = cmdargc + 3;
 		const char** argv = ( const char** )calloc( argc, sizeof( char* ) );
 		
@@ -388,7 +388,7 @@ void Sys_ReLaunch( void * data, const unsigned int dataSize )
 		argv[i++] = "+set";
 		argv[i++] = "com_skipIntroVideos";
 		argv[i++] = "1";
-		// execv expects NULL terminated array
+		// execv expects nullptr terminated array
 		argv[i] = nullptr;
 		
 		const char* exepath = Sys_EXEPath();

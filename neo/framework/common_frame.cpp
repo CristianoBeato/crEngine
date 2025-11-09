@@ -242,7 +242,7 @@ void idCommonLocal::Draw( void )
 
 		// render the loading gui (idSWF actually) if it is loaded
 		// (we want to see progress of the loading gui binarize too)
-		if ( loadGUI != NULL )
+		if ( loadGUI != nullptr )
 			loadGUI->Render( renderSystem, Sys_Milliseconds() );
 
 		// update our progress estimates
@@ -270,7 +270,7 @@ void idCommonLocal::Draw( void )
 		renderSystem->DrawSmallStringExt( 0, SCREEN_HEIGHT - 32, va( "%s %d/%d lvls", loadPacifierBinarizeInfo.c_str(), loadPacifierBinarizeMiplevel, loadPacifierBinarizeMiplevelTotal ), idVec4( 1.0f, 1.0f, 1.0f, 1.0f ), true );
 		renderSystem->DrawSmallStringExt( 0, SCREEN_HEIGHT - 16, text, idVec4( 1.0f, 1.0f, 1.0f, 1.0f ), true );
 	}
-	else if( loadGUI != NULL )
+	else if( loadGUI != nullptr )
 	{
 		// foresthale 2014-05-30: showing a black background looks better than flickering in widescreen
 		renderSystem->SetColor( colorBlack );
@@ -334,7 +334,7 @@ void idCommonLocal::Draw( void )
 		// draw the wipe material on top of this if it hasn't completed yet
 		DrawWipeModel();
 		
-		Dialog().Render( loadGUI != NULL );
+		Dialog().Render( loadGUI != nullptr );
 		
 		// draw the half console / notify console on top of everything
 		console->Draw( false );
@@ -662,7 +662,7 @@ void idCommonLocal::Frame( void )
 		{
 			// If the session reports we should be loading a map, load it!
 			ExecuteMapChange();
-			mapSpawnData.savegameFile = NULL;
+			mapSpawnData.savegameFile = nullptr;
 			mapSpawnData.persistentPlayerInfo.Clear();
 			return;
 		}

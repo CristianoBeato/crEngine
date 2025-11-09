@@ -63,8 +63,8 @@ IMPLEMENT_DYNCREATE(CNewTexWnd, CWnd);
  */
 CNewTexWnd::CNewTexWnd() {
 	m_bNeedRange = true;
-	hglrcTexture = NULL;
-	hdcTexture = NULL;
+	hglrcTexture = nullptr;
+	hdcTexture = nullptr;
 	cursor.x = cursor.y = 0;
 	origin.x = origin.y = 0;
 }
@@ -106,10 +106,10 @@ BOOL CNewTexWnd::PreCreateWindow(CREATESTRUCT &cs) {
 	HINSTANCE	hInstance = AfxGetInstanceHandle();
 	if (::GetClassInfo(hInstance, TEXTURE_WINDOW_CLASS, &wc) == FALSE) {
 		// Register a new class
-		memset(&wc, 0, sizeof(wc));
+		std::memset(&wc, 0, sizeof(wc));
 		wc.style = CS_NOCLOSE | CS_PARENTDC;	// | CS_OWNDC;
 		wc.lpszClassName = TEXTURE_WINDOW_CLASS;
-		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 		wc.lpfnWndProc = ::DefWindowProc;
 		if (AfxRegisterClass(&wc) == FALSE) {
 			Error("CNewTexWnd RegisterClass: failed");
@@ -196,10 +196,10 @@ void CNewTexWnd::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags) {
  =======================================================================================================================
  */
 const idMaterial *CNewTexWnd::NextPos() {
-	const idMaterial *mat = NULL;
+	const idMaterial *mat = nullptr;
 	while (1) {
 		if (currentIndex >= declManager->GetNumDecls( DECL_MATERIAL )) {
-			return NULL;
+			return nullptr;
 		}
 
 		mat = declManager->MaterialByIndex(currentIndex, false);
@@ -289,7 +289,7 @@ void CNewTexWnd::OnPaint() {
 		currentIndex = 0;
 		while (1) {
 			const idMaterial *mat = NextPos();
-			if (mat == NULL) {
+			if (mat == nullptr) {
 				break;
 			}
 
@@ -470,8 +470,8 @@ const idMaterial *CNewTexWnd::getMaterialAtPoint(CPoint point) {
 
 	while (1) {
 		const idMaterial *mat = NextPos();
-		if (mat == NULL) {
-			return NULL;
+		if (mat == nullptr) {
+			return nullptr;
 		}
 
 		int width = mat->GetEditorImage()->GetUploadWidth() * ((float)g_PrefsDlg.m_nTextureScale / 100);
@@ -595,7 +595,7 @@ void CNewTexWnd::OnMouseMove(UINT nFlags, CPoint point) {
 				ClientToScreen(&screen);
 				SetCursorPos(screen.x, screen.y);
 				//Sys_SetCursorPos(cursor.x, cursor.y);
-				InvalidateRect(NULL, false);
+				InvalidateRect(nullptr, false);
 				UpdateWindow();
 			}
 			else if (point.y != cursor.y || point.x != cursor.x) {
@@ -612,7 +612,7 @@ void CNewTexWnd::OnMouseMove(UINT nFlags, CPoint point) {
 					SetScrollPos(SB_VERT, abs(origin.y));
 				}
 
-				InvalidateRect(NULL, false);
+				InvalidateRect(nullptr, false);
 				UpdateWindow();
 			}
 		}
@@ -718,7 +718,7 @@ void Texture_ShowInuse(void) {
 	Texture_HideAll();
 
 	brush_t *b;
-	for (b = active_brushes.next; b != NULL && b != &active_brushes; b = b->next) {
+	for (b = active_brushes.next; b != nullptr && b != &active_brushes; b = b->next) {
 		if (b->pPatch) {
 			Texture_ForName(b->pPatch->d_texture->GetName());
 		} else {
@@ -728,7 +728,7 @@ void Texture_ShowInuse(void) {
 		}
 	}
 
-	for (b = selected_brushes.next; b != NULL && b != &selected_brushes; b = b->next) {
+	for (b = selected_brushes.next; b != nullptr && b != &selected_brushes; b = b->next) {
 		if (b->pPatch) {
 			Texture_ForName(b->pPatch->d_texture->GetName());
 		} else {
@@ -842,7 +842,7 @@ void CNewTexWnd::EnsureTextureIsVisible(const char *name) {
 
 	while (1) {
 		const idMaterial *mat = NextPos();
-		if (mat == NULL) {
+		if (mat == nullptr) {
 			break;
 		}
 
@@ -879,7 +879,7 @@ BOOL CNewTexWnd::OnToolTipNotify( UINT id, NMHDR * pNMHDR, LRESULT * pResult ) {
 	    TOOLTIPTEXT *pTTT = (TOOLTIPTEXT *)pNMHDR;
 		strcpy(tip, mat->GetDescription());
 	    pTTT->lpszText = tip;
-	    pTTT->hinst = NULL;
+	    pTTT->hinst = nullptr;
 	    return(TRUE);
     }
     return(FALSE);
@@ -896,12 +896,12 @@ INT_PTR CNewTexWnd::OnToolHitTest( CPoint point, TOOLINFO * pTI )
 
 BOOL CNewTexWnd::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt) 
 {
-	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, NULL);
-	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, NULL);
-	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, NULL);
-	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, NULL);
-	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, NULL);
-	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, NULL);
+	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, nullptr);
+	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, nullptr);
+	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, nullptr);
+	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, nullptr);
+	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, nullptr);
+	OnVScroll((zDelta >= 0) ? SB_LINEUP : SB_LINEDOWN, 0, nullptr);
 	return TRUE;
 }
 

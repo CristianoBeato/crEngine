@@ -146,7 +146,7 @@ static int CalculateTriangleFacingCulledStatic( byte* __restrict facing, byte* _
 	assert_not_spu_local_store( indexes );
 	assert_not_spu_local_store( verts );
 	
-	if( insideShadowVolume != NULL )
+	if( insideShadowVolume != nullptr )
 	{
 		*insideShadowVolume = false;
 	}
@@ -250,7 +250,7 @@ static int CalculateTriangleFacingCulledStatic( byte* __restrict facing, byte* _
 			numFrontFacing = _mm_add_epi32( numFrontFacing, _mm_and_si128( triangleFacing, vector_int_one ) );
 		}
 		
-		if( insideShadowVolume != NULL )
+		if( insideShadowVolume != nullptr )
 		{
 			for( int k = batchStart, n = indexStart; k <= batchEnd - 3; k += 3, n++ )
 			{
@@ -259,7 +259,7 @@ static int CalculateTriangleFacingCulledStatic( byte* __restrict facing, byte* _
 					if( R_LineIntersectsTriangleExpandedWithSphere( lineStart, lineEnd, lineDir, lineLength, radius, indexedVertsODS[k + 2].xyz, indexedVertsODS[k + 1].xyz, indexedVertsODS[k + 0].xyz ) )
 					{
 						*insideShadowVolume = true;
-						insideShadowVolume = NULL;
+						insideShadowVolume = nullptr;
 						break;
 					}
 				}
@@ -290,7 +290,7 @@ static int CalculateTriangleFacingCulledSkinned( byte* __restrict facing, byte* 
 	assert_not_spu_local_store( indexes );
 	assert_not_spu_local_store( verts );
 	
-	if( insideShadowVolume != NULL )
+	if( insideShadowVolume != nullptr )
 	{
 		*insideShadowVolume = false;
 	}
@@ -424,7 +424,7 @@ static int CalculateTriangleFacingCulledSkinned( byte* __restrict facing, byte* 
 			numFrontFacing = _mm_add_epi32( numFrontFacing, _mm_and_si128( triangleFacing, vector_int_one ) );
 		}
 		
-		if( insideShadowVolume != NULL )
+		if( insideShadowVolume != nullptr )
 		{
 			for( int k = batchStart, n = indexStart; k <= batchEnd - 3; k += 3, n++ )
 			{
@@ -436,7 +436,7 @@ static int CalculateTriangleFacingCulledSkinned( byte* __restrict facing, byte* 
 					if( R_LineIntersectsTriangleExpandedWithSphere( lineStart, lineEnd, lineDir, lineLength, radius, tempVerts[i2].ToVec3(), tempVerts[i1].ToVec3(), tempVerts[i0].ToVec3() ) )
 					{
 						*insideShadowVolume = true;
-						insideShadowVolume = NULL;
+						insideShadowVolume = nullptr;
 						break;
 					}
 				}
@@ -946,24 +946,24 @@ same position as the previous even vertex but is projected to infinity
 */
 void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t* parms )
 {
-	if( parms->tempFacing == NULL )
+	if( parms->tempFacing == nullptr )
 	{
 		*const_cast< byte** >( &parms->tempFacing ) = ( byte* )_alloca16( TEMP_FACING( parms->numIndexes ) );
 	}
-	if( parms->tempCulled == NULL )
+	if( parms->tempCulled == nullptr )
 	{
 		*const_cast< byte** >( &parms->tempCulled ) = ( byte* )_alloca16( TEMP_CULL( parms->numIndexes ) );
 	}
-	if( parms->tempVerts == NULL && parms->joints != NULL )
+	if( parms->tempVerts == nullptr && parms->joints != nullptr )
 	{
 		*const_cast< idVec4** >( &parms->tempVerts ) = ( idVec4* )_alloca16( TEMP_VERTS( parms->numVerts ) );
 	}
-	if( parms->indexBuffer == NULL )
+	if( parms->indexBuffer == nullptr )
 	{
 		*const_cast< triIndex_t** >( &parms->indexBuffer ) = ( triIndex_t* )_alloca16( OUTPUT_INDEX_BUFFER_SIZE );
 	}
 	
-	assert( parms->joints == NULL || parms->numJoints > 0 );
+	assert( parms->joints == nullptr || parms->numJoints > 0 );
 	
 	// Calculate the shadow depth bounds.
 	float shadowZMin = parms->lightZMin;
@@ -985,7 +985,7 @@ void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t* parms )
 	{
 	
 		// Check if we need to render the shadow volume with Z-fail.
-		bool* preciseInsideShadowVolume = NULL;
+		bool* preciseInsideShadowVolume = nullptr;
 		// If the view is potentially inside the shadow volume bounds we may need to render with Z-fail.
 		if( R_ViewPotentiallyInsideInfiniteShadowVolume( parms->triangleBounds, parms->localLightOrigin, parms->localViewOrigin, parms->zNear * INSIDE_SHADOW_VOLUME_EXTRA_STRETCH ) )
 		{
@@ -1003,7 +1003,7 @@ void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t* parms )
 		// Calculate the facing of each triangle and cull each triangle to the light volume.
 		// Optionally also calculate more precisely whether or not the view is inside the shadow volume.
 		int numFrontFacing = 0;
-		if( parms->joints != NULL )
+		if( parms->joints != nullptr )
 		{
 			numFrontFacing = CalculateTriangleFacingCulledSkinned( parms->tempFacing, parms->tempCulled, parms->tempVerts, parms->indexes, parms->numIndexes,
 							 parms->verts, parms->numVerts, parms->joints,
@@ -1021,7 +1021,7 @@ void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t* parms )
 		}
 		
 		// Create shadow volume indices.
-		if( parms->shadowIndices != NULL )
+		if( parms->shadowIndices != nullptr )
 		{
 			const int numTriangles = parms->numIndexes / 3;
 			
@@ -1047,7 +1047,7 @@ void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t* parms )
 		}
 		
 		// Create new indices with only the triangles that are inside the light volume.
-		if( parms->lightIndices != NULL )
+		if( parms->lightIndices != nullptr )
 		{
 			R_CreateLightTriangles( parms->lightIndices, parms->indexBuffer, numLightIndices, parms->tempCulled, parms->indexes, parms->numIndexes );
 			
@@ -1056,31 +1056,31 @@ void DynamicShadowVolumeJob( const dynamicShadowVolumeParms_t* parms )
 	}
 	
 	// write out the number of shadow indices
-	if( parms->numShadowIndices != NULL )
+	if( parms->numShadowIndices != nullptr )
 	{
 		*parms->numShadowIndices = numShadowIndices;
 	}
 	// write out the number of light indices
-	if( parms->numLightIndices != NULL )
+	if( parms->numLightIndices != nullptr )
 	{
 		*parms->numLightIndices = numLightIndices;
 	}
 	// write out whether or not the shadow volume needs to be rendered with Z-Fail
-	if( parms->renderZFail != NULL )
+	if( parms->renderZFail != nullptr )
 	{
 		*parms->renderZFail = renderZFail;
 	}
 	// write out the shadow depth bounds
-	if( parms->shadowZMin != NULL )
+	if( parms->shadowZMin != nullptr )
 	{
 		*parms->shadowZMin = shadowZMin;
 	}
-	if( parms->shadowZMax != NULL )
+	if( parms->shadowZMax != nullptr )
 	{
 		*parms->shadowZMax = shadowZMax;
 	}
 	// write out the shadow volume state
-	if( parms->shadowVolumeState != NULL )
+	if( parms->shadowVolumeState != nullptr )
 	{
 		*parms->shadowVolumeState = SHADOWVOLUME_DONE;
 	}

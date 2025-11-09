@@ -52,7 +52,7 @@ public:
 	
 	virtual void				InitFromFile( const char* fileName );
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp );
-	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const;
+	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = nullptr ) const;
 	virtual bool				SupportsBinaryModel()
 	{
 		return true;
@@ -211,7 +211,7 @@ class idRenderModelMD5 : public idRenderModelStatic
 public:
 	virtual void				InitFromFile( const char* fileName );
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp );
-	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const;
+	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = nullptr ) const;
 	virtual dynamicModel_t		IsDynamicModel() const;
 	virtual idBounds			Bounds( const struct renderEntity_s* ent ) const;
 	virtual void				Print() const;

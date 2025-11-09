@@ -126,7 +126,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject* thisObject, 
 	// We assume scope[0] is the global scope
 	assert( scope.Num() > 0 );
 	
-	if( thisObject == NULL )
+	if( thisObject == nullptr )
 	{
 		thisObject = scope[0];
 	}
@@ -228,13 +228,13 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject* thisObject, 
 	if( flags & BIT( 7 ) )
 	{
 		// preload _parent
-		if( thisObject->GetSprite() != NULL && thisObject->GetSprite()->parent != NULL )
+		if( thisObject->GetSprite() != nullptr && thisObject->GetSprite()->parent != nullptr )
 		{
 			registers[ preloadReg ].SetObject( thisObject->GetSprite()->parent->scriptObject );
 		}
 		else
 		{
-			registers[ preloadReg ].SetNULL();
+			registers[ preloadReg ].Setnullptr();
 		}
 		preloadReg++;
 	}
@@ -262,7 +262,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Call( idSWFScriptObject* thisObject, 
 	scope.SetNum( scopeSize );
 	
 	locals->Release();
-	locals = NULL;
+	locals = nullptr;
 	
 	return retVal;
 }
@@ -561,7 +561,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 	idSWFSpriteInstance* thisSprite = thisObject->GetSprite();
 	idSWFSpriteInstance* currentTarget = thisSprite;
 	
-	if( currentTarget == NULL )
+	if( currentTarget == nullptr )
 	{
 		thisSprite = currentTarget = defaultSprite;
 	}
@@ -608,7 +608,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 				callstackLevel--;
 				return idSWFScriptVar();
 			case Action_NextFrame:
-				if( verify( currentTarget != NULL ) )
+				if( verify( currentTarget != nullptr ) )
 				{
 					currentTarget->NextFrame();
 				}
@@ -618,7 +618,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 				}
 				break;
 			case Action_PrevFrame:
-				if( verify( currentTarget != NULL ) )
+				if( verify( currentTarget != nullptr ) )
 				{
 					currentTarget->PrevFrame();
 				}
@@ -628,7 +628,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 				}
 				break;
 			case Action_Play:
-				if( verify( currentTarget != NULL ) )
+				if( verify( currentTarget != nullptr ) )
 				{
 					currentTarget->Play();
 				}
@@ -638,7 +638,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 				}
 				break;
 			case Action_Stop:
-				if( verify( currentTarget != NULL ) )
+				if( verify( currentTarget != nullptr ) )
 				{
 					currentTarget->Stop();
 				}
@@ -655,7 +655,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			{
 				assert( recordLength == 2 );
 				int frameNum = bitstream.ReadU16() + 1;
-				if( verify( currentTarget != NULL ) )
+				if( verify( currentTarget != nullptr ) )
 				{
 					currentTarget->RunTo( frameNum );
 				}
@@ -668,7 +668,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			case Action_SetTarget:
 			{
 				const char* targetName = ( const char* )bitstream.ReadData( recordLength );
-				if( verify( thisSprite != NULL ) )
+				if( verify( thisSprite != nullptr ) )
 				{
 					currentTarget = thisSprite->ResolveTarget( targetName );
 				}
@@ -681,7 +681,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			case Action_GoToLabel:
 			{
 				const char* targetName = ( const char* )bitstream.ReadData( recordLength );
-				if( verify( currentTarget != NULL ) )
+				if( verify( currentTarget != nullptr ) )
 				{
 					currentTarget->RunTo( currentTarget->FindFrame( targetName ) );
 				}
@@ -706,7 +706,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 							stack.Alloc().SetFloat( pushstream.ReadFloat() );
 							break;
 						case 2:
-							stack.Alloc().SetNULL();
+							stack.Alloc().Setnullptr();
 							break;
 						case 3:
 							stack.Alloc().SetUndefined();
@@ -863,7 +863,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 					frameNum += bitstream.ReadU16();
 				}
 				
-				if( verify( thisSprite != NULL ) )
+				if( verify( thisSprite != nullptr ) )
 				{
 					if( stack.A().IsString() )
 					{
@@ -899,7 +899,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			}
 			case Action_GetProperty:
 			{
-				if( verify( thisSprite != NULL ) )
+				if( verify( thisSprite != nullptr ) )
 				{
 					idSWFSpriteInstance* target = thisSprite->ResolveTarget( stack.B().ToString() );
 					stack.B() = target->scriptObject->Get( GetPropertyName( stack.A().ToInteger() ) );
@@ -913,7 +913,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			}
 			case Action_SetProperty:
 			{
-				if( verify( thisSprite != NULL ) )
+				if( verify( thisSprite != nullptr ) )
 				{
 					idSWFSpriteInstance* target = thisSprite->ResolveTarget( stack.C().ToString() );
 					target->scriptObject->Set( GetPropertyName( stack.B().ToInteger() ), stack.A() );
@@ -940,7 +940,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			{
 				idStr functionName = stack.A().ToString();
 				idSWFScriptVar function;
-				idSWFScriptObject* object = NULL;
+				idSWFScriptObject* object = nullptr;
 				for( int i = scope.Num() - 1; i >= 0; i-- )
 				{
 					function = scope[i]->Get( functionName );
@@ -977,11 +977,11 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			{
 				idStr functionName = stack.A().ToString();
 				// If the top stack is undefined but there is an object, it's calling the constructor
-				if( functionName.IsEmpty() || stack.A().IsUndefined() || stack.A().IsNULL() )
+				if( functionName.IsEmpty() || stack.A().IsUndefined() || stack.A().Isnullptr() )
 				{
 					functionName = "__constructor__";
 				}
-				idSWFScriptObject* object = NULL;
+				idSWFScriptObject* object = nullptr;
 				idSWFScriptVar function;
 				if( stack.B().IsObject() )
 				{
@@ -994,7 +994,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 				}
 				else
 				{
-					idLib::PrintfIf( swf_debug.GetInteger() > 1, "SWF: NULL object for method %s\n", functionName.c_str() );
+					idLib::PrintfIf( swf_debug.GetInteger() > 1, "SWF: nullptr object for method %s\n", functionName.c_str() );
 				}
 				
 				stack.Pop( 2 );
@@ -1120,13 +1120,13 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 				}
 				if( !stack.A().IsObject() )
 				{
-					stack.A().SetNULL();
+					stack.A().Setnullptr();
 				}
 				else
 				{
 					idSWFScriptObject* object = stack.A().GetObject();
 					object->AddRef();
-					stack.A().SetNULL();
+					stack.A().Setnullptr();
 					for( int i = 0; i < object->NumVariables(); i++ )
 					{
 						stack.Alloc().SetString( object->EnumVariable( i ) );
@@ -1139,13 +1139,13 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			{
 				if( !stack.A().IsObject() )
 				{
-					stack.A().SetNULL();
+					stack.A().Setnullptr();
 				}
 				else
 				{
 					idSWFScriptObject* object = stack.A().GetObject();
 					object->AddRef();
-					stack.A().SetNULL();
+					stack.A().Setnullptr();
 					for( int i = 0; i < object->NumVariables(); i++ )
 					{
 						stack.Alloc().SetString( object->EnumVariable( i ) );
@@ -1168,9 +1168,9 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 			}
 			case Action_GetMember:
 			{
-				if( ( stack.B().IsUndefined() || stack.B().IsNULL() ) && swf_debug.GetInteger() > 1 )
+				if( ( stack.B().IsUndefined() || stack.B().Isnullptr() ) && swf_debug.GetInteger() > 1 )
 				{
-					idLib::Printf( "SWF: tried to get member %s on an invalid object in sprite '%s'\n", stack.A().ToString().c_str(), thisSprite != NULL ? thisSprite->GetName() : "" );
+					idLib::Printf( "SWF: tried to get member %s on an invalid object in sprite '%s'\n", stack.A().ToString().c_str(), thisSprite != nullptr ? thisSprite->GetName() : "" );
 				}
 				if( stack.B().IsObject() )
 				{
@@ -1214,7 +1214,7 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 						idSWFScriptFunction* sfs = stack.B().GetFunction();
 						idSWFScriptObject* object = sfs->GetPrototype();
 						
-						if( object == NULL )
+						if( object == nullptr )
 						{
 							object = idSWFScriptObject::Alloc();
 							// Set the __proto__ to the main Object prototype
@@ -1372,14 +1372,14 @@ idSWFScriptVar idSWFScriptFunction_Script::Run( idSWFScriptObject* thisObject, i
 				else
 				{
 					idSWFScriptObject* object = stack.A().GetObject();
-					if( object->GetSprite() == NULL )
+					if( object->GetSprite() == nullptr )
 					{
 						stack.A().SetUndefined();
 					}
 					else
 					{
 						idStr dotName = object->GetSprite()->name.c_str();
-						for( idSWFSpriteInstance* target = object->GetSprite()->parent; target != NULL; target = target->parent )
+						for( idSWFSpriteInstance* target = object->GetSprite()->parent; target != nullptr; target = target->parent )
 						{
 							dotName = target->name + "." + dotName;
 						}
@@ -1591,7 +1591,7 @@ void idSWF::Invoke( const char* functionName, const idSWFParmList& parms )
 	
 	if( scriptVar.IsFunction() )
 	{
-		scriptVar.GetFunction()->Call( NULL, parms );
+		scriptVar.GetFunction()->Call( nullptr, parms );
 	}
 }
 
@@ -1605,7 +1605,7 @@ void idSWF::Invoke( const char* functionName, const idSWFParmList& parms, idSWFS
 
 	if( scriptVar.IsFunction() )
 	{
-		scriptVar.GetFunction()->Call( NULL, parms );
+		scriptVar.GetFunction()->Call( nullptr, parms );
 	}
 	else
 	{
@@ -1614,7 +1614,7 @@ void idSWF::Invoke( const char* functionName, const idSWFParmList& parms, idSWFS
 		
 		if( scriptVar.IsFunction() )
 		{
-			scriptVar.GetFunction()->Call( NULL, parms );
+			scriptVar.GetFunction()->Call( nullptr, parms );
 		}
 	}
 }
@@ -1636,7 +1636,7 @@ void idSWF::Invoke( const char*   functionName, const idSWFParmList& parms, bool
 	
 	if( scriptVar.IsFunction() )
 	{
-		scriptVar.GetFunction()->Call( NULL, parms );
+		scriptVar.GetFunction()->Call( nullptr, parms );
 		functionExists = true;
 	}
 	else

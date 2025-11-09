@@ -1534,14 +1534,14 @@ ID_INLINE void idCurve_NaturalCubicSpline<type>::SetupClosed() const
 	c[this->values.Num() - 1] = 3.0f * ( c0 * ( this->values[1] - this->values[0] ) - c1 * ( this->values[0] - this->values[this->values.Num() - 2] ) );
 	
 	// solve system for each dimension
-	mat.LU_Factor( NULL );
+	mat.LU_Factor( nullptr );
 	for( i = 0; i < this->values[0].GetDimension(); i++ )
 	{
 		for( j = 0; j < this->values.Num(); j++ )
 		{
 			x[j] = c[j][i];
 		}
-		mat.LU_Solve( x, x, NULL );
+		mat.LU_Solve( x, x, nullptr );
 		for( j = 0; j < this->values.Num(); j++ )
 		{
 			c[j][i] = x[j];

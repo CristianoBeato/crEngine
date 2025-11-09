@@ -186,7 +186,7 @@ public:	// common physics interface
 	virtual void				SetPushed( int deltaTime ) = 0;
 	virtual const idVec3& 		GetPushedLinearVelocity( const int id = 0 ) const = 0;
 	virtual const idVec3& 		GetPushedAngularVelocity( const int id = 0 ) const = 0;
-	// get blocking info, returns NULL if the object is not blocked
+	// get blocking info, returns nullptr if the object is not blocked
 	virtual const trace_t* 		GetBlockingInfo() const = 0;
 	virtual idEntity* 			GetBlockingEntity() const = 0;
 	// movement end times in msec for reached events at the end of predefined motion

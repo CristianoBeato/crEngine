@@ -44,7 +44,7 @@ class CDialogSoundGroup : public CDialog
 // Construction
 public:
 	idStrList list;
-	CDialogSoundGroup(CWnd* pParent = NULL);   // standard constructor
+	CDialogSoundGroup(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CDialogSoundGroup)

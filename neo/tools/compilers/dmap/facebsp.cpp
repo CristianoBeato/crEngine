@@ -83,7 +83,7 @@ void FreeTreePortals_r (node_t *node)
 		RemovePortalFromNode (p, p->nodes[!s]);
 		FreePortal (p);
 	}
-	node->portals = NULL;
+	node->portals = nullptr;
 }
 
 /*
@@ -135,7 +135,7 @@ void PrintTree_r (node_t *node, int depth)
 	if (node->planenum == PLANENUM_LEAF)
 	{
 		if (!node->brushlist)
-			common->Printf("NULL\n");
+			common->Printf("nullptr\n");
 		else
 		{
 			for (bb=node->brushlist ; bb ; bb=bb->next)
@@ -161,7 +161,7 @@ bspface_t	*AllocBspFace( void ) {
 	bspface_t	*f;
 
 	f = (bspface_t *)Mem_Alloc(sizeof(*f), TAG_DMAP);
-	memset( f, 0, sizeof(*f) );
+	std::memset( f, 0, sizeof(*f) );
 
 	return f;
 }
@@ -328,8 +328,8 @@ void	BuildFaceTree_r( node_t *node, bspface_t *list ) {
 	// partition the list
 	node->planenum = splitPlaneNum;
 	idPlane &plane = dmapGlobals.mapPlanes[ splitPlaneNum ];
-	childLists[0] = NULL;
-	childLists[1] = NULL;
+	childLists[0] = nullptr;
+	childLists[1] = nullptr;
 	for ( split = list ; split ; split = next ) {
 		next = split->next;
 
@@ -448,7 +448,7 @@ bspface_t	*MakeStructuralBspFaceList( primitive_t *list ) {
 	idWinding	*w;
 	bspface_t	*f, *flist;
 
-	flist = NULL;
+	flist = nullptr;
 	for ( ; list ; list = list->next ) {
 		b = list->brush;
 		if ( !b ) {
@@ -492,7 +492,7 @@ bspface_t	*MakeVisibleBspFaceList( primitive_t *list ) {
 	idWinding	*w;
 	bspface_t	*f, *flist;
 
-	flist = NULL;
+	flist = nullptr;
 	for ( ; list ; list = list->next ) {
 		b = list->brush;
 		if ( !b ) {

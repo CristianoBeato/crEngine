@@ -42,7 +42,7 @@ class CInspectorDialog : public CTabsDlg
 	//DECLARE_DYNAMIC(CInspectorDialog)w
 
 public:
-	CInspectorDialog(CWnd* pParent = NULL);   // standard constructor
+	CInspectorDialog(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CInspectorDialog();
 
 // Dialog Data

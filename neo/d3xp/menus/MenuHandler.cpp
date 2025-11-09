@@ -46,12 +46,12 @@ idMenuHandler::idMenuHandler()
 	nextScreen = -1;
 	transition = -1;
 	platform = 0;
-	gui = NULL;
-	cmdBar = NULL;
+	gui = nullptr;
+	cmdBar = nullptr;
 	
 	for( int index = 0; index < MAX_SCREEN_AREAS; ++index )
 	{
-		menuScreens[ index ] = NULL;
+		menuScreens[ index ] = nullptr;
 	}
 	
 	sounds.SetNum( NUM_GUI_SOUNDS );
@@ -105,12 +105,12 @@ idMenuWidget* idMenuHandler::GetChildFromIndex( int index )
 
 	if( children.Num() == 0 )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	if( index > children.Num() )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	return children[ index ];
@@ -140,7 +140,7 @@ idMenuHandler::GetPlatform
 void idMenuHandler::PlaySound( menuSounds_t type, int channel )
 {
 
-	if( gui == NULL )
+	if( gui == nullptr )
 	{
 		return;
 	}
@@ -191,14 +191,14 @@ void idMenuHandler::Cleanup()
 	
 	for( int index = 0; index < MAX_SCREEN_AREAS; ++index )
 	{
-		if( menuScreens[ index ] != NULL )
+		if( menuScreens[ index ] != nullptr )
 		{
 			menuScreens[ index ]->Release();
 		}
 	}
 	
 	delete gui;
-	gui = NULL;
+	gui = nullptr;
 }
 
 /*
@@ -218,7 +218,7 @@ idMenuHandler::IsActive
 */
 bool idMenuHandler::IsActive()
 {
-	if( gui == NULL )
+	if( gui == nullptr )
 	{
 		return false;
 	}
@@ -234,7 +234,7 @@ idMenuHandler::ActivateMenu
 void idMenuHandler::ActivateMenu( bool show )
 {
 
-	if( gui == NULL )
+	if( gui == nullptr )
 	{
 		return;
 	}
@@ -256,7 +256,7 @@ void idMenuHandler::ActivateMenu( bool show )
 		}
 		idSWFScriptVar Call( idSWFScriptObject* thisObject, const idSWFParmList& parms )
 		{
-			if( handler != NULL )
+			if( handler != nullptr )
 			{
 				int screen = parms[0].ToInteger();
 				handler->UpdateMenuDisplay( screen );
@@ -278,7 +278,7 @@ void idMenuHandler::ActivateMenu( bool show )
 		}
 		idSWFScriptVar Call( idSWFScriptObject* thisObject, const idSWFParmList& parms )
 		{
-			if( handler != NULL )
+			if( handler != nullptr )
 			{
 				handler->TriggerMenu();
 			}
@@ -364,7 +364,7 @@ bool idMenuHandler::HandleAction( idWidgetAction& action, const idWidgetEvent& e
 	{
 		case WIDGET_ACTION_ADJUST_FIELD:
 		{
-			if( widget != NULL && widget->GetDataSource() != NULL )
+			if( widget != nullptr && widget->GetDataSource() != nullptr )
 			{
 				widget->GetDataSource()->AdjustField( widget->GetDataSourceFieldIndex(), parms[ 0 ].ToInteger() );
 				widget->Update();
@@ -373,7 +373,7 @@ bool idMenuHandler::HandleAction( idWidgetAction& action, const idWidgetEvent& e
 		}
 		case WIDGET_ACTION_FUNCTION:
 		{
-			if( verify( action.GetScriptFunction() != NULL ) )
+			if( verify( action.GetScriptFunction() != nullptr ) )
 			{
 				action.GetScriptFunction()->Call( event.thisObject, event.parms );
 			}
@@ -382,7 +382,7 @@ bool idMenuHandler::HandleAction( idWidgetAction& action, const idWidgetEvent& e
 		case WIDGET_ACTION_PRESS_FOCUSED:
 		{
 			idMenuScreen* const screen = menuScreens[ activeScreen ];
-			if( screen != NULL )
+			if( screen != nullptr )
 			{
 				idWidgetEvent pressEvent( WIDGET_EVENT_PRESS, 0, event.thisObject, idSWFParmList() );
 				screen->ReceiveEvent( pressEvent );
@@ -414,7 +414,7 @@ bool idMenuHandler::HandleAction( idWidgetAction& action, const idWidgetEvent& e
 	{
 		for( int index = 0; index < children.Num(); ++index )
 		{
-			if( children[index] != NULL )
+			if( children[index] != nullptr )
 			{
 				if( children[index]->HandleAction( action, event, widget, forceHandled ) )
 				{
@@ -493,7 +493,7 @@ void idMenuHandler::PumpWidgetActionRepeater()
 		actionRepeater.nextRepeatTime = Sys_Milliseconds() + actionRepeater.repeatDelay;
 	}
 	
-	if( verify( actionRepeater.widget != NULL ) )
+	if( verify( actionRepeater.widget != nullptr ) )
 	{
 		actionRepeater.widget->HandleAction( actionRepeater.action, actionRepeater.event, actionRepeater.widget );
 		actionRepeater.numRepetitions++;

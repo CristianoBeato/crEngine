@@ -43,7 +43,7 @@ void idSurface_Polytope::FromPlanes( const idPlane* planes, const int numPlanes 
 	idDrawVert newVert;
 	
 	windingVerts = ( int* ) _alloca( MAX_POINTS_ON_WINDING * sizeof( int ) );
-	memset( &newVert, 0, sizeof( newVert ) );
+	std::memset( &newVert, 0, sizeof( newVert ) );
 	
 	for( i = 0; i < numPlanes; i++ )
 	{
@@ -308,7 +308,7 @@ int idSurface_Polytope::SplitPolytope( const idPlane& plane, const float epsilon
 		{
 			polytopeSurfaces[s] = new idSurface_Polytope( *surface[s] );
 			delete surface[s];
-			surface[s] = NULL;
+			surface[s] = nullptr;
 		}
 	}
 	

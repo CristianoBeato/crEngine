@@ -53,7 +53,7 @@ extern idCVar r_windowHeight;
 
 const char* kbdNames[] =
 {
-	"english", "french", "german", "italian", "spanish", "turkish", "norwegian", NULL
+	"english", "french", "german", "italian", "spanish", "turkish", "norwegian", nullptr
 };
 
 idCVar in_keyboard( "in_keyboard", "english", CVAR_SYSTEM | CVAR_ARCHIVE | CVAR_NOCHEAT, "keyboard layout", kbdNames, idCmdSystem::ArgCompletion_String<kbdNames> );
@@ -115,9 +115,9 @@ struct gamepad_device_t
 	gamepad_device_t()
 	{
 		gamePadId = -1;
-		gamePad = NULL;
+		gamePad = nullptr;
 		activeEvents = 0;
-		gameJoyStick = NULL;
+		gameJoyStick = nullptr;
 		for(int i = 0;i < SDL_CONTROLLER_BUTTON_MAX; i++)
 			oldState[i] = 0;
 		for(int i = 0;i < SDL_CONTROLLER_AXIS_MAX; i++) {
@@ -147,7 +147,7 @@ struct gamepad_device_t
 			curKey = key-K_JOY1;
 			if(oldButtonStates[curKey] != value) {
 				oldButtonStates[curKey] = value;
-				Sys_QueEvent( SE_KEY, key, value, 0, NULL, inputDeviceNum );
+				Sys_QueEvent( SE_KEY, key, value, 0, nullptr, inputDeviceNum );
 			}
 		}
 	}
@@ -169,7 +169,7 @@ struct gamepad_device_t
 			if( oldAxisState[axis] != percent )
 			{
 				oldAxisState[axis] = percent;
-				Sys_QueEvent( SE_JOYSTICK, axis, percent, 0, NULL, inputDeviceNum );
+				Sys_QueEvent( SE_JOYSTICK, axis, percent, 0, nullptr, inputDeviceNum );
 			}
 			if( event == J_AXIS_LEFT_X )
 			{
@@ -699,7 +699,7 @@ void Sys_InitInput()
 	/* Initialize Game Controller API */
 	SDL_Init( SDL_INIT_JOYSTICK |SDL_INIT_GAMECONTROLLER );
 	/* Initialize Event Filter */
-	SDL_SetEventFilter(sys_HandleSDL_Events, NULL);
+	SDL_SetEventFilter(sys_HandleSDL_Events, nullptr);
 	idStr ControllerPath = Sys_DefaultBasePath();
 	ControllerPath.Append("/base/gamecontrollerdb.txt");
 	common->Printf( "Loading controller Mapping file \"%s\"\n",ControllerPath.c_str());
@@ -851,7 +851,7 @@ sysEvent_t Sys_GetEvent()
 	sysEvent_t res = { };
 	int eventNum = event_queue.Num();
 	
-	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, NULL };
+	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, nullptr };
 	if(eventNum && eventHead < eventNum ) {
 		res = event_queue[eventHead];
 		eventHead++;
@@ -877,7 +877,7 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 {
 	sysEvent_t res = { };
 	int key;
-	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, NULL };
+	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, nullptr };
 	switch( event->type )
 	{
 		case SDL_WINDOWEVENT:
@@ -994,14 +994,14 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 				}
 			}
 			
-			Sys_QueEvent( SE_KEY, key, event->key.state == SDL_PRESSED ? 1 : 0, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, key, event->key.state == SDL_PRESSED ? 1 : 0, 0, nullptr, 0 );
 			kbd_polls.Append( kbd_poll_t( key, event->key.state == SDL_PRESSED ) );
 			
 			if( key == K_BACKSPACE && event->key.state == SDL_PRESSED ) {
 				//c = key;
-				Sys_QueEvent( SE_CHAR, K_BACKSPACE, 0, 0, NULL, 0 );
+				Sys_QueEvent( SE_CHAR, K_BACKSPACE, 0, 0, nullptr, 0 );
 			}
-			//Sys_QueEvent( SE_CHAR, c, 0, 0, NULL, 0 );
+			//Sys_QueEvent( SE_CHAR, c, 0, 0, nullptr, 0 );
 			return 0;
 
 		}
@@ -1010,19 +1010,19 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			if( event->text.text && *event->text.text )
 			{
 				if( !event->text.text[1] ) 
-					Sys_QueEvent( SE_CHAR, *event->text.text, 0, 0, NULL, 0 );
+					Sys_QueEvent( SE_CHAR, *event->text.text, 0, 0, nullptr, 0 );
 				else {
-					char* s = NULL;
+					char* s = nullptr;
 					size_t s_pos = 0;
 					s = strdup( event->text.text );
-					while( s !=NULL )
+					while( s !=nullptr )
 					{
-						Sys_QueEvent( SE_CHAR, s[s_pos], 0, 0, NULL, 0 );
+						Sys_QueEvent( SE_CHAR, s[s_pos], 0, 0, nullptr, 0 );
 						s_pos++;
 						if( !s[s_pos] )
 						{
 							free( s );
-							s = NULL;
+							s = nullptr;
 							s_pos = 0;
 						}
 					}
@@ -1037,11 +1037,11 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			// to fix cursor problems in windowed mode
 			if( game && game->Shell_IsActive() )
 			{
-				Sys_QueEvent( SE_MOUSE_ABSOLUTE, event->motion.x, event->motion.y, 0, NULL, 0 );
+				Sys_QueEvent( SE_MOUSE_ABSOLUTE, event->motion.x, event->motion.y, 0, nullptr, 0 );
 			}
 			else // this is the old, default behavior
 			{
-				Sys_QueEvent( SE_MOUSE, event->motion.xrel, event->motion.yrel, 0, NULL, 0 );
+				Sys_QueEvent( SE_MOUSE, event->motion.xrel, event->motion.yrel, 0, nullptr, 0 );
 			}
 			// DG end
 			
@@ -1054,16 +1054,16 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			if( event->wheel.y > 0 )
 			{
 				mouse_polls.Append( mouse_poll_t( M_DELTAZ, 1 ) );
-				Sys_QueEvent( SE_KEY, K_MWHEELUP, 1, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MWHEELUP, 1, 0, nullptr, 0 );
 				/* Immediately Queue Not Pressed Event */
-				Sys_QueEvent( SE_KEY, K_MWHEELUP, 0, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MWHEELUP, 0, 0, nullptr, 0 );
 			}
 			else
 			{
 				mouse_polls.Append( mouse_poll_t( M_DELTAZ, -1 ) );
-				Sys_QueEvent( SE_KEY, K_MWHEELDOWN, 1, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MWHEELDOWN, 1, 0, nullptr, 0 );
 				/* Immediately Queue Not Pressed Event */
-				Sys_QueEvent( SE_KEY, K_MWHEELDOWN, 0, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MWHEELDOWN, 0, 0, nullptr, 0 );
 			}
 			return 0;
 			
@@ -1072,15 +1072,15 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 			switch( event->button.button )
 			{
 				case SDL_BUTTON_LEFT:
-					Sys_QueEvent( SE_KEY, K_MOUSE1, event->button.state == SDL_PRESSED ? 1 : 0, 0, NULL, 0 );
+					Sys_QueEvent( SE_KEY, K_MOUSE1, event->button.state == SDL_PRESSED ? 1 : 0, 0, nullptr, 0 );
 					mouse_polls.Append( mouse_poll_t( M_ACTION1, event->button.state == SDL_PRESSED ? 1 : 0 ) );
 					break;
 				case SDL_BUTTON_MIDDLE:
-					Sys_QueEvent( SE_KEY, K_MOUSE3, event->button.state == SDL_PRESSED ? 1 : 0, 0, NULL, 0 );
+					Sys_QueEvent( SE_KEY, K_MOUSE3, event->button.state == SDL_PRESSED ? 1 : 0, 0, nullptr, 0 );
 					mouse_polls.Append( mouse_poll_t( M_ACTION3, event->button.state == SDL_PRESSED ? 1 : 0 ) );
 					break;
 				case SDL_BUTTON_RIGHT:
-					Sys_QueEvent( SE_KEY, K_MOUSE2, event->button.state == SDL_PRESSED ? 1 : 0, 0, NULL, 0 );
+					Sys_QueEvent( SE_KEY, K_MOUSE2, event->button.state == SDL_PRESSED ? 1 : 0, 0, nullptr, 0 );
 					mouse_polls.Append( mouse_poll_t( M_ACTION2, event->button.state == SDL_PRESSED ? 1 : 0 ) );
 					break;
 			}
@@ -1097,10 +1097,10 @@ int sys_HandleSDL_Events(void *userdata, SDL_Event *event)
 
 		case SDL_CONTROLLERDEVICEADDED:
 			/* TODO: Handle what happens when a gamepad is added */
-			/* 			Sys_QueEvent( SE_KEY, key, value, 0, NULL, inputDeviceNum ); */
+			/* 			Sys_QueEvent( SE_KEY, key, value, 0, nullptr, inputDeviceNum ); */
 			common->Printf( "Controller Device Connected: %u\n", event->cdevice.which );
 			{
-				SDL_GameController *gamecontroller = NULL;
+				SDL_GameController *gamecontroller = nullptr;
 				gamecontroller = SDL_GameControllerOpen(event->cdevice.which);
 				common->Printf( "Controller Connected %s\n",
 					SDL_GameControllerNameForIndex(event->cdevice.which) );

@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __LIB_H__
 #define __LIB_H__
 
-#include <stddef.h>
+#include <cstddef>
 
 /*
 ===============================================================================
@@ -92,9 +92,9 @@ class idFile;
 class idVec3;
 class idVec4;
 
-#ifndef NULL
-#define NULL					((void *)0)
-#endif
+//#ifndef nullptr
+//#define nullptr					((void *)0)
+//#endif
 
 #ifndef BIT
 #define BIT( num )				( 1ULL << ( num ) )

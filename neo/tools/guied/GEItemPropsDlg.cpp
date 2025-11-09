@@ -219,7 +219,7 @@ int rvGEItemPropsImagePage::HandleMessage ( UINT msg, WPARAM wParam, LPARAM lPar
 					col.lStructSize = sizeof(col);
 					col.lpCustColors = gApp.GetOptions().GetCustomColors ( );
 					col.hwndOwner = mPage;
-					col.hInstance = NULL;
+					col.hInstance = nullptr;
 					col.Flags = CC_RGBINIT;
 					col.rgbResult = ColorButton_GetColor ( GetDlgItem ( mPage, LOWORD(wParam) ) );
 					if ( ChooseColor ( &col ) )
@@ -307,7 +307,7 @@ bool rvGEItemPropsImagePage::SetActive ( void )
 		loadedOnce = true;
 	}*/
 
-	if ( mDict == NULL )
+	if ( mDict == nullptr )
 	{
 		return false;
 	}
@@ -369,7 +369,7 @@ bool rvGEItemPropsImagePage::KillActive ( void )
 		loadedOnce = true;
 	}*/
 
-	if ( mDict == NULL )
+	if ( mDict == nullptr )
 	{
 		return false;
 	}
@@ -676,7 +676,7 @@ int rvGEItemPropsTextPage::HandleMessage ( UINT msg, WPARAM wParam, LPARAM lPara
 					col.lStructSize = sizeof(col);
 					col.lpCustColors = gApp.GetOptions().GetCustomColors ( );
 					col.hwndOwner = mPage;
-					col.hInstance = NULL;
+					col.hInstance = nullptr;
 					col.Flags = CC_RGBINIT;
 					col.rgbResult = ColorButton_GetColor ( GetDlgItem ( mPage, LOWORD(wParam) ) );
 					if ( ChooseColor ( &col ) )
@@ -734,7 +734,7 @@ bool rvGEItemPropsTextPage::SetActive ( void )
 		loadedOnce = true;
 	}*/
 
-	if ( mDict == NULL )
+	if ( mDict == nullptr )
 	{
 		return false;
 	}
@@ -794,7 +794,7 @@ bool rvGEItemPropsTextPage::KillActive ( void )
 		loadedOnce = true;
 	}*/
 
-	if ( mDict == NULL )
+	if ( mDict == nullptr )
 	{
 		return false;
 	}
@@ -1256,7 +1256,7 @@ bool rvGEItemPropsKeysPage::SetActive ( void )
 	// Delete anything already in there
 	ListView_DeleteAllItems ( list );
 
-	if ( mDict != NULL )
+	if ( mDict != nullptr )
 	{
 		// Add each key in the properties dictionary
 		for ( i = 0; i < mDict->GetNumKeyVals(); i++ )
@@ -1428,7 +1428,7 @@ bool rvGEItemPropsGeneralPage::SetActive ( void )
 		loadedOnce = true;
 	}*/
 
-	if ( mDict == NULL )
+	if ( mDict == nullptr )
 	{
 		return false;
 	}
@@ -1491,7 +1491,7 @@ bool rvGEItemPropsGeneralPage::KillActive ( void )
 		loadedOnce = true;
 	}*/
 
-	if ( mDict == NULL )
+	if ( mDict == nullptr )
 	{
 		return false;
 	}
@@ -1596,10 +1596,10 @@ constructor
 */
 rvGEItemProps::rvGEItemProps(void)
 {
-	mWrapper = NULL;
-	mWnd = NULL;
-	mDlg = NULL;
-	mWorkspace = NULL;
+	mWrapper = nullptr;
+	mWnd = nullptr;
+	mDlg = nullptr;
+	mWorkspace = nullptr;
 }
 
 rvGEItemProps::~rvGEItemProps()
@@ -1674,7 +1674,7 @@ bool rvGEItemProps::Create(HWND parent, bool visible)
 
 		GetWindowRect(GetParent(mWnd), &rParent);
 		GetWindowRect(mWnd, &rTrans);
-		SetWindowPos(mWnd, NULL,
+		SetWindowPos(mWnd, nullptr,
 			rParent.right - 10 - (rTrans.right - rTrans.left),
 			rParent.bottom - 10 - (rTrans.bottom - rTrans.top),
 			0, 0,
@@ -1747,7 +1747,7 @@ void rvGEItemProps::Update(void)
 void rvGEItemProps::SetWorkspace(rvGEWorkspace* workspace)
 {
 	mWorkspace = workspace;
-	if (mWorkspace == NULL)
+	if (mWorkspace == nullptr)
 	{
 		mDict.Clear();
 		((rvGEItemPropsGeneralPage*)propsp[RVITEMPROPS_GENERAL].lParam)->Enable(FALSE);

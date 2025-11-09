@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "InspectorDialog.h"
 #include "TabsDlg.h"
 
-CInspectorDialog *g_Inspectors = NULL;
+CInspectorDialog *g_Inspectors = nullptr;
 // CInspectorDialog dialog
 
 void InspectorsDockingCallback ( bool docked , int ID , CWnd* wnd )
@@ -48,7 +48,7 @@ void InspectorsDockingCallback ( bool docked , int ID , CWnd* wnd )
 
 // CInspectorDialog dialog
 //IMPLEMENT_DYNAMIC(CInspectorDialog,CTabsDlg)
-CInspectorDialog::CInspectorDialog(CWnd* pParent /*=NULL*/)
+CInspectorDialog::CInspectorDialog(CWnd* pParent /*=nullptr*/)
 	: CTabsDlg(CInspectorDialog::IDD, pParent)
 {
 	initialized = false;
@@ -128,7 +128,7 @@ void CInspectorDialog::OnSize(UINT nType, int cx, int cy)
 {
 	CTabsDlg::OnSize(nType, cx, cy);
 
-	DockedWindowInfo* info = NULL;
+	DockedWindowInfo* info = nullptr;
 	POSITION pos;
 	WORD wID;
 
@@ -149,14 +149,14 @@ void CInspectorDialog::OnSize(UINT nType, int cx, int cy)
 	// adjust rect for children size
 	rect.bottom -= 5 + tabRect.Height();
 
-	m_Tabs.SetWindowPos(NULL, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), 0);
+	m_Tabs.SetWindowPos(nullptr, tabRect.left, tabRect.top, tabRect.Width(), tabRect.Height(), 0);
 
-	for( pos = m_Windows.GetStartPosition(); pos != NULL ; )
+	for( pos = m_Windows.GetStartPosition(); pos != nullptr ; )
 	{
 		m_Windows.GetNextAssoc( pos, wID, (void*&)info );
 
 		if ( (info->m_State == DockedWindowInfo::DOCKED) ) {
-			info->m_Window->SetWindowPos(NULL, rect.left, rect.top, rect.Width(), rect.Height(), 0);
+			info->m_Window->SetWindowPos(nullptr, rect.left, rect.top, rect.Width(), rect.Height(), 0);
 		}
 
 	}

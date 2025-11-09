@@ -68,7 +68,7 @@ struct purgableSwfImage_t
 {
 	purgableSwfImage_t()
 	{
-		image = NULL;
+		image = nullptr;
 		swfFrameNum = 0;
 	}
 	idImage* image;
@@ -83,7 +83,7 @@ This class handles loading and rendering SWF files
 class idSWF
 {
 public:
-	idSWF( const char* filename, idSoundWorld* soundWorld = NULL );
+	idSWF( const char* filename, idSoundWorld* soundWorld = nullptr );
 	~idSWF();
 	
 	bool	IsLoaded()
@@ -146,7 +146,7 @@ public:
 	}
 	idSWFScriptObject& GetRootObject()
 	{
-		assert( mainspriteInstance->GetScriptObject() != NULL );
+		assert( mainspriteInstance->GetScriptObject() != nullptr );
 		return *( mainspriteInstance->GetScriptObject() );
 	}
 	
@@ -364,7 +364,7 @@ private:
 		{
 			startIndex = -1;
 			endIndex = -1;
-			material = NULL;
+			material = nullptr;
 			imageWidth = 0;
 			imageHeight = 0;
 			baseline = 0;

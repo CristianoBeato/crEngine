@@ -63,7 +63,7 @@ END_MESSAGE_MAP()
 * Constructor for StageView.
 */
 StageView::StageView() {
-	currentMaterial = NULL;
+	currentMaterial = nullptr;
 	bDragging = false;
 	internalChange = false;
 }
@@ -721,7 +721,7 @@ void StageView::PopupMenu(CPoint* pt) {
 	CMenu FloatingMenu;
 	VERIFY(FloatingMenu.LoadMenu(IDR_ME_STAGELIST_POPUP));
 	CMenu* pPopupMenu = FloatingMenu.GetSubMenu (0);
-	ASSERT(pPopupMenu != NULL);
+	ASSERT(pPopupMenu != nullptr);
 
 	POSITION pos = list.GetFirstSelectedItemPosition();
 	int nItem = -1;

@@ -207,13 +207,13 @@ void R_AddInGameGuis( const drawSurf_t* const drawSurfs[], const int numDrawSurf
 		int guiNum = drawSurf->material->GetEntityGui() - 1;
 		if( guiNum >= 0 && guiNum < MAX_RENDERENTITY_GUI )
 		{
-			if( drawSurf->space->entityDef != NULL )
+			if( drawSurf->space->entityDef != nullptr )
 			{
 				gui = drawSurf->space->entityDef->parms.gui[ guiNum ];
 			}
 		}
 		
-		if( gui == NULL )
+		if( gui == nullptr )
 		{
 			continue;
 		}
@@ -222,7 +222,7 @@ void R_AddInGameGuis( const drawSurf_t* const drawSurfs[], const int numDrawSurf
 		if( !R_PreciseCullSurface( drawSurf, ndcBounds ) )
 		{
 			// did we ever use this to forward an entity color to a gui that didn't set color?
-			//	memcpy( tr.guiShaderParms, shaderParms, sizeof( tr.guiShaderParms ) );
+			//	std::memcpy( tr.guiShaderParms, shaderParms, sizeof( tr.guiShaderParms ) );
 			R_RenderGuiSurf( gui, drawSurf );
 		}
 	}

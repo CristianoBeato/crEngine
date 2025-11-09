@@ -34,7 +34,7 @@ const char* Sys_EXEPath( void )
 {
     static char	buf[ 1024 ];
 #if __PLATFORM_WINDOWS__
-	GetModuleFileName( NULL, buf, sizeof( buf ) - 1 );
+	GetModuleFileName( nullptr, buf, sizeof( buf ) - 1 );
 #else
 	idStr		linkpath;
 	int			len;

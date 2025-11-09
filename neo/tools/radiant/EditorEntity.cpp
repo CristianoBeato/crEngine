@@ -60,7 +60,7 @@ const char *GetKeyString(entity_t *ent, int iIndex)
 //	}
 //
 //	assert(0);
-//	return NULL;
+//	return nullptr;
 	
 	if ( iIndex < GetNumKeys(ent) )
 	{
@@ -68,7 +68,7 @@ const char *GetKeyString(entity_t *ent, int iIndex)
 	}
 
 	assert(0);
-	return NULL;
+	return nullptr;
 }
 
 
@@ -108,7 +108,7 @@ void TrackMD3Angles(entity_t *e, const char *key, const char *value) {
  =======================================================================================================================
  */
 void SetKeyValue(entity_t *ent, const char *key, const char *value, bool trackAngles) {
-	if (ent == NULL) {
+	if (ent == nullptr) {
 		return;
 	}
 
@@ -132,7 +132,7 @@ void SetKeyValue(entity_t *ent, const char *key, const char *value, bool trackAn
  =======================================================================================================================
  */
 void SetKeyVec3(entity_t *ent, const char *key, idVec3 v) {
-	if (ent == NULL) {
+	if (ent == nullptr) {
 		return;
 	}
 
@@ -151,7 +151,7 @@ void SetKeyVec3(entity_t *ent, const char *key, idVec3 v) {
  =======================================================================================================================
  */
 void SetKeyMat3(entity_t *ent, const char *key, idMat3 m) {
-	if (ent == NULL) {
+	if (ent == nullptr) {
 		return;
 	}
 
@@ -326,7 +326,7 @@ void Entity_RemoveFromList(entity_t *e) {
 
 	e->next->prev = e->prev;
 	e->prev->next = e->next;
-	e->next = e->prev = NULL;
+	e->next = e->prev = nullptr;
 }
 
 /*
@@ -460,38 +460,38 @@ bool EntityHasModel(entity_t *ent) {
 entity_t *Entity_New() {
 	entity_t *ent = new entity_t;
 	
-	ent->prev = ent->next = NULL;
-	ent->brushes.prev = ent->brushes.next = NULL;
-	ent->brushes.oprev = ent->brushes.onext = NULL;
-	ent->brushes.owner = NULL;
+	ent->prev = ent->next = nullptr;
+	ent->brushes.prev = ent->brushes.next = nullptr;
+	ent->brushes.oprev = ent->brushes.onext = nullptr;
+	ent->brushes.owner = nullptr;
 	ent->undoId = 0;
 	ent->redoId = 0;
 	ent->entityId = g_entityId++;
 	ent->origin.Zero();
-	ent->eclass = NULL;
-	ent->md3Class = NULL;
+	ent->eclass = nullptr;
+	ent->md3Class = nullptr;
 	ent->lightOrigin.Zero();
 	ent->lightRotation.Identity();
 	ent->trackLightOrigin = false;
 	ent->rotation.Identity();
 	ent->lightDef = -1;
 	ent->modelDef = -1;
-	ent->soundEmitter = NULL;
-	ent->curve = NULL;
+	ent->soundEmitter = nullptr;
+	ent->curve = nullptr;
 	return ent;
 }
 
 void Entity_UpdateCurveData( entity_t *ent ) {
 	
-	if ( ent == NULL || ent->curve == NULL ) {
+	if ( ent == nullptr || ent->curve == nullptr ) {
 		return;
 	}
 
 	const idKeyValue *kv = ent->epairs.MatchPrefix( CURVE_TAG );
-	if ( kv == NULL ) { 
+	if ( kv == nullptr ) { 
 		if ( ent->curve ) {
 			delete ent->curve;
-			ent->curve = NULL;
+			ent->curve = nullptr;
 			if ( g_qeglobals.d_select_mode == sel_editpoint ) {
 				g_qeglobals.d_select_mode = sel_brush;
 			}
@@ -524,7 +524,7 @@ idCurve<idVec3> *Entity_MakeCurve( entity_t *ent ) {
 			return new idCurve_NURBS<idVec3>();
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void Entity_SetCurveData( entity_t *ent ) {
@@ -597,7 +597,7 @@ entity_t *Entity_PostParse(entity_t *ent, brush_t *pList) {
 
 	idStr str;
 	
-	if (e->defArgs.GetString("model", "", str) && e->entityModel == NULL) {
+	if (e->defArgs.GetString("model", "", str) && e->entityModel == nullptr) {
 		e->entityModel = gameEdit->ANIM_GetModelFromEntityDef( &e->defArgs );
 	}
 	
@@ -635,7 +635,7 @@ entity_t *Entity_PostParse(entity_t *ent, brush_t *pList) {
 		idAngles ang;
 		bo.Clear();
 		bool hasBody = false;
-		const idKeyValue *arg = ent->epairs.MatchPrefix( "body ", NULL );
+		const idKeyValue *arg = ent->epairs.MatchPrefix( "body ", nullptr );
 		while ( arg ) {
 			sscanf( arg->GetValue(), "%f %f %f %f %f %f", &org.x, &org.y, &org.z, &ang.pitch, &ang.yaw, &ang.roll );
 			bo.AddPoint( org );
@@ -662,7 +662,7 @@ entity_t *Entity_PostParse(entity_t *ent, brush_t *pList) {
 				bo.Zero();
 				bo.ExpandSelf( 12.0f );
 			} else {
-				bo = modelHandle->Bounds( NULL );
+				bo = modelHandle->Bounds( nullptr );
 			}
 
 			VectorCopy(bo[0], mins);
@@ -711,7 +711,7 @@ entity_t *Entity_PostParse(entity_t *ent, brush_t *pList) {
 			GetMatrixForKey(ent, "rotation", ent->rotation);
 			Entity_LinkBrush(ent, b);
 			b->trackLightOrigin = ent->trackLightOrigin;
-			if ( e->texdef.name == NULL ) {
+			if ( e->texdef.name == nullptr ) {
 				brushprimit_texdef_t bp;
 				texdef_t td;
 				td.SetName( ent->eclass->defMaterial );
@@ -764,7 +764,7 @@ entity_t *Entity_PostParse(entity_t *ent, brush_t *pList) {
 		}
 
 		if (!(e->nShowFlags & ECLASS_WORLDSPAWN)) {
-			if (e->defArgs.FindKey("model") == NULL && (pModel == NULL || (pModel && strlen(pModel) == 0))) {
+			if (e->defArgs.FindKey("model") == nullptr && (pModel == nullptr || (pModel && strlen(pModel) == 0))) {
 				SetKeyValue(ent, "model", ValueForKey(ent, "name"));
 			}
 		}
@@ -799,7 +799,7 @@ entity_t *Entity_Parse(bool onlypairs, brush_t *pList) {
 	entity_t	*ent;
 
 	if (!GetToken(true)) {
-		return NULL;
+		return nullptr;
 	}
 
 	if (strcmp(token, "{")) {
@@ -814,7 +814,7 @@ entity_t *Entity_Parse(bool onlypairs, brush_t *pList) {
 	do {
 		if (!GetToken(true)) {
 			Warning("ParseEntity: EOF without closing brace");
-			return NULL;
+			return nullptr;
 		}
 
 		if (!strcmp(token, "}")) {
@@ -824,7 +824,7 @@ entity_t *Entity_Parse(bool onlypairs, brush_t *pList) {
 		if (!strcmp(token, "{")) {
 			GetVectorForKey(ent, "origin", ent->origin);
 			brush_t *b = Brush_Parse(ent->origin);
-			if (b != NULL) {
+			if (b != nullptr) {
 				b->owner = ent;
 
 				// add to the end of the entity chain
@@ -945,7 +945,7 @@ void Entity_Write(entity_t *e, FILE *f, bool use_region) {
  =======================================================================================================================
  */
 bool IsBrushSelected(brush_t *bSel) {
-	for (brush_t * b = selected_brushes.next; b != NULL && b != &selected_brushes; b = b->next) {
+	for (brush_t * b = selected_brushes.next; b != nullptr && b != &selected_brushes; b = b->next) {
 		if (b == bSel) {
 			return true;
 		}
@@ -1140,12 +1140,12 @@ entity_t *Entity_Create(eclass_t *c, bool forceFixed) {
 		if (b->owner != world_entity) {
 			Sys_Status("Entity NOT created, brushes not all from world\n");
 			Sys_Beep();
-			return NULL;
+			return nullptr;
 		}
 	}
 
 	idStr str;
-	if (c->defArgs.GetString("model", "", str) && c->entityModel == NULL) {
+	if (c->defArgs.GetString("model", "", str) && c->entityModel == nullptr) {
 		c->entityModel = gameEdit->ANIM_GetModelFromEntityDef( &c->defArgs );
 	}
 
@@ -1262,8 +1262,8 @@ void Entity_UnlinkBrush(brush_t *b) {
 
 	b->onext->oprev = b->oprev;
 	b->oprev->onext = b->onext;
-	b->onext = b->oprev = NULL;
-	b->owner = NULL;
+	b->onext = b->oprev = nullptr;
+	b->owner = nullptr;
 }
 
 /*
@@ -1302,7 +1302,7 @@ int GetUniqueTargetId(int iHint) {
 	iMin = 0;
 	iMax = 0;
 
-	for (; pe != NULL && pe != &entities; pe = pe->next) {
+	for (; pe != nullptr && pe != &entities; pe = pe->next) {
 		i = IntForKey(pe, "target");
 		if (i) {
 			iMin = Min(i, iMin);
@@ -1330,13 +1330,13 @@ entity_t *FindEntity(const char *pszKey, const char *pszValue) {
 
 	pe = entities.next;
 
-	for (; pe != NULL && pe != &entities; pe = pe->next) {
+	for (; pe != nullptr && pe != &entities; pe = pe->next) {
 		if (!strcmp(ValueForKey(pe, pszKey), pszValue)) {
 			return pe;
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1348,13 +1348,13 @@ entity_t *FindEntityInt(const char *pszKey, int iValue) {
 
 	pe = entities.next;
 
-	for (; pe != NULL && pe != &entities; pe = pe->next) {
+	for (; pe != nullptr && pe != &entities; pe = pe->next) {
 		if (IntForKey(pe, pszKey) == iValue) {
 			return pe;
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1395,7 +1395,7 @@ void Entity_UpdateSoundEmitter( entity_t *ent ) {
 	// delete the soundEmitter if not used
 	if ( !playing && ent->soundEmitter ) {
 		ent->soundEmitter->Free( true );
-		ent->soundEmitter = NULL;
+		ent->soundEmitter = nullptr;
 	}
 
 }

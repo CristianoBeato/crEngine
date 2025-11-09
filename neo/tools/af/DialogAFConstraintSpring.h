@@ -36,7 +36,7 @@ class DialogAFConstraintSpring : public CDialog {
 	DECLARE_DYNAMIC(DialogAFConstraintSpring)
 
 public:
-						DialogAFConstraintSpring(CWnd* pParent = NULL);   // standard constructor
+						DialogAFConstraintSpring(CWnd* pParent = nullptr);   // standard constructor
 	virtual				~DialogAFConstraintSpring();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );

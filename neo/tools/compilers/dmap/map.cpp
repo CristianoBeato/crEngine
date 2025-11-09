@@ -162,7 +162,7 @@ static uBrush_t *FinishBrush( void ) {
 	if ( !CreateBrushWindings( buildBrush ) ) {
 		// don't keep this brush
 		FreeBuildBrush();
-		return NULL;
+		return nullptr;
 	}
 
 	if ( buildBrush->contents & CONTENTS_AREAPORTAL ) {
@@ -170,7 +170,7 @@ static uBrush_t *FinishBrush( void ) {
 			common->Printf("Entity %i, Brush %i: areaportals only allowed in world\n"
 				,  dmapGlobals.num_entities - 1, entityPrimitive);
 			FreeBuildBrush();
-			return NULL;
+			return nullptr;
 		}
 	}
 
@@ -185,7 +185,7 @@ static uBrush_t *FinishBrush( void ) {
 	b->original = b;
 
 	prim = (primitive_t *)Mem_Alloc( sizeof( *prim ), TAG_DMAP );
-	memset( prim, 0, sizeof( *prim ) );
+	std::memset( prim, 0, sizeof( *prim ) );
 	prim->next = uEntity->primitives;
 	uEntity->primitives = prim;
 
@@ -271,7 +271,7 @@ static void ParseBrush( const idMapBrush *mapBrush, int primitiveNum )
 		s = &buildBrush->sides[i];
 		ms = mapBrush->GetSide(i);
 
-		memset( s, 0, sizeof( *s ) );
+		std::memset( s, 0, sizeof( *s ) );
 		s->planenum = FindFloatPlane( ms->GetPlane(), &fixedDegeneracies );
 		s->material = declManager->FindMaterial( ms->GetMaterial() );
 		ms->GetTextureVectors( s->texVec.v );
@@ -310,7 +310,7 @@ static void ParseSurface(const idMapPatch *patch, const idSurface *surface, cons
 	primitive_t		*prim;
 
 	prim = (primitive_t *)Mem_Alloc( sizeof( *prim ), TAG_DMAP );
-	memset( prim, 0, sizeof( *prim ) );
+	std::memset( prim, 0, sizeof( *prim ) );
 	prim->next = uEntity->primitives;
 	uEntity->primitives = prim;
 
@@ -373,7 +373,7 @@ static bool	ProcessMapEntity( idMapEntity *mapEnt )
 	idMapPrimitive	*prim;
 
 	uEntity = &dmapGlobals.uEntities[dmapGlobals.num_entities];
-	memset( uEntity, 0, sizeof(*uEntity) );
+	std::memset( uEntity, 0, sizeof(*uEntity) );
 	uEntity->mapEntity = mapEnt;
 	dmapGlobals.num_entities++;
 
@@ -1008,7 +1008,7 @@ bool LoadDMapFile( const char *filename )
 
 	size = dmapGlobals.dmapFile->GetNumEntities() * sizeof( dmapGlobals.uEntities[0] );
 	dmapGlobals.uEntities = (uEntity_t *)Mem_Alloc( size, TAG_DMAP );
-	memset( dmapGlobals.uEntities, 0, size );
+	std::memset( dmapGlobals.uEntities, 0, size );
 
 	// allocate a very large temporary brush for building
 	// the brushes as they are loaded

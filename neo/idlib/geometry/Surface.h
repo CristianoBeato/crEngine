@@ -91,7 +91,7 @@ public:
 	// splits the surface into a front and back surface, the surface itself stays unchanged
 	// frontOnPlaneEdges and backOnPlaneEdges optionally store the indexes to the edges that lay on the split plane
 	// returns a SIDE_?
-	int						Split( const idPlane& plane, const float epsilon, idSurface** front, idSurface** back, int* frontOnPlaneEdges = NULL, int* backOnPlaneEdges = NULL ) const;
+	int						Split( const idPlane& plane, const float epsilon, idSurface** front, idSurface** back, int* frontOnPlaneEdges = nullptr, int* backOnPlaneEdges = nullptr ) const;
 	// cuts off the part at the back side of the plane, returns true if some part was at the front
 	// if there is nothing at the front the number of points is set to zero
 	bool					ClipInPlace( const idPlane& plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
@@ -138,11 +138,11 @@ idSurface::idSurface
 */
 ID_INLINE idSurface::idSurface( const idDrawVert* verts, const int numVerts, const int* indexes, const int numIndexes )
 {
-	assert( verts != NULL && indexes != NULL && numVerts > 0 && numIndexes > 0 );
+	assert( verts != nullptr && indexes != nullptr && numVerts > 0 && numIndexes > 0 );
 	this->verts.SetNum( numVerts );
-	memcpy( this->verts.Ptr(), verts, numVerts * sizeof( verts[0] ) );
+	std::memcpy( this->verts.Ptr(), verts, numVerts * sizeof( verts[0] ) );
 	this->indexes.SetNum( numIndexes );
-	memcpy( this->indexes.Ptr(), indexes, numIndexes * sizeof( indexes[0] ) );
+	std::memcpy( this->indexes.Ptr(), indexes, numIndexes * sizeof( indexes[0] ) );
 	GenerateEdgeIndexes();
 }
 

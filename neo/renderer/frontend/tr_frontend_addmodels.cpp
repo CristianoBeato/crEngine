@@ -309,7 +309,7 @@ void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, cons
 					
 			const shaderStage_t* pStage = renderEntity->referenceShader->GetStage( 0 );
 			
-			memcpy( generatedShaderParms, renderEntity->shaderParms, sizeof( generatedShaderParms ) );
+			std::memcpy( generatedShaderParms, renderEntity->shaderParms, sizeof( generatedShaderParms ) );
 			generatedShaderParms[0] = refRegs[ pStage->color.registers[0] ];
 			generatedShaderParms[1] = refRegs[ pStage->color.registers[1] ];
 			generatedShaderParms[2] = refRegs[ pStage->color.registers[2] ];
@@ -555,7 +555,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 	vEntity->weaponDepthHack = renderEntity->weaponDepthHack;
 	vEntity->skipMotionBlur = renderEntity->skipMotionBlur;
 	
-	memcpy( vEntity->modelMatrix, entityDef->modelMatrix, sizeof( vEntity->modelMatrix ) );
+	std::memcpy( vEntity->modelMatrix, entityDef->modelMatrix, sizeof( vEntity->modelMatrix ) );
 	R_MatrixMultiply( entityDef->modelMatrix, viewDef->worldSpace.modelViewMatrix, vEntity->modelViewMatrix );
 	
 	idRenderMatrix viewMat;
@@ -1276,7 +1276,7 @@ void R_LinkDrawSurfToView( drawSurf_t* drawSurf, viewDef_t* viewDef )
 			viewDef->maxDrawSurfs *= 2;
 		}
 		viewDef->drawSurfs = ( drawSurf_t** )R_FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
-		memcpy( viewDef->drawSurfs, old, count );
+		std::memcpy( viewDef->drawSurfs, old, count );
 	}
 	
 	viewDef->drawSurfs[viewDef->numDrawSurfs] = drawSurf;

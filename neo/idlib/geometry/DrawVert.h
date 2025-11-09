@@ -672,7 +672,7 @@ idDrawVert::GetSkinnedDrawVert
 */
 ID_INLINE idDrawVert idDrawVert::GetSkinnedDrawVert( const idDrawVert& vert, const idJointMat* joints )
 {
-	if( joints == NULL )
+	if( joints == nullptr )
 	{
 		return vert;
 	}
@@ -714,7 +714,7 @@ idDrawVert::GetSkinnedDrawVertPosition
 */
 ID_INLINE idVec3 idDrawVert::GetSkinnedDrawVertPosition( const idDrawVert& vert, const idJointMat* joints )
 {
-	if( joints == NULL )
+	if( joints == nullptr )
 	{
 		return vert.xyz;
 	}

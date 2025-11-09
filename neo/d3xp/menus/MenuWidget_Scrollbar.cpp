@@ -47,18 +47,18 @@ idMenuWidget_ScrollBar::Update
 void idMenuWidget_ScrollBar::Update()
 {
 
-	if( GetSWFObject() == NULL )
+	if( GetSWFObject() == nullptr )
 	{
 		return;
 	}
 	
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	if( !BindSprite( root ) || GetSprite() == NULL )
+	if( !BindSprite( root ) || GetSprite() == nullptr )
 	{
 		return;
 	}
 	
-	if( GetParent() == NULL )
+	if( GetParent() == nullptr )
 	{
 		return;
 	}
@@ -67,13 +67,13 @@ void idMenuWidget_ScrollBar::Update()
 	
 	idSWFScriptObject* node = GetSprite()->GetScriptObject()->GetNestedObj( "node" );
 	idSWFSpriteInstance* nodeSprite = GetSprite()->GetScriptObject()->GetNestedSprite( "node" );
-	if( node != NULL && nodeSprite != NULL )
+	if( node != nullptr && nodeSprite != nullptr )
 	{
 		node->Set( "onDrag", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_DRAG_START, 0 ) );
 		node->Set( "onRelease", new( TAG_SWF ) WrapWidgetSWFEvent( this, WIDGET_EVENT_DRAG_STOP, 0 ) );
 		
 		const idMenuWidget_DynamicList* const list = dynamic_cast< const idMenuWidget_DynamicList* const >( GetParent() );
-		if( list != NULL )
+		if( list != nullptr )
 		{
 			float percent = 0.0f;
 			if( ( list->GetTotalNumberOfOptions() - list->GetNumVisibleOptions() ) > 0 )
@@ -91,7 +91,7 @@ void idMenuWidget_ScrollBar::Update()
 		}
 		
 		idMenuWidget_InfoBox* const infoBox = dynamic_cast< idMenuWidget_InfoBox* const >( GetParent() );
-		if( infoBox != NULL )
+		if( infoBox != nullptr )
 		{
 			float percent = 0.0f;
 			if( infoBox->GetMaxScroll() == 0 )
@@ -118,23 +118,23 @@ idMenuWidget_ScrollBar::CalcTopAndBottom
 void idMenuWidget_ScrollBar::CalcTopAndBottom()
 {
 
-	if( GetSWFObject() == NULL )
+	if( GetSWFObject() == nullptr )
 	{
 		return;
 	}
 	
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
-	if( !BindSprite( root ) || GetSprite() == NULL )
+	if( !BindSprite( root ) || GetSprite() == nullptr )
 	{
 		return;
 	}
 	
 	int tempPos = 0.0f;
 	idSWFSpriteInstance* curMC = GetSprite()->GetScriptObject()->GetNestedSprite( "top" );
-	if( curMC != NULL )
+	if( curMC != nullptr )
 	{
 		tempPos = curMC->GetYPos();
-		while( curMC->parent != NULL )
+		while( curMC->parent != nullptr )
 		{
 			curMC = curMC->parent;
 			tempPos += curMC->GetYPos();
@@ -144,10 +144,10 @@ void idMenuWidget_ScrollBar::CalcTopAndBottom()
 	
 	tempPos = 0.0f;
 	curMC = GetSprite()->GetScriptObject()->GetNestedSprite( "bottom" );
-	if( curMC != NULL )
+	if( curMC != nullptr )
 	{
 		tempPos = curMC->GetYPos();
-		while( curMC->parent != NULL )
+		while( curMC->parent != nullptr )
 		{
 			curMC = curMC->parent;
 			tempPos += curMC->GetYPos();
@@ -163,7 +163,7 @@ idMenuWidget_ScrollBar::CalculatePosition
 */
 void idMenuWidget_ScrollBar::CalculatePosition( float x, float y )
 {
-	if( GetSprite() == NULL )
+	if( GetSprite() == nullptr )
 	{
 		return;
 	}
@@ -175,13 +175,13 @@ void idMenuWidget_ScrollBar::CalculatePosition( float x, float y )
 		
 		float percent = val / range;
 		idSWFSpriteInstance* node = GetSprite()->GetScriptObject()->GetNestedSprite( "node" );
-		if( node != NULL )
+		if( node != nullptr )
 		{
 			node->SetYPos( percent * range );
 		}
 		
 		idMenuWidget_DynamicList* const list = dynamic_cast< idMenuWidget_DynamicList* const >( GetParent() );
-		if( list != NULL )
+		if( list != nullptr )
 		{
 			float maxScroll = list->GetTotalNumberOfOptions() - list->GetNumVisibleOptions();
 			int offset = list->GetViewOffset();
@@ -223,7 +223,7 @@ void idMenuWidget_ScrollBar::CalculatePosition( float x, float y )
 		}
 		
 		idMenuWidget_InfoBox* const infoBox = dynamic_cast< idMenuWidget_InfoBox* const >( GetParent() );
-		if( infoBox != NULL )
+		if( infoBox != nullptr )
 		{
 			float maxScroll = infoBox->GetMaxScroll();
 			int scroll = infoBox->GetScroll();

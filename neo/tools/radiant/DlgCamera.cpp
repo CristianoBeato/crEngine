@@ -52,12 +52,12 @@ CDlgCamera g_dlgCamera;
 
 
 void showCameraInspector() {
-	if (g_dlgCamera.GetSafeHwnd() == NULL) {
+	if (g_dlgCamera.GetSafeHwnd() == nullptr) {
 		g_dlgCamera.Create(IDD_DLG_CAMERA);
 		CRect rct;
 		LONG lSize = sizeof(rct);
 		if (LoadRegistryInfo("Radiant::CameraInspector", &rct, &lSize)) {
-			g_dlgCamera.SetWindowPos(NULL, rct.left, rct.top, 0,0, SWP_NOSIZE | SWP_SHOWWINDOW);
+			g_dlgCamera.SetWindowPos(nullptr, rct.left, rct.top, 0,0, SWP_NOSIZE | SWP_SHOWWINDOW);
 		}
 		Sys_UpdateWindows(W_ALL);
 	} 
@@ -68,7 +68,7 @@ void showCameraInspector() {
 // CDlgCamera dialog
 
 
-CDlgCamera::CDlgCamera(CWnd* pParent /*=NULL*/)
+CDlgCamera::CDlgCamera(CWnd* pParent /*=nullptr*/)
 	: CDialog(CDlgCamera::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDlgCamera)

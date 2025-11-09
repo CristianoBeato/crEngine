@@ -44,7 +44,7 @@ class CEntityListDlg : public CDialog
 {
 // Construction
 public:
-	CEntityListDlg(CWnd* pParent = NULL);   // standard constructor
+	CEntityListDlg(CWnd* pParent = nullptr);   // standard constructor
 	void UpdateList();
 	static void ShowDialog();
 

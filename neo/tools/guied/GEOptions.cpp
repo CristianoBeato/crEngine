@@ -53,7 +53,7 @@ rvGEOptions::rvGEOptions() {
 	mWorkspaceColor.Set ( 0.0f, 0.0f, 0.0f, 1.0f );
 	mSelectionColor.Set ( 0.5f, 0.5f, 1.0f, 1.0f );
 
-	memset ( mCustomColors, 0, sizeof(mCustomColors) );
+	std::memset ( mCustomColors, 0, sizeof(mCustomColors) );
 }
 
 /*

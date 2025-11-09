@@ -169,7 +169,7 @@ bool idPlayerIcon::CreateIcon( idPlayer* player, playerIconType_t type, const ch
 	
 	FreeIcon();
 	
-	memset( &renderEnt, 0, sizeof( renderEnt ) );
+	std::memset( &renderEnt, 0, sizeof( renderEnt ) );
 	renderEnt.origin	= origin;
 	renderEnt.axis		= axis;
 	renderEnt.shaderParms[ SHADERPARM_RED ]				= 1.0f;
@@ -179,9 +179,9 @@ bool idPlayerIcon::CreateIcon( idPlayer* player, playerIconType_t type, const ch
 	renderEnt.shaderParms[ SHADERPARM_SPRITE_WIDTH ]	= 16.0f;
 	renderEnt.shaderParms[ SHADERPARM_SPRITE_HEIGHT ]	= 16.0f;
 	renderEnt.hModel = renderModelManager->FindModel( "_sprite" );
-	renderEnt.callback = NULL;
+	renderEnt.callback = nullptr;
 	renderEnt.numJoints = 0;
-	renderEnt.joints = NULL;
+	renderEnt.joints = nullptr;
 	renderEnt.customSkin = 0;
 	renderEnt.noShadow = true;
 	renderEnt.noSelfShadow = true;

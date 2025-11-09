@@ -71,7 +71,7 @@ HTREEITEM CPathTreeCtrl::FindItem( const idStr &pathName ) {
 	idStr path, tmpPath, itemName;
 	HTREEITEM item, parentItem;
 
-	parentItem = NULL;
+	parentItem = nullptr;
 	item = GetRootItem();
 
 	lastSlash = pathName.Last( '/' );
@@ -95,7 +95,7 @@ HTREEITEM CPathTreeCtrl::FindItem( const idStr &pathName ) {
 		}
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -111,7 +111,7 @@ HTREEITEM CPathTreeCtrl::InsertPathIntoTree( const idStr &pathName, const int id
 	idStr path, tmpPath, itemName;
 	HTREEITEM item, parentItem;
 
-	parentItem = NULL;
+	parentItem = nullptr;
 	item = GetRootItem();
 
 	lastSlash = pathName.Last( '/' );
@@ -195,7 +195,7 @@ int CPathTreeCtrl::SearchTree( treeItemCompare_t compare, void *data, CPathTreeC
 
 	numItems = 0;
 	result.DeleteAllItems();
-	stack.PushRoot( NULL );
+	stack.PushRoot( nullptr );
 
 	item = GetRootItem();
 	searchStack.PushRoot( item );
@@ -217,7 +217,7 @@ int CPathTreeCtrl::SearchTree( treeItemCompare_t compare, void *data, CPathTreeC
 			numItems++;
 		}
 
-		for ( item = GetNextSiblingItem( item ); item == NULL;  ) {
+		for ( item = GetNextSiblingItem( item ); item == nullptr;  ) {
 			item = GetNextSiblingItem( searchStack.TopItem() );
 			searchStack.Pop();
 			if ( searchStack.Num() <= 0 ) {

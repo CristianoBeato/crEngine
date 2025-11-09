@@ -85,7 +85,7 @@ static void AddTriListToArea( uEntity_t *e, mapTri_t *triList, int planeNum, int
 
 	if ( !group ) {
 		group = (optimizeGroup_t *)Mem_Alloc( sizeof( *group ), TAG_DMAP );
-		memset( group, 0, sizeof( *group ) );
+		std::memset( group, 0, sizeof( *group ) );
 		group->planeNum = planeNum;
 		group->mergeGroup = triList->mergeGroup;
 		group->material = triList->material;
@@ -165,19 +165,19 @@ mapTri_t *TriListForSide( const side_t *s, const idWinding *w )
 
 	// skip any generated faces
 	if ( !si ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// don't create faces for non-visible sides
 	if ( !si->SurfaceCastsShadow() && !si->IsDrawn() ) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( 1 ) {
 		// triangle fan using only the outer verts
 		// this gives the minimum triangle count,
 		// but may have some very distended triangles
-		triList = NULL;
+		triList = nullptr;
 		for ( i = 2 ; i < w->GetNumPoints() ; i++ ) {
 			tri = AllocTri();
 			tri->material = si;	
@@ -361,7 +361,7 @@ void ClipSidesByTree( uEntity_t *e ) {
 				continue;
 			}
 			w = side->winding->Copy();
-			side->visibleHull = NULL;
+			side->visibleHull = nullptr;
 			ClipSideByTree_r( w, side, e->tree->headnode );
 			// for debugging, we can choose to use the entire original side
 			// but we skip this if the side was completely clipped away
@@ -584,7 +584,7 @@ void AddMapTriToAreas( mapTri_t *tri, uEntity_t *e ) {
 
 		// put in single area
 		newTri = CopyMapTri( tri );
-		newTri->next = NULL;
+		newTri->next = nullptr;
 
 		PlaneForTri( tri, plane );
 		planeNum = FindFloatPlane( plane );
@@ -616,7 +616,7 @@ void PutPrimitivesInAreas( uEntity_t *e ) {
 
 	// allocate space for surface chains for each area
 	e->areas = (uArea_t *)Mem_Alloc( e->numAreas * sizeof( e->areas[0] ), TAG_DMAP );
-	memset( e->areas, 0, e->numAreas * sizeof( e->areas[0] ) );
+	std::memset( e->areas, 0, e->numAreas * sizeof( e->areas[0] ) );
 
 	// for each primitive, clip it to the non-solid leafs
 	// and divide it into different areas
@@ -683,7 +683,7 @@ void PutPrimitivesInAreas( uEntity_t *e ) {
 				const crDrawGeometry *tri = surface->geometry;
 
 				mapTri_t	mapTri;
-				memset( &mapTri, 0, sizeof( mapTri ) );
+				std::memset( &mapTri, 0, sizeof( mapTri ) );
 				mapTri.material = surface->shader;
 				// don't let discretes (autosprites, etc) merge together
 				if ( mapTri.material->IsDiscrete() || mapTri.material->IsLOD() ) { // motorsep 11-25-2014; || mapTri.material->IsLOD() added to prevent LOD surfaces being merged into one surface ) 
@@ -741,8 +741,8 @@ static void ClipTriByLight( const mapLight_t *light, const mapTri_t *tri,
 	bool	hasOutside;
 	int			i;
 
-	*in = NULL;
-	*out = NULL;
+	*in = nullptr;
+	*out = nullptr;
 
 	// clip this winding to the light
 	inside = WindingForTri( tri );
@@ -754,7 +754,7 @@ static void ClipTriByLight( const mapLight_t *light, const mapTri_t *tri,
 			delete oldInside;
 		}
 		else {
-			outside[i] = NULL;
+			outside[i] = nullptr;
 		}
 		if ( outside[i] ) {
 			hasOutside = true;
@@ -772,7 +772,7 @@ static void ClipTriByLight( const mapLight_t *light, const mapTri_t *tri,
 		}
 
 		*out = CopyMapTri( tri );
-		(*out)->next = NULL;
+		(*out)->next = nullptr;
 
 		return;
 	}
@@ -784,7 +784,7 @@ static void ClipTriByLight( const mapLight_t *light, const mapTri_t *tri,
 		delete inside;
 
 		*in = CopyMapTri( tri );
-		(*in)->next = NULL;
+		(*in)->next = nullptr;
 
 		return;
 	}
@@ -901,7 +901,7 @@ static void BuildLightShadows( uEntity_t *e, mapLight_t *light )
 				if ( !check ) {
 					check = (optimizeGroup_t *)Mem_Alloc( sizeof( *check ), TAG_DMAP );
 					*check = *group;
-					check->triList = NULL;
+					check->triList = nullptr;
 					check->nextGroup = shadowerGroups;
 					shadowerGroups = check;
 				}
@@ -947,7 +947,7 @@ static void CarveGroupsByLight( uEntity_t *e, mapLight_t *light ) {
 
 	for ( i = 0 ; i < e->numAreas ; i++ ) {
 		area = &e->areas[i];
-		carvedGroups = NULL;
+		carvedGroups = nullptr;
 
 		// we will be either freeing or reassigning the groups as we go
 		for ( group = area->groups ; group ; group = nextGroup ) {
@@ -980,8 +980,8 @@ static void CarveGroupsByLight( uEntity_t *e, mapLight_t *light ) {
 			}
 
 			// split into lists for hit-by-light, and not-hit-by-light
-			inside = NULL;
-			outside = NULL;
+			inside = nullptr;
+			outside = nullptr;
 
 			for ( tri = group->triList ; tri ; tri = tri->next ) {
 				mapTri_t	*in, *out;
@@ -1010,7 +1010,7 @@ static void CarveGroupsByLight( uEntity_t *e, mapLight_t *light ) {
 			}
 
 			// free the original
-			group->nextGroup = NULL;
+			group->nextGroup = nullptr;
 			FreeOptimizeGroupList( group );
 		}
 

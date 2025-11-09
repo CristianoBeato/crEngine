@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 // DialogName dialog
 
 
-DialogName::DialogName(const char *pName, CWnd* pParent /*=NULL*/)
+DialogName::DialogName(const char *pName, CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogName::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(DialogName)

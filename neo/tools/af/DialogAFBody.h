@@ -36,7 +36,7 @@ class DialogAFBody : public CDialog {
 	DECLARE_DYNAMIC(DialogAFBody)
 
 public:
-						DialogAFBody( CWnd* pParent = NULL );   // standard constructor
+						DialogAFBody( CWnd* pParent = nullptr );   // standard constructor
 	virtual				~DialogAFBody();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );

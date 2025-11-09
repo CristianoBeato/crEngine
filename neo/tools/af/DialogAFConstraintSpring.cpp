@@ -62,7 +62,7 @@ toolTip_t DialogAFConstraintSpring::toolTips[] = {
 	{ IDC_RADIO_SPRING_NO_MAX_LENGTH, "no maximum length" },
 	{ IDC_RADIO_SPRING_MAX_LENGTH, "maximum length" },
 	{ IDC_EDIT_SPRING_MAX_LENGTH, "maximum length" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFConstraintSpring, CDialog)
@@ -72,7 +72,7 @@ IMPLEMENT_DYNAMIC(DialogAFConstraintSpring, CDialog)
 DialogAFConstraintSpring::DialogAFConstraintSpring
 ================
 */
-DialogAFConstraintSpring::DialogAFConstraintSpring(CWnd* pParent /*=NULL*/)
+DialogAFConstraintSpring::DialogAFConstraintSpring(CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogAFConstraintSpring::IDD, pParent)
 	, m_anchor_x(0)
 	, m_anchor_y(0)
@@ -86,8 +86,8 @@ DialogAFConstraintSpring::DialogAFConstraintSpring(CWnd* pParent /*=NULL*/)
 	, m_restLength(0)
 	, m_minLength(0)
 	, m_maxLength(0)
-	, constraint(NULL)
-	, file(NULL)
+	, constraint(nullptr)
+	, file(nullptr)
 {
 	Create( IDD_DIALOG_AF_CONSTRAINT_SPRING, pParent );
 	EnableToolTips( TRUE );
@@ -159,7 +159,7 @@ DialogAFConstraintSpring::LoadFile
 */
 void DialogAFConstraintSpring::LoadFile( idDeclAF *af ) {
 	file = af;
-	constraint = NULL;
+	constraint = nullptr;
 	InitJointLists();
 }
 

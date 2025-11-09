@@ -66,7 +66,7 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 	// foresthale 2014-02-21: we now have one texture format that is 8 bytes per pixel and the buffer was not large enough
 	unsigned int bytesPerPixel = textureFormat == FMT_RGBA16F ? 8 : 4;
 	byte* pic = ( byte* )Mem_Alloc( width * height * bytesPerPixel, TAG_TEMP );
-	memcpy( pic, pic_const, width * height * bytesPerPixel );
+	std::memcpy( pic, pic_const, width * height * bytesPerPixel );
 	
 	if( colorFormat == CFM_YCOCG_DXT5 )
 	{
@@ -129,7 +129,7 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 				dxtPic = ( byte* )Mem_ClearedAlloc( dxtWidth * 4 * dxtHeight, TAG_IMAGE );
 				for( int i = 0; i < scaledHeight; i++ )
 				{
-					memcpy( dxtPic + i * dxtWidth * 4, pic + i * scaledWidth * 4, scaledWidth * 4 );
+					std::memcpy( dxtPic + i * dxtWidth * 4, pic + i * scaledWidth * 4, scaledWidth * 4 );
 				}
 			}
 			else
@@ -304,11 +304,11 @@ void idBinaryImage::Load2DFromMemory( int width, int height, const byte* pic_con
 		if( pic != dxtPic )
 		{
 			Mem_Free( dxtPic );
-			dxtPic = NULL;
+			dxtPic = nullptr;
 		}
 		
 		// downsample for the next level
-		byte* shrunk = NULL;
+		byte* shrunk = nullptr;
 		if( gammaMips )
 		{
 			shrunk = R_MipMapWithGamma( pic, scaledWidth, scaledHeight );
@@ -409,7 +409,7 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numL
 			img.height = padSize;
 			
 			byte* dxtPic = ( byte* )Mem_Alloc( padSize * padSize * 4, TAG_TEMP );
-			memcpy( dxtPic, padSrc, padSize * padSize * 4 );
+			std::memcpy( dxtPic, padSrc, padSize * padSize * 4 );
 					
 			// convert the image data to YCoCg and use the YCoCgDXT5 compressor on new data, do not let the mipmapper mipmap YCoCg data (FIXME: do this for diffuse?)
 			// foresthale 2014-05-21: only use the GIMPDDS swizzle if we're using DXT5 GIMP, the fast encoder needs BFGDDS swizzle
@@ -452,7 +452,7 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numL
 
 				// need to save uncompressed binarized cubemap/skybox image				
 				img.Alloc( padSize * padSize * 4 );
-				memcpy( img.data, pic, img.dataSize );
+				std::memcpy( img.data, pic, img.dataSize );
 			}
 			else if (img.dataSize == (padSize * padSize * 4))
 			{
@@ -461,7 +461,7 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numL
 				// and the else below is added to fatal error because something is seriously wrong with the way the texture is being loaded
 				commonLocal.LoadPacifierBinarizeInfo(va("fallback tex (%d) RGBA:", width));
 
-				memcpy(img.data, pic, img.dataSize);
+				std::memcpy(img.data, pic, img.dataSize);
 			}
 			else
 			{
@@ -470,7 +470,7 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numL
 			// motorsep ends
 			
 			// downsample for the next level
-			byte* shrunk = NULL;
+			byte* shrunk = nullptr;
 			if( gammaMips )
 			{
 				shrunk = R_MipMapWithGamma( pic, scaledWidth, scaledWidth );
@@ -482,7 +482,7 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numL
 			if( pic != orig ) {
 				Mem_Free( (void*)pic );
 				Mem_Free( (void*)dxtPic );
-				pic = NULL;
+				pic = nullptr;
 			}		
 			
 			pic = shrunk;
@@ -492,7 +492,7 @@ void idBinaryImage::LoadCubeFromMemory( int width, const byte* pics[6], int numL
 		if( pic != orig ) {
 			// free the down sampled version
 			Mem_Free( (void*)pic );			
-			pic = NULL;
+			pic = nullptr;
 		}		
 	}
 }
@@ -514,7 +514,7 @@ ID_TIME_T idBinaryImage::WriteGeneratedFile( ID_TIME_T sourceFileTime, bool tool
 	} else {
     	file = fileSystem->OpenFileWrite( binaryFileName, "fs_basepath" );
 	}
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		idLib::Warning( "idBinaryImage: Could not open file '%s'", binaryFileName.c_str() );
 		return FILE_NOT_FOUND_TIMESTAMP;
@@ -561,7 +561,7 @@ ID_TIME_T idBinaryImage::LoadFromGeneratedFile( ID_TIME_T sourceFileTime, bool t
 	MakeGeneratedFileName( binaryFileName, toolUsage );
 
 	idFileLocal bFile = fileSystem->OpenFileRead( binaryFileName );
-	if( bFile == NULL )
+	if( bFile == nullptr )
 	{
 		return FILE_NOT_FOUND_TIMESTAMP;
 	}
@@ -633,7 +633,7 @@ bool idBinaryImage::LoadFromGeneratedFile( idFile* bFile, ID_TIME_T sourceFileTi
 		// just the multiplication of dimensions
 		assert( img.dataSize >= img.width * img.height * BitsForFormat( ( textureFormat_t )fileData.format ) / 8 );
 		img.Alloc( img.dataSize );
-		if( img.data == NULL )
+		if( img.data == nullptr )
 		{
 			return false;
 		}

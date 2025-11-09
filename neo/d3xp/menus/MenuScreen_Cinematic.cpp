@@ -51,12 +51,12 @@ idMenuScreen_Cinematic::ShowScreen
 */
 void idMenuScreen_Cinematic::ShowScreen( const mainMenuTransition_t transitionType )
 {
-	if( menuData != NULL )
+	if( menuData != nullptr )
 	{
 		menuGUI = menuData->GetGUI();
 	}
 	
-	if( menuGUI == NULL )
+	if( menuGUI == nullptr )
 	{
 		return;
 	}
@@ -86,7 +86,7 @@ void idMenuScreen_Cinematic::Update()
 {
 
 	idPlayer* player = gameLocal.GetLocalPlayer();
-	if( player == NULL )
+	if( player == nullptr )
 	{
 		return;
 	}
@@ -103,7 +103,7 @@ idMenuScreen_Cinematic::ShowCinematicHint
 void idMenuScreen_Cinematic::ShowCinematicHint() {
 	if ( cinematicHint ) {
 		idSWFTextInstance* txtHint = cinematicHint->GetScriptObject()->GetNestedText( "info", "txtHint" );
-		if( txtHint != NULL ) {
+		if( txtHint != nullptr ) {
 			idStr hintText = idLocalization::GetString( "#str_press" );
 			keyBindings_t bind = idKeyInput::KeyBindingsFromBinding( "_moveUP", true );
 			if( !bind.mouse.IsEmpty() ) {

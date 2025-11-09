@@ -38,7 +38,7 @@ idSWFSprite::idSWFSprite
 idSWFSprite::idSWFSprite( idSWF* _swf ) :
 	swf( _swf ),
 	frameCount( 0 ),
-	commandBuffer( NULL )
+	commandBuffer( nullptr )
 {
 }
 
@@ -61,7 +61,7 @@ void idSWF::DefineSprite( idSWFBitStream& bitstream )
 {
 	uint16_t characterID = bitstream.ReadU16();
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_SPRITE );
-	if( entry == NULL )
+	if( entry == nullptr )
 	{
 		return;
 	}

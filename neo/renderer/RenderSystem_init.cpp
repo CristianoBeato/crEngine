@@ -112,7 +112,7 @@ idCVar r_skipCopyTexture( "r_skipCopyTexture", "0", CVAR_RENDERER | CVAR_BOOL, "
 idCVar r_skipBackEnd( "r_skipBackEnd", "0", CVAR_RENDERER | CVAR_BOOL, "don't draw anything" );
 idCVar r_skipRender( "r_skipRender", "0", CVAR_RENDERER | CVAR_BOOL, "skip 3D rendering, but pass 2D" );
 // RB begin
-idCVar r_skipRenderContext( "r_skipRenderContext", "0", CVAR_RENDERER | CVAR_BOOL, "DISABLED: NULL the rendering context during backend 3D rendering" );
+idCVar r_skipRenderContext( "r_skipRenderContext", "0", CVAR_RENDERER | CVAR_BOOL, "DISABLED: nullptr the rendering context during backend 3D rendering" );
 // RB end
 idCVar r_skipTranslucent( "r_skipTranslucent", "0", CVAR_RENDERER | CVAR_BOOL, "skip the translucent interaction rendering" );
 idCVar r_skipAmbient( "r_skipAmbient", "0", CVAR_RENDERER | CVAR_BOOL, "bypasses all non-interaction drawing" );
@@ -1090,7 +1090,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 			
 			for( int y = 0 ; y < h ; y++ )
 			{
-				memcpy( buffer + ( ( yo + y )* width + xo ) * 3,
+				std::memcpy( buffer + ( ( yo + y )* width + xo ) * 3,
 						temp + y * row, w * 3 );
 			}
 		}
@@ -1137,7 +1137,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	const int bufferSize = pix * 3 + 18;
 	
 	buffer = ( byte* )R_StaticAlloc( bufferSize );
-	memset( buffer, 0, bufferSize );
+	std::memset( buffer, 0, bufferSize );
 	
 	if( blends <= 1 )
 	{
@@ -1146,7 +1146,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	else
 	{
 		unsigned short* shortBuffer = ( unsigned short* )R_StaticAlloc( pix * 2 * 3 );
-		memset( shortBuffer, 0, pix * 2 * 3 );
+		std::memset( shortBuffer, 0, pix * 2 * 3 );
 		
 		// enable anti-aliasing jitter
 		r_jitter.SetBool( true );
@@ -1208,7 +1208,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 	const int bufferSize = pix * 3 + 18;
 	
 	buffer = ( byte* )R_StaticAlloc( bufferSize );
-	memset( buffer, 0, bufferSize );
+	std::memset( buffer, 0, bufferSize );
 	
 	if( blends <= 1 )
 	{
@@ -1217,7 +1217,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 	else
 	{
 		unsigned short* shortBuffer = ( unsigned short* )R_StaticAlloc( pix * 2 * 3 );
-		memset( shortBuffer, 0, pix * 2 * 3 );
+		std::memset( shortBuffer, 0, pix * 2 * 3 );
 		
 		// enable anti-aliasing jitter
 		r_jitter.SetBool( true );
@@ -1407,7 +1407,7 @@ void R_StencilShot()
 	int	pix = width * height;
 	c = pix * 3 + 18;
 	idTempArray< byte > buffer( c );
-	memset( buffer.Ptr(), 0, 18 );
+	std::memset( buffer.Ptr(), 0, 18 );
 	
 	idTempArray< byte > byteBuffer( pix );
 	
@@ -1488,7 +1488,7 @@ void R_EnvShot_f( const idCmdArgs &args )
 	}
 	primary = *tr.primaryView;
 
-	memset( &axis, 0, sizeof( axis ) );
+	std::memset( &axis, 0, sizeof( axis ) );
 	axis[0][0][0] = 1;
 	axis[0][1][2] = 1;
 	axis[0][2][1] = 1;
@@ -1643,7 +1643,7 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 		outSize = 32;
 	}
 	
-	memset( &cubeAxis, 0, sizeof( cubeAxis ) );
+	std::memset( &cubeAxis, 0, sizeof( cubeAxis ) );
 	cubeAxis[0][0][0] = 1;
 	cubeAxis[0][1][2] = 1;
 	cubeAxis[0][2][1] = 1;
@@ -2149,21 +2149,21 @@ void idRenderSystemLocal::Clear()
 	ambientLightVector.Zero();
 	worlds.Clear();
 	primaryWorld = nullptr;
-	memset( &primaryRenderView, 0, sizeof( primaryRenderView ) );
+	std::memset( &primaryRenderView, 0, sizeof( primaryRenderView ) );
 	primaryView = nullptr;
 	defaultMaterial = nullptr;
 	testImage = nullptr;
 	ambientCubeImage = nullptr;
 	viewDef = nullptr;
-	memset( &pc, 0, sizeof( pc ) );
-	memset( &identitySpace, 0, sizeof( identitySpace ) );
-	memset( renderCrops, 0, sizeof( renderCrops ) );
+	std::memset( &pc, 0, sizeof( pc ) );
+	std::memset( &identitySpace, 0, sizeof( identitySpace ) );
+	std::memset( renderCrops, 0, sizeof( renderCrops ) );
 	currentRenderCrop = 0;
 	currentColorNativeBytesOrder = 0xFFFFFFFF;
 	currentGLState = 0;
 	guiRecursionLevel = 0;
 	guiModel = nullptr;
-	memset( gammaTable, 0, sizeof( gammaTable ) );
+	std::memset( gammaTable, 0, sizeof( gammaTable ) );
 	takingScreenshot = false;
 	
 	if( unitSquareTriangles != nullptr )
@@ -2406,7 +2406,7 @@ void idRenderSystemLocal::Init( void )
 	
 	// clear all our internal state
 	viewCount = 1;		// so cleared structures never match viewCount
-	// we used to memset tr, but now that it is a class, we can't, so
+	// we used to std::memset tr, but now that it is a class, we can't, so
 	// there may be other state we need to reset
 	
 	ambientLightVector[0] = 0.5f;
@@ -2414,7 +2414,7 @@ void idRenderSystemLocal::Init( void )
 	ambientLightVector[2] = 0.8925f;
 	ambientLightVector[3] = 1.0f;
 	
-	memset( &backEnd, 0, sizeof( backEnd ) );
+	std::memset( &backEnd, 0, sizeof( backEnd ) );
 	
 	R_InitCvars();
 	

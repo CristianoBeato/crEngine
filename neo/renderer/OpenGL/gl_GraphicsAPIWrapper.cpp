@@ -197,7 +197,7 @@ GL_Color
 */
 void GL_Color( float* color )
 {
-	if( color == NULL )
+	if( color == nullptr )
 	{
 		return;
 	}
@@ -272,7 +272,7 @@ void GL_SetDefaultState()
 	glClearDepth( 1.0f );
 	
 	// make sure our GL state vector is set correctly
-	memset( &backEnd.glState, 0, sizeof( backEnd.glState ) );
+	std::memset( &backEnd.glState, 0, sizeof( backEnd.glState ) );
 	GL_State( 0, true );
 	
 	// These are changed by GL_Cull

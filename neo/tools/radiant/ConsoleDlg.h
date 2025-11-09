@@ -38,7 +38,7 @@ class CConsoleDlg : public CDialog
 	DECLARE_DYNCREATE(CConsoleDlg)
 
 public:
-	CConsoleDlg(CWnd* pParent = NULL);   // standard constructor
+	CConsoleDlg(CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CConsoleDlg();
 
 // Dialog Data

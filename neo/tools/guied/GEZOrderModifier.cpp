@@ -53,7 +53,7 @@ rvGEZOrderModifier::rvGEZOrderModifier ( const char* name, idWindow* window, EZO
 
 	if ( index + 1 >= count )
 	{
-		mUndoBefore = NULL;
+		mUndoBefore = nullptr;
 	}
 	else
 	{
@@ -88,7 +88,7 @@ rvGEZOrderModifier::rvGEZOrderModifier ( const char* name, idWindow* window, EZO
 
 	if ( index >= count )
 	{
-		mBefore = NULL;
+		mBefore = nullptr;
 	}
 	else
 	{

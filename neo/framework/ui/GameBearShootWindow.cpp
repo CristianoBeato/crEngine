@@ -57,7 +57,7 @@ BSEntity::BSEntity( idGameBearShootWindow* _game )
 	
 	entColor = colorWhite;
 	materialName = "";
-	material = NULL;
+	material = nullptr;
 	width = height = 8;
 	rotation = 0.f;
 	rotationSpeed = 0.f;
@@ -522,7 +522,7 @@ idGameBearShootWindow::GetWinVarByName
 */
 idWinVar* idGameBearShootWindow::GetWinVarByName( const char* _name, bool winLookup, drawWin_t** owner )
 {
-	idWinVar* retVar = NULL;
+	idWinVar* retVar = nullptr;
 	
 	if( idStr::Icmp( _name, "gamerunning" ) == 0 )
 	{

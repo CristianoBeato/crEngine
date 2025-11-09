@@ -61,7 +61,7 @@ void R_ListRenderLightDefs_f( const idCmdArgs& args )
 		
 		// count up the interactions
 		int	iCount = 0;
-		for( idInteraction* inter = ldef->firstInteraction; inter != NULL; inter = inter->lightNext )
+		for( idInteraction* inter = ldef->firstInteraction; inter != nullptr; inter = inter->lightNext )
 		{
 			iCount++;
 		}
@@ -111,7 +111,7 @@ void R_ListRenderEntityDefs_f( const idCmdArgs& args )
 		
 		// count up the interactions
 		int	iCount = 0;
-		for( idInteraction* inter = mdef->firstInteraction; inter != NULL; inter = inter->entityNext )
+		for( idInteraction* inter = mdef->firstInteraction; inter != nullptr; inter = inter->entityNext )
 		{
 			iCount++;
 		}
@@ -144,13 +144,13 @@ idRenderWorldLocal::idRenderWorldLocal()
 	
 	generateAllInteractionsCalled = false;
 	
-	areaNodes = NULL;
+	areaNodes = nullptr;
 	numAreaNodes = 0;
 	
-	portalAreas = NULL;
+	portalAreas = nullptr;
 	numPortalAreas = 0;
 	
-	doublePortals = NULL;
+	doublePortals = nullptr;
 	numInterAreaPortals = 0;
 	
 	interactionTable = 0;
@@ -252,7 +252,7 @@ qhandle_t idRenderWorldLocal::AddEntityDef( const renderEntity_t* re )
 	int entityHandle = entityDefs.FindNull();
 	if( entityHandle == -1 )
 	{
-		entityHandle = entityDefs.Append( NULL );
+		entityHandle = entityDefs.Append( nullptr );
 		
 		if( interactionTable && entityDefs.Num() > interactionTableWidth )
 		{
@@ -286,7 +286,7 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 	
 	if( !re->hModel && !re->callback )
 	{
-		common->Error( "idRenderWorld::UpdateEntityDef: NULL hModel" );
+		common->Error( "idRenderWorld::UpdateEntityDef: nullptr hModel" );
 	}
 	
 	// create new slots if needed
@@ -296,11 +296,11 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 	}
 	while( entityHandle >= entityDefs.Num() )
 	{
-		entityDefs.Append( NULL );
+		entityDefs.Append( nullptr );
 	}
 	
 	idRenderEntityLocal*	def = entityDefs[entityHandle];
-	if( def != NULL )
+	if( def != nullptr )
 	{
 	
 		if( !re->forceUpdate )
@@ -374,14 +374,14 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 	def->archived = false;
 	
 	// optionally immediately issue any callbacks
-	if( !r_useEntityCallbacks.GetBool() && def->parms.callback != NULL )
+	if( !r_useEntityCallbacks.GetBool() && def->parms.callback != nullptr )
 	{
 		R_IssueEntityDefCallback( def );
 	}
 	
 	// trigger entities don't need to get linked in and processed,
 	// they only exist for editor use
-	if( def->parms.hModel != NULL && !def->parms.hModel->ModelHasDrawingSurfaces() )
+	if( def->parms.hModel != nullptr && !def->parms.hModel->ModelHasDrawingSurfaces() )
 	{
 		return;
 	}
@@ -396,7 +396,7 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 FreeEntityDef
 
 Frees all references and lit surfaces from the model, and
-NULL's out it's entry in the world list
+nullptr's out it's entry in the world list
 ===================
 */
 void idRenderWorldLocal::FreeEntityDef( qhandle_t entityHandle )
@@ -412,7 +412,7 @@ void idRenderWorldLocal::FreeEntityDef( qhandle_t entityHandle )
 	def = entityDefs[entityHandle];
 	if( !def )
 	{
-		common->Printf( "idRenderWorld::FreeEntityDef: handle %i is NULL\n", entityHandle );
+		common->Printf( "idRenderWorld::FreeEntityDef: handle %i is nullptr\n", entityHandle );
 		return;
 	}
 	
@@ -427,12 +427,12 @@ void idRenderWorldLocal::FreeEntityDef( qhandle_t entityHandle )
 	// in R_FreeEntityDefDerivedData(), otherwise the gui
 	// object still exists in the game
 	
-	def->parms.gui[ 0 ] = NULL;
-	def->parms.gui[ 1 ] = NULL;
-	def->parms.gui[ 2 ] = NULL;
+	def->parms.gui[ 0 ] = nullptr;
+	def->parms.gui[ 1 ] = nullptr;
+	def->parms.gui[ 2 ] = nullptr;
 	
 	delete def;
-	entityDefs[ entityHandle ] = NULL;
+	entityDefs[ entityHandle ] = nullptr;
 }
 
 /*
@@ -447,14 +447,14 @@ const renderEntity_t* idRenderWorldLocal::GetRenderEntity( qhandle_t entityHandl
 	if( entityHandle < 0 || entityHandle >= entityDefs.Num() )
 	{
 		common->Printf( "idRenderWorld::GetRenderEntity: invalid handle %i [0, %i]\n", entityHandle, entityDefs.Num() );
-		return NULL;
+		return nullptr;
 	}
 	
 	def = entityDefs[entityHandle];
 	if( !def )
 	{
-		common->Printf( "idRenderWorld::GetRenderEntity: handle %i is NULL\n", entityHandle );
-		return NULL;
+		common->Printf( "idRenderWorld::GetRenderEntity: handle %i is nullptr\n", entityHandle );
+		return nullptr;
 	}
 	
 	return &def->parms;
@@ -472,7 +472,7 @@ qhandle_t idRenderWorldLocal::AddLightDef( const renderLight_t* rlight )
 	
 	if( lightHandle == -1 )
 	{
-		lightHandle = lightDefs.Append( NULL );
+		lightHandle = lightDefs.Append( nullptr );
 		if( interactionTable && lightDefs.Num() > interactionTableHeight )
 		{
 			ResizeInteractionTable();
@@ -509,7 +509,7 @@ void idRenderWorldLocal::UpdateLightDef( qhandle_t lightHandle, const renderLigh
 	}
 	while( lightHandle >= lightDefs.Num() )
 	{
-		lightDefs.Append( NULL );
+		lightDefs.Append( nullptr );
 	}
 	
 	bool justUpdate = false;
@@ -562,7 +562,7 @@ void idRenderWorldLocal::UpdateLightDef( qhandle_t lightHandle, const renderLigh
 	
 	if( light->lightHasMoved )
 	{
-		light->parms.prelightModel = NULL;
+		light->parms.prelightModel = nullptr;
 	}
 	
 	if( !justUpdate )
@@ -576,7 +576,7 @@ void idRenderWorldLocal::UpdateLightDef( qhandle_t lightHandle, const renderLigh
 FreeLightDef
 
 Frees all references and lit surfaces from the light, and
-NULL's out it's entry in the world list
+nullptr's out it's entry in the world list
 ====================
 */
 void idRenderWorldLocal::FreeLightDef( qhandle_t lightHandle )
@@ -592,7 +592,7 @@ void idRenderWorldLocal::FreeLightDef( qhandle_t lightHandle )
 	light = lightDefs[lightHandle];
 	if( !light )
 	{
-		common->Printf( "idRenderWorld::FreeLightDef: handle %i is NULL\n", lightHandle );
+		common->Printf( "idRenderWorld::FreeLightDef: handle %i is nullptr\n", lightHandle );
 		return;
 	}
 	
@@ -604,7 +604,7 @@ void idRenderWorldLocal::FreeLightDef( qhandle_t lightHandle )
 	}
 	
 	delete light;
-	lightDefs[lightHandle] = NULL;
+	lightDefs[lightHandle] = nullptr;
 }
 
 /*
@@ -619,14 +619,14 @@ const renderLight_t* idRenderWorldLocal::GetRenderLight( qhandle_t lightHandle )
 	if( lightHandle < 0 || lightHandle >= lightDefs.Num() )
 	{
 		common->Printf( "idRenderWorld::GetRenderLight: handle %i > %i\n", lightHandle, lightDefs.Num() );
-		return NULL;
+		return nullptr;
 	}
 	
 	def = lightDefs[lightHandle];
 	if( !def )
 	{
-		common->Printf( "idRenderWorld::GetRenderLight: handle %i is NULL\n", lightHandle );
-		return NULL;
+		common->Printf( "idRenderWorld::GetRenderLight: handle %i is nullptr\n", lightHandle );
+		return nullptr;
 	}
 	
 	return &def->parms;
@@ -666,14 +666,14 @@ void idRenderWorldLocal::ProjectDecalOntoWorld( const idFixedWinding& winding, c
 				continue;
 			}
 			
-			if( def->parms.customShader != NULL && !def->parms.customShader->AllowOverlays() )
+			if( def->parms.customShader != nullptr && !def->parms.customShader->AllowOverlays() )
 			{
 				continue;
 			}
 			
 			// completely ignore any dynamic or callback models
 			const idRenderModel* model = def->parms.hModel;
-			if( def->parms.callback != NULL || model == NULL || model->IsDynamicModel() != DM_STATIC )
+			if( def->parms.callback != nullptr || model == nullptr || model->IsDynamicModel() != DM_STATIC )
 			{
 				continue;
 			}
@@ -690,9 +690,9 @@ void idRenderWorldLocal::ProjectDecalOntoWorld( const idFixedWinding& winding, c
 			
 			// transform the bounding planes, fade planes and texture axis into local space
 			idRenderModelDecal::GlobalProjectionParmsToLocal( localParms, globalParms, def->parms.origin, def->parms.axis );
-			localParms.force = ( def->parms.customShader != NULL );
+			localParms.force = ( def->parms.customShader != nullptr );
 			
-			if( def->decals == NULL )
+			if( def->decals == nullptr )
 			{
 				def->decals = AllocDecal( def->index, startTime );
 			}
@@ -716,14 +716,14 @@ void idRenderWorldLocal::ProjectDecal( qhandle_t entityHandle, const idFixedWind
 	}
 	
 	idRenderEntityLocal*	def = entityDefs[ entityHandle ];
-	if( def == NULL )
+	if( def == nullptr )
 	{
 		return;
 	}
 	
 	const idRenderModel* model = def->parms.hModel;
 	
-	if( model == NULL || model->IsDynamicModel() != DM_STATIC || def->parms.callback != NULL )
+	if( model == nullptr || model->IsDynamicModel() != DM_STATIC || def->parms.callback != nullptr )
 	{
 		return;
 	}
@@ -746,9 +746,9 @@ void idRenderWorldLocal::ProjectDecal( qhandle_t entityHandle, const idFixedWind
 	// transform the bounding planes, fade planes and texture axis into local space
 	decalProjectionParms_t localParms;
 	idRenderModelDecal::GlobalProjectionParmsToLocal( localParms, globalParms, def->parms.origin, def->parms.axis );
-	localParms.force = ( def->parms.customShader != NULL );
+	localParms.force = ( def->parms.customShader != nullptr );
 	
-	if( def->decals == NULL )
+	if( def->decals == nullptr )
 	{
 		def->decals = AllocDecal( def->index, startTime );
 	}
@@ -770,7 +770,7 @@ void idRenderWorldLocal::ProjectOverlay( qhandle_t entityHandle, const idPlane l
 	}
 	
 	idRenderEntityLocal*	def = entityDefs[ entityHandle ];
-	if( def == NULL )
+	if( def == nullptr )
 	{
 		return;
 	}
@@ -787,7 +787,7 @@ void idRenderWorldLocal::ProjectOverlay( qhandle_t entityHandle, const idPlane l
 	localParms.material = material;
 	localParms.startTime = startTime;
 	
-	if( def->overlays == NULL )
+	if( def->overlays == nullptr )
 	{
 		def->overlays = AllocOverlay( def->index, startTime );
 	}
@@ -817,9 +817,9 @@ idRenderModelDecal* idRenderWorldLocal::AllocDecal( qhandle_t newEntityHandle, i
 	if( decals[oldest].entityHandle >= 0 && decals[oldest].entityHandle < entityDefs.Num() )
 	{
 		idRenderEntityLocal*	def = entityDefs[decals[oldest].entityHandle];
-		if( def != NULL && def->decals == decals[oldest].decals )
+		if( def != nullptr && def->decals == decals[oldest].decals )
 		{
-			def->decals = NULL;
+			def->decals = nullptr;
 		}
 	}
 	
@@ -855,9 +855,9 @@ idRenderModelOverlay* idRenderWorldLocal::AllocOverlay( qhandle_t newEntityHandl
 	if( overlays[oldest].entityHandle >= 0 && overlays[oldest].entityHandle < entityDefs.Num() )
 	{
 		idRenderEntityLocal*	def = entityDefs[overlays[oldest].entityHandle];
-		if( def != NULL && def->overlays == overlays[oldest].overlays )
+		if( def != nullptr && def->overlays == overlays[oldest].overlays )
 		{
-			def->overlays = NULL;
+			def->overlays = nullptr;
 		}
 	}
 	
@@ -1110,7 +1110,7 @@ exitPortal_t idRenderWorldLocal::GetPortal( int areaNum, int portalNum )
 	
 	common->Error( "idRenderWorld::GetPortal: portalNum > numPortals" );
 	
-	memset( &ret, 0, sizeof( ret ) );
+	std::memset( &ret, 0, sizeof( ret ) );
 	return ret;
 }
 
@@ -1269,14 +1269,14 @@ guiPoint_t idRenderWorldLocal::GuiTrace( qhandle_t entityHandle, const idVec3 st
 	}
 	
 	idRenderEntityLocal* def = entityDefs[entityHandle];
-	if( def == NULL )
+	if( def == nullptr )
 	{
-		common->Printf( "idRenderWorld::GuiTrace: handle %i is NULL\n", entityHandle );
+		common->Printf( "idRenderWorld::GuiTrace: handle %i is nullptr\n", entityHandle );
 		return pt;
 	}
 	
 	idRenderModel* model = def->parms.hModel;
-	if( model == NULL || model->IsDynamicModel() != DM_STATIC || def->parms.callback != NULL )
+	if( model == nullptr || model->IsDynamicModel() != DM_STATIC || def->parms.callback != nullptr )
 	{
 		return pt;
 	}
@@ -1291,13 +1291,13 @@ guiPoint_t idRenderWorldLocal::GuiTrace( qhandle_t entityHandle, const idVec3 st
 		const modelSurface_t* surf = model->Surface( i );
 		
 		const crDrawGeometry* tri = surf->geometry;
-		if( tri == NULL )
+		if( tri == nullptr )
 		{
 			continue;
 		}
 		
 		const idMaterial* shader = R_RemapShaderBySkin( surf->shader, def->parms.customSkin, def->parms.customShader );
-		if( shader == NULL )
+		if( shader == nullptr )
 		{
 			continue;
 		}
@@ -1338,7 +1338,7 @@ idRenderWorldLocal::ModelTrace
 bool idRenderWorldLocal::ModelTrace( modelTrace_t& trace, qhandle_t entityHandle, const idVec3& start, const idVec3& end, const float radius ) const
 {
 
-	memset( &trace, 0, sizeof( trace ) );
+	std::memset( &trace, 0, sizeof( trace ) );
 	trace.fraction = 1.0f;
 	trace.point = end;
 	
@@ -1348,7 +1348,7 @@ bool idRenderWorldLocal::ModelTrace( modelTrace_t& trace, qhandle_t entityHandle
 	}
 	
 	idRenderEntityLocal*	def = entityDefs[entityHandle];
-	if( def == NULL )
+	if( def == nullptr )
 	{
 		return false;
 	}
@@ -1356,7 +1356,7 @@ bool idRenderWorldLocal::ModelTrace( modelTrace_t& trace, qhandle_t entityHandle
 	renderEntity_t* refEnt = &def->parms;
 	
 	idRenderModel* model = R_EntityDefDynamicModel( def );
-	if( model == NULL )
+	if( model == nullptr )
 	{
 		return false;
 	}
@@ -1392,7 +1392,7 @@ bool idRenderWorldLocal::ModelTrace( modelTrace_t& trace, qhandle_t entityHandle
 		
 		const idMaterial* shader = R_RemapShaderBySkin( surf->shader, def->parms.customSkin, def->parms.customShader );
 		
-		if( surf->geometry == NULL || shader == NULL )
+		if( surf->geometry == nullptr || shader == nullptr )
 		{
 			continue;
 		}
@@ -1441,13 +1441,13 @@ const char* playerModelExcludeList[] =
 	"models/md5/characters/player/d3xp_spplayer.md5mesh",
 	"models/md5/characters/player/head/d3xp_head.md5mesh",
 	"models/md5/weapons/pistol_world/worldpistol.md5mesh",
-	NULL
+	nullptr
 };
 
 const char* playerMaterialExcludeList[] =
 {
 	"muzzlesmokepuff",
-	NULL
+	nullptr
 };
 
 bool idRenderWorldLocal::Trace( modelTrace_t& trace, const idVec3& start, const idVec3& end, const float radius, bool skipDynamic, bool skipPlayer /*_D3XP*/ ) const
@@ -1479,7 +1479,7 @@ bool idRenderWorldLocal::Trace( modelTrace_t& trace, const idVec3& start, const 
 			idRenderEntityLocal* def = ref->entity;
 			
 			idRenderModel* model = def->parms.hModel;
-			if( model == NULL )
+			if( model == nullptr )
 			{
 				continue;
 			}
@@ -1495,7 +1495,7 @@ bool idRenderWorldLocal::Trace( modelTrace_t& trace, const idVec3& start, const 
 				if( skipPlayer )
 				{
 					bool exclude = false;
-					for( int k = 0; playerModelExcludeList[k] != NULL; k++ )
+					for( int k = 0; playerModelExcludeList[k] != nullptr; k++ )
 					{
 						if( idStr::Cmp( model->Name(), playerModelExcludeList[k] ) == 0 )
 						{
@@ -1534,7 +1534,7 @@ bool idRenderWorldLocal::Trace( modelTrace_t& trace, const idVec3& start, const 
 				const idMaterial* shader = R_RemapShaderBySkin( surf->shader, def->parms.customSkin, def->parms.customShader );
 				
 				// if no geometry or no shader
-				if( surf->geometry == NULL || shader == NULL )
+				if( surf->geometry == nullptr || shader == nullptr )
 				{
 					continue;
 				}
@@ -1543,7 +1543,7 @@ bool idRenderWorldLocal::Trace( modelTrace_t& trace, const idVec3& start, const 
 				if( skipPlayer )
 				{
 					bool exclude = false;
-					for( int k = 0; playerMaterialExcludeList[k] != NULL; k++ )
+					for( int k = 0; playerMaterialExcludeList[k] != nullptr; k++ )
 					{
 						if( idStr::Cmp( shader->GetName(), playerMaterialExcludeList[k] ) == 0 )
 						{
@@ -1667,9 +1667,9 @@ idRenderWorldLocal::FastWorldTrace
 */
 bool idRenderWorldLocal::FastWorldTrace( modelTrace_t& results, const idVec3& start, const idVec3& end ) const
 {
-	memset( &results, 0, sizeof( modelTrace_t ) );
+	std::memset( &results, 0, sizeof( modelTrace_t ) );
 	results.fraction = 1.0f;
-	if( areaNodes != NULL )
+	if( areaNodes != nullptr )
 	{
 		RecurseProcBSP_r( &results, -1, 0, 0.0f, 1.0f, start, end );
 		return ( results.fraction < 1.0f );
@@ -1697,13 +1697,13 @@ void idRenderWorldLocal::AddEntityRefToArea( idRenderEntityLocal* def, portalAre
 {
 	areaReference_t*	ref;
 	
-	if( def == NULL )
+	if( def == nullptr )
 	{
-		common->Error( "idRenderWorldLocal::AddEntityRefToArea: NULL def" );
+		common->Error( "idRenderWorldLocal::AddEntityRefToArea: nullptr def" );
 		return;
 	}
 	
-	for( ref = def->entityRefs; ref != NULL; ref = ref->ownerNext )
+	for( ref = def->entityRefs; ref != nullptr; ref = ref->ownerNext )
 	{
 		if( ref->area == area )
 		{
@@ -1738,7 +1738,7 @@ void idRenderWorldLocal::AddLightRefToArea( idRenderLightLocal* light, portalAre
 {
 	areaReference_t*	lref;
 	
-	for( lref = light->references; lref != NULL; lref = lref->ownerNext )
+	for( lref = light->references; lref != nullptr; lref = lref->ownerNext )
 	{
 		if( lref->area == area )
 		{
@@ -1782,7 +1782,7 @@ void idRenderWorldLocal::GenerateAllInteractions()
 	
 	// let the interaction creation code know that it shouldn't
 	// try and do any view specific optimizations
-	tr.viewDef = NULL;
+	tr.viewDef = nullptr;
 	
 	// build the interaction table
 	// this will be dynamically resized if the entity / light counts grow too much
@@ -1798,7 +1798,7 @@ void idRenderWorldLocal::GenerateAllInteractions()
 	for( int i = 0; i < this->lightDefs.Num(); i++ )
 	{
 		idRenderLightLocal*	ldef = this->lightDefs[i];
-		if( ldef == NULL )
+		if( ldef == nullptr )
 		{
 			continue;
 		}
@@ -1819,7 +1819,7 @@ void idRenderWorldLocal::GenerateAllInteractions()
 				// we could check either model refs or light refs for matches, but it is
 				// assumed that there will be less lights in an area than models
 				// so the entity chains should be somewhat shorter (they tend to be fairly close).
-				for( inter = edef->firstInteraction; inter != NULL; inter = inter->entityNext )
+				for( inter = edef->firstInteraction; inter != nullptr; inter = inter->entityNext )
 				{
 					if( inter->lightDef == ldef )
 					{
@@ -1828,7 +1828,7 @@ void idRenderWorldLocal::GenerateAllInteractions()
 				}
 				
 				// if we already have an interaction, we don't need to do anything
-				if( inter != NULL )
+				if( inter != nullptr )
 				{
 					continue;
 				}
@@ -1876,7 +1876,7 @@ void idRenderWorldLocal::FreeInteractions()
 			continue;
 		}
 		// free all the interactions
-		while( def->firstInteraction != NULL )
+		while( def->firstInteraction != nullptr )
 		{
 			def->firstInteraction->UnlinkAndFree();
 		}
@@ -1911,11 +1911,11 @@ void idRenderWorldLocal::PushFrustumIntoTree_r( idRenderEntityLocal* def, idRend
 		}
 		area->viewCount = tr.viewCount;
 		
-		if( def != NULL )
+		if( def != nullptr )
 		{
 			AddEntityRefToArea( def, area );
 		}
-		if( light != NULL )
+		if( light != nullptr )
 		{
 			AddLightRefToArea( light, area );
 		}
@@ -1968,7 +1968,7 @@ idRenderWorldLocal::PushFrustumIntoTree
 */
 void idRenderWorldLocal::PushFrustumIntoTree( idRenderEntityLocal* def, idRenderLightLocal* light, const idRenderMatrix& frustumTransform, const idBounds& frustumBounds )
 {
-	if( areaNodes == NULL )
+	if( areaNodes == nullptr )
 	{
 		return;
 	}
@@ -2144,7 +2144,7 @@ void idRenderWorldLocal::PushVolumeIntoTree( idRenderEntityLocal *def, idRenderL
 	float radSquared, lr;
 	idVec3 mid, dir;
 
-	if ( areaNodes == NULL ) {
+	if ( areaNodes == nullptr ) {
 		return;
 	}
 
@@ -2606,7 +2606,7 @@ const idMaterial* R_RemapShaderBySkin( const idMaterial* shader, const idDeclSki
 
 	if( !shader )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	// never remap surfaces that were originally nodraw, like collision hulls
@@ -2621,7 +2621,7 @@ const idMaterial* R_RemapShaderBySkin( const idMaterial* shader, const idDeclSki
 		// so the item highlight overlay doesn't highlight the autosprite surface
 		if( shader->Deform() )
 		{
-			return NULL;
+			return nullptr;
 		}
 		return const_cast<idMaterial*>( customShader );
 	}

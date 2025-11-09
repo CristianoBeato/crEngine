@@ -41,7 +41,7 @@ public:
 	{
 		// we should only get here when the types, including the size, are identical
 		len = text.Length();
-		memcpy( data, text.data, len + 1 );
+		std::memcpy( data, text.data, len + 1 );
 	}
 	
 	// all idStr operators are overloaded and the idStr default constructor is called so that the

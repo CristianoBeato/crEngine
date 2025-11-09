@@ -93,15 +93,15 @@ void idMaterial::CommonInit()
 	cullType = CT_FRONT_SIDED;
 	deform = DFRM_NONE;
 	numOps = 0;
-	ops = NULL;
+	ops = nullptr;
 	numRegisters = 0;
-	expressionRegisters = NULL;
-	constantRegisters = NULL;
+	expressionRegisters = nullptr;
+	constantRegisters = nullptr;
 	numStages = 0;
 	numAmbientStages = 0;
-	stages = NULL;
-	editorImage = NULL;
-	lightFalloffImage = NULL;
+	stages = nullptr;
+	editorImage = nullptr;
+	lightFalloffImage = nullptr;
 	shouldCreateBackSides = false;
 	entityGui = 0;
 	fogLight = false;
@@ -111,19 +111,19 @@ void idMaterial::CommonInit()
 	hasSubview = false;
 	allowOverlays = true;
 	unsmoothedTangents = false;
-	gui = NULL;
-	memset( deformRegisters, 0, sizeof( deformRegisters ) );
+	gui = nullptr;
+	std::memset( deformRegisters, 0, sizeof( deformRegisters ) );
 	editorAlpha = 1.0;
 	spectrum = 0;
 	polygonOffset = 0;
 	suppressInSubview = false;
 	refCount = 0;
 	portalSky = false;
-	fastPathBumpImage = NULL;
-	fastPathDiffuseImage = NULL;
-	fastPathSpecularImage = NULL;
-	fastPathGlossImage = NULL;
-	deformDecl = NULL;
+	fastPathBumpImage = nullptr;
+	fastPathDiffuseImage = nullptr;
+	fastPathSpecularImage = nullptr;
+	fastPathGlossImage = nullptr;
+	deformDecl = nullptr;
 
 	decalInfo.stayTime = 10000;
 	decalInfo.fadeTime = 4000;
@@ -175,34 +175,34 @@ void idMaterial::FreeData()
 		// delete any idCinematic textures
 		for( i = 0; i < numStages; i++ )
 		{
-			if( stages[i].texture.cinematic != NULL )
+			if( stages[i].texture.cinematic != nullptr )
 			{
 				delete stages[i].texture.cinematic;
-				stages[i].texture.cinematic = NULL;
+				stages[i].texture.cinematic = nullptr;
 			}
-			if( stages[i].newStage != NULL )
+			if( stages[i].newStage != nullptr )
 			{
 				Mem_Free( stages[i].newStage );
-				stages[i].newStage = NULL;
+				stages[i].newStage = nullptr;
 			}
 		}
 		R_StaticFree( stages );
-		stages = NULL;
+		stages = nullptr;
 	}
-	if( expressionRegisters != NULL )
+	if( expressionRegisters != nullptr )
 	{
 		R_StaticFree( expressionRegisters );
-		expressionRegisters = NULL;
+		expressionRegisters = nullptr;
 	}
-	if( constantRegisters != NULL )
+	if( constantRegisters != nullptr )
 	{
 		R_StaticFree( constantRegisters );
-		constantRegisters = NULL;
+		constantRegisters = nullptr;
 	}
-	if( ops != NULL )
+	if( ops != nullptr )
 	{
 		R_StaticFree( ops );
-		ops = NULL;
+		ops = nullptr;
 	}
 }
 
@@ -281,7 +281,7 @@ static infoParm_t	infoParms[] =
 	{"flashlight_trigger",	0,	0,	CONTENTS_FLASHLIGHT_TRIGGER }, // used for triggers that are activated by the flashlight
 	{"opaque",		0, 0,	CONTENTS_OPAQUE},		// opaque for AI visibility
 	{"nonsolid",	1,	0,	0 },					// clears the solid flag
-	{"nullNormal",	0,	SURF_NULLNORMAL, 0 },		// renderbump will draw as 0x80 0x80 0x80
+	{"nullNormal",	0,	SURF_nullptrNORMAL, 0 },		// renderbump will draw as 0x80 0x80 0x80
 	
 	// utility relevant attributes
 	{"areaportal",	1,	0,	CONTENTS_AREAPORTAL },	// divides areas
@@ -1329,11 +1329,11 @@ void idMaterial::MultiplyTextureMatrix( textureStage_t* ts, int registers[2][3] 
 	if( !ts->hasMatrix )
 	{
 		ts->hasMatrix = true;
-		memcpy( ts->matrix, registers, sizeof( ts->matrix ) );
+		std::memcpy( ts->matrix, registers, sizeof( ts->matrix ) );
 		return;
 	}
 	
-	memcpy( old, ts->matrix, sizeof( old ) );
+	std::memcpy( old, ts->matrix, sizeof( old ) );
 	
 	// multiply the two maticies
 	ts->matrix[0][0] = EmitOp(
@@ -1406,7 +1406,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 	
 	imageName[0] = 0;
 	
-	memset( &newStage, 0, sizeof( newStage ) );
+	std::memset( &newStage, 0, sizeof( newStage ) );
 	newStage.glslProgram = -1;
 	
 	ss = &pd->parseStages[numStages];
@@ -2724,7 +2724,7 @@ bool idMaterial::Parse( const char* text, const int textLength, bool allowBinary
 	// reset to the unparsed state
 	CommonInit();
 	
-	memset( &parsingData, 0, sizeof( parsingData ) );
+	std::memset( &parsingData, 0, sizeof( parsingData ) );
 	
 	pd = &parsingData;	// this is only valid during parse
 	
@@ -2934,19 +2934,19 @@ bool idMaterial::Parse( const char* text, const int textLength, bool allowBinary
 	if( numStages )
 	{
 		stages = ( shaderStage_t* )R_StaticAlloc( numStages * sizeof( stages[0] ), TAG_MATERIAL );
-		memcpy( stages, pd->parseStages, numStages * sizeof( stages[0] ) );
+		std::memcpy( stages, pd->parseStages, numStages * sizeof( stages[0] ) );
 	}
 	
 	if( numOps )
 	{
 		ops = ( expOp_t* )R_StaticAlloc( numOps * sizeof( ops[0] ), TAG_MATERIAL );
-		memcpy( ops, pd->shaderOps, numOps * sizeof( ops[0] ) );
+		std::memcpy( ops, pd->shaderOps, numOps * sizeof( ops[0] ) );
 	}
 	
 	if( numRegisters )
 	{
 		expressionRegisters = ( float* )R_StaticAlloc( numRegisters * sizeof( expressionRegisters[0] ), TAG_MATERIAL );
-		memcpy( expressionRegisters, pd->shaderRegisters, numRegisters * sizeof( expressionRegisters[0] ) );
+		std::memcpy( expressionRegisters, pd->shaderRegisters, numRegisters * sizeof( expressionRegisters[0] ) );
 	}
 	
 	// see if the registers are completely constant, and don't need to be evaluated
@@ -2956,7 +2956,7 @@ bool idMaterial::Parse( const char* text, const int textLength, bool allowBinary
 	// See if the material is trivial for the fast path
 	SetFastPathImages();
 	
-	pd = NULL;	// the pointer will be invalid after exiting this function
+	pd = nullptr;	// the pointer will be invalid after exiting this function
 	
 	// finish things up
 	if( TestMaterialFlag( MF_DEFAULTED ) )
@@ -3251,7 +3251,7 @@ void idMaterial::CloseCinematic() const
 		{
 			stages[i].texture.cinematic->Close();
 			delete stages[i].texture.cinematic;
-			stages[i].texture.cinematic = NULL;
+			stages[i].texture.cinematic = nullptr;
 		}
 	}
 }
@@ -3299,7 +3299,7 @@ maps are constant, but 2/3 of the surface references are.
 */
 void idMaterial::CheckForConstantRegisters()
 {
-	assert( constantRegisters == NULL );
+	assert( constantRegisters == nullptr );
 	
 	if( !pd->registersAreConstant )
 	{
@@ -3314,9 +3314,9 @@ void idMaterial::CheckForConstantRegisters()
 	constantRegisters = ( float* )R_ClearedStaticAlloc( GetNumRegisters() * sizeof( float ) );
 	
 	float shaderParms[MAX_ENTITY_SHADER_PARMS];
-	memset( shaderParms, 0, sizeof( shaderParms ) );
+	std::memset( shaderParms, 0, sizeof( shaderParms ) );
 	viewDef_t	viewDef;
-	memset( &viewDef, 0, sizeof( viewDef ) );
+	std::memset( &viewDef, 0, sizeof( viewDef ) );
 	
 	EvaluateRegisters( constantRegisters, shaderParms, viewDef.renderView.shaderParms, 0.0f, 0 );
 }
@@ -3358,7 +3358,7 @@ idMaterial::SetDefaultText
 bool idMaterial::SetDefaultText()
 {
 	// if there exists an image with the same name
-	if( 1 )    //fileSystem->ReadFile( GetName(), NULL ) != -1 ) {
+	if( 1 )    //fileSystem->ReadFile( GetName(), nullptr ) != -1 ) {
 	{
 		char generated[2048];
 		idStr::snPrintf( generated, sizeof( generated ),
@@ -3411,7 +3411,7 @@ const shaderStage_t* idMaterial::GetBumpStage() const
 			return &stages[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -3449,12 +3449,12 @@ See if the material is trivial for the fast path
 */
 void idMaterial::SetFastPathImages()
 {
-	fastPathBumpImage = NULL;
-	fastPathDiffuseImage = NULL;
-	fastPathSpecularImage = NULL;
-	fastPathGlossImage = NULL;
+	fastPathBumpImage = nullptr;
+	fastPathDiffuseImage = nullptr;
+	fastPathSpecularImage = nullptr;
+	fastPathGlossImage = nullptr;
 	
-	if( constantRegisters == NULL )
+	if( constantRegisters == nullptr )
 	{
 		return;
 	}
@@ -3533,23 +3533,23 @@ void idMaterial::SetFastPathImages()
 	// we also need a diffuse image, because we can't get a pure black with our YCoCg conversion
 	// from 565 DXT.  The general-path code also sets the diffuse color to 0 in the default case,
 	// but the fast path can't.
-	if( fastPathBumpImage == NULL || fastPathDiffuseImage == NULL )
+	if( fastPathBumpImage == nullptr || fastPathDiffuseImage == nullptr )
 	{
 		goto fail;
 	}
-	if( fastPathSpecularImage == NULL )
+	if( fastPathSpecularImage == nullptr )
 	{
 		fastPathSpecularImage = globalImages->blackImage;
 	}
-	if( fastPathGlossImage == NULL )
+	if( fastPathGlossImage == nullptr )
 	{
 		fastPathGlossImage = globalImages->glossImage;
 	}
 	return;
 	
 fail:
-	fastPathBumpImage = NULL;
-	fastPathDiffuseImage = NULL;
-	fastPathSpecularImage = NULL;
-	fastPathGlossImage = NULL;
+	fastPathBumpImage = nullptr;
+	fastPathDiffuseImage = nullptr;
+	fastPathSpecularImage = nullptr;
+	fastPathGlossImage = nullptr;
 }

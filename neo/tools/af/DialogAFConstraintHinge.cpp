@@ -57,7 +57,7 @@ toolTip_t DialogAFConstraintHinge::toolTips[] = {
 	{ IDC_EDIT_HINGE_LIMIT_ANGLE1, "limit orientation" },
 	{ IDC_EDIT_HINGE_LIMIT_ANGLE2, "limit width" },
 	{ IDC_EDIT_HINGE_LIMIT_ANGLE3, "limit angle" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFConstraintHinge, CDialog)
@@ -67,7 +67,7 @@ IMPLEMENT_DYNAMIC(DialogAFConstraintHinge, CDialog)
 DialogAFConstraintHinge::DialogAFConstraintHinge
 ================
 */
-DialogAFConstraintHinge::DialogAFConstraintHinge(CWnd* pParent /*=NULL*/)
+DialogAFConstraintHinge::DialogAFConstraintHinge(CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogAFConstraintHinge::IDD, pParent)
 	, m_anchor_x(0)
 	, m_anchor_y(0)
@@ -77,8 +77,8 @@ DialogAFConstraintHinge::DialogAFConstraintHinge(CWnd* pParent /*=NULL*/)
 	, m_limitAngle1(0)
 	, m_limitAngle2(30.0f)
 	, m_limitAngle3(0)
-	, constraint(NULL)
-	, file(NULL)
+	, constraint(nullptr)
+	, file(nullptr)
 {
 	Create( IDD_DIALOG_AF_CONSTRAINT_HINGE, pParent );
 	EnableToolTips( TRUE );
@@ -149,7 +149,7 @@ DialogAFConstraintHinge::LoadFile
 */
 void DialogAFConstraintHinge::LoadFile( idDeclAF *af ) {
 	file = af;
-	constraint = NULL;
+	constraint = nullptr;
 	InitJointLists();
 }
 

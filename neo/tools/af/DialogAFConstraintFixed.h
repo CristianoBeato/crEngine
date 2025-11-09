@@ -36,7 +36,7 @@ class DialogAFConstraintFixed : public CDialog {
 	DECLARE_DYNAMIC(DialogAFConstraintFixed)
 
 public:
-						DialogAFConstraintFixed(CWnd* pParent = NULL);   // standard constructor
+						DialogAFConstraintFixed(CWnd* pParent = nullptr);   // standard constructor
 	virtual				~DialogAFConstraintFixed();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );

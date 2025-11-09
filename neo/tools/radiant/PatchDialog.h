@@ -47,7 +47,7 @@ public:
 	void UpdateInfo();
 	void SetPatchInfo();
 	void GetPatchInfo();
-	CPatchDialog(CWnd* pParent = NULL);   // standard constructor
+	CPatchDialog(CWnd* pParent = nullptr);   // standard constructor
   void UpdateSpinners(bool bUp, int nID);
 
 // Dialog Data

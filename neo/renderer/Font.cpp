@@ -254,7 +254,7 @@ bool idFont::LoadFont()
 	fd->Read( fontInfo->charIndex, fontInfo->numGlyphs * sizeof( uint32_t ) );
 	idSwap::LittleArray( fontInfo->charIndex, fontInfo->numGlyphs );
 	
-	memset( fontInfo->ascii, -1, sizeof( fontInfo->ascii ) );
+	std::memset( fontInfo->ascii, -1, sizeof( fontInfo->ascii ) );
 	for( int i = 0; i < fontInfo->numGlyphs; i++ )
 	{
 		if( fontInfo->charIndex[i] < 128 )
@@ -474,7 +474,7 @@ void idFont::GetScaledGlyph( float scale, uint32_t idx, scaledGlyphInfo_t& glyph
 			return;
 		}
 	}
-	memset( &glyphInfo, 0, sizeof( glyphInfo ) );
+	std::memset( &glyphInfo, 0, sizeof( glyphInfo ) );
 }
 
 /*

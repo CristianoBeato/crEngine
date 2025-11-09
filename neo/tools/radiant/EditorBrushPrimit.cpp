@@ -117,7 +117,7 @@ void FaceToBrushPrimitFace(face_t *f) {
 
 	// check d_texture
 	if (!f->d_texture) {
-		common->Printf("Warning : f.d_texture is NULL in FaceToBrushPrimitFace\n");
+		common->Printf("Warning : f.d_texture is nullptr in FaceToBrushPrimitFace\n");
 		return;
 	}
 #endif
@@ -162,7 +162,7 @@ void EmitBrushPrimitTextureCoordinates(face_t *f, idWinding *w, patchMesh_t *pat
 	idVec3D	texX, texY;
 	double	x, y;
 
-	if (f== NULL || (w == NULL && patch == NULL)) {
+	if (f== nullptr || (w == nullptr && patch == nullptr)) {
 		return;
 	}
 
@@ -179,7 +179,7 @@ void EmitBrushPrimitTextureCoordinates(face_t *f, idWinding *w, patchMesh_t *pat
 			f->brushprimit_texdef.coords[1][1] == 0 ) {
 		f->brushprimit_texdef.coords[0][0] = 1.0f;
 		f->brushprimit_texdef.coords[1][1] = 1.0f;
-		ConvertTexMatWithQTexture(&f->brushprimit_texdef, NULL, &f->brushprimit_texdef, f->d_texture);
+		ConvertTexMatWithQTexture(&f->brushprimit_texdef, nullptr, &f->brushprimit_texdef, f->d_texture);
 	}
 
 	int i;
@@ -235,7 +235,7 @@ void BrushPrimit_Parse(brush_t *b, bool newFormat, const idVec3 origin) {
 		}
 		else {	// it's a face
 			f = Face_Alloc();
-			f->next = NULL;
+			f->next = nullptr;
 			if (!b->brush_faces) {
 				b->brush_faces = f;
 			}
@@ -426,7 +426,7 @@ void FakeTexCoordsToTexMat(float shift[2], float rot, float scale[2], float texM
 
 //
 // =======================================================================================================================
-//    convert a texture matrix between two qtexture_t if NULL for qtexture_t, basic 2x2 texture is assumed ( straight
+//    convert a texture matrix between two qtexture_t if nullptr for qtexture_t, basic 2x2 texture is assumed ( straight
 //    mapping between s/t coordinates and geometric coordinates )
 // =======================================================================================================================
 //
@@ -621,13 +621,13 @@ void Face_FitTexture_BrushPrimit(face_t *f, idVec3 mins, idVec3 maxs, float heig
 
 
 	
-	//memset(f->brushprimit_texdef.coords, 0, sizeof(f->brushprimit_texdef.coords));
+	//std::memset(f->brushprimit_texdef.coords, 0, sizeof(f->brushprimit_texdef.coords));
 	//f->brushprimit_texdef.coords[0][0] = 1.0f;
 	//f->brushprimit_texdef.coords[1][1] = 1.0f;
-	//ConvertTexMatWithQTexture(&f->brushprimit_texdef, NULL, &f->brushprimit_texdef, f->d_texture);
+	//ConvertTexMatWithQTexture(&f->brushprimit_texdef, nullptr, &f->brushprimit_texdef, f->d_texture);
 	//
 	// we'll be working on a standardized texture size ConvertTexMatWithQTexture(
-	// &f->brushprimit_texdef, f->d_texture, &f->brushprimit_texdef, NULL ); compute
+	// &f->brushprimit_texdef, f->d_texture, &f->brushprimit_texdef, nullptr ); compute
 	// the BBox in ST coords
 	//
 	EmitBrushPrimitTextureCoordinates(f, f->face_winding);
@@ -723,7 +723,7 @@ void Face_FitTexture_BrushPrimit(face_t *f, idVec3 mins, idVec3 maxs, float heig
 
 	//
 	// handle the texture size ConvertTexMatWithQTexture( &f->brushprimit_texdef,
-	// NULL, &f->brushprimit_texdef, f->d_texture );
+	// nullptr, &f->brushprimit_texdef, f->d_texture );
 	//
 }
 
@@ -964,7 +964,7 @@ void BPMatDump(float A[2][3]) {
 void BPMatRotate(float A[2][3], float theta) {
 	float	m[2][3];
 	float	aux[2][3];
-	memset(&m, 0, sizeof (float) *6);
+	std::memset(&m, 0, sizeof (float) *6);
 	m[0][0] = cos( DEG2RAD( theta ) );
 	m[0][1] = -sin( DEG2RAD( theta ) );
 	m[1][0] = -m[0][1];
@@ -977,7 +977,7 @@ void Face_GetScale_BrushPrimit(face_t *face, float *s, float *t, float *rot) {
 	idVec3D	texS, texT;
 	ComputeAxisBase(face->plane.Normal(), texS, texT);
 
-	if (face == NULL || face->face_winding == NULL) {
+	if (face == nullptr || face->face_winding == nullptr) {
 		return;
 	}
 	// find ST coordinates for the center of the face
@@ -996,7 +996,7 @@ void Face_GetScale_BrushPrimit(face_t *face, float *s, float *t, float *rot) {
 	float					BPO[2][3];
 	float					aux[2][3];
 	float					m[2][3];
-	memset(&m, 0, sizeof (float) *6);
+	std::memset(&m, 0, sizeof (float) *6);
 	m[0][0] = 1;
 	m[1][1] = 1;
 	m[0][2] = -Os;
@@ -1007,7 +1007,7 @@ void Face_GetScale_BrushPrimit(face_t *face, float *s, float *t, float *rot) {
 	BPMatMul(aux, m, BPO);
 
 	// apply a given scale (on S and T)
-	ConvertTexMatWithQTexture(BPO, face->d_texture, aux, NULL);
+	ConvertTexMatWithQTexture(BPO, face->d_texture, aux, nullptr);
 
 	*s = idMath::Sqrt(aux[0][0] * aux[0][0] + aux[1][0] * aux[1][0]);
 	*t = idMath::Sqrt(aux[0][1] * aux[0][1] + aux[1][1] * aux[1][1]);
@@ -1055,7 +1055,7 @@ void Face_SetExplicitScale_BrushPrimit(face_t *face, float s, float t) {
 	float					BPO[2][3];
 	float					aux[2][3];
 	float					m[2][3];
-	memset(&m, 0, sizeof (float) *6);
+	std::memset(&m, 0, sizeof (float) *6);
 	m[0][0] = 1;
 	m[1][1] = 1;
 	m[0][2] = -Os;
@@ -1066,7 +1066,7 @@ void Face_SetExplicitScale_BrushPrimit(face_t *face, float s, float t) {
 	BPMatMul(aux, m, BPO);
 
 	// apply a given scale (on S and T)
-	ConvertTexMatWithQTexture(BPO, face->d_texture, aux, NULL);
+	ConvertTexMatWithQTexture(BPO, face->d_texture, aux, nullptr);
 
 	// reset the scale (normalize the matrix)
 	double	v1, v2;
@@ -1089,7 +1089,7 @@ void Face_SetExplicitScale_BrushPrimit(face_t *face, float s, float t) {
 	aux[1][0] *= sS;
 	aux[0][1] *= sT;
 	aux[1][1] *= sT;
-	ConvertTexMatWithQTexture(aux, NULL, BPO, face->d_texture);
+	ConvertTexMatWithQTexture(aux, nullptr, BPO, face->d_texture);
 	BPMatMul(m, BPO, aux);	// m is M^-1
 	m[0][2] = -Os;
 	m[1][2] = -Ot;

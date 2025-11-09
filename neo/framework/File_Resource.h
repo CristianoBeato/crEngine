@@ -48,7 +48,7 @@ public:
 	void Clear()
 	{
 		filename.Empty();
-		//filename = NULL;
+		//filename = nullptr;
 		offset = 0;
 		length = 0;
 		containerIndex = 0;
@@ -81,7 +81,7 @@ class idResourceContainer
 public:
 	idResourceContainer()
 	{
-		resourceFile = NULL;
+		resourceFile = nullptr;
 		tableOffset = 0;
 		tableLength = 0;
 		resourceMagic = 0;

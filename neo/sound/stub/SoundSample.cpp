@@ -74,7 +74,7 @@ idSoundSample::idSoundSample()
 	neverPurge = false;
 	levelLoadReferenced = false;
 	
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	
 	totalBufferSize = 0;
 	
@@ -154,7 +154,7 @@ idSoundSample::LoadGeneratedSound
 bool idSoundSample::LoadGeneratedSample( const idStr& filename )
 {
 	idFileLocal fileIn( fileSystem->OpenFileReadMemory( filename ) );
-	if( fileIn != NULL )
+	if( fileIn != nullptr )
 	{
 		uint32_t magic;
 		fileIn->ReadBig( magic );
@@ -289,7 +289,7 @@ bool idSoundSample::LoadWav( const idStr& filename )
 	LoadAmplitude( sampleName );
 	
 	const char* formatError = wave.ReadWaveFormat( format );
-	if( formatError != NULL )
+	if( formatError != nullptr )
 	{
 		idLib::Warning( "LoadWav( %s ) : %s", filename.c_str(), formatError );
 		MakeDefault();
@@ -455,7 +455,7 @@ void idSoundSample::MakeDefault()
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
 	loaded = true;
 	
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	format.basic.formatTag = idWaveFile::FORMAT_PCM;
 	format.basic.numChannels = 1;
 	format.basic.bitsPerSample = 16;
@@ -505,7 +505,7 @@ void idSoundSample::FreeData()
 	amplitude.Clear();
 	
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	loaded = false;
 	totalBufferSize = 0;
 	playBegin = 0;
@@ -521,7 +521,7 @@ bool idSoundSample::LoadAmplitude( const idStr& name )
 {
 	amplitude.Clear();
 	idFileLocal f( fileSystem->OpenFileRead( name ) );
-	if( f == NULL )
+	if( f == nullptr )
 	{
 		return false;
 	}

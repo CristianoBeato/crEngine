@@ -276,7 +276,7 @@ idFramebuffer* idFramebufferManager::GetFramebuffer( const char* _name ) const
 		}
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -360,7 +360,7 @@ void idFramebufferManager::Init()
 	// foresthale 2014-04-08: r_glow
 //	glowFramebuffer8[0] = AllocFramebuffer( "_glowFramebuffer0" );
 //	glowFramebuffer8[0]->SetColorAttachment( 0, globalImages->glowFramebufferImage[0] );
-	glowFramebuffer8[0] = NULL;
+	glowFramebuffer8[0] = nullptr;
 	glowFramebuffer8[1] = AllocFramebuffer( "_glowFramebuffer1" );
 	glowFramebuffer8[1]->SetColorAttachment( 0, globalImages->glowFramebufferImage8[1] );
 	glowFramebuffer8[2] = AllocFramebuffer( "_glowFramebuffer2" );
@@ -369,7 +369,7 @@ void idFramebufferManager::Init()
 	glowFramebuffer8[3]->SetColorAttachment( 0, globalImages->glowFramebufferImage8[3] );
 //	glowFramebuffer16[0] = AllocFramebuffer( "_glowFramebufferHDR0" );
 //	glowFramebuffer16[0]->SetColorAttachment( 0, globalImages->glowFramebufferImage[0] );
-	glowFramebuffer16[0] = NULL;
+	glowFramebuffer16[0] = nullptr;
 	glowFramebuffer16[1] = AllocFramebuffer( "_glowFramebufferHDR1" );
 	glowFramebuffer16[1]->SetColorAttachment( 0, globalImages->glowFramebufferImage16[1] );
 	glowFramebuffer16[2] = AllocFramebuffer( "_glowFramebufferHDR2" );

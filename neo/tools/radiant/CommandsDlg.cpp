@@ -48,7 +48,7 @@ static char THIS_FILE[] = __FILE__;
 // CCommandsDlg dialog
 
 
-CCommandsDlg::CCommandsDlg(CWnd* pParent /*=NULL*/)
+CCommandsDlg::CCommandsDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CCommandsDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CCommandsDlg)

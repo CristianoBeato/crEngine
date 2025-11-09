@@ -97,7 +97,7 @@ protected:
 	struct talker_t
 	{
 		talker_t() :
-			user( NULL ),
+			user( nullptr ),
 			isLocal( false ),
 			lobbyType( -1 ),
 			groupIndex( -1 ),

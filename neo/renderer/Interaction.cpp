@@ -125,7 +125,7 @@ void R_CalcInteractionCullBits( const idRenderEntityLocal* ent, const crDrawGeom
 	}
 	
 	cullInfo.cullBits = ( byte* ) R_StaticAlloc( tri->NumVerts() * sizeof( cullInfo.cullBits[0] ), TAG_RENDER_INTERACTION );
-	memset( cullInfo.cullBits, 0, tri->NumVerts() * sizeof( cullInfo.cullBits[0] ) );
+	std::memset( cullInfo.cullBits, 0, tri->NumVerts() * sizeof( cullInfo.cullBits[0] ) );
 	
 	for( int i = 0; i < 6; i++ )
 	{

@@ -39,7 +39,7 @@ idMenuWidget_LobbyList::Update
 void idMenuWidget_LobbyList::Update()
 {
 
-	if( GetSWFObject() == NULL )
+	if( GetSWFObject() == nullptr )
 	{
 		return;
 	}
@@ -54,7 +54,7 @@ void idMenuWidget_LobbyList::Update()
 	for( int i = 0; i < headings.Num(); ++i )
 	{
 		idSWFTextInstance* txtHeading = GetSprite()->GetScriptObject()->GetNestedText( va( "heading%d", i ) );
-		if( txtHeading != NULL )
+		if( txtHeading != nullptr )
 		{
 			txtHeading->SetText( headings[i] );
 			txtHeading->SetStrokeInfo( true, 0.75f, 1.75f );
@@ -94,7 +94,7 @@ bool idMenuWidget_LobbyList::PrepareListElement( idMenuWidget& widget, const int
 {
 
 	idMenuWidget_LobbyButton* const button = dynamic_cast< idMenuWidget_LobbyButton* >( &widget );
-	if( button == NULL )
+	if( button == nullptr )
 	{
 		return false;
 	}
@@ -138,7 +138,7 @@ void idMenuWidget_LobbyList::SetEntryData( int index, idStr name, voiceStateDisp
 	idMenuWidget& child = GetChildByIndex( index );
 	idMenuWidget_LobbyButton* const button = dynamic_cast< idMenuWidget_LobbyButton* >( &child );
 	
-	if( button == NULL )
+	if( button == nullptr )
 	{
 		return;
 	}

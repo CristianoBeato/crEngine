@@ -973,7 +973,7 @@ void crDrawGeometry::CreateStaticBuffersForTri( void )
 		
 #if !defined( KEEP_INTERACTION_CPU_DATA )
 		Mem_Free( staticShadowVertexes );
-		staticShadowVertexes = NULL;
+		staticShadowVertexes = nullptr;
 #endif
 	}
 }
@@ -1585,7 +1585,7 @@ void crDrawGeometry::CreateDupVerts( void )
 	}
 	
 	AllocStaticTriSurfDupVerts( numDupVerts );
-	memcpy( dupVerts, tempDupVerts.Ptr(), numDupVerts * 2 * sizeof( dupVerts[0] ) );
+	std::memcpy( dupVerts, tempDupVerts.Ptr(), numDupVerts * 2 * sizeof( dupVerts[0] ) );
 }
 
 static int IndexSort( const void* a, const void* b )

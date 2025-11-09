@@ -44,7 +44,7 @@ class CDlgEvent : public CDialog
 {
 // Construction
 public:
-	CDlgEvent(CWnd* pParent = NULL);   // standard constructor
+	CDlgEvent(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CDlgEvent)

@@ -202,14 +202,14 @@ public:
 	
 	// Called by a background thread to get the next block to be written out.
 	// This may block until a block has been made available through the pipeline.
-	// Pass in NULL to notify the last write failed.
+	// Pass in nullptr to notify the last write failed.
 	// Returns false if there are no more blocks.
 	bool					NextWriteBlock( blockForIO_t* block );
 	
 	// Called by a background thread to get the next block to read data into and to
 	// report the number of bytes written to the previous block.
 	// This may block until space is available to place the next block.
-	// Pass in NULL to notify the end of the file was reached.
+	// Pass in nullptr to notify the end of the file was reached.
 	// Returns false if there are no more blocks.
 	bool					NextReadBlock( blockForIO_t* block, size_t lastReadBytes );
 	

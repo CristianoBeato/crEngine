@@ -154,7 +154,7 @@ void idStr::operator=( const char* text )
 	
 	if( !text )
 	{
-		// safe behavior if NULL
+		// safe behavior if nullptr
 		EnsureAlloced( 1, false );
 		data[ 0 ] = '\0';
 		len = 0;
@@ -931,7 +931,7 @@ bool idStr::Replace( const char* old, const char* nw )
 		{
 			if( idStr::Cmpn( &oldString[i], old, oldLen ) == 0 )
 			{
-				memcpy( data + j, nw, newLen );
+				std::memcpy( data + j, nw, newLen );
 				i += oldLen - 1;
 				j += newLen;
 			}
@@ -964,7 +964,7 @@ const char* idStr::Mid( int start, int len, idStr& result ) const
 	i = Length();
 	if( i == 0 || len <= 0 || start >= i )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	if( start + len >= i )
@@ -1896,7 +1896,7 @@ void idStr::Copynz( char* dest, const char* src, int destsize )
 {
 	if( !src )
 	{
-		idLib::common->Warning( "idStr::Copynz: NULL src" );
+		idLib::common->Warning( "idStr::Copynz: nullptr src" );
 		return;
 	}
 	if( destsize < 1 )

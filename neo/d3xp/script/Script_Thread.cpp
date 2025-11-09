@@ -35,12 +35,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "tools/debugger/DebuggerMessages.h"
 
-const idEventDef EV_Thread_Execute( "<execute>", NULL );
-const idEventDef EV_Thread_SetCallback( "<script_setcallback>", NULL );
+const idEventDef EV_Thread_Execute( "<execute>", nullptr );
+const idEventDef EV_Thread_SetCallback( "<script_setcallback>", nullptr );
 
 // script callable events
 const idEventDef EV_Thread_TerminateThread( "terminate", "d" );
-const idEventDef EV_Thread_Pause( "pause", NULL );
+const idEventDef EV_Thread_Pause( "pause", nullptr );
 const idEventDef EV_Thread_Wait( "wait", "f" );
 const idEventDef EV_Thread_WaitFrame( "waitFrame" );
 const idEventDef EV_Thread_WaitFor( "waitFor", "e" );
@@ -57,7 +57,7 @@ const idEventDef EV_Thread_RandomInt( "randomInt", "d", 'd' );
 const idEventDef EV_Thread_RandomRange( "randomRange", "ff", 'f' );
 const idEventDef EV_Thread_Wrap( "wrap", "fff", 'f' );
 const idEventDef EV_Thread_Clamp( "clamp", "fff", 'f' );
-const idEventDef EV_Thread_GetTime( "getTime", NULL, 'f' );
+const idEventDef EV_Thread_GetTime( "getTime", nullptr, 'f' );
 const idEventDef EV_Thread_KillThread( "killthread", "s" );
 const idEventDef EV_Thread_SetThreadName( "threadname", "s" );
 const idEventDef EV_Thread_GetEntity( "getEntity", "s", 'e' );
@@ -92,15 +92,15 @@ const idEventDef EV_Thread_CalcSkyAngles( "calcSkyAngles", "fff", 'v' );
 const idEventDef EV_Thread_OnSignal( "onSignal", "des" );
 const idEventDef EV_Thread_ClearSignal( "clearSignalThread", "de" );
 const idEventDef EV_Thread_SetCamera( "setCamera", "e" );
-const idEventDef EV_Thread_FirstPerson( "firstPerson", NULL );
+const idEventDef EV_Thread_FirstPerson( "firstPerson", nullptr );
 const idEventDef EV_Thread_Trace( "trace", "vvvvde", 'f' );
 const idEventDef EV_Thread_TracePoint( "tracePoint", "vvde", 'f' );
-const idEventDef EV_Thread_GetTraceFraction( "getTraceFraction", NULL, 'f' );
-const idEventDef EV_Thread_GetTraceEndPos( "getTraceEndPos", NULL, 'v' );
-const idEventDef EV_Thread_GetTraceNormal( "getTraceNormal", NULL, 'v' );
-const idEventDef EV_Thread_GetTraceEntity( "getTraceEntity", NULL, 'e' );
-const idEventDef EV_Thread_GetTraceJoint( "getTraceJoint", NULL, 's' );
-const idEventDef EV_Thread_GetTraceBody( "getTraceBody", NULL, 's' );
+const idEventDef EV_Thread_GetTraceFraction( "getTraceFraction", nullptr, 'f' );
+const idEventDef EV_Thread_GetTraceEndPos( "getTraceEndPos", nullptr, 'v' );
+const idEventDef EV_Thread_GetTraceNormal( "getTraceNormal", nullptr, 'v' );
+const idEventDef EV_Thread_GetTraceEntity( "getTraceEntity", nullptr, 'e' );
+const idEventDef EV_Thread_GetTraceJoint( "getTraceJoint", nullptr, 's' );
+const idEventDef EV_Thread_GetTraceBody( "getTraceBody", nullptr, 's' );
 const idEventDef EV_Thread_FadeIn( "fadeIn", "vf" );
 const idEventDef EV_Thread_FadeOut( "fadeOut", "vf" );
 const idEventDef EV_Thread_FadeTo( "fadeTo", "vff" );
@@ -114,16 +114,16 @@ const idEventDef EV_Thread_StrSkip( "strSkip", "sd", 's' );
 const idEventDef EV_Thread_StrMid( "strMid", "sdd", 's' );
 const idEventDef EV_Thread_StrToFloat( "strToFloat", "s", 'f' );
 const idEventDef EV_Thread_RadiusDamage( "radiusDamage", "vEEEsf" );
-const idEventDef EV_Thread_IsClient( "isClient", NULL, 'f' );
-const idEventDef EV_Thread_IsMultiplayer( "isMultiplayer", NULL, 'f' );
-const idEventDef EV_Thread_GetFrameTime( "getFrameTime", NULL, 'f' );
-const idEventDef EV_Thread_GetTicsPerSecond( "getTicsPerSecond", NULL, 'f' );
+const idEventDef EV_Thread_IsClient( "isClient", nullptr, 'f' );
+const idEventDef EV_Thread_IsMultiplayer( "isMultiplayer", nullptr, 'f' );
+const idEventDef EV_Thread_GetFrameTime( "getFrameTime", nullptr, 'f' );
+const idEventDef EV_Thread_GetTicsPerSecond( "getTicsPerSecond", nullptr, 'f' );
 const idEventDef EV_Thread_DebugLine( "debugLine", "vvvf" );
 const idEventDef EV_Thread_DebugArrow( "debugArrow", "vvvdf" );
 const idEventDef EV_Thread_DebugCircle( "debugCircle", "vvvfdf" );
 const idEventDef EV_Thread_DebugBounds( "debugBounds", "vvvf" );
 const idEventDef EV_Thread_DrawText( "drawText", "svfvdf" );
-const idEventDef EV_Thread_InfluenceActive( "influenceActive", NULL, 'd' );
+const idEventDef EV_Thread_InfluenceActive( "influenceActive", nullptr, 'd' );
 // motorsep 10-01-2014; from TDM (SteveL #3802) -- Allow scripts to discover entties in the map
 /*	's', "key", "Optional string: prefix for spawnarg key match. E.g. \"target\" will match \"target\", \"target1\" etc.",
 	's', "value", "Optional string: spawnarg value to match. Can be used independently of ''key''. If ''key'' is not set, all spawnargs will be checked for the value.",
@@ -231,7 +231,7 @@ EVENT( EV_PrecacheModelDef,				idThread::Event_PrecacheModelDef ) // motorsep 09
 EVENT( EV_GetNextEntity,				idThread::Event_GetNextEntity )	// motorsep 10-01-2014; from TDM (SteveL #3802)
 END_CLASS
 
-idThread*			idThread::currentThread = NULL;
+idThread*			idThread::currentThread = nullptr;
 int					idThread::threadIndex = 0;
 idList<idThread*, TAG_THREAD>	idThread::threadList;
 trace_t				idThread::trace;
@@ -270,7 +270,7 @@ idThread::BeginMultiFrameEvent
 */
 bool idThread::BeginMultiFrameEvent( idEntity* ent, const idEventDef* event )
 {
-	if( currentThread == NULL )
+	if( currentThread == nullptr )
 	{
 		gameLocal.Error( "idThread::BeginMultiFrameEvent called without a current thread" );
 		return false;
@@ -285,7 +285,7 @@ idThread::EndMultiFrameEvent
 */
 void idThread::EndMultiFrameEvent( idEntity* ent, const idEventDef* event )
 {
-	if( currentThread == NULL )
+	if( currentThread == nullptr )
 	{
 		gameLocal.Error( "idThread::EndMultiFrameEvent called without a current thread" );
 		return;
@@ -405,7 +405,7 @@ idThread::~idThread()
 	
 	if( currentThread == this )
 	{
-		currentThread = NULL;
+		currentThread = nullptr;
 	}
 }
 
@@ -521,7 +521,7 @@ idThread* idThread::GetThread( int num )
 		}
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -637,7 +637,7 @@ void idThread::Restart()
 	// reset the threadIndex
 	threadIndex = 0;
 	
-	currentThread = NULL;
+	currentThread = nullptr;
 	n = threadList.Num();
 	for( i = n - 1; i >= 0; i-- )
 	{
@@ -645,7 +645,7 @@ void idThread::Restart()
 	}
 	threadList.Clear();
 	
-	memset( &trace, 0, sizeof( trace ) );
+	std::memset( &trace, 0, sizeof( trace ) );
 	trace.c.entityNum = ENTITYNUM_NONE;
 }
 
@@ -879,7 +879,7 @@ idThread::ClearWaitFor
 void idThread::ClearWaitFor()
 {
 	waitingFor			= ENTITYNUM_NONE;
-	waitingForThread	= NULL;
+	waitingForThread	= nullptr;
 	waitingUntil		= 0;
 }
 
@@ -1510,7 +1510,7 @@ void idThread::Event_AngToRight( idAngles& ang )
 {
 	idVec3 vec;
 	
-	ang.ToVectors( NULL, &vec );
+	ang.ToVectors( nullptr, &vec );
 	ReturnVector( vec );
 }
 
@@ -1523,7 +1523,7 @@ void idThread::Event_AngToUp( idAngles& ang )
 {
 	idVec3 vec;
 	
-	ang.ToVectors( NULL, NULL, &vec );
+	ang.ToVectors( nullptr, nullptr, &vec );
 	ReturnVector( vec );
 }
 
@@ -1736,7 +1736,7 @@ void idThread::Event_OnSignal( int signal, idEntity* ent, const char* func )
 	
 	assert( func );
 	
-	if( ent == NULL )
+	if( ent == nullptr )
 	{
 		Error( "Entity not found" );
 		return;
@@ -1763,7 +1763,7 @@ idThread::Event_ClearSignalThread
 */
 void idThread::Event_ClearSignalThread( int signal, idEntity* ent )
 {
-	if( ent == NULL )
+	if( ent == nullptr )
 	{
 		Error( "Entity not found" );
 		return;
@@ -1806,7 +1806,7 @@ idThread::Event_FirstPerson
 */
 void idThread::Event_FirstPerson()
 {
-	gameLocal.SetCamera( NULL );
+	gameLocal.SetCamera( nullptr );
 }
 
 /*
@@ -1888,7 +1888,7 @@ void idThread::Event_GetTraceEntity()
 	}
 	else
 	{
-		ReturnEntity( ( idEntity* )NULL );
+		ReturnEntity( ( idEntity* )nullptr );
 	}
 }
 
@@ -2291,7 +2291,7 @@ void idThread::Event_InfluenceActive()
 	idPlayer* player;
 	
 	player = gameLocal.GetLocalPlayer();
-	if( player != NULL && player->GetInfluenceLevel() )
+	if( player != nullptr && player->GetInfluenceLevel() )
 	{
 		idThread::ReturnInt( true );
 	}
@@ -2358,8 +2358,8 @@ void idThread::Event_GetNextEntity( const char* key, const char* value, const id
 		
 		// Search spawnargs for a matching value. If key is empty, all keys will be tested.
 		bool foundMatch = false;
-		const idKeyValue* kv = NULL;
-		while ( (kv = ent->spawnArgs.MatchPrefix(key, kv)) != NULL )
+		const idKeyValue* kv = nullptr;
+		while ( (kv = ent->spawnArgs.MatchPrefix(key, kv)) != nullptr )
 		{
 			if ( noValueFilter || kv->GetValue() == value )
 			{
@@ -2375,5 +2375,5 @@ void idThread::Event_GetNextEntity( const char* key, const char* value, const id
 	}
 
 	// Step 3: Return a value
-	idThread::ReturnEntity( i < MAX_GENTITIES ? gameLocal.entities[i] : NULL );
+	idThread::ReturnEntity( i < MAX_GENTITIES ? gameLocal.entities[i] : nullptr );
 }

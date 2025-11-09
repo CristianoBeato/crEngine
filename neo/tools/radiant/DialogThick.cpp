@@ -47,7 +47,7 @@ static char THIS_FILE[] = __FILE__;
 // CDialogThick dialog
 
 
-CDialogThick::CDialogThick(CWnd* pParent /*=NULL*/)
+CDialogThick::CDialogThick(CWnd* pParent /*=nullptr*/)
 	: CDialog(CDialogThick::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDialogThick)

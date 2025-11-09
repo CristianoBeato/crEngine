@@ -41,7 +41,7 @@ void idDxtDecoder::EmitBlock( byte* outPtr, int x, int y, const byte* colorBlock
 	outPtr += ( y * width + x ) * 4;
 	for( int j = 0; j < 4; j++ )
 	{
-		memcpy( outPtr, &colorBlock[j * 4 * 4], 4 * 4 );
+		std::memcpy( outPtr, &colorBlock[j * 4 * 4], 4 * 4 );
 		outPtr += width * 4;
 	}
 }
@@ -772,14 +772,14 @@ void idDxtDecoder::DecomposeImageDXT1( const byte* inBuf, byte* colorIndices, by
 		{
 			DecomposeColorBlock( colors, indices, false );
 			
-			memcpy( colorIndices + ( j + 0 ) * width + i, indices + 0, 4 );
-			memcpy( colorIndices + ( j + 1 ) * width + i, indices + 4, 4 );
-			memcpy( colorIndices + ( j + 2 ) * width + i, indices + 8, 4 );
-			memcpy( colorIndices + ( j + 3 ) * width + i, indices + 12, 4 );
+			std::memcpy( colorIndices + ( j + 0 ) * width + i, indices + 0, 4 );
+			std::memcpy( colorIndices + ( j + 1 ) * width + i, indices + 4, 4 );
+			std::memcpy( colorIndices + ( j + 2 ) * width + i, indices + 8, 4 );
+			std::memcpy( colorIndices + ( j + 3 ) * width + i, indices + 12, 4 );
 			
-			memcpy( pic1 + j * width / 4 + i, colors[0], 4 );
+			std::memcpy( pic1 + j * width / 4 + i, colors[0], 4 );
 			
-			memcpy( pic2 + j * width / 4 + i, colors[1], 4 );
+			std::memcpy( pic2 + j * width / 4 + i, colors[1], 4 );
 		}
 	}
 }
@@ -807,19 +807,19 @@ void idDxtDecoder::DecomposeImageDXT5( const byte* inBuf, byte* colorIndices, by
 			DecomposeAlphaBlock( colors, alphaInd );
 			DecomposeColorBlock( colors, colorInd, true );
 			
-			memcpy( colorIndices + ( j + 0 ) * width + i, colorInd + 0, 4 );
-			memcpy( colorIndices + ( j + 1 ) * width + i, colorInd + 4, 4 );
-			memcpy( colorIndices + ( j + 2 ) * width + i, colorInd + 8, 4 );
-			memcpy( colorIndices + ( j + 3 ) * width + i, colorInd + 12, 4 );
+			std::memcpy( colorIndices + ( j + 0 ) * width + i, colorInd + 0, 4 );
+			std::memcpy( colorIndices + ( j + 1 ) * width + i, colorInd + 4, 4 );
+			std::memcpy( colorIndices + ( j + 2 ) * width + i, colorInd + 8, 4 );
+			std::memcpy( colorIndices + ( j + 3 ) * width + i, colorInd + 12, 4 );
 			
-			memcpy( colorIndices + ( j + 0 ) * width + i, alphaInd + 0, 4 );
-			memcpy( colorIndices + ( j + 1 ) * width + i, alphaInd + 4, 4 );
-			memcpy( colorIndices + ( j + 2 ) * width + i, alphaInd + 8, 4 );
-			memcpy( colorIndices + ( j + 3 ) * width + i, alphaInd + 12, 4 );
+			std::memcpy( colorIndices + ( j + 0 ) * width + i, alphaInd + 0, 4 );
+			std::memcpy( colorIndices + ( j + 1 ) * width + i, alphaInd + 4, 4 );
+			std::memcpy( colorIndices + ( j + 2 ) * width + i, alphaInd + 8, 4 );
+			std::memcpy( colorIndices + ( j + 3 ) * width + i, alphaInd + 12, 4 );
 			
-			memcpy( pic1 + j * width / 4 + i, colors[0], 4 );
+			std::memcpy( pic1 + j * width / 4 + i, colors[0], 4 );
 			
-			memcpy( pic2 + j * width / 4 + i, colors[1], 4 );
+			std::memcpy( pic2 + j * width / 4 + i, colors[1], 4 );
 		}
 	}
 }

@@ -203,7 +203,7 @@ private:
 public:
 	CLASS_PROTOTYPE( idThread );
 	
-	idThread( const char * name = NULL );
+	idThread( const char * name = nullptr );
 	idThread( idEntity* self, const function_t* func );
 	idThread( const function_t* func );
 	idThread( idInterpreter* source, const function_t* func, int args );

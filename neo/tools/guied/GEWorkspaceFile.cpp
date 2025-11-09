@@ -47,7 +47,7 @@ bool rvGEWorkspace::SaveFile ( const char* filename )
 	idFile*		file;
 	idWindow*	window;
 
-	SetCursor ( LoadCursor ( NULL, IDC_WAIT ) );
+	SetCursor ( LoadCursor ( nullptr, IDC_WAIT ) );
 
 	mFilename = filename;
 
@@ -63,7 +63,7 @@ bool rvGEWorkspace::SaveFile ( const char* filename )
 	if ( !(file = fileSystem->OpenFileWrite ( tempfile ) ) )
 	{
 		int error = GetLastError ( );
-		SetCursor ( LoadCursor ( NULL, IDC_ARROW ) );
+		SetCursor ( LoadCursor ( nullptr, IDC_ARROW ) );
 		return false;
 	}
 
@@ -76,7 +76,7 @@ bool rvGEWorkspace::SaveFile ( const char* filename )
 	if ( !CopyFile ( ospath, filename, FALSE ) )
 	{
 		DeleteFile ( ospath );
-		SetCursor ( LoadCursor ( NULL, IDC_ARROW ) );
+		SetCursor ( LoadCursor ( nullptr, IDC_ARROW ) );
 		return false;
 	}
 
@@ -87,7 +87,7 @@ bool rvGEWorkspace::SaveFile ( const char* filename )
 	mNew      = false;
 	UpdateTitle ( );
 
-	SetCursor ( LoadCursor ( NULL, IDC_ARROW ) );
+	SetCursor ( LoadCursor ( nullptr, IDC_ARROW ) );
 
 	return true;
 }
@@ -257,7 +257,7 @@ bool rvGEWorkspace::NewFile ( void )
 	DeleteFile ( ospath );
 
 	file = fileSystem->OpenFileWrite ( "guis/Untitled.guiednew" );
-	if ( NULL == file )
+	if ( nullptr == file )
 	{
 		return false;
 	}
@@ -270,7 +270,7 @@ bool rvGEWorkspace::NewFile ( void )
 	fileSystem->CloseFile ( file );
 
 	// Load the temporary file
-	if ( !LoadFile ( ospath, NULL ) )
+	if ( !LoadFile ( ospath, nullptr ) )
 	{
 		// Ensure the temp file doesnt hang around
 		DeleteFile ( ospath );
@@ -313,7 +313,7 @@ bool rvGEWorkspace::LoadFile ( const char* filename, idStr* error )
 	// Make sure the gui directory exists
 	idStr createDir = ospath;
 	createDir.StripFilename ( );
-	CreateDirectory ( createDir, NULL );
+	CreateDirectory ( createDir, nullptr );
 
 	SetFileAttributes ( ospath, FILE_ATTRIBUTE_NORMAL );
 	DeleteFile ( ospath );
@@ -332,7 +332,7 @@ bool rvGEWorkspace::LoadFile ( const char* filename, idStr* error )
 	UpdateTitle ( );
 
 	// Let the real window system parse it first
-	mInterface = NULL;
+	mInterface = nullptr;
 	result     = true;
 	try
 	{

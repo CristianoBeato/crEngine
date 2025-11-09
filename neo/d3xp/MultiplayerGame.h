@@ -153,8 +153,8 @@ public:
 	idMultiplayerGame::gameState_t		GetGameState() const;
 	
 	static const char* GlobalSoundStrings[ SND_COUNT ];
-	void			PlayGlobalSound( int toPlayerNum, snd_evt_t evt, const char* shader = NULL );
-	void			PlayTeamSound( int toTeam, snd_evt_t evt, const char* shader = NULL );	// sound that's sent only to member of toTeam team
+	void			PlayGlobalSound( int toPlayerNum, snd_evt_t evt, const char* shader = nullptr );
+	void			PlayTeamSound( int toTeam, snd_evt_t evt, const char* shader = nullptr );	// sound that's sent only to member of toTeam team
 	
 	// more compact than a chat line
 	typedef enum
@@ -187,7 +187,7 @@ public:
 	static void		VoiceChat_f( const idCmdArgs& args );
 	static void		VoiceChatTeam_f( const idCmdArgs& args );
 	
-	int				NumActualClients( bool countSpectators, int* teamcount = NULL );
+	int				NumActualClients( bool countSpectators, int* teamcount = nullptr );
 	void			DropWeapon( int clientNum );
 	void			MapRestart();
 	void			BalanceTeams();
@@ -296,7 +296,7 @@ private:
 	bool			PointLimitHit();
 	// return team with most points
 	int				WinningTeam();
-	void			NewState( gameState_t news, idPlayer* player = NULL );
+	void			NewState( gameState_t news, idPlayer* player = nullptr );
 	void			UpdateWinsLosses( idPlayer* winner );
 	// fill any empty tourney slots based on the current tourney ranks
 	void			FillTourneySlots();
@@ -311,7 +311,7 @@ private:
 	// go through the clients, and see if they want to be respawned, and if the game allows it
 	// called during normal gameplay for death -> respawn cycles
 	// and for a spectator who want back in the game (see param)
-	void			CheckRespawns( idPlayer* spectator = NULL );
+	void			CheckRespawns( idPlayer* spectator = nullptr );
 	// when clients disconnect or join spectate during game, check if we need to end the game
 	void			CheckAbortGame();
 	void			MessageMode( const idCmdArgs& args );

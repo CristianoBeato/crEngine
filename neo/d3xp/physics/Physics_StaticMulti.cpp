@@ -46,7 +46,7 @@ idPhysics_StaticMulti::idPhysics_StaticMulti
 */
 idPhysics_StaticMulti::idPhysics_StaticMulti()
 {
-	self = NULL;
+	self = nullptr;
 	hasMaster = false;
 	isOrientated = false;
 	
@@ -67,7 +67,7 @@ idPhysics_StaticMulti::idPhysics_StaticMulti()
 	next.SetNum( 1 );
 	next[0] = defaultInterpolateState;
 	clipModels.SetNum( 1 );
-	clipModels[0] = NULL;
+	clipModels[0] = nullptr;
 }
 
 /*
@@ -79,7 +79,7 @@ idPhysics_StaticMulti::~idPhysics_StaticMulti()
 {
 	if( self && self->GetPhysics() == this )
 	{
-		self->SetPhysics( NULL );
+		self->SetPhysics( nullptr );
 	}
 	idForce::DeletePhysics( this );
 	for( int i = 0; i < clipModels.Num(); i++ )
@@ -175,7 +175,7 @@ void idPhysics_StaticMulti::RemoveIndex( int id, bool freeClipModel )
 	if( clipModels[id] && freeClipModel )
 	{
 		delete clipModels[id];
-		clipModels[id] = NULL;
+		clipModels[id] = nullptr;
 	}
 	clipModels.RemoveIndex( id );
 	current.RemoveIndex( id );
@@ -195,7 +195,7 @@ void idPhysics_StaticMulti::SetClipModel( idClipModel* model, float density, int
 	if( id >= clipModels.Num() )
 	{
 		current.AssureSize( id + 1, defaultState );
-		clipModels.AssureSize( id + 1, NULL );
+		clipModels.AssureSize( id + 1, nullptr );
 	}
 	
 	if( clipModels[id] && clipModels[id] != model && freeOld )
@@ -512,7 +512,7 @@ idPhysics_StaticMulti::GetImpactInfo
 */
 void idPhysics_StaticMulti::GetImpactInfo( const int id, const idVec3& point, impactInfo_t* info ) const
 {
-	memset( info, 0, sizeof( *info ) );
+	std::memset( info, 0, sizeof( *info ) );
 }
 
 /*
@@ -900,7 +900,7 @@ idPhysics_StaticMulti::ClipTranslation
 */
 void idPhysics_StaticMulti::ClipTranslation( trace_t& results, const idVec3& translation, const idClipModel* model ) const
 {
-	memset( &results, 0, sizeof( trace_t ) );
+	std::memset( &results, 0, sizeof( trace_t ) );
 	gameLocal.Warning( "idPhysics_StaticMulti::ClipTranslation called" );
 }
 
@@ -911,7 +911,7 @@ idPhysics_StaticMulti::ClipRotation
 */
 void idPhysics_StaticMulti::ClipRotation( trace_t& results, const idRotation& rotation, const idClipModel* model ) const
 {
-	memset( &results, 0, sizeof( trace_t ) );
+	std::memset( &results, 0, sizeof( trace_t ) );
 	gameLocal.Warning( "idPhysics_StaticMulti::ClipRotation called" );
 }
 
@@ -936,7 +936,7 @@ int idPhysics_StaticMulti::ClipContents( const idClipModel* model ) const
 			}
 			else
 			{
-				contents |= gameLocal.clip.Contents( clipModels[i]->GetOrigin(), clipModels[i], clipModels[i]->GetAxis(), -1, NULL );
+				contents |= gameLocal.clip.Contents( clipModels[i]->GetOrigin(), clipModels[i], clipModels[i]->GetAxis(), -1, nullptr );
 			}
 		}
 	}
@@ -1043,7 +1043,7 @@ idPhysics_StaticMulti::GetContact
 const contactInfo_t& idPhysics_StaticMulti::GetContact( int num ) const
 {
 	static contactInfo_t info;
-	memset( &info, 0, sizeof( info ) );
+	std::memset( &info, 0, sizeof( info ) );
 	return info;
 }
 
@@ -1188,7 +1188,7 @@ idPhysics_StaticMulti::GetBlockingInfo
 */
 const trace_t* idPhysics_StaticMulti::GetBlockingInfo() const
 {
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1198,7 +1198,7 @@ idPhysics_StaticMulti::GetBlockingEntity
 */
 idEntity* idPhysics_StaticMulti::GetBlockingEntity() const
 {
-	return NULL;
+	return nullptr;
 }
 
 /*

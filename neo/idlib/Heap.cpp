@@ -49,7 +49,7 @@ If you have questions concerning this license or the applicable additional terms
 #define DEBUGHEAP_BUFFER (0x40000000)
 #define DEBUGHEAP_LIST (1<<20)
 // just a basic heap - grows, never shrinks
-static unsigned char *debugheapstart = NULL;
+static unsigned char *debugheapstart = nullptr;
 static unsigned char *debugheapend;
 static unsigned char *debugheapcur;
 // each allocation that is made is tracked as a pair of pointers (start and end) and a live flag, we can check sentinels for corruption
@@ -80,7 +80,7 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 	size_t paddedsize = ((size + 15) & ~15);
 	unsigned char *m;
 
-	if (debugheapstart == NULL)
+	if (debugheapstart == nullptr)
 	{
 		Sys_MutexCreate(debugheapmutex);
 #if 0
@@ -98,7 +98,7 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 	if (size == 0)
 	{
 		//Mem_Printf("DEBUGHEAP Mem_Alloc16(%i,%i) size == 0\n", (int)size, (int)tag);
-		return NULL;
+		return nullptr;
 	}
 
 	Sys_MutexLock(debugheapmutex, true);
@@ -106,13 +106,13 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 	{
 		Mem_Printf("DEBUGHEAP Mem_Alloc16(%i,%i) debugheaplivecount == DEBUGHEAP_LIST\n", (int)size, (int)tag);
 		Sys_MutexUnlock(debugheapmutex);
-		return NULL;
+		return nullptr;
 	}
 	if (debugheapcur+size > debugheapend)
 	{
 		Mem_Printf("DEBUGHEAP Mem_Alloc16(%i,%i) debugheapcur+size > DEBUGHEAP_BUFFER\n", (int)size, (int)tag);
 		Sys_MutexUnlock(debugheapmutex);
-		return NULL;
+		return nullptr;
 	}
 
 	// advance the heap in 16 byte increments, so that the return addresses are always aligned (as expected)
@@ -138,9 +138,9 @@ void* Mem_Alloc16( const size_t size, const memTag_t tag )
 void Mem_Free16( void* ptr )
 {
 	unsigned char *m = (unsigned char *)ptr;
-	if (ptr == NULL)
+	if (ptr == nullptr)
 	{
-		//Mem_Printf("Mem_Free16(%p) pointer == NULL\n", ptr);
+		//Mem_Printf("Mem_Free16(%p) pointer == nullptr\n", ptr);
 		return;
 	}
 	Sys_MutexLock(debugheapmutex, true);

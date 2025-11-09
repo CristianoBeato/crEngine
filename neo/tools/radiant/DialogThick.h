@@ -43,7 +43,7 @@ class CDialogThick : public CDialog
 {
 // Construction
 public:
-	CDialogThick(CWnd* pParent = NULL);   // standard constructor
+	CDialogThick(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CDialogThick)

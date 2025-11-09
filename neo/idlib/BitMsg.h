@@ -40,7 +40,7 @@ class idBitMsg
 public:
 	idBitMsg()
 	{
-		InitWrite( NULL, 0 );
+		InitWrite( nullptr, 0 );
 	}
 	idBitMsg( byte* data, int length )
 	{
@@ -429,7 +429,7 @@ idBitMsg::InitRead
 */
 ID_INLINE void idBitMsg::InitRead( const byte* data, int length )
 {
-	writeData = NULL;
+	writeData = nullptr;
 	readData = data;
 	maxSize = length;
 	curSize = length;

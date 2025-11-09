@@ -52,7 +52,7 @@ void idMenuScreen_Shell_GameLobby::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
 	
-	if( data != NULL )
+	if( data != nullptr )
 	{
 		menuGUI = data->GetGUI();
 	}
@@ -123,7 +123,7 @@ void idMenuScreen_Shell_GameLobby::Update()
 {
 
 	idLobbyBase& activeLobby = session->GetActivePlatformLobbyBase();
-	if( lobby != NULL )
+	if( lobby != nullptr )
 	{
 	
 		if( activeLobby.GetNumActiveLobbyUsers() != 0 )
@@ -140,20 +140,20 @@ void idMenuScreen_Shell_GameLobby::Update()
 	if( BindSprite( root ) )
 	{
 		idSWFTextInstance* heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if( heading != NULL )
+		if( heading != nullptr )
 		{
 			heading->SetText( "#str_swf_multiplayer" );	// MULTIPLAYER
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 		
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if( gradient != NULL && heading != NULL )
+		if( gradient != nullptr && heading != nullptr )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
 	
-	if( privateGameLobby && options != NULL )
+	if( privateGameLobby && options != nullptr )
 	{
 	
 		if( session->GetActivePlatformLobbyBase().IsHost() && !isHost )
@@ -181,12 +181,12 @@ void idMenuScreen_Shell_GameLobby::Update()
 			menuOptions.Append( option );
 			option.Clear();
 			
-			idMenuWidget_Button* buttonWidget = NULL;
+			idMenuWidget_Button* buttonWidget = nullptr;
 			int index = 0;
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_START, 0 );
 			buttonWidget = dynamic_cast< idMenuWidget_Button* >( &options->GetChildByIndex( index ) );
-			if( buttonWidget != NULL )
+			if( buttonWidget != nullptr )
 			{
 				buttonWidget->SetDescription( "#str_swf_quick_start_desc" );
 			}
@@ -194,7 +194,7 @@ void idMenuScreen_Shell_GameLobby::Update()
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_SETTINGS, 1 );
 			buttonWidget = dynamic_cast< idMenuWidget_Button* >( &options->GetChildByIndex( index ) );
-			if( buttonWidget != NULL )
+			if( buttonWidget != nullptr )
 			{
 				buttonWidget->SetDescription( "#str_swf_match_setting_desc" );
 			}
@@ -202,7 +202,7 @@ void idMenuScreen_Shell_GameLobby::Update()
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_TOGGLE_PRIVACY, 2 );
 			buttonWidget = dynamic_cast< idMenuWidget_Button* >( &options->GetChildByIndex( index ) );
-			if( buttonWidget != NULL )
+			if( buttonWidget != nullptr )
 			{
 				buttonWidget->SetDescription( "#str_swf_toggle_privacy_desc" );
 			}
@@ -210,7 +210,7 @@ void idMenuScreen_Shell_GameLobby::Update()
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_INVITE, 3 );
 			buttonWidget = dynamic_cast< idMenuWidget_Button* >( &options->GetChildByIndex( index ) );
-			if( buttonWidget != NULL )
+			if( buttonWidget != nullptr )
 			{
 				buttonWidget->SetDescription( "#str_swf_invite_desc" );
 			}
@@ -232,12 +232,12 @@ void idMenuScreen_Shell_GameLobby::Update()
 				menuOptions.Append( option );
 				option.Clear();
 				
-				idMenuWidget_Button* buttonWidget = NULL;
+				idMenuWidget_Button* buttonWidget = nullptr;
 				int index = 0;
 				options->GetChildByIndex( index ).ClearEventActions();
 				options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_INVITE, 0 );
 				buttonWidget = dynamic_cast< idMenuWidget_Button* >( &options->GetChildByIndex( index ) );
-				if( buttonWidget != NULL )
+				if( buttonWidget != nullptr )
 				{
 					buttonWidget->SetDescription( "#str_swf_invite_desc" );
 				}
@@ -250,10 +250,10 @@ void idMenuScreen_Shell_GameLobby::Update()
 		}
 	}
 	
-	if( menuData != NULL )
+	if( menuData != nullptr )
 	{
 		idMenuWidget_CommandBar* cmdBar = menuData->GetCmdBar();
-		if( cmdBar != NULL )
+		if( cmdBar != nullptr )
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
@@ -288,7 +288,7 @@ void idMenuScreen_Shell_GameLobby::Update()
 		}
 	}
 	
-	if( btnBack != NULL )
+	if( btnBack != nullptr )
 	{
 		btnBack->BindSprite( root );
 	}
@@ -304,7 +304,7 @@ idMenuScreen_Shell_GameLobby::ShowScreen
 void idMenuScreen_Shell_GameLobby::ShowScreen( const mainMenuTransition_t transitionType )
 {
 
-	if( options != NULL )
+	if( options != nullptr )
 	{
 		options->SetFocusIndex( 0 );
 		options->SetViewIndex( 0 );
@@ -328,7 +328,7 @@ void idMenuScreen_Shell_GameLobby::ShowScreen( const mainMenuTransition_t transi
 		menuOptions.Clear();
 		idList< idStr > option;
 		
-		if( options != NULL )
+		if( options != nullptr )
 		{
 			option.Append( "#str_swf_invite_friends" );	// Invite Friends
 			menuOptions.Append( option );
@@ -338,7 +338,7 @@ void idMenuScreen_Shell_GameLobby::ShowScreen( const mainMenuTransition_t transi
 			options->GetChildByIndex( index ).ClearEventActions();
 			options->GetChildByIndex( index ).AddEventAction( WIDGET_EVENT_PRESS ).Set( WIDGET_ACTION_COMMAND, GAME_CMD_INVITE, 0 );
 			idMenuWidget_Button* buttonWidget = dynamic_cast< idMenuWidget_Button* >( &options->GetChildByIndex( index ) );
-			if( buttonWidget != NULL )
+			if( buttonWidget != nullptr )
 			{
 				buttonWidget->SetDescription( "#str_swf_invite_desc" );
 			}
@@ -355,7 +355,7 @@ void idMenuScreen_Shell_GameLobby::ShowScreen( const mainMenuTransition_t transi
 	if( BindSprite( root ) )
 	{
 		idSWFSpriteInstance* waitTime = GetSprite()->GetScriptObject()->GetNestedSprite( "waitTime" );
-		if( waitTime != NULL )
+		if( waitTime != nullptr )
 		{
 			waitTime->SetVisible( !privateGameLobby );
 		}
@@ -363,7 +363,7 @@ void idMenuScreen_Shell_GameLobby::ShowScreen( const mainMenuTransition_t transi
 	
 	idMenuScreen::ShowScreen( transitionType );
 	
-	if( lobby != NULL )
+	if( lobby != nullptr )
 	{
 		lobby->SetFocusIndex( 0 );
 	}
@@ -411,7 +411,7 @@ idMenuScreen_Shell_GameLobby::HandleAction h
 bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled )
 {
 
-	if( menuData == NULL )
+	if( menuData == nullptr )
 	{
 		return true;
 	}
@@ -496,7 +496,7 @@ bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction& action, const i
 		case WIDGET_ACTION_COMMAND:
 		{
 		
-			if( options == NULL )
+			if( options == nullptr )
 			{
 				return true;
 			}
@@ -518,7 +518,7 @@ bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction& action, const i
 				case GAME_CMD_START:
 				{
 					idMenuHandler_Shell* handler = dynamic_cast< idMenuHandler_Shell* const >( menuData );
-					if( handler != NULL )
+					if( handler != nullptr )
 					{
 						handler->SetTimeRemaining( 0 );
 					}
@@ -555,7 +555,7 @@ bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction& action, const i
 				{
 					if( session->GetActivePlatformLobbyBase().IsLobbyFull() )
 					{
-						common->Dialog().AddDialog( GDM_CANNOT_INVITE_LOBBY_FULL, DIALOG_CONTINUE, NULL, NULL, true, __FUNCTION__, __LINE__, false );
+						common->Dialog().AddDialog( GDM_CANNOT_INVITE_LOBBY_FULL, DIALOG_CONTINUE, nullptr, nullptr, true, __FUNCTION__, __LINE__, false );
 						return true;
 					}
 					
@@ -568,7 +568,7 @@ bool idMenuScreen_Shell_GameLobby::HandleAction( idWidgetAction& action, const i
 		case WIDGET_ACTION_START_REPEATER:
 		{
 		
-			if( options == NULL )
+			if( options == nullptr )
 			{
 				return true;
 			}
@@ -621,7 +621,7 @@ idMenuScreen_Shell_GameLobby::UpdateLobby
 void idMenuScreen_Shell_GameLobby::UpdateLobby()
 {
 
-	if( menuData != NULL && menuData->ActiveScreen() != SHELL_AREA_GAME_LOBBY )
+	if( menuData != nullptr && menuData->ActiveScreen() != SHELL_AREA_GAME_LOBBY )
 	{
 		return;
 	}
@@ -643,7 +643,7 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 		if( session->GetActivePlatformLobbyBase().IsHost() )
 		{
 			idMenuHandler_Shell* handler = dynamic_cast< idMenuHandler_Shell* const >( menuData );
-			if( handler != NULL )
+			if( handler != nullptr )
 			{
 				if( session->GetActivePlatformLobbyBase().IsLobbyFull() )
 				{
@@ -687,10 +687,10 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 		}
 		else
 		{
-			if( menuData != NULL )
+			if( menuData != nullptr )
 			{
 				idMenuHandler_Shell* handler = dynamic_cast< idMenuHandler_Shell* const >( menuData );
-				if( handler != NULL )
+				if( handler != nullptr )
 				{
 					ms = ( int ) ceilf( handler->GetTimeRemaining() / 1000.0f );
 				}
@@ -701,7 +701,7 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 		if( BindSprite( root ) )
 		{
 			idSWFTextInstance* waitTime = GetSprite()->GetScriptObject()->GetNestedText( "waitTime", "txtVal" );
-			if( waitTime != NULL )
+			if( waitTime != nullptr )
 			{
 				idStr status;
 				if( ms == 1 )
@@ -739,7 +739,7 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 	if( session->GetState() == idSession::GAME_LOBBY )
 	{
 	
-		if( options != NULL )
+		if( options != nullptr )
 		{
 			if( options->GetFocusIndex() >= options->GetTotalNumberOfOptions() && options->GetTotalNumberOfOptions() > 0 )
 			{
@@ -750,10 +750,10 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 		
 		idMatchParameters matchParameters = session->GetActivePlatformLobbyBase().GetMatchParms();
 		
-		idSWFTextInstance* mapName = GetSprite() && GetSprite()->GetScriptObject() ? GetSprite()->GetScriptObject()->GetNestedText( "matchInfo", "txtMapName" ) : NULL;
-		idSWFTextInstance* modeName = GetSprite() && GetSprite()->GetScriptObject() ? GetSprite()->GetScriptObject()->GetNestedText( "matchInfo", "txtModeName" ) : NULL;
+		idSWFTextInstance* mapName = GetSprite() && GetSprite()->GetScriptObject() ? GetSprite()->GetScriptObject()->GetNestedText( "matchInfo", "txtMapName" ) : nullptr;
+		idSWFTextInstance* modeName = GetSprite() && GetSprite()->GetScriptObject() ? GetSprite()->GetScriptObject()->GetNestedText( "matchInfo", "txtModeName" ) : nullptr;
 		
-		if( mapName != NULL )
+		if( mapName != nullptr )
 		{
 			const idList< mpMap_t > maps = common->GetMapList();
 			idStr name = idLocalization::GetString( maps[ idMath::ClampInt( 0, maps.Num() - 1, matchParameters.gameMap ) ].mapName );
@@ -761,7 +761,7 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 			mapName->SetStrokeInfo( true );
 		}
 		
-		if( modeName != NULL )
+		if( modeName != nullptr )
 		{
 			const idStrList& modes = common->GetModeDisplayList();
 			idStr mode = idLocalization::GetString( modes[ idMath::ClampInt( 0, modes.Num() - 1, matchParameters.gameMode ) ] );
@@ -769,8 +769,8 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 			modeName->SetStrokeInfo( true );
 		}
 		
-		idSWFTextInstance* privacy = GetSprite() && GetSprite()->GetScriptObject() ? GetSprite()->GetScriptObject()->GetNestedText( "matchInfo", "txtPrivacy" ) : NULL;
-		if( privacy != NULL )
+		idSWFTextInstance* privacy = GetSprite() && GetSprite()->GetScriptObject() ? GetSprite()->GetScriptObject()->GetNestedText( "matchInfo", "txtPrivacy" ) : nullptr;
+		if( privacy != nullptr )
 		{
 			if( isPeer || !privateGameLobby )
 			{
@@ -794,7 +794,7 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 		}
 		
 		idLocalUser* user = session->GetSignInManager().GetMasterLocalUser();
-		if( user != NULL && options != NULL )
+		if( user != nullptr && options != nullptr )
 		{
 			if( user->IsInParty() && user->GetPartyCount() > 1 && !session->IsPlatformPartyInLobby() && menuOptions.Num() > 0 )
 			{
@@ -818,10 +818,10 @@ void idMenuScreen_Shell_GameLobby::UpdateLobby()
 	}
 	
 	// setup names for lobby;
-	if( lobby != NULL )
+	if( lobby != nullptr )
 	{
 		idMenuHandler_Shell* mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
-		if( mgr != NULL )
+		if( mgr != nullptr )
 		{
 			mgr->UpdateLobby( lobby );
 			lobby->Update();

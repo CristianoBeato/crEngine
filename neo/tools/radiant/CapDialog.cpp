@@ -47,7 +47,7 @@ static char THIS_FILE[] = __FILE__;
 // CCapDialog dialog
 
 
-CCapDialog::CCapDialog(CWnd* pParent /*=NULL*/)
+CCapDialog::CCapDialog(CWnd* pParent /*=nullptr*/)
 	: CDialog(CCapDialog::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CCapDialog)

@@ -72,7 +72,7 @@ public:
 	// returns a SIDE_?
 	int				Split( const idPlane& plane, const float epsilon, idWinding** front, idWinding** back ) const;
 	// returns the winding fragment at the front of the clipping plane,
-	// if there is nothing at the front the winding itself is destroyed and NULL is returned
+	// if there is nothing at the front the winding itself is destroyed and nullptr is returned
 	idWinding* 		Clip( const idPlane& plane, const float epsilon = ON_EPSILON, const bool keepOn = false );
 	// cuts off the part at the back side of the plane, returns true if some part was at the front
 	// if there is nothing at the front the number of points is set to zero
@@ -91,7 +91,7 @@ public:
 	void			AddToConvexHull( const idWinding* winding, const idVec3& normal, const float epsilon = ON_EPSILON );
 	// add a point to the convex hull
 	void			AddToConvexHull( const idVec3& point, const idVec3& normal, const float epsilon = ON_EPSILON );
-	// tries to merge 'this' with the given winding, returns NULL if merge fails, both 'this' and 'w' stay intact
+	// tries to merge 'this' with the given winding, returns nullptr if merge fails, both 'this' and 'w' stay intact
 	// 'keep' tells if the contacting points should stay even if they create colinear edges
 	idWinding* 		TryMerge( const idWinding& w, const idVec3& normal, int keep = false ) const;
 	// check whether the winding is valid or not
@@ -133,13 +133,13 @@ protected:
 ID_INLINE idWinding::idWinding()
 {
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 }
 
 ID_INLINE idWinding::idWinding( int n )
 {
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 	EnsureAlloced( n );
 }
 
@@ -148,7 +148,7 @@ ID_INLINE idWinding::idWinding( const idVec3* verts, const int n )
 	int i;
 	
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 	if( !EnsureAlloced( n ) )
 	{
 		numPoints = 0;
@@ -165,14 +165,14 @@ ID_INLINE idWinding::idWinding( const idVec3* verts, const int n )
 ID_INLINE idWinding::idWinding( const idVec3& normal, const float dist )
 {
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 	BaseForPlane( normal, dist );
 }
 
 ID_INLINE idWinding::idWinding( const idPlane& plane )
 {
 	numPoints = allocedSize = 0;
-	p = NULL;
+	p = nullptr;
 	BaseForPlane( plane );
 }
 
@@ -194,7 +194,7 @@ ID_INLINE idWinding::idWinding( const idWinding& winding )
 ID_INLINE idWinding::~idWinding()
 {
 	delete[] p;
-	p = NULL;
+	p = nullptr;
 }
 
 ID_INLINE idWinding& idWinding::operator=( const idWinding& winding )
@@ -276,7 +276,7 @@ ID_INLINE void idWinding::Clear()
 {
 	numPoints = 0;
 	delete[] p;
-	p = NULL;
+	p = nullptr;
 }
 
 ID_INLINE void idWinding::BaseForPlane( const idPlane& plane )
@@ -423,7 +423,7 @@ ID_INLINE idFixedWinding::idFixedWinding( const idFixedWinding& winding )
 
 ID_INLINE idFixedWinding::~idFixedWinding()
 {
-	p = NULL;	// otherwise it tries to free the fixed buffer
+	p = nullptr;	// otherwise it tries to free the fixed buffer
 }
 
 ID_INLINE idFixedWinding& idFixedWinding::operator=( const idWinding& winding )

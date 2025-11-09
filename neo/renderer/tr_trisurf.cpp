@@ -142,7 +142,7 @@ deformInfo_t* R_BuildDeformInfo( int numVerts, const idDrawVert* verts, int numI
 	tri.NumIndexes() = numIndexes;
 	tri.AllocStaticTriSurfIndexes( tri.NumIndexes() ); // R_AllocStaticTriSurfIndexes( &tri, tri.NumIndexes() );
 	
-	// don't memcpy, so we can change the index type from int to short without changing the interface
+	// don't std::memcpy, so we can change the index type from int to short without changing the interface
 	for( int i = 0; i < tri.NumIndexes(); i++ )
 	{
 		tri.Indexes()[i] = indexes[i];

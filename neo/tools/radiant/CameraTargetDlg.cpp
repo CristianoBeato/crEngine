@@ -46,7 +46,7 @@ static char THIS_FILE[] = __FILE__;
 // CCameraTargetDlg dialog
 
 
-CCameraTargetDlg::CCameraTargetDlg(CWnd* pParent /*=NULL*/)
+CCameraTargetDlg::CCameraTargetDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CCameraTargetDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CCameraTargetDlg)

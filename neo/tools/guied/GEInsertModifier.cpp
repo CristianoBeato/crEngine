@@ -42,7 +42,7 @@ rvGEInsertModifier::rvGEInsertModifier ( const char* name, idWindow* window, idW
 	assert ( mParent );
 
 	mUndoParent = window->GetParent ( );
-	mUndoBefore = NULL;
+	mUndoBefore = nullptr;
 	mUndoRect   = mWrapper->GetClientRect ( );
 	mRect		= mWrapper->GetClientRect ( );
 

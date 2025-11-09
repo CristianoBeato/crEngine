@@ -1072,7 +1072,7 @@ void idPhysics_Player::CorrectAllSolid( trace_t& trace, int contents )
 	
 	if( trace.fraction >= 1.0f )
 	{
-		memset( &trace, 0, sizeof( trace ) );
+		std::memset( &trace, 0, sizeof( trace ) );
 		trace.endpos = current.origin;
 		trace.endAxis = clipModelAxis;
 		trace.fraction = 0.0f;
@@ -1082,7 +1082,7 @@ void idPhysics_Player::CorrectAllSolid( trace_t& trace, int contents )
 		trace.c.entityNum = ENTITYNUM_WORLD;
 		trace.c.id = 0;
 		trace.c.type = CONTACT_TRMVERTEX;
-		trace.c.material = NULL;
+		trace.c.material = nullptr;
 		trace.c.contents = contents;
 	}
 }
@@ -1135,7 +1135,7 @@ void idPhysics_Player::CheckGround()
 	{
 		groundPlane = false;
 		walking = false;
-		groundEntityPtr = NULL;
+		groundEntityPtr = nullptr;
 		return;
 	}
 	
@@ -1472,7 +1472,7 @@ bool idPhysics_Player::CheckWaterJump() {
 
 	spot = current.origin + 30.0f * flatforward;
 	spot -= 4.0f * gravityNormal;
-	cont = gameLocal.clip.Contents( spot, NULL, mat3_identity, -1, self );
+	cont = gameLocal.clip.Contents( spot, nullptr, mat3_identity, -1, self );
 
 	// motorsep 03-18-2015; FIXME: this check prevents player from swimming up using JUMP key, when standing on the bottom underwater.
 	// if disabled, player can swim up using JUMP key, but if player sinks in free fall, (s)he will bounce off the bottom surface like a ball, perpetually.
@@ -1482,7 +1482,7 @@ bool idPhysics_Player::CheckWaterJump() {
 	}
 		
 	spot -= 16.0f * gravityNormal;
-	cont = gameLocal.clip.Contents( spot, NULL, mat3_identity, -1, self );
+	cont = gameLocal.clip.Contents( spot, nullptr, mat3_identity, -1, self );
 	if( cont )
 	{
 		return false;
@@ -1517,7 +1517,7 @@ void idPhysics_Player::SetWaterLevel()
 	
 	// check at feet level
 	point = current.origin - ( bounds[0][2] + 1.0f ) * gravityNormal;
-	contents = gameLocal.clip.Contents( point, NULL, mat3_identity, -1, self );
+	contents = gameLocal.clip.Contents( point, nullptr, mat3_identity, -1, self );
 	if( contents & MASK_WATER )
 	{
 	
@@ -1526,7 +1526,7 @@ void idPhysics_Player::SetWaterLevel()
 		
 		// check at waist level
 		point = current.origin - ( bounds[1][2] - bounds[0][2] ) * 0.5f * gravityNormal;
-		contents = gameLocal.clip.Contents( point, NULL, mat3_identity, -1, self );
+		contents = gameLocal.clip.Contents( point, nullptr, mat3_identity, -1, self );
 		if( contents & MASK_WATER )
 		{
 		
@@ -1534,7 +1534,7 @@ void idPhysics_Player::SetWaterLevel()
 			
 			// check at head level
 			point = current.origin - ( bounds[1][2] - 1.0f ) * gravityNormal;
-			contents = gameLocal.clip.Contents( point, NULL, mat3_identity, -1, self );
+			contents = gameLocal.clip.Contents( point, nullptr, mat3_identity, -1, self );
 			if( contents & MASK_WATER )
 			{
 				waterLevel = WATERLEVEL_HEAD;
@@ -1786,15 +1786,15 @@ idPhysics_Player::idPhysics_Player
 idPhysics_Player::idPhysics_Player()
 {
 	debugLevel = false;
-	clipModel = NULL;
+	clipModel = nullptr;
 	clipMask = 0;
-	memset( &current, 0, sizeof( current ) );
+	std::memset( &current, 0, sizeof( current ) );
 	saved = current;
 	walkSpeed = 0;
 	crouchSpeed = 0;
 	maxStepHeight = 0;
 	maxJumpHeight = 0;
-	memset( &command, 0, sizeof( command ) );
+	std::memset( &command, 0, sizeof( command ) );
 	commandForward = idVec3( 1, 0, 0 );
 	framemsec = 0;
 	frametime = 0;
@@ -1803,8 +1803,8 @@ idPhysics_Player::idPhysics_Player()
 	viewRight.Zero();
 	walking = false;
 	groundPlane = false;
-	memset( &groundTrace, 0, sizeof( groundTrace ) );
-	groundMaterial = NULL;
+	std::memset( &groundTrace, 0, sizeof( groundTrace ) );
+	groundMaterial = nullptr;
 	ladder = false;
 	ladderNormal.Zero();
 	waterLevel = WATERLEVEL_NONE;
@@ -2125,7 +2125,7 @@ bool idPhysics_Player::Interpolate( const float fraction )
 	}
 	
 	//current.localOrigin = Lerp( previous.localOrigin, next.localOrigin, fraction );
-	if( self != NULL && ( self->entityNumber != gameLocal.GetLocalClientNum() ) )
+	if( self != nullptr && ( self->entityNumber != gameLocal.GetLocalClientNum() ) )
 	{
 		current.velocity = Lerp( previous.velocity, next.velocity, fraction );
 	}
@@ -2461,7 +2461,7 @@ bool idPhysics_Player::ClientPusherLocked( bool& justBecameUnlocked )
 		if( ent )
 		{
 			idPhysics* p = ent->GetPhysics();
-			if( p != NULL )
+			if( p != nullptr )
 			{
 				// Testing IsAtRest seems cleaner but there are edge cases of clients jumping right before a mover starts to move
 				if( p->IsType( idPhysics_Static::Type ) == false && p->IsType( idPhysics_StaticMulti::Type ) == false )
@@ -2530,7 +2530,7 @@ void idPhysics_Player::SetMaster( idEntity* master, BindFlags flags )
 	{
 		if( masterEntity )
 		{
-			masterEntity = NULL;
+			masterEntity = nullptr;
 		}
 	}
 }

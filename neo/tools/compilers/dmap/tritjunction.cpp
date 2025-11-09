@@ -221,7 +221,7 @@ void HashTriangles( optimizeGroup_t *groupList ) {
 	optimizeGroup_t	*group;
 
 	// clear the hash tables
-	memset( hashVerts, 0, sizeof( hashVerts ) );
+	std::memset( hashVerts, 0, sizeof( hashVerts ) );
 
 	numHashVerts = 0;
 	numTotalVerts = 0;
@@ -252,7 +252,7 @@ void HashTriangles( optimizeGroup_t *groupList ) {
 	// add all the points to the hash buckets
 	for ( group = groupList ; group ; group = group->nextGroup ) {
 		// don't create tjunctions against discrete surfaces (blood decals, etc)
-		if ( group->material != NULL && group->material->IsDiscrete() ) {
+		if ( group->material != nullptr && group->material->IsDiscrete() ) {
 			continue;
 		}
 		for ( a = group->triList ; a ; a = a->next ) {
@@ -285,7 +285,7 @@ void FreeTJunctionHash( void ) {
 			}
 		}
 	}
-	memset( hashVerts, 0, sizeof( hashVerts ) );
+	std::memset( hashVerts, 0, sizeof( hashVerts ) );
 }
 
 
@@ -294,7 +294,7 @@ void FreeTJunctionHash( void ) {
 FixTriangleAgainstHashVert
 
 Returns a list of two new mapTri if the hashVert is
-on an edge of the given mapTri, otherwise returns NULL.
+on an edge of the given mapTri, otherwise returns nullptr.
 ==================
 */
 static mapTri_t *FixTriangleAgainstHashVert( const mapTri_t *a, const hashVert_t *hv ) 
@@ -416,11 +416,11 @@ static mapTri_t	*FixTriangleAgainstHash( const mapTri_t *tri ) {
 	if ( tri->hashVert[0] == tri->hashVert[1]
 		|| tri->hashVert[0] == tri->hashVert[2]
 		|| tri->hashVert[1] == tri->hashVert[2] ) {
-		return NULL;
+		return nullptr;
 	}
 
 	fixed = CopyMapTri( tri );
-	fixed->next = NULL;
+	fixed->next = nullptr;
 
 	HashBlocksForTri( tri, blocks );
 	for ( i = blocks[0][0] ; i <= blocks[1][0] ; i++ ) {
@@ -429,7 +429,7 @@ static mapTri_t	*FixTriangleAgainstHash( const mapTri_t *tri ) {
 				for ( hv = hashVerts[i][j][k] ; hv ; hv = hv->next ) {
 					// fix all triangles in the list against this point
 					test = fixed;
-					fixed = NULL;
+					fixed = nullptr;
 					for ( ; test ; test = next ) {
 						next = test->next;
 						a = FixTriangleAgainstHashVert( test, hv );
@@ -499,11 +499,11 @@ void	FixAreaGroupsTjunctions( optimizeGroup_t *groupList ) {
 
 	for ( group = groupList ; group ; group = group->nextGroup ) {
 		// don't touch discrete surfaces
-		if ( group->material != NULL && group->material->IsDiscrete() ) {
+		if ( group->material != nullptr && group->material->IsDiscrete() ) {
 			continue;
 		}
 
-		newList = NULL;
+		newList = nullptr;
 		for ( tri = group->triList ; tri ; tri = tri->next ) {
 			fixed = FixTriangleAgainstHash( tri );
 			newList = MergeTriLists( newList, fixed );
@@ -548,7 +548,7 @@ void	FixGlobalTjunctions( uEntity_t *e ) {
 	common->Printf( "----- FixGlobalTjunctions -----\n" );
 
 	// clear the hash tables
-	memset( hashVerts, 0, sizeof( hashVerts ) );
+	std::memset( hashVerts, 0, sizeof( hashVerts ) );
 
 	numHashVerts = 0;
 	numTotalVerts = 0;
@@ -582,7 +582,7 @@ void	FixGlobalTjunctions( uEntity_t *e ) {
 	for ( areaNum = 0 ; areaNum < e->numAreas ; areaNum++ ) {
 		for ( group = e->areas[areaNum].groups ; group ; group = group->nextGroup ) {
 			// don't touch discrete surfaces
-			if ( group->material != NULL && group->material->IsDiscrete() ) {
+			if ( group->material != nullptr && group->material->IsDiscrete() ) {
 				continue;
 			}
 
@@ -634,7 +634,7 @@ void	FixGlobalTjunctions( uEntity_t *e ) {
 				const crDrawGeometry *tri = surface->geometry;
 
 				mapTri_t	mapTri;
-				memset( &mapTri, 0, sizeof( mapTri ) );
+				std::memset( &mapTri, 0, sizeof( mapTri ) );
 				mapTri.material = surface->shader;
 				// don't let discretes (autosprites, etc) merge together
 				if ( mapTri.material->IsDiscrete() || mapTri.material->IsLOD() ) { // motorsep 11-25-2014; || s->material->IsLOD() added to prevent LOD surfaces being merged into one surface
@@ -654,11 +654,11 @@ void	FixGlobalTjunctions( uEntity_t *e ) {
 	for ( areaNum = 0 ; areaNum < e->numAreas ; areaNum++ ) {
 		for ( group = e->areas[areaNum].groups ; group ; group = group->nextGroup ) {
 			// don't touch discrete surfaces
-			if ( group->material != NULL && group->material->IsDiscrete() ) {
+			if ( group->material != nullptr && group->material->IsDiscrete() ) {
 				continue;
 			}
 
-			mapTri_t *newList = NULL;
+			mapTri_t *newList = nullptr;
 			for ( mapTri_t *tri = group->triList ; tri ; tri = tri->next ) {
 				mapTri_t *fixed = FixTriangleAgainstHash( tri );
 				newList = MergeTriLists( newList, fixed );

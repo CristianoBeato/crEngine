@@ -38,7 +38,7 @@ public:
 
 	rvDebuggerQuickWatchDlg ( );
 
-	bool	DoModal				( rvDebuggerWindow* window, int callstackDepth, const char* variable = NULL );
+	bool	DoModal				( rvDebuggerWindow* window, int callstackDepth, const char* variable = nullptr );
 
 protected:
 

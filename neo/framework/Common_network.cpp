@@ -259,7 +259,7 @@ void idCommonLocal::NetReceiveReliable( int peer, int type, idBitMsg& msg )
 	reliable.type = type;
 	reliable.dataSize = msgSize;
 	reliable.data = ( byte* )Mem_Alloc( msgSize, TAG_NETWORKING );
-	memcpy( reliable.data, msgData, msgSize );
+	std::memcpy( reliable.data, msgData, msgSize );
 }
 
 /*
@@ -351,7 +351,7 @@ void idCommonLocal::NetReadUsercmds( int clientNum, idBitMsg& msg )
 	
 	// TODO: This shouldn't actually happen. Figure out why it does.
 	// Seen on clients when another client leaves a match.
-	if( msg.GetReadData() == NULL )
+	if( msg.GetReadData() == nullptr )
 	{
 		return;
 	}

@@ -105,9 +105,9 @@ void idSIMD::Shutdown() {
 		delete processor;
 	}
 	delete generic;
-	generic = NULL;
-	processor = NULL;
-	SIMDProcessor = NULL;
+	generic = nullptr;
+	processor = nullptr;
+	SIMDProcessor = nullptr;
 }
 
 
@@ -1294,8 +1294,8 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	if ( p_simd != processor ) {
 		delete p_simd;
 	}
-	p_simd = NULL;
-	p_generic = NULL;
+	p_simd = nullptr;
+	p_generic = nullptr;
 
 	// RB begin
 #if defined(_WIN32)

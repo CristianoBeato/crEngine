@@ -37,10 +37,10 @@ If you have questions concerning this license or the applicable additional terms
 
 // rad additions
 // 11.29.99
-PFN_ERR *g_pfnError = NULL;
-PFN_PRINTF *g_pfnPrintf = NULL;
-PFN_ERR_NUM *g_pfnErrorNum = NULL;
-PFN_PRINTF_NUM *g_pfnPrintfNum = NULL;
+PFN_ERR *g_pfnError = nullptr;
+PFN_PRINTF *g_pfnPrintf = nullptr;
+PFN_ERR_NUM *g_pfnErrorNum = nullptr;
+PFN_PRINTF_NUM *g_pfnPrintfNum = nullptr;
 
 
 void Error(const char *pFormat, ...)
@@ -137,9 +137,9 @@ int LoadFile (const char *filename, void **bufferptr)
 	int    length;
 	void    *buffer;
 
-	*bufferptr = NULL;
+	*bufferptr = nullptr;
 
-	if ( filename == NULL || strlen(filename) == 0 ) {
+	if ( filename == nullptr || strlen(filename) == 0 ) {
 		return -1;
 	}
 

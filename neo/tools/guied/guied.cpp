@@ -92,9 +92,9 @@ void GUIEditorRun()
 	MSG			msg;
 
 	// pump the message loop
-	while (PeekMessage (&msg, NULL, 0, 0, PM_NOREMOVE))
+	while (PeekMessage (&msg, nullptr, 0, 0, PM_NOREMOVE))
 	{
-		if ( !GetMessage (&msg, NULL, 0, 0) )
+		if ( !GetMessage (&msg, nullptr, 0, 0) )
 		{
 			common->Quit();
 		}

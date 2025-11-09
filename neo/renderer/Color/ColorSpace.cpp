@@ -549,7 +549,7 @@ void idColorSpace::ConvertNormalMapToStereographicHeightMap( byte* heightMap, co
 
 	idTempArray<float> buffer( ( width + 1 ) * ( height + 1 ) * sizeof( float ) );
 	float* temp = ( float* )buffer.Ptr();
-	memset( temp, 0, ( width + 1 ) * ( height + 1 ) * sizeof( float ) );
+	std::memset( temp, 0, ( width + 1 ) * ( height + 1 ) * sizeof( float ) );
 	
 	const int NUM_ITERATIONS = 32;
 	

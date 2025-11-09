@@ -43,7 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 IMPLEMENT_DYNCREATE(CPropTreeView, CFormView)
 
 CPropTreeView::CPropTreeView()
-: CFormView((LPCTSTR) NULL)
+: CFormView((LPCTSTR) nullptr)
 {
 }
 
@@ -123,7 +123,7 @@ void CPropTreeView::OnSize(UINT nType, int cx, int cy)
 		CView::OnSize(nType, cx, cy);
 
 		if (::IsWindow(m_Tree.GetSafeHwnd()))
-			m_Tree.SetWindowPos(NULL, -1, -1, cx, cy, SWP_NOMOVE|SWP_NOZORDER);	
+			m_Tree.SetWindowPos(nullptr, -1, -1, cx, cy, SWP_NOMOVE|SWP_NOZORDER);	
 }
 
 

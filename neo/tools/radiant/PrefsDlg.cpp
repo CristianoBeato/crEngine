@@ -119,7 +119,7 @@ static char THIS_FILE[] = __FILE__;
 // CPrefsDlg dialog
 
 
-CPrefsDlg::CPrefsDlg(CWnd* pParent /*=NULL*/)
+CPrefsDlg::CPrefsDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CPrefsDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CPrefsDlg)
@@ -287,8 +287,8 @@ void SetCvarString( const char *name, const char *value ) {
 void SetCvarBinary(const char *name, void *pv, int size) {
 	unsigned char *in = (unsigned char*)Mem_Alloc(sizeof(unsigned char) * size, TAG_RADIANT);
 	idStr s;
-	memset( in, 0, size );
-	memcpy( in, pv, size );
+	std::memset( in, 0, size );
+	std::memcpy( in, pv, size );
 	for ( int i = 0; i < size; i++ ) {
 		s += hexDigits[in[i] >> 4];
 		s += hexDigits[in[i] & 0x0f];
@@ -318,7 +318,7 @@ bool GetCvarBinary( const char *name, void *pv, int size ) {
 			}
 			out[j++] = c;
 		}
-		memcpy(pv, out, size);
+		std::memcpy(pv, out, size);
 		ret = true;
 	}
 	Mem_Free(out);

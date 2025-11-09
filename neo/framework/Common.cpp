@@ -109,13 +109,13 @@ bool			com_editorActive;		//  true if an editor has focus
 
 // RB begin
 #if defined(_WIN32)
-HWND com_hwndMsg = NULL;
+HWND com_hwndMsg = nullptr;
 #endif
 // RB end
 
 #ifdef __DOOM_DLL__
-idGame* 		game = NULL;
-idGameEdit* 	gameEdit = NULL;
+idGame* 		game = nullptr;
+idGameEdit* 	gameEdit = nullptr;
 #endif
 
 idCommonLocal	commonLocal;
@@ -158,37 +158,37 @@ idCommonLocal::idCommonLocal() :
 	com_shuttingDown = false;
 	com_isJapaneseSKU = false;
 	
-	logFile = NULL;
+	logFile = nullptr;
 	
 	strcpy( errorMessage, "" );
 	
-	rd_buffer = NULL;
+	rd_buffer = nullptr;
 	rd_buffersize = 0;
-	rd_flush = NULL;
+	rd_flush = nullptr;
 	
 	gameDLL = 0;
 	
-	loadGUI = NULL;
+	loadGUI = nullptr;
 	nextLoadTip = 0;
 	isHellMap = false;
 	wipeForced = false;
 	defaultLoadscreen = false;
 	
-	menuSoundWorld = NULL;
+	menuSoundWorld = nullptr;
 	
 	insideUpdateScreen = false;
 	insideExecuteMapChange = false;
 	
-	mapSpawnData.savegameFile = NULL;
+	mapSpawnData.savegameFile = nullptr;
 	
 	currentMapName.Clear();
 	aviDemoShortName.Clear();
 	
-	renderWorld = NULL;
-	soundWorld = NULL;
-	menuSoundWorld = NULL;
-	readDemo = NULL;
-	writeDemo = NULL;
+	renderWorld = nullptr;
+	soundWorld = nullptr;
+	menuSoundWorld = nullptr;
+	readDemo = nullptr;
+	writeDemo = nullptr;
 	
 	gameFrame = 0;
 	gameTimeResidual = 0;
@@ -202,8 +202,8 @@ idCommonLocal::idCommonLocal() :
 	
 	clientPrediction = 0;
 	
-	saveFile = NULL;
-	stringsFile = NULL;
+	saveFile = nullptr;
+	stringsFile = nullptr;
 	
 	ClearWipe();
 }
@@ -322,7 +322,7 @@ bool idCommonLocal::SafeMode( void )
 idCommonLocal::StartupVariable
 
 Searches for command line parameters that are set commands.
-If match is not NULL, only that cvar will be looked for.
+If match is not nullptr, only that cvar will be looked for.
 That is necessary because cddir and basedir need to be set
 before the filesystem is started, but all other sets should
 be after execing the config and default.
@@ -450,7 +450,7 @@ void idCommonLocal::WriteConfiguration()
 	
 	// save to the profile
 	idLocalUser* user = session->GetSignInManager().GetMasterLocalUser();
-	if( user != NULL )
+	if( user != nullptr )
 	{
 		user->SaveProfileSettings();
 	}
@@ -537,7 +537,7 @@ static void Com_ScriptDebugger_f( const idCmdArgs &args ) {
 	
 	// Make sure it wasnt on the command line
 	if ( !( com_editors & EDITOR_DEBUGGER ) ) {
-		DebuggerClientInit( NULL );
+		DebuggerClientInit( nullptr );
 	}
 #else
 	common->Printf("Debugger not included in build\n");
@@ -584,10 +584,10 @@ idCmdSystemLocal::PrintMemInfo_f
 This prints out memory debugging data
 ============
 */
-CONSOLE_COMMAND( printMemInfo, "prints memory debugging data", NULL )
+CONSOLE_COMMAND( printMemInfo, "prints memory debugging data", nullptr )
 {
 	MemInfo_t mi;
-	memset( &mi, 0, sizeof( mi ) );
+	std::memset( &mi, 0, sizeof( mi ) );
 	mi.filebase = commonLocal.GetCurrentMapName();
 	
 	idRenderSystem::Get()->PrintMemInfo( &mi );			// textures and models
@@ -626,7 +626,7 @@ Com_EditLights_f
 ==================
 */
 static void Com_EditLights_f( const idCmdArgs &args ) {
-	LightEditorInit( NULL );
+	LightEditorInit( nullptr );
 	cvarSystem->SetCVarInteger( "g_editEntityMode", 1 );
 }
 
@@ -636,7 +636,7 @@ Com_EditSounds_f
 ==================
 */
 static void Com_EditSounds_f( const idCmdArgs &args ) {
-	SoundEditorInit( NULL );
+	SoundEditorInit( nullptr );
 	cvarSystem->SetCVarInteger( "g_editEntityMode", 2 );
 }
 
@@ -646,7 +646,7 @@ Com_EditDecls_f
 ==================
 */
 static void Com_EditDecls_f( const idCmdArgs &args ) {
-	DeclBrowserInit( NULL );
+	DeclBrowserInit( nullptr );
 }
 
 /*
@@ -655,7 +655,7 @@ Com_EditAFs_f
 ==================
 */
 static void Com_EditAFs_f( const idCmdArgs &args ) {
-	AFEditorInit( NULL );
+	AFEditorInit( nullptr );
 }
 
 /*
@@ -664,7 +664,7 @@ Com_EditParticles_f
 ==================
 */
 static void Com_EditParticles_f( const idCmdArgs &args ) {
-	ParticleEditorInit( NULL );
+	ParticleEditorInit( nullptr );
 }
 
 /*
@@ -673,7 +673,7 @@ Com_EditScripts_f
 ==================
 */
 static void Com_EditScripts_f( const idCmdArgs &args ) {
-	ScriptEditorInit( NULL );
+	ScriptEditorInit( nullptr );
 }
 
 /*
@@ -682,7 +682,7 @@ Com_EditPDAs_f
 ==================
 */
 static void Com_EditPDAs_f( const idCmdArgs &args ) {
-	PDAEditorInit( NULL );
+	PDAEditorInit( nullptr );
 }
 #endif // ID_ALLOW_TOOLS
 
@@ -693,7 +693,7 @@ Com_Error_f
 Just throw a fatal error to test error shutdown procedures.
 ==================
 */
-CONSOLE_COMMAND( error, "causes an error", NULL )
+CONSOLE_COMMAND( error, "causes an error", nullptr )
 {
 	if( !com_developer.GetBool() )
 	{
@@ -714,7 +714,7 @@ Com_Freeze_f
 Just freeze in place for a given number of seconds to test error recovery.
 ==================
 */
-CONSOLE_COMMAND( freeze, "freezes the game for a number of seconds", NULL )
+CONSOLE_COMMAND( freeze, "freezes the game for a number of seconds", nullptr )
 {
 	float	s;
 	int		start, now;
@@ -752,7 +752,7 @@ Com_Crash_f
 A way to force a bus error for development reasons
 =================
 */
-CONSOLE_COMMAND( crash, "causes a crash", NULL )
+CONSOLE_COMMAND( crash, "causes a crash", nullptr )
 {
 	if( !com_developer.GetBool() )
 	{
@@ -771,11 +771,11 @@ CONSOLE_COMMAND( crash, "causes a crash", NULL )
 Com_Quit_f
 =================
 */
-CONSOLE_COMMAND_SHIP( quit, "quits the game", NULL )
+CONSOLE_COMMAND_SHIP( quit, "quits the game", nullptr )
 {
 	commonLocal.Quit();
 }
-CONSOLE_COMMAND_SHIP( exit, "exits the game", NULL )
+CONSOLE_COMMAND_SHIP( exit, "exits the game", nullptr )
 {
 	commonLocal.Quit();
 }
@@ -787,7 +787,7 @@ Com_WriteConfig_f
 Write the config file to a specific name
 ===============
 */
-CONSOLE_COMMAND( writeConfig, "writes a config file", NULL )
+CONSOLE_COMMAND( writeConfig, "writes a config file", nullptr )
 {
 	idStr	filename;
 	
@@ -963,7 +963,7 @@ void idCommonLocal::InitLanguageDict()
 	for( int i = 0; i < currentLangList.Num(); i++ )
 	{
 		//common->Printf("%s\n", currentLangList[i].c_str());
-		const byte* buffer = NULL;
+		const byte* buffer = nullptr;
 		int len = fileSystem->ReadFile( currentLangList[i], ( void** )&buffer );
 		if( len <= 0 )
 		{
@@ -984,7 +984,7 @@ void idCommonLocal::InitLanguageDict()
 ReloadLanguage_f
 =================
 */
-CONSOLE_COMMAND( reloadLanguage, "reload language dict", NULL )
+CONSOLE_COMMAND( reloadLanguage, "reload language dict", nullptr )
 {
 	commonLocal.InitLanguageDict();
 }
@@ -996,7 +996,7 @@ CONSOLE_COMMAND( reloadLanguage, "reload language dict", NULL )
 Com_StartBuild_f
 =================
 */
-CONSOLE_COMMAND( startBuild, "prepares to make a build", NULL )
+CONSOLE_COMMAND( startBuild, "prepares to make a build", nullptr )
 {
 	globalImages->StartBuild();
 }
@@ -1255,7 +1255,7 @@ void idCommonLocal::LoadGameDLL( void )
 	if( !GetGameAPI )
 	{
 		Sys_DLL_Unload( gameDLL );
-		gameDLL = NULL;
+		gameDLL = nullptr;
 		common->FatalError( "couldn't find game DLL API" );
 		return;
 	}
@@ -1279,7 +1279,7 @@ void idCommonLocal::LoadGameDLL( void )
 	if( gameExport.version != GAME_API_VERSION )
 	{
 		Sys_DLL_Unload( gameDLL );
-		gameDLL = NULL;
+		gameDLL = nullptr;
 		common->FatalError( "wrong game DLL API version" );
 		return;
 	}
@@ -1370,7 +1370,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		ClearWarnings( GAME_NAME " initialization" );
 		
 		idLib::Printf( va( "Command line: %s\n", cmdline ) );
-		//::MessageBox( NULL, cmdline, "blah", MB_OK );
+		//::MessageBox( nullptr, cmdline, "blah", MB_OK );
 		// parse command line options
 		idCmdArgs args;
 		if( cmdline )
@@ -1472,7 +1472,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		cmdSystem->ExecuteCommandBuffer();
 		
 		// re-override anything from the config files with command line args
-		StartupVariable( NULL );
+		StartupVariable( nullptr );
 		
 		// if any archived cvars are modified after this, we will trigger a writing of the config file
 		cvarSystem->ClearModifiedFlags( CVAR_ARCHIVE );
@@ -2040,7 +2040,7 @@ void idCommonLocal::WriteFlaggedCVarsToFile( const char *filename, int flags, co
 Common_WritePrecache_f
 ==================
 */
-CONSOLE_COMMAND( writePrecache, "writes precache commands", NULL )
+CONSOLE_COMMAND( writePrecache, "writes precache commands", nullptr )
 {
 	if( args.Argc() != 2 )
 	{
@@ -2062,7 +2062,7 @@ CONSOLE_COMMAND( writePrecache, "writes precache commands", NULL )
 Common_Disconnect_f
 ================
 */
-CONSOLE_COMMAND_SHIP( disconnect, "disconnects from a game", NULL )
+CONSOLE_COMMAND_SHIP( disconnect, "disconnects from a game", nullptr )
 {
 	if ( !(com_editors & EDITOR_DMAP) )
 	{
@@ -2079,7 +2079,7 @@ CONSOLE_COMMAND_SHIP( disconnect, "disconnects from a game", NULL )
 Common_Hitch_f
 ===============
 */
-CONSOLE_COMMAND( hitch, "hitches the game", NULL )
+CONSOLE_COMMAND( hitch, "hitches the game", nullptr )
 {
 	if( args.Argc() == 2 )
 	{
@@ -2091,23 +2091,23 @@ CONSOLE_COMMAND( hitch, "hitches the game", NULL )
 	}
 }
 
-CONSOLE_COMMAND( showStringMemory, "shows memory used by strings", NULL )
+CONSOLE_COMMAND( showStringMemory, "shows memory used by strings", nullptr )
 {
 	idStr::ShowMemoryUsage_f( args );
 }
-CONSOLE_COMMAND( showDictMemory, "shows memory used by dictionaries", NULL )
+CONSOLE_COMMAND( showDictMemory, "shows memory used by dictionaries", nullptr )
 {
 	idDict::ShowMemoryUsage_f( args );
 }
-CONSOLE_COMMAND( listDictKeys, "lists all keys used by dictionaries", NULL )
+CONSOLE_COMMAND( listDictKeys, "lists all keys used by dictionaries", nullptr )
 {
 	idDict::ListKeys_f( args );
 }
-CONSOLE_COMMAND( listDictValues, "lists all values used by dictionaries", NULL )
+CONSOLE_COMMAND( listDictValues, "lists all values used by dictionaries", nullptr )
 {
 	idDict::ListValues_f( args );
 }
-CONSOLE_COMMAND( testSIMD, "test SIMD code", NULL )
+CONSOLE_COMMAND( testSIMD, "test SIMD code", nullptr )
 {
 	idSIMD::Test_f( args );
 }

@@ -47,9 +47,9 @@ idAnimState::idAnimState
 */
 idAnimState::idAnimState()
 {
-	self			= NULL;
-	animator		= NULL;
-	thread			= NULL;
+	self			= nullptr;
+	animator		= nullptr;
+	thread			= nullptr;
 	idleAnim		= true;
 	disabled		= true;
 	channel			= ANIMCHANNEL_ALL;
@@ -148,7 +148,7 @@ idAnimState::Shutdown
 void idAnimState::Shutdown()
 {
 	delete thread;
-	thread = NULL;
+	thread = nullptr;
 }
 
 /*
@@ -285,7 +285,7 @@ animFlags_t idAnimState::GetAnimFlags() const
 {
 	animFlags_t flags;
 	
-	memset( &flags, 0, sizeof( flags ) );
+	std::memset( &flags, 0, sizeof( flags ) );
 	if( !disabled && !AnimDone( 0 ) )
 	{
 		flags = animator->GetAnimFlags( animator->CurrentAnim( channel )->AnimNum() );
@@ -359,10 +359,10 @@ idActor::idActor()
 {
 	viewAxis.Identity();
 	
-	scriptThread		= NULL;		// initialized by ConstructScriptObject, which is called by idEntity::Spawn
+	scriptThread		= nullptr;		// initialized by ConstructScriptObject, which is called by idEntity::Spawn
 	
 	use_combat_bbox		= false;
-	head				= NULL;
+	head				= nullptr;
 	
 	team				= 0;
 	rank				= 0;
@@ -372,8 +372,8 @@ idActor::idActor()
 	pain_delay			= 0;
 	pain_threshold		= 0;
 	
-	state				= NULL;
-	idealState			= NULL;
+	state				= nullptr;
+	idealState			= nullptr;
 	
 	leftEyeJoint		= INVALID_JOINT;
 	rightEyeJoint		= INVALID_JOINT;
@@ -423,7 +423,7 @@ idActor::~idActor()
 	StopSound( SND_CHANNEL_ANY, false );
 	
 	delete combatModel;
-	combatModel = NULL;
+	combatModel = nullptr;
 	
 	if( head.GetEntity() )
 	{
@@ -459,8 +459,8 @@ void idActor::Spawn()
 	copyJoints_t	copyJoint;
 	
 	animPrefix	= "";
-	state		= NULL;
-	idealState	= NULL;
+	state		= nullptr;
+	idealState	= nullptr;
 	
 	spawnArgs.GetInt( "rank", "0", rank );
 	spawnArgs.GetInt( "team", "0", team );
@@ -489,12 +489,12 @@ void idActor::Spawn()
 	
 	// spawn any attachments we might have
 	int attachId = 0;
-	const idKeyValue* kv = spawnArgs.MatchPrefix(va("def_attach%d", attachId), NULL);
+	const idKeyValue* kv = spawnArgs.MatchPrefix(va("def_attach%d", attachId), nullptr);
 	while( kv )
 	{
-		const char * attachJoint = spawnArgs.GetString(va("%s_joint", kv->GetKey().c_str()), NULL);
-		const char * attachAngles = spawnArgs.GetString(va("%s_angles", kv->GetKey().c_str()), NULL);
-		const char * attachOrigin = spawnArgs.GetString(va("%s_origin", kv->GetKey().c_str()), NULL);
+		const char * attachJoint = spawnArgs.GetString(va("%s_joint", kv->GetKey().c_str()), nullptr);
+		const char * attachAngles = spawnArgs.GetString(va("%s_angles", kv->GetKey().c_str()), nullptr);
+		const char * attachOrigin = spawnArgs.GetString(va("%s_origin", kv->GetKey().c_str()), nullptr);
 		
 		idDict args;		
 		args.Set( "classname", kv->GetValue().c_str() );		
@@ -503,11 +503,11 @@ void idActor::Spawn()
 		// don't let them drop to the floor
 		args.Set( "dropToFloor", "0" );
 		
-		if (attachJoint != NULL)
+		if (attachJoint != nullptr)
 			args.Set("joint", attachJoint);
-		if (attachAngles != NULL)
+		if (attachAngles != nullptr)
 			args.Set("angles", attachAngles);
-		if (attachOrigin != NULL)
+		if (attachOrigin != nullptr)
 			args.Set("origin", attachOrigin);
 
 		gameLocal.SpawnEntityDef( args, &ent );
@@ -542,7 +542,7 @@ void idActor::Spawn()
 	if( headEnt )
 	{
 		// set up the list of joints to copy to the head
-		for( kv = spawnArgs.MatchPrefix( "copy_joint", NULL ); kv != NULL; kv = spawnArgs.MatchPrefix( "copy_joint", kv ) )
+		for( kv = spawnArgs.MatchPrefix( "copy_joint", nullptr ); kv != nullptr; kv = spawnArgs.MatchPrefix( "copy_joint", kv ) )
 		{
 			if( kv->GetValue() == "" )
 			{
@@ -624,7 +624,7 @@ void idActor::FinishSetup()
 	const char*	scriptObjectName;
 	
 	// setup script object
-	if( spawnArgs.GetString( "scriptobject", NULL, &scriptObjectName ) )
+	if( spawnArgs.GetString( "scriptobject", nullptr, &scriptObjectName ) )
 	{
 		if( !scriptObject.SetType( scriptObjectName ) )
 		{
@@ -680,7 +680,7 @@ void idActor::SetupHead()
 		
 		// copy any sounds in case we have frame commands on the head
 		idDict	args;
-		sndKV = spawnArgs.MatchPrefix( "snd_", NULL );
+		sndKV = spawnArgs.MatchPrefix( "snd_", nullptr );
 		while( sndKV )
 		{
 			args.Set( sndKV->GetKey(), sndKV->GetValue() );
@@ -786,7 +786,7 @@ void idActor::Save( idSaveGame* savefile ) const
 	savefile->WriteMat3( viewAxis );
 	
 	savefile->WriteInt( enemyList.Num() );
-	for( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() )
+	for( ent = enemyList.Next(); ent != nullptr; ent = ent->enemyNode.Next() )
 	{
 		savefile->WriteObject( ent );
 	}
@@ -1032,7 +1032,7 @@ void idActor::Hide()
 		head.GetEntity()->Hide();
 	}
 	
-	for( ent = GetNextTeamEntity(); ent != NULL; ent = next )
+	for( ent = GetNextTeamEntity(); ent != nullptr; ent = next )
 	{
 		next = ent->GetNextTeamEntity();
 		if( ent->GetBindMaster() == this )
@@ -1062,7 +1062,7 @@ void idActor::Show()
 	{
 		head.GetEntity()->Show();
 	}
-	for( ent = GetNextTeamEntity(); ent != NULL; ent = next )
+	for( ent = GetNextTeamEntity(); ent != nullptr; ent = next )
 	{
 		next = ent->GetNextTeamEntity();
 		if( ent->GetBindMaster() == this )
@@ -1104,7 +1104,7 @@ void idActor::ProjectOverlay( const idVec3& origin, const idVec3& dir, float siz
 	
 	idEntity::ProjectOverlay( origin, dir, size, material );
 	
-	for( ent = GetNextTeamEntity(); ent != NULL; ent = next )
+	for( ent = GetNextTeamEntity(); ent != nullptr; ent = next )
 	{
 		next = ent->GetNextTeamEntity();
 		if( ent->GetBindMaster() == this )
@@ -1304,7 +1304,7 @@ void idActor::ShutdownThreads()
 		scriptThread->EndThread();
 		scriptThread->Remove();
 		delete scriptThread;
-		scriptThread = NULL;
+		scriptThread = nullptr;
 	}
 }
 
@@ -1401,7 +1401,7 @@ const function_t* idActor::GetFirstScriptFunction( const char* funcname[], size_
 	}
 	
 	scriptThread->Error( "Unknown function '%s' in '%s'", funcname[0], scriptObject.GetTypeName() );
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1411,7 +1411,7 @@ idActor::SetState
 */
 void idActor::SetState( const function_t* newState )
 {
-	if( newState == NULL )
+	if( newState == nullptr )
 	{
 		gameLocal.Error( "idActor::SetState: Null state" );
 		return;
@@ -1800,10 +1800,10 @@ bool idActor::StartRagdoll()
 	af.GetPhysics()->SetContactFrictionDent( contactFrictionDent, contactFrictionDentStart, contactFrictionDentEnd );
 	
 	// drop any items the actor is holding
-	idMoveableItem::DropItems( this, "death", NULL );
+	idMoveableItem::DropItems( this, "death", nullptr );
 	
 	// drop any articulated figures the actor is holding
-	idAFEntity_Base::DropAFs( this, "death", NULL );
+	idAFEntity_Base::DropAFs( this, "death", nullptr );
 	
 	RemoveAttachments();
 	
@@ -1863,7 +1863,7 @@ void idActor::RemoveAttachments()
 	for( i = 0; i < attachments.Num(); i++ )
 	{
 		ent = attachments[ i ].ent.GetEntity();
-		if( ent != NULL && ent->spawnArgs.GetBool( "remove" ) )
+		if( ent != nullptr && ent->spawnArgs.GetBool( "remove" ) )
 		{
 			ent->Remove();
 		}
@@ -1955,7 +1955,7 @@ bool idActor::HasEnemies() const
 {
 	idActor* ent;
 	
-	for( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() )
+	for( ent = enemyList.Next(); ent != nullptr; ent = ent->enemyNode.Next() )
 	{
 		if( !ent->fl.hidden )
 		{
@@ -1980,8 +1980,8 @@ idActor* idActor::ClosestEnemyToPoint( const idVec3& pos )
 	idVec3		delta;
 	
 	bestDistSquared = idMath::INFINITY;
-	bestEnt = NULL;
-	for( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() )
+	bestEnt = nullptr;
+	for( ent = enemyList.Next(); ent != nullptr; ent = ent->enemyNode.Next() )
 	{
 		if( ent->fl.hidden )
 		{
@@ -2010,8 +2010,8 @@ idActor* idActor::EnemyWithMostHealth()
 	idActor*		bestEnt;
 	
 	int most = -9999;
-	bestEnt = NULL;
-	for( ent = enemyList.Next(); ent != NULL; ent = ent->enemyNode.Next() )
+	bestEnt = nullptr;
+	for( ent = enemyList.Next(); ent != nullptr; ent = ent->enemyNode.Next() )
 	{
 		if( !ent->fl.hidden && ( ent->health > most ) )
 		{
@@ -2136,7 +2136,7 @@ const char* idActor::GetAnimState( int channel ) const
 			
 		default:
 			gameLocal.Error( "idActor::GetAnimState: Unknown anim group" );
-			return NULL;
+			return nullptr;
 			break;
 	}
 }
@@ -2192,7 +2192,7 @@ const char* idActor::WaitState() const
 	}
 	else
 	{
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -2378,7 +2378,7 @@ dir			direction of the attack for knockback in global space
 point		point at which the damage is being inflicted, used for headshots
 damage		amount of damage being inflicted
 
-inflictor, attacker, dir, and point can be NULL for environmental effects
+inflictor, attacker, dir, and point can be nullptr for environmental effects
 
 Bleeding wounds and surface overlays are applied in the collision code that
 calls Damage()
@@ -2428,7 +2428,7 @@ void idActor::Damage( idEntity* inflictor, idEntity* attacker, const idVec3& dir
 	}
 	
 	const idDict* damageDef = gameLocal.FindEntityDefDict( damageDefName );
-	if( damageDef == NULL )
+	if( damageDef == nullptr )
 	{
 		gameLocal.Error( "Unknown damageDef '%s'", damageDefName );
 		return;
@@ -2462,13 +2462,13 @@ void idActor::Damage( idEntity* inflictor, idEntity* attacker, const idVec3& dir
 			
 			if( oldHealth > 0 )
 			{
-				idPlayer* player = NULL;
+				idPlayer* player = nullptr;
 				if( ( attacker && attacker->IsType( idPlayer::Type ) ) )
 				{
 					player = static_cast< idPlayer* >( attacker );
 				}
 				
-				if( player != NULL )
+				if( player != nullptr )
 				{
 					if( !damageNotByFists && player->GetExpansionType() == GAME_BASE )
 					{
@@ -2521,17 +2521,17 @@ void idActor::Damage( idEntity* inflictor, idEntity* attacker, const idVec3& dir
 						// AND it has an attacker (set when the grabber picks up a moveable )
 						// AND the moveable's attacker is the attacker here (the player)
 						// then the player has killed an enemy with a launched moveable from the Grabber
-						if( moveable != NULL && moveable->GetAttacker() != NULL && moveable->GetAttacker()->IsType( idPlayer::Type ) && moveable->GetAttacker() == attacker && player->GetExpansionType() == GAME_D3XP && team != player->team )
+						if( moveable != nullptr && moveable->GetAttacker() != nullptr && moveable->GetAttacker()->IsType( idPlayer::Type ) && moveable->GetAttacker() == attacker && player->GetExpansionType() == GAME_D3XP && team != player->team )
 						{
 							player->GetAchievementManager().EventCompletesAchievement( ACHIEVEMENT_GRABBER_KILL_20_ENEMY );
 						}
 					}
 					
-					idProjectile* projectile = NULL;
-					if( inflictor != NULL && inflictor->IsType( idProjectile::Type ) )
+					idProjectile* projectile = nullptr;
+					if( inflictor != nullptr && inflictor->IsType( idProjectile::Type ) )
 					{
 						projectile = static_cast< idProjectile* >( inflictor );
-						if( projectile != NULL )
+						if( projectile != nullptr )
 						{
 							if( projectile->GetLaunchedFromGrabber() && player->GetExpansionType() == GAME_D3XP && team != player->team )
 							{
@@ -2624,19 +2624,19 @@ bool idActor::Pain( idEntity* inflictor, idEntity* attacker, int damage, const i
 	
 	if( health > 75 )
 	{
-		StartSound( "snd_pain_small", SND_CHANNEL_VOICE, 0, false, NULL );
+		StartSound( "snd_pain_small", SND_CHANNEL_VOICE, 0, false, nullptr );
 	}
 	else if( health > 50 )
 	{
-		StartSound( "snd_pain_medium", SND_CHANNEL_VOICE, 0, false, NULL );
+		StartSound( "snd_pain_medium", SND_CHANNEL_VOICE, 0, false, nullptr );
 	}
 	else if( health > 25 )
 	{
-		StartSound( "snd_pain_large", SND_CHANNEL_VOICE, 0, false, NULL );
+		StartSound( "snd_pain_large", SND_CHANNEL_VOICE, 0, false, nullptr );
 	}
 	else
 	{
-		StartSound( "snd_pain_huge", SND_CHANNEL_VOICE, 0, false, NULL );
+		StartSound( "snd_pain_huge", SND_CHANNEL_VOICE, 0, false, nullptr );
 	}
 	
 	if( !allowPain || ( gameLocal.time < painTime ) )
@@ -2734,7 +2734,7 @@ void idActor::SetupDamageGroups()
 	
 	// create damage zones
 	damageGroups.SetNum( animator.NumJoints() );
-	arg = spawnArgs.MatchPrefix( "damage_zone ", NULL );
+	arg = spawnArgs.MatchPrefix( "damage_zone ", nullptr );
 	while( arg )
 	{
 		groupname = arg->GetKey();
@@ -2757,7 +2757,7 @@ void idActor::SetupDamageGroups()
 	}
 	
 	// set the percentage on damage zones
-	arg = spawnArgs.MatchPrefix( "damage_scale ", NULL );
+	arg = spawnArgs.MatchPrefix( "damage_scale ", nullptr );
 	while( arg )
 	{
 		scale = atof( arg->GetValue() );

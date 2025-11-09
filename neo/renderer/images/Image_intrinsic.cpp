@@ -123,7 +123,7 @@ static void R_WhiteImage( idImage* image )
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 	
 	// solid white texture
-	memset( data, 255, sizeof( data ) );
+	std::memset( data, 255, sizeof( data ) );
 	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE,
 						  TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
 }
@@ -133,7 +133,7 @@ static void R_BlackImage( idImage* image )
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 	
 	// solid black texture
-	memset( data, 0, sizeof( data ) );
+	std::memset( data, 0, sizeof( data ) );
 	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE,
 						  TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
 }
@@ -144,7 +144,7 @@ static void R_GlossImage( idImage* image )
 	
 	// default 120 specular power texture (this gets multiplied by 32.0, so this is roughly pow(n,15) exponent)
 	// TD_GLOSS uses FMT_INT8 so we don't care about the green, blue or alpha bytes, just red
-	memset( data, 120, sizeof( data ) );
+	std::memset( data, 120, sizeof( data ) );
 	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE,
 						  TF_DEFAULT, TR_REPEAT, TD_GLOSS );
 }
@@ -153,7 +153,7 @@ static void R_RGBA8Image( idImage* image )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 	
-	memset( data, 0, sizeof( data ) );
+	std::memset( data, 0, sizeof( data ) );
 	data[0][0][0] = 16;
 	data[0][0][1] = 32;
 	data[0][0][2] = 48;
@@ -167,7 +167,7 @@ static void R_DepthImageNearest( idImage* image )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 	
-	memset( data, 0, sizeof( data ) );
+	std::memset( data, 0, sizeof( data ) );
 	data[0][0][0] = 16;
 	data[0][0][1] = 32;
 	data[0][0][2] = 48;
@@ -181,7 +181,7 @@ static void R_RGBA8ImageLinear( idImage* image )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 	
-	memset( data, 0, sizeof( data ) );
+	std::memset( data, 0, sizeof( data ) );
 	data[0][0][0] = 16;
 	data[0][0][1] = 32;
 	data[0][0][2] = 48;
@@ -195,7 +195,7 @@ static void R_RGBA16FImageLinear( idImage* image )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][8];
 	
-	memset( data, 0, sizeof( data ) );
+	std::memset( data, 0, sizeof( data ) );
 	
 	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_LINEAR, TR_CLAMP, TD_RGBA16F );
 }
@@ -205,7 +205,7 @@ static void R_DepthStencilImageNearest( idImage* image )
 {
 	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
 	
-	memset( data, 0, sizeof( data ) );
+	std::memset( data, 0, sizeof( data ) );
 	data[0][0][0] = 0;
 	data[0][0][1] = 0;
 	data[0][0][2] = 0;
@@ -255,7 +255,7 @@ static void R_CreateNoFalloffImage( idImage* image )
 	int		x, y;
 	byte	data[16][FALLOFF_TEXTURE_SIZE][4];
 	
-	memset( data, 0, sizeof( data ) );
+	std::memset( data, 0, sizeof( data ) );
 	for( x = 1 ; x < FALLOFF_TEXTURE_SIZE - 1 ; x++ )
 	{
 		for( y = 1 ; y < 15 ; y++ )

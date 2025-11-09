@@ -117,7 +117,7 @@ public:
 	void					RemoveSelectedEntity( idEntity* ent );
 	void					ClearSelectedEntities();
 	void					DisplayEntities();
-	bool					EntityIsSelectable( idEntity* ent, idVec4* color = NULL, idStr* text = NULL );
+	bool					EntityIsSelectable( idEntity* ent, idVec4* color = nullptr, idStr* text = nullptr );
 private:
 	int						nextSelectTime;
 	idList<selectedTypeInfo_t> selectableEntityClasses;

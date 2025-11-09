@@ -202,9 +202,9 @@ struct frameCommand_t
 
 	frameCommand_t()
 		: type( FC_NONE )
-		, string( NULL )
+		, string( nullptr )
 	{
-		memset( &variant, 0, sizeof(variant) );
+		std::memset( &variant, 0, sizeof(variant) );
 	}
 };
 

@@ -44,7 +44,7 @@ class DialogAF : public CDialog {
 	DECLARE_DYNAMIC(DialogAF)
 
 public:
-						DialogAF( CWnd* pParent = NULL );   // standard constructor
+						DialogAF( CWnd* pParent = nullptr );   // standard constructor
 	virtual				~DialogAF();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );

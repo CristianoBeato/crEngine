@@ -43,7 +43,7 @@ class CPatchDensityDlg : public CDialog
 {
 // Construction
 public:
-	CPatchDensityDlg(CWnd* pParent = NULL);   // standard constructor
+	CPatchDensityDlg(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CPatchDensityDlg)

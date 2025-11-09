@@ -147,7 +147,7 @@ private:
 
 private:
 	bool					CreateWindings( void );
-	void					BoundBrush( const idBrush *original = NULL );
+	void					BoundBrush( const idBrush *original = nullptr );
 	void					AddBevelsForAxialBox( void );
 	bool					RemoveSidesWithoutWinding( void );
 };
@@ -168,7 +168,7 @@ public:
 	int						NumSides( void ) const { return numBrushSides; }
 	idBrush *				Head( void ) const { return head; }
 	idBrush *				Tail( void ) const { return tail; }
-	void					Clear( void ) { head = tail = NULL; numBrushes = 0; }
+	void					Clear( void ) { head = tail = nullptr; numBrushes = 0; }
 	bool					IsEmpty( void ) const { return (numBrushes == 0); }
 	idBounds				GetBounds( void ) const;
 							// add brush to the tail of the list

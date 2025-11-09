@@ -62,7 +62,7 @@ idEventDef::idEventDef( const char* command, const char* formatspec, char return
 	assert( command );
 	assert( !idEvent::initialized );
 	
-	// Allow NULL to indicate no args, but always store it as ""
+	// Allow nullptr to indicate no args, but always store it as ""
 	// so we don't have to check for it.
 	if( !formatspec )
 	{
@@ -85,7 +85,7 @@ idEventDef::idEventDef( const char* command, const char* formatspec, char return
 	// make sure the format for the args is valid, calculate the formatspecindex, and the offsets for each arg
 	bits = 0;
 	argsize = 0;
-	memset( argOffset, 0, sizeof( argOffset ) );
+	std::memset( argOffset, 0, sizeof( argOffset ) );
 	for( i = 0; i < numargs; i++ )
 	{
 		argOffset[ i ] = argsize;
@@ -120,7 +120,7 @@ idEventDef::idEventDef( const char* command, const char* formatspec, char return
 				// RB end
 				break;
 				
-			case D_EVENT_ENTITY_NULL :
+			case D_EVENT_ENTITY_nullptr :
 				// RB: 64 bit fix, sizeof( idEntityPtr<idEntity> ) to sizeof( intptr_t )
 				argsize += sizeof( intptr_t );
 				// RB end
@@ -225,7 +225,7 @@ const idEventDef* idEventDef::FindEvent( const char* name )
 		}
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /***********************************************************************
@@ -289,11 +289,11 @@ idEvent* idEvent::Alloc( const idEventDef* evdef, int numargs, va_list args )
 	if( size )
 	{
 		ev->data = eventDataAllocator.Alloc( size );
-		memset( ev->data, 0, size );
+		std::memset( ev->data, 0, size );
 	}
 	else
 	{
-		ev->data = NULL;
+		ev->data = nullptr;
 		return ev;
 	}
 	
@@ -303,7 +303,7 @@ idEvent* idEvent::Alloc( const idEventDef* evdef, int numargs, va_list args )
 		arg = va_arg( args, idEventArg* );
 		if( format[ i ] != arg->type )
 		{
-			// when NULL is passed in for an entity, it gets cast as an integer 0, so don't give an error when it happens
+			// when nullptr is passed in for an entity, it gets cast as an integer 0, so don't give an error when it happens
 			if( !( ( ( format[ i ] == D_EVENT_TRACE ) || ( format[ i ] == D_EVENT_ENTITY ) ) && ( arg->type == 'd' ) && ( arg->value == 0 ) ) )
 			{
 				gameLocal.Error( "idEvent::Alloc : Wrong type passed in for arg # %d on '%s' event.", i, evdef->GetName() );
@@ -334,7 +334,7 @@ idEvent* idEvent::Alloc( const idEventDef* evdef, int numargs, va_list args )
 				break;
 				
 			case D_EVENT_ENTITY :
-			case D_EVENT_ENTITY_NULL :
+			case D_EVENT_ENTITY_nullptr :
 				*reinterpret_cast< idEntityPtr<idEntity> * >( dataPtr ) = reinterpret_cast<idEntity*>( arg->value );
 				break;
 				
@@ -345,8 +345,8 @@ idEvent* idEvent::Alloc( const idEventDef* evdef, int numargs, va_list args )
 					*reinterpret_cast<trace_t*>( dataPtr + sizeof( bool ) ) = *reinterpret_cast<const trace_t*>( arg->value );
 					
 					// save off the material as a string since the pointer won't be valid in save games.
-					// since we save off the entire trace_t structure, if the material is NULL here,
-					// it will be NULL when we process it, so we don't need to save off anything in that case.
+					// since we save off the entire trace_t structure, if the material is nullptr here,
+					// it will be nullptr when we process it, so we don't need to save off anything in that case.
 					if( reinterpret_cast<const trace_t*>( arg->value )->c.material )
 					{
 						materialName = reinterpret_cast<const trace_t*>( arg->value )->c.material->GetName();
@@ -392,7 +392,7 @@ void idEvent::CopyArgs( const idEventDef* evdef, int numargs, va_list args, intp
 		arg = va_arg( args, idEventArg* );
 		if( format[ i ] != arg->type )
 		{
-			// when NULL is passed in for an entity, it gets cast as an integer 0, so don't give an error when it happens
+			// when nullptr is passed in for an entity, it gets cast as an integer 0, so don't give an error when it happens
 			if( !( ( ( format[ i ] == D_EVENT_TRACE ) || ( format[ i ] == D_EVENT_ENTITY ) ) && ( arg->type == 'd' ) && ( arg->value == 0 ) ) )
 			{
 				gameLocal.Error( "idEvent::CopyArgs : Wrong type passed in for arg # %d on '%s' event.", i, evdef->GetName() );
@@ -413,13 +413,13 @@ void idEvent::Free()
 	if( data )
 	{
 		eventDataAllocator.Free( data );
-		data = NULL;
+		data = nullptr;
 	}
 	
-	eventdef	= NULL;
+	eventdef	= nullptr;
 	time		= 0;
-	object		= NULL;
-	typeinfo	= NULL;
+	object		= nullptr;
+	typeinfo	= nullptr;
 	
 	eventNode.SetOwner( this );
 	eventNode.AddToEnd( FreeEvents );
@@ -451,7 +451,7 @@ void idEvent::Schedule( idClass* obj, const idTypeInfo* type, int time )
 	if( obj->IsType( idEntity::Type ) && ( ( ( idEntity* )( obj ) )->timeGroup == TIME_GROUP2 ) )
 	{
 		event = FastEventQueue.Next();
-		while( ( event != NULL ) && ( this->time >= event->time ) )
+		while( ( event != nullptr ) && ( this->time >= event->time ) )
 		{
 			event = event->eventNode.Next();
 		}
@@ -473,7 +473,7 @@ void idEvent::Schedule( idClass* obj, const idTypeInfo* type, int time )
 	}
 	
 	event = EventQueue.Next();
-	while( ( event != NULL ) && ( this->time >= event->time ) )
+	while( ( event != nullptr ) && ( this->time >= event->time ) )
 	{
 		event = event->eventNode.Next();
 	}
@@ -503,7 +503,7 @@ void idEvent::CancelEvents( const idClass* obj, const idEventDef* evdef )
 		return;
 	}
 	
-	for( event = EventQueue.Next(); event != NULL; event = next )
+	for( event = EventQueue.Next(); event != nullptr; event = next )
 	{
 		next = event->eventNode.Next();
 		if( event->object == obj )
@@ -515,7 +515,7 @@ void idEvent::CancelEvents( const idClass* obj, const idEventDef* evdef )
 		}
 	}
 	
-	for( event = FastEventQueue.Next(); event != NULL; event = next )
+	for( event = FastEventQueue.Next(); event != nullptr; event = next )
 	{
 		next = event->eventNode.Next();
 		if( event->object == obj )
@@ -560,7 +560,7 @@ idEvent::ServiceRemoveEntities
 void idEvent::ServiceRemoveEntities()
 {
 	idClass * ent = RemoveEntities.Next();
-	while (ent != NULL)
+	while (ent != nullptr)
 	{
 		idClass * deleteEnt = ent;
 		delete deleteEnt;
@@ -628,7 +628,7 @@ void idEvent::ServiceEvents()
 					break;
 					
 				case D_EVENT_ENTITY :
-				case D_EVENT_ENTITY_NULL :
+				case D_EVENT_ENTITY_nullptr :
 					*reinterpret_cast<idEntity**>( &args[ i ] ) = reinterpret_cast< idEntityPtr<idEntity> * >( &data[ offset ] )->GetEntity();
 					break;
 					
@@ -638,7 +638,7 @@ void idEvent::ServiceEvents()
 					{
 						*tracePtr = reinterpret_cast<trace_t*>( &data[ offset + sizeof( bool ) ] );
 						
-						if( ( *tracePtr )->c.material != NULL )
+						if( ( *tracePtr )->c.material != nullptr )
 						{
 							// look up the material name to get the material pointer
 							materialName = reinterpret_cast<const char*>( &data[ offset + sizeof( bool ) + sizeof( trace_t ) ] );
@@ -647,7 +647,7 @@ void idEvent::ServiceEvents()
 					}
 					else
 					{
-						*tracePtr = NULL;
+						*tracePtr = nullptr;
 					}
 					break;
 					
@@ -742,7 +742,7 @@ void idEvent::ServiceFastEvents()
 					break;
 					
 				case D_EVENT_ENTITY :
-				case D_EVENT_ENTITY_NULL :
+				case D_EVENT_ENTITY_nullptr :
 					*reinterpret_cast<idEntity**>( &args[ i ] ) = reinterpret_cast< idEntityPtr<idEntity> * >( &data[ offset ] )->GetEntity();
 					break;
 					
@@ -752,7 +752,7 @@ void idEvent::ServiceFastEvents()
 					{
 						*tracePtr = reinterpret_cast<trace_t*>( &data[ offset + sizeof( bool ) ] );
 						
-						if( ( *tracePtr )->c.material != NULL )
+						if( ( *tracePtr )->c.material != nullptr )
 						{
 							// look up the material name to get the material pointer
 							materialName = reinterpret_cast<const char*>( &data[ offset + sizeof( bool ) + sizeof( trace_t ) ] );
@@ -761,7 +761,7 @@ void idEvent::ServiceFastEvents()
 					}
 					else
 					{
-						*tracePtr = NULL;
+						*tracePtr = nullptr;
 					}
 					break;
 					
@@ -878,7 +878,7 @@ void idEvent::Save( idSaveGame* savefile )
 	savefile->WriteInt( EventQueue.Num() );
 	
 	event = EventQueue.Next();
-	while( event != NULL )
+	while( event != nullptr )
 	{
 		savefile->WriteInt( event->time );
 		savefile->WriteString( event->eventdef->GetName() );
@@ -904,7 +904,7 @@ void idEvent::Save( idSaveGame* savefile )
 					break;
 					// RB end
 				case D_EVENT_ENTITY :
-				case D_EVENT_ENTITY_NULL :
+				case D_EVENT_ENTITY_nullptr :
 					// RB: 64 bit fix, changed alignment to sizeof( intptr_t )
 					reinterpret_cast< idEntityPtr<idEntity> * >( dataPtr )->Save( savefile );
 					size += sizeof( intptr_t );
@@ -956,7 +956,7 @@ void idEvent::Save( idSaveGame* savefile )
 	savefile->WriteInt( FastEventQueue.Num() );
 	
 	event = FastEventQueue.Next();
-	while( event != NULL )
+	while( event != nullptr )
 	{
 		savefile->WriteInt( event->time );
 		savefile->WriteString( event->eventdef->GetName() );
@@ -969,7 +969,7 @@ void idEvent::Save( idSaveGame* savefile )
 	}
 
 	savefile->WriteInt(RemoveEntities.Num());
-	for (idClass * ent = RemoveEntities.Next(); ent != NULL; ent = ent->removeNode.Next())
+	for (idClass * ent = RemoveEntities.Next(); ent != nullptr; ent = ent->removeNode.Next())
 	{
 		savefile->WriteObject(ent);
 	}
@@ -1010,7 +1010,7 @@ void idEvent::Restore( idRestoreGame* savefile )
 		// read the event name
 		savefile->ReadString( name );
 		event->eventdef = idEventDef::FindEvent( name );
-		if( event->eventdef == NULL )
+		if( event->eventdef == nullptr )
 		{
 			savefile->Error( "idEvent::Restore: unknown event '%s'", name.c_str() );
 			return;
@@ -1019,7 +1019,7 @@ void idEvent::Restore( idRestoreGame* savefile )
 		// read the classtype
 		savefile->ReadString( name );
 		event->typeinfo = idClass::GetClass( name );
-		if( event->typeinfo == NULL )
+		if( event->typeinfo == nullptr )
 		{
 			savefile->Error( "idEvent::Restore: unknown class '%s' on event '%s'", name.c_str(), event->eventdef->GetName() );
 			return;
@@ -1059,7 +1059,7 @@ void idEvent::Restore( idRestoreGame* savefile )
 						break;
 						// RB end
 					case D_EVENT_ENTITY :
-					case D_EVENT_ENTITY_NULL :
+					case D_EVENT_ENTITY_nullptr :
 						// RB: 64 bit fix, changed alignment to sizeof( intptr_t )
 						reinterpret_cast<idEntityPtr<idEntity> *>( dataPtr )->Restore( savefile );
 						size += sizeof( intptr_t );
@@ -1106,7 +1106,7 @@ void idEvent::Restore( idRestoreGame* savefile )
 		}
 		else
 		{
-			event->data = NULL;
+			event->data = nullptr;
 		}
 	}
 	
@@ -1129,7 +1129,7 @@ void idEvent::Restore( idRestoreGame* savefile )
 		// read the event name
 		savefile->ReadString( name );
 		event->eventdef = idEventDef::FindEvent( name );
-		if( event->eventdef == NULL )
+		if( event->eventdef == nullptr )
 		{
 			savefile->Error( "idEvent::Restore: unknown event '%s'", name.c_str() );
 			return;
@@ -1138,7 +1138,7 @@ void idEvent::Restore( idRestoreGame* savefile )
 		// read the classtype
 		savefile->ReadString( name );
 		event->typeinfo = idClass::GetClass( name );
-		if( event->typeinfo == NULL )
+		if( event->typeinfo == nullptr )
 		{
 			savefile->Error( "idEvent::Restore: unknown class '%s' on event '%s'", name.c_str(), event->eventdef->GetName() );
 			return;
@@ -1159,14 +1159,14 @@ void idEvent::Restore( idRestoreGame* savefile )
 		}
 		else
 		{
-			event->data = NULL;
+			event->data = nullptr;
 		}
 	}
 
 	savefile->ReadInt(num);
 	for (i = 0; i < num; i++)
 	{
-		idEntity * ent = NULL;
+		idEntity * ent = nullptr;
 		savefile->ReadObject(reinterpret_cast<idClass*&>(ent));
 		assert(ent);
 		if (ent)

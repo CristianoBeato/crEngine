@@ -482,7 +482,7 @@ public:
 	virtual bool			HandleSingleGuiCommand( idEntity* entityGui, idLexer* src );
 	bool					GuiActive()
 	{
-		return focusGUIent != NULL;
+		return focusGUIent != nullptr;
 	}
 	
 	bool					HandleGuiEvents( const sysEvent_t* ev );
@@ -941,7 +941,7 @@ ID_INLINE idPhysics_Player* idPlayer::GetPlayerPhysics()
 
 ID_INLINE bool idPlayer::IsInTeleport()
 {
-	return ( teleportEntity.GetEntity() != NULL );
+	return ( teleportEntity.GetEntity() != nullptr );
 }
 
 ID_INLINE void idPlayer::SetLeader( bool lead )

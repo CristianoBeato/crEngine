@@ -138,7 +138,7 @@ idRenderLog::Indent
 */
 ID_INLINE void idRenderLog::Indent( renderLogIndentLabel_t label )
 {
-	if( logFile != NULL )
+	if( logFile != nullptr )
 	{
 		indentLabel[indentLevel] = label;
 		indentLevel++;
@@ -157,7 +157,7 @@ idRenderLog::Outdent
 */
 ID_INLINE void idRenderLog::Outdent( renderLogIndentLabel_t label )
 {
-	if( logFile != NULL && indentLevel > 0 )
+	if( logFile != nullptr && indentLevel > 0 )
 	{
 		indentLevel--;
 		assert( indentLabel[indentLevel] == label );	// indent and outdent out of sync ?

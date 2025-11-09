@@ -9,7 +9,7 @@ public:
 	{
 		dataLength = 0;
 	}
-	bool Append( int sequence, const byte* b1, int b1Len, const byte* b2 = NULL, int b2Len = 0 );
+	bool Append( int sequence, const byte* b1, int b1Len, const byte* b2 = nullptr, int b2Len = 0 );
 	void RemoveOlderThan( int sequence );
 	
 	int GetDataLength() const
@@ -38,7 +38,7 @@ public:
 	{
 		dataLength = 0;
 		items.Clear();
-		memset( data, 0, sizeof( data ) );
+		std::memset( data, 0, sizeof( data ) );
 	}
 	
 private:
@@ -107,9 +107,9 @@ bool idDataQueue< maxItems, maxBuffer >::Append( int sequence, const byte* b1, i
 	item.length = b1Len + b2Len;
 	item.sequence = sequence;
 	item.dataOffset = dataLength;
-	memcpy( data + dataLength, b1, b1Len );
+	std::memcpy( data + dataLength, b1, b1Len );
 	dataLength += b1Len;
-	memcpy( data + dataLength, b2, b2Len );
+	std::memcpy( data + dataLength, b2, b2Len );
 	dataLength += b2Len;
 	return true;
 }

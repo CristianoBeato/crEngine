@@ -89,7 +89,7 @@ public:
 	
 	int				GetDimension() const;
 	
-	void			ToVectors( idVec3* forward, idVec3* right = NULL, idVec3* up = NULL ) const;
+	void			ToVectors( idVec3* forward, idVec3* right = nullptr, idVec3* up = nullptr ) const;
 	idVec3			ToForward() const;
 	idQuat			ToQuat() const;
 	idRotation		ToRotation() const;

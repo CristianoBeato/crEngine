@@ -126,12 +126,12 @@ class idSysThreadLocalStorage
 public:
 	idSysThreadLocalStorage()
 	{
-		pthread_key_create( &key, NULL );
+		pthread_key_create( &key, nullptr );
 	}
 
 	idSysThreadLocalStorage( const ptrdiff_t& val )
 	{
-		pthread_key_create( &key, NULL );
+		pthread_key_create( &key, nullptr );
 		pthread_setspecific( key, ( const void* ) val );
 	}
 

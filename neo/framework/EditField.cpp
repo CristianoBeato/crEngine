@@ -644,7 +644,7 @@ void idEditField::Draw( int x, int y, int width, bool showCursor )
 	if( drawLen >= MAX_EDIT_LINE )
 		common->Error( "drawLen >= MAX_EDIT_LINE" );
 	
-	memcpy( str, buffer + prestep, drawLen );
+	std::memcpy( str, buffer + prestep, drawLen );
 	str[ drawLen ] = 0;
 	
 	// draw it

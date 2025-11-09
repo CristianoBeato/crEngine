@@ -46,7 +46,7 @@ enum EventArgType
 	D_EVENT_VECTOR		= 'v',
 	D_EVENT_STRING		= 's',
 	D_EVENT_ENTITY		= 'e',
-	D_EVENT_ENTITY_NULL	= 'E',			// event can handle NULL entity pointers
+	D_EVENT_ENTITY_nullptr	= 'E',			// event can handle nullptr entity pointers
 	D_EVENT_TRACE		= 't',
 };
 
@@ -72,7 +72,7 @@ private:
 	static int					numEventDefs;
 	
 public:
-	idEventDef( const char* command, const char* formatspec = NULL, char returnType = 0 );
+	idEventDef( const char* command, const char* formatspec = nullptr, char returnType = 0 );
 	
 	const char*					GetName() const;
 	const char*					GetArgFormat() const;
@@ -119,7 +119,7 @@ public:
 	void						Schedule( idClass* object, const idTypeInfo* cls, int time );
 	byte*						GetData();
 	
-	static void					CancelEvents( const idClass* obj, const idEventDef* evdef = NULL );
+	static void					CancelEvents( const idClass* obj, const idEventDef* evdef = nullptr );
 	static void					ClearEventList();
 	static void					ServiceEvents();
 	static void					ServiceFastEvents();

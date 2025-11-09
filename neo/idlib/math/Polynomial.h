@@ -106,14 +106,14 @@ ID_INLINE idPolynomial::idPolynomial()
 {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 }
 
 ID_INLINE idPolynomial::idPolynomial( int d )
 {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( d, false );
 }
 
@@ -121,7 +121,7 @@ ID_INLINE idPolynomial::idPolynomial( float a, float b )
 {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( 1, false );
 	coefficient[0] = b;
 	coefficient[1] = a;
@@ -131,7 +131,7 @@ ID_INLINE idPolynomial::idPolynomial( float a, float b, float c )
 {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( 2, false );
 	coefficient[0] = c;
 	coefficient[1] = b;
@@ -142,7 +142,7 @@ ID_INLINE idPolynomial::idPolynomial( float a, float b, float c, float d )
 {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( 3, false );
 	coefficient[0] = d;
 	coefficient[1] = c;
@@ -154,7 +154,7 @@ ID_INLINE idPolynomial::idPolynomial( float a, float b, float c, float d, float 
 {
 	degree = -1;
 	allocated = 0;
-	coefficient = NULL;
+	coefficient = nullptr;
 	Resize( 4, false );
 	coefficient[0] = e;
 	coefficient[1] = d;
@@ -750,7 +750,7 @@ ID_INLINE void idPolynomial::Resize( int d, bool keep )
 	if( alloc > allocated )
 	{
 		float* ptr = ( float* ) Mem_Alloc16( alloc * sizeof( float ), TAG_MATH );
-		if( coefficient != NULL )
+		if( coefficient != nullptr )
 		{
 			if( keep )
 			{

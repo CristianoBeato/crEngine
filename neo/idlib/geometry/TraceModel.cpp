@@ -1337,7 +1337,7 @@ int idTraceModel::GetProjectionSilhouetteEdges( const idVec3& projectionOrigin, 
 	const traceModelPoly_t* poly;
 	idVec3 dir;
 	
-	memset( edgeIsSilEdge, 0, sizeof( edgeIsSilEdge ) );
+	std::memset( edgeIsSilEdge, 0, sizeof( edgeIsSilEdge ) );
 	
 	for( i = 0; i < numPolys; i++ )
 	{
@@ -1368,7 +1368,7 @@ int idTraceModel::GetParallelProjectionSilhouetteEdges( const idVec3& projection
 	int edgeIsSilEdge[MAX_TRACEMODEL_EDGES + 1];
 	const traceModelPoly_t* poly;
 	
-	memset( edgeIsSilEdge, 0, sizeof( edgeIsSilEdge ) );
+	std::memset( edgeIsSilEdge, 0, sizeof( edgeIsSilEdge ) );
 	
 	for( i = 0; i < numPolys; i++ )
 	{
@@ -1418,7 +1418,7 @@ void idTraceModel::ProjectionIntegrals( int polyNum, int a, int b, struct projec
 	float C1, Ca, Caa, Caaa, Cb, Cbb, Cbbb;
 	float Cab, Kab, Caab, Kaab, Cabb, Kabb;
 	
-	memset( &integrals, 0, sizeof( projectionIntegrals_t ) );
+	std::memset( &integrals, 0, sizeof( projectionIntegrals_t ) );
 	poly = &polys[polyNum];
 	for( i = 0; i < poly->numEdges; i++ )
 	{
@@ -1551,7 +1551,7 @@ void idTraceModel::VolumeIntegrals( struct volumeIntegrals_s& integrals ) const
 	int i, a, b, c;
 	float nx, ny, nz;
 	
-	memset( &integrals, 0, sizeof( volumeIntegrals_t ) );
+	std::memset( &integrals, 0, sizeof( volumeIntegrals_t ) );
 	for( i = 0; i < numPolys; i++ )
 	{
 		poly = &polys[i];

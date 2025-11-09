@@ -85,7 +85,7 @@ END_MESSAGE_MAP()
 MaterialTreeView::MaterialTreeView() {
 	treeWithFile = false;
 	bDragging = false;
-	hoverItem = NULL;
+	hoverItem = nullptr;
 	internalChange = false;
 }
 
@@ -98,7 +98,7 @@ MaterialTreeView::~MaterialTreeView() {
 /** 
 * Clears the tree and rebuilds it.
 * @param includeFile Should the list include the filename
-* @param filename The file to load or NULL to load all files.
+* @param filename The file to load or nullptr to load all files.
 */
 void MaterialTreeView::InitializeMaterialList(bool includeFile, const char* filename) {
 
@@ -117,7 +117,7 @@ void MaterialTreeView::InitializeMaterialList(bool includeFile, const char* file
 /** 
 * Builds the tree of materials.
 * @param includeFile Should the list include the filename
-* @param filename The file to load or NULL to load all files.
+* @param filename The file to load or nullptr to load all files.
 */
 void MaterialTreeView::BuildMaterialList(bool includeFile, const char* filename) {
 
@@ -155,7 +155,7 @@ void MaterialTreeView::BuildMaterialList(bool includeFile, const char* filename)
 
 			list.Append(temp);
 		}
-		AddStrList(NULL, &list, includeFile);
+		AddStrList(nullptr, &list, includeFile);
 	}
 }
 
@@ -168,7 +168,7 @@ void MaterialTreeView::MV_OnMaterialChange(MaterialDoc* pMaterial) {
 	CTreeCtrl& tree = GetTreeCtrl();
 
 	//When a material changes place an asterik next to the material and the file
-	HTREEITEM* materialItem = NULL;
+	HTREEITEM* materialItem = nullptr;
 	materialToTree.Get(pMaterial->name, &materialItem);
 
 
@@ -179,7 +179,7 @@ void MaterialTreeView::MV_OnMaterialChange(MaterialDoc* pMaterial) {
 
 
 	if(treeWithFile) {
-		HTREEITEM* fileItem = NULL;
+		HTREEITEM* fileItem = nullptr;
 		idStr file = pMaterial->renderMaterial->GetFileName();
 
 		//common->Printf("Filename = %s\n", file.c_str());
@@ -199,7 +199,7 @@ void MaterialTreeView::MV_OnMaterialApply(MaterialDoc* pMaterial) {
 	CTreeCtrl& tree = GetTreeCtrl();
 
 	//When a material is applied then just change the image to material modified
-	HTREEITEM* materialItem = NULL;
+	HTREEITEM* materialItem = nullptr;
 	materialToTree.Get(pMaterial->name, &materialItem);
 
 	if(!materialItem)
@@ -216,7 +216,7 @@ void MaterialTreeView::MV_OnMaterialSaved(MaterialDoc* pMaterial) {
 	CTreeCtrl& tree = GetTreeCtrl();
 
 	//Remove the asterik
-	HTREEITEM* materialItem = NULL;
+	HTREEITEM* materialItem = nullptr;
 	materialToTree.Get(pMaterial->name, &materialItem);
 
 	//We will get this message for a delete file so the material will not be in the tree
@@ -229,7 +229,7 @@ void MaterialTreeView::MV_OnMaterialSaved(MaterialDoc* pMaterial) {
 
 		if(!materialDocManager->IsFileModified(pMaterial->renderMaterial->GetFileName())) {
 
-			HTREEITEM* fileItem = NULL;
+			HTREEITEM* fileItem = nullptr;
 			idStr file = pMaterial->renderMaterial->GetFileName();
 
 			if(fileToTree.Get(file, &fileItem)) {
@@ -259,10 +259,10 @@ void MaterialTreeView::MV_OnMaterialAdd(MaterialDoc* pMaterial) {
 	}
 
 	list.Append(temp);
-	AddStrList(NULL, &list, treeWithFile);	
+	AddStrList(nullptr, &list, treeWithFile);	
 
 	//Keep the items sorted
-	HTREEITEM* item = NULL;
+	HTREEITEM* item = nullptr;
 	materialToTree.Get(pMaterial->name, &item);
 	if(*item) {
 		CTreeCtrl& tree = GetTreeCtrl();
@@ -280,7 +280,7 @@ void MaterialTreeView::MV_OnMaterialAdd(MaterialDoc* pMaterial) {
 void MaterialTreeView::MV_OnMaterialDelete(MaterialDoc* pMaterial) {
 
 	//Our doc told us a material has been deleted. Lets find and remove the item from our tree
-	HTREEITEM* materialItem = NULL;
+	HTREEITEM* materialItem = nullptr;
 	materialToTree.Get(pMaterial->name, &materialItem);
 
 	CTreeCtrl& tree = GetTreeCtrl();
@@ -302,7 +302,7 @@ void MaterialTreeView::MV_OnMaterialNameChanged(MaterialDoc* pMaterial, const ch
 	if(!internalChange) {
 		
 		//Delete the old tree item
-		HTREEITEM* item = NULL;
+		HTREEITEM* item = nullptr;
 		materialToTree.Get(oldName, &item);
 		CTreeCtrl& tree = GetTreeCtrl();
 		HTREEITEM tempItem = *item;
@@ -324,10 +324,10 @@ void MaterialTreeView::MV_OnMaterialNameChanged(MaterialDoc* pMaterial, const ch
 		}
 
 		list.Append(temp);
-		AddStrList(NULL, &list, treeWithFile);	
+		AddStrList(nullptr, &list, treeWithFile);	
 
 		//Keep the items sorted
-		//item = NULL;
+		//item = nullptr;
 		materialToTree.Get(pMaterial->name.c_str(), &item);
 		if(*item) {
 			CTreeCtrl& tree = GetTreeCtrl();
@@ -346,7 +346,7 @@ void MaterialTreeView::MV_OnMaterialNameChanged(MaterialDoc* pMaterial, const ch
 */
 void MaterialTreeView::MV_OnFileReload(const char* filename) {
 
-	HTREEITEM* fileItem = NULL;
+	HTREEITEM* fileItem = nullptr;
 	fileToTree.Get(filename, &fileItem);
 
 	HTREEITEM item = *fileItem;
@@ -358,7 +358,7 @@ void MaterialTreeView::MV_OnFileReload(const char* filename) {
 	BuildMaterialList(treeWithFile, filename);
 
 	//Resort the parent to make sure the file is back where it was
-	HTREEITEM* newItem = NULL;
+	HTREEITEM* newItem = nullptr;
 	fileToTree.Get(filename, &newItem);
 	if(*newItem) {
 		CTreeCtrl& tree = GetTreeCtrl();
@@ -503,7 +503,7 @@ bool MaterialTreeView::FindNextMaterial(MaterialSearchData_t* searchData) {
 
 	HTREEITEM search =selected;
 
-	while((search = GetNextSeachItem(search, (searchData->searchScope == 0))) != NULL) {
+	while((search = GetNextSeachItem(search, (searchData->searchScope == 0))) != nullptr) {
 		HTREEITEM found = FindNextMaterial(search, searchData);
 		if(found) {
 			tree.SelectItem(found);
@@ -515,7 +515,7 @@ bool MaterialTreeView::FindNextMaterial(MaterialSearchData_t* searchData) {
 
 /**
 * Searches for a material given the supplied search parameters. Returns the tree item where
-* the item was found or NULL if no material was found.
+* the item was found or nullptr if no material was found.
 * @param item The tree item from where to start the search.
 * @param searchData The parameters to use for the search.
 */
@@ -550,18 +550,18 @@ HTREEITEM MaterialTreeView::FindNextMaterial(HTREEITEM item, MaterialSearchData_
 			return item;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /**
-* Returns the next item to search or NULL if there is nothing else to search.
+* Returns the next item to search or nullptr if there is nothing else to search.
 * @param item The last item searched.
 * @param stayInFile True if the search should stay in the current file.
 */
 HTREEITEM MaterialTreeView::GetNextSeachItem(HTREEITEM item, bool stayInFile) {
 	CTreeCtrl& tree = GetTreeCtrl();
 
-	HTREEITEM nextItem = NULL;
+	HTREEITEM nextItem = nullptr;
 
 	//Check our children
 	if(tree.ItemHasChildren(item)) {
@@ -577,7 +577,7 @@ HTREEITEM MaterialTreeView::GetNextSeachItem(HTREEITEM item, bool stayInFile) {
 
 	//Check our parents next sibiling
 	HTREEITEM parent = item;
-	while((parent = tree.GetParentItem(parent)) != NULL) {
+	while((parent = tree.GetParentItem(parent)) != nullptr) {
 		DWORD parType = tree.GetItemData(parent);
 		if(stayInFile && parType == TYPE_FILE)
 			break;
@@ -614,7 +614,7 @@ void  MaterialTreeView::DeleteFolder(HTREEITEM item, bool addUndo) {
 
 		const idMaterial* material = declManager->FindMaterial(materialsToDelete[i].materialName);
 
-		MaterialDoc* pMaterial = NULL;
+		MaterialDoc* pMaterial = nullptr;
 		pMaterial = materialDocManager->CreateMaterialDoc(const_cast<idMaterial *>(material));
 		materialDocManager->DeleteMaterial(pMaterial, false);
 	}
@@ -731,12 +731,12 @@ void MaterialTreeView::OnTvnSelchanged(NMHDR *pNMHDR, LRESULT *pResult) {
 			
 		} else {
 			
-			materialDocManager->SetSelectedMaterial(NULL);
+			materialDocManager->SetSelectedMaterial(nullptr);
 		}
 
 	} else {
 		
-		materialDocManager->SetSelectedMaterial(NULL);
+		materialDocManager->SetSelectedMaterial(nullptr);
 	}
 
 	*pResult = 0;
@@ -864,7 +864,7 @@ void MaterialTreeView::OnNMRclick(NMHDR *pNMHDR, LRESULT *pResult)
 	UINT test;
 	HTREEITEM item = tree.HitTest( spt, &test );
 
-	if ( item != NULL  )
+	if ( item != nullptr  )
 	{
 		if ( test & TVHT_ONITEM )
 		{
@@ -1126,7 +1126,7 @@ void MaterialTreeView::OnAddMaterial() {
 	DWORD itemType = tree.GetItemData(item);
 
 	//Determine the file
-	HTREEITEM parent = NULL;
+	HTREEITEM parent = nullptr;
 	if(itemType != TYPE_FILE) {
 
 		parent = tree.GetParentItem(item);
@@ -1200,7 +1200,7 @@ void MaterialTreeView::OnAddFolder() {
 		if(tree.ItemHasChildren(item)) {
 			HTREEITEM hChildItem = tree.GetChildItem(item);
 			bool found = false;
-			while (hChildItem != NULL)
+			while (hChildItem != nullptr)
 			{
 				if(!newFolder.Icmp(tree.GetItemText(hChildItem))) {
 					found = true;
@@ -1437,7 +1437,7 @@ bool MaterialTreeView::GetFileName(HTREEITEM item, idStr& out) {
 	}
 
 	HTREEITEM parent = tree.GetParentItem( item );
-	while ( parent != NULL ) {
+	while ( parent != nullptr ) {
 		DWORD parentType = tree.GetItemData(parent);
 		if(parentType == TYPE_FILE) {
 			out = GetMediaPath(parent, TYPE_FILE);
@@ -1476,7 +1476,7 @@ idStr MaterialTreeView::GetMediaPath(HTREEITEM item, DWORD type) {
 
 	// have to build the name back up
 	HTREEITEM parent = tree.GetParentItem( item );
-	while ( parent != NULL ) {
+	while ( parent != nullptr ) {
 
 		//stop the iteration once we have found a specific type
 		DWORD parentType = tree.GetItemData(parent);
@@ -1506,7 +1506,7 @@ void MaterialTreeView::GetMaterialPaths(HTREEITEM item, idList<MaterialTreeItem_
 	if(tree.ItemHasChildren(item)) {
 
 		HTREEITEM childItem = tree.GetChildItem(item);
-		while(childItem != NULL) {
+		while(childItem != nullptr) {
 
 			DWORD childType = tree.GetItemData(childItem);
 			if (childType == TYPE_MATERIAL) {
@@ -1524,7 +1524,7 @@ void MaterialTreeView::GetMaterialPaths(HTREEITEM item, idList<MaterialTreeItem_
 
 /**
 * Adds a string list of materials to the tree creating the proper hierarchy.
-* @param root The name of the root item or NULL for no root item.
+* @param root The name of the root item or nullptr for no root item.
 * @param list The list of materials.
 * @param includeFile If true the materials will be sorted by file.
 */
@@ -1533,18 +1533,18 @@ void MaterialTreeView::AddStrList(const char *root, idStrList *list, bool includ
 	CTreeCtrl& treeMedia = GetTreeCtrl();
 
 	idStr		out, path;
-	HTREEITEM	base = NULL;
+	HTREEITEM	base = nullptr;
 	
 	if(root) {
 		base = treeMedia.GetRootItem();
 		if (base) {
 			out = treeMedia.GetItemText(base);
 			if (stricmp(root, out)) {
-				base = NULL;
+				base = nullptr;
 			}
 		}
 
-		if (base == NULL) {
+		if (base == nullptr) {
 			base = treeMedia.InsertItem(root);
 			treeMedia.SetItemData(base, TYPE_ROOT);
 		}
@@ -1612,8 +1612,8 @@ void MaterialTreeView::AddStrList(const char *root, idStrList *list, bool includ
 		while (index >= 0) {
 			index = name.Find('/');
 			if (index >= 0) {
-				HTREEITEM newItem = NULL;
-				HTREEITEM *check = NULL;
+				HTREEITEM newItem = nullptr;
+				HTREEITEM *check = nullptr;
 				name.Left(index, out);
 				path += out;
 				qt = root;
@@ -1630,7 +1630,7 @@ void MaterialTreeView::AddStrList(const char *root, idStrList *list, bool includ
 
 				}
 				
-				if (newItem == NULL) {
+				if (newItem == nullptr) {
 					newItem = treeMedia.InsertItem(out, item);
 					qt = root;
 					qt += "/";
@@ -1695,7 +1695,7 @@ void MaterialTreeView::PopupMenu(CPoint* pt) {
 	CTreeCtrl& tree = GetTreeCtrl();
 	UINT test;
 	HTREEITEM item = tree.HitTest( *pt, &test );
-	if ( item == NULL ||  !(test & TVHT_ONITEM) )
+	if ( item == nullptr ||  !(test & TVHT_ONITEM) )
 		return;
 
 	ClientToScreen (pt);
@@ -1837,7 +1837,7 @@ void MaterialTreeView::SetItemImage(HTREEITEM item, bool mod, bool apply, bool c
 	if(children) {
 		if(tree.ItemHasChildren(item)) {
 			HTREEITEM hChildItem = tree.GetChildItem(item);
-			while (hChildItem != NULL) {
+			while (hChildItem != nullptr) {
 				SetItemImage(hChildItem, mod, apply, children);
 				hChildItem = tree.GetNextSiblingItem(hChildItem);
 			}
@@ -1869,7 +1869,7 @@ void MaterialTreeView::CleanLookupTrees(HTREEITEM item) {
 	//Clean all my children
 	if(tree.ItemHasChildren(item)) {
 		HTREEITEM childItem = tree.GetChildItem(item);
-		while(childItem != NULL) {
+		while(childItem != nullptr) {
 			CleanLookupTrees(childItem);
 			childItem = tree.GetNextSiblingItem(childItem);
 		}
@@ -1889,7 +1889,7 @@ void MaterialTreeView::BuildLookupTrees(HTREEITEM item) {
 	CTreeCtrl& tree = GetTreeCtrl();
 	if(tree.ItemHasChildren(item)) {
 		HTREEITEM childItem = tree.GetChildItem(item);
-		while(childItem != NULL) {
+		while(childItem != nullptr) {
 			DWORD childType = tree.GetItemData(childItem);
 			if(childType == TYPE_MATERIAL_FOLDER) {
 				//Recursively call this method for all my child folders
@@ -1909,7 +1909,7 @@ idStr MaterialTreeView::GetQuicktreePath(HTREEITEM item) {
 
 	idStr qt = "";
 	HTREEITEM pathItem = item;
-	while(pathItem != NULL) {
+	while(pathItem != nullptr) {
 		qt = "/" + idStr(tree.GetItemText(pathItem)) + qt;
 		pathItem = tree.GetParentItem(pathItem);
 	}

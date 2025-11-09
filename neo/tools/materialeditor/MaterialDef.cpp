@@ -51,7 +51,7 @@ MaterialDef::~MaterialDef(void) {
 * Returns view specific data associated with the material definition.
 */
 DWORD MaterialDef::GetViewData(const char* viewName) {
-	DWORD* value = NULL;
+	DWORD* value = nullptr;
 	viewData.Get(viewName, &value);
 	return *value;
 }
@@ -197,5 +197,5 @@ MaterialDefList* MaterialDefManager::GetMaterialDefs(int type) {
 	if(type >= 0 && type < MATERIAL_DEF_NUM) {
 		return &materialDefs[type];
 	}
-	return NULL;
+	return nullptr;
 }

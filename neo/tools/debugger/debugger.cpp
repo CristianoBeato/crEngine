@@ -110,13 +110,13 @@ Starts up the debugger server
 bool DebuggerServerInit ( void )
 {
 	// Allocate the new debugger server
-	if ( gDebuggerServer == NULL )
+	if ( gDebuggerServer == nullptr )
 		gDebuggerServer = new rvDebuggerServer;
 	
 	// Start the debugger server thread
-	if ( gDebuggerServerThread == NULL )
+	if ( gDebuggerServerThread == nullptr )
 	{
-		gDebuggerServerThread = CreateThread ( NULL, 0, DebuggerServerThread, 0, 0, &gDebuggerServerThreadID );
+		gDebuggerServerThread = CreateThread ( nullptr, 0, DebuggerServerThread, 0, 0, &gDebuggerServerThreadID );
 
 		// Initialize the debugger server
 		if ( !gDebuggerServer->Initialize() )
@@ -124,7 +124,7 @@ bool DebuggerServerInit ( void )
 			DebuggerServerShutdown();
 
 			delete gDebuggerServer;
-			gDebuggerServer = NULL;
+			gDebuggerServer = nullptr;
 			return false;
 		}
 	}	
@@ -152,11 +152,11 @@ void DebuggerServerShutdown ( void )
 		gDebuggerServer->Shutdown();
 
 		delete gDebuggerServer;
-		gDebuggerServer = NULL;
+		gDebuggerServer = nullptr;
 		
 		// Cleanup the thread handle
 		CloseHandle ( gDebuggerServerThread );
-		gDebuggerServerThread = NULL;
+		gDebuggerServerThread = nullptr;
 	}
 }
 

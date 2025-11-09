@@ -145,7 +145,7 @@ public:
 	void		Init( idPlayer* player );
 	bool		IsInitialized() const
 	{
-		return owner != NULL;
+		return owner != nullptr;
 	}
 	
 	// save games

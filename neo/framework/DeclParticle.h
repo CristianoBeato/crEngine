@@ -45,7 +45,7 @@ class idParticleParm
 public:
 	idParticleParm()
 	{
-		table = NULL;
+		table = nullptr;
 		from = to = 0.0f;
 	}
 	
@@ -214,7 +214,7 @@ public:
 	virtual bool			Parse( const char* text, const int textLength, bool allowBinaryVersion );
 	virtual void			FreeData();
 	
-	bool					Save( const char* fileName = NULL );
+	bool					Save( const char* fileName = nullptr );
 	
 	// Loaded instead of re-parsing, written if MD5 hash different
 	bool					LoadBinary( idFile* file, unsigned int checksum );

@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 * Constructor for MaterialDocManager.
 */
 MaterialDocManager::MaterialDocManager(void) {
-	currentMaterial = NULL;
+	currentMaterial = nullptr;
 	cutMaterial = false;
 }
 
@@ -74,7 +74,7 @@ void MaterialDocManager::UnRegisterMaterialView(MaterialView* view) {
 	materialViews.Remove(view);
 
 	//Remove the reference to myself
-	view->SetMaterialDocManager(NULL);
+	view->SetMaterialDocManager(nullptr);
 }
 
 /**
@@ -86,7 +86,7 @@ void MaterialDocManager::UnRegisterAllMaterialViews() {
 	//Remove the reference to myself
 	int c = materialViews.Num();
 	for(int i = 0; i < c; i++) {
-		materialViews[i]->SetMaterialDocManager(NULL);
+		materialViews[i]->SetMaterialDocManager(nullptr);
 	}
 	materialViews.Clear();
 }
@@ -121,7 +121,7 @@ void MaterialDocManager::SetSelectedMaterial(idMaterial* material) {
 			//Delete the material unless it has been changed
 			if(!inProgressMaterials.Get(currentMaterial->name.c_str())) {
 				delete currentMaterial;
-				currentMaterial = NULL;
+				currentMaterial = nullptr;
 			}
 		}
 
@@ -319,7 +319,7 @@ void MaterialDocManager::SaveFile(const char* filename) {
 	}
 
 	//Notify everyone
-	NotifyViews(NULL, MATERIAL_SAVE_FILE, filename);
+	NotifyViews(nullptr, MATERIAL_SAVE_FILE, filename);
 }
 
 /**
@@ -357,7 +357,7 @@ void MaterialDocManager::ReloadFile(const char *filename) {
 		NotifyViews(currentMaterial, SELECTION_CHANGE);
 	}
 
-	NotifyViews(NULL, FILE_RELOAD, filename);
+	NotifyViews(nullptr, FILE_RELOAD, filename);
 }
 
 /**
@@ -395,7 +395,7 @@ MaterialDoc* MaterialDocManager::CreateMaterialDoc(idMaterial* material) {
 		return newDoc;
 	}
 
-	return NULL;
+	return nullptr;
 }
 
 /**
@@ -413,7 +413,7 @@ MaterialDoc* MaterialDocManager::GetInProgressDoc(idMaterial* material) {
 				return *pDoc;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /**

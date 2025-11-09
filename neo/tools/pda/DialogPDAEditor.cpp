@@ -46,10 +46,10 @@ If you have questions concerning this license or the applicable additional terms
 
 /////////////////////////////////////////////////////////////////////////////
 // CCDialogPDAEditor dialog
-CDialogPDAEditor *g_PDAEditorDialog = NULL;
+CDialogPDAEditor *g_PDAEditorDialog = nullptr;
 
 
-CDialogPDAEditor::CDialogPDAEditor(CWnd* pParent /*=NULL*/)
+CDialogPDAEditor::CDialogPDAEditor(CWnd* pParent /*=nullptr*/)
 	: CDialog(CDialogPDAEditor::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDialogPDAEditor)
@@ -108,17 +108,17 @@ void PDAEditorInit( const idDict *spawnArgs ) {
 		return;
 	}
 
-	if ( g_PDAEditorDialog == NULL ) {
+	if ( g_PDAEditorDialog == nullptr ) {
 		InitAfx();
 		g_PDAEditorDialog = new CDialogPDAEditor();
 	}
 
-	if ( g_PDAEditorDialog->GetSafeHwnd() == NULL ) {
+	if ( g_PDAEditorDialog->GetSafeHwnd() == nullptr ) {
 		g_PDAEditorDialog->Create(IDD_DIALOG_PDA_EDITOR);
 /*
 		// FIXME: restore position
 		CRect rct;
-		g_PDAEditorDialog->SetWindowPos( NULL, rct.left, rct.top, 0,0, SWP_NOSIZE );
+		g_PDAEditorDialog->SetWindowPos( nullptr, rct.left, rct.top, 0,0, SWP_NOSIZE );
 */
 	}
 
@@ -142,7 +142,7 @@ void PDAEditorRun( void ) {
 	MSG *msg = &m_msgCur;
 #endif
 
-	while( ::PeekMessage(msg, NULL, NULL, NULL, PM_NOREMOVE) ) {
+	while( ::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE) ) {
 		// pump message
 		if ( !AfxGetApp()->PumpMessage() ) {
 		}
@@ -151,7 +151,7 @@ void PDAEditorRun( void ) {
 
 void PDAEditorShutdown( void ) {
 	delete g_PDAEditorDialog;
-	g_PDAEditorDialog = NULL;
+	g_PDAEditorDialog = nullptr;
 }
 
 void CDialogPDAEditor::OnActivate( UINT nState, CWnd *pWndOther, BOOL bMinimized ) {
@@ -361,7 +361,7 @@ void CDialogPDAEditor::OnBtnClickedEmailAdd()
 		int newIndex = pda->GetNumEmails();
 		do {
 			name.Format("%s_email_%d", pda->GetName(), newIndex++);
-		} while ( declManager->FindType(DECL_EMAIL, name, false) != NULL );
+		} while ( declManager->FindType(DECL_EMAIL, name, false) != nullptr );
 
 		CDialogPDAEditEmail addDlg;
 		addDlg.SetName(name);
@@ -446,7 +446,7 @@ void CDialogPDAEditor::OnBtnClickedVideoDel()
 
 
 
-CDialogPDAEditEmail::CDialogPDAEditEmail(CWnd* pParent /*=NULL*/)
+CDialogPDAEditEmail::CDialogPDAEditEmail(CWnd* pParent /*=nullptr*/)
 	: CDialog(CDialogPDAEditEmail::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDialogPDAEditEmail)

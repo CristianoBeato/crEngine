@@ -51,7 +51,7 @@ public:
 	};
 
 public:
-	void				SetToggleIcons(LPCSTR disabled = NULL, LPCSTR on = NULL, LPCSTR off = NULL);
+	void				SetToggleIcons(LPCSTR disabled = nullptr, LPCSTR on = nullptr, LPCSTR off = nullptr);
 	void				SetToggleState(int index, int toggleState, bool notify = false);
 	int					GetToggleState(int index);
 	

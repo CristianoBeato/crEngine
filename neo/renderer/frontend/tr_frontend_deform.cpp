@@ -705,7 +705,7 @@ static drawSurf_t* R_EyeballDeform( drawSurf_t* surf )
 	
 	eyeIsland_t islands[MAX_EYEBALL_ISLANDS];
 	bool triUsed[MAX_EYEBALL_ISLANDS * MAX_EYEBALL_TRIS];
-	memset( triUsed, 0, sizeof( triUsed ) );
+	std::memset( triUsed, 0, sizeof( triUsed ) );
 	
 	int numIslands = 0;
 	for( numIslands = 0; numIslands < MAX_EYEBALL_ISLANDS; numIslands++ )

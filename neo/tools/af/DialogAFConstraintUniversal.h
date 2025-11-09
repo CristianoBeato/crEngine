@@ -36,7 +36,7 @@ class DialogAFConstraintUniversal : public CDialog {
 	DECLARE_DYNAMIC(DialogAFConstraintUniversal)
 
 public:
-						DialogAFConstraintUniversal(CWnd* pParent = NULL);   // standard constructor
+						DialogAFConstraintUniversal(CWnd* pParent = nullptr);   // standard constructor
 	virtual				~DialogAFConstraintUniversal();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );

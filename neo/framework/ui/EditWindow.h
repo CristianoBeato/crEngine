@@ -52,7 +52,7 @@ public:
 		return idWindow::Allocated();
 	};
 	
-	virtual idWinVar* 	GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = NULL );
+	virtual idWinVar* 	GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = nullptr );
 	
 	virtual void 		HandleBuddyUpdate( idWindow* buddy );
 	virtual void		Activate( bool activate, idStr& act );

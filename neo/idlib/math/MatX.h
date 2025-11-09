@@ -195,7 +195,7 @@ public:
 	bool			Inverse_UpdateDecrement( const idVecX& v, const idVecX& w, int r );
 	void			Inverse_Solve( idVecX& x, const idVecX& b ) const;
 	
-	bool			LU_Factor( int* index, float* det = NULL );		// factor in-place: L * U
+	bool			LU_Factor( int* index, float* det = nullptr );		// factor in-place: L * U
 	bool			LU_UpdateRankOne( const idVecX& v, const idVecX& w, float alpha, int* index );
 	bool			LU_UpdateRowColumn( const idVecX& v, const idVecX& w, int r, int* index );
 	bool			LU_UpdateIncrement( const idVecX& v, const idVecX& w, int* index );
@@ -285,7 +285,7 @@ idMatX::idMatX
 ID_INLINE idMatX::idMatX()
 {
 	numRows = numColumns = alloced = 0;
-	mat = NULL;
+	mat = nullptr;
 }
 
 /*
@@ -296,7 +296,7 @@ idMatX::~idMatX
 ID_INLINE idMatX::~idMatX()
 {
 	// if not temp memory
-	if( mat != NULL && ( mat < idMatX::tempPtr || mat > idMatX::tempPtr + MATX_MAX_TEMP ) && alloced != -1 )
+	if( mat != nullptr && ( mat < idMatX::tempPtr || mat > idMatX::tempPtr + MATX_MAX_TEMP ) && alloced != -1 )
 	{
 		Mem_Free16( mat );
 	}
@@ -310,7 +310,7 @@ idMatX::idMatX
 ID_INLINE idMatX::idMatX( int rows, int columns )
 {
 	numRows = numColumns = alloced = 0;
-	mat = NULL;
+	mat = nullptr;
 	SetSize( rows, columns );
 }
 
@@ -322,7 +322,7 @@ idMatX::idMatX
 ID_INLINE idMatX::idMatX( const idMatX& other )
 {
 	numRows = numColumns = alloced = 0;
-	mat = NULL;
+	mat = nullptr;
 	Set( other.GetNumRows(), other.GetNumColumns(), other.ToFloatPtr() );
 }
 
@@ -334,7 +334,7 @@ idMatX::idMatX
 ID_INLINE idMatX::idMatX( int rows, int columns, float* src )
 {
 	numRows = numColumns = alloced = 0;
-	mat = NULL;
+	mat = nullptr;
 	SetData( rows, columns, src );
 }
 
@@ -346,7 +346,7 @@ idMatX::Set
 ID_INLINE void idMatX::Set( int rows, int columns, const float* src )
 {
 	SetSize( rows, columns );
-	memcpy( this->mat, src, rows * columns * sizeof( float ) );
+	std::memcpy( this->mat, src, rows * columns * sizeof( float ) );
 }
 
 /*
@@ -424,7 +424,7 @@ ID_INLINE idMatX& idMatX::operator=( const idMatX& a )
 		_mm_store_ps( mat + i, _mm_load_ps( a.mat + i ) );
 	}
 #else
-	memcpy( mat, a.mat, s * sizeof( float ) );
+	std::memcpy( mat, a.mat, s * sizeof( float ) );
 #endif
 	idMatX::tempIndex = 0;
 	return *this;
@@ -720,13 +720,13 @@ idMatX::SetSize
 */
 ID_INLINE void idMatX::SetSize( int rows, int columns )
 {
-	if( rows != numRows || columns != numColumns || mat == NULL )
+	if( rows != numRows || columns != numColumns || mat == nullptr )
 	{
 		assert( mat < idMatX::tempPtr || mat > idMatX::tempPtr + MATX_MAX_TEMP );
 		int alloc = ( rows * columns + 3 ) & ~3;
 		if( alloc > alloced && alloced != -1 )
 		{
-			if( mat != NULL )
+			if( mat != nullptr )
 			{
 				Mem_Free16( mat );
 			}
@@ -770,7 +770,7 @@ idMatX::SetData
 ID_INLINE void idMatX::SetData( int rows, int columns, float* data )
 {
 	assert( mat < idMatX::tempPtr || mat > idMatX::tempPtr + MATX_MAX_TEMP );
-	if( mat != NULL && alloced != -1 )
+	if( mat != nullptr && alloced != -1 )
 	{
 		Mem_Free16( mat );
 	}
@@ -791,7 +791,7 @@ idMatX::SetDataCacheLines
 */
 ID_INLINE void idMatX::SetDataCacheLines( int rows, int columns, float* data, bool clear )
 {
-	if( mat != NULL && alloced != -1 )
+	if( mat != nullptr && alloced != -1 )
 	{
 		Mem_Free( mat );
 	}
@@ -834,7 +834,7 @@ ID_INLINE void idMatX::Zero()
 	}
 #else
 	s;
-	memset( mat, 0, numRows * numColumns * sizeof( float ) );
+	std::memset( mat, 0, numRows * numColumns * sizeof( float ) );
 #endif
 }
 
@@ -1021,7 +1021,7 @@ ID_INLINE void idMatX::ClearUpperTriangle()
 	assert( numRows == numColumns );
 	for( int i = numRows - 2; i >= 0; i-- )
 	{
-		memset( mat + i * numColumns + i + 1, 0, ( numColumns - 1 - i ) * sizeof( float ) );
+		std::memset( mat + i * numColumns + i + 1, 0, ( numColumns - 1 - i ) * sizeof( float ) );
 	}
 }
 
@@ -1035,7 +1035,7 @@ ID_INLINE void idMatX::ClearLowerTriangle()
 	assert( numRows == numColumns );
 	for( int i = 1; i < numRows; i++ )
 	{
-		memset( mat + i * numColumns, 0, i * sizeof( float ) );
+		std::memset( mat + i * numColumns, 0, i * sizeof( float ) );
 	}
 }
 
@@ -1050,7 +1050,7 @@ ID_INLINE void idMatX::SquareSubMatrix( const idMatX& m, int size )
 	SetSize( size, size );
 	for( int i = 0; i < size; i++ )
 	{
-		memcpy( mat + i * numColumns, m.mat + i * m.numColumns, size * sizeof( float ) );
+		std::memcpy( mat + i * numColumns, m.mat + i * m.numColumns, size * sizeof( float ) );
 	}
 }
 
@@ -1299,7 +1299,7 @@ ID_INLINE idMatX idMatX::Inverse() const
 	idMatX invMat;
 	
 	invMat.SetTempSize( numRows, numColumns );
-	memcpy( invMat.mat, mat, numRows * numColumns * sizeof( float ) );
+	std::memcpy( invMat.mat, mat, numRows * numColumns * sizeof( float ) );
 	verify( invMat.InverseSelf() );
 	return invMat;
 }
@@ -1348,7 +1348,7 @@ ID_INLINE idMatX idMatX::InverseFast() const
 	idMatX invMat;
 	
 	invMat.SetTempSize( numRows, numColumns );
-	memcpy( invMat.mat, mat, numRows * numColumns * sizeof( float ) );
+	std::memcpy( invMat.mat, mat, numRows * numColumns * sizeof( float ) );
 	verify( invMat.InverseFastSelf() );
 	return invMat;
 }

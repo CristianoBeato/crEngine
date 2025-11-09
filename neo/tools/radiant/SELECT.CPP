@@ -51,15 +51,15 @@ qertrace_t Test_Ray(const idVec3 &origin, const idVec3 &dir, int flags) {
 	float		dist;
 	qertrace_t	t;
 
-	memset(&t, 0, sizeof(t));
+	std::memset(&t, 0, sizeof(t));
 	t.dist = HUGE_DISTANCE*2;
 
 	// check for points first
 	CDragPoint	*drag = PointRay(origin, dir, &dist);
 	if (drag) {
 		t.dist = dist;
-		t.brush = NULL;
-		t.face = NULL;
+		t.brush = nullptr;
+		t.face = nullptr;
 		t.point = drag;
 		t.selected = false;
 		return t;
@@ -67,7 +67,7 @@ qertrace_t Test_Ray(const idVec3 &origin, const idVec3 &dir, int flags) {
 
 	if (flags & SF_CYCLE) {
 		CPtrArray	array;
-		brush_t		*pToSelect = (selected_brushes.next != &selected_brushes) ? selected_brushes.next : NULL;
+		brush_t		*pToSelect = (selected_brushes.next != &selected_brushes) ? selected_brushes.next : nullptr;
 		Select_Deselect();
 
 		// go through active brushes and accumulate all "hit" brushes
@@ -191,7 +191,7 @@ qertrace_t Test_Ray(const idVec3 &origin, const idVec3 &dir, int flags) {
 	}
 
 	// if entites first, but didn't find any, check regular
-	if ((flags & SF_ENTITIES_FIRST) && t.brush == NULL) {
+	if ((flags & SF_ENTITIES_FIRST) && t.brush == nullptr) {
 		return Test_Ray(origin, dir, flags - SF_ENTITIES_FIRST);
 	}
 
@@ -214,7 +214,7 @@ void Select_Brush(brush_t *brush, bool bComplete, bool bStatus) {
 	g_ptrSelectedFaces.RemoveAll();
 	g_ptrSelectedFaceBrushes.RemoveAll();
 
-	// selected_face = NULL;
+	// selected_face = nullptr;
 	if (g_qeglobals.d_select_count < MAX_MAP_ENTITIES) {
 		g_qeglobals.d_select_order[g_qeglobals.d_select_count] = brush;
 	}
@@ -359,7 +359,7 @@ void Select_Ray(idVec3 origin, idVec3 dir, int flags) {
 		// height=2 texture
 		//
 		brushprimit_texdef_t	brushprimit_texdef;
-		ConvertTexMatWithQTexture(&t.face->brushprimit_texdef, t.face->d_texture, &brushprimit_texdef, NULL);
+		ConvertTexMatWithQTexture(&t.face->brushprimit_texdef, t.face->d_texture, &brushprimit_texdef, nullptr);
 		Texture_SetTexture(&t.face->texdef, &brushprimit_texdef, false, false);
 		UpdateSurfaceDialog();
 
@@ -402,7 +402,7 @@ void Select_Delete(void) {
 	g_ptrSelectedFaces.RemoveAll();
 	g_ptrSelectedFaceBrushes.RemoveAll();
 
-	// selected_face = NULL;
+	// selected_face = nullptr;
 	g_qeglobals.d_select_mode = sel_brush;
 
 	g_qeglobals.d_select_count = 0;
@@ -428,7 +428,7 @@ void Select_Delete(void) {
 void Select_Deselect(bool bDeselectFaces) {
 	brush_t *b;
 
-	ClearSelectablePoints(NULL);
+	ClearSelectablePoints(nullptr);
 	Patch_Deselect();
 
 	g_pParentWnd->ActiveXY()->UndoClear();
@@ -443,7 +443,7 @@ void Select_Deselect(bool bDeselectFaces) {
 			g_ptrSelectedFaces.RemoveAll();
 			g_ptrSelectedFaceBrushes.RemoveAll();
 
-			// selected_face = NULL;
+			// selected_face = nullptr;
 		}
 
 		Sys_UpdateWindows(W_ALL);
@@ -454,7 +454,7 @@ void Select_Deselect(bool bDeselectFaces) {
 		g_ptrSelectedFaces.RemoveAll();
 		g_ptrSelectedFaceBrushes.RemoveAll();
 
-		// selected_face = NULL;
+		// selected_face = nullptr;
 	}
 
 	g_qeglobals.d_select_mode = sel_brush;
@@ -532,8 +532,8 @@ void Select_Clone(void) {
  =======================================================================================================================
     Select_SetTexture Timo:: bFitScale to compute scale on the plane and counteract plane / axial plane snapping Timo::
     brush primitive texturing the brushprimit_texdef given must be understood as a qtexture_t width=2 height=2 ( HiRes
-    ) Timo:: texture plugin, added an IPluginTexdef* parameter must be casted to an IPluginTexdef! if not NULL, get
-    ->Copy() of it into each face or brush ( and remember to hook ) if NULL, means we have no information, ask for a
+    ) Timo:: texture plugin, added an IPluginTexdef* parameter must be casted to an IPluginTexdef! if not nullptr, get
+    ->Copy() of it into each face or brush ( and remember to hook ) if nullptr, means we have no information, ask for a
     default
  =======================================================================================================================
  */
@@ -756,7 +756,7 @@ void Select_ApplyMatrix(bool bSnap, bool rotateOrigins) {
 	idVec3	temp;
 	idStr str;
 	char	text[128];
-	entity_t *lastOwner = NULL;
+	entity_t *lastOwner = nullptr;
 
 	for (b = selected_brushes.next; b != &selected_brushes; b = b->next) {
 		
@@ -857,7 +857,7 @@ void Select_ApplyMatrix(bool bSnap, bool rotateOrigins) {
 			}
 		}
 
-		if (b->owner->eclass->fixedsize && b->owner->eclass->entityModel == NULL) {
+		if (b->owner->eclass->fixedsize && b->owner->eclass->entityModel == nullptr) {
 			idVec3 min, max;
 			if (b->trackLightOrigin) {
 				min = b->owner->lightOrigin + b->owner->eclass->mins;
@@ -1758,7 +1758,7 @@ void Select_AllOfType() {
 
 	b = selected_brushes.next;
 	e = b->owner;
-	if (e != NULL) {
+	if (e != nullptr) {
 		if (e != world_entity) {
 			CString strName = e->eclass->name;
 			idStr strKey, strVal;
@@ -1774,7 +1774,7 @@ void Select_AllOfType() {
 				}
 
 				e = b->owner;
-				if (e != NULL) {
+				if (e != nullptr) {
 					if ( idStr::Icmp(e->eclass->name, strName) == 0 ) {
 						bool	doIt = true;
 						if (bCriteria) {
@@ -1978,7 +1978,7 @@ void Select_CenterOrigin() {
 
 	brush_t		*b = selected_brushes.next;
 	entity_t	*e = b->owner;
-	if (e != NULL) {
+	if (e != nullptr) {
 		if (e != world_entity) {
 			char	text[1024];
 			sprintf(text, "%i %i %i", (int)mid[0], (int)mid[1], (int)mid[2]);
@@ -2023,8 +2023,8 @@ brush_t *Select_GetSelectedFaceBrush(int index) {
 void Select_SetDefaultTexture(const idMaterial *mat, bool fitScale, bool setTexture) {
 	texdef_t				tex;
 	brushprimit_texdef_t	brushprimit_tex;
-	memset(&tex, 0, sizeof(tex));
-	memset(&brushprimit_tex, 0, sizeof(brushprimit_tex));
+	std::memset(&tex, 0, sizeof(tex));
+	std::memset(&brushprimit_tex, 0, sizeof(brushprimit_tex));
 	if (g_qeglobals.m_bBrushPrimitMode) {
 		// brushprimit fitted to a 2x2 texture
 		brushprimit_tex.coords[0][0] = 1.0f;
@@ -2166,7 +2166,7 @@ void Select_CopyPatchTextureCoords( patchMesh_t *p ) {
 void Select_ProjectFaceOntoPatch( face_t *face ) {
 	for (brush_t * b = selected_brushes.next; b && b != &selected_brushes; b = b->next) {
 		if (b->pPatch) {
-			EmitBrushPrimitTextureCoordinates(face, NULL, b->pPatch);
+			EmitBrushPrimitTextureCoordinates(face, nullptr, b->pPatch);
 			Patch_MakeDirty(b->pPatch);
 		}
 	}
@@ -2198,7 +2198,7 @@ void Select_SetPatchST(float s1, float t1, float s2, float t2) {
 void Select_AllTargets() {
 	for (brush_t * b = selected_brushes.next; b && b != &selected_brushes; b = b->next) {
 		if (b->owner != world_entity) {
-			const idKeyValue *kv = b->owner->epairs.MatchPrefix("target", NULL);
+			const idKeyValue *kv = b->owner->epairs.MatchPrefix("target", nullptr);
 			while (kv) {
 				entity_t *ent = FindEntity("name", kv->GetValue());
 				if (ent) {

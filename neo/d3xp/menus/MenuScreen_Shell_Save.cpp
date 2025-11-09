@@ -43,7 +43,7 @@ void idMenuScreen_Shell_Save::Initialize( idMenuHandler* data )
 {
 	idMenuScreen::Initialize( data );
 	
-	if( data != NULL )
+	if( data != nullptr )
 	{
 		menuGUI = data->GetGUI();
 	}
@@ -112,20 +112,20 @@ void idMenuScreen_Shell_Save::Update()
 	if( BindSprite( root ) )
 	{
 		idSWFTextInstance* heading = GetSprite()->GetScriptObject()->GetNestedText( "info", "txtHeading" );
-		if( heading != NULL )
+		if( heading != nullptr )
 		{
 			heading->SetText( "#str_swf_save_heading" );	// SAVE GAME
 			heading->SetStrokeInfo( true, 0.75f, 1.75f );
 		}
 		
 		idSWFSpriteInstance* gradient = GetSprite()->GetScriptObject()->GetNestedSprite( "info", "gradient" );
-		if( gradient != NULL && heading != NULL )
+		if( gradient != nullptr && heading != nullptr )
 		{
 			gradient->SetXPos( heading->GetTextLength() );
 		}
 	}
 	
-	if( btnBack != NULL )
+	if( btnBack != nullptr )
 	{
 		btnBack->BindSprite( root );
 	}
@@ -153,7 +153,7 @@ void idMenuScreen_Shell_Save::UpdateSaveEnumerations()
 		saveName.Append( "#str_dlg_refreshing" );
 		saveList.Append( saveName );
 		
-		if( options != NULL )
+		if( options != nullptr )
 		{
 			options->SetListData( saveList );
 			options->Update();
@@ -183,7 +183,7 @@ void idMenuScreen_Shell_Save::UpdateSaveEnumerations()
 			saveList.Append( newSave );
 		}
 		
-		if( options != NULL )
+		if( options != nullptr )
 		{
 			sortedSaves.Sort( idSort_SavesByDate() );
 			
@@ -229,10 +229,10 @@ void idMenuScreen_Shell_Save::UpdateSaveEnumerations()
 		}
 	}
 	
-	if( menuData != NULL )
+	if( menuData != nullptr )
 	{
 		idMenuWidget_CommandBar* cmdBar = menuData->GetCmdBar();
-		if( cmdBar != NULL )
+		if( cmdBar != nullptr )
 		{
 			cmdBar->ClearAllButtons();
 			idMenuWidget_CommandBar::buttonInfo_t* buttonInfo;
@@ -253,7 +253,7 @@ void idMenuScreen_Shell_Save::UpdateSaveEnumerations()
 				}
 				buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 				
-				if( options != NULL )
+				if( options != nullptr )
 				{
 					if( options->GetViewIndex() != 0 || ( options->GetViewIndex() == 0 && newSaveOffset == 0 ) )
 					{
@@ -264,7 +264,7 @@ void idMenuScreen_Shell_Save::UpdateSaveEnumerations()
 						}
 						buttonInfo->action.Set( WIDGET_ACTION_JOY3_ON_PRESS );
 						
-						if( btnDelete != NULL )
+						if( btnDelete != nullptr )
 						{
 							idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 							if( btnDelete->BindSprite( root ) )
@@ -284,7 +284,7 @@ void idMenuScreen_Shell_Save::UpdateSaveEnumerations()
 					}
 					else
 					{
-						if( btnDelete != NULL )
+						if( btnDelete != nullptr )
 						{
 							idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 							if( btnDelete->BindSprite( root ) )
@@ -300,12 +300,12 @@ void idMenuScreen_Shell_Save::UpdateSaveEnumerations()
 		}
 	}
 	
-	if( saveInfo != NULL )
+	if( saveInfo != nullptr )
 	{
 		saveInfo->Update();
 	}
 	
-	if( options != NULL && options->GetTotalNumberOfOptions() > 0 && options->GetViewIndex() >= options->GetTotalNumberOfOptions() )
+	if( options != nullptr && options->GetTotalNumberOfOptions() > 0 && options->GetViewIndex() >= options->GetTotalNumberOfOptions() )
 	{
 		options->SetViewIndex( options->GetTotalNumberOfOptions() - newSaveOffset );
 		if( options->GetViewOffset() > options->GetViewIndex() )
@@ -423,7 +423,7 @@ void idMenuScreen_Shell_Save::SaveGame( int index )
 			idSWFScriptVar Call( idSWFScriptObject* thisObject, const idSWFParmList& parms )
 			{
 				common->Dialog().ClearDialog( msg );
-				if( accept && screen != NULL )
+				if( accept && screen != nullptr )
 				{
 					// Replace the save
 					if( index < screen->GetSortedSaves().Num() )
@@ -475,7 +475,7 @@ void idMenuScreen_Shell_Save::DeleteGame( int index )
 		idSWFScriptVar Call( idSWFScriptObject* thisObject, const idSWFParmList& parms )
 		{
 			common->Dialog().ClearDialog( msg );
-			if( accept && screen != NULL )
+			if( accept && screen != nullptr )
 			{
 				if( index < screen->GetSortedSaves().Num() )
 				{
@@ -519,7 +519,7 @@ idMenuScreen_Shell_Load::LoadGame
 */
 void idMenuScreen_Shell_Save::UpdateSavePreviews()
 {
-	if( saveInfo != NULL )
+	if( saveInfo != nullptr )
     {
         saveInfo->UpdateSavePreviews();
     }
@@ -533,7 +533,7 @@ idMenuScreen_Shell_Save::HandleAction
 bool idMenuScreen_Shell_Save::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled )
 {
 
-	if( menuData == NULL )
+	if( menuData == nullptr )
 	{
 		return true;
 	}
@@ -555,7 +555,7 @@ bool idMenuScreen_Shell_Save::HandleAction( idWidgetAction& action, const idWidg
 		case WIDGET_ACTION_JOY3_ON_PRESS:
 		{
 		
-			if( options == NULL )
+			if( options == nullptr )
 			{
 				return true;
 			}
@@ -570,7 +570,7 @@ bool idMenuScreen_Shell_Save::HandleAction( idWidgetAction& action, const idWidg
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED:
 		{
-			if( options == NULL )
+			if( options == nullptr )
 			{
 				return true;
 			}

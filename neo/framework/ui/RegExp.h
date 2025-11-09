@@ -74,7 +74,7 @@ ID_INLINE idRegister::idRegister( const char* p, int t )
 	assert( t >= 0 && t < NUMTYPES );
 	regCount = REGCOUNT[t];
 	enabled = ( type == STRING ) ? false : true;
-	var = NULL;
+	var = nullptr;
 };
 
 ID_INLINE void idRegister::CopyRegs( idRegister* src )

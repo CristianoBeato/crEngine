@@ -84,10 +84,10 @@ int MaterialPreviewView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	GetClientRect(rc);
 
 	// Initialize the rendered window and material
-	renderWindow.Create( NULL, "renderWindow", dwStyle, rc, this, 1010 );
+	renderWindow.Create( nullptr, "renderWindow", dwStyle, rc, this, 1010 );
 
 	renderWindow.setDrawable( &renderedView );
-	renderWindow.SetWindowPos(NULL, 0, 0, rc.Width(), rc.Height(), SWP_SHOWWINDOW);
+	renderWindow.SetWindowPos(nullptr, 0, 0, rc.Width(), rc.Height(), SWP_SHOWWINDOW);
 
 	return 0;
 }
@@ -100,7 +100,7 @@ void MaterialPreviewView::OnSize(UINT nType, int cx, int cy)
 
 	GetClientRect( rc );
 
-	renderWindow.SetWindowPos(NULL, 0, 0, rc.Width(), rc.Height(), SWP_SHOWWINDOW);
+	renderWindow.SetWindowPos(nullptr, 0, 0, rc.Width(), rc.Height(), SWP_SHOWWINDOW);
 	renderWindow.Invalidate();
 	renderWindow.RedrawWindow();
 }
@@ -182,7 +182,7 @@ extern bool		Sys_KeyDown(int key);
 extern float	fDiff(float f1, float f2);
 
 idGLDrawableView::idGLDrawableView() {
-	material = NULL;
+	material = nullptr;
 	modelDefHandle = -1;
 
 	objectId = 0;
@@ -193,8 +193,8 @@ idGLDrawableView::idGLDrawableView() {
 	viewRotation.Set( 0.f, 0.f, 0.f );
 	viewDistance = -196.f;
 
-	world = NULL;
-	worldModel = NULL;
+	world = nullptr;
+	worldModel = nullptr;
 
 	ResetView();
 }
@@ -209,7 +209,7 @@ void idGLDrawableView::ResetView( void ) {
 
 	InitWorld();
 
-	memset( &worldEntity, 0, sizeof( worldEntity ) );
+	std::memset( &worldEntity, 0, sizeof( worldEntity ) );
 	spawnArgs.Clear();
 	spawnArgs.Set("classname", "func_static");
 	spawnArgs.Set("name", spawnArgs.GetString("model"));
@@ -228,7 +228,7 @@ void idGLDrawableView::ResetView( void ) {
 	worldEntity.axis = mat3_identity;
 
 	// set global shader parms
-	memset( globalParms, 0, sizeof( globalParms ) );
+	std::memset( globalParms, 0, sizeof( globalParms ) );
 	globalParms[0] = globalParms[1] = globalParms[2] = globalParms[3] = 1.f;
 
 	worldEntity.shaderParms[0] = 1.f;
@@ -240,14 +240,14 @@ void idGLDrawableView::ResetView( void ) {
 
 void idGLDrawableView::InitWorld() {
 	
-	if ( world == NULL ) {
+	if ( world == nullptr ) {
 		world = renderSystem->AllocRenderWorld();
 	}
-	if ( worldModel == NULL ) {
+	if ( worldModel == nullptr ) {
 		worldModel = renderModelManager->AllocModel();
 	}
 
-	world->InitFromMap( NULL );
+	world->InitFromMap( nullptr );
 	worldModel->InitEmpty( "GLWorldModel" );
 
 	viewLights.Clear();
@@ -520,7 +520,7 @@ void idGLDrawableView::draw(int x, int y, int w, int h) {
 		int originalNativeWidth, originalNativeHeight;
 		tr.Editor_BeginView(x + w, y + h, originalNativeWidth, originalNativeHeight);
 
-		memset( &refdef, 0, sizeof( refdef ) );
+		std::memset( &refdef, 0, sizeof( refdef ) );
 
 		UpdateCamera( &refdef );
 
@@ -561,7 +561,7 @@ void idGLDrawableView::setMedia(const char *name) {
 	if (name && *name) {
 		material = declManager->FindMaterial(name);
 	} else {
-		material = NULL;
+		material = nullptr;
 	}
 
 	if ( material->GetNumStages() == 0 ) {

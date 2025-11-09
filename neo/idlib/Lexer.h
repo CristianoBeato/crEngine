@@ -197,9 +197,9 @@ public:
 	int				ParseInt();
 	// read a boolean
 	bool			ParseBool();
-	// read a floating point number.  If errorFlag is NULL, a non-numeric token will
-	// issue an Error().  If it isn't NULL, it will issue a Warning() and set *errorFlag = true
-	float			ParseFloat( bool* errorFlag = NULL );
+	// read a floating point number.  If errorFlag is nullptr, a non-numeric token will
+	// issue an Error().  If it isn't nullptr, it will issue a Warning() and set *errorFlag = true
+	float			ParseFloat( bool* errorFlag = nullptr );
 	// parse matrices with floats
 	int				Parse1DMatrix( int x, float* m );
 	int				Parse2DMatrix( int y, int x, float* m );
@@ -218,7 +218,7 @@ public:
 	int				GetLastWhiteSpaceStart() const;
 	// returns end index into text buffer of last white space
 	int				GetLastWhiteSpaceEnd() const;
-	// set an array with punctuations, NULL restores default C/C++ set, see default_punctuations for an example
+	// set an array with punctuations, nullptr restores default C/C++ set, see default_punctuations for an example
 	void			SetPunctuations( const punctuation_t* p );
 	// returns a pointer to the punctuation with the given id
 	const char* 	GetPunctuationFromId( int id );

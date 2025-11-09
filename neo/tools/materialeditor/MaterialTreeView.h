@@ -50,8 +50,8 @@ class MaterialTreeView : public CTreeView, public MaterialView {
 public:
 	virtual			~MaterialTreeView();
 
-	void			InitializeMaterialList(bool includeFile = true, const char* filename = NULL);
-	void			BuildMaterialList(bool includeFile = true, const char* filename = NULL);
+	void			InitializeMaterialList(bool includeFile = true, const char* filename = nullptr);
+	void			BuildMaterialList(bool includeFile = true, const char* filename = nullptr);
 	
 	//Material Interface
 	virtual void	MV_OnMaterialChange(MaterialDoc* pMaterial);

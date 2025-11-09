@@ -444,7 +444,7 @@ static void OptimizeOutputTris( void ) {
 	int		i;
 
 	// optimize the clipped surfaces
-	optimizeGroup_t		*optGroups = NULL;
+	optimizeGroup_t		*optGroups = nullptr;
 	optimizeGroup_t *checkGroup;
 
 	for ( i = 0 ; i < numOutputTris ; i++ ) {
@@ -615,9 +615,9 @@ void GenerateSilPlanes( void ) {
 			// create a new silPlane
 			silPlanes[j].normal.Cross( v2, v1 );
 			silPlanes[j].normal.Normalize();
-			silEdges[i].nextEdge = NULL;
+			silEdges[i].nextEdge = nullptr;
 			silPlanes[j].edges = &silEdges[i];
-			silPlanes[j].fragmentedQuads = NULL;
+			silPlanes[j].fragmentedQuads = nullptr;
 			numSilPlanes++;
 		}
 	}
@@ -846,7 +846,7 @@ static void EmitFragmentedSilQuads( void )
 
 		// prepare for optimizing the sil quads on each side of the sil plane
 		optimizeGroup_t	groups[2];
-		memset( &groups, 0, sizeof( groups ) );
+		std::memset( &groups, 0, sizeof( groups ) );
 		idPlane		planes[2];
 		planes[0].Normal() = sil->normal;
 		planes[0][3] = 0;
@@ -1105,7 +1105,7 @@ verts have been culled against individual frustums of point lights
 */
 optimizedShadow_t SuperOptimizeOccluders( idVec4 *verts, uint16_t *indexes, int numIndexes, idPlane projectionPlane, idVec3 projectionOrigin )
 {
-	memset( &ret, 0, sizeof( ret ) );
+	std::memset( &ret, 0, sizeof( ret ) );
 
 	// generate outputTris, removing fragments that are occluded by closer fragments
 	ClipOccluders( verts, indexes, numIndexes, projectionOrigin );
@@ -2177,7 +2177,7 @@ The worst case index count is much larger, when the 7 vertex clipped triangle
 needs 15 indexes for the front, 15 for the back, and 42 (a quad on seven sides)
 for the sides, for a total of 72 indexes from the original 3.  Ouch.
 
-NULL may be returned if the surface doesn't create a shadow volume at all,
+nullptr may be returned if the surface doesn't create a shadow volume at all,
 as with a single face that the light is behind.
 
 If an edge is within an epsilon of the border of the volume, it must be treated
@@ -2392,13 +2392,13 @@ crDrawGeometry *CreateLightShadow( optimizeGroup_t *shadowerGroups, const mapLig
 	// combine all the triangles into one list
 	mapTri_t	*combined;
 
-	combined = NULL;
+	combined = nullptr;
 	for ( optimizeGroup_t *group = shadowerGroups ; group ; group = group->nextGroup ) {
 		combined = MergeTriLists( combined, CopyTriList( group->triList ) );
 	}
 
 	if ( !combined ) {
-		return NULL;
+		return nullptr;
 	}
 
 	// find uniqued vertexes

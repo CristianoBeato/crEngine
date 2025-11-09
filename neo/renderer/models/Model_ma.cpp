@@ -57,7 +57,7 @@ static ma_t maGlobal;
 void MA_ParseNodeHeader( idParser& parser, maNodeHeader_t* header )
 {
 
-	memset( header, 0, sizeof( maNodeHeader_t ) );
+	std::memset( header, 0, sizeof( maNodeHeader_t ) );
 	
 	idToken token;
 	while( parser.ReadToken( &token ) )
@@ -118,7 +118,7 @@ bool MA_ParseAttribHeader( idParser& parser, maAttribHeader_t* header )
 
 	idToken token;
 	
-	memset( header, 0, sizeof( maAttribHeader_t ) );
+	std::memset( header, 0, sizeof( maAttribHeader_t ) );
 	
 	parser.ReadToken( &token );
 	if( !token.Icmp( "-" ) )
@@ -165,11 +165,11 @@ bool MA_ParseTransform( idParser& parser )
 
 	maNodeHeader_t	header;
 	maTransform_t*	transform;
-	memset( &header, 0, sizeof( header ) );
+	std::memset( &header, 0, sizeof( header ) );
 	
 	//Allocate room for the transform
 	transform = ( maTransform_t* )Mem_Alloc( sizeof( maTransform_t ), TAG_MODEL );
-	memset( transform, 0, sizeof( maTransform_t ) );
+	std::memset( transform, 0, sizeof( maTransform_t ) );
 	transform->scale.x = transform->scale.y = transform->scale.z = 1;
 	
 	//Get the header info from the transform
@@ -247,7 +247,7 @@ bool MA_ParseVertex( idParser& parser, maAttribHeader_t* header )
 	
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "VertexHeader", NULL ) )
+	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "VertexHeader", nullptr ) )
 	{
 		//This was just a header
 		return true;
@@ -285,7 +285,7 @@ bool MA_ParseVertexTransforms( idParser& parser, maAttribHeader_t* header )
 	
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "VertexTransformHeader", NULL ) )
+	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "VertexTransformHeader", nullptr ) )
 	{
 		//This was just a header
 		return true;
@@ -342,7 +342,7 @@ bool MA_ParseEdge( idParser& parser, maAttribHeader_t* header )
 	
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "EdgeHeader", NULL ) )
+	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "EdgeHeader", nullptr ) )
 	{
 		//This was just a header
 		return true;
@@ -374,7 +374,7 @@ bool MA_ParseNormal( idParser& parser, maAttribHeader_t* header )
 	
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "NormalHeader", NULL ) )
+	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "NormalHeader", nullptr ) )
 	{
 		//This was just a header
 		return true;
@@ -438,7 +438,7 @@ bool MA_ParseFace( idParser& parser, maAttribHeader_t* header )
 	
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "FaceHeader", NULL ) )
+	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "FaceHeader", nullptr ) )
 	{
 		//This was just a header
 		return true;
@@ -533,7 +533,7 @@ bool MA_ParseColor( idParser& parser, maAttribHeader_t* header )
 	
 	//Get the start and end index for this attribute
 	int minIndex, maxIndex;
-	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "ColorHeader", NULL ) )
+	if( !MA_ParseHeaderIndex( header, minIndex, maxIndex, "ColorHeader", nullptr ) )
 	{
 		//This was just a header
 		return true;
@@ -681,7 +681,7 @@ void MA_ParseMesh( idParser& parser )
 
 	maObject_t*	object;
 	object = ( maObject_t* )Mem_Alloc( sizeof( maObject_t ), TAG_MODEL );
-	memset( object, 0, sizeof( maObject_t ) );
+	std::memset( object, 0, sizeof( maObject_t ) );
 	maGlobal.model->objects.Append( object );
 	maGlobal.currentObject = object;
 	object->materialRef = -1;
@@ -898,7 +898,7 @@ void MA_ParseMaterialNode( idParser& parser )
 	
 	maMaterialNode_t* matNode;
 	matNode = ( maMaterialNode_t* )Mem_Alloc( sizeof( maMaterialNode_t ), TAG_MODEL );
-	memset( matNode, 0, sizeof( maMaterialNode_t ) );
+	std::memset( matNode, 0, sizeof( maMaterialNode_t ) );
 	
 	strcpy( matNode->name, header.name );
 	
@@ -951,7 +951,7 @@ int MA_AddMaterial( const char* materialName )
 			//Got the file
 			maMaterial_t*	material;
 			material = ( maMaterial_t* )Mem_Alloc( sizeof( maMaterial_t ), TAG_MODEL );
-			memset( material, 0, sizeof( maMaterial_t ) );
+			std::memset( material, 0, sizeof( maMaterial_t ) );
 			
 			//Remove the OS stuff
 			idStr qPath;
@@ -1141,14 +1141,14 @@ MA_Parse
 */
 maModel_t* MA_Parse( const char* buffer, const char* filename, bool verbose )
 {
-	memset( &maGlobal, 0, sizeof( maGlobal ) );
+	std::memset( &maGlobal, 0, sizeof( maGlobal ) );
 	
 	maGlobal.verbose = verbose;
 	
 	
 	
 	
-	maGlobal.currentObject = NULL;
+	maGlobal.currentObject = nullptr;
 	
 	// NOTE: using new operator because aseModel_t contains idList class objects
 	maGlobal.model = new( TAG_MODEL ) maModel_t;
@@ -1202,7 +1202,7 @@ maModel_t* MA_Load( const char* fileName )
 	fileSystem->ReadFile( fileName, ( void** )&buf, &timeStamp );
 	if( !buf )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	try
@@ -1217,7 +1217,7 @@ maModel_t* MA_Load( const char* fileName )
 		{
 			MA_Free( maGlobal.model );
 		}
-		ma = NULL;
+		ma = nullptr;
 	}
 	
 	fileSystem->FreeFile( buf );

@@ -117,9 +117,9 @@ ID_INLINE idExtrapolate<type>::idExtrapolate()
 {
 	extrapolationType = EXTRAPOLATION_NONE;
 	startTime = duration = 0.0f;
-	memset( &startValue, 0, sizeof( startValue ) );
-	memset( &baseSpeed, 0, sizeof( baseSpeed ) );
-	memset( &speed, 0, sizeof( speed ) );
+	std::memset( &startValue, 0, sizeof( startValue ) );
+	std::memset( &baseSpeed, 0, sizeof( baseSpeed ) );
+	std::memset( &speed, 0, sizeof( speed ) );
 }
 
 /*

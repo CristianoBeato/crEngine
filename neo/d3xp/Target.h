@@ -340,7 +340,7 @@ typedef struct SavedGui_s
 {
 	SavedGui_s()
 	{
-		memset( gui, 0, sizeof( idUserInterface* )*MAX_RENDERENTITY_GUI );
+		std::memset( gui, 0, sizeof( idUserInterface* )*MAX_RENDERENTITY_GUI );
 	};
 	idUserInterface*	gui[MAX_RENDERENTITY_GUI];
 } SavedGui_t;

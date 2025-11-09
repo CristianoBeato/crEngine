@@ -301,10 +301,10 @@ CLightInfo::CLightInfo() {
 /////////////////////////////////////////////////////////////////////////////
 // CLightDlg dialog
 
-CLightDlg *g_LightDialog = NULL;
+CLightDlg *g_LightDialog = nullptr;
 
 
-CLightDlg::CLightDlg(CWnd* pParent /*=NULL*/)
+CLightDlg::CLightDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CLightDlg::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CLightDlg)
@@ -624,12 +624,12 @@ void CLightDlg::SaveLightInfo( const idDict *differences ) {
 		for ( int i = 0; i < count; i++ ) {
 			if ( differences ) {
 				gameEdit->EntityChangeSpawnArgs( list[i], differences );
-				gameEdit->EntityUpdateChangeableSpawnArgs( list[i], NULL );
+				gameEdit->EntityUpdateChangeableSpawnArgs( list[i], nullptr );
 			} else {
 				idDict newArgs;
 				lightInfo.ToDict( &newArgs );
 				gameEdit->EntityChangeSpawnArgs( list[i], &newArgs );
-				gameEdit->EntityUpdateChangeableSpawnArgs( list[i], NULL );
+				gameEdit->EntityUpdateChangeableSpawnArgs( list[i], nullptr );
 			}
 			gameEdit->EntityUpdateVisuals( list[i] );
 		}		
@@ -734,7 +734,7 @@ void CLightDlg::OnRadioFalloff()
 
 void CLightDlg::OnOK() {
 	UpdateLightInfoFromDialog();
-	SaveLightInfo( NULL );
+	SaveLightInfo( nullptr );
 	Sys_UpdateWindows(W_ALL);
 	CDialog::OnOK();
 }
@@ -746,7 +746,7 @@ entity_t *SingleLightSelected() {
 			return b->owner;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void CLightDlg::UpdateDialog( bool updateChecks )
@@ -765,7 +765,7 @@ void CLightDlg::UpdateDialog( bool updateChecks )
 			title = "Light Editor";
 		} else {   
 			//find the last brush belonging to the last entity selected and use that as the source
-			e = NULL;
+			e = nullptr;
 			for ( brush_t *b = selected_brushes.next ; b != &selected_brushes ; b = b->next ) {
 				if ( ( b->owner->eclass->nShowFlags & ECLASS_LIGHT ) && !b->entityModel ) {
 					e = b->owner;
@@ -814,17 +814,17 @@ void LightEditorInit( const idDict *spawnArgs ) {
 		return;
 	}
 
-	if ( g_LightDialog == NULL ) {
+	if ( g_LightDialog == nullptr ) {
 		InitAfx();
 		g_LightDialog = new CLightDlg();
 	}
 
-	if ( g_LightDialog->GetSafeHwnd() == NULL ) {
+	if ( g_LightDialog->GetSafeHwnd() == nullptr ) {
 		g_LightDialog->Create( IDD_DIALOG_LIGHT );
 		CRect rct;
 		LONG lSize = sizeof( rct );
 		if ( LoadRegistryInfo( "Radiant::LightWindow", &rct, &lSize ) ) {
-			g_LightDialog->SetWindowPos(NULL, rct.left, rct.top, 0,0, SWP_NOSIZE);
+			g_LightDialog->SetWindowPos(nullptr, rct.left, rct.top, 0,0, SWP_NOSIZE);
 		}
 	}
 
@@ -846,7 +846,7 @@ void LightEditorRun( void ) {
 	MSG *msg = &m_msgCur;
 #endif
 
-	while( ::PeekMessage(msg, NULL, NULL, NULL, PM_NOREMOVE) ) {
+	while( ::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE) ) {
 		// pump message
 		if ( !AfxGetApp()->PumpMessage() ) {
 		}
@@ -855,18 +855,18 @@ void LightEditorRun( void ) {
 
 void LightEditorShutdown( void ) {
 	delete g_LightDialog;
-	g_LightDialog = NULL;
+	g_LightDialog = nullptr;
 }
 
 void UpdateLightInspector() {
-	if ( g_LightDialog && g_LightDialog->GetSafeHwnd() != NULL ) {
+	if ( g_LightDialog && g_LightDialog->GetSafeHwnd() != nullptr ) {
 		g_LightDialog->UpdateDialog(true);   //jhefty - update ALL info about the light, including check boxes
 	}
 }
 
 void CLightDlg::OnApply() {
 	UpdateLightInfoFromDialog();
-	SaveLightInfo( NULL );
+	SaveLightInfo( nullptr );
 	Sys_UpdateWindows( W_ALL );
 }
 
@@ -881,7 +881,7 @@ void CLightDlg::UpdateColor( float r, float g, float b, float a ) {
 	color[2] = a * b;
 	ColorButtons();
 	UpdateLightInfoFromDialog();
-	SaveLightInfo( NULL );
+	SaveLightInfo( nullptr );
 	Sys_UpdateWindows( W_CAMERA );
 }
 

@@ -90,7 +90,7 @@ ID_INLINE void idBase64::Init()
 {
 	len = 0;
 	alloced = 0;
-	data = NULL;
+	data = nullptr;
 }
 
 ID_INLINE void idBase64::Release()

@@ -55,7 +55,7 @@ class CClipPoint
 {
 public:
   CClipPoint(){ Reset(); };
-  void Reset(){ m_ptClip[0] = m_ptClip[1] = m_ptClip[2] = 0.0; m_bSet = false; m_pVec3 = NULL;};
+  void Reset(){ m_ptClip[0] = m_ptClip[1] = m_ptClip[2] = 0.0; m_bSet = false; m_pVec3 = nullptr;};
   bool Set(){ return m_bSet; };
   void Set(bool b) { m_bSet = b; };
   void UpdatePointPtr() { if (m_pVec3) VectorCopy(m_ptClip, *m_pVec3); };

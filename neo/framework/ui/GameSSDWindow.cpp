@@ -186,7 +186,7 @@ void SSDEntity::EntityInit()
 	type = SSD_ENTITY_BASE;
 	
 	materialName = "";
-	material = NULL;
+	material = nullptr;
 	position.Zero();
 	size.Zero();
 	radius = 0.0f;
@@ -494,7 +494,7 @@ SSDAsteroid* SSDAsteroid::GetNewAsteroid( idGameSSDWindow* _game, const idVec3& 
 			return &asteroidPool[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 SSDAsteroid* SSDAsteroid::GetSpecificAsteroid( int id )
@@ -600,7 +600,7 @@ SSDAstronaut* SSDAstronaut::GetNewAstronaut( idGameSSDWindow* _game, const idVec
 			return &astronautPool[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 SSDAstronaut* SSDAstronaut::GetSpecificAstronaut( int id )
@@ -786,7 +786,7 @@ SSDExplosion* SSDExplosion::GetNewExplosion( idGameSSDWindow* _game, const idVec
 			return &explosionPool[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 SSDExplosion* SSDExplosion::GetSpecificExplosion( int id )
@@ -952,7 +952,7 @@ SSDPoints* SSDPoints::GetNewPoints( idGameSSDWindow* _game, SSDEntity* _ent, int
 			return &pointsPool[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 SSDPoints* SSDPoints::GetSpecificPoints( int id )
@@ -1087,7 +1087,7 @@ SSDProjectile* SSDProjectile::GetNewProjectile( idGameSSDWindow* _game, const id
 			return &projectilePool[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 SSDProjectile* SSDProjectile::GetSpecificProjectile( int id )
@@ -1306,7 +1306,7 @@ SSDPowerup* SSDPowerup::GetNewPowerup( idGameSSDWindow* _game, float _speed, flo
 			return &powerupPool[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 SSDPowerup* SSDPowerup::GetSpecificPowerup( int id )
@@ -1464,7 +1464,7 @@ void idGameSSDWindow::ReadFromSaveGame( idFile* savefile )
 	
 	savefile->Read( &gameStats, sizeof( SSDGameStats_t ) );
 	//Reset this because it is no longer valid
-	gameStats.levelStats.targetEnt = NULL;
+	gameStats.levelStats.targetEnt = nullptr;
 	
 	SSDAsteroid::ReadAsteroids( savefile, this );
 	SSDAstronaut::ReadAstronauts( savefile, this );
@@ -1526,7 +1526,7 @@ const char* idGameSSDWindow::HandleEvent( const sysEvent_t* event, bool* updateV
 idWinVar* idGameSSDWindow::GetWinVarByName( const char* _name, bool winLookup, drawWin_t** owner )
 {
 
-	idWinVar* retVar = NULL;
+	idWinVar* retVar = nullptr;
 	
 	if( idStr::Icmp( _name, "beginLevel" ) == 0 )
 	{
@@ -1617,19 +1617,19 @@ bool idGameSSDWindow::ParseInternalVar( const char* _name, idTokenParser* src )
 		for( int i = 0; i < levelCount; i++ )
 		{
 			SSDLevelData_t newLevel;
-			memset( &newLevel, 0, sizeof( SSDLevelData_t ) );
+			std::memset( &newLevel, 0, sizeof( SSDLevelData_t ) );
 			levelData.Append( newLevel );
 			
 			SSDAsteroidData_t newAsteroid;
-			memset( &newAsteroid, 0, sizeof( SSDAsteroidData_t ) );
+			std::memset( &newAsteroid, 0, sizeof( SSDAsteroidData_t ) );
 			asteroidData.Append( newAsteroid );
 			
 			SSDAstronautData_t newAstronaut;
-			memset( &newAstronaut, 0, sizeof( SSDAstronautData_t ) );
+			std::memset( &newAstronaut, 0, sizeof( SSDAstronautData_t ) );
 			astronautData.Append( newAstronaut );
 			
 			SSDPowerupData_t newPowerup;
-			memset( &newPowerup, 0, sizeof( SSDPowerupData_t ) );
+			std::memset( &newPowerup, 0, sizeof( SSDPowerupData_t ) );
 			powerupData.Append( newPowerup );
 			
 			
@@ -1642,7 +1642,7 @@ bool idGameSSDWindow::ParseInternalVar( const char* _name, idTokenParser* src )
 		for( int i = 0; i < weaponCount; i++ )
 		{
 			SSDWeaponData_t newWeapon;
-			memset( &newWeapon, 0, sizeof( SSDWeaponData_t ) );
+			std::memset( &newWeapon, 0, sizeof( SSDWeaponData_t ) );
 			weaponData.Append( newWeapon );
 		}
 		return true;
@@ -1841,7 +1841,7 @@ void idGameSSDWindow::ResetGameStats()
 	ResetEntities();
 	
 	//Reset the gamestats structure
-	memset( &gameStats, 0, sizeof( gameStats ) );
+	std::memset( &gameStats, 0, sizeof( gameStats ) );
 	
 	gameStats.health = 100;
 	
@@ -1853,7 +1853,7 @@ void idGameSSDWindow::ResetLevelStats()
 	ResetEntities();
 	
 	//Reset the level statistics structure
-	memset( &gameStats.levelStats, 0, sizeof( gameStats.levelStats ) );
+	std::memset( &gameStats.levelStats, 0, sizeof( gameStats.levelStats ) );
 	
 	
 }
@@ -2222,7 +2222,7 @@ SSDEntity* idGameSSDWindow::EntityHitTest( const idVec2& pt )
 			return entities[i];
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 void idGameSSDWindow::HitAsteroid( SSDAsteroid* asteroid, int key )
@@ -2562,7 +2562,7 @@ void idGameSSDWindow::StopSuperBlaster()
 
 SSDEntity* idGameSSDWindow::GetSpecificEntity( int type, int id )
 {
-	SSDEntity* ent = NULL;
+	SSDEntity* ent = nullptr;
 	switch( type )
 	{
 		case SSD_ENTITY_ASTEROID:

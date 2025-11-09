@@ -39,7 +39,7 @@ class DialogDeclBrowser : public CDialog {
 	DECLARE_DYNAMIC(DialogDeclBrowser)
 
 public:
-						DialogDeclBrowser( CWnd* pParent = NULL );   // standard constructor
+						DialogDeclBrowser( CWnd* pParent = nullptr );   // standard constructor
 	virtual				~DialogDeclBrowser();
 
 	void				ReloadDeclarations( void );

@@ -194,8 +194,8 @@ bool GEItescriptsDlg_Apply(HWND hwnd, rvGEWorkspace *newWorkspace)
 				getText.cb = chars + 1;
 				getText.codepage = CP_ACP;
 				getText.flags = GT_DEFAULT | GT_USECRLF;
-				getText.lpDefaultChar = NULL;
-				getText.lpUsedDefChar = NULL;
+				getText.lpDefaultChar = nullptr;
+				getText.lpUsedDefChar = nullptr;
 				SendMessage(script, EM_GETTEXTEX, (WPARAM)&getText, (LPARAM)text);
 
 				idStr parse = text;

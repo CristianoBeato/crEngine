@@ -71,7 +71,7 @@ renderView_t* idCamera::GetRenderView()
   idCameraView
 
 ***********************************************************************/
-const idEventDef EV_Camera_SetAttachments( "<getattachments>", NULL );
+const idEventDef EV_Camera_SetAttachments( "<getattachments>", nullptr );
 
 CLASS_DECLARATION( idCamera, idCameraView )
 EVENT( EV_Activate,				idCameraView::Event_Activate )
@@ -87,8 +87,8 @@ idCameraView::idCameraView
 idCameraView::idCameraView()
 {
 	fov = 90.0f;
-	attachedTo = NULL;
-	attachedView = NULL;
+	attachedTo = nullptr;
+	attachedView = nullptr;
 }
 
 /*
@@ -150,7 +150,7 @@ void idCameraView::Event_Activate( idEntity* activator )
 			{
 				gameLocal.Printf( "%d: '%s' stop\n", gameLocal.framenum, GetName() );
 			}
-			gameLocal.SetCamera( NULL );
+			gameLocal.SetCamera( nullptr );
 		}
 	}
 }
@@ -166,7 +166,7 @@ void idCameraView::Stop()
 	{
 		gameLocal.Printf( "%d: '%s' stop\n", gameLocal.framenum, GetName() );
 	}
-	gameLocal.SetCamera( NULL );
+	gameLocal.SetCamera( nullptr );
 	ActivateTargets( gameLocal.GetLocalPlayer() );
 }
 
@@ -203,7 +203,7 @@ void idCameraView::Spawn()
 	
 	PostEventMS( &EV_Camera_SetAttachments, 0 );
 	
-	UpdateChangeableSpawnArgs( NULL );
+	UpdateChangeableSpawnArgs( nullptr );
 }
 
 /*
@@ -215,7 +215,7 @@ void idCameraView::GetViewParms( renderView_t* view )
 {
 	assert( view );
 	
-	if( view == NULL )
+	if( view == nullptr )
 	{
 		return;
 	}
@@ -255,8 +255,8 @@ void idCameraView::GetViewParms( renderView_t* view )
 ===============================================================================
 */
 
-const idEventDef EV_Camera_Start( "start", NULL );
-const idEventDef EV_Camera_Stop( "stop", NULL );
+const idEventDef EV_Camera_Start( "start", nullptr );
+const idEventDef EV_Camera_Stop( "stop", nullptr );
 
 CLASS_DECLARATION( idCamera, idCameraAnim )
 EVENT( EV_Thread_SetCallback,	idCameraAnim::Event_SetCallback )
@@ -278,7 +278,7 @@ idCameraAnim::idCameraAnim()
 	frameRate = 0;
 	cycle = 1;
 	starttime = 0;
-	activator = NULL;
+	activator = nullptr;
 	
 }
 
@@ -291,7 +291,7 @@ idCameraAnim::~idCameraAnim()
 {
 	if( gameLocal.GetCamera() == this )
 	{
-		gameLocal.SetCamera( NULL );
+		gameLocal.SetCamera( nullptr );
 	}
 }
 
@@ -494,7 +494,7 @@ void idCameraAnim::Stop()
 		}
 		
 		BecomeInactive( TH_THINK );
-		gameLocal.SetCamera( NULL );
+		gameLocal.SetCamera( nullptr );
 		if( threadNum )
 		{
 			idThread::ObjectMoveDone( threadNum, this );
@@ -609,7 +609,7 @@ void idCameraAnim::GetViewParms( renderView_t* view )
 		}
 		
 		Stop();
-		if( gameLocal.GetCamera() != NULL )
+		if( gameLocal.GetCamera() != nullptr )
 		{
 			// we activated another camera when we stopped, so get it's viewparms instead
 			gameLocal.GetCamera()->GetViewParms( view );

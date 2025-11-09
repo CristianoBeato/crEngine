@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 enum swfDictType_t
 {
-	SWF_DICT_NULL,
+	SWF_DICT_nullptr,
 	SWF_DICT_IMAGE,
 	SWF_DICT_SHAPE,
 	SWF_DICT_MORPH,

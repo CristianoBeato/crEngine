@@ -240,7 +240,7 @@ idBitMsg::WriteData
 */
 void idBitMsg::WriteData( const void* data, int length )
 {
-	memcpy( GetByteSpace( length ), data, length );
+	std::memcpy( GetByteSpace( length ), data, length );
 }
 
 /*
@@ -266,14 +266,14 @@ bool idBitMsg::WriteDeltaDict( const idDict& dict, const idDict* base )
 	const idKeyValue* kv, *basekv;
 	bool changed = false;
 	
-	if( base != NULL )
+	if( base != nullptr )
 	{
 	
 		for( i = 0; i < dict.GetNumKeyVals(); i++ )
 		{
 			kv = dict.GetKeyVal( i );
 			basekv = base->FindKey( kv->GetKey() );
-			if( basekv == NULL || basekv->GetValue().Icmp( kv->GetValue() ) != 0 )
+			if( basekv == nullptr || basekv->GetValue().Icmp( kv->GetValue() ) != 0 )
 			{
 				WriteString( kv->GetKey() );
 				WriteString( kv->GetValue() );
@@ -287,7 +287,7 @@ bool idBitMsg::WriteDeltaDict( const idDict& dict, const idDict* base )
 		{
 			basekv = base->GetKeyVal( i );
 			kv = dict.FindKey( basekv->GetKey() );
-			if( kv == NULL )
+			if( kv == nullptr )
 			{
 				WriteString( basekv->GetKey() );
 				changed = true;
@@ -473,7 +473,7 @@ int idBitMsg::ReadData( void* data, int length ) const
 	{
 		if( data )
 		{
-			memcpy( data, readData + readCount, GetRemainingData() );
+			std::memcpy( data, readData + readCount, GetRemainingData() );
 		}
 		readCount = curSize;
 	}
@@ -481,7 +481,7 @@ int idBitMsg::ReadData( void* data, int length ) const
 	{
 		if( data )
 		{
-			memcpy( data, readData + readCount, length );
+			std::memcpy( data, readData + readCount, length );
 		}
 		readCount += length;
 	}
@@ -512,7 +512,7 @@ bool idBitMsg::ReadDeltaDict( idDict& dict, const idDict* base ) const
 	char		value[MAX_STRING_CHARS];
 	bool		changed = false;
 	
-	if( base != NULL )
+	if( base != nullptr )
 	{
 		dict = *base;
 	}

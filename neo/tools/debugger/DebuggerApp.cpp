@@ -41,9 +41,9 @@ rvDebuggerApp::rvDebuggerApp
 rvDebuggerApp::rvDebuggerApp ( )
 {
 	mOptions.Init( "Software\\id Software\\DOOM3\\Tools\\Debugger" );
-	mInstance		= NULL;
-	mDebuggerWindow = NULL;
-	mAccelerators   = NULL;
+	mInstance		= nullptr;
+	mDebuggerWindow = nullptr;
+	mAccelerators   = nullptr;
 }
 
 /*
@@ -106,9 +106,9 @@ bool rvDebuggerApp::ProcessWindowMessages ( void )
 {
 	MSG	msg;
 
-	while ( PeekMessage ( &msg, NULL, 0, 0, PM_NOREMOVE ) )
+	while ( PeekMessage ( &msg, nullptr, 0, 0, PM_NOREMOVE ) )
 	{
-		if ( !GetMessage (&msg, NULL, 0, 0) ) 
+		if ( !GetMessage (&msg, nullptr, 0, 0) ) 
 		{
 			return false;
 		}
@@ -161,7 +161,7 @@ int rvDebuggerApp::Run ( void )
 	mOptions.Save ( );
 	
 	delete mDebuggerWindow;
-	mDebuggerWindow = NULL;
+	mDebuggerWindow = nullptr;
 	
 	return 1;
 }
@@ -178,7 +178,7 @@ void rvDebuggerApp::RunOnce ( void )
 			mOptions.Save ( );
 
 			delete mDebuggerWindow;
-			mDebuggerWindow = NULL;
+			mDebuggerWindow = nullptr;
 		}
 	}
 }

@@ -61,10 +61,10 @@ bool rvGEApp::mDontExit = false;
 
 rvGEApp::rvGEApp ( )
 {
-	mMDIFrame			 = NULL;
-	mMDIClient			 = NULL;
-	mRecentFileMenu		 = NULL;
-	mViewer				 = NULL;
+	mMDIFrame			 = nullptr;
+	mMDIClient			 = nullptr;
+	mRecentFileMenu		 = nullptr;
+	mViewer				 = nullptr;
 	mRecentFileInsertPos = 0;
 	
 }
@@ -100,17 +100,17 @@ bool rvGEApp::Initialize ( void )
 
 	// Register the window classes for the main frame and the mdi child window
 	WNDCLASSEX wndClass;
-	memset ( &wndClass, 0, sizeof(wndClass) );
+	std::memset ( &wndClass, 0, sizeof(wndClass) );
 	wndClass.cbSize = sizeof(WNDCLASSEX);
 	wndClass.lpszClassName	= "QUAKE4_GUIEDITOR_CLASS";
 	wndClass.lpfnWndProc	= FrameWndProc;
 	wndClass.hbrBackground	= (HBRUSH) (COLOR_APPWORKSPACE + 1);
-	wndClass.hCursor		= LoadCursor((HINSTANCE) NULL, IDC_ARROW);
+	wndClass.hCursor		= LoadCursor((HINSTANCE) nullptr, IDC_ARROW);
 	wndClass.lpszMenuName	= MAKEINTRESOURCE(IDR_GUIED_MAIN);
 	wndClass.hInstance		= mInstance;
 	RegisterClassEx ( &wndClass );
 
-	wndClass.lpszMenuName	= NULL;
+	wndClass.lpszMenuName	= nullptr;
 	wndClass.lpfnWndProc	= MDIChildProc;
 	wndClass.lpszClassName	= "QUAKE4_GUIEDITOR_CHILD_CLASS";
 	wndClass.style			= CS_OWNDC|CS_DBLCLKS|CS_BYTEALIGNWINDOW|CS_VREDRAW|CS_HREDRAW;
@@ -122,7 +122,7 @@ bool rvGEApp::Initialize ( void )
 							  "Storm Engine 2 GUI Editor",
 							  WS_OVERLAPPEDWINDOW | WS_CLIPSIBLINGS,
 							  CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
-							  NULL, NULL, mInstance, (LPVOID)this );
+							  nullptr, nullptr, mInstance, (LPVOID)this );
 
 	if ( !mMDIFrame )
 	{
@@ -135,10 +135,10 @@ bool rvGEApp::Initialize ( void )
 	CLIENTCREATESTRUCT ccs;
 	ccs.hWindowMenu = GetSubMenu ( GetMenu ( mMDIFrame ), 5 );
 	ccs.idFirstChild = IDM_WINDOWCHILD;
-	mMDIClient = CreateWindow ( "MDICLIENT", NULL,
+	mMDIClient = CreateWindow ( "MDICLIENT", nullptr,
 								WS_CHILDWINDOW | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
 								0, 0, 1000, 1000,
-								mMDIFrame, NULL,
+								mMDIFrame, nullptr,
 								mInstance, &ccs );
 
 	if ( !mMDIClient )
@@ -192,7 +192,7 @@ bool rvGEApp::ApplyProperties(idDict* dict, bool keyShortcut)
 rvGEApp::GetActiveWorkspace
 
 Retrieves the workspace pointer for the active workspace.  If there is no active
-workspace then it will return NULL
+workspace then it will return nullptr
 ================
 */
 rvGEWorkspace* rvGEApp::GetActiveWorkspace ( HWND* ret )
@@ -200,8 +200,8 @@ rvGEWorkspace* rvGEApp::GetActiveWorkspace ( HWND* ret )
 	rvGEWorkspace*	workspace;
 	HWND			active;
 
-	workspace = NULL;
-	active    = (HWND)SendMessage ( mMDIClient, WM_MDIGETACTIVE, 0, NULL );
+	workspace = nullptr;
+	active    = (HWND)SendMessage ( mMDIClient, WM_MDIGETACTIVE, 0, nullptr );
 
 	// Return the window handle if requested
 	if ( ret )
@@ -211,7 +211,7 @@ rvGEWorkspace* rvGEApp::GetActiveWorkspace ( HWND* ret )
 
 	if ( !active )
 	{
-		return NULL;
+		return nullptr;
 	}
 
 	return rvGEWorkspace::GetWorkspace ( active );
@@ -460,7 +460,7 @@ LRESULT CALLBACK rvGEApp::FrameWndProc ( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 		}
 	}
 
-	return DefFrameProc ( hWnd, app?app->mMDIClient:NULL, uMsg, wParam, lParam );
+	return DefFrameProc ( hWnd, app?app->mMDIClient:nullptr, uMsg, wParam, lParam );
 }
 
 /*
@@ -531,7 +531,7 @@ LRESULT CALLBACK rvGEApp::MDIChildProc ( HWND hWnd, UINT uMsg, WPARAM wParam, LP
 				GEItescriptsDlg_Init(gApp.GetScriptWindow(), workspace);
 				gApp.GetStatusBar ( ).SetSimple ( false );
 			}
-			else if ( lParam == NULL )
+			else if ( lParam == nullptr )
 			{
 				gApp.GetStatusBar ( ).SetSimple ( true );
 			}
@@ -582,7 +582,7 @@ void rvGEApp::HandleCommandSave ( rvGEWorkspace* workspace, const char* filename
 	idStr realFilename;
 
 	// See if we need to browse for a filename
-	if ( workspace->IsNew ( ) || filename == NULL )
+	if ( workspace->IsNew ( ) || filename == nullptr )
 	{
 		OPENFILENAME ofn;
 		char		 szFile[MAX_PATH];
@@ -677,10 +677,10 @@ int rvGEApp::HandleCommand ( WPARAM wParam, LPARAM lParam )
 			break;
 
 		case ID_GUIED_TOOLS_RELOADMATERIALS:
-			SetCursor ( LoadCursor ( NULL, IDC_WAIT ) );
+			SetCursor ( LoadCursor ( nullptr, IDC_WAIT ) );
 			cmdSystem->BufferCommandText( CMD_EXEC_NOW, "reloadImages\n" );			
 			cmdSystem->BufferCommandText(CMD_EXEC_NOW, "reloadDecls\n"); // motorsep 12-19-2014; there is no cmd reloadMaterials, but there is cmd reloadDecls, which reloads materials
-			SetCursor ( LoadCursor ( NULL, IDC_ARROW ) );
+			SetCursor ( LoadCursor ( nullptr, IDC_ARROW ) );
 			break;
 
 		case ID_GUIED_EDIT_COPY:
@@ -713,7 +713,7 @@ int rvGEApp::HandleCommand ( WPARAM wParam, LPARAM lParam )
 			if ( !mViewer->Create ( mMDIFrame ) )
 			{
 				delete mViewer;
-				mViewer = NULL;
+				mViewer = nullptr;
 			}
 
 			if ( workspace )
@@ -1018,7 +1018,7 @@ int rvGEApp::HandleCommand ( WPARAM wParam, LPARAM lParam )
 
 		case ID_GUIED_FILE_SAVEAS:
 			assert ( workspace );
-			HandleCommandSave ( workspace, NULL );
+			HandleCommandSave ( workspace, nullptr );
 			break;
 		case ID_GUIED_APPLY_ITEM_PROPS:
 		{
@@ -1038,9 +1038,9 @@ int rvGEApp::HandleCommand ( WPARAM wParam, LPARAM lParam )
 			ofn.nMaxFile = sizeof(szFile);
 			ofn.lpstrFilter = "GUI Files\0*.GUI\0All Files\0*.*\0";
 			ofn.nFilterIndex = 1;
-			ofn.lpstrFileTitle = NULL;
+			ofn.lpstrFileTitle = nullptr;
 			ofn.nMaxFileTitle = 0;
-			ofn.lpstrInitialDir = NULL;
+			ofn.lpstrInitialDir = nullptr;
 			ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST;
 
 			// Display the Open dialog box.
@@ -1382,7 +1382,7 @@ bool rvGEApp::OpenFile ( const char* filename )
 		}
 	}
 
-	SetCursor ( LoadCursor ( NULL, IDC_WAIT ) );
+	SetCursor ( LoadCursor ( nullptr, IDC_WAIT ) );
 
 	// Setup the default error.
 	error = va("Failed to parse '%s'", filename );
@@ -1421,7 +1421,7 @@ bool rvGEApp::OpenFile ( const char* filename )
 		MessageBox ( error, MB_OK|MB_ICONERROR );
 	}
 
-	SetCursor ( LoadCursor ( NULL, IDC_ARROW ) );
+	SetCursor ( LoadCursor ( nullptr, IDC_ARROW ) );
 
 	return result;;
 }
@@ -1489,7 +1489,7 @@ void rvGEApp::UpdateRecentFiles ( void )
 		GetMenuItemInfo ( mRecentFileMenu, mRecentFileInsertPos+1,TRUE, &info );
 		if ( !(info.fType & MFT_SEPARATOR ) )
 		{
-			InsertMenu ( mRecentFileMenu, mRecentFileInsertPos, MF_BYPOSITION|MF_SEPARATOR|MF_ENABLED, 0, NULL );
+			InsertMenu ( mRecentFileMenu, mRecentFileInsertPos, MF_BYPOSITION|MF_SEPARATOR|MF_ENABLED, 0, nullptr );
 		}
 	}
 
@@ -1519,7 +1519,7 @@ void rvGEApp::CloseViewer ( void )
 
 	mViewer->Destroy ( );
 	delete mViewer;
-	mViewer = NULL;
+	mViewer = nullptr;
 }
 
 /*

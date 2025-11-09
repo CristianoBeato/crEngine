@@ -50,9 +50,9 @@ END_MESSAGE_MAP()
 * Protected constructor used by dynamic creation.
 */
 ToggleListView::ToggleListView() {
-	onIcon = NULL;
-	offIcon = NULL;
-	disabledIcon = NULL;
+	onIcon = nullptr;
+	offIcon = nullptr;
+	disabledIcon = nullptr;
 }
 
 /**
@@ -66,7 +66,7 @@ ToggleListView::~ToggleListView() {
 * Sets the tree icons to dispay for each of the three states. Sets the 
 * icons to display for each of the three states. The values passed in 
 * are the resource name that can be generated using MAKEINTRESOUCE. If 
-* the value passed in is NULL then an icon will not be drawn for that
+* the value passed in is nullptr then an icon will not be drawn for that
 * state.
 * @param disabled The icon to draw when the state is TOGGLE_STATE_DISABLED.
 * @param on The icon to draw when the state is TOGGLE_STATE_ON.
@@ -76,19 +76,19 @@ void ToggleListView::SetToggleIcons(LPCSTR disabled, LPCSTR on, LPCSTR off) {
 	if(on) {
 		onIcon = (HICON)LoadImage ( AfxGetInstanceHandle(), on, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR|LR_LOADMAP3DCOLORS );
 	} else {
-		onIcon = NULL;
+		onIcon = nullptr;
 	}
 
 	if(off) {
 		offIcon = (HICON)LoadImage ( AfxGetInstanceHandle(), off, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR|LR_LOADMAP3DCOLORS );
 	} else {
-		offIcon = NULL;
+		offIcon = nullptr;
 	}
 
 	if(disabled) {
 		disabledIcon = (HICON)LoadImage ( AfxGetInstanceHandle(), disabled, IMAGE_ICON, 16, 16, LR_DEFAULTCOLOR|LR_LOADMAP3DCOLORS );
 	} else {
-		disabledIcon = NULL;
+		disabledIcon = nullptr;
 	}
 }
 
@@ -222,7 +222,7 @@ void ToggleListView::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	LV_ITEM lvi;
 	_TCHAR szBuff[MAX_PATH];
 	
-	memset(&lvi, 0, sizeof(LV_ITEM));
+	std::memset(&lvi, 0, sizeof(LV_ITEM));
 	lvi.mask = LVIF_TEXT;
 	lvi.iItem = nItem;
 	lvi.pszText = szBuff;
@@ -250,17 +250,17 @@ void ToggleListView::DrawItem(LPDRAWITEMSTRUCT lpDrawItemStruct) {
 	switch(GetToggleState(lvi.iItem)) {
 		case TOGGLE_STATE_DISABLED:
 			if(disabledIcon) {
-				DrawIconEx ( lpDrawItemStruct->hDC, rDraw.left, rDraw.top, disabledIcon, 16, 16,0, NULL, DI_NORMAL );
+				DrawIconEx ( lpDrawItemStruct->hDC, rDraw.left, rDraw.top, disabledIcon, 16, 16,0, nullptr, DI_NORMAL );
 			}
 			break;
 		case TOGGLE_STATE_ON:
 			if(onIcon) {
-				DrawIconEx ( lpDrawItemStruct->hDC, rDraw.left, rDraw.top, onIcon, 16, 16,0, NULL, DI_NORMAL );
+				DrawIconEx ( lpDrawItemStruct->hDC, rDraw.left, rDraw.top, onIcon, 16, 16,0, nullptr, DI_NORMAL );
 			}
 			break;
 		case TOGGLE_STATE_OFF:
 			if(offIcon) {
-				DrawIconEx ( lpDrawItemStruct->hDC, rDraw.left, rDraw.top, offIcon, 16, 16,0, NULL, DI_NORMAL );
+				DrawIconEx ( lpDrawItemStruct->hDC, rDraw.left, rDraw.top, offIcon, 16, 16,0, nullptr, DI_NORMAL );
 			}
 			break;
 	};

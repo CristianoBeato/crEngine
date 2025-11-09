@@ -447,10 +447,10 @@ public:
 	};
 	
 	idSession() :
-		signInManager( NULL ),
-		saveGameManager( NULL ),
-		achievementSystem( NULL ),
-		dedicatedServerSearch( NULL ) { }
+		signInManager( nullptr ),
+		saveGameManager( nullptr ),
+		achievementSystem( nullptr ),
+		dedicatedServerSearch( nullptr ) { }
 	virtual 		~idSession();
 	
 	virtual void			Initialize() = 0;
@@ -583,7 +583,7 @@ public:
 	}
 	virtual bool			GetTitleStorageString( const char* name, const char* defaultString, const char** out ) const
 	{
-		if( out != NULL )
+		if( out != nullptr )
 		{
 			*out = defaultString;
 		}
@@ -595,7 +595,7 @@ public:
 	//=====================================================================================================
 	// Leaderboard
 	//=====================================================================================================
-	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t* leaderboard, const column_t* stats, const idFile_Memory* attachment = NULL ) = 0;
+	virtual void			LeaderboardUpload( lobbyUserID_t lobbyUserID, const leaderboardDefinition_t* leaderboard, const column_t* stats, const idFile_Memory* attachment = nullptr ) = 0;
 	virtual void			LeaderboardDownload( int sessionUserIndex, const leaderboardDefinition_t* leaderboard, int startingRank, int numRows, const idLeaderboardCallback& callback ) = 0;
 	virtual void			LeaderboardDownloadAttachment( int sessionUserIndex, const leaderboardDefinition_t* leaderboard, int64_t attachmentID ) = 0;
 	virtual void			LeaderboardFlush() = 0;
@@ -671,11 +671,11 @@ public:
 	
 	bool						HasSignInManager() const
 	{
-		return ( signInManager != NULL );
+		return ( signInManager != nullptr );
 	}
 	bool						HasAchievementSystem() const
 	{
-		return ( achievementSystem != NULL );
+		return ( achievementSystem != nullptr );
 	}
 	
 	virtual bool				IsSystemUIShowing() const = 0;

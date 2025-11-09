@@ -61,11 +61,11 @@ toolTip_t DialogAF::toolTips[] = {
 	{ IDC_BUTTON_AF_KILL, "kill ingame entity using the selected articulated figure" },
 	{ IDC_BUTTON_AF_SAVE, "save the selected articulated figure" },
 	{ IDCANCEL, "cancel all changes to all articulated figures" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 
-DialogAF *g_AFDialog = NULL;
+DialogAF *g_AFDialog = nullptr;
 
 
 IMPLEMENT_DYNAMIC(DialogAF, CDialog)
@@ -75,12 +75,12 @@ IMPLEMENT_DYNAMIC(DialogAF, CDialog)
 DialogAF::DialogAF
 ================
 */
-DialogAF::DialogAF( CWnd* pParent /*=NULL*/ )
+DialogAF::DialogAF( CWnd* pParent /*=nullptr*/ )
 	: CDialog(DialogAF::IDD, pParent)
-	, file(NULL)
+	, file(nullptr)
 {
-	wndTabs = NULL;
-	wndTabDisplay = NULL;
+	wndTabs = nullptr;
+	wndTabDisplay = nullptr;
 }
 
 /*
@@ -307,17 +307,17 @@ void AFEditorInit( const idDict *spawnArgs ) {
 		return;
 	}
 
-	if ( g_AFDialog == NULL ) {
+	if ( g_AFDialog == nullptr ) {
 		InitAfx();
 		g_AFDialog = new DialogAF();
 	}
 
-	if ( g_AFDialog->GetSafeHwnd() == NULL) {
+	if ( g_AFDialog->GetSafeHwnd() == nullptr) {
 		g_AFDialog->Create( IDD_DIALOG_AF );
 /*
 		// FIXME: restore position
 		CRect rct;
-		g_AFDialog->SetWindowPos( NULL, rct.left, rct.top, 0, 0, SWP_NOSIZE );
+		g_AFDialog->SetWindowPos( nullptr, rct.left, rct.top, 0, 0, SWP_NOSIZE );
 */
 	}
 
@@ -351,7 +351,7 @@ void AFEditorRun( void ) {
 	MSG *msg = &m_msgCur;
 #endif
 
-	while( ::PeekMessage(msg, NULL, NULL, NULL, PM_NOREMOVE) ) {
+	while( ::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE) ) {
 		// pump message
 		if ( !AfxGetApp()->PumpMessage() ) {
 		}
@@ -365,7 +365,7 @@ AFEditorShutdown
 */
 void AFEditorShutdown( void ) {
 	delete g_AFDialog;
-	g_AFDialog = NULL;
+	g_AFDialog = nullptr;
 }
 
 
@@ -436,7 +436,7 @@ void DialogAF::OnTcnSelchangeTabMode( NMHDR *pNMHDR, LRESULT *pResult ) {
 	*pResult = 0;
 
 	// hide the current tab child dialog box, if any.
-	if ( wndTabDisplay != NULL ) {
+	if ( wndTabDisplay != nullptr ) {
 		wndTabDisplay->ShowWindow( SW_HIDE );
 	}
 
@@ -497,7 +497,7 @@ void DialogAF::OnBnClickedButtonAfNew() {
 	}
 	nameDlg.GetName( name );
 
-	CFileDialog dlgSave( FALSE, "map", NULL, OFN_OVERWRITEPROMPT, "AF Files (*.af)|*.af|All Files (*.*)|*.*||", AfxGetMainWnd() );
+	CFileDialog dlgSave( FALSE, "map", nullptr, OFN_OVERWRITEPROMPT, "AF Files (*.af)|*.af|All Files (*.*)|*.*||", AfxGetMainWnd() );
 	if ( dlgSave.DoModal() != IDOK ) {
 		return;
 	}
@@ -597,7 +597,7 @@ void DialogAF::OnBnClickedCancel() {
 		}
 	}
 	// reload all modified .af files
-	LoadFile( NULL );
+	LoadFile( nullptr );
 	gameEdit->AF_UndoChanges();
 	InitAFList();
 	OnCancel();

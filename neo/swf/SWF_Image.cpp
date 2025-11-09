@@ -75,10 +75,10 @@ idSWF::idDecompressJPEG::idDecompressJPEG
 idSWF::idDecompressJPEG::idDecompressJPEG()
 {
 	jpeg_decompress_struct* cinfo = new( TAG_SWF ) jpeg_decompress_struct;
-	memset( cinfo, 0, sizeof( *cinfo ) );
+	std::memset( cinfo, 0, sizeof( *cinfo ) );
 	
 	cinfo->err = new( TAG_SWF ) jpeg_error_mgr;
-	memset( cinfo->err, 0, sizeof( jpeg_error_mgr ) );
+	std::memset( cinfo->err, 0, sizeof( jpeg_error_mgr ) );
 	jpeg_std_error( cinfo->err );
 	cinfo->err->error_exit = swf_jpeg_error_exit;
 	cinfo->err->output_message = swf_jpeg_output_message;
@@ -118,7 +118,7 @@ byte* idSWF::idDecompressJPEG::Load( const byte* input, int inputSize, int& widt
 		height = 0;
 		
 		jpeg_source_mgr src;
-		memset( &src, 0, sizeof( src ) );
+		std::memset( &src, 0, sizeof( src ) );
 		src.next_input_byte = ( JOCTET* )input;
 		src.bytes_in_buffer = inputSize;
 		src.init_source = swf_jpeg_init_source;
@@ -137,7 +137,7 @@ byte* idSWF::idDecompressJPEG::Load( const byte* input, int inputSize, int& widt
 		
 		if( result == JPEG_SUSPENDED )
 		{
-			return NULL;
+			return nullptr;
 		}
 		
 		jpeg_start_decompress( cinfo );
@@ -146,12 +146,12 @@ byte* idSWF::idDecompressJPEG::Load( const byte* input, int inputSize, int& widt
 			// This shouldn't really be possible, unless the source image is some kind of strange grayscale format or something
 			idLib::Warning( "JPEG output is not 4 components" );
 			jpeg_abort_decompress( cinfo );
-			cinfo->src = NULL;	// value goes out of scope
-			return NULL;
+			cinfo->src = nullptr;	// value goes out of scope
+			return nullptr;
 		}
 		int outputSize = cinfo->output_width * cinfo->output_height * cinfo->output_components;
 		byte* output = ( byte* )Mem_Alloc( outputSize, TAG_SWF );
-		memset( output, 255, outputSize );
+		std::memset( output, 255, outputSize );
 		while( cinfo->output_scanline < cinfo->output_height )
 		{
 			JSAMPROW scanlines = output + cinfo->output_scanline * cinfo->output_width * cinfo->output_components;
@@ -162,14 +162,14 @@ byte* idSWF::idDecompressJPEG::Load( const byte* input, int inputSize, int& widt
 		width = cinfo->output_width;
 		height = cinfo->output_height;
 		
-		cinfo->src = NULL;	// value goes out of scope
+		cinfo->src = nullptr;	// value goes out of scope
 		return output;
 		
 	}
 	catch( idException& )
 	{
 		swf_jpeg_output_message( ( jpeg_common_struct* )cinfo );
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -226,7 +226,7 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 	for( int i = 0 ; i < packImages.Num() ; i++ )
 	{
 		imageToPack_t& pack = packImages[i];
-		assert( pack.imageData != NULL );
+		assert( pack.imageData != nullptr );
 		
 		int	blockWidth = pack.allocSize.x;
 		int	blockHeight = pack.allocSize.y;
@@ -315,7 +315,7 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 		
 		// save the information in the SWF dictionary
 		idSWFDictionaryEntry* entry = FindDictionaryEntry( pack.characterID );
-		assert( entry->material == NULL );
+		assert( entry->material == nullptr );
 		entry->imageSize.x = pack.trueSize.x;
 		entry->imageSize.y = pack.trueSize.y;
 		entry->imageAtlasOffset.x = x + 1;
@@ -326,7 +326,7 @@ void idSWF::WriteSwfImageAtlas( const char* filename )
 		}
 		
 		Mem_Free( pack.imageData );
-		pack.imageData = NULL;
+		pack.imageData = nullptr;
 	}
 	
 	// the TGA is only for examination during development
@@ -342,7 +342,7 @@ Loads RGBA data into an image at the specificied character id in the dictionary
 void idSWF::LoadImage( int characterID, const byte* imageData, int width, int height )
 {
 	idSWFDictionaryEntry* entry = AddDictionaryEntry( characterID, SWF_DICT_IMAGE );
-	if( entry == NULL )
+	if( entry == nullptr )
 	{
 		return;
 	}
@@ -352,7 +352,7 @@ void idSWF::LoadImage( int characterID, const byte* imageData, int width, int he
 	imageToPack_t	pack;
 	pack.characterID = characterID;
 	pack.imageData = ( byte* )Mem_Alloc( width * height * 4, TAG_SWF );
-	memcpy( pack.imageData, imageData, width * height * 4 );
+	std::memcpy( pack.imageData, imageData, width * height * 4 );
 	pack.trueSize.x = width;
 	pack.trueSize.y = height;
 	for( int i = 0 ; i < 2 ; i++ )
@@ -373,7 +373,7 @@ void idSWF::LoadImage( int characterID, const byte* imageData, int width, int he
 	}
 	packImages.Append( pack );
 	
-	entry->material = NULL;
+	entry->material = nullptr;
 }
 
 /*
@@ -408,7 +408,7 @@ void idSWF::DefineBits( idSWFBitStream& bitstream )
 	
 	int width, height;
 	byte* imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
-	if( imageData == NULL )
+	if( imageData == nullptr )
 	{
 		return;
 	}
@@ -434,7 +434,7 @@ void idSWF::DefineBitsJPEG2( idSWFBitStream& bitstream )
 	
 	int width, height;
 	byte* imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
-	if( imageData == NULL )
+	if( imageData == nullptr )
 	{
 		return;
 	}
@@ -459,7 +459,7 @@ void idSWF::DefineBitsJPEG3( idSWFBitStream& bitstream )
 	
 	int width, height;
 	byte* imageData = jpeg.Load( bitstream.ReadData( jpegSize ), jpegSize, width, height );
-	if( imageData == NULL )
+	if( imageData == nullptr )
 	{
 		return;
 	}
@@ -575,7 +575,7 @@ void idSWF::DefineBitsLossless( idSWFBitStream& bitstream )
 	else
 	{
 		idLib::Warning( "DefineBitsLossless: Unknown image format %d", format );
-		memset( imageData, 0xFF, width * height * 4 );
+		std::memset( imageData, 0xFF, width * height * 4 );
 	}
 	
 	LoadImage( characterID, imageData, width, height );
@@ -647,7 +647,7 @@ void idSWF::DefineBitsLossless2( idSWFBitStream& bitstream )
 	else
 	{
 		idLib::Warning( "DefineBitsLossless2: Unknown image format %d", format );
-		memset( imageData, 0xFF, width * height * 4 );
+		std::memset( imageData, 0xFF, width * height * 4 );
 	}
 	
 	LoadImage( characterID, imageData, width, height );

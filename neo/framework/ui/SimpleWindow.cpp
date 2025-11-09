@@ -339,7 +339,7 @@ int idSimpleWindow::GetWinVarOffset( idWinVar* wv, drawWin_t* owner )
 
 idWinVar* idSimpleWindow::GetWinVarByName( const char* _name )
 {
-	idWinVar* retVar = NULL;
+	idWinVar* retVar = nullptr;
 	if( idStr::Icmp( _name, "background" ) == 0 )
 	{
 		retVar = &backGroundName;
@@ -495,7 +495,7 @@ void idSimpleWindow::ReadFromSaveGame( idFile* savefile )
 	}
 	else
 	{
-		background = NULL;
+		background = nullptr;
 	}
 	
 }

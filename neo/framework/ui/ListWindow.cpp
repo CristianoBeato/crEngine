@@ -350,7 +350,7 @@ bool idListWindow::ParseInternalVar( const char* _name, idTokenParser* src )
 		
 		ParseString( src, matName );
 		mat = declManager->FindMaterial( matName );
-		if( mat != NULL && !mat->TestMaterialFlag( MF_DEFAULTED ) )
+		if( mat != nullptr && !mat->TestMaterialFlag( MF_DEFAULTED ) )
 		{
 			mat->SetSort( SS_GUI );
 		}
@@ -552,7 +552,7 @@ void idListWindow::InitScroller( bool horizontal )
 	}
 	
 	scroller->InitWithDefaults( scrollerName, scrollRect, foreColor, matColor, mat->GetName(), thumbImage, !horizontal, true );
-	InsertChild( scroller, NULL );
+	InsertChild( scroller, nullptr );
 	scroller->SetBuddy( this );
 }
 

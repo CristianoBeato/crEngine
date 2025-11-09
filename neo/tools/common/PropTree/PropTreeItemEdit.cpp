@@ -73,7 +73,7 @@ END_MESSAGE_MAP()
 
 void CPropTreeItemEdit::DrawAttribute(CDC* pDC, const RECT& rc)
 {
-	ASSERT(m_pProp!=NULL);
+	ASSERT(m_pProp!=nullptr);
 
 	pDC->SelectObject(IsReadOnly() ? m_pProp->GetNormalFont() : m_pProp->GetBoldFont());
 	pDC->SetTextColor(RGB(0,0,0));
@@ -163,7 +163,7 @@ void CPropTreeItemEdit::SetItemValue(LPARAM lParam)
 void CPropTreeItemEdit::OnMove()
 {
 	if (IsWindow(m_hWnd))
-		SetWindowPos(NULL, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
+		SetWindowPos(nullptr, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_NOACTIVATE);
 }
 
 
@@ -201,7 +201,7 @@ void CPropTreeItemEdit::OnActivate(int activateType, CPoint point)
 	SetWindowText(m_sEdit);
 	SetSel(0, -1);
 
-	SetWindowPos(NULL, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_SHOWWINDOW);
+	SetWindowPos(nullptr, m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height(), SWP_NOZORDER|SWP_SHOWWINDOW);
 	SetFocus();
 }
 

@@ -56,7 +56,7 @@ public:
 	{
 		return argc;
 	}
-	// Argv() will return an empty string, not NULL if arg >= argc.
+	// Argv() will return an empty string, not nullptr if arg >= argc.
 	const char* 			Argv( int arg ) const
 	{
 		return ( arg >= 0 && arg < argc ) ? argv[arg] : "";

@@ -34,7 +34,7 @@ class rvDebuggerBreakpoint
 {
 public:
 
-	rvDebuggerBreakpoint ( const char* filename = NULL, int linenumber = 0, int id = -1 );
+	rvDebuggerBreakpoint ( const char* filename = nullptr, int linenumber = 0, int id = -1 );
 	rvDebuggerBreakpoint ( rvDebuggerBreakpoint& bp );
 	~rvDebuggerBreakpoint ( void );
 

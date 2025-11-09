@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 // DialogAFConstraintFixed dialog
 
 toolTip_t DialogAFConstraintFixed::toolTips[] = {
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFConstraintFixed, CDialog)
@@ -50,10 +50,10 @@ IMPLEMENT_DYNAMIC(DialogAFConstraintFixed, CDialog)
 DialogAFConstraintFixed::DialogAFConstraintFixed
 ================
 */
-DialogAFConstraintFixed::DialogAFConstraintFixed(CWnd* pParent /*=NULL*/)
+DialogAFConstraintFixed::DialogAFConstraintFixed(CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogAFConstraintFixed::IDD, pParent)
-	, constraint(NULL)
-	, file(NULL)
+	, constraint(nullptr)
+	, file(nullptr)
 {
 	Create( IDD_DIALOG_AF_CONSTRAINT_FIXED, pParent );
 	EnableToolTips( TRUE );
@@ -93,7 +93,7 @@ DialogAFConstraintFixed::LoadFile
 */
 void DialogAFConstraintFixed::LoadFile( idDeclAF *af ) {
 	file = af;
-	constraint = NULL;
+	constraint = nullptr;
 	InitJointLists();
 }
 

@@ -91,7 +91,7 @@ public:
 	void					InsertSyncPoint( jobSyncType_t syncType );
 	
 	// Submit the jobs in this list.
-	void					Submit( idParallelJobList* waitForJobList = NULL, int parallelism = JOBLIST_PARALLELISM_DEFAULT );
+	void					Submit( idParallelJobList* waitForJobList = nullptr, int parallelism = JOBLIST_PARALLELISM_DEFAULT );
 	// Wait for the jobs in this list to finish. Will spin in place if any jobs are not done.
 	void					Wait();
 	// Try to wait for the jobs in this list to finish but either way return immediately. Returns true if all jobs are done.

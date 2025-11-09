@@ -75,7 +75,7 @@ void idInventory::Clear()
 	}
 
 	items.DeleteContents( true );
-	memset( pdasViewed, 0, 4 * sizeof( pdasViewed[0] ) );
+	std::memset( pdasViewed, 0, 4 * sizeof( pdasViewed[0] ) );
 	pdas.Clear();
 	videos.Clear();
 	emails.Clear();
@@ -336,11 +336,11 @@ void idInventory::RestoreInventory( idPlayer* owner, const idDict& dict )
 
 	if( g_skill.GetInteger() >= 3 || cvarSystem->GetCVarBool( "fs_buildresources" ) )
 	{
-		Give( owner, dict, "weapon", dict.GetString( "weapon_nightmare" ), NULL, false, ITEM_GIVE_FEEDBACK | ITEM_GIVE_UPDATE_STATE );
+		Give( owner, dict, "weapon", dict.GetString( "weapon_nightmare" ), nullptr, false, ITEM_GIVE_FEEDBACK | ITEM_GIVE_UPDATE_STATE );
 	}
 	else
 	{
-		Give( owner, dict, "weapon", dict.GetString( "weapon" ), NULL, false, ITEM_GIVE_FEEDBACK | ITEM_GIVE_UPDATE_STATE );
+		Give( owner, dict, "weapon", dict.GetString( "weapon" ), nullptr, false, ITEM_GIVE_FEEDBACK | ITEM_GIVE_UPDATE_STATE );
 	}
 
 	num = dict.GetInt( "levelTriggers" );
@@ -866,7 +866,7 @@ bool idInventory::Give( idPlayer* owner, const idDict& spawnArgs, const char* st
 	else if( !idStr::Icmp( statname, "weapon" ) )
 	{
 		tookWeapon = false;
-		for( pos = value; pos != NULL; pos = end )
+		for( pos = value; pos != nullptr; pos = end )
 		{
 			end = strchr( pos, ',' );
 			if( end )
@@ -902,7 +902,7 @@ bool idInventory::Give( idPlayer* owner, const idDict& spawnArgs, const char* st
 			// don't pickup "no ammo" weapon types twice
 			// not for D3 SP .. there is only one case in the game where you can get a no ammo
 			// weapon when you might already have it, in that case it is more conistent to pick it up
-			if( common->IsMultiplayer() && ( weapons & ( 1 << i ) ) && ( weaponDecl != NULL ) && !weaponDecl->dict.GetInt( "ammoRequired" ) )
+			if( common->IsMultiplayer() && ( weapons & ( 1 << i ) ) && ( weaponDecl != nullptr ) && !weaponDecl->dict.GetInt( "ammoRequired" ) )
 			{
 				continue;
 			}
@@ -918,7 +918,7 @@ bool idInventory::Give( idPlayer* owner, const idDict& spawnArgs, const char* st
 					{
 						idLobbyBase& lobby = session->GetActingGameStateLobbyBase();
 						lobbyUserID_t& lobbyUserID = gameLocal.lobbyUserIDs[owner->entityNumber];
-						if( lobby.GetLobbyUserWeaponAutoSwitch( lobbyUserID ) && idealWeapon != NULL && i != owner->weapon_bloodstone_active1 && i != owner->weapon_bloodstone_active2 && i != owner->weapon_bloodstone_active3 )
+						if( lobby.GetLobbyUserWeaponAutoSwitch( lobbyUserID ) && idealWeapon != nullptr && i != owner->weapon_bloodstone_active1 && i != owner->weapon_bloodstone_active2 && i != owner->weapon_bloodstone_active3 )
 						{
 							idealWeapon->Set( i );
 						}
@@ -1000,7 +1000,7 @@ void idInventory::Drop( const idDict& spawnArgs, const char* weapon_classname, i
 		weapon_classname = spawnArgs.GetString( va( "def_weapon%d", weapon_index ) );
 	}
 	weapons &= ( 0xffffffff ^ ( 1 << weapon_index ) );
-	ammo_t ammo_i = AmmoIndexForWeaponClass( weapon_classname, NULL );
+	ammo_t ammo_i = AmmoIndexForWeaponClass( weapon_classname, nullptr );
 	if( ammo_i && ammo_i < AMMO_NUMTYPES )
 	{
 		clip[ weapon_index ] = -1;
@@ -1066,7 +1066,7 @@ bool idInventory::HasEmptyClipCannotRefill( const char* weapon_classname, idPlay
 	}
 
 	const idDeclEntityDef* decl = gameLocal.FindEntityDef( weapon_classname, false );
-	if( decl == NULL )
+	if( decl == nullptr )
 	{
 		gameLocal.Error( "Unknown weapon in decl '%s'", weapon_classname );
 		return false;
@@ -1148,7 +1148,7 @@ idInventory::InitRechargeAmmo
 void idInventory::InitRechargeAmmo( idPlayer* owner )
 {
 
-	memset( rechargeAmmo, 0, sizeof( rechargeAmmo ) );
+	std::memset( rechargeAmmo, 0, sizeof( rechargeAmmo ) );
 
 	const idKeyValue* kv = owner->spawnArgs.MatchPrefix( "ammorecharge_" );
 	while( kv )

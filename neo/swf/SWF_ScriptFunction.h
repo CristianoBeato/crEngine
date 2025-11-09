@@ -48,7 +48,7 @@ public:
 	virtual void			Release() {};
 	virtual idSWFScriptObject* GetPrototype()
 	{
-		return NULL;
+		return nullptr;
 	}
 	virtual void			SetPrototype( idSWFScriptObject* _object ) { }
 };
@@ -77,7 +77,7 @@ class idSWFScriptFunction_Nested : public idSWFScriptFunction
 protected:
 	T* pThis;
 public:
-	idSWFScriptFunction_Nested() : pThis( NULL ) { }
+	idSWFScriptFunction_Nested() : pThis( nullptr ) { }
 	
 	idSWFScriptFunction* 	Bind( T* _pThis )
 	{
@@ -186,7 +186,7 @@ idSWFScriptFunction_Script is a script function that's implemented in action scr
 class idSWFScriptFunction_Script : public idSWFScriptFunction
 {
 public:
-	idSWFScriptFunction_Script() : refCount( 1 ), flags( 0 ), data( NULL ), length( 0 ), prototype( NULL ), defaultSprite( NULL )
+	idSWFScriptFunction_Script() : refCount( 1 ), flags( 0 ), data( nullptr ), length( 0 ), prototype( nullptr ), defaultSprite( nullptr )
 	{
 		registers.SetNum( 4 );
 	}
@@ -248,7 +248,7 @@ public:
 	void	SetPrototype( idSWFScriptObject* _prototype )
 	{
 		_prototype->AddRef();
-		assert( prototype == NULL );
+		assert( prototype == nullptr );
 		prototype = _prototype;
 	}
 	

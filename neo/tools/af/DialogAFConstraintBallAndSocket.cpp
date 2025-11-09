@@ -65,7 +65,7 @@ toolTip_t DialogAFConstraintBallAndSocket::toolTips[] = {
 	{ IDC_COMBO_BAS_LIMIT_AXIS_JOINT2, "bone end joint" },
 	{ IDC_EDIT_BAS_LIMIT_AXIS_PITCH, "pitch angle" },
 	{ IDC_EDIT_BAS_LIMIT_AXIS_YAW, "yaw angle" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFConstraintBallAndSocket, CDialog)
@@ -75,7 +75,7 @@ IMPLEMENT_DYNAMIC(DialogAFConstraintBallAndSocket, CDialog)
 DialogAFConstraintBallAndSocket::DialogAFConstraintBallAndSocket
 ================
 */
-DialogAFConstraintBallAndSocket::DialogAFConstraintBallAndSocket(CWnd* pParent /*=NULL*/)
+DialogAFConstraintBallAndSocket::DialogAFConstraintBallAndSocket(CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogAFConstraintBallAndSocket::IDD, pParent)
 	, m_anchor_x(0)
 	, m_anchor_y(0)
@@ -88,8 +88,8 @@ DialogAFConstraintBallAndSocket::DialogAFConstraintBallAndSocket(CWnd* pParent /
 	, m_limitRoll(0)
 	, m_limitAxisPitch(0)
 	, m_limitAxisYaw(0)
-	, constraint(NULL)
-	, file(NULL)
+	, constraint(nullptr)
+	, file(nullptr)
 {
 	Create( IDD_DIALOG_AF_CONSTRAINT_BALLANDSOCKET, pParent );
 	EnableToolTips( TRUE );
@@ -169,7 +169,7 @@ DialogAFConstraintBallAndSocket::LoadFile
 */
 void DialogAFConstraintBallAndSocket::LoadFile( idDeclAF *af ) {
 	file = af;
-	constraint = NULL;
+	constraint = nullptr;
 	InitJointLists();
 }
 

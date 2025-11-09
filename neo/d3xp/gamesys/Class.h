@@ -46,7 +46,7 @@ struct idEventFunc
 
 // added & so gcc could compile this
 #define EVENT( event, function )	{ &( event ), ( void ( idClass::* )() )( &function ) },
-#define END_CLASS					{ NULL, NULL } };
+#define END_CLASS					{ nullptr, nullptr } };
 
 
 class idEventArg
@@ -160,7 +160,7 @@ incorrect.  Use this on concrete classes only.
 			return ptr;																				\
 		}																							\
 		catch( idAllocError & ) {																	\
-			return NULL;																			\
+			return nullptr;																			\
 		}																							\
 	}																								\
 	idTypeInfo *nameofclass::GetType() const {														\
@@ -217,7 +217,7 @@ on abstract classes only.
 		( void ( idClass::* )( idSaveGame * ) const )&nameofclass::Save, ( void ( idClass::* )( idRestoreGame * ) )&nameofclass::Restore );	\
 	idClass *nameofclass::CreateInstance() {													\
 		gameLocal.Error( "Cannot instanciate abstract class %s.", #nameofclass );					\
-		return NULL;																				\
+		return nullptr;																				\
 	}																								\
 	idTypeInfo *nameofclass::GetType() const {												\
 		return &( nameofclass::Type );																\

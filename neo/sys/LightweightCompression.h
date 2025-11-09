@@ -208,7 +208,7 @@ Simple zero based run length encoder/decoder
 class idZeroRunLengthCompressor
 {
 public:
-	idZeroRunLengthCompressor() : zeroCount( 0 ), destStart( NULL )
+	idZeroRunLengthCompressor() : zeroCount( 0 ), destStart( nullptr )
 	{
 	}
 	

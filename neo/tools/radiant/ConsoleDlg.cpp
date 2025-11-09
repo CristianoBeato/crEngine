@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 // CConsoleDlg dialog
 
 IMPLEMENT_DYNCREATE(CConsoleDlg, CDialog)
-CConsoleDlg::CConsoleDlg(CWnd* pParent /*=NULL*/)
+CConsoleDlg::CConsoleDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CConsoleDlg::IDD)
 {
     currentHistoryPosition = -1;
@@ -89,7 +89,7 @@ void CConsoleDlg::OnSize(UINT nType, int cx, int cy)
 {
 	CDialog::OnSize(nType, cx, cy);
 
-	if (editInput.GetSafeHwnd() == NULL) {
+	if (editInput.GetSafeHwnd() == nullptr) {
 		return;
 	}
 
@@ -97,8 +97,8 @@ void CConsoleDlg::OnSize(UINT nType, int cx, int cy)
 	GetWindowRect(rect);
 	editInput.GetWindowRect(crect);
 
-	editInput.SetWindowPos(NULL, 4, rect.Height() - 4 - crect.Height(), rect.Width() - 8, crect.Height(), SWP_SHOWWINDOW);
-	editConsole.SetWindowPos(NULL, 4, 4, rect.Width() - 8, rect.Height() - crect.Height() - 8, SWP_SHOWWINDOW);
+	editInput.SetWindowPos(nullptr, 4, rect.Height() - 4 - crect.Height(), rect.Width() - 8, crect.Height(), SWP_SHOWWINDOW);
+	editConsole.SetWindowPos(nullptr, 4, 4, rect.Width() - 8, rect.Height() - crect.Height() - 8, SWP_SHOWWINDOW);
 }
 
 BOOL CConsoleDlg::PreTranslateMessage(MSG* pMsg)

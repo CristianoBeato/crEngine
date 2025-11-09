@@ -51,7 +51,7 @@ cm_type_t modelTypes[] = {
 	{ TRM_CONE, "cone" },
 	{ TRM_BONE, "bone" },
 	{ TRM_CUSTOM, "custom" },
-	{ TRM_INVALID, NULL }
+	{ TRM_INVALID, nullptr }
 };
 
 const char *ModelTypeToString( int type ) {
@@ -115,7 +115,7 @@ toolTip_t DialogAFBody::toolTips[] = {
 	{ IDC_RADIO_MODIFY_POSITION, "modify the joint position" },
 	{ IDC_RADIO_MODIFY_BOTH, "modify the joint orientation and position" },
 	{ IDC_EDIT_CONTAINEDJOINTS, "all the joints contained by this body" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFBody, CDialog)
@@ -125,9 +125,9 @@ IMPLEMENT_DYNAMIC(DialogAFBody, CDialog)
 DialogAFBody::DialogAFBody
 ================
 */
-DialogAFBody::DialogAFBody( CWnd* pParent /*=NULL*/ )
+DialogAFBody::DialogAFBody( CWnd* pParent /*=nullptr*/ )
 	: CDialog(DialogAFBody::IDD, pParent)
-	, constraintDlg(NULL)
+	, constraintDlg(nullptr)
 	, numJoints(0)
 	, cm_length(0)
 	, cm_height(0)
@@ -144,8 +144,8 @@ DialogAFBody::DialogAFBody( CWnd* pParent /*=NULL*/ )
 	, m_linearFriction(0)
 	, m_angularFriction(0)
 	, m_contactFriction(0)
-	, file(NULL)
-	, body(NULL)
+	, file(nullptr)
+	, body(nullptr)
 {
 	Create( IDD_DIALOG_AF_BODY, pParent );
 	EnableToolTips( TRUE );
@@ -431,7 +431,7 @@ DialogAFBody::LoadFile
 */
 void DialogAFBody::LoadFile( idDeclAF *af ) {
 	file = af;
-	body = NULL;
+	body = nullptr;
 	InitJointLists();
 	InitBodyList();
 	InitNewRenameDeleteButtons();
@@ -866,7 +866,7 @@ void DialogAFBody::OnBnClickedButtonDeletebody() {
 			// delete currently selected body
 			file->DeleteBody( str );
 			bodyList.DeleteString( i );
-			body = NULL;
+			body = nullptr;
 			OnCbnSelchangeComboBodies();
 			constraintDlg->LoadFile( file );
 			gameEdit->AF_UpdateEntities( file->GetName() );

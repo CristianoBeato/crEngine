@@ -45,8 +45,8 @@ idInterpreter::idInterpreter()
 	localstackUsed = 0;
 	terminateOnExit = true;
 	debug = 0;
-	memset( localstack, 0, sizeof( localstack ) );
-	memset( callStack, 0, sizeof( callStack ) );
+	std::memset( localstack, 0, sizeof( localstack ) );
+	std::memset( callStack, 0, sizeof( callStack ) );
 	Reset();
 }
 
@@ -134,7 +134,7 @@ void idInterpreter::Restore( idRestoreGame* savefile )
 		}
 		else
 		{
-			callStack[i].f = NULL;
+			callStack[i].f = nullptr;
 		}
 		
 		savefile->ReadInt( callStack[i].stackbase );
@@ -154,7 +154,7 @@ void idInterpreter::Restore( idRestoreGame* savefile )
 	}
 	else
 	{
-		currentFunction = NULL;
+		currentFunction = nullptr;
 	}
 	savefile->ReadInt( instructionPointer );
 	
@@ -190,8 +190,8 @@ void idInterpreter::Reset()
 	maxStackDepth = 0;
 	
 	popParms = 0;
-	multiFrameEvent = NULL;
-	eventEntity = NULL;
+	multiFrameEvent = nullptr;
+	eventEntity = nullptr;
 	
 	currentFunction = 0;
 	NextInstruction( 0 );
@@ -217,23 +217,23 @@ bool idInterpreter::GetRegisterValue( const char* name, idStr& out, int scopeDep
 	if( scopeDepth == -1 )
 		scopeDepth = callStackDepth;
 	
-	idVarDef * searchscope = NULL;
-	if ( currentFunction != NULL )
+	idVarDef * searchscope = nullptr;
+	if ( currentFunction != nullptr )
 		searchscope = currentFunction->def;
 	else if ( callStack[ scopeDepth ].f )
 		searchscope = callStack[ scopeDepth ].f->def;
 		
-	idVarDef * d = NULL;
+	idVarDef * d = nullptr;
 	
 	// Walk the scope chain up and look for the variable
 	const idVarDef * scope = searchscope;
-	while ( scope != NULL )
+	while ( scope != nullptr )
 	{
 		if( scope == &def_namespace )
 			break;
 
-		d = gameLocal.program.GetDef( NULL, name, scope, true );
-		if ( d != NULL )
+		d = gameLocal.program.GetDef( nullptr, name, scope, true );
+		if ( d != nullptr )
 			break;
 
 		scope = scope->scope;
@@ -241,7 +241,7 @@ bool idInterpreter::GetRegisterValue( const char* name, idStr& out, int scopeDep
 
 	if ( !d )
 	{
-		d = gameLocal.program.GetDef( NULL, name, &def_namespace );
+		d = gameLocal.program.GetDef( nullptr, name, &def_namespace );
 		if( !d )
 			return false;
 	}
@@ -252,11 +252,11 @@ bool idInterpreter::GetRegisterValue( const char* name, idStr& out, int scopeDep
 		return true;
 	}
 
-	idVarDef * selfDef = NULL;
-	idTypeDef * field = NULL;
+	idVarDef * selfDef = nullptr;
+	idTypeDef * field = nullptr;
 
-	const idScriptObject* obj = NULL;
-	idEntity * objEntity = NULL;
+	const idScriptObject* obj = nullptr;
+	idEntity * objEntity = nullptr;
 
 	varEval_t reg = GetVariable( d );
 	switch( d->Type() )
@@ -663,7 +663,7 @@ void idInterpreter::ThreadCall( idInterpreter* source, const function_t* func, i
 	{
 		args = LOCALSTACK_SIZE;
 	}
-	memcpy( localstack, &source->localstack[ source->localstackUsed - args ], args );
+	std::memcpy( localstack, &source->localstack[ source->localstackUsed - args ], args );
 	
 	localstackUsed = args;
 	localstackBase = 0;
@@ -748,9 +748,9 @@ void idInterpreter::EnterFunction( const function_t* func, bool clearStack )
 		maxStackDepth = callStackDepth;
 	}
 	
-	if( func == NULL )
+	if( func == nullptr )
 	{
-		Error( "NULL function" );
+		Error( "nullptr function" );
 		return;
 	}
 		
@@ -778,7 +778,7 @@ void idInterpreter::EnterFunction( const function_t* func, bool clearStack )
 	}
 	
 	// initialize local stack variables to zero
-	memset( &localstack[ localstackUsed ], 0, c );
+	std::memset( &localstack[ localstackUsed ], 0, c );
 	
 	localstackUsed += c;
 	localstackBase = localstackUsed - func->locals;
@@ -880,9 +880,9 @@ void idInterpreter::CallEvent( const function_t* func, int argsize )
 	const idEventDef*	evdef;
 	const char*			format;
 	
-	if( func == NULL )
+	if( func == nullptr )
 	{
-		Error( "NULL function" );
+		Error( "nullptr function" );
 		return;
 	}
 	
@@ -893,9 +893,9 @@ void idInterpreter::CallEvent( const function_t* func, int argsize )
 	var.intPtr = ( int* )&localstack[ start ];
 	eventEntity = GetEntity( *var.entityNumberPtr );
 	
-	if( eventEntity == NULL || !eventEntity->RespondsTo( *evdef ) )
+	if( eventEntity == nullptr || !eventEntity->RespondsTo( *evdef ) )
 	{
-		if( eventEntity != NULL && developer.GetBool() )
+		if( eventEntity != nullptr && developer.GetBool() )
 		{
 			// give a warning in developer mode
 			Warning( "Function '%s' not supported on entity '%s'", evdef->GetName(), eventEntity->name.c_str() );
@@ -920,8 +920,8 @@ void idInterpreter::CallEvent( const function_t* func, int argsize )
 				break;
 				
 			case D_EVENT_ENTITY :
-			case D_EVENT_ENTITY_NULL :
-				gameLocal.program.ReturnEntity( ( idEntity* )NULL );
+			case D_EVENT_ENTITY_nullptr :
+				gameLocal.program.ReturnEntity( ( idEntity* )nullptr );
 				break;
 				
 			case D_EVENT_TRACE :
@@ -931,7 +931,7 @@ void idInterpreter::CallEvent( const function_t* func, int argsize )
 		}
 		
 		PopParms( argsize );
-		eventEntity = NULL;
+		eventEntity = nullptr;
 		return;
 	}
 	
@@ -974,7 +974,7 @@ void idInterpreter::CallEvent( const function_t* func, int argsize )
 				}
 				break;
 				
-			case D_EVENT_ENTITY_NULL :
+			case D_EVENT_ENTITY_nullptr :
 				var.intPtr = ( int* )&localstack[ start + pos ];
 				( *( idEntity** )&data[ i ] ) = GetEntity( *var.entityNumberPtr );
 				break;
@@ -1000,7 +1000,7 @@ void idInterpreter::CallEvent( const function_t* func, int argsize )
 		{
 			PopParms( popParms );
 		}
-		eventEntity = NULL;
+		eventEntity = nullptr;
 	}
 	else
 	{
@@ -1045,7 +1045,7 @@ void idInterpreter::EndMultiFrameEvent( idEntity* ent, const idEventDef* event )
 		Error( "idInterpreter::EndMultiFrameEvent called with wrong event" );
 	}
 	
-	multiFrameEvent = NULL;
+	multiFrameEvent = nullptr;
 }
 
 /*
@@ -1055,7 +1055,7 @@ idInterpreter::MultiFrameEventInProgress
 */
 bool idInterpreter::MultiFrameEventInProgress() const
 {
-	return multiFrameEvent != NULL;
+	return multiFrameEvent != nullptr;
 }
 
 /*
@@ -1076,9 +1076,9 @@ void idInterpreter::CallSysEvent( const function_t* func, int argsize )
 	const idEventDef*	evdef;
 	const char*			format;
 	
-	if( func == NULL )
+	if( func == nullptr )
 	{
-		Error( "NULL function" );
+		Error( "nullptr function" );
 		return;
 	}
 	
@@ -1123,7 +1123,7 @@ void idInterpreter::CallSysEvent( const function_t* func, int argsize )
 				}
 				break;
 				
-			case D_EVENT_ENTITY_NULL :
+			case D_EVENT_ENTITY_nullptr :
 				source.intPtr = ( int* )&localstack[ start + pos ];
 				*( idEntity** )&data[ i ] = GetEntity( *source.entityNumberPtr );
 				break;
@@ -1541,7 +1541,7 @@ bool idInterpreter::Execute()
 			case OP_NOT_ENT:
 				var_a = GetVariable( st->a );
 				var_c = GetVariable( st->c );
-				*var_c.floatPtr = ( GetEntity( *var_a.entityNumberPtr ) == NULL );
+				*var_c.floatPtr = ( GetEntity( *var_a.entityNumberPtr ) == nullptr );
 				break;
 				
 			case OP_NEG_F:
@@ -1996,7 +1996,7 @@ bool idInterpreter::Execute()
 				}
 				else
 				{
-					var_c.evalPtr->bytePtr = NULL;
+					var_c.evalPtr->bytePtr = nullptr;
 				}
 				break;
 				
@@ -2185,7 +2185,7 @@ idEntity* idInterpreter::GetEntity( int entnum ) const
 	{
 		return gameLocal.entities[ entnum - 1 ];
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -2206,6 +2206,6 @@ idScriptObject* idInterpreter::GetScriptObject( int entnum ) const
 			return &ent->scriptObject;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 // RB end

@@ -181,7 +181,7 @@ void R_GlobalToNormalizedDeviceCoordinates( const idVec3& global, idVec3& ndc )
 	idPlane	clip;
 	
 	// _D3XP use tr.primaryView when there is no tr.viewDef
-	const viewDef_t* viewDef = ( tr.viewDef != NULL ) ? tr.viewDef : tr.primaryView;
+	const viewDef_t* viewDef = ( tr.viewDef != nullptr ) ? tr.viewDef : tr.primaryView;
 	
 	for( int i = 0; i < 4; i ++ )
 	{
@@ -325,7 +325,7 @@ void R_SetupViewMatrix( viewDef_t* viewDef )
 	};
 	
 	viewEntity_t* world = &viewDef->worldSpace;
-	memset( world, 0, sizeof( *world ) );
+	std::memset( world, 0, sizeof( *world ) );
 	
 	// the model matrix is an identity
 	world->modelMatrix[0 * 4 + 0] = 1.0f;

@@ -178,7 +178,7 @@ static void MD4_Transform( UINT4 state[4], const unsigned char block[64] )
 	state[3] += d;
 	
 	/* Zeroize sensitive information.*/
-	memset( ( POINTER )x, 0, sizeof( x ) );
+	std::memset( ( POINTER )x, 0, sizeof( x ) );
 }
 
 /* MD4 initialization. Begins an MD4 operation, writing a new context. */
@@ -214,7 +214,7 @@ void MD4_Update( MD4_CTX* context, const unsigned char* input, unsigned int inpu
 	/* Transform as many times as possible.*/
 	if( inputLen >= partLen )
 	{
-		memcpy( ( POINTER )&context->buffer[index], ( POINTER )input, partLen );
+		std::memcpy( ( POINTER )&context->buffer[index], ( POINTER )input, partLen );
 		MD4_Transform( context->state, context->buffer );
 		
 		for( i = partLen; i + 63 < inputLen; i += 64 )
@@ -230,7 +230,7 @@ void MD4_Update( MD4_CTX* context, const unsigned char* input, unsigned int inpu
 	}
 	
 	/* Buffer remaining input */
-	memcpy( ( POINTER )&context->buffer[index], ( POINTER )&input[i], inputLen - i );
+	std::memcpy( ( POINTER )&context->buffer[index], ( POINTER )&input[i], inputLen - i );
 }
 
 /* MD4 finalization. Ends an MD4 message-digest operation, writing the message digest and zeroizing the context. */
@@ -254,7 +254,7 @@ void MD4_Final( MD4_CTX* context, unsigned char digest[16] )
 	Encode( digest, context->state, 16 );
 	
 	/* Zeroize sensitive information.*/
-	memset( ( POINTER )context, 0, sizeof( *context ) );
+	std::memset( ( POINTER )context, 0, sizeof( *context ) );
 }
 
 /*

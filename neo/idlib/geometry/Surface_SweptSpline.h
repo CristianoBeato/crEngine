@@ -65,8 +65,8 @@ idSurface_SweptSpline::idSurface_SweptSpline
 */
 ID_INLINE idSurface_SweptSpline::idSurface_SweptSpline()
 {
-	spline = NULL;
-	sweptSpline = NULL;
+	spline = nullptr;
+	sweptSpline = nullptr;
 }
 
 /*
@@ -89,9 +89,9 @@ ID_INLINE void idSurface_SweptSpline::Clear()
 {
 	idSurface::Clear();
 	delete spline;
-	spline = NULL;
+	spline = nullptr;
 	delete sweptSpline;
-	sweptSpline = NULL;
+	sweptSpline = nullptr;
 }
 
 #endif /* !__SURFACE_SWEPTSPLINE_H__ */

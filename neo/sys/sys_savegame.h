@@ -141,7 +141,7 @@ struct saveGameCheck_t
 	{
 		exists = false;
 		autosaveExists = false;
-		autosaveFolder = NULL;
+		autosaveFolder = nullptr;
 	}
 	bool exists;
 	bool autosaveExists;
@@ -311,7 +311,7 @@ saveGameThreadArgs_t
 struct saveGameThreadArgs_t
 {
 	saveGameThreadArgs_t() :
-		saveLoadParms( NULL )
+		saveLoadParms( nullptr )
 	{
 	}
 	
@@ -607,7 +607,7 @@ private:
 // Bridge between the session's APIs and the savegame thread
 void Sys_ExecuteSavegameCommandAsync( idSaveLoadParms* savegameParms );
 
-// Folder prefix should be NULL for everything except PS3
+// Folder prefix should be nullptr for everything except PS3
 // Synchronous check, just checks if any savegame exists for master local user and if one is an autosave
 void Sys_SaveGameCheck( bool& exists, bool& autosaveExists );
 

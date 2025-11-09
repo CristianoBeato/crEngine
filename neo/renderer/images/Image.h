@@ -231,7 +231,7 @@ private:
 	// parameters that define this image
 	idStr				imgName;				// game path, including extension (except for cube maps), may be an image program
 	cubeFiles_t			cubeFiles;				// If this is a cube map, and if so, what kind
-	void	( *generatorFunction )( idImage* image );	// NULL for files
+	void	( *generatorFunction )( idImage* image );	// nullptr for files
 	textureUsage_t		usage;					// Used to determine the type of compression to use
 	idImageOpts			opts;					// Parameters that determine the storage method
 	
@@ -265,7 +265,7 @@ ID_INLINE idImage::idImage( const char* name ) : imgName( name )
 	internalFormat = 0;
 	dataFormat = 0;
 	dataType = 0;
-	generatorFunction = NULL;
+	generatorFunction = nullptr;
 	filter = TF_DEFAULT;
 	repeat = TR_REPEAT;
 	usage = TD_DEFAULT;
@@ -450,6 +450,6 @@ IMAGEPROGRAM
 ====================================================================
 */
 
-void R_LoadImageProgram( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp, textureUsage_t* usage = NULL );
+void R_LoadImageProgram( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp, textureUsage_t* usage = nullptr );
 const char* R_ParsePastImageProgram( idLexer& src );
 

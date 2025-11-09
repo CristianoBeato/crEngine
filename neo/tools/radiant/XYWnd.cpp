@@ -104,7 +104,7 @@ const int		XY_RIGHT = 0x02;
 const int		XY_UP = 0x04;
 const int		XY_DOWN = 0x08;
 
-PFNPathCallback *g_pPathFunc = NULL;
+PFNPathCallback *g_pPathFunc = nullptr;
 void	Select_Ungroup();
 
 /*
@@ -142,7 +142,7 @@ float fDiff(float f1, float f2) {
 #define MAX_DRAG_POINTS 128
 
 CPtrArray			dragPoints;
-static CDragPoint	*activeDrag = NULL;
+static CDragPoint	*activeDrag = nullptr;
 static bool			activeDragging = false;
 
 /*
@@ -174,8 +174,8 @@ CDragPoint *PointRay(const idVec3 &org, const idVec3 &dir, float *dist) {
 	int			i, besti;
 	float		d, bestd;
 	idVec3		temp;
-	CDragPoint	*drag = NULL;
-	CDragPoint	*priority = NULL;
+	CDragPoint	*drag = nullptr;
+	CDragPoint	*priority = nullptr;
 
 	// find the point closest to the ray
 	float scale = g_pParentWnd->ActiveXY()->Scale();
@@ -193,17 +193,17 @@ CDragPoint *PointRay(const idVec3 &org, const idVec3 &dir, float *dist) {
 		if ( d < bestd ) {
 			bestd = d;
 			besti = i;
-			if (priority == NULL) {
+			if (priority == nullptr) {
 				priority = reinterpret_cast < CDragPoint * > (dragPoints[besti]);
 				if (!priority->priority) {
-					priority = NULL;
+					priority = nullptr;
 				}
 			}
 		}
 	}
 
 	if (besti == -1) {
-		return NULL;
+		return nullptr;
 	}
 
 	drag = reinterpret_cast < CDragPoint * > (dragPoints[besti]);
@@ -219,7 +219,7 @@ CDragPoint *PointRay(const idVec3 &org, const idVec3 &dir, float *dist) {
  =======================================================================================================================
  */
 void ClearSelectablePoints(brush_t *b) {
-	if (b == NULL) {
+	if (b == nullptr) {
 		dragPoints.RemoveAll();
 	}
 	else {
@@ -478,7 +478,7 @@ bool UpdateActiveDragPoint(const idVec3 &move) {
  =======================================================================================================================
 */
 bool SetDragPointCursor(idVec3 p, int nView) {
-	activeDrag = NULL;
+	activeDrag = nullptr;
 
 	int numDragPoints = dragPoints.GetSize();
 	for (int i = 0; i < numDragPoints; i++) {
@@ -504,7 +504,7 @@ void SetActiveDrag(CDragPoint *p) {
  =======================================================================================================================
  */
 void ClearActiveDrag() {
-	activeDrag = NULL;
+	activeDrag = nullptr;
 }
 
 // CXYWnd
@@ -522,8 +522,8 @@ CXYWnd::CXYWnd() {
 	g_bClipMode = false;
 	g_bRogueClipMode = false;
 	g_bSwitch = true;
-	g_pMovingClip = NULL;
-	g_pMovingPath = NULL;
+	g_pMovingClip = nullptr;
+	g_pMovingPath = nullptr;
 	g_brFrontSplits.next = &g_brFrontSplits;
 	g_brBackSplits.next = &g_brBackSplits;
 	m_bActive = false;
@@ -595,10 +595,10 @@ BOOL CXYWnd::PreCreateWindow(CREATESTRUCT &cs) {
 	HINSTANCE	hInstance = AfxGetInstanceHandle();
 	if (::GetClassInfo(hInstance, XY_WINDOW_CLASS, &wc) == FALSE) {
 		// Register a new class
-		memset(&wc, 0, sizeof(wc));
+		std::memset(&wc, 0, sizeof(wc));
 		wc.style = CS_NOCLOSE;
 		wc.lpszClassName = XY_WINDOW_CLASS;
-		wc.hCursor = NULL;	// LoadCursor (NULL,IDC_ARROW);
+		wc.hCursor = nullptr;	// LoadCursor (nullptr,IDC_ARROW);
 		wc.lpfnWndProc = ::DefWindowProc;
 		if (AfxRegisterClass(&wc) == FALSE) {
 			Error("CCamWnd RegisterClass: failed");
@@ -685,7 +685,7 @@ LONG WINAPI XYWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
  =======================================================================================================================
  */
 static void WXY_InitPixelFormat(PIXELFORMATDESCRIPTOR *pPFD) {
-	memset(pPFD, 0, sizeof(*pPFD));
+	std::memset(pPFD, 0, sizeof(*pPFD));
 
 	pPFD->nSize = sizeof(PIXELFORMATDESCRIPTOR);
 	pPFD->nVersion = 1;
@@ -706,7 +706,7 @@ void WXY_Print(void) {
 	PRINTDLG	pd;
 
 	/* initialize the PRINTDLG struct and execute it */
-	memset(&pd, 0, sizeof(pd));
+	std::memset(&pd, 0, sizeof(pd));
 	pd.lStructSize = sizeof(pd);
 	pd.hwndOwner = g_pParentWnd->GetXYWnd()->GetSafeHwnd();
 	pd.Flags = PD_RETURNDC;
@@ -717,7 +717,7 @@ void WXY_Print(void) {
 	}
 
 	/* StartDoc */
-	memset(&di, 0, sizeof(di));
+	std::memset(&di, 0, sizeof(di));
 	di.cbSize = sizeof(di);
 	di.lpszDocName = "QE4";
 	if (StartDoc(pd.hDC, &di) <= 0) {
@@ -795,7 +795,7 @@ void CXYWnd::DropClipPoint(UINT nFlags, CPoint point) {
 		SnapToPoint(point.x, rctZ.Height() - 1 - point.y, *g_pMovingClip);
 	}
 	else {
-		idVec3	*pPt = NULL;
+		idVec3	*pPt = nullptr;
 		if (g_Clip1.Set() == false) {
 			pPt = g_Clip1;
 			g_Clip1.Set(true);
@@ -875,7 +875,7 @@ void CXYWnd::DropPathPoint(UINT nFlags, CPoint point) {
 
 			g_nPathCount = 0;
 			g_bPathMode = false;
-			g_pPathFunc = NULL;
+			g_pPathFunc = nullptr;
 		}
 	}
 
@@ -958,8 +958,8 @@ float Betwixt(float f1, float f2) {
  =======================================================================================================================
  */
 void CXYWnd::ProduceSplits(brush_t **pFront, brush_t **pBack) {
-	*pFront = NULL;
-	*pBack = NULL;
+	*pFront = nullptr;
+	*pBack = nullptr;
 	if (ClipMode()) {
 		if (g_Clip1.Set() && g_Clip2.Set()) {
 			face_t	face;
@@ -1003,7 +1003,7 @@ void CXYWnd::ProduceSplits(brush_t **pFront, brush_t **pBack) {
  */
 void CleanList(brush_t *pList) {
 	brush_t *pBrush = pList->next;
-	while (pBrush != NULL && pBrush != pList) {
+	while (pBrush != nullptr && pBrush != pList) {
 		brush_t *pNext = pBrush->next;
 		Brush_Free(pBrush);
 		pBrush = pNext;
@@ -1035,9 +1035,9 @@ void CXYWnd::ProduceSplitLists() {
 	g_brBackSplits.next = &g_brBackSplits;
 
 	brush_t *pBrush;
-	for (pBrush = selected_brushes.next; pBrush != NULL && pBrush != &selected_brushes; pBrush = pBrush->next) {
-		brush_t *pFront = NULL;
-		brush_t *pBack = NULL;
+	for (pBrush = selected_brushes.next; pBrush != nullptr && pBrush != &selected_brushes; pBrush = pBrush->next) {
+		brush_t *pFront = nullptr;
+		brush_t *pBack = nullptr;
 		if (ClipMode()) {
 			if (g_Clip1.Set() && g_Clip2.Set()) {
 				face_t	face;
@@ -1087,7 +1087,7 @@ void CXYWnd::ProduceSplitLists() {
  */
 void Brush_CopyList(brush_t *pFrom, brush_t *pTo) {
 	brush_t *pBrush = pFrom->next;
-	while (pBrush != NULL && pBrush != pFrom) {
+	while (pBrush != nullptr && pBrush != pFrom) {
 		brush_t *pNext = pBrush->next;
 		Brush_RemoveFromList(pBrush);
 		Brush_AddToList(pBrush, pTo);
@@ -1131,7 +1131,7 @@ void CXYWnd::OnLButtonUp(UINT nFlags, CPoint point) {
 	if (ClipMode()) {
 		if (g_pMovingClip) {
 			ReleaseCapture();
-			g_pMovingClip = NULL;
+			g_pMovingClip = nullptr;
 		}
 	}
 
@@ -1242,7 +1242,7 @@ void CXYWnd::OnMouseMove(UINT nFlags, CPoint point) {
 		}
 
 		if (m_nTimerID == -1) {
-			m_nTimerID = SetTimer(100, 50, NULL);
+			m_nTimerID = SetTimer(100, 50, nullptr);
 			m_ptDrag = point;
 			m_ptDragTotal = 0;
 		}
@@ -1281,7 +1281,7 @@ void CXYWnd::OnMouseMove(UINT nFlags, CPoint point) {
 				Sys_UpdateWindows(XY | W_CAMERA_IFON);
 			}
 			else {
-				g_pMovingPoint = NULL;
+				g_pMovingPoint = nullptr;
 
 				int nDim1 = (m_nViewType == YZ) ? 1 : 0;
 				int nDim2 = (m_nViewType == XY) ? 1 : 2;
@@ -1304,7 +1304,7 @@ void CXYWnd::OnMouseMove(UINT nFlags, CPoint point) {
 				Sys_UpdateWindows(XY | W_CAMERA_IFON);
 			}
 			else {
-				g_pMovingClip = NULL;
+				g_pMovingClip = nullptr;
 
 				int nDim1 = (m_nViewType == YZ) ? 1 : 0;
 				int nDim2 = (m_nViewType == XY) ? 1 : 2;
@@ -1353,7 +1353,7 @@ void CXYWnd::OnMouseMove(UINT nFlags, CPoint point) {
 				Sys_UpdateWindows(XY | W_CAMERA_IFON);
 			}
 			else {
-				g_pMovingPath = NULL;
+				g_pMovingPath = nullptr;
 
 				int nDim1 = (m_nViewType == YZ) ? 1 : 0;
 				int nDim2 = (m_nViewType == XY) ? 1 : 2;
@@ -1378,10 +1378,10 @@ void CXYWnd::OnMouseMove(UINT nFlags, CPoint point) {
 	}
 
 	if (bCrossHair) {
-		SetCursor(::LoadCursor(NULL, IDC_CROSS));
+		SetCursor(::LoadCursor(nullptr, IDC_CROSS));
 	}
 	else {
-		SetCursor(::LoadCursor(NULL, IDC_ARROW));
+		SetCursor(::LoadCursor(nullptr, IDC_ARROW));
 	}
 
 	/// If precision crosshair is active, force redraw of the 2d view on mouse move 
@@ -1426,7 +1426,7 @@ void CXYWnd::SetClipMode(bool bMode) {
 	else {
 		if (g_pMovingClip) {
 			ReleaseCapture();
-			g_pMovingClip = NULL;
+			g_pMovingClip = nullptr;
 		}
 
 		CleanList(&g_brFrontSplits);
@@ -1585,7 +1585,7 @@ void CXYWnd::OnPaint() {
 
 				brush_t *pBrush;
 				brush_t *pList = ((m_nViewType == XZ) ? !g_bSwitch : g_bSwitch) ? &g_brBackSplits : &g_brFrontSplits;
-				for (pBrush = pList->next; pBrush != NULL && pBrush != pList; pBrush = pBrush->next) {
+				for (pBrush = pList->next; pBrush != nullptr && pBrush != pList; pBrush = pBrush->next) {
 					glColor3f(1, 1, 0);
 
 					face_t	*face;
@@ -1683,7 +1683,7 @@ void CreateEntityFromName(char *pName, brush_t *pBrush, bool forceFixed, idVec3 
 	}
 
 
-	if (petNew == NULL) {
+	if (petNew == nullptr) {
 		if (!((selected_brushes.next == &selected_brushes) || (selected_brushes.next->next != &selected_brushes))) {
 			brush_t *b = selected_brushes.next;
 			if (b->owner != world_entity && ((b->owner->eclass->fixedsize && pecNew->fixedsize) || forceFixed)) {
@@ -1760,7 +1760,7 @@ brush_t *CreateEntityBrush(int x, int y, CXYWnd *pWnd) {
 
 	n = Brush_Create(mins, maxs, &g_qeglobals.d_texturewin.texdef);
 	if (!n) {
-		return NULL;
+		return nullptr;
 	}
 
 	Brush_AddToList(n, &selected_brushes);
@@ -1810,7 +1810,7 @@ brush_t *CreateSmartBrush(idVec3 v) {
 
 	n = Brush_Create(mins, maxs, &g_qeglobals.d_texturewin.texdef);
 	if (!n) {
-		return NULL;
+		return nullptr;
 	}
 
 	Brush_AddToList(n, &selected_brushes);
@@ -1859,7 +1859,7 @@ void CreateSmartEntity(CXYWnd *pWnd, int x, int y, const char *pName) {
 		AcquirePath(1, &_SmartPointDone);
 		while (g_bSmartWaiting) {
 			MSG msg;
-			if (::PeekMessage(&msg, NULL, 0, 0, PM_REMOVE)) {
+			if (::PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE)) {
 				TranslateMessage(&msg);
 				DispatchMessage(&msg);
 			}
@@ -1891,7 +1891,7 @@ void FinishSmartCreation() {
 	CPtrArray	array;
 	HideInfoDialog();
 
-	brush_t *pEntities = NULL;
+	brush_t *pEntities = nullptr;
 	if (g_strSmartEntity.Find("Smart_Train") >= 0) {
 		g_bScreenUpdates = false;
 		CreateRightClickEntity(g_pParentWnd->ActiveXY(), g_nSmartX, g_nSmartY, "func_train");
@@ -1936,7 +1936,7 @@ void CXYWnd::KillPathMode() {
 	}
 
 	g_nPathCount = 0;
-	g_pPathFunc = NULL;
+	g_pPathFunc = nullptr;
 	Sys_UpdateWindows(W_ALL);
 }
 
@@ -2167,7 +2167,7 @@ void CXYWnd::HandleDrop() {
 			pMakeEntityPop->CreateMenu();
 		}
 
-		CMenu	*pChild = NULL;
+		CMenu	*pChild = nullptr;
 
 		eclass_t	*e;
 		CString		strActive;
@@ -2195,7 +2195,7 @@ void CXYWnd::HandleDrop() {
 						g_ptrMenus.Add(pChild);
 
 						// pChild->DestroyMenu(); delete pChild;
-						pChild = NULL;
+						pChild = nullptr;
 					}
 
 					strActive = strLeft;
@@ -2214,7 +2214,7 @@ void CXYWnd::HandleDrop() {
 					g_ptrMenus.Add(pChild);
 
 					// pChild->DestroyMenu(); delete pChild;
-					pChild = NULL;
+					pChild = nullptr;
 				}
 
 				strActive = "";
@@ -2739,7 +2739,7 @@ bool CXYWnd::XY_MouseMoved(int x, int y, int buttons) {
 				SetCursorPos(m_ptCursor.x, m_ptCursor.y);
 				::ShowCursor(FALSE);
 
-				// XY_Draw(); RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+				// XY_Draw(); RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 				Sys_UpdateWindows(W_XY | W_XY_OVERLAY);
 
 				// ::ShowCursor(TRUE);
@@ -3317,7 +3317,7 @@ bool FilterBrush(brush_t *pb) {
 		return true;
 	}
 
-	if ( g_qeglobals.d_savedinfo.exclude & EXCLUDE_MODELS && ( pb->owner->eclass->entityModel != NULL || pb->modelHandle > 0 ) ) {
+	if ( g_qeglobals.d_savedinfo.exclude & EXCLUDE_MODELS && ( pb->owner->eclass->entityModel != nullptr || pb->modelHandle > 0 ) ) {
 		return true;
 	}
 
@@ -3368,7 +3368,7 @@ void DrawPathLines(void) {
 	for (se = entities.next; se != &entities; se = se->next) {
 		psz = ValueForKey(se, "name");
 
-		if (psz == NULL || psz[0] == '\0') {
+		if (psz == nullptr || psz[0] == '\0') {
 			continue;
 		}
 
@@ -3882,7 +3882,7 @@ void CXYWnd::OnSize(UINT nType, int cx, int cy) {
 	GetClientRect(rect);
 	m_nWidth = rect.Width();
 	m_nHeight = rect.Height();
-	InvalidateRect(NULL, false);
+	InvalidateRect(nullptr, false);
 }
 
 brush_t hold_brushes;
@@ -3927,7 +3927,7 @@ void CXYWnd::Clip() {
 			g_pPathFunc(true, g_nPathCount);
 		}
 
-		g_pPathFunc = NULL;
+		g_pPathFunc = nullptr;
 		g_nPathCount = 0;
 		g_bPathMode = false;
 	}
@@ -4032,7 +4032,7 @@ void CXYWnd::SetViewType(int n) {
  */
 void CXYWnd::Redraw(unsigned int nBits) {
 	m_nUpdateBits = nBits;
-	RedrawWindow(NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW);
+	RedrawWindow(nullptr, nullptr, RDW_INVALIDATE | RDW_UPDATENOW);
 	m_nUpdateBits = W_XY;
 }
 
@@ -4105,7 +4105,7 @@ void CXYWnd::OnSelectMouserotate() {
  */
 void CleanCopyEntities() {
 	entity_t	*pe = g_enClipboard.next;
-	while (pe != NULL && pe != &g_enClipboard) {
+	while (pe != nullptr && pe != &g_enClipboard) {
 		entity_t	*next = pe->next;
 		pe->epairs.Clear();
 
@@ -4176,9 +4176,9 @@ void CXYWnd::Copy()
 
 			long	lSize = g_Clipboard.GetLength();
 			HANDLE	h = ::GlobalAlloc(GMEM_ZEROINIT | GMEM_MOVEABLE | GMEM_DDESHARE, lSize + sizeof (long));
-			if (h != NULL) {
+			if (h != nullptr) {
 				unsigned char	*cp = reinterpret_cast < unsigned char * > (::GlobalLock(h));
-				memcpy(cp, &lSize, sizeof (long));
+				std::memcpy(cp, &lSize, sizeof (long));
 				cp += sizeof (long);
 				g_Clipboard.SeekToBegin();
 				g_Clipboard.Read(cp, lSize);
@@ -4203,10 +4203,10 @@ void CXYWnd::Copy()
 	CPtrArray	holdArray;
 	CleanList(&g_brClipboard);
 	CleanCopyEntities();
-	for (brush_t * pBrush = selected_brushes.next; pBrush != NULL && pBrush != &selected_brushes; pBrush = pBrush->next) {
+	for (brush_t * pBrush = selected_brushes.next; pBrush != nullptr && pBrush != &selected_brushes; pBrush = pBrush->next) {
 		if (pBrush->owner == world_entity) {
 			brush_t *pClone = Brush_Clone(pBrush);
-			pClone->owner = NULL;
+			pClone->owner = nullptr;
 			Brush_AddToList(pClone, &g_brClipboard);
 		}
 		else {
@@ -4235,7 +4235,7 @@ void CXYWnd::Copy()
 void CXYWnd::Undo() {
 	/*
 	 * if (g_brUndo.next != &g_brUndo) { g_bScreenUpdates = false; Select_Delete();
-	 * for (brush_t* pBrush = g_brUndo.next ; pBrush != NULL && pBrush != &g_brUndo ;
+	 * for (brush_t* pBrush = g_brUndo.next ; pBrush != nullptr && pBrush != &g_brUndo ;
 	 * pBrush=pBrush->next) { brush_t* pClone = Brush_Clone(pBrush); Brush_AddToList
 	 * (pClone, &active_brushes); Entity_LinkBrush (pBrush->pUndoOwner, pClone);
 	 * Brush_Build(pClone); Select_Brush(pClone); } CleanList(&g_brUndo);
@@ -4259,7 +4259,7 @@ void CXYWnd::UndoClear() {
 void CXYWnd::UndoCopy() {
 	/*
 	 * CleanList(&g_brUndo); for (brush_t* pBrush = selected_brushes.next ; pBrush !=
-	 * NULL && pBrush != &selected_brushes ; pBrush=pBrush->next) { brush_t* pClone =
+	 * nullptr && pBrush != &selected_brushes ; pBrush=pBrush->next) { brush_t* pClone =
 	 * Brush_Clone(pBrush); pClone->pUndoOwner = pBrush->owner; Brush_AddToList
 	 * (pClone, &g_brUndo); }
 	 */
@@ -4291,7 +4291,7 @@ void CXYWnd::Paste()
 
 			unsigned char	*cp = reinterpret_cast < unsigned char * > (::GlobalLock(h));
 			long			lSize = 0;
-			memcpy(&lSize, cp, sizeof (long));
+			std::memcpy(&lSize, cp, sizeof (long));
 			cp += sizeof (long);
 			g_Clipboard.Write(cp, lSize);
 		}
@@ -4305,7 +4305,7 @@ void CXYWnd::Paste()
 
 		int		nLen = g_Clipboard.GetLength();
 		char	*pBuffer = new char[nLen + 1];
-		memset(pBuffer, 0, nLen + 1); // foresthale 2014-05-10: this was sizeof(pBuffer), bugged
+		std::memset(pBuffer, 0, nLen + 1); // foresthale 2014-05-10: this was sizeof(pBuffer), bugged
 		g_Clipboard.Read(pBuffer, nLen);
 		pBuffer[nLen] = '\0';
 		Map_ImportBuffer(pBuffer, !(GetAsyncKeyState(VK_SHIFT) & 0x8000));
@@ -4328,11 +4328,11 @@ void CXYWnd::Paste()
 	if (g_brClipboard.next != &g_brClipboard || g_enClipboard.next != &g_enClipboard) {
 		Select_Deselect();
 
-		for (brush_t * pBrush = g_brClipboard.next; pBrush != NULL && pBrush != &g_brClipboard; pBrush = pBrush->next) {
+		for (brush_t * pBrush = g_brClipboard.next; pBrush != nullptr && pBrush != &g_brClipboard; pBrush = pBrush->next) {
 			brush_t *pClone = Brush_Clone(pBrush);
 
 			// pClone->owner = pBrush->owner;
-			if (pClone->owner == NULL) {
+			if (pClone->owner == nullptr) {
 				Entity_LinkBrush(world_entity, pClone);
 			}
 
@@ -4343,7 +4343,7 @@ void CXYWnd::Paste()
 		for
 		(
 			entity_t * pEntity = g_enClipboard.next;
-			pEntity != NULL && pEntity != &g_enClipboard;
+			pEntity != nullptr && pEntity != &g_enClipboard;
 			pEntity = pEntity->next
 		) {
 			entity_t	*pEClone = Entity_Clone(pEntity);

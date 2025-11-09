@@ -110,7 +110,7 @@ public:
 	
 	// Supports reading/writing binary file formats
 	virtual bool				LoadBinaryModel( idFile* file, const ID_TIME_T sourceTimeStamp ) = 0;
-	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = NULL ) const = 0;
+	virtual void				WriteBinaryModel( idFile* file, ID_TIME_T* _timeStamp = nullptr ) const = 0;
 	virtual bool				SupportsBinaryModel() = 0;
 	
 	// renderBump uses this to load the very high poly count models, skipping the
@@ -207,7 +207,7 @@ public:
 	
 	// dynamic models should return a fast, conservative approximation
 	// static models should usually return the exact value
-	virtual idBounds			Bounds( const struct renderEntity_s* ent = NULL ) const = 0;
+	virtual idBounds			Bounds( const struct renderEntity_s* ent = nullptr ) const = 0;
 	
 	// returns value != 0.0f if the model requires the depth hack
 	virtual float				DepthHack() const = 0;
@@ -224,7 +224,7 @@ public:
 	// Returns the number of joints or 0 if the model is not an MD5
 	virtual int					NumJoints() const = 0;
 	
-	// Returns the MD5 joints or NULL if the model is not an MD5
+	// Returns the MD5 joints or nullptr if the model is not an MD5
 	virtual const idMD5Joint* 	GetJoints() const = 0;
 	
 	// Returns the handle for the joint with the given name.
@@ -233,7 +233,7 @@ public:
 	// Returns the name for the joint with the given handle.
 	virtual const char* 		GetJointName( jointHandle_t handle ) const = 0;
 	
-	// Returns the default animation pose or NULL if the model is not an MD5.
+	// Returns the default animation pose or nullptr if the model is not an MD5.
 	virtual const idJointQuat* 	GetDefaultPose() const = 0;
 	
 	// Returns number of the joint nearest to the given triangle.

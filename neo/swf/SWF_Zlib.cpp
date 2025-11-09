@@ -50,7 +50,7 @@ bool idSWF::Inflate( const byte* input, int inputSize, byte* output, int outputS
 		}
 	};
 	z_stream stream;
-	memset( &stream, 0, sizeof( stream ) );
+	std::memset( &stream, 0, sizeof( stream ) );
 	stream.next_in = ( Bytef* )input;
 	stream.avail_in = inputSize;
 	stream.next_out = ( Bytef* )output;

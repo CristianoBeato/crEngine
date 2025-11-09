@@ -78,12 +78,12 @@ IMPLEMENT_DYNCREATE(CCamWnd, CWnd);
  =======================================================================================================================
  */
 CCamWnd::CCamWnd() {
-	m_pXYFriend = NULL;
-	memset(&m_Camera, 0, sizeof(camera_t));
-	m_pSide_select = NULL;
+	m_pXYFriend = nullptr;
+	std::memset(&m_Camera, 0, sizeof(camera_t));
+	m_pSide_select = nullptr;
 	m_bClipMode = false;
 	worldDirty = true;
-	worldModel = NULL;
+	worldModel = nullptr;
 	renderMode = false;
 	rebuildMode = false;
 	entityMode = false;
@@ -158,12 +158,12 @@ BOOL CCamWnd::PreCreateWindow(CREATESTRUCT &cs) {
 	HINSTANCE	hInstance = AfxGetInstanceHandle();
 	if (::GetClassInfo(hInstance, CAMERA_WINDOW_CLASS, &wc) == FALSE) {
 		// Register a new class
-		memset(&wc, 0, sizeof(wc));
+		std::memset(&wc, 0, sizeof(wc));
 
 		// wc.style = CS_NOCLOSE | CS_OWNDC;
 		wc.style = CS_NOCLOSE;
 		wc.lpszClassName = CAMERA_WINDOW_CLASS;
-		wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 		wc.lpfnWndProc = CamWndProc;
 		if (AfxRegisterClass(&wc) == FALSE) {
 			Error("CCamWnd RegisterClass: failed");
@@ -193,7 +193,7 @@ void CCamWnd::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags) {
 	g_pParentWnd->HandleKey(nChar, nRepCnt, nFlags);
 }
 
-brush_t *g_pSplitList = NULL;
+brush_t *g_pSplitList = nullptr;
 
 /*
  =======================================================================================================================
@@ -213,7 +213,7 @@ void CCamWnd::OnPaint() {
 		// foresthale 2014-05-19: set up familiar state for editors before we draw anything
 		tr.Editor_SetupState();
 
-		g_pSplitList = NULL;
+		g_pSplitList = nullptr;
 		if (g_bClipMode) {
 			if (g_Clip1.Set() && g_Clip2.Set()) {
 				g_pSplitList = ((g_pParentWnd->ActiveXY()->GetViewType() == XZ) ? !g_bSwitch : g_bSwitch) ? &g_brBackSplits : &g_brFrontSplits;
@@ -378,7 +378,7 @@ int CCamWnd::OnCreate(LPCREATESTRUCT lpCreateStruct) {
 		if ( !qwglUseFontBitmaps(hDC, 0, 255, g_qeglobals.d_font_list) ) {
 			common->Warning( "wglUseFontBitmaps failed again (%d).  Trying outlines.", GetLastError() );
 
-			if (!qwglUseFontOutlines(hDC, 0, 255, g_qeglobals.d_font_list, 0.0f, 0.1f, WGL_FONT_LINES, NULL)) {
+			if (!qwglUseFontOutlines(hDC, 0, 255, g_qeglobals.d_font_list, 0.0f, 0.1f, WGL_FONT_LINES, nullptr)) {
 				common->Warning( "wglUseFontOutlines also failed (%d), no coordinate text will be visible.", GetLastError() );
 			}
 		}
@@ -1161,7 +1161,7 @@ void CCamWnd::OnSize(UINT nType, int cx, int cy) {
 	GetClientRect(rect);
 	m_Camera.width = rect.right;
 	m_Camera.height = rect.bottom;
-	InvalidateRect(NULL, false);
+	InvalidateRect(nullptr, false);
 }
 
 
@@ -1243,7 +1243,7 @@ int Brush_ToTris(brush_t *brush, idTriList *tris, idMatList *mats, bool models, 
 void CCamWnd::BuildEntityRenderState( entity_t *ent, bool update) {
 	const char	*v;
 	idDict		spawnArgs;
-	const char	*name = NULL;
+	const char	*name = nullptr;
 
 	Entity_UpdateSoundEmitter( ent );
 
@@ -1523,7 +1523,7 @@ int Brush_ToTris(brush_t *brush, idTriList *tris, idMatList *mats, bool models, 
 	int numSurfaces = 0;
 
 	if ( brush->owner->eclass->fixedsize && !brush->entityModel) {
-		return NULL;
+		return nullptr;
 	}
 
 	if ( brush->pPatch ) {
@@ -1638,7 +1638,7 @@ int Brush_ToTris(brush_t *brush, idTriList *tris, idMatList *mats, bool models, 
 
 void Select_ToOBJ() {
 	int i;
-	CFileDialog dlgFile(FALSE, "obj", NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Wavefront object files (*.obj)|*.obj||", g_pParentWnd);
+	CFileDialog dlgFile(FALSE, "obj", nullptr, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, "Wavefront object files (*.obj)|*.obj||", g_pParentWnd);
 	if (dlgFile.DoModal() == IDOK) {
 		idTriList tris(1024);
 		idMatList mats(1024);
@@ -1666,7 +1666,7 @@ void Select_ToOBJ() {
 }
 
 void Select_ToCM() {
-	CFileDialog dlgFile( FALSE, "lwo, ase", NULL, 0, "(*.lwo)|*.lwo|(*.ase)|*.ase|(*.ma)|*.ma||", g_pParentWnd );
+	CFileDialog dlgFile( FALSE, "lwo, ase", nullptr, 0, "(*.lwo)|*.lwo|(*.ase)|*.ase|(*.ma)|*.ma||", g_pParentWnd );
 
 	if ( dlgFile.DoModal() == IDOK ) {
 		idMapEntity *mapEnt;
@@ -1718,7 +1718,7 @@ void CCamWnd::BuildRendererState() {
 	FreeRendererState();
 
 	// the renderWorld holds all the references and defs
-	g_qeglobals.rw->InitFromMap( NULL );
+	g_qeglobals.rw->InitFromMap( nullptr );
 
 	// create the raw model for all the brushes
 	int numBrushes = 0;
@@ -1729,7 +1729,7 @@ void CCamWnd::BuildRendererState() {
 	worldModel->InitEmpty( "EditorWorldModel" );
 
 	for ( brush_t *brushList = &active_brushes ; brushList ; 
-		brushList = (brushList == &active_brushes) ? &selected_brushes : NULL ) {
+		brushList = (brushList == &active_brushes) ? &selected_brushes : nullptr ) {
 
 		for (brush = brushList->next; brush != brushList; brush = brush->next) {
 
@@ -1768,7 +1768,7 @@ void CCamWnd::BuildRendererState() {
 	worldModel->FinishSurfaces();
 
 	// the worldEntity just has the handle for the worldModel
-	memset( &worldEntity, 0, sizeof( worldEntity ) );
+	std::memset( &worldEntity, 0, sizeof( worldEntity ) );
 	worldEntity.hModel = worldModel;
 	worldEntity.axis = mat3_default;
 	worldEntity.shaderParms[0] = 1;
@@ -1844,11 +1844,11 @@ void CCamWnd::FreeRendererState() {
 			if ( refent ) {
 				if ( refent->callbackData ) {
 					Mem_Free( refent->callbackData );
-					refent->callbackData = NULL;
+					refent->callbackData = nullptr;
 				}
 				if ( refent->joints ) {
 					Mem_Free16(refent->joints);
-					refent->joints = NULL;
+					refent->joints = nullptr;
 				}
 			}
 			g_qeglobals.rw->FreeEntityDef( ent->modelDef );
@@ -1858,7 +1858,7 @@ void CCamWnd::FreeRendererState() {
 
 	if ( worldModel ) {
 		renderModelManager->FreeModel( worldModel );
-		worldModel = NULL;
+		worldModel = nullptr;
 	}
 
 }
@@ -1937,7 +1937,7 @@ CCamWnd::ToggleRenderMode
 void CCamWnd::ToggleAnimationMode() {
 	animationMode ^= 1;
 	if (animationMode)  {
-		SetTimer(0, 10, NULL);
+		SetTimer(0, 10, nullptr);
 	} else {
 		KillTimer(0);
 	}
@@ -2041,7 +2041,7 @@ void CCamWnd::DrawEntityData() {
 			}
 
 		}
-		brushList = (brushList == &active_brushes) ? &selected_brushes : NULL;
+		brushList = (brushList == &active_brushes) ? &selected_brushes : nullptr;
 		color.x = 1;
 		color.y = 0;
 		pass++;
@@ -2094,7 +2094,7 @@ void CCamWnd::Cam_Render() {
 	int originalNativeWidth, originalNativeHeight;
 	tr.Editor_BeginView(m_Camera.width, m_Camera.height, originalNativeWidth, originalNativeHeight);
 
-	memset( &refdef, 0, sizeof( refdef ) );
+	std::memset( &refdef, 0, sizeof( refdef ) );
 	refdef.vieworg = m_Camera.origin;
 
 	// the editor uses opposite pitch convention

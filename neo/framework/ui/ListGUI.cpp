@@ -181,7 +181,7 @@ idListGUILocal::IsConfigured
 */
 bool idListGUILocal::IsConfigured() const
 {
-	return m_pGUI != NULL;
+	return m_pGUI != nullptr;
 }
 
 /*
@@ -202,7 +202,7 @@ idListGUILocal::Shutdown
 */
 void idListGUILocal::Shutdown()
 {
-	m_pGUI = NULL;
+	m_pGUI = nullptr;
 	m_name.Clear();
 	Clear();
 }

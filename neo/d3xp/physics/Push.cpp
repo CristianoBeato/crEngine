@@ -140,7 +140,7 @@ bool idPush::RotateEntityToAxial( idEntity* ent, idVec3 rotationPoint )
 			return true;
 		}
 		//
-		ent->GetPhysics()->ClipRotation( trace, rotation, NULL );
+		ent->GetPhysics()->ClipRotation( trace, rotation, nullptr );
 		// if the full rotation is possible
 		if( trace.fraction >= 1.0f )
 		{
@@ -367,7 +367,7 @@ float idPush::ClipTranslationalPush( trace_t& results, idEntity* pusher, const i
 	results.fraction = 1.0f;
 	results.endpos = newOrigin;
 	results.endAxis = pusher->GetPhysics()->GetAxis();
-	memset( results.c, 0, sizeof( results.c ) );
+	std::memset( results.c, 0, sizeof( results.c ) );
 	
 	if( translation == vec3_origin )
 	{
@@ -385,7 +385,7 @@ float idPush::ClipTranslationalPush( trace_t& results, idEntity* pusher, const i
 			entityList[i]->GetPhysics()->DisableClip();
 		}
 		// clip translation
-		pusher->GetPhysics()->ClipTranslation( results, translation, NULL );
+		pusher->GetPhysics()->ClipTranslation( results, translation, nullptr );
 		// enable pushable entities
 		for( i = 0; i < numListedEntities; i++ )
 		{
@@ -462,7 +462,7 @@ float idPush::ClipTranslationalPush( trace_t& results, idEntity* pusher, const i
 	{
 		partialTranslation = realTranslation * pushedGroup[i].fraction;
 		
-		pushedGroup[i].ent->GetPhysics()->ClipTranslation( trace, partialTranslation, NULL );
+		pushedGroup[i].ent->GetPhysics()->ClipTranslation( trace, partialTranslation, nullptr );
 		
 		if( trace.fraction < 1.0f )
 		{
@@ -482,7 +482,7 @@ float idPush::ClipTranslationalPush( trace_t& results, idEntity* pusher, const i
 	{
 		if( flags & PUSHFL_CLIP )
 		{
-			pusher->GetPhysics()->ClipTranslation( results, realTranslation, NULL );
+			pusher->GetPhysics()->ClipTranslation( results, realTranslation, nullptr );
 		}
 		else
 		{
@@ -595,7 +595,7 @@ float idPush::ClipRotationalPush( trace_t& results, idEntity* pusher, const int 
 	results.fraction = 1.0f;
 	results.endpos = pusher->GetPhysics()->GetOrigin();
 	results.endAxis = newAxis;
-	memset( results.c, 0, sizeof( results.c ) );
+	std::memset( results.c, 0, sizeof( results.c ) );
 	
 	if( !rotation.GetAngle() )
 	{
@@ -613,7 +613,7 @@ float idPush::ClipRotationalPush( trace_t& results, idEntity* pusher, const int 
 			entityList[i]->GetPhysics()->DisableClip();
 		}
 		// clip rotation
-		pusher->GetPhysics()->ClipRotation( results, rotation, NULL );
+		pusher->GetPhysics()->ClipRotation( results, rotation, nullptr );
 		// enable pushable entities
 		for( i = 0; i < numListedEntities; i++ )
 		{
@@ -685,7 +685,7 @@ float idPush::ClipRotationalPush( trace_t& results, idEntity* pusher, const int 
 	{
 		partialRotation = realRotation * pushedGroup[i].fraction;
 		
-		pushedGroup[i].ent->GetPhysics()->ClipRotation( trace, partialRotation, NULL );
+		pushedGroup[i].ent->GetPhysics()->ClipRotation( trace, partialRotation, nullptr );
 		
 		if( trace.fraction < 1.0f )
 		{
@@ -705,7 +705,7 @@ float idPush::ClipRotationalPush( trace_t& results, idEntity* pusher, const int 
 	{
 		if( flags & PUSHFL_CLIP )
 		{
-			pusher->GetPhysics()->ClipRotation( results, realRotation, NULL );
+			pusher->GetPhysics()->ClipRotation( results, realRotation, nullptr );
 		}
 		else
 		{
@@ -834,13 +834,13 @@ int idPush::TryRotatePushEntity( trace_t& results, idEntity* check, idClipModel*
 	results.fraction = 1.0f;
 	results.endpos = clipModel->GetOrigin();
 	results.endAxis = newAxis;
-	memset( &results.c, 0, sizeof( results.c ) );
+	std::memset( &results.c, 0, sizeof( results.c ) );
 
 	// always pushed when standing on the pusher
 	if( physics->IsGroundClipModel( clipModel->GetEntity()->entityNumber, clipModel->GetId() ) )
 	{
 		// rotate the entity colliding with all other entities except the pusher itself
-		ClipEntityRotation( trace, check, NULL, clipModel, rotation );
+		ClipEntityRotation( trace, check, nullptr, clipModel, rotation );
 		// if there is a collision
 		if( trace.fraction < 1.0f )
 		{
@@ -849,7 +849,7 @@ int idPush::TryRotatePushEntity( trace_t& results, idEntity* check, idClipModel*
 			// test if the entity can stay at it's partly pushed position by rotating
 			// the entity in reverse only colliding with pusher
 			newRotation.Set( rotation.GetOrigin(), rotation.GetVec(), -( rotation.GetAngle() - checkAngle ) );
-			ClipEntityRotation( results, check, clipModel, NULL, newRotation );
+			ClipEntityRotation( results, check, clipModel, nullptr, newRotation );
 			// if there is a collision
 			if( results.fraction < 1.0f )
 			{
@@ -877,7 +877,7 @@ int idPush::TryRotatePushEntity( trace_t& results, idEntity* check, idClipModel*
 		newRotation = rotation;
 		newRotation.Scale( -1 );
 		//
-		ClipEntityRotation( results, check, clipModel, NULL, newRotation );
+		ClipEntityRotation( results, check, clipModel, nullptr, newRotation );
 		// if no collision with the pusher then the entity is not pushed by the pusher
 		if( results.fraction >= 1.0f )
 		{
@@ -900,7 +900,7 @@ int idPush::TryRotatePushEntity( trace_t& results, idEntity* check, idClipModel*
 		checkAngle = rotation.GetAngle() * ( 1.0f - results.fraction );
 		// rotate the entity colliding with all other entities except the pusher itself
 		newRotation.Set( rotation.GetOrigin(), rotation.GetVec(), checkAngle );
-		ClipEntityRotation( trace, check, NULL, clipModel, newRotation );
+		ClipEntityRotation( trace, check, nullptr, clipModel, newRotation );
 		// if there is a collision
 		if( trace.fraction < 1.0f )
 		{
@@ -1010,20 +1010,20 @@ int idPush::TryTranslatePushEntity( trace_t& results, idEntity* check, idClipMod
 	results.fraction = 1.0f;
 	results.endpos = newOrigin;
 	results.endAxis = clipModel->GetAxis();
-	memset( &results.c, 0, sizeof( results.c ) );
+	std::memset( &results.c, 0, sizeof( results.c ) );
 
 	// always pushed when standing on the pusher
 	if( physics->IsGroundClipModel( clipModel->GetEntity()->entityNumber, clipModel->GetId() ) )
 	{
 		// move the entity colliding with all other entities except the pusher itself
-		ClipEntityTranslation( trace, check, NULL, clipModel, move );
+		ClipEntityTranslation( trace, check, nullptr, clipModel, move );
 		// if there is a collision
 		if( trace.fraction < 1.0f )
 		{
 			// vector along which the entity is pushed
 			checkMove = move * trace.fraction;
 			// test if the entity can stay at it's partly pushed position by moving the entity in reverse only colliding with pusher
-			ClipEntityTranslation( results, check, clipModel, NULL, -( move - checkMove ) );
+			ClipEntityTranslation( results, check, clipModel, nullptr, -( move - checkMove ) );
 			// if there is a collision
 			if( results.fraction < 1.0f )
 			{
@@ -1046,7 +1046,7 @@ int idPush::TryTranslatePushEntity( trace_t& results, idEntity* check, idClipMod
 	else
 	{
 		// move entity in reverse only colliding with pusher
-		ClipEntityTranslation( results, check, clipModel, NULL, -move );
+		ClipEntityTranslation( results, check, clipModel, nullptr, -move );
 		// if no collision with the pusher then the entity is not pushed by the pusher
 		if( results.fraction >= 1.0f )
 		{
@@ -1055,7 +1055,7 @@ int idPush::TryTranslatePushEntity( trace_t& results, idEntity* check, idClipMod
 		// vector along which the entity is pushed
 		checkMove = move * ( 1.0f - results.fraction );
 		// move the entity colliding with all other entities except the pusher itself
-		ClipEntityTranslation( trace, check, NULL, clipModel, checkMove );
+		ClipEntityTranslation( trace, check, nullptr, clipModel, checkMove );
 		// if there is a collisions
 		if( trace.fraction < 1.0f )
 		{
@@ -1081,7 +1081,7 @@ int idPush::TryTranslatePushEntity( trace_t& results, idEntity* check, idClipMod
 
 						// move entity from collision point along the collision plane
 						physics->SetOrigin( trace.endpos );
-						ClipEntityTranslation( trace, check, NULL, NULL, checkMove );
+						ClipEntityTranslation( trace, check, nullptr, nullptr, checkMove );
 
 						if ( trace.fraction < 1.0f ) {
 							physics->SetOrigin( oldOrigin );
@@ -1092,7 +1092,7 @@ int idPush::TryTranslatePushEntity( trace_t& results, idEntity* check, idClipMod
 
 						// move entity in reverse only colliding with pusher
 						physics->SetOrigin( trace.endpos );
-						ClipEntityTranslation( trace, check, clipModel, NULL, -move );
+						ClipEntityTranslation( trace, check, clipModel, nullptr, -move );
 
 						physics->SetOrigin( oldOrigin );
 			*/
@@ -1204,7 +1204,7 @@ float idPush::ClipTranslationalPush( trace_t& results, idEntity* pusher, const i
 	results.fraction = 1.0f;
 	results.endpos = newOrigin;
 	results.endAxis = clipModel->GetAxis();
-	memset( &results.c, 0, sizeof( results.c ) );
+	std::memset( &results.c, 0, sizeof( results.c ) );
 
 	if( translation == vec3_origin )
 	{
@@ -1246,7 +1246,7 @@ float idPush::ClipTranslationalPush( trace_t& results, idEntity* pusher, const i
 			entityList[i]->GetPhysics()->DisableClip();
 		}
 
-		gameLocal.clip.Translation( results, clipModel->GetOrigin(), clipModel->GetOrigin() + translation, clipModel, clipModel->GetAxis(), pusher->GetPhysics()->GetClipMask(), NULL );
+		gameLocal.clip.Translation( results, clipModel->GetOrigin(), clipModel->GetOrigin() + translation, clipModel, clipModel->GetAxis(), pusher->GetPhysics()->GetClipMask(), nullptr );
 
 		// enable to be pushed entities for collision detection
 		for( i = 0; i < listedEntities; i++ )
@@ -1407,7 +1407,7 @@ float idPush::ClipRotationalPush( trace_t& results, idEntity* pusher, const int 
 	results.fraction = 1.0f;
 	results.endpos = clipModel->GetOrigin();
 	results.endAxis = newAxis;
-	memset( &results.c, 0, sizeof( results.c ) );
+	std::memset( &results.c, 0, sizeof( results.c ) );
 
 	if( !rotation.GetAngle() )
 	{
@@ -1444,7 +1444,7 @@ float idPush::ClipRotationalPush( trace_t& results, idEntity* pusher, const int 
 			entityList[i]->GetPhysics()->DisableClip();
 		}
 
-		gameLocal.clip.Rotation( results, clipModel->GetOrigin(), rotation, clipModel, clipModel->GetAxis(), pusher->GetPhysics()->GetClipMask(), NULL );
+		gameLocal.clip.Rotation( results, clipModel->GetOrigin(), rotation, clipModel, clipModel->GetAxis(), pusher->GetPhysics()->GetClipMask(), nullptr );
 
 		// enable to be pushed entities for collision detection
 		for( i = 0; i < listedEntities; i++ )
@@ -1586,7 +1586,7 @@ float idPush::ClipPush( trace_t& results, idEntity* pusher, const int flags,
 	results.fraction = 1.0f;
 	results.endpos = newOrigin;
 	results.endAxis = newAxis;
-	memset( &results.c, 0, sizeof( results.c ) );
+	std::memset( &results.c, 0, sizeof( results.c ) );
 	
 	// translational push
 	translation = newOrigin - oldOrigin;

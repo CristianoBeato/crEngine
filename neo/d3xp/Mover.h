@@ -142,7 +142,7 @@ protected:
 	
 	virtual void			DoneMoving();
 	virtual void			DoneRotating();
-	virtual void			BeginMove( idThread* thread = NULL );
+	virtual void			BeginMove( idThread* thread = nullptr );
 	virtual void			BeginRotation( idThread* thread, bool stopwhendone );
 	moveState_t				move;
 	
@@ -246,7 +246,7 @@ public:
 	
 protected:
 	virtual void			DoneMoving();
-	virtual void			BeginMove( idThread* thread = NULL );
+	virtual void			BeginMove( idThread* thread = nullptr );
 	void					SpawnTrigger( const idVec3& pos );
 	void					GetLocalTriggerPosition();
 	void					Event_Touch( idEntity* other, trace_t* trace );

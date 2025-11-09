@@ -124,11 +124,11 @@ public:
 	
 	// Always use one of the following constructors.
 	idCVar( const char* name, const char* value, int flags, const char* description,
-			argCompletion_t valueCompletion = NULL );
+			argCompletion_t valueCompletion = nullptr );
 	idCVar( const char* name, const char* value, int flags, const char* description,
-			float valueMin, float valueMax, argCompletion_t valueCompletion = NULL );
+			float valueMin, float valueMax, argCompletion_t valueCompletion = nullptr );
 	idCVar( const char* name, const char* value, int flags, const char* description,
-			const char** valueStrings, argCompletion_t valueCompletion = NULL );
+			const char** valueStrings, argCompletion_t valueCompletion = nullptr );
 			
 	virtual					~idCVar() {}
 	
@@ -257,13 +257,13 @@ ID_INLINE idCVar::idCVar( const char* name, const char* value, int flags, const 
 	{
 		valueCompletion = idCmdSystem::ArgCompletion_Boolean;
 	}
-	Init( name, value, flags, description, 1, -1, NULL, valueCompletion );
+	Init( name, value, flags, description, 1, -1, nullptr, valueCompletion );
 }
 
 ID_INLINE idCVar::idCVar( const char* name, const char* value, int flags, const char* description,
 						  float valueMin, float valueMax, argCompletion_t valueCompletion )
 {
-	Init( name, value, flags, description, valueMin, valueMax, NULL, valueCompletion );
+	Init( name, value, flags, description, valueMin, valueMax, nullptr, valueCompletion );
 }
 
 ID_INLINE idCVar::idCVar( const char* name, const char* value, int flags, const char* description,
@@ -294,7 +294,7 @@ public:
 	virtual void			Register( idCVar* cvar ) = 0;
 	
 	// Finds the CVar with the given name.
-	// Returns NULL if there is no CVar with the given name.
+	// Returns nullptr if there is no CVar with the given name.
 	virtual idCVar* 		Find( const char* name ) = 0;
 	
 	// Sets the value of a CVar by name.
@@ -345,7 +345,7 @@ extern idCVarSystem* 		cvarSystem;
 	CVar Registration
 
 	Each DLL using CVars has to declare a private copy of the static variable
-	idCVar::staticVars like this: idCVar * idCVar::staticVars = NULL;
+	idCVar::staticVars like this: idCVar * idCVar::staticVars = nullptr;
 	Furthermore idCVar::RegisterStaticVars() has to be called after the
 	cvarSystem pointer is set when the DLL is first initialized.
 

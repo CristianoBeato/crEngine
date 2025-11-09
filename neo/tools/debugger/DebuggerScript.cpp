@@ -44,9 +44,9 @@ rvDebuggerScript::rvDebuggerScript
 */
 rvDebuggerScript::rvDebuggerScript ( void )
 {
-	mContents  = NULL;
-	mProgram   = NULL;
-	mInterface = NULL;
+	mContents  = nullptr;
+	mProgram   = nullptr;
+	mInterface = nullptr;
 }
 
 /*
@@ -79,9 +79,9 @@ void rvDebuggerScript::Unload ( void )
 		//delete mProgram;
 	}
 	
-	mContents  = NULL;
-	mProgram   = NULL;
-	mInterface = NULL;
+	mContents  = nullptr;
+	mProgram   = nullptr;
+	mInterface = nullptr;
 }	
 
 /*
@@ -106,14 +106,14 @@ bool rvDebuggerScript::Load ( const char* filename )
 		
 	// Read in the file
 	size = fileSystem->ReadFile ( filename, &buffer, &mModifiedTime );	
-	if ( buffer == NULL )
+	if ( buffer == nullptr )
 	{
 		return false;
 	}
 	
 	// Copy the buffer over
 	mContents = new char [ size + 1 ];
-	memcpy ( mContents, buffer, size );
+	std::memcpy ( mContents, buffer, size );
 	mContents[size] = 0;	
 	
 	// Cleanup
@@ -135,7 +135,7 @@ bool rvDebuggerScript::Load ( const char* filename )
 		//if(gamedir.Length() > 0) {
 
 		//	idStr scriptFile = va("script/%s_main.script", gamedir.c_str());
-		//	if(fileSystem->ReadFile(scriptFile.c_str(), NULL) > 0) {
+		//	if(fileSystem->ReadFile(scriptFile.c_str(), nullptr) > 0) {
 		//		mProgram->CompileFile(scriptFile.c_str());
 		//	}
 
@@ -168,9 +168,9 @@ bool rvDebuggerScript::Load ( const char* filename )
 
 		// Failed to parse the script so fail to load the file
 		delete mProgram;
-		mProgram = NULL;
+		mProgram = nullptr;
 		delete[] mContents;
-		mContents = NULL;
+		mContents = nullptr;
 		
 		// TODO: Should cache the error for the dialog box
 		
@@ -232,7 +232,7 @@ bool rvDebuggerScript::IsFileModified ( bool updateTime )
 	bool	result = false;		
 
 	// Grab the filetime and shut the file down
-	fileSystem->ReadFile ( mFilename, NULL, &t );
+	fileSystem->ReadFile ( mFilename, nullptr, &t );
 	
 	// Has the file been modified?
 	if ( t > mModifiedTime )

@@ -80,7 +80,7 @@ public:
 	
 	bool			PointInside( const idVec2& point, const float epsilon ) const;
 	bool			LineIntersection( const idVec2& start, const idVec2& end ) const;
-	bool			RayIntersection( const idVec2& start, const idVec2& dir, float& scale1, float& scale2, int* edgeNums = NULL ) const;
+	bool			RayIntersection( const idVec2& start, const idVec2& dir, float& scale1, float& scale2, int* edgeNums = nullptr ) const;
 	
 	static idVec3	Plane2DFromPoints( const idVec2& start, const idVec2& end, const bool normalize = false );
 	static idVec3	Plane2DFromVecs( const idVec2& start, const idVec2& dir, const bool normalize = false );

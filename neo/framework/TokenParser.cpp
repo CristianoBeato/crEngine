@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 void idTokenParser::LoadFromParser( idParser& parser, const char* guiName )
 {
 	// does it already exist?	
-	idTokenIndexes * tokIdxs = NULL;
+	idTokenIndexes * tokIdxs = nullptr;
 	for ( int i = 0; i < guiTokenIndexes.Num(); ++i )
 	{
 		if ( idStr::Icmp( guiName, guiTokenIndexes[ i ].GetName() ) == 0 )
@@ -43,7 +43,7 @@ void idTokenParser::LoadFromParser( idParser& parser, const char* guiName )
 		}
 	}
 
-	if ( tokIdxs == NULL )
+	if ( tokIdxs == nullptr )
 	{
 		tokIdxs = &guiTokenIndexes.Alloc();
 		tokIdxs->SetName( guiName );
@@ -61,7 +61,7 @@ void idTokenParser::LoadFromFile( const char* filename )
 {
 	Clear();
 	idFile* inFile = fileSystem->OpenFileReadMemory( filename );
-	if( inFile != NULL )
+	if( inFile != nullptr )
 	{
 		int num;
 		inFile->ReadBig( num );
@@ -88,7 +88,7 @@ void idTokenParser::WriteToFile( const char* filename )
 		return;
 	}
 	idFile* outFile = fileSystem->OpenFileWrite( filename, "fs_basepath" );
-	if( outFile != NULL )
+	if( outFile != nullptr )
 	{
 		outFile->WriteBig( ( int )guiTokenIndexes.Num() );
 		for( int i = 0; i < guiTokenIndexes.Num(); i++ )
@@ -289,8 +289,8 @@ bool idTokenParser::ParseBool()
 	}
 	return ( token.GetIntValue() != 0 );
 }
-// read a floating point number.  If errorFlag is NULL, a non-numeric token will
-// issue an Error().  If it isn't NULL, it will issue a Warning() and set *errorFlag = true
+// read a floating point number.  If errorFlag is nullptr, a non-numeric token will
+// issue an Error().  If it isn't nullptr, it will issue a Warning() and set *errorFlag = true
 float idTokenParser::ParseFloat( bool* errorFlag )
 {
 	idToken token;

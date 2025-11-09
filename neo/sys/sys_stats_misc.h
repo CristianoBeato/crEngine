@@ -94,7 +94,7 @@ struct leaderboardDefinition_t
 	leaderboardDefinition_t() :
 		id( -1 ),
 		numColumns( 0 ),
-		columnDefs( NULL ),
+		columnDefs( nullptr ),
 		rankOrder( RANK_GREATEST_FIRST ),
 		supportsAttachments( false ),
 		checkAgainstCurrent( false )

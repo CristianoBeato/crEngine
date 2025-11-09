@@ -45,7 +45,7 @@ class CDialogInfo : public CDialog
 {
 // Construction
 public:
-	CDialogInfo(CWnd* pParent = NULL);   // standard constructor
+	CDialogInfo(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CDialogInfo)

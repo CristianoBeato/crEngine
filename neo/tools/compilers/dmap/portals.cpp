@@ -54,7 +54,7 @@ uPortal_t	*AllocPortal (void)
 		c_peak_portals = c_active_portals;
 	
 	p = (uPortal_t *)Mem_Alloc (sizeof(uPortal_t ), TAG_DMAP);
-	memset (p, 0, sizeof(uPortal_t ));
+	std::memset (p, 0, sizeof(uPortal_t ));
 	
 	return p;
 }
@@ -149,10 +149,10 @@ void RemovePortalFromNode (uPortal_t  *portal, node_t *l)
 	
 	if ( portal->nodes[0] == l ) {
 		*pp = portal->next[0];
-		portal->nodes[0] = NULL;
+		portal->nodes[0] = nullptr;
 	} else if ( portal->nodes[1] == l ) {
 		*pp = portal->next[1];	
-		portal->nodes[1] = NULL;
+		portal->nodes[1] = nullptr;
 	} else {
 		common->Error( "RemovePortalFromNode: mislinked" ); 
 	}
@@ -188,8 +188,8 @@ static void MakeHeadnodePortals( tree_t *tree ) {
 	node = tree->headnode;
 
 	tree->outside_node.planenum = PLANENUM_LEAF;
-	tree->outside_node.brushlist = NULL;
-	tree->outside_node.portals = NULL;
+	tree->outside_node.brushlist = nullptr;
+	tree->outside_node.portals = nullptr;
 	tree->outside_node.opaque = false;
 
 	// if no nodes, don't go any farther
@@ -214,7 +214,7 @@ static void MakeHeadnodePortals( tree_t *tree ) {
 			portals[n] = p;
 			
 			pl = &bplanes[n];
-			memset (pl, 0, sizeof(*pl));
+			std::memset (pl, 0, sizeof(*pl));
 			if (j) {
 				(*pl)[i] = -1;
 				(*pl)[3] = bounds[j][i];
@@ -379,14 +379,14 @@ static void SplitNodePortals( node_t *node ) {
 		if ( frontwinding && frontwinding->IsTiny() )
 		{
 			delete frontwinding;
-			frontwinding = NULL;
+			frontwinding = nullptr;
 			c_tinyportals++;
 		}
 
 		if ( backwinding && backwinding->IsTiny() )
 		{
 			delete backwinding;
-			backwinding = NULL;
+			backwinding = nullptr;
 			c_tinyportals++;
 		}
 
@@ -433,7 +433,7 @@ static void SplitNodePortals( node_t *node ) {
 		}
 	}
 
-	node->portals = NULL;
+	node->portals = nullptr;
 }
 
 
@@ -711,7 +711,7 @@ static side_t	*FindSideForPortal( uPortal_t *p ) {
 						continue;
 					}
 					s2 = orig->sides + k;
-					if ( s2->visibleHull == NULL ) {
+					if ( s2->visibleHull == nullptr ) {
 						continue;
 					}
 					if ( !( s2->material->GetContentFlags() & CONTENTS_AREAPORTAL ) ) {
@@ -719,13 +719,13 @@ static side_t	*FindSideForPortal( uPortal_t *p ) {
 					}
 					common->Warning( "brush has multiple area portal sides at %s", s2->visibleHull->GetCenter().ToString() );
 					delete s2->visibleHull;
-					s2->visibleHull = NULL;
+					s2->visibleHull = nullptr;
 				}
 				return s;
 			}
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*

@@ -43,7 +43,7 @@ class CCameraTargetDlg : public CDialog
 {
 // Construction
 public:
-	CCameraTargetDlg(CWnd* pParent = NULL);   // standard constructor
+	CCameraTargetDlg(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CCameraTargetDlg)

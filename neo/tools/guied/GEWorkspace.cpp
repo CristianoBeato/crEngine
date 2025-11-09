@@ -84,7 +84,7 @@ rvGEWorkspace::rvGEWorkspace ( rvGEApp* app ) : mApplication ( app )
 rvGEWorkspace::~rvGEWorkspace ( )
 {
 	// Make sure all the wrappers get cleaned up
-	rvGEWindowWrapper::GetWrapper ( mInterface->GetDesktop ( ) )->EnumChildren ( CleanupEnumProc, NULL );
+	rvGEWindowWrapper::GetWrapper ( mInterface->GetDesktop ( ) )->EnumChildren ( CleanupEnumProc, nullptr );
 
 	DestroyCursor ( mHandCursor );
 
@@ -165,7 +165,7 @@ void rvGEWorkspace::Detach ( void )
 	assert ( mWnd );
 
 	SetWindowLongPtr ( mWnd, GWLP_USERDATA, 0 );
-	mWnd = NULL;
+	mWnd = nullptr;
 }
 
 /*
@@ -183,7 +183,7 @@ bool rvGEWorkspace::SetupPixelFormat ( void )
 	int pixelFormat = ChoosePixelFormat(hDC, &win32.pfd);
 	if (pixelFormat > 0)
 	{
-		if (SetPixelFormat(hDC, pixelFormat, &win32.pfd) == NULL)
+		if (SetPixelFormat(hDC, pixelFormat, &win32.pfd) == nullptr)
 		{
 			result = false;
 		}
@@ -308,7 +308,7 @@ void rvGEWorkspace::Render ( HDC hdc )
 
 	// Prepare the renderSystem view to draw the GUI in
 	viewDef_t viewDef;
-	memset ( &viewDef, 0, sizeof(viewDef) );
+	std::memset ( &viewDef, 0, sizeof(viewDef) );
 	tr.viewDef = &viewDef;
 	tr.viewDef->renderView.x = mRect.x;
 	tr.viewDef->renderView.y = mWindowHeight - mRect.y - mRect.h;
@@ -583,31 +583,31 @@ void rvGEWorkspace::UpdateCursor ( rvGESelectionMgr::EHitTest type )
 	switch ( type )
 	{
 		case rvGESelectionMgr::HT_SELECT:
-			SetCursor ( LoadCursor ( NULL, IDC_ARROW ) );
+			SetCursor ( LoadCursor ( nullptr, IDC_ARROW ) );
 			break;
 
 		case rvGESelectionMgr::HT_MOVE:
-			SetCursor ( LoadCursor ( NULL, IDC_SIZEALL ) );
+			SetCursor ( LoadCursor ( nullptr, IDC_SIZEALL ) );
 			break;
 
 		case rvGESelectionMgr::HT_SIZE_LEFT:
 		case rvGESelectionMgr::HT_SIZE_RIGHT:
-			SetCursor ( LoadCursor ( NULL, IDC_SIZEWE ) );
+			SetCursor ( LoadCursor ( nullptr, IDC_SIZEWE ) );
 			break;
 
 		case rvGESelectionMgr::HT_SIZE_TOP:
 		case rvGESelectionMgr::HT_SIZE_BOTTOM:
-			SetCursor ( LoadCursor ( NULL, IDC_SIZENS ) );
+			SetCursor ( LoadCursor ( nullptr, IDC_SIZENS ) );
 			break;
 
 		case rvGESelectionMgr::HT_SIZE_TOPRIGHT:
 		case rvGESelectionMgr::HT_SIZE_BOTTOMLEFT:
-			SetCursor ( LoadCursor ( NULL, IDC_SIZENESW ) );
+			SetCursor ( LoadCursor ( nullptr, IDC_SIZENESW ) );
 			break;
 
 		case rvGESelectionMgr::HT_SIZE_BOTTOMRIGHT:
 		case rvGESelectionMgr::HT_SIZE_TOPLEFT:
-			SetCursor ( LoadCursor ( NULL, IDC_SIZENWSE ) );
+			SetCursor ( LoadCursor ( nullptr, IDC_SIZENWSE ) );
 			break;
 	}
 }
@@ -630,7 +630,7 @@ void rvGEWorkspace::UpdateCursor ( float x, float y )
 	}
 	else
 	{
-		SetCursor ( LoadCursor ( NULL, IDC_ARROW ) );
+		SetCursor ( LoadCursor ( nullptr, IDC_ARROW ) );
 	}
 }
 
@@ -666,10 +666,10 @@ void rvGEWorkspace::HandleMessage ( UINT msg, WPARAM wParam, LPARAM lParam )
 	{
 		case WM_CLOSE:
 		{
-			GetApplication ( )->GetNavigator().SetWorkspace(NULL);
-			GetApplication ( )->GetTransformer().SetWorkspace(NULL);
-			GetApplication ( )->GetProperties().SetWorkspace(NULL);
-			GetApplication ( )->GetItemProperties().SetWorkspace(NULL);
+			GetApplication ( )->GetNavigator().SetWorkspace(nullptr);
+			GetApplication ( )->GetTransformer().SetWorkspace(nullptr);
+			GetApplication ( )->GetProperties().SetWorkspace(nullptr);
+			GetApplication ( )->GetItemProperties().SetWorkspace(nullptr);
 			GEItemScriptsDlg_Clear(GetApplication()->GetScriptWindow());
 			break;
 		}
@@ -886,7 +886,7 @@ int	rvGEWorkspace::HandleRButtonDown ( WPARAM wParam, LPARAM lParam )
 
 	// Bring up the popup menu
 	ClientToScreen ( mWnd, &point );
-	TrackPopupMenu ( menu, TPM_RIGHTBUTTON|TPM_LEFTALIGN, point.x, point.y, 0, mWnd, NULL );
+	TrackPopupMenu ( menu, TPM_RIGHTBUTTON|TPM_LEFTALIGN, point.x, point.y, 0, mWnd, nullptr );
 
 	DestroyMenu ( popup );
 	DestroyMenu ( menu );
@@ -933,7 +933,7 @@ int	rvGEWorkspace::HandleLButtonDown ( WPARAM wParam, LPARAM lParam )
 	// dissallow selection of the desktop.
 	if ( gApp.GetOptions().GetIgnoreDesktopSelect() && window == mInterface->GetDesktop ( ) )
 	{
-		window = NULL;
+		window = nullptr;
 	}
 
 	if ( mDragType == rvGESelectionMgr::HT_MOVE || mDragType == rvGESelectionMgr::HT_NONE )
@@ -1338,7 +1338,7 @@ rvGEWorkspace::EZoomLevel rvGEWorkspace::ZoomIn ( void )
 	UpdateScrollbars ( );
 	UpdateTitle ( );
 
-	InvalidateRect ( mWnd, NULL, FALSE );
+	InvalidateRect ( mWnd, nullptr, FALSE );
 
 	return (EZoomLevel)mZoom;
 }
@@ -1361,7 +1361,7 @@ rvGEWorkspace::EZoomLevel rvGEWorkspace::ZoomOut ( void )
 	UpdateScrollbars ( );
 	UpdateTitle ( );
 
-	InvalidateRect ( mWnd, NULL, FALSE );
+	InvalidateRect ( mWnd, nullptr, FALSE );
 
 	return (EZoomLevel)mZoom;
 }
@@ -1409,7 +1409,7 @@ rvGEModifier* rvGEWorkspace::CreateModifier ( EModifierType type, idWindow* wind
 			break;
 
 		default:
-			mod = NULL;
+			mod = nullptr;
 			break;
 	}
 
@@ -1577,7 +1577,7 @@ idWindow* rvGEWorkspace::NewWindow ( idDict* state, rvGEWindowWrapper::EWindowTy
 			break;
 		default:
 			assert ( false );
-			return NULL;
+			return nullptr;
 	}
 
 	baseName = state ? state->GetString("name","unnamed") : "unnamed";
@@ -1651,7 +1651,7 @@ idWindow* rvGEWorkspace::AddWindow ( rvGEWindowWrapper::EWindowType type )
 	window = NewWindow ( &state, type );
 	assert ( window );
 
-	mModifiers.Append ( new rvGEInsertModifier ( "New", window, mInterface->GetDesktop(), NULL ) );
+	mModifiers.Append ( new rvGEInsertModifier ( "New", window, mInterface->GetDesktop(), nullptr ) );
 
 	mSelections.Set ( window );
 	mApplication->GetNavigator().Update ( );
@@ -1952,7 +1952,7 @@ void rvGEWorkspace::AddModifierSize ( const char* modName, float l, float t, flo
 		// time as a child you will get double movement because the child is relative to the parent.  Therefore
 		// we need to subtract out the closest parents sizing.
 		idWindow* parent = mSelections[i];
-		while ( NULL != (parent = parent->GetParent ( ) ) )
+		while ( nullptr != (parent = parent->GetParent ( ) ) )
 		{
 			rvGEWindowWrapper*	pwrapper = rvGEWindowWrapper::GetWrapper ( parent );
 			float				offset;
@@ -2017,7 +2017,7 @@ void rvGEWorkspace::MakeSelectedAChild ( void )
 			continue;
 		}
 
-		group->Append ( new rvGEInsertModifier ( "Make Child", mSelections[i], mSelections[0], NULL ) );
+		group->Append ( new rvGEInsertModifier ( "Make Child", mSelections[i], mSelections[0], nullptr ) );
 	}
 
 	mModifiers.Append ( group );
@@ -2166,7 +2166,7 @@ void rvGEWorkspace::Paste ( void )
 		state.Delete ( "windowType" );
 
 		idWindow* window = NewWindow ( &state, type );
-		group->Append ( new rvGEInsertModifier ( "Paste", window, mInterface->GetDesktop(), NULL ) );
+		group->Append ( new rvGEInsertModifier ( "Paste", window, mInterface->GetDesktop(), nullptr ) );
 		mSelections.Add ( window );
 
 		rvGEWindowWrapper::GetWrapper ( window )->GetScriptDict ( ) = mClipboard[i]->mScriptDict;

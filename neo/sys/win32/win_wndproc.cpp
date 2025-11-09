@@ -243,7 +243,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			
 		case WM_DESTROY:
 			// let sound and input know about this?
-			win32.hWnd = NULL;
+			win32.hWnd = nullptr;
 			if( win32.cdsFullscreen )
 			{
 				WIN_EnableAltTab();
@@ -282,7 +282,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				Sys_GrabMouseCursor( true );
 				if( common->IsInitialized() )
 				{
-					SetCursor( NULL );
+					SetCursor( nullptr );
 				}
 			}
 			
@@ -346,7 +346,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			{
 				key = K_NUMLOCK;
 			}
-			Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, key, true, 0, nullptr, 0 );
 			break;
 			
 		case WM_SYSKEYUP:
@@ -364,11 +364,11 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				// as two events (ctrl then alt)
 				break;
 			}
-			Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, key, false, 0, nullptr, 0 );
 			break;
 			
 		case WM_CHAR:
-			Sys_QueEvent( SE_CHAR, wParam, 0, 0, NULL, 0 );
+			Sys_QueEvent( SE_CHAR, wParam, 0, 0, nullptr, 0 );
 			break;
 			
 		case WM_NCLBUTTONDOWN:
@@ -401,7 +401,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				if( isShellActive )
 				{
 					// If the shell is active, it will display its own cursor.
-					SetCursor( NULL );
+					SetCursor( nullptr );
 				}
 				else if( isConsoleActive )
 				{
@@ -413,7 +413,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				{
 					// The shell not active and neither is the console.
 					// This is normal gameplay, hide the cursor.
-					SetCursor( NULL );
+					SetCursor( nullptr );
 				}
 			}
 			else
@@ -425,7 +425,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 				}
 				else
 				{
-					SetCursor( NULL );
+					SetCursor( nullptr );
 				}
 			}
 			
@@ -433,7 +433,7 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			const int y = GET_Y_LPARAM( lParam );
 			
 			// Generate an event
-			Sys_QueEvent( SE_MOUSE_ABSOLUTE, x, y, 0, NULL, 0 );
+			Sys_QueEvent( SE_MOUSE_ABSOLUTE, x, y, 0, nullptr, 0 );
 			
 			// Get a mouse leave message
 			TRACKMOUSEEVENT tme =
@@ -450,53 +450,53 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 		}
 		case WM_MOUSELEAVE:
 		{
-			Sys_QueEvent( SE_MOUSE_LEAVE, 0, 0, 0, NULL, 0 );
+			Sys_QueEvent( SE_MOUSE_LEAVE, 0, 0, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_LBUTTONDOWN:
 		{
-			Sys_QueEvent( SE_KEY, K_MOUSE1, 1, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, K_MOUSE1, 1, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_LBUTTONUP:
 		{
-			Sys_QueEvent( SE_KEY, K_MOUSE1, 0, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, K_MOUSE1, 0, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_RBUTTONDOWN:
 		{
-			Sys_QueEvent( SE_KEY, K_MOUSE2, 1, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, K_MOUSE2, 1, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_RBUTTONUP:
 		{
-			Sys_QueEvent( SE_KEY, K_MOUSE2, 0, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, K_MOUSE2, 0, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_MBUTTONDOWN:
 		{
-			Sys_QueEvent( SE_KEY, K_MOUSE3, 1, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, K_MOUSE3, 1, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_MBUTTONUP:
 		{
-			Sys_QueEvent( SE_KEY, K_MOUSE3, 0, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, K_MOUSE3, 0, 0, nullptr, 0 );
 			return 0;
 		}
 		case WM_XBUTTONDOWN:
 		{
 			// RB begin
 #if defined(__MINGW32__)
-			Sys_QueEvent( SE_KEY, K_MOUSE4, 1, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, K_MOUSE4, 1, 0, nullptr, 0 );
 #else
 			int button = GET_XBUTTON_WPARAM( wParam );
 			if( button == 1 )
 			{
-				Sys_QueEvent( SE_KEY, K_MOUSE4, 1, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MOUSE4, 1, 0, nullptr, 0 );
 			}
 			else if( button == 2 )
 			{
-				Sys_QueEvent( SE_KEY, K_MOUSE5, 1, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MOUSE5, 1, 0, nullptr, 0 );
 			}
 #endif
 			// RB end
@@ -506,16 +506,16 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 		{
 			// RB begin
 #if defined(__MINGW32__)
-			Sys_QueEvent( SE_KEY, K_MOUSE4, 0, 0, NULL, 0 );
+			Sys_QueEvent( SE_KEY, K_MOUSE4, 0, 0, nullptr, 0 );
 #else
 			int button = GET_XBUTTON_WPARAM( wParam );
 			if( button == 1 )
 			{
-				Sys_QueEvent( SE_KEY, K_MOUSE4, 0, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MOUSE4, 0, 0, nullptr, 0 );
 			}
 			else if( button == 2 )
 			{
-				Sys_QueEvent( SE_KEY, K_MOUSE5, 0, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, K_MOUSE5, 0, 0, nullptr, 0 );
 			}
 #endif
 			// RB end
@@ -528,8 +528,8 @@ LONG WINAPI MainWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 			delta = abs( delta );
 			while( delta-- > 0 )
 			{
-				Sys_QueEvent( SE_KEY, key, true, 0, NULL, 0 );
-				Sys_QueEvent( SE_KEY, key, false, 0, NULL, 0 );
+				Sys_QueEvent( SE_KEY, key, true, 0, nullptr, 0 );
+				Sys_QueEvent( SE_KEY, key, false, 0, nullptr, 0 );
 			}
 			break;
 		}

@@ -513,7 +513,7 @@ public:
 	virtual void	ReadFromSaveGame( idFile* savefile );
 	
 	virtual const char*	HandleEvent( const sysEvent_t* event, bool* updateVisuals );
-	virtual idWinVar*	GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = NULL );
+	virtual idWinVar*	GetWinVarByName( const char* _name, bool winLookup = false, drawWin_t** owner = nullptr );
 	
 	
 	virtual void		Draw( int time, float x, float y );

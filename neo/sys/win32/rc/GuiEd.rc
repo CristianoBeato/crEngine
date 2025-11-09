@@ -196,7 +196,7 @@ END
 
 IDR_GUIED_ITEM_POPUP MENU 
 BEGIN
-    POPUP "NULL"
+    POPUP "nullptr"
     BEGIN
         POPUP "&New"
         BEGIN

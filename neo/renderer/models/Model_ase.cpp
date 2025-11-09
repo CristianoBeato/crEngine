@@ -251,7 +251,7 @@ static void ASE_KeyMATERIAL_LIST( const char* token )
 		VERBOSE( ( "..material %d\n", ase.model->materials.Num() ) );
 		
 		ase.currentMaterial = ( aseMaterial_t* )Mem_Alloc( sizeof( aseMaterial_t ), TAG_MODEL );
-		memset( ase.currentMaterial, 0, sizeof( aseMaterial_t ) );
+		std::memset( ase.currentMaterial, 0, sizeof( aseMaterial_t ) );
 		ase.currentMaterial->uTiling = 1;
 		ase.currentMaterial->vTiling = 1;
 		ase.model->materials.Append( ase.currentMaterial );
@@ -720,7 +720,7 @@ static void ASE_KeyMESH_ANIMATION( const char* token )
 		VERBOSE( ( "...found MESH\n" ) );
 		
 		mesh = ( aseMesh_t* )Mem_Alloc( sizeof( aseMesh_t ), TAG_MODEL );
-		memset( mesh, 0, sizeof( aseMesh_t ) );
+		std::memset( mesh, 0, sizeof( aseMesh_t ) );
 		ase.currentMesh = mesh;
 		
 		ase.currentObject->frames.Append( mesh );
@@ -765,7 +765,7 @@ static void ASE_KeyGEOMOBJECT( const char* token )
 			transforms[ i ] = ase.currentMesh->transform[ i ];
 		}
 		
-		memset( ase.currentMesh, 0, sizeof( *ase.currentMesh ) );
+		std::memset( ase.currentMesh, 0, sizeof( *ase.currentMesh ) );
 		for( int i = 0; i < 4; ++i )
 		{
 			ase.currentMesh->transform[ i ] = transforms[ i ];
@@ -804,7 +804,7 @@ void ASE_ParseGeomObject()
 	VERBOSE( ( "GEOMOBJECT" ) );
 	
 	object = ( aseObject_t* )Mem_Alloc( sizeof( aseObject_t ), TAG_MODEL );
-	memset( object, 0, sizeof( aseObject_t ) );
+	std::memset( object, 0, sizeof( aseObject_t ) );
 	ase.model->objects.Append( object );
 	ase.currentObject = object;
 	
@@ -828,18 +828,18 @@ ASE_Parse
 */
 aseModel_t* ASE_Parse( const char* buffer, bool verbose )
 {
-	memset( &ase, 0, sizeof( ase ) );
+	std::memset( &ase, 0, sizeof( ase ) );
 	
 	ase.verbose = verbose;
 	
 	ase.buffer = buffer;
 	ase.len = strlen( buffer );
 	ase.curpos = ase.buffer;
-	ase.currentObject = NULL;
+	ase.currentObject = nullptr;
 	
 	// NOTE: using new operator because aseModel_t contains idList class objects
 	ase.model = new( TAG_MODEL ) aseModel_t;
-	memset( ase.model, 0, sizeof( aseModel_t ) );
+	std::memset( ase.model, 0, sizeof( aseModel_t ) );
 	ase.model->objects.Resize( 32, 32 );
 	ase.model->materials.Resize( 32, 32 );
 	
@@ -900,7 +900,7 @@ aseModel_t* ASE_Load( const char* fileName )
 	fileSystem->ReadFile( fileName, ( void** )&buf, &timeStamp );
 	if( !buf )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	ase = ASE_Parse( buf, false );

@@ -209,12 +209,12 @@ int MaterialEditView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_editSplitter.CreateStatic(this, 1, 2);
 
-	if(!m_editSplitter.CreateView(0, 0, RUNTIME_CLASS(StageView), CSize(200, 200), NULL)) {
+	if(!m_editSplitter.CreateView(0, 0, RUNTIME_CLASS(StageView), CSize(200, 200), nullptr)) {
 		TRACE0("Failed to create stage property pane\n");
 		return -1;
 	}
 
-	if(!m_editSplitter.CreateView(0, 1, RUNTIME_CLASS(MaterialPropTreeView), CSize(500, 200), NULL)) {
+	if(!m_editSplitter.CreateView(0, 1, RUNTIME_CLASS(MaterialPropTreeView), CSize(500, 200), nullptr)) {
 		TRACE0("Failed to create property pane\n");
 		return -1;
 	}

@@ -63,7 +63,7 @@ CEntKeyFindReplace::CEntKeyFindReplace(	CString* p_strFindKey,
 										CString* p_strReplaceValue, 
 										bool*	 p_bWholeStringMatchOnly,
 										bool*	 p_bSelectAllMatchingEnts,
-										CWnd*	 pParent /*=NULL*/)
+										CWnd*	 pParent /*=nullptr*/)
 	: CDialog(CEntKeyFindReplace::IDD, pParent)
 {
 	m_pStrFindKey		= p_strFindKey;

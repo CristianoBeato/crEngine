@@ -46,7 +46,7 @@ static char THIS_FILE[] = __FILE__;
 // CDlgEvent dialog
 
 
-CDlgEvent::CDlgEvent(CWnd* pParent /*=NULL*/)
+CDlgEvent::CDlgEvent(CWnd* pParent /*=nullptr*/)
 	: CDialog(CDlgEvent::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDlgEvent)

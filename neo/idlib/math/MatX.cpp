@@ -57,7 +57,7 @@ void idMatX::ChangeSize( int rows, int columns, bool makeZero )
 		mat = ( float* ) Mem_Alloc16( alloc * sizeof( float ), TAG_MATH );
 		if( makeZero )
 		{
-			memset( mat, 0, alloc * sizeof( float ) );
+			std::memset( mat, 0, alloc * sizeof( float ) );
 		}
 		alloced = alloc;
 		if( oldMat )
@@ -106,7 +106,7 @@ void idMatX::ChangeSize( int rows, int columns, bool makeZero )
 		}
 		if( makeZero && rows > numRows )
 		{
-			memset( mat + numRows * columns, 0, ( rows - numRows ) * columns * sizeof( float ) );
+			std::memset( mat + numRows * columns, 0, ( rows - numRows ) * columns * sizeof( float ) );
 		}
 	}
 	numRows = rows;
@@ -129,7 +129,7 @@ idMatX& idMatX::RemoveRow( int r )
 	
 	for( i = r; i < numRows; i++ )
 	{
-		memcpy( &mat[i * numColumns], &mat[( i + 1 ) * numColumns], numColumns * sizeof( float ) );
+		std::memcpy( &mat[i * numColumns], &mat[( i + 1 ) * numColumns], numColumns * sizeof( float ) );
 	}
 	
 	return *this;
@@ -180,13 +180,13 @@ idMatX& idMatX::RemoveRowColumn( int r )
 		memmove( &mat[i * numColumns + r], &mat[i * ( numColumns + 1 ) + r + 1], ( numColumns - r ) * sizeof( float ) );
 	}
 	
-	memcpy( &mat[r * numColumns], &mat[( r + 1 ) * ( numColumns + 1 )], r * sizeof( float ) );
+	std::memcpy( &mat[r * numColumns], &mat[( r + 1 ) * ( numColumns + 1 )], r * sizeof( float ) );
 	
 	for( i = r; i < numRows - 1; i++ )
 	{
-		memcpy( &mat[i * numColumns + r], &mat[( i + 1 ) * ( numColumns + 1 ) + r + 1], numColumns * sizeof( float ) );
+		std::memcpy( &mat[i * numColumns + r], &mat[( i + 1 ) * ( numColumns + 1 ) + r + 1], numColumns * sizeof( float ) );
 	}
-	memcpy( &mat[i * numColumns + r], &mat[( i + 1 ) * ( numColumns + 1 ) + r + 1], ( numColumns - r ) * sizeof( float ) );
+	std::memcpy( &mat[i * numColumns + r], &mat[( i + 1 ) * ( numColumns + 1 ) + r + 1], ( numColumns - r ) * sizeof( float ) );
 	
 	return *this;
 }
@@ -1005,7 +1005,7 @@ bool idMatX::Inverse_GaussJordan()
 	int* rowIndex = ( int* ) _alloca16( numRows * sizeof( int ) );
 	bool* pivot = ( bool* ) _alloca16( numRows * sizeof( bool ) );
 	
-	memset( pivot, 0, numRows * sizeof( bool ) );
+	std::memset( pivot, 0, numRows * sizeof( bool ) );
 	
 	// elimination with full pivoting
 	for( i = 0; i < numRows; i++ )
@@ -1259,9 +1259,9 @@ idMatX::LU_Factor
   L is a triangular matrix stored in the lower triangle.
   L has ones on the diagonal that are not stored.
   U is a triangular matrix stored in the upper triangle.
-  If index != NULL partial pivoting is used for numerical stability.
-  If index != NULL it must point to an array of numRow integers and is used to keep track of the row permutation.
-  If det != NULL the determinant of the matrix is calculated and stored.
+  If index != nullptr partial pivoting is used for numerical stability.
+  If index != nullptr it must point to an array of numRow integers and is used to keep track of the row permutation.
+  If det != nullptr the determinant of the matrix is calculated and stored.
 ============
 */
 bool idMatX::LU_Factor( int* index, float* det )
@@ -1377,7 +1377,7 @@ bool idMatX::LU_UpdateRankOne( const idVecX& v, const idVecX& w, float alpha, in
 	y = ( float* ) _alloca16( v.GetSize() * sizeof( float ) );
 	z = ( float* ) _alloca16( w.GetSize() * sizeof( float ) );
 	
-	if( index != NULL )
+	if( index != nullptr )
 	{
 		for( i = 0; i < numRows; i++ )
 		{
@@ -1392,7 +1392,7 @@ bool idMatX::LU_UpdateRankOne( const idVecX& v, const idVecX& w, float alpha, in
 		}
 	}
 	
-	memcpy( z, w.ToFloatPtr(), w.GetSize() * sizeof( float ) );
+	std::memcpy( z, w.ToFloatPtr(), w.GetSize() * sizeof( float ) );
 	
 	max = Min( numRows, numColumns );
 	for( i = 0; i < max; i++ )
@@ -1491,7 +1491,7 @@ bool idMatX::LU_UpdateRowColumn( const idVecX& v, const idVecX& w, int r, int* i
 	y1 = ( float* ) _alloca16( v.GetSize() * sizeof( float ) );
 	z1 = ( float* ) _alloca16( w.GetSize() * sizeof( float ) );
 	
-	if( index != NULL )
+	if( index != nullptr )
 	{
 		for( i = 0; i < numRows; i++ )
 		{
@@ -1509,17 +1509,17 @@ bool idMatX::LU_UpdateRowColumn( const idVecX& v, const idVecX& w, int r, int* i
 	}
 	else
 	{
-		memcpy( y0, v.ToFloatPtr(), v.GetSize() * sizeof( float ) );
+		std::memcpy( y0, v.ToFloatPtr(), v.GetSize() * sizeof( float ) );
 		rp = r;
 	}
 	
-	memset( y1, 0, v.GetSize() * sizeof( float ) );
+	std::memset( y1, 0, v.GetSize() * sizeof( float ) );
 	y1[rp] = 1.0f;
 	
-	memset( z0, 0, w.GetSize() * sizeof( float ) );
+	std::memset( z0, 0, w.GetSize() * sizeof( float ) );
 	z0[r] = 1.0f;
 	
-	memcpy( z1, w.ToFloatPtr(), w.GetSize() * sizeof( float ) );
+	std::memcpy( z1, w.ToFloatPtr(), w.GetSize() * sizeof( float ) );
 	
 	// update the beginning of the to be updated row and column
 	min = Min( r, rp );
@@ -1638,7 +1638,7 @@ bool idMatX::LU_UpdateIncrement( const idVecX& v, const idVecX& w, int* index )
 	}
 	
 	// add row to the permutation index
-	if( index != NULL )
+	if( index != nullptr )
 	{
 		index[numRows - 1] = numRows - 1;
 	}
@@ -1646,7 +1646,7 @@ bool idMatX::LU_UpdateIncrement( const idVecX& v, const idVecX& w, int* index )
 	// add column to U
 	for( i = 0; i < numRows; i++ )
 	{
-		if( index != NULL )
+		if( index != nullptr )
 		{
 			sum = v[index[i]];
 		}
@@ -1670,7 +1670,7 @@ idMatX::LU_UpdateDecrement
 
   Updates the in-place LU factorization to obtain the factors for the matrix with row r and column r removed.
   v and w should store the column and row of the original matrix respectively.
-  If index != NULL then u should store row index[r] of the original matrix. If index == NULL then u = w.
+  If index != nullptr then u should store row index[r] of the original matrix. If index == nullptr then u = w.
 ============
 */
 bool idMatX::LU_UpdateDecrement( const idVecX& v, const idVecX& w, const idVecX& u, int r, int* index )
@@ -1686,7 +1686,7 @@ bool idMatX::LU_UpdateDecrement( const idVecX& v, const idVecX& w, const idVecX&
 	v1.SetData( numRows, VECX_ALLOCA( numRows ) );
 	w1.SetData( numRows, VECX_ALLOCA( numRows ) );
 	
-	if( index != NULL )
+	if( index != nullptr )
 	{
 	
 		// find the pivot row
@@ -1787,7 +1787,7 @@ void idMatX::LU_Solve( idVecX& x, const idVecX& b, const int* index ) const
 	// solve L
 	for( i = 0; i < numRows; i++ )
 	{
-		if( index != NULL )
+		if( index != nullptr )
 		{
 			sum = b[index[i]];
 		}
@@ -1890,7 +1890,7 @@ void idMatX::LU_MultiplyFactors( idMatX& m, const int* index ) const
 	for( r = 0; r < numRows; r++ )
 	{
 	
-		if( index != NULL )
+		if( index != nullptr )
 		{
 			rp = index[r];
 		}
@@ -3009,7 +3009,7 @@ bool idMatX::Cholesky_UpdateRankOne( const idVecX& v, float alpha, int offset )
 	assert( offset >= 0 && offset < numRows );
 	
 	y = ( float* ) _alloca16( v.GetSize() * sizeof( float ) );
-	memcpy( y, v.ToFloatPtr(), v.GetSize() * sizeof( float ) );
+	std::memcpy( y, v.ToFloatPtr(), v.GetSize() * sizeof( float ) );
 	
 	for( i = offset; i < numColumns; i++ )
 	{
@@ -3521,7 +3521,7 @@ bool idMatX::LDLT_UpdateRankOne( const idVecX& v, float alpha, int offset )
 	assert( offset >= 0 && offset < numRows );
 	
 	y = ( float* ) _alloca16( v.GetSize() * sizeof( float ) );
-	memcpy( y, v.ToFloatPtr(), v.GetSize() * sizeof( float ) );
+	std::memcpy( y, v.ToFloatPtr(), v.GetSize() * sizeof( float ) );
 	
 	for( i = offset; i < numColumns; i++ )
 	{
@@ -5344,7 +5344,7 @@ void idMatX::Test()
 	
 	m1 = original;
 	
-	m1.LU_Factor( NULL );	// no pivoting
+	m1.LU_Factor( nullptr );	// no pivoting
 	m1.LU_UnpackFactors( m2, m3 );
 	m1 = m2 * m3;
 	
@@ -5506,8 +5506,8 @@ void idMatX::Test()
 	
 	m2 = original;
 	
-	m2.LU_Factor( NULL );
-	m2.LU_Inverse( m1, NULL );
+	m2.LU_Factor( nullptr );
+	m2.LU_Inverse( m1, nullptr );
 	m1 *= original;
 	
 	if( !m1.IsIdentity( 1e-4f ) )

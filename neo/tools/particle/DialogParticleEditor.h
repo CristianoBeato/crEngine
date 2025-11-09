@@ -57,7 +57,7 @@ class CDialogParticleEditor : public CDialog {
 	DECLARE_DYNAMIC(CDialogParticleEditor)
 
 public:
-	CDialogParticleEditor(CWnd* pParent = NULL);   // standard constructor
+	CDialogParticleEditor(CWnd* pParent = nullptr);   // standard constructor
 	virtual				~CDialogParticleEditor();
 
 	void				SelectParticle(const char *name);

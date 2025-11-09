@@ -249,7 +249,7 @@ keyname_t keynames[] =
 	ALIASKEY( ",", COMMA ),
 	ALIASKEY( ".", PERIOD ),
 	
-	{K_NONE, NULL, NULL}
+	{K_NONE, nullptr, nullptr}
 };
 
 class idKey
@@ -754,7 +754,7 @@ const char* idKeyInput::BindingFromKey( const char* key )
 	const int keyNum = idKeyInput::StringToKeyNum( key );
 	if( keyNum < 0 || keyNum >= K_LAST_KEY )
 	{
-		return NULL;
+		return nullptr;
 	}
 	return keys[keyNum].binding.c_str();
 }

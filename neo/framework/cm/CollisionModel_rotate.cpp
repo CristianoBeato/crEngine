@@ -1855,7 +1855,7 @@ void idCollisionModelManagerLocal::Rotation( trace_t* results, const idVec3& sta
 	assert( ( ( byte* )&start ) < ( ( byte* )results ) || ( ( byte* )&start ) > ( ( ( byte* )results ) + sizeof( trace_t ) ) );
 	assert( ( ( byte* )&trmAxis ) < ( ( byte* )results ) || ( ( byte* )&trmAxis ) > ( ( ( byte* )results ) + sizeof( trace_t ) ) );
 	
-	memset( results, 0, sizeof( *results ) );
+	std::memset( results, 0, sizeof( *results ) );
 	
 	// if special position test
 	if( rotation.GetAngle() == 0.0f )

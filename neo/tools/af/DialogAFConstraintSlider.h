@@ -36,7 +36,7 @@ class DialogAFConstraintSlider : public CDialog {
 	DECLARE_DYNAMIC(DialogAFConstraintSlider)
 
 public:
-						DialogAFConstraintSlider(CWnd* pParent = NULL);   // standard constructor
+						DialogAFConstraintSlider(CWnd* pParent = nullptr);   // standard constructor
 	virtual				~DialogAFConstraintSlider();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );

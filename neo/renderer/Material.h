@@ -372,7 +372,7 @@ typedef enum
 	SURF_NOSTEPS				= BIT( 9 ),	// no footstep sounds
 	SURF_DISCRETE				= BIT( 10 ),	// not clipped or merged by utilities
 	SURF_NOFRAGMENT				= BIT( 11 ),	// dmap won't cut surface at each bsp boundary
-	SURF_NULLNORMAL				= BIT( 12 )	// renderbump will draw this surface as 0x80 0x80 0x80, which
+	SURF_nullptrNORMAL				= BIT( 12 )	// renderbump will draw this surface as 0x80 0x80 0x80, which
 								  // won't collect light from any angle
 } surfaceFlags_t;
 
@@ -392,7 +392,7 @@ public:
 	virtual void		Print() const;
 	
 	//BSM Nerve: Added for material editor
-	bool				Save( const char* fileName = NULL );
+	bool				Save( const char* fileName = nullptr );
 	
 	// returns the internal image name for stage 0, which can be used
 	// for the renderer CaptureRenderToImage() call
@@ -409,7 +409,7 @@ public:
 	
 	// if the material is simple, all that needs to be known are
 	// the images for drawing.
-	// These will either all return valid images, or all return NULL
+	// These will either all return valid images, or all return nullptr
 	idImage* 			GetFastPathBumpImage() const
 	{
 		return fastPathBumpImage;
@@ -434,7 +434,7 @@ public:
 		return &stages[index];
 	}
 	
-	// get the first bump map stage, or NULL if not present.
+	// get the first bump map stage, or nullptr if not present.
 	// used for bumpy-specular
 	const shaderStage_t* GetBumpStage() const;
 	
@@ -444,7 +444,7 @@ public:
 	// as noShadow
 	bool				IsDrawn() const
 	{
-		return ( numStages > 0 || entityGui != 0 || gui != NULL );
+		return ( numStages > 0 || entityGui != 0 || gui != nullptr );
 	}
 	
 	// returns true if the material will draw any non light interaction stages
@@ -456,7 +456,7 @@ public:
 	// returns true if material has a gui
 	bool				HasGui() const
 	{
-		return ( entityGui != 0 || gui != NULL );
+		return ( entityGui != 0 || gui != nullptr );
 	}
 	
 	// returns true if the material will generate another view, either as
@@ -537,7 +537,7 @@ public:
 			   ( Coverage() < other.Coverage() );
 	}
 	
-	// returns a idUserInterface if it has a global gui, or NULL if no gui
+	// returns a idUserInterface if it has a global gui, or nullptr if no gui
 	idUserInterface*		GlobalGui() const
 	{
 		return gui;
@@ -606,7 +606,7 @@ public:
 		return fogLight || ambientLight || blendLight;
 	}
 	
-	// NULL unless an image is explicitly specified in the shader with "lightFalloffShader <image>"
+	// nullptr unless an image is explicitly specified in the shader with "lightFalloffShader <image>"
 	idImage*				LightFalloffImage() const
 	{
 		return lightFalloffImage;
@@ -793,7 +793,7 @@ public:
 		
 	// if a material only uses constants (no entityParm or globalparm references), this
 	// will return a pointer to an internal table, and EvaluateRegisters will not need
-	// to be called.  If NULL is returned, EvaluateRegisters must be used.
+	// to be called.  If nullptr is returned, EvaluateRegisters must be used.
 	const float* 		ConstantRegisters() const
 	{
 		return constantRegisters;
@@ -910,7 +910,7 @@ private:
 	int					numRegisters;																			//
 	float* 				expressionRegisters;
 	
-	float* 				constantRegisters;	// NULL if ops ever reference globalParms or entityParms
+	float* 				constantRegisters;	// nullptr if ops ever reference globalParms or entityParms
 	
 	int					numStages;
 	int					numAmbientStages;
@@ -923,7 +923,7 @@ private:
 	
 	// we defer loading of the editor image until it is asked for, so the game doesn't load up
 	// all the invisible and uncompressed images.
-	// If editorImage is NULL, it will atempt to load editorImageName, and set editorImage to that or defaultImage
+	// If editorImage is nullptr, it will atempt to load editorImageName, and set editorImage to that or defaultImage
 	idStr				editorImageName;
 	mutable idImage* 	editorImage;		// image used for non-shaded preview
 	float				editorAlpha;

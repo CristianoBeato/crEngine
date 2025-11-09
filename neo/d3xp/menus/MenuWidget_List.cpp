@@ -52,7 +52,7 @@ idMenuWidget_List::Update
 void idMenuWidget_List::Update()
 {
 
-	if( GetSWFObject() == NULL )
+	if( GetSWFObject() == nullptr )
 	{
 		return;
 	}
@@ -86,7 +86,7 @@ void idMenuWidget_List::Update()
 		{
 			// hide the item
 			idSWFSpriteInstance* const sprite = GetSprite()->GetScriptObject()->GetSprite( va( "item%d", optionIndex - GetTotalNumberOfOptions() ) );
-			if( sprite != NULL )
+			if( sprite != nullptr )
 			{
 				sprite->SetVisible( false );
 			}
@@ -94,13 +94,13 @@ void idMenuWidget_List::Update()
 	}
 	
 	idSWFSpriteInstance* const upSprite = GetSprite()->GetScriptObject()->GetSprite( "upIndicator" );
-	if( upSprite != NULL )
+	if( upSprite != nullptr )
 	{
 		upSprite->SetVisible( GetViewOffset() > 0 );
 	}
 	
 	idSWFSpriteInstance* const downSprite = GetSprite()->GetScriptObject()->GetSprite( "downIndicator" );
-	if( downSprite != NULL )
+	if( downSprite != nullptr )
 	{
 		downSprite->SetVisible( GetViewOffset() + GetNumVisibleOptions() < GetTotalNumberOfOptions() );
 	}
@@ -292,7 +292,7 @@ void idMenuWidget_List::Scroll( const int scrollAmount, const bool wrapAround )
 	if( newOffset != GetViewOffset() )
 	{
 		SetViewOffset( newOffset );
-		if( menuData != NULL )
+		if( menuData != nullptr )
 		{
 			menuData->PlaySound( GUI_SOUND_FOCUS );
 		}
@@ -347,7 +347,7 @@ idMenuWidget_GameBrowserList::Update
 void idMenuWidget_GameBrowserList::Update()
 {
 
-	if( GetSWFObject() == NULL )
+	if( GetSWFObject() == nullptr )
 	{
 		return;
 	}
@@ -385,13 +385,13 @@ void idMenuWidget_GameBrowserList::Update()
 	}
 	
 	idSWFSpriteInstance* const upSprite = GetSprite()->GetScriptObject()->GetSprite( "upIndicator" );
-	if( upSprite != NULL )
+	if( upSprite != nullptr )
 	{
 		upSprite->SetVisible( GetViewOffset() > 0 );
 	}
 	
 	idSWFSpriteInstance* const downSprite = GetSprite()->GetScriptObject()->GetSprite( "downIndicator" );
-	if( downSprite != NULL )
+	if( downSprite != nullptr )
 	{
 		downSprite->SetVisible( GetViewOffset() + GetNumVisibleOptions() < GetTotalNumberOfOptions() );
 	}
@@ -411,7 +411,7 @@ bool idMenuWidget_GameBrowserList::PrepareListElement( idMenuWidget& widget, con
 	}
 	
 	idMenuWidget_ServerButton* const button = dynamic_cast< idMenuWidget_ServerButton* >( &widget );
-	if( button == NULL )
+	if( button == nullptr )
 	{
 		return false;
 	}
@@ -500,7 +500,7 @@ idMenuWidget_ControlList::Update
 void idMenuWidget_ControlList::Update()
 {
 
-	if (GetSWFObject() == NULL)
+	if (GetSWFObject() == nullptr)
 	{
 		return;
 	}
@@ -538,13 +538,13 @@ void idMenuWidget_ControlList::Update()
 	}
 	
 	idSWFSpriteInstance* const upSprite = GetSprite()->GetScriptObject()->GetSprite("upIndicator");
-	if (upSprite != NULL)
+	if (upSprite != nullptr)
 	{
 		upSprite->SetVisible(GetViewOffset() > 0);
 	}
 	
 	idSWFSpriteInstance* const downSprite = GetSprite()->GetScriptObject()->GetSprite("downIndicator");
-	if (downSprite != NULL)
+	if (downSprite != nullptr)
 	{
 		downSprite->SetVisible(GetViewOffset() + GetNumVisibleOptions() < GetTotalNumberOfOptions());
 	}
@@ -564,7 +564,7 @@ bool idMenuWidget_ControlList::PrepareListElement(idMenuWidget& widget, const in
 	}
 
 	idMenuWidget_ControlButton* const button = dynamic_cast< idMenuWidget_ControlButton* >(&widget);
-	if (button == NULL)
+	if (button == nullptr)
 	{
 		return false;
 	}

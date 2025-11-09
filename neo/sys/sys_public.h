@@ -387,7 +387,7 @@ struct sysEvent_t
 	int				evValue;
 	int				evValue2;
 	int				evPtrLength;		// bytes of data pointed to by evPtr, for journaling
-	void* 			evPtr;				// this must be manually freed if not NULL
+	void* 			evPtr;				// this must be manually freed if not nullptr
 	int				inputDevice;
 
 	bool			IsKeyEvent( void ) const { return evType == SE_KEY; }

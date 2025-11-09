@@ -51,7 +51,7 @@ public:
 		if ( name && name[0] ) {
 			delete []name;
 		}
-		name = NULL;
+		name = nullptr;
 	}
 
 	void SetName( const char *p )
@@ -99,7 +99,7 @@ class brushprimit_texdef_t {
 public:
 	float	coords[2][3];
 	brushprimit_texdef_t() {
-		memset(&coords, 0, sizeof(coords));
+		std::memset(&coords, 0, sizeof(coords));
 		coords[0][0] = 1.0;
 		coords[1][1] = 1.0;
 	}
@@ -109,7 +109,7 @@ class texturewin_t
 {
 public:
 	texturewin_t() {
-		memset(&brushprimit_texdef.coords, 0, sizeof(brushprimit_texdef.coords));
+		std::memset(&brushprimit_texdef.coords, 0, sizeof(brushprimit_texdef.coords));
 		brushprimit_texdef.coords[0][0] = 1.0;
 		brushprimit_texdef.coords[1][1] = 1.0;
 	}

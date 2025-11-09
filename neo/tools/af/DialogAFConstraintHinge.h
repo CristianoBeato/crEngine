@@ -36,7 +36,7 @@ class DialogAFConstraintHinge : public CDialog {
 	DECLARE_DYNAMIC(DialogAFConstraintHinge)
 
 public:
-						DialogAFConstraintHinge(CWnd* pParent = NULL);   // standard constructor
+						DialogAFConstraintHinge(CWnd* pParent = nullptr);   // standard constructor
 	virtual				~DialogAFConstraintHinge();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );

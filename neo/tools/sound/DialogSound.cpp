@@ -51,10 +51,10 @@ extern HTREEITEM FindTreeItem(CTreeCtrl *tree, HTREEITEM root, const char *text,
 
 /////////////////////////////////////////////////////////////////////////////
 // CDialogSound dialog
-CDialogSound *g_SoundDialog = NULL;
+CDialogSound *g_SoundDialog = nullptr;
 
 
-CDialogSound::CDialogSound(CWnd* pParent /*=NULL*/)
+CDialogSound::CDialogSound(CWnd* pParent /*=nullptr*/)
 	: CDialog(CDialogSound::IDD, pParent)
 {
 	//{{AFX_DATA_INIT(CDialogSound)
@@ -71,7 +71,7 @@ CDialogSound::CDialogSound(CWnd* pParent /*=NULL*/)
 	bOcclusion = FALSE;
 	leadThrough = 0.0f;
 	plain = FALSE;
-	inUseTree = NULL;
+	inUseTree = nullptr;
 	random = 0.0f;
 	wait = 0.0f;
 	shakes = 0.0f;
@@ -155,17 +155,17 @@ void SoundEditorInit( const idDict *spawnArgs ) {
 		return;
 	}
 
-	if ( g_SoundDialog == NULL ) {
+	if ( g_SoundDialog == nullptr ) {
 		InitAfx();
 		g_SoundDialog = new CDialogSound();
 	}
 
-	if ( g_SoundDialog->GetSafeHwnd() == NULL ) {
+	if ( g_SoundDialog->GetSafeHwnd() == nullptr ) {
 		g_SoundDialog->Create(IDD_DIALOG_SOUND);
 /*
 		// FIXME: restore position
 		CRect rct;
-		g_SoundDialog->SetWindowPos( NULL, rct.left, rct.top, 0,0, SWP_NOSIZE );
+		g_SoundDialog->SetWindowPos( nullptr, rct.left, rct.top, 0,0, SWP_NOSIZE );
 */
 	}
 
@@ -188,7 +188,7 @@ void SoundEditorRun( void ) {
 	MSG *msg = &m_msgCur;
 #endif
 
-	while( ::PeekMessage(msg, NULL, NULL, NULL, PM_NOREMOVE) ) {
+	while( ::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE) ) {
 		// pump message
 		if ( !AfxGetApp()->PumpMessage() ) {
 		}
@@ -197,7 +197,7 @@ void SoundEditorRun( void ) {
 
 void SoundEditorShutdown( void ) {
 	delete g_SoundDialog;
-	g_SoundDialog = NULL;
+	g_SoundDialog = nullptr;
 }
 
 void CDialogSound::OnActivate( UINT nState, CWnd *pWndOther, BOOL bMinimized ) {
@@ -224,7 +224,7 @@ void CDialogSound::OnDestroy() {
 
 void CDialogSound::Set( const idDict *source ) {
 
-	if ( source == NULL ) {
+	if ( source == nullptr ) {
 		return;
 	}
 
@@ -255,7 +255,7 @@ void CDialogSound::Set( const idDict *source ) {
 
 void CDialogSound::Get( idDict *source ) {
 
-	if ( source == NULL ) {
+	if ( source == nullptr ) {
 		return;
 	}
 	UpdateData( TRUE );
@@ -304,7 +304,7 @@ void CDialogSound::SetVolume( float vol ) {
 
 		for (int i = 0; i < count; i++) {
 			const idDict *dict = gameEdit->EntityGetSpawnArgs( list[i] );
-			if ( dict == NULL ) {
+			if ( dict == nullptr ) {
 				continue;
 			}
 			const char *name = dict->GetString( "name" );
@@ -339,7 +339,7 @@ void CDialogSound::ApplyChanges( bool volumeOnly, bool updateInUseTree ) {
 
 		for (int i = 0; i < count; i++) {
 			const idDict *dict = gameEdit->EntityGetSpawnArgs( list[i] );
-			if ( dict == NULL ) {
+			if ( dict == nullptr ) {
 				continue;
 			}
 			const char *name = dict->GetString( "name" );
@@ -433,8 +433,8 @@ HTREEITEM CDialogSound::AddStrList(const char *root, const idStrList &list, int 
 		while (index >= 0) {
 			index = name.Find('/');
 			if (index >= 0) {
-				HTREEITEM newItem = NULL;
-				HTREEITEM *check = NULL;
+				HTREEITEM newItem = nullptr;
+				HTREEITEM *check = nullptr;
 				name.Left( index, out );
 				path += out;
 				if (quickTree.Get(path, &check)) {
@@ -442,7 +442,7 @@ HTREEITEM CDialogSound::AddStrList(const char *root, const idStrList &list, int 
 				}
 
 				//HTREEITEM newItem = FindTreeItem(&treeSounds, item, name.Left(index, out), item);
-				if (newItem == NULL) {
+				if (newItem == nullptr) {
 					newItem = treeSounds.InsertItem(out, item);
 					quickTree.Set(path, newItem);
 					treeSounds.SetItemData(newItem, WAVEDIR);
@@ -519,7 +519,7 @@ void CDialogSound::AddGroups() {
 void CDialogSound::AddInUseSounds() {
 	if ( inUseTree ) {
 		treeSounds.DeleteItem( inUseTree );
-		inUseTree = NULL;
+		inUseTree = nullptr;
 	}
 	inUseTree = treeSounds.InsertItem("Sounds in use");
 	idList< const char *> list;
@@ -570,7 +570,7 @@ BOOL CDialogSound::OnInitDialog()
 	// Indicate the sound dialog is opened
 	com_editors |= EDITOR_SOUND;
 	
-	inUseTree = NULL;
+	inUseTree = nullptr;
 	AddSounds(true);
 	AddGroups();
 	AddSpeakers();
@@ -648,7 +648,7 @@ void CDialogSound::OnSelchangedTreeSounds(NMHDR* pNMHDR, LRESULT* pResult)
 			}
 		} else if (dw == WAVES) {
 			playSound = RebuildItemName("Wave Files", item);
-			float size = fileSystem->ReadFile( playSound, NULL );
+			float size = fileSystem->ReadFile( playSound, nullptr );
 			SetWaveSize( va( "%0.2f mb", size / ( 1024 * 1024)  ) );
 			if (bPlay){
 				OnBtnPlaysound();
@@ -720,10 +720,10 @@ void CDialogSound::OnBtnDrop()
 
 	args.Set("name", name.c_str());
 
-	idEntity *ent = NULL;
+	idEntity *ent = nullptr;
 	gameEdit->SpawnEntityDef( args, &ent );
 	if (ent) {
-		gameEdit->EntityUpdateChangeableSpawnArgs( ent, NULL );
+		gameEdit->EntityUpdateChangeableSpawnArgs( ent, nullptr );
 		gameEdit->ClearEntitySelection();
 		gameEdit->AddSelectedEntity( ent );
 	}
@@ -747,7 +747,7 @@ void CDialogSound::OnBtnGroup()
 	if (count) {
 		for (int i = 0; i < count; i++) {
 			const idDict *dict = gameEdit->EntityGetSpawnArgs( list[i] );
-			if ( dict == NULL ) {
+			if ( dict == nullptr ) {
 				continue;
 			}
 			const char *name = dict->GetString("name");
@@ -775,7 +775,7 @@ void CDialogSound::OnBtnGroup()
 
 void CDialogSound::OnBtnSavemapas() 
 {
-	CFileDialog dlgSave(FALSE,"map",NULL,OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,"Map Files (*.map)|*.map||",AfxGetMainWnd());
+	CFileDialog dlgSave(FALSE,"map",nullptr,OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,"Map Files (*.map)|*.map||",AfxGetMainWnd());
 	if (dlgSave.DoModal() == IDOK) {
 		OnBtnApply();
 		idStr work;
@@ -799,7 +799,7 @@ idStr CDialogSound::RebuildItemName(const char *root, HTREEITEM item) {
 		strParent += name;
 		name = strParent;
 		parent = treeSounds.GetParentItem(parent);
-		if (parent == NULL) {
+		if (parent == nullptr) {
 			break;
 		}
 	}
@@ -819,7 +819,7 @@ void CDialogSound::UpdateSelectedOrigin( float x, float y, float z ) {
 	if ( count ) {
 		for ( int i = 0; i < count; i++ ) {
 			const idDict *dict = gameEdit->EntityGetSpawnArgs( list[i] );
-			if ( dict == NULL ) {
+			if ( dict == nullptr ) {
 				continue;
 			}
 			const char *name = dict->GetString( "name" );

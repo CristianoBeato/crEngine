@@ -36,7 +36,7 @@ class DialogAFProperties : public CDialog {
 	DECLARE_DYNAMIC(DialogAFProperties)
 
 public:
-						DialogAFProperties( CWnd* pParent = NULL );   // standard constructor
+						DialogAFProperties( CWnd* pParent = nullptr );   // standard constructor
 	virtual				~DialogAFProperties();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );

@@ -541,12 +541,12 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 		{
 			opts.textureType = TT_CUBIC;
 			repeat = TR_CLAMP;
-			R_LoadCubeImages( GetName(), cubeFiles, NULL, NULL, &sourceFileTime );
+			R_LoadCubeImages( GetName(), cubeFiles, nullptr, nullptr, &sourceFileTime );
 		}
 		else
 		{
 			opts.textureType = TT_2D;
-			R_LoadImageProgram( GetName(), NULL, NULL, NULL, &sourceFileTime, &usage );
+			R_LoadImageProgram( GetName(), nullptr, nullptr, nullptr, &sourceFileTime, &usage );
 		}
 	}
 	
@@ -689,7 +689,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 			// load the full specification, and perform any image program calculations
 			R_LoadImageProgram( GetName(), &pic, &width, &height, &sourceFileTime, &usage );
 			
-			if( pic == NULL )
+			if( pic == nullptr )
 			{
 				// motorsep 01-16-2015; only print that debug warning when "developer" cvar is set to 1
 				if( com_developer.GetBool() )
@@ -704,7 +704,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 				
 				// clear the data so it's not left uninitialized
 				idTempArray<byte> clear( opts.width * opts.height * 4 );
-				memset( clear.Ptr(), 0, clear.Size() );
+				std::memset( clear.Ptr(), 0, clear.Size() );
 				for( int level = 0; level < opts.numLevels; level++ )
 				{
 					SubImageUpload( level, 0, 0, 0, opts.width >> level, opts.height >> level, clear.Ptr() );
@@ -1075,12 +1075,12 @@ void idImage::Reload( bool force )
 		ID_TIME_T current;
 		if( cubeFiles != CF_2D )
 		{
-			R_LoadCubeImages( imgName, cubeFiles, NULL, NULL, &current );
+			R_LoadCubeImages( imgName, cubeFiles, nullptr, nullptr, &current );
 		}
 		else
 		{
 			// get the current values
-			R_LoadImageProgram( imgName, NULL, NULL, NULL, &current );
+			R_LoadImageProgram( imgName, nullptr, nullptr, nullptr, &current );
 		}
 		if( current <= sourceFileTime )
 		{

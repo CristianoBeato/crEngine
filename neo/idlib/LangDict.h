@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 class idLangKeyValue
 {
 public:
-	idLangKeyValue() : key( NULL ), value( NULL ) { }
+	idLangKeyValue() : key( nullptr ), value( nullptr ) { }
 	idLangKeyValue( char* k, char* v ) : key( k ), value( v ) { }
 	char* key;
 	char* value;
@@ -60,7 +60,7 @@ public:
 	bool					Save( const char* fileName );
 	
 	const char* 			GetString( const char* str ) const;		// returns str if string not found
-	const char* 			FindString( const char* str ) const;		// returns NULL if string not found
+	const char* 			FindString( const char* str ) const;		// returns nullptr if string not found
 	
 	const char* 			AddString( const char* str );				// returns a randomly generated key
 	bool					DeleteString( const char* key );			// returns false if the key doesn't exist
@@ -99,7 +99,7 @@ class idLocalization
 {
 public:
 	static const char* 		GetString( const char* inString );		// returns inString if string not found
-	static const char* 		FindString( const char* inString );	// Returns NULL if string not found
+	static const char* 		FindString( const char* inString );	// Returns nullptr if string not found
 	
 	static void				ClearDictionary();
 	static bool				LoadDictionary( const byte* buffer, const int bufferLen, const char* name );

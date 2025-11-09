@@ -44,7 +44,7 @@ class DialogName : public CDialog
 	CString m_strCaption;
 // Construction
 public:
-	DialogName(const char *pName, CWnd* pParent = NULL);   // standard constructor
+	DialogName(const char *pName, CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(DialogName)

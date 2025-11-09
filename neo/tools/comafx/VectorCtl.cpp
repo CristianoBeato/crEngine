@@ -68,13 +68,13 @@ CVectorCtl::CVectorCtl () :
     m_bSelected (FALSE),
     m_bFrontVector (FALSE),
     m_dSensitivity (20.0),
-    m_procVectorChanging (NULL),
-    m_procVectorChanged (NULL)
+    m_procVectorChanging (nullptr),
+    m_procVectorChanged (nullptr)
 {
     double DefaultVec[3] = DEFAULT_VEC;
     for (int i=0; i<3; i++) {
         m_dVec[i] = DefaultVec[i];
-        pCtl[i] = NULL;
+        pCtl[i] = nullptr;
     }
 
 	rotationQuat.Set( 0.0f, 0.0f, 0.0f, 1.0f );

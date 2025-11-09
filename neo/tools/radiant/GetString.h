@@ -42,7 +42,7 @@ If you have questions concerning this license or the applicable additional terms
 class CGetString : public CDialog
 {
 public:
-	CGetString(LPCSTR pPrompt, CString *pFeedback, CWnd* pParent = NULL);   // standard constructor
+	CGetString(LPCSTR pPrompt, CString *pFeedback, CWnd* pParent = nullptr);   // standard constructor
 	virtual ~CGetString();
 // Overrides
 

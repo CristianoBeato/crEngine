@@ -61,7 +61,7 @@ toolTip_t DialogAFView::toolTips[] = {
 	{ IDC_CHECK_PHYSICS_TIMING, "show performance timings" },
 	{ IDC_CHECK_PHYSICS_DRAG_ENTITIES, "drag entities" },
 	{ IDC_CHECK_PHYSICS_SHOW_DRAG_SELECTION, "show selection box around the entity selected for dragging" },
-	{ 0, NULL }
+	{ 0, nullptr }
 };
 
 IMPLEMENT_DYNAMIC(DialogAFView, CDialog)
@@ -71,7 +71,7 @@ IMPLEMENT_DYNAMIC(DialogAFView, CDialog)
 DialogAFView::DialogAFView
 ================
 */
-DialogAFView::DialogAFView(CWnd* pParent /*=NULL*/)
+DialogAFView::DialogAFView(CWnd* pParent /*=nullptr*/)
 	: CDialog(DialogAFView::IDD, pParent)
 
 {

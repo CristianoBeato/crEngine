@@ -103,11 +103,11 @@ private:
 ID_INLINE idFramebuffer::idFramebuffer( const char* name, int layer ) : framebufferName( name )
 {
 	fbo = 0;
-	depthStencilAttachmentImage = NULL;
-	depthAttachmentImage = NULL;
+	depthStencilAttachmentImage = nullptr;
+	depthAttachmentImage = nullptr;
 	attachmentImageLayer = layer;
 	for (int i = 0;i < 8;i++)
-		colorAttachmentImage[i] = NULL;
+		colorAttachmentImage[i] = nullptr;
 }
 
 

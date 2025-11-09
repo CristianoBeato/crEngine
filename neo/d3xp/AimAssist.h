@@ -49,7 +49,7 @@ class idAimAssist
 {
 public:
 
-	idAimAssist() : player( NULL ), angleCorrection( ang_zero ), frictionScalar( 1.0f ), lastTargetPos( vec3_zero ) {}
+	idAimAssist() : player( nullptr ), angleCorrection( ang_zero ), frictionScalar( 1.0f ), lastTargetPos( vec3_zero ) {}
 	
 	void		Init( idPlayer* player );
 	void		Update();

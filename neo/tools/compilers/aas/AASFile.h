@@ -223,8 +223,8 @@ typedef struct aasTrace_s
 	idVec3* 					points;				// points where the trace entered each new area
 	aasTrace_s()
 	{
-		areas = NULL;
-		points = NULL;
+		areas = nullptr;
+		points = nullptr;
 		getOutOfSolid = false;
 		flags = travelFlags = maxAreas = 0;
 	}

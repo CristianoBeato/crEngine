@@ -166,7 +166,7 @@ userCmdString_t	userCmdStrings[] =
 	
 	{ "_impulse40",		UB_IMPULSE40 },	
 	
-	{ NULL,				UB_NONE },
+	{ nullptr,				UB_NONE },
 };
 
 class buttonState_t
@@ -644,7 +644,7 @@ void idUsercmdGenLocal::HandleJoystickAxis( int keyNum, float unclampedValue, fl
 	}
 	
 	idGame* game = common->Game();
-	if( game != NULL )
+	if( game != nullptr )
 	{
 		lookValue *= game->GetAimAssistSensitivity();
 	}
@@ -905,7 +905,7 @@ void	DrawJoypadTexture(
 		}
 	}
 	
-	memset( image, 0, size * size * 4 );
+	std::memset( image, 0, size * size * 4 );
 #define PLOT(x,y) ((int *)image)[(int)(y)*size+(int)(x)]=0xffffffff
 #define CPLOT(x,y) ((int *)image)[(int)(halfSize+y)*size+(int)(halfSize+x)]=0xffffffff
 	
@@ -1009,7 +1009,7 @@ void idUsercmdGenLocal::JoystickMove2()
 	const float yawSpeed =			joy_yawSpeed.GetFloat();
 	
 	idGame* game = common->Game();
-	const float aimAssist = game != NULL ? game->GetAimAssistSensitivity() : 1.0f;
+	const float aimAssist = game != nullptr ? game->GetAimAssistSensitivity() : 1.0f;
 	
 	idVec2 leftRaw( joystickAxis[ AXIS_LEFT_X ], joystickAxis[ AXIS_LEFT_Y ] );
 	idVec2 rightRaw( joystickAxis[ AXIS_RIGHT_X ], joystickAxis[ AXIS_RIGHT_Y ] );
@@ -1102,7 +1102,7 @@ inits the current command for this frame
 */
 void idUsercmdGenLocal::InitCurrent()
 {
-	memset( &cmd, 0, sizeof( cmd ) );
+	std::memset( &cmd, 0, sizeof( cmd ) );
 	cmd.impulseSequence = impulseSequence;
 	cmd.impulse = impulse;
 	cmd.buttons |= ( in_alwaysRun.GetBool() && common->IsMultiplayer() ) ? BUTTON_RUN : 0;
@@ -1192,7 +1192,7 @@ void idUsercmdGenLocal::AimAssist()
 	idAngles aimAssistAngles( 0.0f, 0.0f, 0.0f );
 	
 	idGame* game = common->Game();
-	if( game != NULL )
+	if( game != nullptr )
 	{
 		game->GetAimAssistAngles( aimAssistAngles );
 	}
@@ -1274,9 +1274,9 @@ idUsercmdGenLocal::Clear
 void idUsercmdGenLocal::Clear()
 {
 	// clears all key states
-	memset( buttonState, 0, sizeof( buttonState ) );
-	memset( keyState, false, sizeof( keyState ) );
-	memset( joystickAxis, 0, sizeof( joystickAxis ) );
+	std::memset( buttonState, 0, sizeof( buttonState ) );
+	std::memset( keyState, false, sizeof( keyState ) );
+	std::memset( joystickAxis, 0, sizeof( joystickAxis ) );
 	
 	inhibitCommands = false;
 	

@@ -58,7 +58,7 @@ public:
 	void SetName( const char* _name )
 	{
 		delete []name;
-		name = NULL;
+		name = nullptr;
 		if( _name )
 		{
 			name = new( TAG_OLD_UI ) char[strlen( _name ) + 1];
@@ -79,7 +79,7 @@ public:
 	}
 	bool NeedsUpdate()
 	{
-		return ( guiDict != NULL );
+		return ( guiDict != nullptr );
 	}
 	
 	virtual void Init( const char* _name, idWindow* win ) = 0;
@@ -924,7 +924,7 @@ class idWinBackground : public idWinStr
 public:
 	idWinBackground() : idWinStr()
 	{
-		mat = NULL;
+		mat = nullptr;
 	};
 	~idWinBackground() {};
 	virtual void Init( const char* _name, idWindow* win )
@@ -954,7 +954,7 @@ public:
 		{
 			if( data == "" )
 			{
-				( *mat ) = NULL;
+				( *mat ) = nullptr;
 			}
 			else
 			{
@@ -972,7 +972,7 @@ public:
 		{
 			if( data == "" )
 			{
-				( *mat ) = NULL;
+				( *mat ) = nullptr;
 			}
 			else
 			{
@@ -1013,7 +1013,7 @@ public:
 		{
 			if( data == "" )
 			{
-				( *mat ) = NULL;
+				( *mat ) = nullptr;
 			}
 			else
 			{
@@ -1032,7 +1032,7 @@ public:
 			{
 				if( data == "" )
 				{
-					( *mat ) = NULL;
+					( *mat ) = nullptr;
 				}
 				else
 				{
@@ -1083,7 +1083,7 @@ public:
 			}
 			else
 			{
-				( *mat ) = NULL;
+				( *mat ) = nullptr;
 			}
 		}
 	}

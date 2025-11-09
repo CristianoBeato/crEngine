@@ -124,7 +124,7 @@ idDragEntity::idDragEntity
 */
 idDragEntity::idDragEntity()
 {
-	cursor = NULL;
+	cursor = nullptr;
 	Clear();
 }
 
@@ -136,9 +136,9 @@ idDragEntity::~idDragEntity
 idDragEntity::~idDragEntity()
 {
 	StopDrag();
-	selected = NULL;
+	selected = nullptr;
 	delete cursor;
-	cursor = NULL;
+	cursor = nullptr;
 }
 
 
@@ -149,13 +149,13 @@ idDragEntity::Clear
 */
 void idDragEntity::Clear()
 {
-	dragEnt			= NULL;
+	dragEnt			= nullptr;
 	joint			= INVALID_JOINT;
 	id				= 0;
 	localEntityPoint.Zero();
 	localPlayerPoint.Zero();
 	bodyName.Clear();
-	selected		= NULL;
+	selected		= nullptr;
 }
 
 /*
@@ -165,7 +165,7 @@ idDragEntity::StopDrag
 */
 void idDragEntity::StopDrag()
 {
-	dragEnt = NULL;
+	dragEnt = nullptr;
 	if( cursor )
 	{
 		cursor->BecomeInactive( TH_THINK );
@@ -182,7 +182,7 @@ void idDragEntity::Update( idPlayer* player )
 	idVec3 viewPoint, origin;
 	idMat3 viewAxis, axis;
 	trace_t trace;
-	idEntity* newEnt = NULL;
+	idEntity* newEnt = nullptr;
 	idAngles angles;
 	jointHandle_t newJoint = INVALID_JOINT;
 	idStr newBodyName;
@@ -247,7 +247,7 @@ void idDragEntity::Update( idPlayer* player )
 					{
 					
 						newJoint = INVALID_JOINT;
-						newEnt = NULL;
+						newEnt = nullptr;
 					}
 				}
 				if( newEnt )
@@ -303,7 +303,7 @@ void idDragEntity::Update( idPlayer* player )
 		renderEntity_t* renderEntity = drag->GetRenderEntity();
 		idAnimator* dragAnimator = drag->GetAnimator();
 		
-		if( joint != INVALID_JOINT && renderEntity != NULL && dragAnimator != NULL )
+		if( joint != INVALID_JOINT && renderEntity != nullptr && dragAnimator != nullptr )
 		{
 			dragAnimator->GetJointTransform( joint, gameLocal.time, cursor->draggedPosition, axis );
 			cursor->draggedPosition = renderEntity->origin + cursor->draggedPosition * renderEntity->axis;
@@ -347,7 +347,7 @@ idDragEntity::DeleteSelected
 void idDragEntity::DeleteSelected()
 {
 	delete selected.GetEntity();
-	selected = NULL;
+	selected = nullptr;
 	StopDrag();
 }
 
@@ -376,7 +376,7 @@ void idDragEntity::BindSelected()
 	largestNum = 1;
 	
 	// parse all the bind constraints
-	kv = af->spawnArgs.MatchPrefix( "bindConstraint ", NULL );
+	kv = af->spawnArgs.MatchPrefix( "bindConstraint ", nullptr );
 	while( kv )
 	{
 		key = kv->GetKey();
@@ -399,7 +399,7 @@ void idDragEntity::BindSelected()
 		{
 			// delete the bind constraint
 			af->spawnArgs.Delete( kv->GetKey() );
-			kv = NULL;
+			kv = nullptr;
 		}
 		
 		kv = af->spawnArgs.MatchPrefix( "bindConstraint ", kv );
@@ -434,11 +434,11 @@ void idDragEntity::UnbindSelected()
 	af->Unbind();
 	
 	// delete all the bind constraints
-	kv = selected.GetEntity()->spawnArgs.MatchPrefix( "bindConstraint ", NULL );
+	kv = selected.GetEntity()->spawnArgs.MatchPrefix( "bindConstraint ", nullptr );
 	while( kv )
 	{
 		selected.GetEntity()->spawnArgs.Delete( kv->GetKey() );
-		kv = selected.GetEntity()->spawnArgs.MatchPrefix( "bindConstraint ", NULL );
+		kv = selected.GetEntity()->spawnArgs.MatchPrefix( "bindConstraint ", nullptr );
 	}
 	
 	// delete any bind information
@@ -490,7 +490,7 @@ bool idEditEntities::SelectEntity( const idVec3& origin, const idVec3& dir, cons
 	
 	end = origin + dir * 4096.0f;
 	
-	ent = NULL;
+	ent = nullptr;
 	for( int i = 0; i < selectableEntityClasses.Num(); i++ )
 	{
 		ent = gameLocal.FindTraceEntity( origin, end, *selectableEntityClasses[i].typeInfo, skip );
@@ -667,7 +667,7 @@ void idEditEntities::DisplayEntities()
 	
 	idStr textKey;
 	
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 	
 		idVec4 color;
@@ -769,7 +769,7 @@ int idGameEdit::GetSelectedEntities( idEntity* list[], int max )
 	int num = 0;
 	idEntity* ent;
 	
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		if( ent->fl.selected )
 		{
@@ -791,7 +791,7 @@ idGameEdit::TriggerSelected
 void idGameEdit::TriggerSelected()
 {
 	idEntity* ent;
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		if( ent->fl.selected )
 		{
@@ -809,7 +809,7 @@ void idGameEdit::ClearEntitySelection()
 {
 	idEntity* ent;
 	
-	for( ent = gameLocal.spawnedEntities.Next(); ent != NULL; ent = ent->spawnNode.Next() )
+	for( ent = gameLocal.spawnedEntities.Next(); ent != nullptr; ent = ent->spawnNode.Next() )
 	{
 		ent->fl.selected = false;
 	}
@@ -975,7 +975,7 @@ const idDict* idGameEdit::EntityGetSpawnArgs( idEntity* ent ) const
 	{
 		return &ent->spawnArgs;
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1073,7 +1073,7 @@ idGameEdit::PlayerIsValid
 */
 bool idGameEdit::PlayerIsValid() const
 {
-	return ( gameLocal.GetLocalPlayer() != NULL );
+	return ( gameLocal.GetLocalPlayer() != nullptr );
 }
 
 /*
@@ -1133,7 +1133,7 @@ const idDict* idGameEdit::MapGetEntityDict( const char* name ) const
 			return &mapent->epairs;
 		}
 	}
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -1211,7 +1211,7 @@ int idGameEdit::MapGetUniqueMatchingKeyVals( const char* key, const char* list[]
 			if( ent )
 			{
 				const char* k = ent->epairs.GetString( key );
-				if( k != NULL && *k != '\0' && count < max )
+				if( k != nullptr && *k != '\0' && count < max )
 				{
 					list[count++] = k;
 				}

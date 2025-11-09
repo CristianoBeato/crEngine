@@ -44,7 +44,7 @@ class CCapDialog : public CDialog
 // Construction
 public:
   static enum {BEVEL = 0, ENDCAP, IBEVEL, IENDCAP};
-	CCapDialog(CWnd* pParent = NULL);   // standard constructor
+	CCapDialog(CWnd* pParent = nullptr);   // standard constructor
 
   int getCapType() {return m_nCap;};
 // Dialog Data

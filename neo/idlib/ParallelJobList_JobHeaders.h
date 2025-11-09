@@ -82,8 +82,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "ParallelJobList.h"
 
 #if _MSC_VER >= 1600
-#undef NULL
-#define NULL 0
+#undef nullptr
+#define nullptr 0
 #endif
 
 #endif // !__PARALLELJOBLIST_JOBHEADERS_H__

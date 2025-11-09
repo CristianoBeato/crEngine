@@ -38,7 +38,7 @@ If you have questions concerning this license or the applicable additional terms
 // CCommentsDlg dialog
 
 IMPLEMENT_DYNAMIC(CCommentsDlg, CDialog)
-CCommentsDlg::CCommentsDlg(CWnd* pParent /*=NULL*/)
+CCommentsDlg::CCommentsDlg(CWnd* pParent /*=nullptr*/)
 	: CDialog(CCommentsDlg::IDD, pParent)
 	, strName(_T(""))
 	, strPath(_T(""))

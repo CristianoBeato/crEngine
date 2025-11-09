@@ -43,7 +43,7 @@ class CScaleDialog : public CDialog
 {
 // Construction
 public:
-	CScaleDialog(CWnd* pParent = NULL);   // standard constructor
+	CScaleDialog(CWnd* pParent = nullptr);   // standard constructor
 
 // Dialog Data
 	//{{AFX_DATA(CScaleDialog)

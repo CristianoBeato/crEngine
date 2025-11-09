@@ -60,7 +60,7 @@ idPredictedValue::UpdatePredictionTime
 template< class type_ >
 void idPredictedValue< type_ >::UpdatePredictionTime()
 {
-	if( gameLocal.GetLocalPlayer() != NULL )
+	if( gameLocal.GetLocalPlayer() != nullptr )
 	{
 		clientPredictedMilliseconds = gameLocal.GetLocalPlayer()->usercmd.clientGameMilliseconds;
 	}

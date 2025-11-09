@@ -50,7 +50,7 @@ IMPLEMENT_DYNCREATE(CZWnd, CWnd);
 
 CZWnd::CZWnd()
 {
-	m_pZClip = NULL;
+	m_pZClip = nullptr;
 }
 
 CZWnd::~CZWnd()
@@ -103,7 +103,7 @@ void CZWnd::OnDestroy()
 	if (m_pZClip)
 	{
 		delete m_pZClip;
-		m_pZClip = NULL;
+		m_pZClip = nullptr;
 	}
 
 	CWnd::OnDestroy();
@@ -253,10 +253,10 @@ BOOL CZWnd::PreCreateWindow(CREATESTRUCT& cs)
   if (::GetClassInfo(hInstance, Z_WINDOW_CLASS, &wc) == FALSE)
   {
     // Register a new class
-  	memset (&wc, 0, sizeof(wc));
+  	std::memset (&wc, 0, sizeof(wc));
     wc.style         = CS_NOCLOSE;// | CS_OWNDC;
     wc.lpszClassName = Z_WINDOW_CLASS;
-    wc.hCursor       = LoadCursor (NULL,IDC_ARROW);
+    wc.hCursor       = LoadCursor (nullptr,IDC_ARROW);
     wc.lpfnWndProc = ::DefWindowProc;
     if (AfxRegisterClass(&wc) == FALSE)
       Error ("CZWnd RegisterClass: failed");

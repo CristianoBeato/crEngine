@@ -57,9 +57,9 @@ idBrushBSPPortal::idBrushBSPPortal
 */
 idBrushBSPPortal::idBrushBSPPortal( void ) {
 	planeNum = -1;
-	winding = NULL;
-	nodes[0] = nodes[1] = NULL;
-	next[0] = next[1] = NULL;
+	winding = nullptr;
+	nodes[0] = nodes[1] = nullptr;
+	next[0] = next[1] = nullptr;
 	faceNum = 0;
 	flags = 0;
 }
@@ -130,11 +130,11 @@ void idBrushBSPPortal::RemoveFromNode( idBrushBSPNode *l ) {
 	
 	if ( nodes[0] == l ) {
 		*pp = next[0];
-		nodes[0] = NULL;
+		nodes[0] = nullptr;
 	}
 	else if ( nodes[1] == l ) {
 		*pp = next[1];	
-		nodes[1] = NULL;
+		nodes[1] = nullptr;
 	}
 	else {
 		common->Error( "idBrushBSPPortal::RemoveFromNode: mislinked portal" );
@@ -173,7 +173,7 @@ idBrushBSPPortal::Split
 int idBrushBSPPortal::Split( const idPlane &splitPlane, idBrushBSPPortal **front, idBrushBSPPortal **back ) {
 	idWinding *frontWinding, *backWinding;
 
-	(*front) = (*back) = NULL;
+	(*front) = (*back) = nullptr;
 	winding->Split( splitPlane, 0.1f, &frontWinding, &backWinding );
 	if ( frontWinding ) {
 		(*front) = new idBrushBSPPortal();
@@ -217,10 +217,10 @@ idBrushBSPNode::idBrushBSPNode( void ) {
 	brushList.Clear();
 	contents = 0;
 	flags = 0;
-	volume = NULL;
-	portals = NULL;
-	parent = NULL;
-	children[0] = children[1] = NULL;
+	volume = nullptr;
+	portals = nullptr;
+	parent = nullptr;
+	children[0] = children[1] = nullptr;
 	areaNum = 0;
 	occupied = 0;
 	plane = idPlane( 0.f, 0.f, 0.f, 0.f );
@@ -502,10 +502,10 @@ idBrushBSP::idBrushBSP
 */
 idBrushBSP::idBrushBSP( const int bspGridSize )
 	: BSP_GRID_SIZE( bspGridSize ) {
-	root = outside = NULL;
+	root = outside = nullptr;
 	numSplits = numPrunedSplits = 0;
 	brushMapContents = 0;
-	brushMap = NULL;
+	brushMap = nullptr;
 }
 
 /*
@@ -535,7 +535,7 @@ void idBrushBSP::RemoveMultipleLeafNodeReferences_r( idBrushBSPNode *node ) {
 
 	if ( node->children[0] ) {
 		if ( node->children[0]->parent != node ) {
-			node->children[0] = NULL;
+			node->children[0] = nullptr;
 		}
 		else {
 			RemoveMultipleLeafNodeReferences_r( node->children[0] );
@@ -543,7 +543,7 @@ void idBrushBSP::RemoveMultipleLeafNodeReferences_r( idBrushBSPNode *node ) {
 	}
 	if ( node->children[1] ) {
 		if ( node->children[1]->parent != node ) {
-			node->children[1] = NULL;
+			node->children[1] = nullptr;
 		}
 		else {
 			RemoveMultipleLeafNodeReferences_r( node->children[1] );
@@ -682,7 +682,7 @@ int idBrushBSP::FindSplitter( idBrushBSPNode *node, const idPlaneSet &planeList,
 	idBrush *brush, *b;
 	splitterStats_t stats;
 
-	memset( testedPlanes, 0, planeList.Num() * sizeof( bool ) );
+	std::memset( testedPlanes, 0, planeList.Num() * sizeof( bool ) );
 
 	bestSplitter = -1;
 	bestValue = -99999999;
@@ -706,11 +706,11 @@ int idBrushBSP::FindSplitter( idBrushBSPNode *node, const idPlaneSet &planeList,
 
 			testedPlanes[planeNum] = testedPlanes[planeNum^1] = true;
 
-			if ( node->volume->Split( planeList[planeNum], planeNum, NULL, NULL ) != PLANESIDE_CROSS ) {
+			if ( node->volume->Split( planeList[planeNum], planeNum, nullptr, nullptr ) != PLANESIDE_CROSS ) {
 				continue;
 			}
 
-			memset( &stats, 0, sizeof( stats ) );
+			std::memset( &stats, 0, sizeof( stats ) );
 
 			f = 15 + 5 * (brush->GetSide(i)->GetPlane().Type() < PLANETYPE_TRUEAXIAL);
 			numBrushSides = node->brushList.NumSides();
@@ -807,9 +807,9 @@ idBrushBSPNode *idBrushBSP::BuildBrushBSP_r( idBrushBSPNode *node, const idPlane
 		// free node memory
 		node->brushList.Free();
 		delete node->volume;
-		node->volume = NULL;
+		node->volume = nullptr;
 
-		node->children[0] = node->children[1] = NULL;
+		node->children[0] = node->children[1] = nullptr;
 		return node;
 	}
 
@@ -834,7 +834,7 @@ idBrushBSPNode *idBrushBSP::BuildBrushBSP_r( idBrushBSPNode *node, const idPlane
 	// free node memory
 	node->brushList.Free();
 	delete node->volume;
-	node->volume = NULL;
+	node->volume = nullptr;
 
 	// process children
 	node->children[0] = BuildBrushBSP_r( node->children[0], planeList, testedPlanes, skipContents );
@@ -845,7 +845,7 @@ idBrushBSPNode *idBrushBSP::BuildBrushBSP_r( idBrushBSPNode *node, const idPlane
 		node->contents = node->children[0]->contents | node->children[1]->contents;
 		delete node->children[0];
 		delete node->children[1];
-		node->children[0] = node->children[1] = NULL;
+		node->children[0] = node->children[1] = nullptr;
 		numSplits--;
 		numGridCellSplits--;
 	}
@@ -908,8 +908,8 @@ void idBrushBSP::BuildGrid_r( idList<idBrushBSPNode *> &gridCells, idBrushBSPNod
 
 	if ( !node->brushList.Num() ) {
 		delete node->volume;
-		node->volume = NULL;
-		node->children[0] = node->children[1] = NULL;
+		node->volume = nullptr;
+		node->children[0] = node->children[1] = nullptr;
 		return;
 	}
 
@@ -952,7 +952,7 @@ void idBrushBSP::BuildGrid_r( idList<idBrushBSPNode *> &gridCells, idBrushBSPNod
 	// free node memory
 	node->brushList.Free();
 	delete node->volume;
-	node->volume = NULL;
+	node->volume = nullptr;
 
 	// process children
 	BuildGrid_r( gridCells, node->children[0] );
@@ -983,7 +983,7 @@ void idBrushBSP::Build( idBrushList brushList, int skipContents,
 	root->brushList = brushList;
 	root->volume = new idBrush();
 	root->volume->FromBounds( treeBounds );
-	root->parent = NULL;
+	root->parent = nullptr;
 
 	{
 		// estimate the grid usage and reserve some space to reduce thrashing
@@ -1068,8 +1068,8 @@ void idBrushBSP::PruneTree_r( idBrushBSPNode *node, int contents ) {
 
 		delete node->children[0];
 		delete node->children[1];
-		node->children[0] = NULL;
-		node->children[1] = NULL;
+		node->children[0] = nullptr;
+		node->children[1] = nullptr;
 
 		numPrunedSplits++;
 	}
@@ -1203,13 +1203,13 @@ void idBrushBSP::SplitNodePortals( idBrushBSPNode *node ) {
 
 		if ( frontWinding && frontWinding->IsTiny() ) {
 			delete frontWinding;
-			frontWinding = NULL;
+			frontWinding = nullptr;
 			//tinyportals++;
 		}
 
 		if ( backWinding && backWinding->IsTiny() ) {
 			delete backWinding;
-			backWinding = NULL;
+			backWinding = nullptr;
 			//tinyportals++;
 		}
 
@@ -1256,7 +1256,7 @@ void idBrushBSP::SplitNodePortals( idBrushBSPNode *node ) {
 		}
 	}
 
-	node->portals = NULL;
+	node->portals = nullptr;
 }
 
 /*
@@ -1317,10 +1317,10 @@ void idBrushBSP::MakeOutsidePortals( void ) {
 	}
 
 	outside = new idBrushBSPNode();
-	outside->parent = NULL;
-	outside->children[0] = outside->children[1] = NULL;
+	outside->parent = nullptr;
+	outside->children[0] = outside->children[1] = nullptr;
 	outside->brushList.Clear();
-	outside->portals = NULL;
+	outside->portals = nullptr;
 	outside->contents = 0;
 
 	for ( i = 0; i < 3; i++ ) {
@@ -1434,7 +1434,7 @@ void idBrushBSP::FloodThroughPortals_r( idBrushBSPNode *node, int contents, int 
 		common->Error( "FloodThroughPortals_r: node already occupied\n" );
 	}
 	if ( !node ) {
-		common->Error( "FloodThroughPortals_r: NULL node\n" );
+		common->Error( "FloodThroughPortals_r: nullptr node\n" );
 	}
 
 	node->occupied = depth;

@@ -100,11 +100,11 @@ void idDeclParticle::GetStageBounds( idParticleStage* stage )
 	particleGen_t g;
 	
 	renderEntity_t	renderEntity;
-	memset( &renderEntity, 0, sizeof( renderEntity ) );
+	std::memset( &renderEntity, 0, sizeof( renderEntity ) );
 	renderEntity.axis = mat3_identity;
 	
 	renderView_t	renderView;
-	memset( &renderView, 0, sizeof( renderView ) );
+	std::memset( &renderView, 0, sizeof( renderView ) );
 	renderView.viewaxis = mat3_identity;
 	
 	g.renderEnt = &renderEntity;
@@ -175,7 +175,7 @@ void idDeclParticle::ParseParms( idLexer& src, float* parms, int maxParms )
 {
 	idToken token;
 	
-	memset( parms, 0, maxParms * sizeof( *parms ) );
+	std::memset( parms, 0, maxParms * sizeof( *parms ) );
 	int	count = 0;
 	while( 1 )
 	{
@@ -203,7 +203,7 @@ void idDeclParticle::ParseParametric( idLexer& src, idParticleParm* parm )
 {
 	idToken token;
 	
-	parm->table = NULL;
+	parm->table = nullptr;
 	parm->from = parm->to = 0.0f;
 	
 	if( !src.ReadToken( &token ) )
@@ -633,7 +633,7 @@ idDeclParticle::LoadBinary
 bool idDeclParticle::LoadBinary( idFile* file, unsigned int checksum )
 {
 
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		return false;
 	}
@@ -646,7 +646,7 @@ bool idDeclParticle::LoadBinary( idFile* file, unsigned int checksum )
 			file->ReadString( name );
 			if( name.IsEmpty() )
 			{
-				parm.table = NULL;
+				parm.table = nullptr;
 			}
 			else
 			{
@@ -685,7 +685,7 @@ bool idDeclParticle::LoadBinary( idFile* file, unsigned int checksum )
 		file->ReadString( name );
 		if( name.IsEmpty() )
 		{
-			s->material = NULL;
+			s->material = nullptr;
 		}
 		else
 		{
@@ -745,7 +745,7 @@ idDeclParticle::WriteBinary
 void idDeclParticle::WriteBinary( idFile* file, unsigned int checksum )
 {
 
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		return;
 	}
@@ -754,7 +754,7 @@ void idDeclParticle::WriteBinary( idFile* file, unsigned int checksum )
 	{
 		static void WriteParticleParm( idFile* file, idParticleParm& parm )
 		{
-			if( parm.table != NULL && parm.table->GetName() != NULL )
+			if( parm.table != nullptr && parm.table->GetName() != nullptr )
 			{
 				file->WriteString( parm.table->GetName() );
 			}
@@ -775,7 +775,7 @@ void idDeclParticle::WriteBinary( idFile* file, unsigned int checksum )
 	{
 		idParticleStage* s = stages[i];
 		
-		if( s->material != NULL && s->material->GetName() != NULL )
+		if( s->material != nullptr && s->material->GetName() != nullptr )
 		{
 			file->WriteString( s->material->GetName() );
 		}
@@ -1075,7 +1075,7 @@ idParticleStage::idParticleStage
 */
 idParticleStage::idParticleStage()
 {
-	material = NULL;
+	material = nullptr;
 	totalParticles = 0;
 	cycles = 0.0f;
 	cycleMsec = 0;
@@ -1146,7 +1146,7 @@ void idParticleStage::Default()
 	orientationParms[3] = 0.0f;
 	speed.from = 150.0f;
 	speed.to = 150.0f;
-	speed.table = NULL;
+	speed.table = nullptr;
 	gravity = 1.0f;
 	worldGravity = false;
 	customPathType = PPATH_STANDARD;
@@ -1164,13 +1164,13 @@ void idParticleStage::Default()
 	initialAngle = 0.0f;
 	rotationSpeed.from = 0.0f;
 	rotationSpeed.to = 0.0f;
-	rotationSpeed.table = NULL;
+	rotationSpeed.table = nullptr;
 	size.from = 4.0f;
 	size.to = 4.0f;
-	size.table = NULL;
+	size.table = nullptr;
 	aspect.from = 1.0f;
 	aspect.to = 1.0f;
-	aspect.table = NULL;
+	aspect.table = nullptr;
 	color.x = 1.0f;
 	color.y = 1.0f;
 	color.z = 1.0f;

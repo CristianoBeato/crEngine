@@ -140,10 +140,10 @@ static int				ROQ_UB_tab[256];
 static int				ROQ_UG_tab[256];
 static int				ROQ_VG_tab[256];
 static int				ROQ_VR_tab[256];
-static byte *			file = NULL;
-static unsigned short *	vq2 = NULL;
-static unsigned short *	vq4 = NULL;
-static unsigned short *	vq8 = NULL;
+static byte *			file = nullptr;
+static unsigned short *	vq2 = nullptr;
+static unsigned short *	vq4 = nullptr;
+static unsigned short *	vq8 = nullptr;
 
 
 
@@ -186,13 +186,13 @@ idCinematicLocal::ShutdownCinematic
 */
 void idCinematic::ShutdownCinematic( void ) {
 	Mem_Free( file );
-	file = NULL;
+	file = nullptr;
 	Mem_Free( vq2 );
-	vq2 = NULL;
+	vq2 = nullptr;
 	Mem_Free( vq4 );
-	vq4 = NULL;
+	vq4 = nullptr;
 	Mem_Free( vq8 );
-	vq8 = NULL;
+	vq8 = nullptr;
 }
 
 /*
@@ -275,7 +275,7 @@ idCinematicLocal::ImageForTime
 */
 cinData_t idCinematic::ImageForTime( int milliseconds ) {
 	cinData_t c;
-	memset( &c, 0, sizeof( c ) );
+	std::memset( &c, 0, sizeof( c ) );
 	return c;
 }
 
@@ -296,10 +296,10 @@ idCinematicLocal::idCinematicLocal
 ==============
 */
 idCinematicLocal::idCinematicLocal() {
-	image = NULL;
+	image = nullptr;
 	status = FMV_EOF;
-	buf = NULL;
-	iFile = NULL;
+	buf = nullptr;
+	iFile = nullptr;
 
 	qStatus[0] = (byte **)Mem_Alloc( VIDEO_ALLOC_SIZE * sizeof(byte *), TAG_CINEMATIC);
 	qStatus[1] = (byte **)Mem_Alloc( VIDEO_ALLOC_SIZE * sizeof(byte *), TAG_CINEMATIC);
@@ -314,9 +314,9 @@ idCinematicLocal::~idCinematicLocal() {
 	Close();
 
 	Mem_Free( qStatus[0] );
-	qStatus[0] = NULL;
+	qStatus[0] = nullptr;
 	Mem_Free( qStatus[1] );
-	qStatus[1] = NULL;
+	qStatus[1] = nullptr;
 }
 
 /*
@@ -333,7 +333,7 @@ bool idCinematicLocal::InitFromFile( const char *qpath, bool amilooping ) {
 	animationLength = 100000;
 	animationLength = 20000;
 
-	if ( strstr( qpath, "/" ) == NULL && strstr( qpath, "\\" ) == NULL ) {
+	if ( strstr( qpath, "/" ) == nullptr && strstr( qpath, "\\" ) == nullptr ) {
 		sprintf( fileName, "video/%s", qpath );
 	} else {
 		sprintf( fileName, "%s", qpath );
@@ -353,7 +353,7 @@ bool idCinematicLocal::InitFromFile( const char *qpath, bool amilooping ) {
 	CIN_WIDTH  =  DEFAULT_CIN_WIDTH;
 	samplesPerPixel = 4;
 	startTime = Sys_Milliseconds();
-	buf = NULL;
+	buf = nullptr;
 
 	iFile->Read( file, 16 );
 
@@ -384,8 +384,8 @@ idCinematicLocal::Close
 void idCinematicLocal::Close() {
 	if ( image ) {
 		Mem_Free( (void *)image );
-		image = NULL;
-		buf = NULL;
+		image = nullptr;
+		buf = nullptr;
 		status = FMV_EOF;
 	}
 	RoQShutdown();
@@ -423,7 +423,7 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime ) {
 		thisTime = 0;
 	}
 
-	memset( &cinData, 0, sizeof(cinData) );
+	std::memset( &cinData, 0, sizeof(cinData) );
 
 	if ( r_skipROQ.GetBool() ) {
 		return cinData;
@@ -433,7 +433,7 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime ) {
 		return cinData;
 	}
 
-	if ( buf == NULL || startTime == -1 ) {
+	if ( buf == nullptr || startTime == -1 ) {
 		if ( startTime == -1 ) {
 			RoQReset();
 		}
@@ -448,12 +448,12 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime ) {
 
 	if ( tfps < numQuads ) {
 		RoQReset();
-		buf = NULL;
+		buf = nullptr;
 		status = FMV_PLAY;
 	}
 
-	if ( buf == NULL ) {
-		while( buf == NULL ) {
+	if ( buf == nullptr ) {
+		while( buf == nullptr ) {
 			RoQInterrupt();
 		}
 	} else {
@@ -464,7 +464,7 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime ) {
 
 	if ( status == FMV_LOOPED ) {
 		status = FMV_PLAY;
-		while( buf == NULL && status == FMV_PLAY ) {
+		while( buf == nullptr && status == FMV_PLAY ) {
 			RoQInterrupt();
 		}
 		startTime = thisTime;
@@ -473,11 +473,11 @@ cinData_t idCinematicLocal::ImageForTime( int thisTime ) {
 	if ( status == FMV_EOF ) {
 		if ( looping ) {
 			RoQReset();
-			buf = NULL;
+			buf = nullptr;
 			if ( status == FMV_LOOPED ) {
 				status = FMV_PLAY;
 			}
-			while ( buf == NULL && status == FMV_PLAY ) {
+			while ( buf == nullptr && status == FMV_PLAY ) {
 				RoQInterrupt();
 			}
 			startTime = thisTime;
@@ -923,7 +923,7 @@ void idCinematicLocal::blitVQQuad32fs( byte **status, unsigned char *data ) {
 				index += 5;
 				break;
 		}
-	} while ( status[index] != NULL );
+	} while ( status[index] != nullptr );
 }
 
 #define VQ2TO4(a,b,c,d) { \
@@ -1248,7 +1248,7 @@ void idCinematicLocal::setupQuad( int xOff, int yOff ) {
 		for(x=0;x<(int)xsize;x+=16)
 			recurseQuad( x, y, 16, xOff, yOff );
 
-	temp = NULL;
+	temp = nullptr;
 
 	for(i=(numQuadCels-64);i<numQuadCels;i++) {
 		qStatus[0][i] = temp;			  // eoq
@@ -1406,7 +1406,7 @@ int JPEGBlit( byte *wStatus, byte *data, int datasize )
 	(void) jpeg_read_scanlines(&cinfo, &buffer[0], 1);
 
 	/* Assume put_scanline_someplace wants a pointer and sample count. */
-	memcpy( wStatus, &buffer[0][0], row_stride );
+	std::memcpy( wStatus, &buffer[0][0], row_stride );
 	/*
 	int x;
 	unsigned int *buf = (unsigned int *)&buffer[0][0];
@@ -1481,7 +1481,7 @@ redump:
 				buf =	image;
 			}
 			if (numQuads == 0) {		// first frame
-				memcpy(image+screenDelta, image, samplesPerLine*ysize);
+				std::memcpy(image+screenDelta, image, samplesPerLine*ysize);
 			}
 			numQuads++;
 			dirty = true;
@@ -1513,7 +1513,7 @@ redump:
 			if (!numQuads) {
 				normalBuffer0 = t[0];
 				JPEGBlit( image, framedata, RoQFrameSize );
-				memcpy(image+screenDelta, image, samplesPerLine*ysize);
+				std::memcpy(image+screenDelta, image, samplesPerLine*ysize);
 				numQuads++;
 			}
 			break;
@@ -1593,7 +1593,7 @@ void idCinematicLocal::RoQShutdown( void ) {
 
 	if ( iFile ) {
 		fileSystem->CloseFile( iFile );
-		iFile = NULL;
+		iFile = nullptr;
 	}
 
 	fileName = "";

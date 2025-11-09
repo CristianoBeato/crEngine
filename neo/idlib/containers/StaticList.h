@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 
 	Static list template
-	A non-growing, memset-able list using no memory allocation.
+	A non-growing, std::memset-able list using no memory allocation.
 
 ===============================================================================
 */
@@ -66,14 +66,14 @@ public:
 	
 	type* 				Ptr();										// returns a pointer to the list
 	const type* 		Ptr() const;									// returns a pointer to the list
-	type* 				Alloc();										// returns reference to a new data element at the end of the list.  returns NULL when full.
+	type* 				Alloc();										// returns reference to a new data element at the end of the list.  returns nullptr when full.
 	int					Append( const type& obj );							// append element
 	int					Append( const idStaticList<type, size>& other );		// append list
 	int					AddUnique( const type& obj );						// add unique element
 	int					Insert( const type& obj, int index = 0 );				// insert the element at the given index
 	int					FindIndex( const type& obj ) const;				// find the index for the given element
 	type* 				Find( type const& obj ) const;						// find pointer to the given element
-	int					FindNull() const;								// find the index for the first NULL pointer in the list
+	int					FindNull() const;								// find the index for the first nullptr pointer in the list
 	int					IndexOf( const type* obj ) const;					// returns the index for the pointer to an element in the list
 	bool				RemoveIndex( int index );							// remove the element at the given index
 	bool				RemoveIndexFast( int index );							// remove the element at the given index
@@ -150,7 +150,7 @@ Note:	The data is merely moved around the list, so any pointers to data within t
 template< class type, int size >
 ID_INLINE void idStaticList<type, size>::Sort( const idSort<type>& sort )
 {
-	if( list == NULL )
+	if( list == nullptr )
 	{
 		return;
 	}
@@ -166,7 +166,7 @@ Note that this only works on lists containing pointers to objects and will cause
 if called with non-pointers.  Since the list was not responsible for allocating the object, it has
 no information on whether the object still exists or not, so care must be taken to ensure that
 the pointers are still valid when this function is called.  Function will set all pointers in the
-list to NULL.
+list to nullptr.
 ================
 */
 template<class type, int size>
@@ -177,7 +177,7 @@ ID_INLINE void idStaticList<type, size>::DeleteContents( bool clear )
 	for( i = 0; i < num; i++ )
 	{
 		delete list[ i ];
-		list[ i ] = NULL;
+		list[ i ] = nullptr;
 	}
 	
 	if( clear )
@@ -186,7 +186,7 @@ ID_INLINE void idStaticList<type, size>::DeleteContents( bool clear )
 	}
 	else
 	{
-		memset( list, 0, sizeof( list ) );
+		std::memset( list, 0, sizeof( list ) );
 	}
 }
 
@@ -322,7 +322,7 @@ idStaticList<type,size>::Ptr
 
 Returns a pointer to the begining of the array.  Useful for iterating through the list in loops.
 
-Note: may return NULL if the list is empty.
+Note: may return nullptr if the list is empty.
 
 FIXME: Create an iterator template for this kind of thing.
 ================
@@ -339,7 +339,7 @@ idStaticList<type,size>::Ptr
 
 Returns a pointer to the begining of the array.  Useful for iterating through the list in loops.
 
-Note: may return NULL if the list is empty.
+Note: may return nullptr if the list is empty.
 
 FIXME: Create an iterator template for this kind of thing.
 ================
@@ -362,7 +362,7 @@ ID_INLINE type* idStaticList<type, size>::Alloc()
 {
 	if( num >= size )
 	{
-		return NULL;
+		return nullptr;
 	}
 	
 	return &list[ num++ ];
@@ -502,7 +502,7 @@ ID_INLINE int idStaticList<type, size>::FindIndex( type const& obj ) const
 ================
 idStaticList<type,size>::Find
 
-Searches for the specified data in the list and returns it's address. Returns NULL if the data is not found.
+Searches for the specified data in the list and returns it's address. Returns nullptr if the data is not found.
 ================
 */
 template<class type, int size>
@@ -514,14 +514,14 @@ ID_INLINE type* idStaticList<type, size>::Find( type const& obj ) const
 		return ( type* ) &list[ i ];
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
 ================
 idStaticList<type,size>::FindNull
 
-Searches for a NULL pointer in the list.  Returns -1 if NULL is not found.
+Searches for a nullptr pointer in the list.  Returns -1 if nullptr is not found.
 
 NOTE: This function can only be called on lists containing pointers. Calling it
 on non-pointer lists will cause a compiler error.
@@ -532,7 +532,7 @@ ID_INLINE int idStaticList<type, size>::FindNull() const
 {
 	for( int i = 0; i < num; i++ )
 	{
-		if( list[ i ] == NULL )
+		if( list[ i ] == nullptr )
 		{
 			return i;
 		}

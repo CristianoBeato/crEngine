@@ -134,7 +134,7 @@ idVecX::idVecX
 ID_INLINE idVecX::idVecX()
 {
 	size = alloced = 0;
-	p = NULL;
+	p = nullptr;
 }
 
 /*
@@ -145,7 +145,7 @@ idVecX::idVecX
 ID_INLINE idVecX::idVecX( int length )
 {
 	size = alloced = 0;
-	p = NULL;
+	p = nullptr;
 	SetSize( length );
 }
 
@@ -157,7 +157,7 @@ idVecX::idVecX
 ID_INLINE idVecX::idVecX( int length, float* data )
 {
 	size = alloced = 0;
-	p = NULL;
+	p = nullptr;
 	SetData( length, data );
 }
 
@@ -256,7 +256,7 @@ ID_INLINE idVecX& idVecX::operator=( const idVecX& a )
 		_mm_store_ps( p + i, _mm_load_ps( a.p + i ) );
 	}
 #else
-	memcpy( p, a.p, a.size * sizeof( float ) );
+	std::memcpy( p, a.p, a.size * sizeof( float ) );
 #endif
 	idVecX::tempIndex = 0;
 	return *this;
@@ -518,7 +518,7 @@ idVecX::SetSize
 ID_INLINE void idVecX::SetSize( int newSize )
 {
 	//assert( p < idVecX::tempPtr || p > idVecX::tempPtr + VECX_MAX_TEMP );
-	if( newSize != size || p == NULL )
+	if( newSize != size || p == nullptr )
 	{
 		int alloc = ( newSize + 3 ) & ~3;
 		if( alloc > alloced && alloced != -1 )
@@ -598,7 +598,7 @@ idVecX::SetData
 */
 ID_INLINE void idVecX::SetData( int length, float* data )
 {
-	if( p != NULL && ( p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP ) && alloced != -1 )
+	if( p != nullptr && ( p < idVecX::tempPtr || p >= idVecX::tempPtr + VECX_MAX_TEMP ) && alloced != -1 )
 	{
 		Mem_Free16( p );
 	}
@@ -622,7 +622,7 @@ ID_INLINE void idVecX::Zero()
 		_mm_store_ps( p + i, _mm_setzero_ps() );
 	}
 #else
-	memset( p, 0, size * sizeof( float ) );
+	std::memset( p, 0, size * sizeof( float ) );
 #endif
 }
 
@@ -640,7 +640,7 @@ ID_INLINE void idVecX::Zero( int length )
 		_mm_store_ps( p + i, _mm_setzero_ps() );
 	}
 #else
-	memset( p, 0, length * sizeof( float ) );
+	std::memset( p, 0, length * sizeof( float ) );
 #endif
 }
 

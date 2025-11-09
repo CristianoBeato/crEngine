@@ -55,9 +55,9 @@ constructor
 */
 rvPropertyGrid::rvPropertyGrid ( void )
 {
-	mWindow			= NULL;
-	mEdit			= NULL;
-	mListWndProc	= NULL;
+	mWindow			= nullptr;
+	mEdit			= nullptr;
+	mListWndProc	= nullptr;
 	mSplitter		= 100;
 	mSelectedItem	= -1;
 	mEditItem		= -1;
@@ -83,7 +83,7 @@ bool rvPropertyGrid::Create ( HWND parent, int id, int style )
 	SetWindowLongPtr( mWindow, GWLP_WNDPROC, (LONG_PTR)WndProc );
 
 	LoadLibrary ( "Riched20.dll" );
-	mEdit = CreateWindowEx ( 0, "RichEdit20A", "", WS_CHILD, 0, 0, 0, 0, mWindow, (HMENU) 999, win32.hInstance, NULL );
+	mEdit = CreateWindowEx ( 0, "RichEdit20A", "", WS_CHILD, 0, 0, 0, 0, mWindow, (HMENU) 999, win32.hInstance, nullptr );
 	SendMessage ( mEdit, EM_SETEVENTMASK, 0, ENM_KEYEVENTS );
 
 	// Set the font of the list box
@@ -128,7 +128,7 @@ void rvPropertyGrid::StartEdit ( int item, bool label )
 	RECT				rItem;
 			
 	gitem = (rvPropertyGridItem*)SendMessage ( mWindow, LB_GETITEMDATA, item, 0 );
-	if ( NULL == gitem )
+	if ( nullptr == gitem )
 	{
 		return;
 	}
@@ -547,7 +547,7 @@ LRESULT CALLBACK rvPropertyGrid::WndProc ( HWND hWnd, UINT msg, WPARAM wParam, L
 			ScreenToClient ( hWnd, &point );
 			if ( point.x >= grid->mSplitter - 2 && point.x <= grid->mSplitter + 2 )
 			{
-				SetCursor ( LoadCursor ( NULL, IDC_SIZEWE ) );
+				SetCursor ( LoadCursor ( nullptr, IDC_SIZEWE ) );
 				return TRUE;
 			}
 			break;
@@ -643,14 +643,14 @@ int rvPropertyGrid::HandleDrawItem ( WPARAM wParam, LPARAM lParam )
 
 	HPEN pen = CreatePen ( PS_SOLID, 1, GetSysColor ( COLOR_SCROLLBAR ) );
 	HPEN oldpen = (HPEN)SelectObject ( dis->hDC, pen );
-	MoveToEx ( dis->hDC, dis->rcItem.left, dis->rcItem.top, NULL );
+	MoveToEx ( dis->hDC, dis->rcItem.left, dis->rcItem.top, nullptr );
 	LineTo ( dis->hDC, dis->rcItem.right, dis->rcItem.top );
-	MoveToEx ( dis->hDC, dis->rcItem.left, dis->rcItem.bottom, NULL );
+	MoveToEx ( dis->hDC, dis->rcItem.left, dis->rcItem.bottom, nullptr );
 	LineTo ( dis->hDC, dis->rcItem.right, dis->rcItem.bottom);
 
 	if ( item->mType != PGIT_HEADER )
 	{
-		MoveToEx ( dis->hDC, dis->rcItem.left + mSplitter, dis->rcItem.top, NULL );
+		MoveToEx ( dis->hDC, dis->rcItem.left + mSplitter, dis->rcItem.top, nullptr );
 		LineTo ( dis->hDC, dis->rcItem.left + mSplitter, dis->rcItem.bottom );
 	}
 	SelectObject ( dis->hDC, oldpen );

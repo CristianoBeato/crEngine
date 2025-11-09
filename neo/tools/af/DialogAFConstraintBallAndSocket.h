@@ -36,7 +36,7 @@ class DialogAFConstraintBallAndSocket : public CDialog {
 	DECLARE_DYNAMIC(DialogAFConstraintBallAndSocket)
 
 public:
-						DialogAFConstraintBallAndSocket(CWnd* pParent = NULL);   // standard constructor
+						DialogAFConstraintBallAndSocket(CWnd* pParent = nullptr);   // standard constructor
 	virtual				~DialogAFConstraintBallAndSocket();
 	void				LoadFile( idDeclAF *af );
 	void				SaveFile( void );
