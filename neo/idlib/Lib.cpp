@@ -33,6 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <signal.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include "Lib.h"
 #endif
 
 /*
@@ -48,8 +49,8 @@ idCommon* 		idLib::common		= nullptr;
 idCVarSystem* 	idLib::cvarSystem	= nullptr;
 idFileSystem* 	idLib::fileSystem	= nullptr;
 int				idLib::frameNumber	= 0;
-bool			idLib::mainThreadInitialized = 0;
-ID_TLS			idLib::isMainThread = 0;
+//bool			idLib::mainThreadInitialized = 0;
+uint64_t		idLib::isMainThread = 0;
 
 char idException::error[2048];
 
@@ -63,8 +64,9 @@ void idLib::Init()
 
 	assert( sizeof( bool ) == 1 );
 	
-	isMainThread = 1;
-	mainThreadInitialized = 1;	// note that the thread-local isMainThread is now valid
+	// Get the main thread id
+	isMainThread = SDL_GetCurrentThreadID();
+//	mainThreadInitialized = 1;	// note that the thread-local isMainThread is now valid
 	
 	// initialize little/big endian conversion
 	Swap_Init();
@@ -260,9 +262,20 @@ void idLib::WarningIf( const bool test, const char* fmt, ... )
 
 /*
 ===============
-idLib::Printf
+idLib::IsMainThread
 ===============
 */
+bool idLib::IsMainThread( void )
+{
+	// return ( 0 == mainThreadInitialized ) || ( 1 == isMainThread );
+    return isMainThread == SDL_GetCurrentThreadID();
+} 
+
+/*
+ ===============
+ idLib::Printf
+ ===============
+ */
 void idLib::Printf( const char* fmt, ... )
 {
 	va_list		argptr;

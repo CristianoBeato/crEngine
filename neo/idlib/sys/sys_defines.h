@@ -163,10 +163,15 @@ Defines and macros usable in all code
 ================================================================================================
 */
 
-// BEATO Begin: use portable c++11 alignas specifier
+// BEATO Begin: 
+
+/// @CristianoBeato use portable c++11 alignas specifier
 #define ALIGN16( x )  alignas( 16 ) x
 #define ALIGNTYPE16   alignas( 16 )
 #define ALIGNTYPE128  alignas( 128 )
+
+/// @CristianoBeato Use c++11 thread storage duration (also known as thread-local storage duration)
+#define ID_TLS thread_local
 // BEATO End
 
 #define ALIGN( x, a ) ( ( ( x ) + ((a)-1) ) & ~((a)-1) )

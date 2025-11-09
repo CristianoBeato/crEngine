@@ -37,6 +37,168 @@ Contains the vartious ThreadingClass implementations.
 /*
 ================================================================================================
 
+	Signal
+
+================================================================================================
+*/
+
+/*
+========================
+idSysSignal::idSysSignal
+========================
+*/
+idSysSignal::idSysSignal( const bool in_manualReset ) :
+	signaled( false ),
+	manualReset( in_manualReset ),
+	waiting( 0 ),
+	cond( nullptr ),
+	mutex( nullptr )
+{
+	manualReset = manualReset;
+	// if this is true, the signal is only set to nonsignaled when Clear() is called,
+	// else it's "auto-reset" and the state is set to !signaled after a single waiting
+	// thread has been released
+	
+	// the inital state is always "not signaled"
+	signaled = false;
+	waiting = 0;
+
+	cond = SDL_CreateCondition();
+	if ( !cond )
+		throw idException( SDL_GetError() );
+
+	mutex = SDL_CreateMutex();
+	if ( !mutex )
+		throw idException( SDL_GetError() );
+}
+
+/*
+========================
+idSysSignal::~idSysSignal
+========================
+*/
+idSysSignal::~idSysSignal(void)
+{
+	// CloseHandle( handle );
+	signaled = false;
+	waiting = 0;
+
+	if ( mutex != nullptr )
+	{
+		SDL_DestroyMutex( mutex );
+		mutex = nullptr;
+	}
+	
+	if ( cond != nullptr )
+	{
+		SDL_DestroyCondition( cond );
+		cond = nullptr;
+	}	
+}
+
+/*
+========================
+idSysSignal::Raise
+========================
+*/
+void idSysSignal::Raise( void )
+{
+	SDL_LockMutex( mutex );
+	
+	if( manualReset )
+	{
+		// signaled until reset
+		signaled = true;
+		// wake *all* threads waiting on this cond
+		SDL_BroadcastCondition( cond );
+	}
+	else
+	{
+		// automode: signaled until first thread is released
+		if( waiting > 0 )
+		{
+			// there are waiting threads => release one
+			SDL_SignalCondition( cond );
+		}
+		else
+		{
+			// no waiting threads, save signal
+			signaled = true;
+			// while the MSDN documentation is a bit unspecific about what happens
+			// when SetEvent() is called n times without a wait inbetween
+			// (will only one wait be successful afterwards or n waits?)
+			// it seems like the signaled state is a flag, not a counter.
+			// http://stackoverflow.com/a/13703585 claims the same.
+		}
+	}
+	
+	SDL_UnlockMutex( mutex );
+}
+
+/*
+========================
+idSysSignal::Clear
+========================
+*/
+
+void idSysSignal::Clear( void )
+{
+	// ResetEvent( handle );
+	SDL_UnlockMutex( mutex );
+	
+	// TODO: probably signaled could be atomically changed?
+	signaled = false;
+	
+	SDL_UnlockMutex( mutex );
+}
+
+
+/*
+========================
+idSysSignal::Wait
+========================
+*/
+bool idSysSignal::Wait( const int32_t timeout )
+{	
+	int status;
+	SDL_LockMutex( mutex );
+	
+	// there is a signal that hasn't been used yet
+	if( signaled ) 
+	{
+		// for auto-mode only one thread may be released - this one.
+		if( !manualReset ) 
+			signaled = false;
+			
+		// success!
+		status = 0; 
+	}
+	else // we'll have to wait for a signal
+	{
+		++waiting;
+		if( timeout == idSysSignal::WAIT_INFINITE )
+		{
+			SDL_WaitCondition( cond, mutex );
+			status = 0;
+		}
+		else
+		{
+			status = SDL_WaitConditionTimeout( cond, mutex, timeout ) ? 0 : status;
+		}
+		--waiting;
+	}
+	
+	SDL_UnlockMutex( mutex );
+	
+	assert( status == 0 || ( timeout != idSysSignal::WAIT_INFINITE && status == ETIMEDOUT ) );
+	
+	return ( status == 0 );
+	
+}
+
+/*
+================================================================================================
+
 	idSysThread
 
 ================================================================================================
@@ -63,13 +225,13 @@ idSysThread::idSysThread() :
 idSysThread::~idSysThread
 ========================
 */
-idSysThread::~idSysThread()
+idSysThread::~idSysThread( void )
 {
 	StopThread( !forceStop );
-	if( threadHandle )
-	{
-		Sys_DestroyThread( threadHandle );
-	}
+	// if( threadHandle )
+	// {
+	// 	Sys_DestroyThread( threadHandle );
+	// }
 }
 
 /*
@@ -77,25 +239,57 @@ idSysThread::~idSysThread()
 idSysThread::StartThread
 ========================
 */
-bool idSysThread::StartThread( const char* name_, core_t core, xthreadPriority priority, int stackSize )
+bool idSysThread::StartThread( const char* name_, core_t core, xthreadPriority in_priority, int stackSize )
 {
 	if( isRunning )
-	{
 		return false;
-	}
 	
 	name = name_;
 	
 	isTerminating = false;
 	
-	if( threadHandle )
+	//if( threadHandle )
+	//{
+	//	Sys_DestroyThread( threadHandle );
+	//}
+	assert( threadHandle == nullptr );
+	
+	switch ( in_priority )
 	{
-		Sys_DestroyThread( threadHandle );
+		case THREAD_LOWEST:
+			priority = SDL_THREAD_PRIORITY_LOW;
+			break;
+		
+		// 
+		case THREAD_BELOW_NORMAL:
+		case THREAD_NORMAL:
+		case THREAD_ABOVE_NORMAL:
+			priority = SDL_THREAD_PRIORITY_NORMAL;
+			break;
+			
+		case THREAD_HIGHEST:
+			priority = SDL_THREAD_PRIORITY_HIGH;
+			break;
 	}
+
+	SDL_PropertiesID threadProp = SDL_CreateProperties();
+	SDL_SetPointerProperty( threadProp, SDL_PROP_THREAD_CREATE_ENTRY_FUNCTION_POINTER, (void*)ThreadProc );
+	SDL_SetPointerProperty( threadProp, SDL_PROP_THREAD_CREATE_USERDATA_POINTER, this );
+	SDL_SetStringProperty( threadProp, SDL_PROP_THREAD_CREATE_NAME_STRING, name );
+	SDL_SetNumberProperty( threadProp, SDL_PROP_THREAD_CREATE_STACKSIZE_NUMBER, stackSize );
+
+	threadHandle = SDL_CreateThreadWithProperties( threadProp );
+	assert( threadHandle != nullptr );
 	
-	threadHandle = Sys_CreateThread( ( xthread_t )ThreadProc, this, priority, name, core, stackSize, false );
-	
+	// detach worker threads 
+	if ( isWorker )
+		SDL_DetachThread( threadHandle );	
+
 	isRunning = true;
+
+	// 
+	SDL_DestroyProperties( threadProp );
+
 	return true;
 }
 
@@ -107,9 +301,7 @@ idSysThread::StartWorkerThread
 bool idSysThread::StartWorkerThread( const char* name_, core_t core, xthreadPriority priority, int stackSize )
 {
 	if( isRunning )
-	{
 		return false;
-	}
 	
 	isWorker = true;
 	
@@ -128,9 +320,8 @@ idSysThread::StopThread
 void idSysThread::StopThread( bool wait )
 {
 	if( !isRunning )
-	{
 		return;
-	}
+	
 	if( isWorker )
 	{
 		signalMutex.Lock();
@@ -144,10 +335,9 @@ void idSysThread::StopThread( bool wait )
 	{
 		isTerminating = true;
 	}
+
 	if( wait )
-	{
 		WaitForThread();
-	}
 }
 
 /*
@@ -155,7 +345,7 @@ void idSysThread::StopThread( bool wait )
 idSysThread::WaitForThread
 ========================
 */
-void idSysThread::WaitForThread()
+void idSysThread::WaitForThread( void )
 {
 	if( isWorker )
 	{
@@ -163,7 +353,7 @@ void idSysThread::WaitForThread()
 	}
 	else if( isRunning )
 	{
-		Sys_DestroyThread( threadHandle );
+		SDL_WaitThread( threadHandle, nullptr );
 		threadHandle = 0;
 	}
 }
@@ -211,12 +401,12 @@ idSysThread::ThreadProc
 int idSysThread::ThreadProc( idSysThread* thread )
 {
 	int retVal = 0;
-	
+	SDL_SetCurrentThreadPriority( thread->priority );
 	try
 	{
 		if( thread->isWorker )
 		{
-			for( ; ; )
+			while ( true )
 			{
 				thread->signalMutex.Lock();
 				if( thread->moreWorkToDo )
@@ -234,9 +424,7 @@ int idSysThread::ThreadProc( idSysThread* thread )
 				}
 				
 				if( thread->isTerminating )
-				{
 					break;
-				}
 				
 				retVal = thread->Run();
 			}

@@ -33,596 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 ================================================================================================
 */
 
-#if defined( __WIN32 )
-
-#define MS_VC_EXCEPTION 0x406D1388
-
-#ifndef STACK_SIZE_PARAM_IS_A_RESERVATION
-// MinGW doesn't seem to have this
-#define STACK_SIZE_PARAM_IS_A_RESERVATION 0x00010000
-#endif
-
-typedef struct tagTHREADNAME_INFO
-{
-	DWORD dwType;		// Must be 0x1000.
-	LPCSTR szName;		// Pointer to name (in user addr space).
-	DWORD dwThreadID;	// Thread ID (-1=caller thread).
-	DWORD dwFlags;		// Reserved for future use, must be zero.
-} THREADNAME_INFO;
-
-/*
-========================
-Sys_SetThreadName
-
-caedes: This should be seen as a helper-function for Sys_CreateThread() only.
-        (re)setting the name of a running thread seems like a bad idea and
-        currently (fresh d3 bfg source) isn't done anyway.
-        Furthermore SDL doesn't support it
-
-========================
-*/
-static void Sys_SetThreadName( DWORD threadID, const char* name )
-{
-#ifdef _MSC_VER
-	// this ugly mess is the official way to set a thread name on windows..
-	// see http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
-	
-	
-	THREADNAME_INFO info;
-	info.dwType = 0x1000;
-	info.szName = name;
-	info.dwThreadID = threadID;
-	info.dwFlags = 0;
-	
-	__try
-	{
-		RaiseException( MS_VC_EXCEPTION, 0, sizeof( info ) / sizeof( DWORD ), ( const ULONG_PTR* )&info );
-	}
-	// this much is just to keep /analyze quiet
-	__except( GetExceptionCode() == MS_VC_EXCEPTION ? EXCEPTION_EXECUTE_HANDLER : EXCEPTION_CONTINUE_SEARCH )
-	{
-		info.dwFlags = 0;
-	}
-#endif
-}
-
-/*
-========================
-Sys_Createthread
-========================
-*/
-uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority priority, const char* name, core_t core, int stackSize, bool suspended )
-{
-
-	DWORD flags = ( suspended ? CREATE_SUSPENDED : 0 );
-	// Without this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Commit Size"
-	// and the "Stack Reserve Size" is set to the value specified at link-time.
-	// With this flag the 'dwStackSize' parameter to CreateThread specifies the "Stack Reserve Size"
-	// and the �Stack Commit Size� is set to the value specified at link-time.
-	// For various reasons (some of which historic) we reserve a large amount of stack space in the
-	// project settings. By setting this flag and by specifying 64 kB for the "Stack Commit Size" in
-	// the project settings we can create new threads with a much smaller reserved (and committed)
-	// stack space. It is very important that the "Stack Commit Size" is set to a small value in
-	// the project settings. If it is set to a large value we may be both reserving and committing
-	// a lot of memory by setting the STACK_SIZE_PARAM_IS_A_RESERVATION flag. There are some
-	// 50 threads allocated for normal game play. If, for instance, the commit size is set to 16 MB
-	// then by adding this flag we would be reserving and committing 50 x 16 = 800 MB of memory.
-	// On the other hand, if this flag is not set and the "Stack Reserve Size" is set to 16 MB in the
-	// project settings, then we would still be reserving 50 x 16 = 800 MB of virtual address space.
-	flags |= STACK_SIZE_PARAM_IS_A_RESERVATION;
-	
-	DWORD threadId;
-	HANDLE handle = CreateThread(	nullptr,	// LPSECURITY_ATTRIBUTES lpsa, //-V513
-									stackSize,
-									( LPTHREAD_START_ROUTINE )function,
-									parms,
-									flags,
-									&threadId );
-	if( handle == 0 )
-	{
-		idLib::common->FatalError( "CreateThread error: %i", GetLastError() );
-		return ( uintptr_t )0;
-	}
-	// TODO: when writing the SDL backend, just use this name when creating the thread
-	Sys_SetThreadName( threadId, name );
-	if( priority == THREAD_HIGHEST )
-	{
-		SetThreadPriority( ( HANDLE )handle, THREAD_PRIORITY_HIGHEST );		//  we better sleep enough to do this
-	}
-	else if( priority == THREAD_ABOVE_NORMAL )
-	{
-		SetThreadPriority( ( HANDLE )handle, THREAD_PRIORITY_ABOVE_NORMAL );
-	}
-	else if( priority == THREAD_BELOW_NORMAL )
-	{
-		SetThreadPriority( ( HANDLE )handle, THREAD_PRIORITY_BELOW_NORMAL );
-	}
-	else if( priority == THREAD_LOWEST )
-	{
-		SetThreadPriority( ( HANDLE )handle, THREAD_PRIORITY_LOWEST );
-	}
-	
-	// Under Windows, we don't set the thread affinity and let the OS deal with scheduling
-	
-	return ( uintptr_t )handle;
-}
-
-
-/*
-========================
-Sys_GetCurrentThreadID
-========================
-*/
-uintptr_t Sys_GetCurrentThreadID()
-{
-	return GetCurrentThreadId();
-}
-
-/*
-========================
-Sys_DestroyThread
-========================
-*/
-void Sys_DestroyThread( uintptr_t threadHandle )
-{
-	if( threadHandle == 0 )
-	{
-		return;
-	}
-	WaitForSingleObject( ( HANDLE )threadHandle, INFINITE );
-	CloseHandle( ( HANDLE )threadHandle );
-}
-
-/*
-========================
-Sys_Yield
-========================
-*/
-void Sys_Yield()
-{
-	SwitchToThread();
-}
-
-/*
-================================================================================================
-
-	Signal
-
-================================================================================================
-*/
-
-/*
-========================
-Sys_SignalCreate
-========================
-*/
-void Sys_SignalCreate( signalHandle_t& handle, bool manualReset )
-{
-	handle = CreateEvent( nullptr, manualReset, FALSE, nullptr );
-}
-
-/*
-========================
-Sys_SignalDestroy
-========================
-*/
-void Sys_SignalDestroy( signalHandle_t& handle )
-{
-	CloseHandle( handle );
-}
-
-/*
-========================
-Sys_SignalRaise
-========================
-*/
-void Sys_SignalRaise( signalHandle_t& handle )
-{
-	SetEvent( handle );
-}
-
-/*
-========================
-Sys_SignalClear
-========================
-*/
-void Sys_SignalClear( signalHandle_t& handle )
-{
-	// events are created as auto-reset so this should never be needed
-	ResetEvent( handle );
-}
-
-/*
-========================
-Sys_SignalWait
-========================
-*/
-bool Sys_SignalWait( signalHandle_t& handle, int timeout )
-{
-	DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
-	assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
-	return ( result == WAIT_OBJECT_0 );
-}
-
-/*
-================================================================================================
-
-	Mutex
-
-================================================================================================
-*/
-
-/*
-========================
-Sys_MutexCreate
-========================
-*/
-void Sys_MutexCreate( mutexHandle_t& handle )
-{
-	InitializeCriticalSection( &handle );
-}
-
-/*
-========================
-Sys_MutexDestroy
-========================
-*/
-void Sys_MutexDestroy( mutexHandle_t& handle )
-{
-	DeleteCriticalSection( &handle );
-}
-
-/*
-========================
-Sys_MutexLock
-========================
-*/
-bool Sys_MutexLock( mutexHandle_t& handle, bool blocking )
-{
-	if( TryEnterCriticalSection( &handle ) == 0 )
-	{
-		if( !blocking )
-		{
-			return false;
-		}
-		EnterCriticalSection( &handle );
-	}
-	return true;
-}
-
-/*
-========================
-Sys_MutexUnlock
-========================
-*/
-void Sys_MutexUnlock( mutexHandle_t& handle )
-{
-	LeaveCriticalSection( & handle );
-}
-
-/*
-================================================================================================
-
-	Interlocked Integer
-
-================================================================================================
-*/
-
-/*
-========================
-Sys_InterlockedIncrement
-========================
-*/
-interlockedInt_t Sys_InterlockedIncrement( interlockedInt_t& value )
-{
-	// TODO: SDL_AtomicIncRef
-#ifdef InterlockedIncrementAcquire
-	// googling suggests that some experimental mingw code supports this too..
-	return InterlockedIncrementAcquire( & value );
-#elif defined(__GNUC__)
-	return __sync_add_and_fetch( &value, 1 );
-#endif
-}
-
-/*
-========================
-Sys_InterlockedDecrement
-========================
-*/
-interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t& value )
-{
-	// TODO: SDL_AtomicDecRef
-#ifdef InterlockedDecrementRelease
-	return InterlockedDecrementRelease( & value );
-#elif defined(__GNUC__)
-	return __sync_sub_and_fetch( &value, 1 );
-#endif
-}
-
-/*
-========================
-Sys_InterlockedAdd
-========================
-*/
-interlockedInt_t Sys_InterlockedAdd( interlockedInt_t& value, interlockedInt_t i )
-{
-	return InterlockedExchangeAdd( & value, i ) + i;
-}
-
-/*
-========================
-Sys_InterlockedSub
-========================
-*/
-interlockedInt_t Sys_InterlockedSub( interlockedInt_t& value, interlockedInt_t i )
-{
-	return InterlockedExchangeAdd( & value, - i ) - i;
-}
-
-/*
-========================
-Sys_InterlockedExchange
-========================
-*/
-interlockedInt_t Sys_InterlockedExchange( interlockedInt_t& value, interlockedInt_t exchange )
-{
-	return InterlockedExchange( & value, exchange );
-}
-
-/*
-========================
-Sys_InterlockedCompareExchange
-========================
-*/
-interlockedInt_t Sys_InterlockedCompareExchange( interlockedInt_t& value, interlockedInt_t comparand, interlockedInt_t exchange )
-{
-	return InterlockedCompareExchange( & value, exchange, comparand );
-}
-
-/*
-================================================================================================
-
-	Interlocked Pointer
-
-================================================================================================
-*/
-
-/*
-========================
-Sys_InterlockedExchangePointer
-========================
-*/
-void* Sys_InterlockedExchangePointer( void*& ptr, void* exchange )
-{
-	return InterlockedExchangePointer( & ptr, exchange );
-}
-
-/*
-========================
-Sys_InterlockedCompareExchangePointer
-========================
-*/
-void* Sys_InterlockedCompareExchangePointer( void*& ptr, void* comparand, void* exchange )
-{
-	return InterlockedCompareExchangePointer( & ptr, exchange, comparand );
-}
-
-#elif defined( __linux__ )
-
-
-#ifdef __FreeBSD__
-#include <pthread_ng.h> // for pthread_set_name_np
-#endif
-
-// DG: Note: On Linux you need at least (e)glibc 2.12 to be able to set the threadname
-//#define DEBUG_THREADS
-
-typedef void* ( *pthread_function_t )( void* );
-
-/*
-========================
-Sys_SetThreadName
-
-caedes: This should be seen as a helper-function for Sys_CreateThread() only.
-        (re)setting the name of a running thread seems like a bad idea and
-        currently (fresh d3 bfg source) isn't done anyway.
-        Furthermore SDL doesn't support it
-
-========================
-*/
-#ifdef DEBUG_THREADS
-static int Sys_SetThreadName( pthread_t handle, const char* name )
-{
-	int ret = 0;
-#ifdef __linux__
-	// NOTE: linux only supports threadnames up to 16chars *including* terminating nullptr
-	// http://man7.org/linux/man-pages/man3/pthread_setname_np.3.html
-	// on my machine a longer name (eg "JobListProcessor_0") caused an ENOENT error (instead of ERANGE)
-	assert( strlen( name ) < 16 );
-	
-	ret = pthread_setname_np( handle, name );
-	if( ret != 0 )
-		idLib::common->Printf( "Setting threadname \"%s\" failed, reason: %s (%i)\n", name, strerror( errno ), errno );
-	// pthread_getname_np(pthread_t, char*, size_t)
-#elif defined(__FreeBSD__)
-	// according to http://www.freebsd.org/cgi/man.cgi?query=pthread_set_name_np&sektion=3
-	// the interface is void pthread_set_name_np(pthread_t tid, const char *name);
-	pthread_set_name_np( handle, name ); // doesn't return anything
-	// seems like there is no get_name equivalent
-#endif
-	/* TODO: OSX:
-		// according to http://stackoverflow.com/a/7989973
-		// this needs to be called in the thread to be named!
-		ret = pthread_setname_np(name);
-		// int pthread_getname_np(pthread_t, char*, size_t);
-	
-		// so we'd have to wrap the xthread_t function in Sys_CreateThread and set the name in the wrapping function...
-	*/
-	
-	return ret;
-}
-
-// TODO: Sys_GetThreadName() ?
-#endif // DEBUG_THREADS
-
-
-
-/*
-========================
-Sys_Createthread
-========================
-*/
-uintptr_t Sys_CreateThread( xthread_t function, void* parms, xthreadPriority priority, const char* name, core_t core, int stackSize, bool suspended )
-{
-	pthread_attr_t attr;
-	pthread_attr_init( &attr );
-	
-	if( pthread_attr_setdetachstate( &attr, PTHREAD_CREATE_JOINABLE ) != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_attr_setdetachstate %s failed\n", name );
-		return ( uintptr_t )0;
-	}
-	
-	pthread_t handle;
-	if( pthread_create( ( pthread_t* )&handle, &attr, ( pthread_function_t )function, parms ) != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_create %s failed\n", name );
-		return ( uintptr_t )0;
-	}
-	
-#if defined(DEBUG_THREADS)
-	if( Sys_SetThreadName( handle, name ) != 0 )
-	{
-		idLib::common->Warning( "Warning: pthread_setname_np %s failed\n", name );
-		return ( uintptr_t )0;
-	}
-#endif
-	
-	pthread_attr_destroy( &attr );
-	
-	
-#if 0
-	// RB: realtime policies require root privileges
-	
-	// all Linux threads have one of the following scheduling policies:
-	
-	// SCHED_OTHER or SCHED_NORMAL: the default policy,  priority: [-20..0..19], default 0
-	
-	// SCHED_FIFO: first in/first out realtime policy
-	
-	// SCHED_RR: round-robin realtime policy
-	
-	// SCHED_BATCH: similar to SCHED_OTHER, but with a throughput orientation
-	
-	// SCHED_IDLE: lower priority than SCHED_OTHER
-	
-	int schedulePolicy = SCHED_OTHER;
-	struct sched_param scheduleParam;
-	
-	int error = pthread_getschedparam( handle, &schedulePolicy, &scheduleParam );
-	if( error != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_getschedparam %s failed: %s\n", name, strerror( error ) );
-		return ( uintptr_t )0;
-	}
-	
-	schedulePolicy = SCHED_FIFO;
-	
-	int minPriority = sched_get_priority_min( schedulePolicy );
-	int maxPriority = sched_get_priority_max( schedulePolicy );
-	
-	if( priority == THREAD_HIGHEST )
-	{
-		//  we better sleep enough to do this
-		scheduleParam.__sched_priority = maxPriority;
-	}
-	else if( priority == THREAD_ABOVE_NORMAL )
-	{
-		scheduleParam.__sched_priority = Lerp( minPriority, maxPriority, 0.75f );
-	}
-	else if( priority == THREAD_NORMAL )
-	{
-		scheduleParam.__sched_priority = Lerp( minPriority, maxPriority, 0.5f );
-	}
-	else if( priority == THREAD_BELOW_NORMAL )
-	{
-		scheduleParam.__sched_priority = Lerp( minPriority, maxPriority, 0.25f );
-	}
-	else if( priority == THREAD_LOWEST )
-	{
-		scheduleParam.__sched_priority = minPriority;
-	}
-	
-	// set new priority
-	error = pthread_setschedparam( handle, schedulePolicy, &scheduleParam );
-	if( error != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_setschedparam( name = %s, policy = %i, priority = %i ) failed: %s\n", name, schedulePolicy, scheduleParam.__sched_priority, strerror( error ) );
-		return ( uintptr_t )0;
-	}
-	
-	pthread_getschedparam( handle, &schedulePolicy, &scheduleParam );
-	if( error != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_getschedparam %s failed: %s\n", name, strerror( error ) );
-		return ( uintptr_t )0;
-	}
-#endif
-	
-	// Under Linux, we don't set the thread affinity and let the OS deal with scheduling
-	
-	return ( uintptr_t )handle;
-}
-
-
-/*
-========================
-Sys_GetCurrentThreadID
-========================
-*/
-uintptr_t Sys_GetCurrentThreadID()
-{
-	/*
-	 * This cast is safe because pthread_self()
-	 * returns a pointer and uintptr_t is
-	 * designed to hold a pointer. The compiler
-	 * is just too stupid to know. :)
-	 *  -- Yamagi
-	 */
-	return ( uintptr_t )pthread_self();
-}
-
-/*
-========================
-Sys_DestroyThread
-========================
-*/
-void Sys_DestroyThread( uintptr_t threadHandle )
-{
-	if( threadHandle == 0 )
-	{
-		return;
-	}
-	
-	char	name[128];
-	name[0] = '\0';
-	
-#if defined(DEBUG_THREADS)
-	pthread_getname_np( threadHandle, name, sizeof( name ) );
-#endif
-	
-#if 0 //!defined(__ANDROID__)
-	if( pthread_cancel( ( pthread_t )threadHandle ) != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_cancel %s failed\n", name );
-	}
-#endif
-	
-	if( pthread_join( ( pthread_t )threadHandle, nullptr ) != 0 )
-	{
-		idLib::common->FatalError( "ERROR: pthread_join %s failed\n", name );
-	}
-}
 
 /*
 ========================
@@ -631,236 +41,13 @@ Sys_Yield
 */
 void Sys_Yield( void )
 {
+#if __PLATFORM_WINDOWS__
+	SwitchToThread();
+#elif __PLATFORM_LINUX__
 	sched_yield();
+#endif //__PLATFORM_LINUX__
 }
 
-/*
-================================================================================================
-
-	Signal
-
-================================================================================================
-*/
-
-/*
-========================
-Sys_SignalCreate
-========================
-*/
-void Sys_SignalCreate( signalHandle_t& handle, bool manualReset )
-{
-	// handle = CreateEvent( nullptr, manualReset, FALSE, nullptr );
-	
-	handle.manualReset = manualReset;
-	// if this is true, the signal is only set to nonsignaled when Clear() is called,
-	// else it's "auto-reset" and the state is set to !signaled after a single waiting
-	// thread has been released
-	
-	// the inital state is always "not signaled"
-	handle.signaled = false;
-	handle.waiting = 0;
-#if 0
-	pthread_mutexattr_t attr;
-	
-	pthread_mutexattr_init( &attr );
-	pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_ERRORCHECK );
-	//pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_DEFAULT );
-	pthread_mutex_init( &mutex, &attr );
-	pthread_mutexattr_destroy( &attr );
-#else
-	pthread_mutex_init( &handle.mutex, nullptr );
-#endif
-	
-	pthread_cond_init( &handle.cond, nullptr );
-	
-}
-
-/*
-========================
-Sys_SignalDestroy
-========================
-*/
-void Sys_SignalDestroy( signalHandle_t& handle )
-{
-	// CloseHandle( handle );
-	handle.signaled = false;
-	handle.waiting = 0;
-	pthread_mutex_destroy( &handle.mutex );
-	pthread_cond_destroy( &handle.cond );
-}
-
-/*
-========================
-Sys_SignalRaise
-========================
-*/
-void Sys_SignalRaise( signalHandle_t& handle )
-{
-	// SetEvent( handle );
-	pthread_mutex_lock( &handle.mutex );
-	
-	if( handle.manualReset )
-	{
-		// signaled until reset
-		handle.signaled = true;
-		// wake *all* threads waiting on this cond
-		pthread_cond_broadcast( &handle.cond );
-	}
-	else
-	{
-		// automode: signaled until first thread is released
-		if( handle.waiting > 0 )
-		{
-			// there are waiting threads => release one
-			pthread_cond_signal( &handle.cond );
-		}
-		else
-		{
-			// no waiting threads, save signal
-			handle.signaled = true;
-			// while the MSDN documentation is a bit unspecific about what happens
-			// when SetEvent() is called n times without a wait inbetween
-			// (will only one wait be successful afterwards or n waits?)
-			// it seems like the signaled state is a flag, not a counter.
-			// http://stackoverflow.com/a/13703585 claims the same.
-		}
-	}
-	
-	pthread_mutex_unlock( &handle.mutex );
-}
-
-/*
-========================
-Sys_SignalClear
-========================
-*/
-void Sys_SignalClear( signalHandle_t& handle )
-{
-	// ResetEvent( handle );
-	pthread_mutex_lock( &handle.mutex );
-	
-	// TODO: probably signaled could be atomically changed?
-	handle.signaled = false;
-	
-	pthread_mutex_unlock( &handle.mutex );
-}
-
-
-/*
-========================
-Sys_SignalWait
-========================
-*/
-bool Sys_SignalWait( signalHandle_t& handle, int timeout )
-{
-	//DWORD result = WaitForSingleObject( handle, timeout == idSysSignal::WAIT_INFINITE ? INFINITE : timeout );
-	//assert( result == WAIT_OBJECT_0 || ( timeout != idSysSignal::WAIT_INFINITE && result == WAIT_TIMEOUT ) );
-	//return ( result == WAIT_OBJECT_0 );
-	
-	int status;
-	pthread_mutex_lock( &handle.mutex );
-	
-	if( handle.signaled ) // there is a signal that hasn't been used yet
-	{
-		if( ! handle.manualReset ) // for auto-mode only one thread may be released - this one.
-			handle.signaled = false;
-			
-		status = 0; // success!
-	}
-	else // we'll have to wait for a signal
-	{
-		++handle.waiting;
-		if( timeout == idSysSignal::WAIT_INFINITE )
-		{
-			status = pthread_cond_wait( &handle.cond, &handle.mutex );
-		}
-		else
-		{
-			timespec ts;
-			clock_gettime( CLOCK_REALTIME, &ts );
-			// DG: handle timeouts > 1s better
-			ts.tv_nsec += ( timeout % 1000 ) * 1000000; // millisec to nanosec
-			ts.tv_sec  += timeout / 1000;
-			if( ts.tv_nsec >= 1000000000 ) // nanoseconds are more than one second
-			{
-				ts.tv_nsec -= 1000000000; // remove one second in nanoseconds
-				ts.tv_sec += 1; // add one second to seconds
-			}
-			// DG end
-			status = pthread_cond_timedwait( &handle.cond, &handle.mutex, &ts );
-		}
-		--handle.waiting;
-	}
-	
-	pthread_mutex_unlock( &handle.mutex );
-	
-	assert( status == 0 || ( timeout != idSysSignal::WAIT_INFINITE && status == ETIMEDOUT ) );
-	
-	return ( status == 0 );
-	
-}
-
-/*
-================================================================================================
-
-	Mutex
-
-================================================================================================
-*/
-
-/*
-========================
-Sys_MutexCreate
-========================
-*/
-void Sys_MutexCreate( mutexHandle_t& handle )
-{
-	pthread_mutexattr_t attr;
-	
-	pthread_mutexattr_init( &attr );
-	pthread_mutexattr_settype( &attr, PTHREAD_MUTEX_ERRORCHECK );
-	pthread_mutex_init( &handle, &attr );
-	
-	pthread_mutexattr_destroy( &attr );
-}
-
-/*
-========================
-Sys_MutexDestroy
-========================
-*/
-void Sys_MutexDestroy( mutexHandle_t& handle )
-{
-	pthread_mutex_destroy( &handle );
-}
-
-/*
-========================
-Sys_MutexLock
-========================
-*/
-bool Sys_MutexLock( mutexHandle_t& handle, bool blocking )
-{
-	if( pthread_mutex_trylock( &handle ) != 0 )
-	{
-		if( !blocking )
-		{
-			return false;
-		}
-		pthread_mutex_lock( &handle );
-	}
-	return true;
-}
-
-/*
-========================
-Sys_MutexUnlock
-========================
-*/
-void Sys_MutexUnlock( mutexHandle_t& handle )
-{
-	pthread_mutex_unlock( & handle );
-}
 
 /*
 ================================================================================================
@@ -877,8 +64,11 @@ Sys_InterlockedIncrement
 */
 interlockedInt_t Sys_InterlockedIncrement( interlockedInt_t& value )
 {
-	// return InterlockedIncrementAcquire( & value );
+#if __COMPILER_MSVC__
+	return InterlockedIncrementAcquire( & value ); // googling suggests that some experimental mingw code supports this too..
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_add_and_fetch( &value, 1 );
+#endif
 }
 
 /*
@@ -888,8 +78,11 @@ Sys_InterlockedDecrement
 */
 interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t& value )
 {
-	// return InterlockedDecrementRelease( & value );
+#if __COMPILER_MSVC__
+	return InterlockedDecrementRelease( & value );
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_sub_and_fetch( &value, 1 );
+#endif
 }
 
 /*
@@ -899,8 +92,11 @@ Sys_InterlockedAdd
 */
 interlockedInt_t Sys_InterlockedAdd( interlockedInt_t& value, interlockedInt_t i )
 {
-	//return InterlockedExchangeAdd( & value, i ) + i;
+#if __COMPILER_MSVC__
+	return InterlockedExchangeAdd( & value, i ) + i;
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_add_and_fetch( &value, i );
+#endif
 }
 
 /*
@@ -910,8 +106,11 @@ Sys_InterlockedSub
 */
 interlockedInt_t Sys_InterlockedSub( interlockedInt_t& value, interlockedInt_t i )
 {
-	//return InterlockedExchangeAdd( & value, - i ) - i;
+#if __COMPILER_MSVC__
+	return InterlockedExchangeAdd( & value, - i ) - i;
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_sub_and_fetch( &value, i );
+#endif
 }
 
 /*
@@ -921,11 +120,13 @@ Sys_InterlockedExchange
 */
 interlockedInt_t Sys_InterlockedExchange( interlockedInt_t& value, interlockedInt_t exchange )
 {
-	//return InterlockedExchange( & value, exchange );
-	
+#if __COMPILER_MSVC__
+	return InterlockedExchange( & value, exchange );
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 	// source: http://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html
 	// These builtins perform an atomic compare and swap. That is, if the current value of *ptr is oldval, then write newval into *ptr.
 	return __sync_val_compare_and_swap( &value, value, exchange );
+#endif
 }
 
 /*
@@ -935,8 +136,11 @@ Sys_InterlockedCompareExchange
 */
 interlockedInt_t Sys_InterlockedCompareExchange( interlockedInt_t& value, interlockedInt_t comparand, interlockedInt_t exchange )
 {
-	//return InterlockedCompareExchange( & value, exchange, comparand );
+#if __COMPILER_MSVC__
+	return InterlockedCompareExchange( & value, exchange, comparand );
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_val_compare_and_swap( &value, comparand, exchange );
+#endif
 }
 
 /*
@@ -954,8 +158,11 @@ Sys_InterlockedExchangePointer
 */
 void* Sys_InterlockedExchangePointer( void*& ptr, void* exchange )
 {
-	//return InterlockedExchangePointer( & ptr, exchange );
+#if __COMPILER_MSVC__
+	return InterlockedExchangePointer( & ptr, exchange );
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_val_compare_and_swap( &ptr, ptr, exchange );
+#endif
 }
 
 /*
@@ -965,8 +172,9 @@ Sys_InterlockedCompareExchangePointer
 */
 void* Sys_InterlockedCompareExchangePointer( void*& ptr, void* comparand, void* exchange )
 {
-	//return InterlockedCompareExchangePointer( & ptr, exchange, comparand );
+#if __COMPILER_MSVC__
+	return InterlockedCompareExchangePointer( & ptr, exchange, comparand );
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_val_compare_and_swap( &ptr, comparand, exchange );
-}
-
 #endif
+}

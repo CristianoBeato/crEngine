@@ -29,6 +29,12 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __THREAD_H__
 #define __THREAD_H__
 
+// BEATO Begin:
+#include <SDL3/SDL_mutex.h>
+#include <SDL3/SDL_thread.h>
+#include <SDL3/SDL_atomic.h>
+// BEATO End
+
 /*
 ================================================
 idSysMutex provides a C++ wrapper to the low level system mutex functions.  A mutex is an
@@ -36,29 +42,52 @@ object that can only be locked by one thread at a time.  It's used to prevent tw
 from accessing the same piece of data simultaneously.
 ================================================
 */
+// BEATO Begin: USE portaable SDL_mutex structure
 class idSysMutex
 {
 public:
-	idSysMutex()
+	/// @brief Create the mutex object structure
+	idSysMutex( void ) : m_handle( nullptr )
 	{
-		Sys_MutexCreate( handle );
+		m_handle = SDL_CreateMutex();
+		assert( !m_handle );
 	}
-	~idSysMutex()
+
+	/// @brief free the mutex objec structure
+	~idSysMutex( void )
 	{
-		Sys_MutexDestroy( handle );
+		if ( m_handle != nullptr )
+		{
+			SDL_DestroyMutex( m_handle );
+			m_handle = nullptr;
+		}
 	}
 	
-	bool			Lock( bool blocking = true )
+	/// @brief Lock the mutex ( or just try ). 
+	/// @param blocking if true, the caller will block until the mutex is available.
+	/// If false will try to lock a mutex without blocking, if the mutex is not available,
+	/// this function returns false immediately 
+	/// @return on non blocking, true on success, false if the mutex would block.
+	bool	Lock( const bool blocking = true )
 	{
-		return Sys_MutexLock( handle, blocking );
+		if ( blocking )
+		{
+			SDL_LockMutex( m_handle );
+			return true;
+		}
+		
+		return SDL_TryLockMutex( m_handle );
 	}
-	void			Unlock()
+
+	/// @brief Unlock the mutex. 
+	/// 
+	void 	Unlock( void )
 	{
-		Sys_MutexUnlock( handle );
+		SDL_UnlockMutex( m_handle );
 	}
 	
 private:
-	mutexHandle_t	handle;
+	SDL_Mutex*	m_handle;
 	
 	idSysMutex( const idSysMutex& s ) {}
 	void			operator=( const idSysMutex& s ) {}
@@ -96,37 +125,35 @@ a thread has reached a specific point.
 class idSysSignal
 {
 public:
-	static const int	WAIT_INFINITE = -1;
+	static const int32_t	WAIT_INFINITE = -1;
 	
-	idSysSignal( bool manualReset = false )
-	{
-		Sys_SignalCreate( handle, manualReset );
-	}
-	~idSysSignal()
-	{
-		Sys_SignalDestroy( handle );
-	}
+	idSysSignal( const bool manualReset = false );
+
+	~idSysSignal( void );
 	
-	void	Raise()
-	{
-		Sys_SignalRaise( handle );
-	}
-	void	Clear()
-	{
-		Sys_SignalClear( handle );
-	}
+	/// @brief Raise a waiting thread, or put a signal to next one
+	/// that reach wait, that we already have a singal  
+	void	Raise( void );
+
+	/// @brief Reset the signal state
+	void	Clear( void );
 	
-	// Wait returns true if the object is in a signalled state and
-	// returns false if the wait timed out. Wait also clears the signalled
-	// state when the signalled state is reached within the time out period.
-	bool	Wait( int timeout = WAIT_INFINITE )
-	{
-		return Sys_SignalWait( handle, timeout );
-	}
-	
+	/// @brief Wait for a specific signal, or consume a previous 
+	/// Wait also clears the signalled
+	/// state when the signalled state is reached within the time out period.
+	/// @param timeout
+	/// @return true if the object is in a signalled state and
+	/// returns false if the wait timed out. 
+	bool	Wait( const int32_t timeout = WAIT_INFINITE );	
 private:
-	signalHandle_t		handle;
-	
+		// DG: all this stuff is needed to emulate Window's Event API
+	//     (CreateEvent(), SetEvent(), WaitForSingleObject(), ...)
+	bool				manualReset;
+	volatile bool		signaled; // is it signaled right now?
+	volatile int		waiting; // number of threads waiting for a signal
+	SDL_Condition*		cond;
+	SDL_Mutex*			mutex;
+
 	idSysSignal( const idSysSignal& s ) {}
 	void				operator=( const idSysSignal& s ) {}
 };
@@ -140,46 +167,49 @@ routines to atomically increment or decrement an integer.
 class idSysInterlockedInteger
 {
 public:
-	idSysInterlockedInteger() : value( 0 ) {}
-	
-	// atomically increments the integer and returns the new value
-	int					Increment()
+	idSysInterlockedInteger( void ) 
 	{
-		return Sys_InterlockedIncrement( value );
+		value.value = 0;
 	}
 	
-	// atomically decrements the integer and returns the new value
-	int					Decrement()
+	/// @brief atomically increments the integer and returns the new value
+	int Increment( void )
 	{
-		return Sys_InterlockedDecrement( value );
+		return SDL_AddAtomicInt( &value, 1 ) + 1;
 	}
 	
-	// atomically adds a value to the integer and returns the new value
-	int					Add( int v )
+	/// @brief atomically decrements the integer and returns the new value
+	int Decrement( void )
 	{
-		return Sys_InterlockedAdd( value, ( interlockedInt_t ) v );
+		return SDL_AddAtomicInt( &value, -1 ) - 1;
 	}
 	
-	// atomically subtracts a value from the integer and returns the new value
-	int					Sub( int v )
+	/// @brief atomically adds a value to the integer and returns the new value
+	int Add( const int v )
 	{
-		return Sys_InterlockedSub( value, ( interlockedInt_t ) v );
+		return SDL_AddAtomicInt( &value, v ) + v;
 	}
 	
-	// returns the current value of the integer
-	int					GetValue() const
+	/// @brief atomically subtracts a value from the integer and returns the new value
+	int Sub( const int v )
 	{
-		return value;
+		return SDL_AddAtomicInt( &value, - v ) - v;
 	}
 	
-	// sets a new value, Note: this operation is not atomic
-	void				SetValue( int v )
+	/// @brief returns the current value of the integer
+	int GetValue( void ) const
 	{
-		value = ( interlockedInt_t )v;
+		return SDL_GetAtomicInt( const_cast<SDL_AtomicInt*>( &value ) );
+	}
+	
+	/// @brief sets a new value
+	void SetValue( const int v )
+	{
+		SDL_SetAtomicInt( &value, v );
 	}
 	
 private:
-	interlockedInt_t	value;
+	SDL_AtomicInt	value;
 };
 
 /*
@@ -197,20 +227,24 @@ public:
 	// atomically sets the pointer and returns the previous pointer value
 	T* 		Set( T* newPtr )
 	{
-		return ( T* ) Sys_InterlockedExchangePointer( ( void*& ) ptr, newPtr );
+		return static_cast<T*>( SDL_SetAtomicPointer( &ptr, newPtr ) );
 	}
 	
 	// atomically sets the pointer to 'newPtr' only if the previous pointer is equal to 'comparePtr'
 	// ptr = ( ptr == comparePtr ) ? newPtr : ptr
 	T* 		CompareExchange( T* comparePtr, T* newPtr )
 	{
-		return ( T* ) Sys_InterlockedCompareExchangePointer( ( void*& ) ptr, comparePtr, newPtr );
+		if( SDL_CompareAndSwapAtomicPointer( &ptr, comparePtr, newPtr ) )
+			return comparePtr; // comapre are the old pointer
+		else
+			return ptr; // pointer has no change
+		//return ( T* ) Sys_InterlockedCompareExchangePointer( ( void*& ) ptr, comparePtr, newPtr );
 	}
 	
 	// returns the current value of the pointer
-	T* 		Get() const
+	T* Get( void ) const
 	{
-		return ptr;
+		return static_cast<T*>( SDL_GetAtomicPointer( &ptr ) );
 	}
 	
 private:
@@ -266,29 +300,30 @@ Thread and then the thread is signalled to process that work while the main thre
 After doing other work, the main thread can wait for the worker thread to finish, if it has not
 finished already. When the worker thread is done, the main thread can safely use the results
 from the worker thread.
-
-Note that worker threads are useful on all platforms but they do not map to the SPUs on the PS3.
 ================================================
 */
 class idSysThread
 {
 public:
-	idSysThread();
-	virtual			~idSysThread();
+	idSysThread( void );
+	virtual			~idSysThread( void );
 	
-	const char* 	GetName() const
+	const char* 	GetName( void ) const
 	{
 		return name.c_str();
 	}
-	uintptr_t		GetThreadHandle() const
+
+	uintptr_t		GetThreadHandle( void ) const
 	{
-		return threadHandle;
+		return reinterpret_cast<uintptr_t>( threadHandle );
 	}
-	bool			IsRunning() const
+
+	bool			IsRunning( void ) const
 	{
 		return isRunning;
 	}
-	bool			IsTerminating() const
+
+	bool			IsTerminating( void ) const
 	{
 		return isTerminating;
 	}
@@ -305,12 +340,12 @@ public:
 									   xthreadPriority priority = THREAD_NORMAL,
 									   int stackSize = DEFAULT_THREAD_STACK_SIZE );
 									   
-	void			StopThread( bool wait = true );
+	void			StopThread( const bool wait = true );
 	
 	// This can be called from multiple other threads. However, in the case
 	// of a worker thread, the work being "done" has little meaning if other
 	// threads are continuously signalling more work.
-	void			WaitForThread();
+	void			WaitForThread( void );
 	
 	//------------------------
 	// Worker Thread
@@ -318,30 +353,31 @@ public:
 	
 	// Signals the thread to notify work is available.
 	// This can be called from multiple other threads.
-	void			SignalWork();
+	void			SignalWork( void );
 	
 	// Returns true if the work is done without waiting.
 	// This can be called from multiple other threads. However, the work
 	// being "done" has little meaning if other threads are continuously
 	// signalling more work.
-	bool			IsWorkDone();
+	bool			IsWorkDone( void );
 	
 protected:
 	// The routine that performs the work.
-	virtual int		Run();
+	virtual int		Run( void );
 	
 	bool			forceStop;
 
 private:
-	idStr			name;
-	uintptr_t		threadHandle;
-	bool			isWorker;
-	bool			isRunning;
-	volatile bool	isTerminating;
-	volatile bool	moreWorkToDo;
-	idSysSignal		signalWorkerDone;
-	idSysSignal		signalMoreWorkToDo;
-	idSysMutex		signalMutex;
+	bool				isWorker;
+	bool				isRunning;
+	volatile bool		isTerminating;
+	volatile bool		moreWorkToDo;
+	idSysSignal			signalWorkerDone;
+	idSysSignal			signalMoreWorkToDo;
+	idSysMutex			signalMutex;
+	idStr				name;
+	SDL_ThreadPriority	priority;
+	SDL_Thread*			threadHandle;
 	
 	static int		ThreadProc( idSysThread* thread );
 	
@@ -505,9 +541,9 @@ class idSysThreadSynchronizer
 public:
 	static const int	WAIT_INFINITE = -1;
 	
-	ID_INLINE	void			SetNumThreads( unsigned int num );
-	ID_INLINE	void			Signal( unsigned int threadNum );
-	ID_INLINE	bool			Synchronize( unsigned int threadNum, int timeout = WAIT_INFINITE );
+	ID_INLINE	void			SetNumThreads( const uint32_t num );
+	ID_INLINE	void			Signal( const uint32_t threadNum );
+	ID_INLINE	bool			Synchronize( const uint32_t threadNum, int32_t timeout = WAIT_INFINITE );
 	
 private:
 	idList< idSysSignal*, TAG_THREAD >		signals;
@@ -519,14 +555,14 @@ private:
 idSysThreadSynchronizer::SetNumThreads
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::SetNumThreads( unsigned int num )
+ID_INLINE void idSysThreadSynchronizer::SetNumThreads( const uint32_t num )
 {
 	assert( busyCount.GetValue() == signals.Num() );
-	if( ( int )num != signals.Num() )
+	if( num != signals.Num() )
 	{
 		signals.DeleteContents();
 		signals.SetNum( ( int )num );
-		for( unsigned int i = 0; i < num; i++ )
+		for( uint32_t i = 0; i < num; i++ )
 		{
 			signals[i] = new( TAG_THREAD ) idSysSignal();
 		}
@@ -540,13 +576,13 @@ ID_INLINE void idSysThreadSynchronizer::SetNumThreads( unsigned int num )
 idSysThreadSynchronizer::Signal
 ========================
 */
-ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum )
+ID_INLINE void idSysThreadSynchronizer::Signal( const uint32_t threadNum )
 {
 	if( busyCount.Decrement() == 0 )
 	{
-		busyCount.SetValue( ( unsigned int ) signals.Num() );
+		busyCount.SetValue( signals.Num() );
 		SYS_MEMORYBARRIER;
-		for( int i = 0; i < signals.Num(); i++ )
+		for( uint32_t i = 0; i < signals.Num(); i++ )
 		{
 			signals[i]->Raise();
 		}
@@ -558,7 +594,7 @@ ID_INLINE void idSysThreadSynchronizer::Signal( unsigned int threadNum )
 idSysThreadSynchronizer::Synchronize
 ========================
 */
-ID_INLINE bool idSysThreadSynchronizer::Synchronize( unsigned int threadNum, int timeout )
+ID_INLINE bool idSysThreadSynchronizer::Synchronize( const uint32_t threadNum, const int32_t timeout )
 {
 	return signals[threadNum]->Wait( timeout );
 }
