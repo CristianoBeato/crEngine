@@ -33,6 +33,8 @@ find_package( PNG REQUIRED )
 find_package( JPEG REQUIRED )
 find_package( OpenGL REQUIRED )
 find_package( OpenAL REQUIRED )
+find_package( ogg )
+find_package( vorbis )
 
 ## Toolchain configuration
 ##################################################################
