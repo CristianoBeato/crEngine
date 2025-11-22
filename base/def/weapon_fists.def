@@ -65,8 +65,9 @@ entityDef weapon_fists
 	"controllerShakeLowTime"	"100"
 }
 
-model viewmodel_fists {
-	mesh			models/md5/weapons/fists_view/fists.md5mesh
+model viewmodel_fists 
+{
+	mesh			models/weapons/fists_view/fists.md5mesh
 	offset			( -10 0 -6.5 )
 
 	anim raise			models/md5/weapons/fists_view/raise.md5anim {

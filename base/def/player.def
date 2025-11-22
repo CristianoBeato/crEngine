@@ -9,8 +9,8 @@ entityDef player_spawn
    "scriptobject" "player"
 
    "hud"          "guis/hud.gui"
-//   "def_weapon0"  "weapon_kick"
-//   "def_weapon1"  "weapon_kick"
+   "def_weapon0"  "weapon_fists"
+   "def_weapon1"  "weapon_fists"
 
 //   "bone_hips"	  "Legs"
 //   "bone_chest"	  "Torso"
