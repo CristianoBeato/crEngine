@@ -73,7 +73,7 @@ idSoundSample_OpenAL::idSoundSample_OpenAL( void )
 	neverPurge = false;
 	levelLoadReferenced = false;
 	
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	
 	totalBufferSize = 0;
 	
@@ -292,7 +292,7 @@ void idSoundSample_OpenAL::CreateOpenALBuffer()
 	{
 		CheckALErrors();
 		
-		void* buffer = NULL;
+		void* buffer = nullptr;
 		uint32_t bufferSize = 0;
 		
 		if( format.basic.formatTag == idWaveFile::FORMAT_ADPCM )
@@ -380,7 +380,7 @@ bool idSoundSample_OpenAL::LoadWav( const idStr& filename )
 	LoadAmplitude( sampleName );
 	
 	const char* formatError = wave.ReadWaveFormat( format );
-	if( formatError != NULL )
+	if( formatError != nullptr )
 	{
 		idLib::Warning( "LoadWav( %s ) : %s", filename.c_str(), formatError );
 		MakeDefault();
@@ -546,7 +546,7 @@ void idSoundSample_OpenAL::MakeDefault()
 	timestamp = FILE_NOT_FOUND_TIMESTAMP;
 	loaded = true;
 	
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	format.basic.formatTag = idWaveFile::FORMAT_PCM;
 	format.basic.numChannels = 1;
 	format.basic.bitsPerSample = 16;
@@ -647,7 +647,7 @@ bool idSoundSample_OpenAL::LoadAmplitude( const idStr& name )
 {
 	amplitude.Clear();
 	idFileLocal f( fileSystem->OpenFileRead( name ) );
-	if( f == NULL )
+	if( f == nullptr )
 	{
 		return false;
 	}
@@ -1043,7 +1043,7 @@ int idSoundSample_OpenAL::MS_ADPCM_decode( uint8_t** audio_buf, uint32_t* audio_
 	*audio_len = ( encoded_len / format.basic.blockSize ) * format.extra.adpcm.samplesPerBlock * format.basic.numChannels * sizeof( int16_t );
 	
 	*audio_buf = ( uint8_t* ) Mem_Alloc( *audio_len, TAG_AUDIO );
-	if( *audio_buf == NULL )
+	if( *audio_buf == nullptr )
 	{
 		//SDL_Error( SDL_ENOMEM );
 		return ( -1 );

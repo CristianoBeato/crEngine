@@ -116,8 +116,8 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask )
 	// invMap maps a speaker to a destination channel
 	dstLFE = -1;
 	dstCenter = -1;
-	memset( dstMap, 0, sizeof( dstMap ) );
-	memset( invMap, 0, sizeof( invMap ) );
+	std::memset( dstMap, 0, sizeof( dstMap ) );
+	std::memset( invMap, 0, sizeof( invMap ) );
 	for( int i = 0, c = 0; i < idWaveFile::CHANNEL_INDEX_MAX && c < MAX_CHANNELS_PER_VOICE; i++ )
 	{
 		if( dstMask & BIT( i ) )
@@ -147,22 +147,15 @@ void idSoundVoice_Base::InitSurround( int outputChannels, int channelMask )
 	
 	float omniChannels = ( float )dstChannels;
 	if( dstMask & idWaveFile::CHANNEL_MASK_LOW_FREQUENCY )
-	{
 		omniChannels -= 1.0f;
-	}
+	
 	if( dstMask & idWaveFile::CHANNEL_MASK_FRONT_CENTER )
-	{
 		omniChannels -= 1.0f;
-	}
+	
 	if( omniChannels > 0.0f )
-	{
 		omniLevel = 1.0f / omniChannels;
-	}
 	else
-	{
-		// This happens in mono mode
-		omniLevel = 1.0f;
-	}
+		omniLevel = 1.0f;// This happens in mono mode
 }
 
 /*
@@ -247,13 +240,10 @@ void idSoundVoice_Base::CalculateSurround( int srcChannels, float pLevelMatrix[ 
 			int speakerB;
 			float speakerACross = ( speakerPositions[speakerA].x * p2.y ) - ( speakerPositions[speakerA].y * p2.x );
 			if( speakerACross > 0.0f )
-			{
 				speakerB = speakerLeft[speakerA];
-			}
 			else
-			{
 				speakerB = speakerRight[speakerA];
-			}
+			
 			int channelB = invMap[speakerB];
 			
 			// Divide the amplitude between the 2 closest speakers
@@ -291,6 +281,7 @@ void idSoundVoice_Base::CalculateSurround( int srcChannels, float pLevelMatrix[ 
 	{
 		idLib::Warning( "We don't support %d channel sound files", srcChannels );
 	}
+
 	for( int i = 0; i < srcChannels * dstChannels; i++ )
 	{
 		pLevelMatrix[ i ] *= scale;

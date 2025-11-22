@@ -158,6 +158,7 @@ idSoundVoice *idSoundHardwareSDL3::AllocateVoice(const idSoundSample *leadinSamp
 
         // attach stream to device
         m_device.BindStream( voice->Stream() );
+
 		return voice;
 	}
 	

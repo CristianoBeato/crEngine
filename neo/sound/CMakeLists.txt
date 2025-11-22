@@ -55,6 +55,20 @@ set( SOUND_SOURCES
     ${SOUND_BACKEND_SOURCES}
     )
 
+## 
+##################################################################
+
+if( NOT OGG_FOUND )
+    find_path(OGG_INCLUDE_DIR ogg/ogg.h)
+    find_library(OGG_LIBRARY ogg)
+endif( )
+
+if( NOT VORBIS_FOUND )
+    find_path( VORBIS_INCLUDE_DIR vorbis/vorbisfile.h)
+    find_library( VORBIS_LIBRARY vorbis)
+    find_library( VORBISFILE_LIBRARY vorbisfile )
+endif( )
+
 ## library configurarion 
 ##################################################################
 
@@ -68,6 +82,9 @@ elseif( XAUDIO )
 else()
     target_compile_definitions( sound PRIVATE USE_SDL3 )  
 endif()
+
+
+target_include_directories( sound PRIVATE ${OGG_INCLUDE_DIR} ${VORBIS_INCLUDE_DIR} )
 
 # d3xp need idLib
 add_dependencies( sound idLib )

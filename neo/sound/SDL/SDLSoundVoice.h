@@ -4,6 +4,7 @@
 
 #include <SDL3/SDL_audio.hpp>
 
+class idSoundSampleSDL3;
 class idSoundVoiceSDL3 : public idSoundVoice_Base
 {
 public:
@@ -11,25 +12,48 @@ public:
 	~idSoundVoiceSDL3( void );
 
 	void		Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
-	void		Start( int offsetMS, int ssFlags );	// Start playing at a particular point in the buffer.  Does an Update() too
-	void		Stop( void ); // Stop playing.
-	void		Pause( void ); // Stop consuming buffers
-	void		UnPause( void ); // Start consuming buffers again
-	bool		Update( void ); // Sends new position/volume/pitch information to the hardware
-	float		GetAmplitude( void ); // returns the RMS levels of the most recently processed block of audio, SSF_FLICKER must have been passed to Start
-	bool		CompatibleFormat( idSoundSample* s ); // returns true if we can re-use this voice
+	/// @brief Start playing at a particular point in the buffer.  Does an Update() too
+	void		Start( int offsetMS, int ssFlags );	
+	/// @brief Stop playing.
+	void		Stop( void ); 
+	/// @brief Stop consuming buffers
+	void		Pause( void ); 
+	/// @brief Start consuming buffers again
+	void		UnPause( void ); 
+	/// @brief Sends new position/volume/pitch information to the hardware
+	bool		Update( void ); 
+	/// @brief returns the RMS levels of the most recently processed block of audio, SSF_FLICKER must have been passed to Start
+	float		GetAmplitude( void ); 
+	/// @brief returns true if we can re-use this voice
+	bool		CompatibleFormat( idSoundSample* s ); 
+	
+	/// @brief Helper function to submit a buffer
+	int			SubmitBuffer( idSoundSampleSDL3* sample, int bufferNumber, int offset );
+	
 	uint32_t	GetSampleRate( void ) const { return m_sampleRate; }
 
 protected:
 	friend class idSoundHardwareSDL3;
-	bool	IsPlaying( void ) const; // Returns true when all the buffers are finished processing
-	void	FlushSourceBuffers( void ) const; // Called after the voice has been stopped
-	void	DestroyInternal( void ); // Destroy the internal hardware resource
-	int		RestartAt( int offsetSamples ); // Helper function used by the initial start as well as for looping a streamed buffer
-	void	SetSampleRate( uint32_t newSampleRate, uint32_t operationSet ); // Adjust the voice frequency based on the new sample rate for the buffer
-	int		SubmitBuffer( idSoundSample* sample, int bufferNumber, int offset ); // Helper function to submit a buffer
+	
+	/// @brief Returns true when all the buffers are finished processing
+	bool	IsPlaying( void ) const; 
+	
+	/// @brief Called after the voice has been stopped
+	void	FlushSourceBuffers( void ) const; 
+	
+	/// @brief Destroy the internal hardware resource
+	void	DestroyInternal( void ); 
+	
+	/// @brief Helper function used by the initial start as well as for looping a streamed buffer
+	int		RestartAt( int offsetSamples ); 
+	
+	/// @brief Adjust the voice frequency based on the new sample rate for the buffer
+	void	SetSampleRate( uint32_t newSampleRate, uint32_t operationSet ); 
+	
+	/// @brief Helper function to submit a buffer
+	int		SubmitBuffer( idSoundSample* sample, int bufferNumber, int offset ); 
+	
 	SDL::Audio::Stream	&Stream( void ) { return m_stream; }
-
 
 	// Chamado pelo mixer
     //int MixSamples( const int frames );
@@ -45,7 +69,8 @@ private:
 	size_t					m_size;
 	uintptr_t				m_cursor;
 	SDL_AudioSpec			m_audioSpec;
-	float*					m_buffer;
+	idSoundSampleSDL3*		m_leadinSample;
+	idSoundSampleSDL3*		m_loopingSample;
 	SDL::Audio::Stream		m_stream;
 };
 

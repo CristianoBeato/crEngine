@@ -96,7 +96,7 @@ public:
 	virtual float			GetMinDistance() const;		// FIXME: replace this with a GetSoundShaderParms()
 	virtual float			GetMaxDistance() const;
 	
-	// returns NULL if an AltSound isn't defined in the shader.
+	// returns nullptr if an AltSound isn't defined in the shader.
 	// we use this for pairing a specific broken light sound with a normal light sound
 	virtual const idSoundShader* GetAltSound() const;
 	
@@ -153,7 +153,7 @@ public:
 	virtual void			Free( bool immediate ) = 0;
 	
 	// the parms specified will be the default overrides for all sounds started on this emitter.
-	// NULL is acceptable for parms
+	// nullptr is acceptable for parms
 	virtual void			UpdateEmitter( const idVec3& origin, int listenerId, const soundShaderParms_t* parms ) = 0;
 	
 	// returns the length of the started sound in msec
@@ -201,7 +201,7 @@ public:
 	// get a new emitter that can play sounds in this world
 	virtual idSoundEmitter* AllocSoundEmitter() = 0;
 	
-	// for load games, index 0 will return NULL
+	// for load games, index 0 will return nullptr
 	virtual idSoundEmitter* EmitterForIndex( int index ) = 0;
 	
 	// query sound samples from all emitters reaching a given listener
@@ -295,11 +295,11 @@ public:
 	virtual idSoundWorld* 	AllocSoundWorld( idRenderWorld* rw ) = 0;
 	virtual void			FreeSoundWorld( idSoundWorld* sw ) = 0;
 	
-	// Specifying NULL will cause silence to be played.
+	// Specifying nullptr will cause silence to be played.
 	virtual void			SetPlayingSoundWorld( idSoundWorld* soundWorld ) = 0;
 	
 	// Some tools, like the sound dialog, may be used in both the game and the editor
-	// This can return NULL, so check!
+	// This can return nullptr, so check!
 	virtual idSoundWorld* 	GetPlayingSoundWorld() = 0;
 	
 	// Sends the current playing sound world information to the sound hardware.

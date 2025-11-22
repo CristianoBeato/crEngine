@@ -2,21 +2,49 @@
 #ifndef __SOUND_SAMPLE_H__
 #define __SOUND_SAMPLE_H__
 
+class crSDLSampleBuffer
+{
+public:
+	crSDLSampleBuffer( void );
+	~crSDLSampleBuffer( void );
+
+	void Alloc( const size_t size, const uint32_t samples, const idStr &name );
+	void Free( void );
+	void Copy( void* data, const size_t len );
+
+	uint32_t	NumSamples( void ) const { return m_numSamples; }
+	size_t		Size( void ) const { return m_size; };
+	void*		Ptr( void ) const { return m_buffer; }
+
+private:
+	idStr		m_name;
+	uint32_t	m_numSamples;
+	size_t		m_size;
+	void*		m_buffer;
+};
+
 class idSoundSampleSDL3
 {
 public:
+
 	idSoundSampleSDL3( void );
 	
     // destructor should be public so lists of  soundsamples can be destroyed etc
 	~idSoundSampleSDL3( void ); 
 	
 	// Loads and initializes the resource based on the name.
-	virtual void	 LoadResource( void );
+	virtual void	 		LoadResource( void );
 	
-	void			SetName( const char* n ) { name = n; }
-	const char* 	GetName( void ) const { return name; }
-	ID_TIME_T		GetTimestamp( void ) const { return timestamp; }
-	
+	void					SetName( const char* n ) { name = n; }
+	const char* 			GetName( void ) const { return name; }
+	ID_TIME_T				GetTimestamp( void ) const { return timestamp; }
+
+// BEATO Begin:
+	const uint32_t								NumBuffers( void ) const { return buffers.Num(); }
+	const idList<crSDLSampleBuffer, TAG_AUDIO>	Buffers( void ) const {return buffers; }
+	const int									PlayBegin( void ) const { return playBegin; }
+// BEATO End
+
 	// turns it into a beep
 	void			MakeDefault( void );
 	
@@ -53,29 +81,24 @@ public:
 	float			GetAmplitude( int timeMS ) const;
 	
 protected:
-	struct sampleBuffer_t
-	{
-		uint32_t 	bufferSize;
-		uint32_t	numSamples;
-		void*		buffer = nullptr;
-	};	
+	bool									loaded;
+	bool									neverPurge;
+	bool									levelLoadReferenced;
+	bool									usesMapHeap;
+	int										playBegin;
+	int										playLength;
+	idStr									name;
+	uint32_t								lastPlayedTime;
+	ID_TIME_T								timestamp;
+	size_t									totalBufferSize;	// total size of all the buffers
+	idList<crSDLSampleBuffer, TAG_AUDIO>	buffers;
+	idWaveFile::waveFmt_t					format;
+	idList<byte, TAG_AMPLITUDE>				amplitude;
 
-	bool								loaded;
-	bool								neverPurge;
-	bool								levelLoadReferenced;
-	bool								usesMapHeap;
-	int									playBegin;
-	int									playLength;
-	idStr								name;
-	uint32_t							lastPlayedTime;
-	ID_TIME_T							timestamp;
-	size_t								totalBufferSize;	// total size of all the buffers
-	idList<sampleBuffer_t, TAG_AUDIO>	buffers;
-	idWaveFile::waveFmt_t				format;
-	idList<byte, TAG_AMPLITUDE>			amplitude;
-
-	bool			LoadWav( const idStr& name );
+// BEATO Begin:
 	bool			LoadOgg( const idStr& name );
+// BEATO End
+	bool			LoadWav( const idStr& name );
 	bool			LoadAmplitude( const idStr& name );
 	void			WriteAllSamples( const idStr& sampleName );
 	bool			LoadGeneratedSample( const idStr& name );

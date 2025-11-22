@@ -30,6 +30,12 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
+// BEATO Begin:
+#include <ogg/ogg.h>
+#include <vorbis/vorbisfile.h>
+#include <vorbis/vorbisenc.h>
+// BEATO End
+
 /*
 ================================================================================================
 Contains the WaveFile implementation.
@@ -46,19 +52,17 @@ Returns true if the Open was successful and the file matches the expected format
 returns false, there is no need to call Close.
 ========================
 */
-bool idWaveFile::Open( const char* filename )
+bool idWaveFile::Open( const idStr filename )
 {
 	Close();
 	
-	if( filename == NULL || filename[0] == 0 )
-	{
+	if( !filename.IsEmpty() || filename[0] == 0 )
 		return false;
-	}
 	
-	if( file == NULL )
+	if( file == nullptr )
 	{
 		file = fileSystem->OpenFileReadMemory( filename );
-		if( file == NULL )
+		if( file == nullptr )
 		{
 			return false;
 		}
@@ -203,13 +207,13 @@ typedef struct XMA2WAVEFORMAT
 ========================
 idWaveFile::ReadWaveFormat
 
-Reads a wave format header, returns NULL if it found one and read it.
+Reads a wave format header, returns nullptrptr if it found one and read it.
 otherwise, returns a human-readable error message.
 ========================
 */
 const char* idWaveFile::ReadWaveFormat( waveFmt_t& format )
 {
-	memset( &format, 0, sizeof( format ) );
+	std::memset( &format, 0, sizeof( format ) );
 	
 	uint32_t formatSize = SeekToChunk( waveFmt_t::id );
 	if( formatSize == 0 )
@@ -223,7 +227,7 @@ const char* idWaveFile::ReadWaveFormat( waveFmt_t& format )
 	
 	Read( &format.basic, sizeof( format.basic ) );
 	
-	idSwapClass<waveFmt_t::basic_t> swap;
+	idSwapClass<waveFmtBasic_t> swap;
 	swap.Little( format.basic.formatTag );
 	swap.Little( format.basic.numChannels );
 	swap.Little( format.basic.samplesPerSec );
@@ -309,7 +313,7 @@ const char* idWaveFile::ReadWaveFormat( waveFmt_t& format )
 		return "Unknown wave format tag";
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 /*
@@ -323,7 +327,7 @@ bool idWaveFile::ReadWaveFormatDirect( waveFmt_t& format, idFile* file )
 {
 
 	file->Read( &format.basic, sizeof( format.basic ) );
-	idSwapClass<waveFmt_t::basic_t> swap;
+	idSwapClass<waveFmtBasic_t> swap;
 	swap.Little( format.basic.formatTag );
 	swap.Little( format.basic.numChannels );
 	swap.Little( format.basic.samplesPerSec );
@@ -582,10 +586,267 @@ Closes the file and frees resources.
 */
 void idWaveFile::Close()
 {
-	if( file != NULL )
+	if( file != nullptr )
 	{
 		delete file;
-		file = NULL;
+		file = nullptr;
 	}
 	chunks.SetNum( 0 );
+}
+
+/*
+===================================================================================
+
+  OggVorbis file loading/decoding.
+
+===================================================================================
+*/
+
+
+/*
+===================================================================================
+
+  Thread safe decoder memory allocator.
+
+  Each OggVorbis decoder consumes about 150kB of memory.
+
+===================================================================================
+*/
+
+// TODO: require a mutex
+idDynamicBlockAlloc<byte, 1<<20, 128>		decoderMemoryAllocator;
+
+const int MIN_OGGVORBIS_MEMORY				= 768 * 1024;
+
+extern "C" 
+{
+	static void *_decoder_malloc( size_t size );
+	static void *_decoder_calloc( size_t num, size_t size );
+	static void *_decoder_realloc( void *memblock, size_t size );
+	static void _decoder_free( void *memblock );
+}
+
+void *_decoder_malloc( size_t size ) 
+{
+	void *ptr = decoderMemoryAllocator.Alloc( size );
+	assert( size == 0 || ptr != nullptr );
+	return ptr;
+}
+
+void *_decoder_calloc( size_t num, size_t size ) 
+{
+	void *ptr = decoderMemoryAllocator.Alloc( num * size );
+	assert( ( num * size ) == 0 || ptr != nullptr );
+	std::memset( ptr, 0, num * size );
+	return ptr;
+}
+
+void *_decoder_realloc( void *memblock, size_t size ) 
+{
+	void *ptr = decoderMemoryAllocator.Resize( (byte *)memblock, size );
+	assert( size == 0 || ptr != nullptr );
+	return ptr;
+}
+
+void _decoder_free( void *memblock ) 
+{
+	decoderMemoryAllocator.Free( (byte *)memblock );
+}
+
+/*
+====================
+ogg_read
+====================
+*/
+static size_t ogg_read( void *dest, size_t size1, size_t size2, void *fh ) 
+{
+	return static_cast<idFile *>(fh)->Read( dest, size1 * size2 );
+}
+
+/*
+====================
+FS_SeekOGG
+====================
+*/
+static int ogg_seek( void *fh, ogg_int64_t to, int type ) 
+{
+	fsOrigin_t retype = FS_SEEK_SET;
+
+	switch (type)
+	{
+	case SEEK_CUR:
+		retype = FS_SEEK_CUR;
+		break;
+	case SEEK_END:
+		retype = FS_SEEK_END;
+		break;
+	case SEEK_SET:
+		retype = FS_SEEK_SET;
+		break;
+	default:
+		common->FatalError( "fs_seekOGG: seek without type\n" );
+		break;
+	}
+
+	return static_cast<idFile *>(fh)->Seek( to, retype );
+}
+
+/*
+====================
+ogg_close
+====================
+*/
+static int ogg_close( void *fh ) 
+{
+	return 0;
+}
+
+/*
+====================
+ogg_tell
+====================
+*/
+static long ogg_tell( void *fh ) 
+{
+	return static_cast<idFile *>(fh)->Tell();
+}
+
+/*
+====================
+ov_openFile
+====================
+*/
+int ov_openFile( idFile *f, OggVorbis_File *vf ) 
+{
+	ov_callbacks callbacks;
+	std::memset( vf, 0, sizeof( OggVorbis_File ) );
+
+	callbacks.read_func = ogg_read;
+	callbacks.seek_func = ogg_seek;
+	callbacks.close_func = ogg_close;
+	callbacks.tell_func = ogg_tell;
+	return ov_open_callbacks(reinterpret_cast<void *>( f ), vf, nullptr, -1, callbacks);
+}
+
+/*
+====================
+crOGGFile::crOGGFile
+====================
+*/
+crOGGFile::crOGGFile( void ) : 
+	m_file( nullptr ),
+	m_vorbisFile( nullptr ),
+	m_vorbisInfo( nullptr )
+{
+}
+
+/*
+====================
+crOGGFile::~crOGGFile
+====================
+*/
+crOGGFile::~crOGGFile( void )
+{
+	Close();
+}
+
+/*
+====================
+crOGGFile::crOGGFile
+====================
+*/
+bool crOGGFile::Open(const idStr filename)
+{
+	Close();
+	
+	if( !filename.IsEmpty() || filename[0] == 0 )
+		return false;
+	
+	if( m_file == nullptr )
+	{
+		m_file = fileSystem->OpenFileReadMemory( filename );
+		if( m_file == nullptr )
+			return false;
+	}
+	
+	if( m_file->Length() == 0 )
+	{
+		Close();
+		return false;
+	}
+
+	//Sys_EnterCriticalSection( CRITICAL_SECTION_ONE );
+	m_vorbisFile = new OggVorbis_File;
+
+	if( ov_openFile( m_file, m_vorbisFile ) < 0 ) 
+	{
+		delete m_vorbisFile;
+		//Sys_LeaveCriticalSection( CRITICAL_SECTION_ONE );
+		fileSystem->CloseFile( m_file );
+		m_file = nullptr;
+		return false;
+	}
+
+	m_vorbisInfo = ov_info( m_vorbisFile, -1 );
+
+    return true;
+}
+
+void crOGGFile::Close(void)
+{	
+	if ( m_vorbisFile )
+	{
+		ov_clear( m_vorbisFile );
+		delete m_vorbisFile;
+		m_vorbisFile = nullptr;
+	}
+
+	if ( m_file )
+	{
+		fileSystem->CloseFile( m_file );
+		m_file = nullptr;
+	}
+}
+
+size_t crOGGFile::Read( void *buffer, size_t len )
+{
+	int bitstream = 0;
+	long read = 0;
+	size_t total = len;
+	char *bufferPtr = static_cast<char*>( buffer );
+	
+	do 
+	{
+		int ret = ov_read( m_vorbisFile, bufferPtr, total >= 4096 ? 4096 : total, Swap_IsBigEndian(), 2, 1, &bitstream );
+		if ( ret == 0 ) 
+			break;
+		
+		if ( ret < 0 ) 
+			return 0;
+		
+		bufferPtr += ret;
+		total -= ret;
+	} while( total > 0 );
+		
+	return reinterpret_cast<uintptr_t>( buffer ) - reinterpret_cast<uintptr_t>( bufferPtr );
+}
+
+waveFmtBasic_t crOGGFile::GetFormat(void) const
+{
+	waveFmtBasic_t format;
+	std::memset( &format, 0x00, sizeof( waveFmtBasic_t) );
+
+	format.formatTag = idWaveFile::FORMAT_PCM;
+	format.samplesPerSec = m_vorbisInfo->rate;
+	format.numChannels = m_vorbisInfo->channels;
+	format.bitsPerSample = sizeof(short) * 8;
+	format.blockSize = m_vorbisInfo->channels * sizeof(short);
+	format.avgBytesPerSec = format.samplesPerSec * format.blockSize;
+
+    return format;
+}
+
+int64_t crOGGFile::TotalSamples(void) const
+{ 
+    return ov_pcm_total( m_vorbisFile, -1 );
 }

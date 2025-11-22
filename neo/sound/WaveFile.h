@@ -35,6 +35,15 @@ If you have questions concerning this license or the applicable additional terms
 Contains the WaveFile declaration.
 ================================================================================================
 */
+struct waveFmtBasic_t
+{
+	uint16_t formatTag = 0;
+	uint16_t numChannels = 0;
+	uint32_t samplesPerSec = 0;
+	uint32_t avgBytesPerSec = 0;
+	uint16_t blockSize = 0;
+	uint16_t bitsPerSample = 0;
+};
 
 /*
 ================================================
@@ -44,25 +53,28 @@ idWaveFile is used for reading generic RIFF WAVE files.
 class idWaveFile
 {
 public:
-	ID_INLINE 	idWaveFile();
-	ID_INLINE 	~idWaveFile();
+	ID_INLINE 	idWaveFile( void );
+	ID_INLINE 	~idWaveFile( void );
 	
-	bool		Open( const char* filename );
-	void		Close();
-	uint32_t		SeekToChunk( uint32_t id );
-	size_t		Read( void* buffer, size_t len )
+	bool		Open( const idStr filename );
+	void		Close( void );
+	uint32_t	SeekToChunk( uint32_t id );
+
+	size_t	Read( void* buffer, size_t len )
 	{
 		return file->Read( buffer, len );
 	}
-	uint32_t		GetChunkOffset( uint32_t id );
+
+	uint32_t	GetChunkOffset( uint32_t id );
 	
-	ID_TIME_T	Timestamp()
+	ID_TIME_T	Timestamp( void )
 	{
 		return file->Timestamp();
 	}
-	const char* Name()
+
+	const char* Name( void )
 	{
-		return ( file == NULL ? "" : file->GetName() );
+		return ( file == nullptr ? "" : file->GetName() );
 	}
 	
 	// This maps to the channel mask in waveFmtExtensible_t
@@ -113,15 +125,8 @@ public:
 	{
 		static const uint32_t id = 'fmt ';
 		// This is the basic data we'd expect to see in any valid wave file
-		struct basic_t
-		{
-			uint16_t formatTag;
-			uint16_t numChannels;
-			uint32_t samplesPerSec;
-			uint32_t avgBytesPerSec;
-			uint16_t blockSize;
-			uint16_t bitsPerSample;
-		} basic;
+		waveFmtBasic_t basic;
+
 		// Some wav file formats have extra data after the basic header
 		uint16_t extraSize;
 		// We have a few known formats that we handle:
@@ -141,6 +146,7 @@ public:
 					byte data5[ 6 ];
 				} subFormat;				// Format identifier GUID
 			} extensible;
+
 			// Valid if basic.formatTag == FORMAT_ADPCM
 			// The microsoft ADPCM struct has a zero-sized array at the end
 			// but the array is always 7 entries, so we set it to that size
@@ -156,6 +162,7 @@ public:
 					short coef2;
 				} aCoef[7];  // Always 7 coefficient pairs for MS ADPCM
 			} adpcm;
+
 			// Valid if basic.formatTag == FORMAT_XMA2
 			struct xma2_t
 			{
@@ -249,7 +256,7 @@ private:
 idWaveFile::idWaveFile
 ========================
 */
-ID_INLINE idWaveFile::idWaveFile() : file( NULL )
+ID_INLINE idWaveFile::idWaveFile() : file( nullptr )
 {
 }
 
@@ -262,5 +269,34 @@ ID_INLINE idWaveFile::~idWaveFile()
 {
 	Close();
 }
+
+class crOGGFile
+{
+public:
+	crOGGFile( void );
+	~crOGGFile( void );
+
+	bool			Open( const idStr filename );
+	void			Close( void );
+	size_t			Read( void* buffer, size_t len );
+	
+	waveFmtBasic_t	GetFormat( void ) const;
+	int64_t			TotalSamples( void ) const;
+
+	ID_TIME_T	Timestamp( void ) const
+	{
+		return m_file->Timestamp();
+	}
+
+	const char* Name( void ) const
+	{
+		return ( m_file == nullptr ? "" : m_file->GetName() );
+	}
+
+private:
+	idFile*						m_file;
+	struct OggVorbis_File*		m_vorbisFile;
+	struct vorbis_info*			m_vorbisInfo;
+};
 
 #endif // !__WAVEFILE_H__
