@@ -24,7 +24,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "precompiled.h"
 #include "glBuffer.hpp"
-#include "renderer/GraphicsAPIWrapper/Buffer.hpp"
 
 glBuffer::glBuffer( void ) : crBuffer(), m_buffer( 0 )
 {

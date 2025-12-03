@@ -25,8 +25,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __GL_PIPELINE_HPP__
 #define __GL_PIPELINE_HPP__
 
-#include "renderer/GraphicsAPIWrapper/Pipeline.hpp"
-
 class glPipeline : public crPipeline
 {
 

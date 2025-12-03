@@ -25,8 +25,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __GL_COMMAND_BUFFER_HPP__
 #define __GL_COMMAND_BUFFER_HPP__
 
-#include "renderer/GraphicsAPIWrapper/CommandBuffer.hpp"
-
 // this is just a workarround, since OpenGL use a single driver internal command buffer
 class glCommandBuffer : public crCommandBuffer
 {

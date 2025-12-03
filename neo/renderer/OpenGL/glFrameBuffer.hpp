@@ -25,8 +25,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __GL_FRAMEBUFFER_HPP__
 #define __GL_FRAMEBUFFER_HPP__
 
-#include "renderer/GraphicsAPIWrapper/Framebuffer.hpp"
-
 class glFrameBuffer : public crFramebuffer
 {
 public:
