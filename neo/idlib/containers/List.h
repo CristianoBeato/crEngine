@@ -234,7 +234,7 @@ public:
 	uint32_t		Insert( const _type_ & obj, uint32_t index = 0 );		
 	
 	///@brief find the index for the given element
-	int32_t				FindIndex( const _type_ & obj ) const;				
+	int32_t			FindIndex( const _type_ & obj ) const;				
 	
 	///@brief find pointer to the given element
 	_type_* 		Find( _type_ const& obj ) const;					

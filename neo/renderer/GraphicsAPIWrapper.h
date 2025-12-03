@@ -43,8 +43,7 @@ If you have questions concerning this license or the applicable additional terms
 	directly from platform specific code implemented in files in the platform specific folders:
 
 	renderer/OpenGL/
-	renderer/DirectX/
-	renderer/GCM/
+	renderer/Vulkan/
 
 ================================================================================================
 */
@@ -66,9 +65,6 @@ static const int OCCLUSION_QUERY_TOO_OLD				= -1;
 
 ================================================================================================
 */
-
-
-
 
 #define USE_CORE_PROFILE
 
@@ -130,7 +126,6 @@ struct wrapperStats_t
 
 void			GL_SetWrapperContext( const wrapperContext_t& context );
 void			GL_SetWrapperConfig( const wrapperConfig_t& config );
-
 void			GL_SetTimeDelta( uint64_t delta );	// delta from GPU to CPU microseconds
 void			GL_StartFrame( int frame );			// inserts a timing mark for the start of the GPU frame
 void			GL_EndFrame();						// inserts a timing mark for the end of the GPU frame
@@ -165,6 +160,7 @@ ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect )
 	GL_Viewport( rect );
 	GL_Scissor( rect );
 }
+
 void			GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
 void			GL_PolygonOffset( float scale, float bias );
 void			GL_DepthBoundsTest( const float zmin, const float zmax );
@@ -180,6 +176,5 @@ void			GL_CheckErrors_Extended(const char* file, int line);
 
 wrapperStats_t	GL_GetCurrentStats();
 void			GL_ClearStats();
-
 
 #endif // !__GRAPHICSAPIWRAPPER_H__

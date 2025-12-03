@@ -46,27 +46,27 @@ public:
 	idLinkList();
 	~idLinkList();
 	
-	bool				IsListEmpty() const;
-	bool				InList() const;
-	int					Num() const;
-	void				Clear();
+	bool				IsListEmpty( void ) const;
+	bool				InList( void ) const;
+	int					Num( void ) const;
+	void				Clear( void );
 	
 	void				InsertBefore( idLinkList& node );
 	void				InsertAfter( idLinkList& node );
 	void				AddToEnd( idLinkList& node );
 	void				AddToFront( idLinkList& node );
 	
-	void				Remove();
+	void				Remove( void );
 	
-	type* 				Next() const;
-	type* 				Prev() const;
+	type* 				Next( void ) const;
+	type* 				Prev( void ) const;
 	
-	type* 				Owner() const;
+	type* 				Owner( void ) const;
 	void				SetOwner( type* object );
 	
-	idLinkList* 		ListHead() const;
-	idLinkList* 		NextNode() const;
-	idLinkList* 		PrevNode() const;
+	idLinkList* 		ListHead( void ) const;
+	idLinkList* 		NextNode( void ) const;
+	idLinkList* 		PrevNode( void ) const;
 	
 private:
 	idLinkList* 		head;

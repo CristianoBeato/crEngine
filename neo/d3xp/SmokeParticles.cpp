@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Game_local.h"
+#include "renderer/Geometry.h"
 
 static const char* smokeParticle_SnapshotName = "_SmokeParticle_Snapshot_";
 

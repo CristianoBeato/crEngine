@@ -56,7 +56,7 @@ static const uint64_t GLS_DSTBLEND_BITS					= 7 << 3;
 // preventing that channel from being written
 //------------------------
 static const uint64_t GLS_DEPTHMASK						= 1 << 6;
-static const uint64_t GLS_REDMASK							= 1 << 7;
+static const uint64_t GLS_REDMASK						= 1 << 7;
 static const uint64_t GLS_GREENMASK						= 1 << 8;
 static const uint64_t GLS_BLUEMASK						= 1 << 9;
 static const uint64_t GLS_ALPHAMASK						= 1 << 10;
