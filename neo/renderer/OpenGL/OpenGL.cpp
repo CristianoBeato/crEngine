@@ -5,7 +5,7 @@
 #include <SDL3/SDL_assert.h>
 #include <SDL3/SDL_video.h>
 #include <SDL3/SDL_init.h>
-#include "renderer/tr_local.h"
+#include "renderer_common.h"
 
 PFNGLGETERRORPROC                           	glGetError = nullptr;
 PFNGLGETINTEGERVPROC                         	glGetIntegerv = nullptr;
@@ -22,14 +22,16 @@ PFNGLDISABLEPROC                            	glDisable = nullptr;
 PFNGLCLEARPROC                              	glClear = nullptr;
 
 PFNGLCLEARCOLORPROC                         	glClearColor = nullptr;
-PFNGLCLEARSTENCILPROC                       	glClearStencil = nullptr;
-PFNGLCLEARDEPTHPROC                         	glClearDepth = nullptr;
-
-PFNGLCOLORMASKPROC                          	glColorMask = nullptr;
-PFNGLDEPTHMASKPROC                          	glDepthMask = nullptr;
-
+PFNGLCOLORMASKPROC                          	glColorMask = nullptr;	
 PFNGLBLENDFUNCPROC                          	glBlendFunc = nullptr;
+PFNGLBLENDFUNCSEPARATEPROC						glBlendFuncSeparate = nullptr;
+PFNGLBLENDEQUATIONPROC							glBlendEquation = nullptr;
+
+PFNGLCLEARDEPTHPROC                         	glClearDepth = nullptr;
+PFNGLDEPTHMASKPROC                          	glDepthMask = nullptr;
 PFNGLDEPTHFUNCPROC                          	glDepthFunc = nullptr;
+
+PFNGLCLEARSTENCILPROC                       	glClearStencil = nullptr;
 PFNGLSTENCILFUNCPROC                        	glStencilFunc = nullptr;
 
 PFNGLSCISSORPROC                            	glScissor = nullptr;
@@ -69,6 +71,17 @@ PFNGLUNMAPBUFFERPROC							glUnmapBuffer = nullptr;
 PFNGLGETBUFFERPARAMETERIVPROC					glGetBufferParameteriv = nullptr;
 PFNGLGETBUFFERPOINTERVPROC						glGetBufferPointerv = nullptr;
 
+// buffer
+PFNGLCREATEBUFFERSPROC                       	glCreateBuffers = nullptr;
+PFNGLNAMEDBUFFERSTORAGEPROC                  	glNamedBufferStorage = nullptr;
+PFNGLMAPNAMEDBUFFERRANGEPROC                 	glMapNamedBufferRange = nullptr;
+PFNGLUNMAPNAMEDBUFFERPROC                    	glUnmapNamedBuffer = nullptr;
+PFNGLFLUSHMAPPEDNAMEDBUFFERRANGEPROC         	glFlushMappedNamedBufferRange = nullptr;
+PFNGLNAMEDBUFFERSUBDATAPROC                  	glNamedBufferSubData = nullptr;
+PFNGLGETNAMEDBUFFERSUBDATAPROC               	glGetNamedBufferSubData = nullptr;
+PFNGLCOPYNAMEDBUFFERSUBDATAPROC              	glCopyNamedBufferSubData = nullptr;
+
+
 PFNGLPIXELSTOREIPROC                         	glPixelStorei = nullptr;
 
 PFNGLGENTEXTURESPROC                         	glGenTextures = nullptr;
@@ -82,10 +95,65 @@ PFNGLTEXPARAMETERIPROC                       	glTexParameteri = nullptr;
 PFNGLTEXPARAMETERFVPROC                      	glTexParameterfv = nullptr;
 PFNGLTEXPARAMETERIVPROC                      	glTexParameteriv = nullptr;
 
+// BEATO
+PFNGLCREATETEXTURESPROC					        glCreateTextures = nullptr;
+PFNGLISTEXTUREPROC                              glIsTexture = nullptr;
+PFNGLTEXTURESTORAGE1DPROC				        glTextureStorage1D = nullptr;
+PFNGLTEXTURESTORAGE2DPROC				        glTextureStorage2D = nullptr;
+PFNGLTEXTURESTORAGE3DPROC				        glTextureStorage3D = nullptr;
+PFNGLTEXTURESTORAGE2DMULTISAMPLEPROC            glTextureStorage2DMultisample = nullptr;
+PFNGLTEXTURESTORAGE3DMULTISAMPLEPROC            glTextureStorage3DMultisample = nullptr;
+PFNGLTEXTURESUBIMAGE1DPROC				        glTextureSubImage1D = nullptr;
+PFNGLTEXTURESUBIMAGE2DPROC				        glTextureSubImage2D = nullptr;
+PFNGLTEXTURESUBIMAGE3DPROC				        glTextureSubImage3D = nullptr;
+PFNGLCOPYTEXTURESUBIMAGE1DPROC                  glCopyTextureSubImage1D = nullptr;
+PFNGLCOPYTEXTURESUBIMAGE2DPROC                  glCopyTextureSubImage2D = nullptr;
+PFNGLCOPYTEXTURESUBIMAGE3DPROC                  glCopyTextureSubImage3D = nullptr;
+PFNGLTEXTUREPARAMETERIVPROC				        glTextureParameteriv = nullptr;
+PFNGLTEXTUREPARAMETERFVPROC				        glTextureParameterfv = nullptr;
+PFNGLGETTEXTUREPARAMETERIVPROC                  glGetTextureParameteriv = nullptr;
+PFNGLGETTEXTUREPARAMETERFVPROC                  glGetTextureParameterfv = nullptr;
+PFNGLGETTEXTURELEVELPARAMETERFVPROC             glGetTextureLevelParameterfv = nullptr;
+PFNGLGETTEXTURELEVELPARAMETERIVPROC             glGetTextureLevelParameteriv = nullptr;
+PFNGLGETTEXTUREIMAGEPROC                        glGetTextureImage = nullptr;
+PFNGLGETCOMPRESSEDTEXTUREIMAGEPROC              glGetCompressedTextureImage = nullptr;
+
+// GL_ARB_clear_texture
+PFNGLCLEARTEXIMAGEPROC                          glClearTexImage = nullptr;
+PFNGLCLEARTEXSUBIMAGEPROC                       glClearTexSubImage = nullptr;
+
+// GL_ARB_get_texture_sub_image
+PFNGLGETTEXTURESUBIMAGEPROC                     glGetTextureSubImage = nullptr;
+PFNGLGETCOMPRESSEDTEXTURESUBIMAGEPROC           glGetCompressedTextureSubImage = nullptr;
+
+// GL_ARB_copy_image
+PFNGLCOPYIMAGESUBDATAPROC                       glCopyImageSubData = nullptr;
+//
+
 // GL_ARB_texture_compression
 PFNGLCOMPRESSEDTEXIMAGE2DPROC               	glCompressedTexImage2D = nullptr;
 PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC            	glCompressedTexSubImage2D = nullptr;
 PFNGLGETCOMPRESSEDTEXIMAGEPROC              	glGetCompressedTexImage = nullptr;
+
+// GL_ARB_sampler_objects
+PFNGLCREATESAMPLERSPROC                         glCreateSamplers = nullptr;
+PFNGLDELETESAMPLERSPROC                         glDeleteSamplers = nullptr;
+PFNGLBINDSAMPLERPROC                            glBindSampler = nullptr;
+PFNGLBINDSAMPLERSPROC                           glBindSamplers = nullptr;
+PFNGLISSAMPLERPROC                              glIsSampler = nullptr;
+PFNGLSAMPLERPARAMETERIPROC                      glSamplerParameteri = nullptr;
+PFNGLSAMPLERPARAMETERIVPROC                     glSamplerParameteriv = nullptr;
+PFNGLSAMPLERPARAMETERFPROC                      glSamplerParameterf = nullptr;
+PFNGLSAMPLERPARAMETERFVPROC                     glSamplerParameterfv = nullptr;
+PFNGLGETSAMPLERPARAMETERIVPROC                  glGetSamplerParameteriv = nullptr;
+PFNGLGETSAMPLERPARAMETERFVPROC                  glGetSamplerParameterfv = nullptr;
+
+// GL_ARB_bindless_texture
+PFNGLGETTEXTUREHANDLEARBPROC				    glGetTextureHandleARB = nullptr;
+PFNGLGETTEXTURESAMPLERHANDLEARBPROC		    	glGetTextureSamplerHandleARB = nullptr;
+PFNGLMAKETEXTUREHANDLERESIDENTARBPROC	    	glMakeTextureHandleResidentARB = nullptr;
+PFNGLMAKETEXTUREHANDLENONRESIDENTARBPROC     	glMakeTextureHandleNonResidentARB = nullptr;
+PFNGLISTEXTUREHANDLERESIDENTARBPROC		    	glIsTextureHandleResidentARB = nullptr;
 
 // GL_ARB_map_buffer_range
 PFNGLMAPBUFFERRANGEPROC							glMapBufferRange = nullptr;
@@ -94,6 +162,11 @@ PFNGLDRAWARRAYSPROC                          	glDrawArrays = nullptr;
 
 // GL_ARB_draw_elements_base_vertex
 PFNGLDRAWELEMENTSBASEVERTEXPROC  				glDrawElementsBaseVertex = nullptr;
+
+PFNGLDRAWARRAYSINSTANCEDPROC					glDrawArraysInstanced = nullptr;
+PFNGLDRAWELEMENTSINSTANCEDBASEVERTEXPROC		glDrawElementsInstancedBaseVertex = nullptr;
+
+PFNGLDISPATCHCOMPUTEPROC                     	glDispatchCompute = nullptr;
 
 // GL_ARB_vertex_array_object
 PFNGLGENVERTEXARRAYSPROC						glGenVertexArrays = nullptr;
@@ -120,6 +193,8 @@ PFNGLCREATESHADERPROC							glCreateShader = nullptr;
 PFNGLDELETESHADERPROC							glDeleteShader = nullptr;
 PFNGLSHADERSOURCEPROC							glShaderSource = nullptr;
 PFNGLCOMPILESHADERPROC							glCompileShader = nullptr;
+PFNGLSHADERBINARYPROC                        	glShaderBinary = nullptr;
+PFNGLSPECIALIZESHADERPROC                    	glSpecializeShader = nullptr;
 PFNGLGETSHADERIVPROC							glGetShaderiv = nullptr;
 PFNGLGETSHADERINFOLOGPROC						glGetShaderInfoLog = nullptr;
 PFNGLCREATEPROGRAMPROC							glCreateProgram = nullptr;
@@ -135,6 +210,19 @@ PFNGLBINDATTRIBLOCATIONPROC						glBindAttribLocation = nullptr;
 PFNGLGETUNIFORMLOCATIONPROC						glGetUniformLocation = nullptr;
 PFNGLUNIFORM1IPROC								glUniform1i = nullptr;
 PFNGLUNIFORM4FVPROC								glUniform4fv = nullptr;
+
+// GL_ARB_separate_shader_objects
+PFNGLBINDPROGRAMPIPELINEPROC                 	glBindProgramPipeline = nullptr;
+PFNGLCREATEPROGRAMPIPELINESPROC              	glCreateProgramPipelines = nullptr;
+PFNGLDELETEPROGRAMPIPELINESPROC              	glDeleteProgramPipelines = nullptr;
+PFNGLVALIDATEPROGRAMPIPELINEPROC             	glValidateProgramPipeline = nullptr;
+PFNGLGETPROGRAMPIPELINEIVPROC                	glGetProgramPipelineiv = nullptr;
+PFNGLGETPROGRAMPIPELINEINFOLOGPROC           	glGetProgramPipelineInfoLog = nullptr;
+PFNGLUSEPROGRAMSTAGESPROC                    	glUseProgramStages = nullptr;
+PFNGLACTIVESHADERPROGRAMPROC                 	glActiveShaderProgram = nullptr;
+PFNGLPROGRAMUNIFORM1IPROC                    	glProgramUniform1i = nullptr;
+PFNGLPROGRAMUNIFORM1IVPROC                   	glProgramUniform1iv = nullptr;
+PFNGLPROGRAMUNIFORM1UIVPROC                  	glProgramUniform1uiv = nullptr;
 
 // foresthale 2014-02-18: added qglDrawbuffers
 PFNGLDRAWBUFFERSPROC                        	glDrawBuffers = nullptr;
@@ -160,6 +248,16 @@ PFNGLGENERATEMIPMAPPROC                     	glGenerateMipmap = nullptr;
 PFNGLBLITFRAMEBUFFERPROC                    	glBlitFramebuffer = nullptr;
 PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC     	glRenderbufferStorageMultisample = nullptr;
 PFNGLFRAMEBUFFERTEXTURELAYERPROC            	glFramebufferTextureLayer = nullptr;
+
+// BEATO Begin: use direct state acess
+PFNGLCREATERENDERBUFFERSPROC					glCreateRenderbuffers = nullptr;
+PFNGLNAMEDRENDERBUFFERSTORAGEPROC				glNamedRenderbufferStorage = nullptr;
+PFNGLNAMEDRENDERBUFFERSTORAGEMULTISAMPLEPROC	glNamedRenderbufferStorageMultisample = nullptr;
+PFNGLNAMEDFRAMEBUFFERRENDERBUFFERPROC			glNamedFramebufferRenderbuffer = nullptr;
+PFNGLGETNAMEDRENDERBUFFERPARAMETERIVPROC		glGetNamedRenderbufferParameteriv = nullptr;
+PFNGLCHECKNAMEDFRAMEBUFFERSTATUSPROC			glCheckNamedFramebufferStatus = nullptr;
+PFNGLBLITNAMEDFRAMEBUFFERPROC                	glBlitNamedFramebuffer = nullptr;
+// BEATO End
 
 // GL_ARB_uniform_buffer_object
 PFNGLGETUNIFORMBLOCKINDEXPROC					glGetUniformBlockIndex = nullptr;
@@ -209,26 +307,27 @@ idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = O
 
 static void APIENTRY DebugOutputCall( GLenum in_source, GLenum in_type, GLuint in_id, GLenum in_severity, GLsizei in_length, const GLchar *in_message, const void *in_userParam );
 
-static struct OpenGL
+glContextState::glContextState( void )
 {
-    SDL_Window*     window = nullptr;
-    SDL_GLContext   context = nullptr;
-}context;
+}
+
+glContextState::~glContextState( void )
+{
+}
 
 static bool QGL_Init( const char* dllname );
 static void QGL_Shutdown( void );
 
-
 /*
 ===================
-GLimp_PreInit
+glContextState::PreInit
 
  R_GetModeListForDisplay is called before GLimp_Init(), but SDL needs SDL_Init() first.
  So do that in GLimp_PreInit()
  Calling that function more than once doesn't make a difference
 ===================
 */
-void GLimp_PreInit( void ) // DG: added this function for SDL compatibility
+void glContextState::PreInit( void ) // DG: added this function for SDL compatibility
 {
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 	{
@@ -239,18 +338,18 @@ void GLimp_PreInit( void ) // DG: added this function for SDL compatibility
 
 /*
 ===================
-GLimp_Init
+glContextState::Init
 ===================
 */
-bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
+bool glContextState::Init( const bool in_stereo, const uint8_t in_multiSamples )
 {
 	common->Printf( "Initializing OpenGL subsystem\n" );
 	
-	GLimp_PreInit(); // DG: make sure SDL is initialized
+	glContextState::PreInit(); // DG: make sure SDL is initialized
 	
     // get window handler
-    context.window = static_cast<SDL_Window*>( sys->GetVideoSystem()->WindowHandler() );
-	assert( context.window != nullptr );
+    m_window = static_cast<SDL_Window*>( sys->GetVideoSystem()->WindowHandler() );
+	assert( m_window != nullptr );
 
 	int colorbits = 24;
 	int depthbits = 24;
@@ -350,9 +449,9 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
 			SDL_GL_SetAttribute( SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE );
 		// RB end
 		
-		context.context = SDL_GL_CreateContext( context.window );
+		m_context = SDL_GL_CreateContext( m_window );
 		
-		if( !context.context )
+		if( !m_context )
 		{
 			common->Warning( "Couldn't set GL mode %d/%d/%d: %s", channelcolorbits, tdepthbits, tstencilbits, SDL_GetError() );
 			continue;
@@ -362,10 +461,10 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
 			common->Warning( "SDL_GL_SWAP_CONTROL not supported" );
 			
 		// RB begin
-		SDL_GetWindowSize( context.window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
+		SDL_GetWindowSize( m_window, &glConfig.nativeScreenWidth, &glConfig.nativeScreenHeight );
 		// RB end
 		
-		glConfig.isFullscreen = ( SDL_GetWindowFlags( context.window ) & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN;
+		glConfig.isFullscreen = ( SDL_GetWindowFlags( m_window ) & SDL_WINDOW_FULLSCREEN ) == SDL_WINDOW_FULLSCREEN;
 		common->Printf( "Using %d color bits, %d depth, %d stencil display\n",
 						channelcolorbits, tdepthbits, tstencilbits );
 						
@@ -386,7 +485,7 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
 		break;
 	}
 	
-	if( !context.context )
+	if( !m_context )
 	{
 		common->Printf( "No usable GL mode found: %s", SDL_GetError() );
 		return false;
@@ -415,25 +514,25 @@ bool GLimp_Init( const bool in_stereo, const uint8_t in_multiSamples )
 
 /*
 ===================
-GLimp_Shutdown
+glContextState::Shutdown
 ===================
 */
-void GLimp_Shutdown( void )
+void glContextState::Shutdown( void )
 {
-	if ( !context.context )
+	if ( !m_context )
 		return;
 
-	SDL_GL_DestroyContext( context.context );
+	SDL_GL_DestroyContext( m_context );
 
-	context.context = nullptr;
+	m_context = nullptr;
 }
 
 /*
 ===================
-GLimp_SetScreenParms
+glContextState::SetScreenParms
 ===================
 */
-bool GLimp_SetScreenParms( const bool in_stereo, const uint8_t in_multiSamples )
+bool glContextState::SetScreenParms( const bool in_stereo, const uint8_t in_multiSamples )
 {
 	// Note: the following stuff would also work with SDL1.2
 	SDL_GL_SetAttribute( SDL_GL_STEREO, in_stereo ? 1 : 0 );	
@@ -448,10 +547,10 @@ bool GLimp_SetScreenParms( const bool in_stereo, const uint8_t in_multiSamples )
 
 /*
 ===================
-GLimp_SwapBuffers
+glContextState::SwapBuffers
 ===================
 */
-void GLimp_SwapBuffers( void )
+void glContextState::SwapBuffers( void )
 {
     if( r_swapInterval.IsModified() )
 	{
@@ -466,212 +565,466 @@ void GLimp_SwapBuffers( void )
         SDL_GL_SetSwapInterval( interval );
 	}
 	
-	SDL_GL_SwapWindow( context.window );
+	SDL_GL_SwapWindow( m_window );
 }
 
 /*
 =================
-GLimp_SetGamma
+glContextState::SetGamma
 =================
 */
-
-
-
-void GLimp_SetGamma( unsigned short red[256], unsigned short green[256], unsigned short blue[256] )
+void glContextState::SetGamma( unsigned short red[256], unsigned short green[256], unsigned short blue[256] )
 {
 }
 
-#define GET_GL_PROC( T, P ) P = reinterpret_cast<T>( SDL_GL_GetProcAddress( #P ) )
+/*
+=================
+glContextState::BindFrameBuffer
+=================
+*/
+void glContextState::BindFrameBuffer(const GLuint in_frameBuffer)
+{
+	if ( m_state.frameBuffer != in_frameBuffer )
+	{
+		glBindFramebuffer( GL_FRAMEBUFFER, in_frameBuffer );
+		m_state.frameBuffer == in_frameBuffer;
+	}
+}
+
+/*
+=================
+glContextState::BindVertexArray
+=================
+*/
+void glContextState::BindVertexArray(const GLuint in_vertexArray)
+{
+	if( m_state.vertexArray != in_vertexArray )
+	{
+		glBindVertexArray( in_vertexArray );
+		m_state.vertexArray = in_vertexArray;
+	} 
+}
+
+/*
+=================
+glContextState::BindProgramPipeline
+=================
+*/
+void glContextState::BindProgramPipeline(const GLuint in_programPipeline)
+{
+	if ( m_state.program.pipeline != in_programPipeline )
+	{
+		glBindProgramPipeline( in_programPipeline );
+		m_state.program.pipeline != in_programPipeline;
+	}
+}
+
+/*
+=================
+glContextState::FaceCull
+=================
+*/
+void glContextState::FaceCull( const GLboolean in_enable, const GLenum in_face )
+{
+	/// is disable, change nothing
+	if( m_state.cullFaceState.enable == GL_FALSE && in_enable == GL_FALSE )
+		return;
+
+	if ( m_state.cullFaceState.enable == GL_FALSE )
+	{
+		glEnable( GL_CULL_FACE );
+
+		if ( m_state.cullFaceState.face != in_face )
+		{
+			glCullFace( in_face );
+			m_state.cullFaceState.face = in_face; 
+		}
+		
+	}
+	else
+	{
+		// disable face culling
+		glDisable( GL_CULL_FACE );
+	}
+
+	m_state.cullFaceState.enable = in_enable;
+}
+
+void glContextState::DepthTest(const GLboolean in_enable, const GLenum in_func)
+{
+	if ( m_state.depthFuncState.depthTest == GL_FALSE && in_enable == GL_FALSE )
+		return;
+
+	if( m_state.depthFuncState.depthTest == GL_FALSE && in_enable == GL_TRUE )
+	{
+		glEnable( GL_DEPTH_TEST );
+		m_state.depthFuncState.depthTest = GL_TRUE;
+	}
+	else
+	{
+		glDisable( GL_DEPTH_TEST );
+		m_state.depthFuncState.depthTest = GL_FALSE;	
+	}
+
+	if (m_state.depthFuncState.depthFunc != in_func )
+	{
+		glDepthFunc( in_func );
+		m_state.depthFuncState.depthFunc = in_func;
+	}	
+}
+
+void glContextState::Blending( const GLboolean in_enable, const GLenum in_SRCFactor, const GLenum in_SRCAlphaFactor, const GLenum in_DSTFactor, const GLenum in_DSTAlphaFactor, const GLenum in_blendOp )
+{
+	// ignore if blend is blend is disable
+	if ( m_state.blendingState.enable == GL_FALSE && in_enable == GL_FALSE )
+		return;
+
+	if( m_state.blendingState.enable == GL_FALSE && in_enable == GL_TRUE )
+	{
+		glEnable( GL_BLEND );
+		m_state.blendingState.enable = GL_TRUE;
+	}
+	else
+	{
+		glDisable( GL_BLEND );
+		m_state.blendingState.enable = GL_FALSE;	
+	}
+
+	if (	m_state.blendingState.srcFactor != in_SRCFactor || 
+			m_state.blendingState.srcFactorAlpha != in_SRCAlphaFactor || 
+			m_state.blendingState.dstFactor != in_DSTFactor || 
+			m_state.blendingState.dstFactorAlpha != in_DSTAlphaFactor )
+	{
+		glBlendFuncSeparate( in_SRCFactor, in_DSTFactor, in_SRCAlphaFactor, in_DSTAlphaFactor );
+	}
+	
+	if ( m_state.blendingState.blendOp != in_blendOp )
+		glBlendEquation( in_blendOp );
+}
+
+void glContextState::StencilTest(const GLboolean in_enable, const GLenum in_face, const GLenum in_pass, const GLenum in_fail, const GLenum in_Zfail)
+{
+	if ( m_state.stencilState.enable == GL_FALSE && in_enable == GL_FALSE )
+		return;	
+
+	if( m_state.stencilState.enable == GL_FALSE && in_enable == GL_TRUE )
+	{
+		glEnable( GL_STENCIL_TEST );
+		m_state.stencilState.enable = GL_TRUE;
+	}
+	else
+	{
+		glDisable( GL_STENCIL_TEST );
+		m_state.stencilState.enable = GL_FALSE;	
+	}
+
+	if ( in_face != m_state.stencilState.face || 
+		 in_pass != m_state.stencilState.pass  ||
+		 in_fail != m_state.stencilState.fail ||
+		 in_Zfail != m_state.stencilState.zfail )
+	{
+		glStencilOpSeparate( in_face, in_fail, in_Zfail, in_pass );
+	}
+}
+
+void glContextState::PolygonMode( const GLenum in_face, const GLenum in_mode )
+{
+	if ( m_state.polygonMode.face == in_face && m_state.polygonMode.mode == in_mode )
+		return;
+
+	glPolygonMode( in_face, in_mode );
+	m_state.polygonMode.face = in_face;
+	m_state.polygonMode.mode = in_mode;
+}
+
+template< typename _t >
+static inline void LoadGLProc( _t proc, const char* pName )
+{
+    proc = reinterpret_cast<_t>( SDL_GL_GetProcAddress( pName ) );
+}
+
+#define GET_GL_PROC( P ) LoadGLProc( P, #P )
 
 bool QGL_Init( const char* dllname )
 {
-	GET_GL_PROC( PFNGLGETERRORPROC, glGetError );
-	GET_GL_PROC( PFNGLGETINTEGERVPROC, glGetIntegerv );
-	GET_GL_PROC( PFNGLGETFLOATVPROC, glGetFloatv );
-	GET_GL_PROC( PFNGLGETSTRINGPROC, glGetString );
-	GET_GL_PROC( PFNGLGETSTRINGIPROC, glGetStringi );
+	GET_GL_PROC( glGetError );
+	GET_GL_PROC( glGetIntegerv );
+	GET_GL_PROC( glGetFloatv );
+	GET_GL_PROC( glGetString );
+	GET_GL_PROC( glGetStringi );
 
-	GET_GL_PROC( PFNGLFLUSHPROC, glFlush );
-	GET_GL_PROC( PFNGLFINISHPROC, glFinish );
+	GET_GL_PROC( glFlush );
+	GET_GL_PROC( glFinish );
 
-	GET_GL_PROC( PFNGLENABLEPROC, glEnable );
-	GET_GL_PROC( PFNGLDISABLEPROC, glDisable );
+	GET_GL_PROC( glEnable );
+	GET_GL_PROC( glDisable );
 
-	GET_GL_PROC( PFNGLCLEARPROC, glClear );
+	GET_GL_PROC( glClear );
+	
+	GET_GL_PROC( glClearColor );
+	GET_GL_PROC( glColorMask );
+	GET_GL_PROC( glBlendFunc );
+	GET_GL_PROC( glBlendFuncSeparate );
+	GET_GL_PROC( glBlendEquation );
+	
+	GET_GL_PROC( glClearDepth );
+	GET_GL_PROC( glDepthMask );
+	GET_GL_PROC( glDepthFunc );
+	
+	GET_GL_PROC( glClearStencil );
+	GET_GL_PROC( glStencilFunc );
 
-	GET_GL_PROC( PFNGLCLEARCOLORPROC, glClearColor );
-	GET_GL_PROC( PFNGLCLEARSTENCILPROC, glClearStencil );
-	GET_GL_PROC( PFNGLCLEARDEPTHPROC, glClearDepth );
+	GET_GL_PROC( glScissor );
+	GET_GL_PROC( glViewport );
 
-	GET_GL_PROC( PFNGLCOLORMASKPROC, glColorMask );
-	GET_GL_PROC( PFNGLDEPTHMASKPROC, glDepthMask );
+	GET_GL_PROC( glPolygonMode );
+	GET_GL_PROC( glPolygonOffset );
+	GET_GL_PROC( glCullFace );
 
-	GET_GL_PROC( PFNGLBLENDFUNCPROC, glBlendFunc );
-	GET_GL_PROC( PFNGLDEPTHFUNCPROC, glDepthFunc );
-	GET_GL_PROC( PFNGLSTENCILFUNCPROC, glStencilFunc );
+	GET_GL_PROC( glDrawBuffer );
+	GET_GL_PROC( glReadBuffer );
 
-	GET_GL_PROC( PFNGLSCISSORPROC, glScissor );
-	GET_GL_PROC( PFNGLVIEWPORTPROC, glViewport );
+	GET_GL_PROC( glStencilOp );
 
-	GET_GL_PROC( PFNGLPOLYGONMODEPROC, glPolygonMode );
-	GET_GL_PROC( PFNGLPOLYGONOFFSETPROC, glPolygonOffset );
-	GET_GL_PROC( PFNGLCULLFACEPROC, glCullFace );
+	GET_GL_PROC( glLineWidth );
+	GET_GL_PROC( glPointSize );
 
-	GET_GL_PROC( PFNGLDRAWBUFFERPROC, glDrawBuffer );
-	GET_GL_PROC( PFNGLREADBUFFERPROC, glReadBuffer );
-
-	GET_GL_PROC( PFNGLSTENCILOPPROC, glStencilOp );
-
-	GET_GL_PROC( PFNGLLINEWIDTHPROC, glLineWidth );
-	GET_GL_PROC( PFNGLPOINTSIZEPROC, glPointSize );
-
-	GET_GL_PROC( PFNGLREADPIXELSPROC, glReadPixels );
+	GET_GL_PROC( glReadPixels );
 
 	// GL_ARB_multitexture
-	GET_GL_PROC( PFNGLACTIVETEXTUREPROC, glActiveTexture );
-	GET_GL_PROC( PFNGLBINDTEXTUREPROC, glBindTexture );
+	GET_GL_PROC( glActiveTexture );
+	GET_GL_PROC( glBindTexture );
 
-	GET_GL_PROC( PFNGLBINDTEXTUREUNITPROC,  glBindTextureUnit );
+	GET_GL_PROC( glBindTextureUnit );
 
 	// GL_ARB_vertex_buffer_object
-	GET_GL_PROC( PFNGLBINDBUFFERPROC, glBindBuffer );
-	GET_GL_PROC( PFNGLBINDBUFFERRANGEPROC, glBindBufferRange );
-	GET_GL_PROC( PFNGLDELETEBUFFERSPROC, glDeleteBuffers );
-	GET_GL_PROC( PFNGLGENBUFFERSPROC, glGenBuffers );
-	GET_GL_PROC( PFNGLISBUFFERPROC, glIsBuffer );
-	GET_GL_PROC( PFNGLBUFFERDATAPROC, glBufferData );
-	GET_GL_PROC( PFNGLBUFFERSUBDATAPROC, glBufferSubData );
-	GET_GL_PROC( PFNGLGETBUFFERSUBDATAPROC, glGetBufferSubData );
-	GET_GL_PROC( PFNGLMAPBUFFERPROC, glMapBuffer );
-	GET_GL_PROC( PFNGLUNMAPBUFFERPROC, glUnmapBuffer );
-	GET_GL_PROC( PFNGLGETBUFFERPARAMETERIVPROC, glGetBufferParameteriv );
-	GET_GL_PROC( PFNGLGETBUFFERPOINTERVPROC, glGetBufferPointerv );
+	GET_GL_PROC( glBindBuffer );
+	GET_GL_PROC( glBindBufferRange );
+	GET_GL_PROC( glDeleteBuffers );
+	GET_GL_PROC( glGenBuffers );
+	GET_GL_PROC( glIsBuffer );
+	GET_GL_PROC( glBufferData );
+	GET_GL_PROC( glBufferSubData );
+	GET_GL_PROC( glGetBufferSubData );
+	GET_GL_PROC( glMapBuffer );
+	GET_GL_PROC( glUnmapBuffer );
+	GET_GL_PROC( glGetBufferParameteriv );
+	GET_GL_PROC( glGetBufferPointerv );
 
-	GET_GL_PROC( PFNGLPIXELSTOREIPROC, glPixelStorei );
+	GET_GL_PROC( glCreateBuffers );
+	GET_GL_PROC( glNamedBufferStorage );
+	GET_GL_PROC( glMapNamedBufferRange );
+	GET_GL_PROC( glUnmapNamedBuffer );
+	GET_GL_PROC( glFlushMappedNamedBufferRange );
+	GET_GL_PROC( glNamedBufferSubData );
+	GET_GL_PROC( glGetNamedBufferSubData );
+	GET_GL_PROC( glCopyNamedBufferSubData );
 
-	GET_GL_PROC( PFNGLGENTEXTURESPROC, glGenTextures );
-	GET_GL_PROC( PFNGLDELETETEXTURESPROC, glDeleteTextures );
-	GET_GL_PROC( PFNGLTEXIMAGE2DPROC, glTexImage2D );
-	GET_GL_PROC( PFNGLTEXSUBIMAGE2DPROC, glTexSubImage2D );
-	GET_GL_PROC( PFNGLTEXIMAGE3DPROC, glTexImage3D );
-	GET_GL_PROC( PFNGLCOPYTEXIMAGE2DPROC, glCopyTexImage2D );
-	GET_GL_PROC( PFNGLTEXPARAMETERFPROC, glTexParameterf );
-	GET_GL_PROC( PFNGLTEXPARAMETERIPROC, glTexParameteri );
-	GET_GL_PROC( PFNGLTEXPARAMETERFVPROC, glTexParameterfv );
-	GET_GL_PROC( PFNGLTEXPARAMETERIVPROC, glTexParameteriv );
+	GET_GL_PROC( glPixelStorei );
+
+	GET_GL_PROC( glGenTextures );
+	GET_GL_PROC( glDeleteTextures );
+	GET_GL_PROC( glTexImage2D );
+	GET_GL_PROC( glTexSubImage2D );
+	GET_GL_PROC( glTexImage3D );
+	GET_GL_PROC( glCopyTexImage2D );
+	GET_GL_PROC( glTexParameterf );
+	GET_GL_PROC( glTexParameteri );
+	GET_GL_PROC( glTexParameterfv );
+	GET_GL_PROC( glTexParameteriv );
+
+	GET_GL_PROC( glCreateTextures );
+	GET_GL_PROC( glIsTexture );
+	GET_GL_PROC( glTextureStorage1D );
+	GET_GL_PROC( glTextureStorage2D );
+	GET_GL_PROC( glTextureStorage3D );
+	GET_GL_PROC( glTextureStorage2DMultisample );
+	GET_GL_PROC( glTextureStorage3DMultisample );
+	GET_GL_PROC( glTextureSubImage1D );
+	GET_GL_PROC( glTextureSubImage2D );
+	GET_GL_PROC( glTextureSubImage3D );
+	GET_GL_PROC( glCopyTextureSubImage1D );
+	GET_GL_PROC( glCopyTextureSubImage2D );
+	GET_GL_PROC( glCopyTextureSubImage3D );
+	GET_GL_PROC( glTextureParameteriv );
+	GET_GL_PROC( glTextureParameterfv );
+	GET_GL_PROC( glGetTextureParameteriv );
+	GET_GL_PROC( glGetTextureParameterfv );
+	GET_GL_PROC( glGetTextureLevelParameterfv );
+	GET_GL_PROC( glGetTextureLevelParameteriv );
+	GET_GL_PROC( glGetTextureImage );
+	GET_GL_PROC( glGetCompressedTextureImage );
+
+	GET_GL_PROC( glClearTexImage );
+	GET_GL_PROC( glClearTexSubImage );
+
+	GET_GL_PROC( glGetTextureSubImage ); 
+	GET_GL_PROC( glGetCompressedTextureSubImage ); 
+
+	GET_GL_PROC( glCopyImageSubData );
 
 	// GL_ARB_texture_compression
-	GET_GL_PROC( PFNGLCOMPRESSEDTEXIMAGE2DPROC, glCompressedTexImage2D );
-	GET_GL_PROC( PFNGLCOMPRESSEDTEXSUBIMAGE2DPROC, glCompressedTexSubImage2D );
-	GET_GL_PROC( PFNGLGETCOMPRESSEDTEXIMAGEPROC, glGetCompressedTexImage );
+	GET_GL_PROC( glCompressedTexImage2D );
+	GET_GL_PROC( glCompressedTexSubImage2D );
+	GET_GL_PROC( glGetCompressedTexImage );
+
+	// GL_ARB_sampler_objects
+	GET_GL_PROC( glCreateSamplers );
+	GET_GL_PROC( glDeleteSamplers );
+	GET_GL_PROC( glBindSampler );
+	GET_GL_PROC( glBindSamplers );
+	GET_GL_PROC( glIsSampler );
+	GET_GL_PROC( glSamplerParameteri );
+	GET_GL_PROC( glSamplerParameteriv );
+	GET_GL_PROC( glSamplerParameterf );
+	GET_GL_PROC( glSamplerParameterfv );
+	GET_GL_PROC( glGetSamplerParameteriv );
+	GET_GL_PROC( glGetSamplerParameterfv );
+
+	// GL_ARB_bindless_texture
+	GET_GL_PROC( glGetTextureHandleARB );
+	GET_GL_PROC( glGetTextureSamplerHandleARB );
+	GET_GL_PROC( glMakeTextureHandleResidentARB );
+	GET_GL_PROC( glMakeTextureHandleNonResidentARB );
+	GET_GL_PROC( glIsTextureHandleResidentARB );
 
 	// GL_ARB_map_buffer_range
-	GET_GL_PROC( PFNGLMAPBUFFERRANGEPROC, glMapBufferRange );
+	GET_GL_PROC( glMapBufferRange );
 
-	GET_GL_PROC( PFNGLDRAWARRAYSPROC, glDrawArrays );
+	GET_GL_PROC( glDrawArrays );
+	GET_GL_PROC( glDrawArraysInstanced );
+	GET_GL_PROC( glDrawElementsInstancedBaseVertex );
 
 	// GL_ARB_draw_elements_base_vertex
-	GET_GL_PROC( PFNGLDRAWELEMENTSBASEVERTEXPROC, glDrawElementsBaseVertex );
+	GET_GL_PROC( glDrawElementsBaseVertex );
+
+	GET_GL_PROC( glDispatchCompute );
 
 	// GL_ARB_vertex_array_object
-	GET_GL_PROC( PFNGLGENVERTEXARRAYSPROC, glGenVertexArrays );
-	GET_GL_PROC( PFNGLBINDVERTEXARRAYPROC, glBindVertexArray );
-	GET_GL_PROC( PFNGLDELETEVERTEXARRAYSPROC, glDeleteVertexArrays );
+	GET_GL_PROC( glGenVertexArrays );
+	GET_GL_PROC( glBindVertexArray );
+	GET_GL_PROC( glDeleteVertexArrays );
 
-	GET_GL_PROC( PFNGLCREATEVERTEXARRAYSPROC, glCreateVertexArrays );
-	GET_GL_PROC( PFNGLDISABLEVERTEXARRAYATTRIBPROC, glDisableVertexArrayAttrib );
-	GET_GL_PROC( PFNGLENABLEVERTEXARRAYATTRIBPROC, glEnableVertexArrayAttrib );
-	GET_GL_PROC( PFNGLVERTEXARRAYELEMENTBUFFERPROC, glVertexArrayElementBuffer );
-	GET_GL_PROC( PFNGLVERTEXARRAYVERTEXBUFFERPROC, glVertexArrayVertexBuffer );
-	GET_GL_PROC( PFNGLVERTEXARRAYATTRIBBINDINGPROC, glVertexArrayAttribBinding );
-	GET_GL_PROC( PFNGLVERTEXARRAYATTRIBFORMATPROC, glVertexArrayAttribFormat );
+	GET_GL_PROC( glCreateVertexArrays );
+	GET_GL_PROC( glDisableVertexArrayAttrib );
+	GET_GL_PROC( glEnableVertexArrayAttrib );
+	GET_GL_PROC( glVertexArrayElementBuffer );
+	GET_GL_PROC( glVertexArrayVertexBuffer );
+	GET_GL_PROC( glVertexArrayAttribBinding );
+	GET_GL_PROC( glVertexArrayAttribFormat );
 
 	// GL_ARB_vertex_program / GL_ARB_fragment_program
-	GET_GL_PROC( PFNGLVERTEXATTRIBPOINTERPROC, glVertexAttribPointer );
-	GET_GL_PROC( PFNGLENABLEVERTEXATTRIBARRAYPROC, glEnableVertexAttribArray );
-	GET_GL_PROC( PFNGLDISABLEVERTEXATTRIBARRAYPROC, glDisableVertexAttribArray );
+	GET_GL_PROC( glVertexAttribPointer );
+	GET_GL_PROC( glEnableVertexAttribArray );
+	GET_GL_PROC( glDisableVertexAttribArray );
 
 	// GLSL / OpenGL 2.0
-	GET_GL_PROC( PFNGLCREATESHADERPROC, glCreateShader );
-	GET_GL_PROC( PFNGLDELETESHADERPROC, glDeleteShader );
-	GET_GL_PROC( PFNGLSHADERSOURCEPROC, glShaderSource );
-	GET_GL_PROC( PFNGLCOMPILESHADERPROC, glCompileShader );
-	GET_GL_PROC( PFNGLGETSHADERIVPROC, glGetShaderiv );
-	GET_GL_PROC( PFNGLGETSHADERINFOLOGPROC, glGetShaderInfoLog );
-	GET_GL_PROC( PFNGLCREATEPROGRAMPROC, glCreateProgram );
-	GET_GL_PROC( PFNGLDELETEPROGRAMPROC, glDeleteProgram );
-	GET_GL_PROC( PFNGLATTACHSHADERPROC, glAttachShader );
-	GET_GL_PROC( PFNGLDETACHSHADERPROC, glDetachShader );
-	GET_GL_PROC( PFNGLLINKPROGRAMPROC, glLinkProgram );
-	GET_GL_PROC( PFNGLUSEPROGRAMPROC, glUseProgram );
-	GET_GL_PROC( PFNGLGETPROGRAMIVPROC, glGetProgramiv );
-	GET_GL_PROC( PFNGLGETPROGRAMINFOLOGPROC, glGetProgramInfoLog );
-	GET_GL_PROC( PFNGLPROGRAMPARAMETERIPROC, glProgramParameteri );
-	GET_GL_PROC( PFNGLBINDATTRIBLOCATIONPROC, glBindAttribLocation );
-	GET_GL_PROC( PFNGLGETUNIFORMLOCATIONPROC, glGetUniformLocation );
-	GET_GL_PROC( PFNGLUNIFORM1IPROC, glUniform1i );
-	GET_GL_PROC( PFNGLUNIFORM4FVPROC, glUniform4fv );
+	GET_GL_PROC( glCreateShader );
+	GET_GL_PROC( glDeleteShader );
+	GET_GL_PROC( glShaderSource );
+	GET_GL_PROC( glCompileShader );
+	GET_GL_PROC( glShaderBinary );
+	GET_GL_PROC( glCompileShader );
+	GET_GL_PROC( glGetShaderiv );
+	GET_GL_PROC( glGetShaderInfoLog );
+	GET_GL_PROC( glCreateProgram );
+	GET_GL_PROC( glDeleteProgram );
+	GET_GL_PROC( glAttachShader );
+	GET_GL_PROC( glDetachShader );
+	GET_GL_PROC( glLinkProgram );
+	GET_GL_PROC( glUseProgram );
+	GET_GL_PROC( glGetProgramiv );
+	GET_GL_PROC( glGetProgramInfoLog );
+	GET_GL_PROC( glProgramParameteri );
+	GET_GL_PROC( glBindAttribLocation );
+	GET_GL_PROC( glGetUniformLocation );
+	GET_GL_PROC( glUniform1i );
+	GET_GL_PROC( glUniform4fv );
+
+	// GL_ARB_separate_shader_objects
+	GET_GL_PROC( glBindProgramPipeline );
+	GET_GL_PROC( glCreateProgramPipelines );
+	GET_GL_PROC( glDeleteProgramPipelines );
+	GET_GL_PROC( glValidateProgramPipeline );
+	GET_GL_PROC( glGetProgramPipelineiv );
+	GET_GL_PROC( glGetProgramPipelineInfoLog );
+	GET_GL_PROC( glUseProgramStages );
+	GET_GL_PROC( glActiveShaderProgram );
+	GET_GL_PROC( glProgramUniform1i );
+	GET_GL_PROC( glProgramUniform1iv );
+	GET_GL_PROC( glProgramUniform1uiv );
 
 	// foresthale 2014-02-18: added qglDrawbuffers
-	GET_GL_PROC( PFNGLDRAWBUFFERSPROC, glDrawBuffers );
+	GET_GL_PROC( glDrawBuffers );
 
 	// foresthale 2014-02-16: added GL_ARB_framebuffer_object
-	GET_GL_PROC( PFNGLISRENDERBUFFERPROC, glIsRenderbuffer );
-	GET_GL_PROC( PFNGLBINDRENDERBUFFERPROC, glBindRenderbuffer );
-	GET_GL_PROC( PFNGLDELETERENDERBUFFERSPROC, glDeleteRenderbuffers );
-	GET_GL_PROC( PFNGLGENRENDERBUFFERSPROC, glGenRenderbuffers );
-	GET_GL_PROC( PFNGLRENDERBUFFERSTORAGEPROC, glRenderbufferStorage );
-	GET_GL_PROC( PFNGLGETRENDERBUFFERPARAMETERIVPROC, glGetRenderbufferParameteriv );
-	GET_GL_PROC( PFNGLISFRAMEBUFFERPROC, glIsFramebuffer );
-	GET_GL_PROC( PFNGLBINDFRAMEBUFFERPROC, glBindFramebuffer );
-	GET_GL_PROC( PFNGLDELETEFRAMEBUFFERSPROC, glDeleteFramebuffers );
-	GET_GL_PROC( PFNGLGENFRAMEBUFFERSPROC, glGenFramebuffers );
-	GET_GL_PROC( PFNGLCHECKFRAMEBUFFERSTATUSPROC, glCheckFramebufferStatus );
-	GET_GL_PROC( PFNGLFRAMEBUFFERTEXTURE1DPROC, glFramebufferTexture1D );
-	GET_GL_PROC( PFNGLFRAMEBUFFERTEXTURE2DPROC, glFramebufferTexture2D );
-	GET_GL_PROC( PFNGLFRAMEBUFFERTEXTURE3DPROC, glFramebufferTexture3D );
-	GET_GL_PROC( PFNGLFRAMEBUFFERRENDERBUFFERPROC, glFramebufferRenderbuffer );
-	GET_GL_PROC( PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVPROC, glGetFramebufferAttachmentParameteriv );
-	GET_GL_PROC( PFNGLGENERATEMIPMAPPROC, glGenerateMipmap );
-	GET_GL_PROC( PFNGLBLITFRAMEBUFFERPROC, glBlitFramebuffer );
-	GET_GL_PROC( PFNGLRENDERBUFFERSTORAGEMULTISAMPLEPROC, glRenderbufferStorageMultisample );
-	GET_GL_PROC( PFNGLFRAMEBUFFERTEXTURELAYERPROC, glFramebufferTextureLayer );
+	GET_GL_PROC( glIsRenderbuffer );
+	GET_GL_PROC( glBindRenderbuffer );
+	GET_GL_PROC( glDeleteRenderbuffers );
+	GET_GL_PROC( glGenRenderbuffers );
+	GET_GL_PROC( glRenderbufferStorage );
+	GET_GL_PROC( glGetRenderbufferParameteriv );
+	GET_GL_PROC( glIsFramebuffer );
+	GET_GL_PROC( glBindFramebuffer );
+	GET_GL_PROC( glDeleteFramebuffers );
+	GET_GL_PROC( glGenFramebuffers );
+	GET_GL_PROC( glCheckFramebufferStatus );
+	GET_GL_PROC( glFramebufferTexture1D );
+	GET_GL_PROC( glFramebufferTexture2D );
+	GET_GL_PROC( glFramebufferTexture3D );
+	GET_GL_PROC( glFramebufferRenderbuffer );
+	GET_GL_PROC( glGetFramebufferAttachmentParameteriv );
+	GET_GL_PROC( glGenerateMipmap );
+	GET_GL_PROC( glBlitFramebuffer );
+	GET_GL_PROC( glRenderbufferStorageMultisample );
+	GET_GL_PROC( glFramebufferTextureLayer );
+
+// BEATO Begin: use direct state acess
+	GET_GL_PROC( glCreateRenderbuffers );
+	GET_GL_PROC( glNamedRenderbufferStorage );
+	GET_GL_PROC( glNamedRenderbufferStorageMultisample );
+	GET_GL_PROC( glNamedFramebufferRenderbuffer );
+	GET_GL_PROC( glGetNamedRenderbufferParameteriv );
+	GET_GL_PROC( glCheckNamedFramebufferStatus );
+	GET_GL_PROC( glBlitNamedFramebuffer );
+// BEATO End
+
 
 	// GL_ARB_uniform_buffer_object
-	GET_GL_PROC( PFNGLGETUNIFORMBLOCKINDEXPROC,  glGetUniformBlockIndex );
-	GET_GL_PROC( PFNGLUNIFORMBLOCKBINDINGPROC,  glUniformBlockBinding );
+	GET_GL_PROC( glGetUniformBlockIndex );
+	GET_GL_PROC( glUniformBlockBinding );
 
 	// GL_ATI_separate_stencil / OpenGL 2.0
-	GET_GL_PROC( PFNGLSTENCILOPSEPARATEPROC, glStencilOpSeparate );
-	GET_GL_PROC( PFNGLSTENCILFUNCSEPARATEPROC, glStencilFuncSeparate );
+	GET_GL_PROC( glStencilOpSeparate );
+	GET_GL_PROC( glStencilFuncSeparate );
 
 	// GL_EXT_depth_bounds_test
-	GET_GL_PROC( PFNGLDEPTHBOUNDSEXTPROC, glDepthBoundsEXT );
+	GET_GL_PROC( glDepthBoundsEXT );
 
 	// GL_ARB_sync
-	GET_GL_PROC( PFNGLFENCESYNCPROC, glFenceSync );
-	GET_GL_PROC( PFNGLISSYNCPROC, glIsSync );
-	GET_GL_PROC( PFNGLCLIENTWAITSYNCPROC, glClientWaitSync );
-	GET_GL_PROC( PFNGLDELETESYNCPROC, glDeleteSync );
+	GET_GL_PROC( glFenceSync );
+	GET_GL_PROC( glIsSync );
+	GET_GL_PROC( glClientWaitSync );
+	GET_GL_PROC( glDeleteSync );
 
 	// GL_ARB_occlusion_query
-	GET_GL_PROC( PFNGLGENQUERIESPROC, glGenQueries );
-	GET_GL_PROC( PFNGLDELETEQUERIESPROC, glDeleteQueries );
-	GET_GL_PROC( PFNGLISQUERYPROC, glIsQuery );
-	GET_GL_PROC( PFNGLBEGINQUERYPROC, glBeginQuery );
-	GET_GL_PROC( PFNGLENDQUERYPROC, glEndQuery );
-	GET_GL_PROC( PFNGLGETQUERYIVPROC, glGetQueryiv );
-	GET_GL_PROC( PFNGLGETQUERYOBJECTIVPROC, glGetQueryObjectiv );
-	GET_GL_PROC( PFNGLGETQUERYOBJECTUIVPROC, glGetQueryObjectuiv );
+	GET_GL_PROC( glGenQueries );
+	GET_GL_PROC( glDeleteQueries );
+	GET_GL_PROC( glIsQuery );
+	GET_GL_PROC( glBeginQuery );
+	GET_GL_PROC( glEndQuery );
+	GET_GL_PROC( glGetQueryiv );
+	GET_GL_PROC( glGetQueryObjectiv );
+	GET_GL_PROC( glGetQueryObjectuiv );
 
 	// GL_ARB_timer_query / GL_EXT_timer_query
-	GET_GL_PROC( PFNGLGETQUERYOBJECTUI64VPROC, glGetQueryObjectui64v );
+	GET_GL_PROC( glGetQueryObjectui64v );
 
 	// GL_ARB_debug_output
-	GET_GL_PROC( PFNGLDEBUGMESSAGECONTROLPROC, glDebugMessageControl );
-	GET_GL_PROC( PFNGLDEBUGMESSAGEINSERTPROC, glDebugMessageInsert );
-	GET_GL_PROC( PFNGLDEBUGMESSAGECALLBACKPROC, glDebugMessageCallback );
-	GET_GL_PROC( PFNGLGETDEBUGMESSAGELOGPROC, glGetDebugMessageLog );
+	GET_GL_PROC( glDebugMessageControl );
+	GET_GL_PROC( glDebugMessageInsert );
+	GET_GL_PROC( glDebugMessageCallback );
+	GET_GL_PROC( glGetDebugMessageLog );
 
 	glRasterPos2f = (decltype(glRasterPos2f))SDL_GL_GetProcAddress( "glRasterPos2f" );
 
