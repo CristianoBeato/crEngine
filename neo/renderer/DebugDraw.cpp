@@ -28,7 +28,7 @@ Source Code.
 */
 
 #include "precompiled.h"
-#include "tr_local.h"
+#include "renderer_common.h"
 #include "DebugDraw.hpp"
 
 constexpr GLuint k_VERTEX_POSITION_ATTRIB = 0;

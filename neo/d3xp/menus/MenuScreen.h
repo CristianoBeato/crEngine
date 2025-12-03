@@ -30,8 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __MENUSCREEN_H__
 #define __MENUSCREEN_H__
 
-#include "../../renderer/tr_local.h"
-
 enum mainMenuTransition_t
 {
 	MENU_TRANSITION_INVALID = -1,

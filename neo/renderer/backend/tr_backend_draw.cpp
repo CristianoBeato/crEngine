@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "renderer_common.h"
 
 // motorsep 05-19-2015; bool to determine current colorspace; False is YCoCg, True is RGB
 extern bool skyboxRGBswap;
@@ -51,8 +51,6 @@ idCVar r_waterHazeFix("r_waterHazeFix", "1", CVAR_RENDERER | CVAR_BOOL, "perform
 extern idCVar stereoRender_swapEyes;
 
 extern idCVar r_useHightQualitySky;
-
-backEndState_t	backEnd;
 
 // foresthale 2014-04-08: r_glow
 static void RB_PostProcessHDRGlowProcess(int textureSizes[4][6]);
@@ -237,16 +235,16 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 	renderProgManager.CommitUniforms();
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptr
-	if( backEnd.glState.currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+	if( backEnd.trState.currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 	{
 		glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ( GLintptr )indexBuffer->GetAPIObject() );
-		backEnd.glState.currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
+		backEnd.trState.currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
 	}
 	
-	if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_VERT ) || ( backEnd.glState.currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
+	if( ( backEnd.trState.vertexLayout != LAYOUT_DRAW_VERT ) || ( backEnd.trState.currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 	{
 		glBindBuffer( GL_ARRAY_BUFFER, ( GLintptr )vertexBuffer->GetAPIObject() );
-		backEnd.glState.currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
+		backEnd.trState.currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
 		
 		glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
 		glEnableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
@@ -262,7 +260,7 @@ void RB_DrawElementsWithCounters( const drawSurf_t* surf )
 		glVertexAttribPointer( PC_ATTRIB_INDEX_ST, 2, GL_HALF_FLOAT, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_ST_OFFSET ) );
 		glVertexAttribPointer( PC_ATTRIB_INDEX_TANGENT, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idDrawVert ), ( void* )( DRAWVERT_TANGENT_OFFSET ) );
 		
-		backEnd.glState.vertexLayout = LAYOUT_DRAW_VERT;
+		backEnd.trState.vertexLayout = LAYOUT_DRAW_VERT;
 	}
 	// RB end
 	
@@ -2066,10 +2064,10 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 		RENDERLOG_PRINTF( "Binding Buffers: %p %p\n", vertexBuffer, indexBuffer );
 		
 		// RB: 64 bit fixes, changed GLuint to GLintptr
-		if( backEnd.glState.currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+		if( backEnd.trState.currentIndexBuffer != ( GLintptr )indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
 		{
 			glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, ( GLintptr )indexBuffer->GetAPIObject() );
-			backEnd.glState.currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
+			backEnd.trState.currentIndexBuffer = ( GLintptr )indexBuffer->GetAPIObject();
 		}
 		
 		if( drawSurf->jointCache )
@@ -2087,10 +2085,10 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 			const GLintptr ubo = reinterpret_cast< GLintptr >( jointBuffer.GetAPIObject() );
 			glBindBufferRange( GL_UNIFORM_BUFFER, 0, ubo, jointBuffer.GetOffset(), jointBuffer.GetNumJoints() * sizeof( idJointMat ) );
 			
-			if( ( backEnd.glState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED ) || ( backEnd.glState.currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
+			if( ( backEnd.trState.vertexLayout != LAYOUT_DRAW_SHADOW_VERT_SKINNED ) || ( backEnd.trState.currentVertexBuffer != ( GLintptr )vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
 			{
 				glBindBuffer( GL_ARRAY_BUFFER, ( GLintptr )vertexBuffer->GetAPIObject() );
-				backEnd.glState.currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
+				backEnd.trState.currentVertexBuffer = ( GLintptr )vertexBuffer->GetAPIObject();
 				
 				glEnableVertexAttribArray( PC_ATTRIB_INDEX_VERTEX );
 				glDisableVertexAttribArray( PC_ATTRIB_INDEX_NORMAL );
@@ -2103,7 +2101,7 @@ static void RB_StencilShadowPass( const drawSurf_t* drawSurfs, const viewLight_t
 				glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR_OFFSET ) );
 				glVertexAttribPointer( PC_ATTRIB_INDEX_COLOR2, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof( idShadowVertSkinned ), ( void* )( SHADOWVERTSKINNED_COLOR2_OFFSET ) );
 				
-				backEnd.glState.vertexLayout = LAYOUT_DRAW_SHADOW_VERT_SKINNED;
+				backEnd.trState.vertexLayout = LAYOUT_DRAW_SHADOW_VERT_SKINNED;
 			}
 		}
 		else
@@ -3995,7 +3993,7 @@ void RB_DrawViewInternal( const viewDef_t* viewDef, const int stereoEye, const b
 
 	backEnd.currentScissor = viewDef->scissor;
 	
-	backEnd.glState.faceCulling = -1;		// force face culling to set next time
+	backEnd.trState.faceCulling = -1;		// force face culling to set next time
 	
 	// ensures that depth writes are enabled for the depth clear
 	GL_State( GLS_DEFAULT );

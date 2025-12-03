@@ -40,7 +40,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include <SDL2/SDL.h>
 
-#include "renderer/tr_local.h"
+#include "renderer/renderer_common.h"
 #include "sdl_local.h"
 #include "../posix/posix_public.h"
 

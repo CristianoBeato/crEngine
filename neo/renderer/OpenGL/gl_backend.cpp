@@ -30,8 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "../tr_local.h"
-#include "../../framework/Common_local.h"
+#include "renderer_common.h"
+#include "framework/Common_local.h"
 
 idCVar r_drawFlickerBox( "r_drawFlickerBox", "0", CVAR_RENDERER | CVAR_BOOL, "visual test for dropping frames" );
 idCVar stereoRender_warp( "stereoRender_warp", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "use the optical warping renderprog instead of stereoDeGhost" );
@@ -144,7 +144,7 @@ const void GL_BlockingSwapBuffers()
 		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
 	}
 	
-	GLimp_SwapBuffers();
+	tr.glContext->SwapBuffers();
 	
 	const int beforeFence = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 )

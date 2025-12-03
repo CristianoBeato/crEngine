@@ -28,6 +28,9 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#ifndef __FRAMEBUFFER_H__
+#define __FRAMEBUFFER_H__
+
 // foresthale 2014-02-17: this file derived from Image.h originally
 
 static const int MAX_SHADOWMAP_RESOLUTIONS = 5;
@@ -154,3 +157,5 @@ public:
 };
 
 extern idFramebufferManager*	globalFramebuffers;		// pointer to global list for the rest of the system
+
+#endif //!__FRAMEBUFFER_H__

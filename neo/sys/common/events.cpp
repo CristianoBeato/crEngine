@@ -50,7 +50,7 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL3/SDL_mouse.h>
 #include <SDL3/SDL_keyboard.h>
 
-#include "renderer/tr_local.h"
+#include "renderer/renderer_common.h"
 #include "joystick.h"
 
 // DG: those are needed for moving/resizing windows

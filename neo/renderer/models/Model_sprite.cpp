@@ -30,15 +30,12 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "renderer_common.h
 #include "Model_local.h"
 
-
-/*
-
-A simple sprite model that always faces the view axis.
-
-*/
+// 
+// A simple sprite model that always faces the view axis.
+// 
 
 static const char* sprite_SnapshotName = "_sprite_Snapshot_";
 

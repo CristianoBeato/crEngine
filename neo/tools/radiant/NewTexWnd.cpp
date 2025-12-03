@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "NewTexWnd.h"
 #include "io.h"
 
-#include "../../renderer/tr_local.h"
+#include "../../renderer/renderer_common.h"
 
 // foresthale 2014-05-29: let's not use the MFC DEBUG_NEW when we have our own...
 #ifdef ID_DEBUG_NEW_MFC

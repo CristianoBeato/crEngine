@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "renderer_common.h"
 
 idCVar r_skipStripDeadCode( "r_skipStripDeadCode", "0", CVAR_BOOL, "Skip stripping dead code" );
 idCVar r_useUniformArrays( "r_useUniformArrays", "1", CVAR_BOOL, "" );

@@ -85,7 +85,6 @@ struct surfaceInteraction_t
 
 class idRenderEntityLocal;
 class idRenderLightLocal;
-
 class idInteraction
 {
 public:

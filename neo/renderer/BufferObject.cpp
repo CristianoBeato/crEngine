@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "tr_local.h"
+#include "renderer_common.h"
 
 idCVar r_showBuffers( "r_showBuffers", "0", CVAR_INTEGER, "" );
 
@@ -221,9 +221,7 @@ idVertexBuffer::FreeBufferObject
 void idVertexBuffer::FreeBufferObject()
 {
 	if( IsMapped() )
-	{
 		UnmapBuffer();
-	}
 	
 	// if this is a sub-allocation inside a larger buffer, don't actually free anything.
 	if( OwnsBuffer() == false )
@@ -238,7 +236,7 @@ void idVertexBuffer::FreeBufferObject()
 	}
 	
 	// foresthale 2014-05-29: check R_IsInitialized() before getting the bool value, because GetBool crashes when exiting radiant with certain settings
-	if( R_IsInitialized() && r_showBuffers.GetBool() )
+	if( IsInitialized() && r_showBuffers.GetBool() )
 	{
 		idLib::Printf( "vertex buffer free %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
 	}
@@ -246,7 +244,7 @@ void idVertexBuffer::FreeBufferObject()
 	// RB: 64 bit fixes, changed GLuint to GLintptr
 	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	// foresthale 2014-05-28: we have to check if OpenGL was already shut down as this gets called from doexit()
-	if (R_IsInitialized())
+	if (IsInitialized())
 		glDeleteBuffers( 1, ( const unsigned int* ) & bufferObject );
 	// RB end
 	
@@ -526,7 +524,7 @@ void idIndexBuffer::FreeBufferObject()
 	}
 	
 	// foresthale 2014-05-29: check R_IsInitialized() before getting the bool value, because GetBool crashes when exiting radiant with certain settings
-	if( R_IsInitialized() && r_showBuffers.GetBool() )
+	if( IsInitialized() && r_showBuffers.GetBool() )
 	{
 		idLib::Printf( "index buffer free %p, api %p (%i bytes)\n", this, GetAPIObject(), GetSize() );
 	}
@@ -534,7 +532,7 @@ void idIndexBuffer::FreeBufferObject()
 	// RB: 64 bit fixes, changed GLuint to GLintptr
 	GLintptr bufferObject = reinterpret_cast< GLintptr >( apiObject );
 	// foresthale 2014-05-28: we have to check if OpenGL was already shut down as this gets called from doexit()
-	if (R_IsInitialized())
+	if ( IsInitialized())
 		glDeleteBuffers( 1, ( const unsigned int* )& bufferObject );
 	// RB end
 	
@@ -798,7 +796,7 @@ void idJointBuffer::FreeBufferObject()
 	}
 	
 	// foresthale 2014-05-29: check R_IsInitialized() before getting the bool value, because GetBool crashes when exiting radiant with certain settings
-	if( R_IsInitialized() && r_showBuffers.GetBool() )
+	if( idRenderSystem::IsInitialized() && r_showBuffers.GetBool() )
 	{
 		idLib::Printf( "joint buffer free %p, api %p (%i joints)\n", this, GetAPIObject(), GetNumJoints() );
 	}
@@ -807,7 +805,7 @@ void idJointBuffer::FreeBufferObject()
 	GLintptr buffer = reinterpret_cast< GLintptr >( apiObject );
 	
 	// foresthale 2014-05-28: we have to check if OpenGL was already shut down as this gets called from doexit()
-	if (R_IsInitialized())
+	if ( idRenderSystem::IsInitialized() )
 	{
 		glBindBuffer( GL_UNIFORM_BUFFER, 0 );
 		glDeleteBuffers( 1, ( const GLuint* )& buffer );

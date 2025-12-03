@@ -35,7 +35,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "XYWnd.h"
 #include "DialogInfo.h"
 #include "splines.h"
-#include "../../renderer/tr_local.h"
+#include "../../renderer/renderer_common.h"
 #include "../../renderer/model_local.h"	// for idRenderModelLiquid
 
 #ifndef NOMINMAX

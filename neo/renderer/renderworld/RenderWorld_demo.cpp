@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "renderer_common.h"
 
 idCVar r_writeDemoDecals( "r_writeDemoDecals", "1", CVAR_BOOL | CVAR_SYSTEM, "enable Writing of entity decals to demo files." );
 idCVar r_writeDemoOverlays( "r_writeDemoOverlays", "1", CVAR_BOOL | CVAR_SYSTEM, "enable Writing of entity Overlays to demo files." );

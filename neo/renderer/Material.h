@@ -58,6 +58,36 @@ typedef enum
 	TR_CLAMP_TO_ZERO_ALPHA	// guarantee 0 alpha edge for projected textures
 } textureRepeat_t;
 
+// How is this texture used?  Determines the storage and color format
+typedef enum
+{
+	TD_SPECULAR,			// may be compressed, and always zeros the alpha channel
+	TD_DIFFUSE,				// may be compressed
+	TD_DEFAULT,				// generic RGBA texture (particles, etc...)
+	TD_BUMP,				// may be compressed with 8 bit lookup
+	TD_FONT,				// Font image
+	TD_LIGHT,				// Light image
+	TD_LOOKUP_TABLE_MONO,	// Mono lookup table (including alpha)
+	TD_LOOKUP_TABLE_ALPHA,	// Alpha lookup table with a white color channel
+	TD_LOOKUP_TABLE_RGB1,	// RGB lookup table with a solid white alpha
+	TD_LOOKUP_TABLE_RGBA,	// RGBA lookup table
+	TD_COVERAGE,			// coverage map for fill depth pass when YCoCG is used
+	TD_DEPTH,				// depth buffer copy for motion blur
+	TD_HIGHQUALITY,			// sikk - Added - High Quality Texture Depth (full RGBA)
+	TD_HIGHQUALITY_CUBE,	// motorsep - Uncompressed cubemap texture (RGB colorspace)
+	TD_LOWQUALITY_CUBE,		// motorsep - Compressed cubemap texture (YCoCg colorspace DXT5)
+	TD_RGBA16F,				// foresthale 2014-02-19: generic RGBA16F texture (for HDR view rendering)
+	TD_DEPTHSTENCIL,		// foresthale 2014-02-19: generic DEPTHSTENCIL texture (for HDR view rendering)
+	TD_EDITOR_DEFAULT,		// foresthale 2014-05-17: uncompressed editor version of TD_DEFAULT (always loads tga, does not write bimage)
+	TD_EDITOR_DIFFUSE,		// foresthale 2014-05-17: uncompressed editor version of TD_DIFFUSE (always loads tga, does not write bimage)
+	TD_EDITOR_BUMP,			// foresthale 2014-05-17: uncompressed editor version of TD_BUMP (always loads tga, does not write bimage)
+	TD_EDITOR_COVERAGE,		// foresthale 2014-05-17: uncompressed editor version of TD_COVERAGE (always loads tga, does not write bimage)
+	TD_GLOSS,				// gloss map image, grayscale (FMT_INT8) internally
+	// RB begin
+	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
+	// RB end
+} textureUsage_t;
+
 typedef struct
 {
 	int		stayTime;		// msec for no change
@@ -65,6 +95,15 @@ typedef struct
 	float	start[4];		// vertex color at spawn (possibly out of 0.0 - 1.0 range, will clamp after calc)
 	float	end[4];			// vertex color at fade-out (possibly out of 0.0 - 1.0 range, will clamp after calc)
 } decalInfo_t;
+
+typedef enum
+{
+	CF_2D,			// not a cube map
+	CF_NATIVE,		// _px, _nx, _py, etc, directly sent to GL
+	CF_CAMERA,		// _forward, _back, etc, rotated and flipped as needed before sending to GL
+	CF_2D_ARRAY,	// not a cube map but not a single 2d texture either
+	CF_CAMERA_ALT	// motorsep 12-30-2022; to use with cubemaps created from equirectangular panoramas in Bixorama (or perhaps any other similar software)
+} cubeFiles_t;
 
 typedef enum
 {

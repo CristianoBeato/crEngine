@@ -28,7 +28,7 @@ Source Code.
 */
 #include "precompiled.h"
 
-#include "renderer/tr_local.h"
+#include "renderer_common.h"
 #include "Geometry.h"
 
 constexpr int MAX_SIL_EDGES = 0x7ffff;

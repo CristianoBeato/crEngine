@@ -47,7 +47,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../sys_local.h"
 #include "win_local.h"
-#include "../../renderer/tr_local.h"
+#include "../../renderer/renderer_common.h"
 
 #ifdef ID_ALLOW_TOOLS
 #include "tools/edit_public.h"

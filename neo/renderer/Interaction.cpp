@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "renderer_common.h"
 
 /*
 ===========================================================================
@@ -56,9 +56,7 @@ void R_CalcInteractionFacing( const idRenderEntityLocal* ent, const crDrawGeomet
 	SCOPED_PROFILE_EVENT( "R_CalcInteractionFacing" );
 	
 	if( cullInfo.facing != nullptr )
-	{
 		return;
-	}
 	
 	idVec3 localLightOrigin;
 	R_GlobalPointToLocal( ent->modelMatrix, light->globalLightOrigin, localLightOrigin );
@@ -112,9 +110,7 @@ void R_CalcInteractionCullBits( const idRenderEntityLocal* ent, const crDrawGeom
 		
 		// get front bits for the whole surface
 		if( tri->Bounds().PlaneDistance( cullInfo.localClipPlanes[i] ) >= LIGHT_CLIP_EPSILON )
-		{
 			frontBits |= 1 << i;
-		}
 	}
 	
 	// if the surface is completely inside the light frustum

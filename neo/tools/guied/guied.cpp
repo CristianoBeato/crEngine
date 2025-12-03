@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "../../renderer/tr_local.h"
+#include "../../renderer/renderer_common.h"
 #include "../../sys/win32/win_local.h"
 #include <io.h>
 

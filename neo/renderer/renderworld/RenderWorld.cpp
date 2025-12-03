@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "renderer_common.h"
 
 /*
 ===================
@@ -43,9 +43,8 @@ void R_ListRenderLightDefs_f( const idCmdArgs& args )
 	idRenderLightLocal*	ldef;
 	
 	if( !tr.primaryWorld )
-	{
 		return;
-	}
+	
 	int active = 0;
 	int	totalRef = 0;
 	int	totalIntr = 0;

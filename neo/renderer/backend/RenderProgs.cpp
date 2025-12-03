@@ -30,9 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
-
-
+#include "renderer_common.h"
 
 idRenderProgManager renderProgManager;
 
@@ -41,7 +39,7 @@ idRenderProgManager renderProgManager;
 idRenderProgManager::idRenderProgManager()
 ================================================================================================
 */
-idRenderProgManager::idRenderProgManager()
+idRenderProgManager::idRenderProgManager( void )
 {
 }
 

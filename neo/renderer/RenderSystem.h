@@ -84,6 +84,12 @@ enum graphicsVendor_t
 	VENDOR_INTEL
 };
 
+enum backend_t
+{
+	BACKEND_OPENGL,
+	BACKEND_VULKAN
+};
+
 // Contains variables specific to the OpenGL configuration being run right now.
 // These are constant once the OpenGL subsystem is initialized.
 struct glconfig_t
@@ -97,7 +103,10 @@ struct glconfig_t
 	
 	float				glVersion;				// atof( version_string )
 	graphicsVendor_t	vendor;
-	
+// BEATO Begin: 
+	backend_t			backend;		
+// BEATO End
+
 	int					maxTextureSize;			// queried from GL
 	int					maxTextureCoords;
 	int					maxTextureImageUnits;
@@ -155,8 +164,6 @@ struct glconfig_t
 
 struct emptyCommand_t;
 
-bool R_IsInitialized();
-
 const int SMALLCHAR_WIDTH		= 8;
 const int SMALLCHAR_HEIGHT		= 16;
 const int BIGCHAR_WIDTH			= 16;
@@ -174,8 +181,237 @@ const int TITLESAFE_BOTTOM		= 456;
 const int TITLESAFE_WIDTH		= TITLESAFE_RIGHT - TITLESAFE_LEFT;
 const int TITLESAFE_HEIGHT		= TITLESAFE_BOTTOM - TITLESAFE_TOP;
 
-class idRenderWorld;
+//
+// renderer
+// cvars
+//
+extern idCVar r_debugContext;				// enable various levels of context debug
+extern idCVar r_glDriver;					// "opengl32", etc
+extern idCVar r_skipIntelWorkarounds;		// skip work arounds for Intel driver bugs
+extern idCVar r_vidMode;					// video mode number
+extern idCVar r_displayRefresh;				// optional display refresh rate option for vid mode
+extern idCVar r_fullscreen;					// 0 = windowed, 1 = full screen
+extern idCVar r_multiSamples;				// number of antialiasing samples
 
+extern idCVar r_znear;						// near Z clip plane
+
+extern idCVar r_swapInterval;				// changes wglSwapIntarval
+extern idCVar r_offsetFactor;				// polygon offset parameter
+extern idCVar r_offsetUnits;				// polygon offset parameter
+extern idCVar r_singleTriangle;				// only draw a single triangle per primitive
+extern idCVar r_logFile;					// number of frames to emit GL logs
+extern idCVar r_clear;						// force screen clear every frame
+extern idCVar r_subviewOnly;				// 1 = don't render main view, allowing subviews to be debugged
+extern idCVar r_lightScale;					// all light intensities are multiplied by this, which is normally 2
+extern idCVar r_flareSize;					// scale the flare deforms from the material def
+
+extern idCVar r_gamma;						// changes gamma tables
+extern idCVar r_brightness;					// changes gamma tables
+
+extern idCVar r_checkBounds;				// compare all surface bounds with precalculated ones
+extern idCVar r_maxAnisotropicFiltering;	// texture filtering parameter
+extern idCVar r_useTrilinearFiltering;		// Extra quality filtering
+extern idCVar r_lodBias;					// lod bias
+extern idCVar r_useSRGB;					// foresthale 2014-02-20: fixed r_useSRGB texture handling
+extern idCVar r_useHDR;						// foresthale 2014-02-20: HDR view rendering
+
+extern idCVar r_useLightPortalFlow;			// 1 = do a more precise area reference determination
+extern idCVar r_useShadowSurfaceScissor;	// 1 = scissor shadows by the scissor rect of the interaction surfaces
+extern idCVar r_useConstantMaterials;		// 1 = use pre-calculated material registers if possible
+extern idCVar r_useNodeCommonChildren;		// stop pushing reference bounds early when possible
+extern idCVar r_useSilRemap;				// 1 = consider verts with the same XYZ, but different ST the same for shadows
+extern idCVar r_useLightPortalCulling;		// 0 = none, 1 = box, 2 = exact clip of polyhedron faces, 3 MVP to plane culling
+extern idCVar r_useLightAreaCulling;		// 0 = off, 1 = on
+extern idCVar r_useLightScissors;			// 1 = use custom scissor rectangle for each light
+extern idCVar r_useEntityPortalCulling;		// 0 = none, 1 = box
+extern idCVar r_skipPrelightShadows;		// 1 = skip the dmap generated static shadow volumes
+extern idCVar r_useCachedDynamicModels;		// 1 = cache snapshots of dynamic models
+extern idCVar r_useScissor;					// 1 = scissor clip as portals and lights are processed
+extern idCVar r_usePortals;					// 1 = use portals to perform area culling, otherwise draw everything
+extern idCVar r_useStateCaching;			// avoid redundant state changes in GL_*() calls
+extern idCVar r_useEntityCallbacks;			// if 0, issue the callback immediately at update time, rather than defering
+extern idCVar r_lightAllBackFaces;			// light all the back faces, even when they would be shadowed
+extern idCVar r_skipROQ;
+extern idCVar r_useLightDepthBounds;		// use depth bounds test on lights to reduce both shadow and interaction fill
+extern idCVar r_useShadowDepthBounds;		// use depth bounds test on individual shadows to reduce shadow fill
+// RB begin
+extern idCVar r_useShadowMapping;			// use shadow mapping instead of stencil shadows
+// RB end
+extern idCVar r_shadowMapMaxDistance;
+
+extern idCVar r_skipStaticInteractions;		// skip interactions created at level load
+extern idCVar r_skipDynamicInteractions;	// skip interactions created after level load
+extern idCVar r_skipPostProcess;			// skip all post-process renderings
+extern idCVar r_skipSuppress;				// ignore the per-view suppressions
+extern idCVar r_skipInteractions;			// skip all light/surface interaction drawing
+extern idCVar r_skipFrontEnd;				// bypasses all front end work, but 2D gui rendering still draws
+extern idCVar r_skipBackEnd;				// don't draw anything
+extern idCVar r_skipCopyTexture;			// do all rendering, but don't actually copyTexSubImage2D
+extern idCVar r_skipRender;					// skip 3D rendering, but pass 2D
+extern idCVar r_skipRenderContext;			// nullptr the rendering context during backend 3D rendering
+extern idCVar r_skipTranslucent;			// skip the translucent interaction rendering
+extern idCVar r_skipAmbient;				// bypasses all non-interaction drawing
+extern idCVar r_skipNewAmbient;				// bypasses all vertex/fragment program ambients
+extern idCVar r_skipInk;					// foresthale 2014-04-27: r_skipInk - bypasses all shader programs using _currentDepth
+extern idCVar r_skipBlendLights;			// skip all blend lights
+extern idCVar r_skipFogLights;				// skip all fog lights
+extern idCVar r_skipSubviews;				// 1 = don't render any mirrors / cameras / etc
+extern idCVar r_skipGuiShaders;				// 1 = don't render any gui elements on surfaces
+extern idCVar r_skipParticles;				// 1 = don't render any particles
+extern idCVar r_skipUpdates;				// 1 = don't accept any entity or light updates, making everything static
+extern idCVar r_skipDeforms;				// leave all deform materials in their original state
+extern idCVar r_skipDynamicTextures;		// don't dynamically create textures
+extern idCVar r_skipBump;					// uses a flat surface instead of the bump map
+extern idCVar r_skipSpecular;				// use black for specular
+extern idCVar r_skipDiffuse;				// use black for diffuse
+extern idCVar r_skipDecals;					// skip decal surfaces
+extern idCVar r_skipOverlays;				// skip overlay surfaces
+extern idCVar r_skipShadows;				// disable shadows
+
+extern idCVar r_ignoreGLErrors;
+extern idCVar r_swapInterval;
+
+extern idCVar r_screenFraction;				// for testing fill rate, the resolution of the entire screen can be changed
+extern idCVar r_showUnsmoothedTangents;		// highlight geometry rendered with unsmoothed tangents
+extern idCVar r_showSilhouette;				// highlight edges that are casting shadow planes
+extern idCVar r_showVertexColor;			// draws all triangles with the solid vertex color
+extern idCVar r_showUpdates;				// report entity and light updates and ref counts
+extern idCVar r_showDemo;					// report reads and writes to the demo file
+extern idCVar r_showDynamic;				// report stats on dynamic surface generation
+extern idCVar r_showIntensity;				// draw the screen colors based on intensity, red = 0, green = 128, blue = 255
+extern idCVar r_showTrace;					// show the intersection of an eye trace with the world
+extern idCVar r_showDepth;					// display the contents of the depth buffer and the depth range
+extern idCVar r_showTris;					// enables wireframe rendering of the world
+extern idCVar r_showSurfaceInfo;			// show surface material name under crosshair
+extern idCVar r_showNormals;				// draws wireframe normals
+extern idCVar r_showEdges;					// draw the sil edges
+extern idCVar r_showViewEntitys;			// displays the bounding boxes of all view models and optionally the index
+extern idCVar r_showTexturePolarity;		// shade triangles by texture area polarity
+extern idCVar r_showTangentSpace;			// shade triangles by tangent space
+extern idCVar r_showDominantTri;			// draw lines from vertexes to center of dominant triangles
+extern idCVar r_showTextureVectors;			// draw each triangles texture (tangent) vectors
+extern idCVar r_showLights;					// 1 = print light info, 2 = also draw volumes
+extern idCVar r_showLightCount;				// colors surfaces based on light count
+extern idCVar r_showShadows;				// visualize the stencil shadow volumes
+extern idCVar r_showLightScissors;			// show light scissor rectangles
+extern idCVar r_showMemory;					// print frame memory utilization
+extern idCVar r_showCull;					// report sphere and box culling stats
+extern idCVar r_showAddModel;				// report stats from tr_addModel
+extern idCVar r_showSurfaces;				// report surface/light/shadow counts
+extern idCVar r_showPrimitives;				// report vertex/index/draw counts
+extern idCVar r_showPortals;				// draw portal outlines in color based on passed / not passed
+extern idCVar r_showSkel;					// draw the skeleton when model animates
+extern idCVar r_showOverDraw;				// show overdraw
+extern idCVar r_showNvidiaHack;				// use shaders to color wireframes on Nvidia hardware and non-shader for AMD (might be broken)use shaders to color wireframes on Nvidia hardware and non-shader for AMD (might be broken)
+extern idCVar r_jointNameScale;				// size of joint names when r_showskel is set to 1
+extern idCVar r_jointNameOffset;			// offset of joint names when r_showskel is set to 1
+
+extern idCVar r_testGamma;					// draw a grid pattern to test gamma levels
+extern idCVar r_testGammaBias;				// draw a grid pattern to test gamma levels
+
+extern idCVar r_singleLight;				// suppress all but one light
+extern idCVar r_singleEntity;				// suppress all but one entity
+extern idCVar r_singleArea;					// only draw the portal area the view is actually in
+extern idCVar r_singleSurface;				// suppress all but one surface on each entity
+extern idCVar r_shadowPolygonOffset;		// bias value added to depth test for stencil shadow drawing
+extern idCVar r_shadowPolygonFactor;		// scale value for stencil shadow drawing
+
+extern idCVar r_jitter;						// randomly subpixel jitter the projection matrix
+extern idCVar r_orderIndexes;				// perform index reorganization to optimize vertex use
+
+extern idCVar r_debugLineDepthTest;			// perform depth test on debug lines
+extern idCVar r_debugLineWidth;				// width of debug lines
+extern idCVar r_debugArrowStep;				// step size of arrow cone line rotation in degrees
+extern idCVar r_debugPolygonFilled;
+
+extern idCVar r_materialOverride;			// override all materials
+
+extern idCVar r_debugRenderToTexture;
+
+extern idCVar stereoRender_deGhost;			// subtract from opposite eye to reduce ghosting
+
+extern idCVar r_useGPUSkinning;
+
+extern idCVar r_screenshot_png_quality; // Modifies the compression level of the png file being written.
+
+// RB begin
+extern idCVar r_shadowMapFrustumFOV;
+extern idCVar r_shadowMapSingleSide;
+extern idCVar r_shadowMapImageSize;
+extern idCVar r_shadowMapJitterScale;
+extern idCVar r_shadowMapBiasScale;
+extern idCVar r_shadowMapRandomizeJitter;
+extern idCVar r_shadowMapSamples;
+extern idCVar r_shadowMapSplits;
+extern idCVar r_shadowMapSplitWeight;
+extern idCVar r_shadowMapLodScale;
+extern idCVar r_shadowMapLodBias;
+extern idCVar r_shadowMapPolygonFactor;
+extern idCVar r_shadowMapPolygonOffset;
+extern idCVar r_shadowMapOccluderFacing;
+extern idCVar r_shadowMapQuality;
+extern idCVar r_shadowMapCascadeScale;
+extern idCVar r_shadowMapStaticShadowsDistance;
+// RB end
+
+typedef struct renderEntity_s renderEntity_t;
+typedef struct renderLight_s renderLight_t;
+
+
+/// @brief idRenderEntity should become the new public interface replacing 
+/// the qhandle_t to entity defs in the idRenderWorld interface
+class idRenderEntity
+{
+public:
+	virtual					~idRenderEntity( void ) {}
+	virtual void			FreeRenderEntity( void ) = 0;
+	virtual void			UpdateRenderEntity( const renderEntity_t* re, bool forceUpdate = false ) = 0;
+	virtual void			GetRenderEntity( renderEntity_t* re ) = 0;
+	virtual void			ForceUpdate( void ) = 0;
+	virtual int				GetIndex( void ) = 0;
+	
+	// overlays are extra polygons that deform with animating models for blood and damage marks
+	virtual void			ProjectOverlay( const idPlane localTextureAxis[2], const idMaterial* material ) = 0;
+	virtual void			RemoveDecals( void ) = 0;
+};
+
+/// @brief idRenderLight should become the new public interface replacing 
+/// the qhandle_t to light defs in the idRenderWorld interface
+class idRenderLight
+{
+public:
+	virtual					~idRenderLight( void ) {}
+	virtual void			FreeRenderLight( void ) = 0;
+	virtual void			UpdateRenderLight( const renderLight_t* re, bool forceUpdate = false ) = 0;
+	virtual void			GetRenderLight( renderLight_t* re ) = 0;
+	virtual void			ForceUpdate( void ) = 0;
+	virtual int				GetIndex( void ) = 0;
+};
+
+///
+///
+///
+class idImageManager
+{
+public:
+	virtual void		Init( void ) = 0;
+	virtual void		Shutdown( void ) = 0;
+	virtual idImage*	ImageFromFile( const char* name, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap = CF_2D ) = 0;
+	/// @brief look for a loaded image, whatever the parameters
+	virtual idImage* 			GetImage( const char* name ) const;
+	/// @brief look for a loaded image, whatever the parameters
+	virtual idImage*	GetImageWithParameters( const char* name, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap ) const;
+		
+	// reloads all apropriate images after a vid_restart
+	virtual void	ReloadImages( bool all );
+	
+	// used to clear and then write the dds conversion batch file
+	virtual void	StartBuild( void ) = 0;
+	virtual void	FinishBuild( bool removeDups = false ) = 0;
+	virtual void	PrintMemInfo( MemInfo_t* mi ) = 0;
+};
+
+class idRenderWorld;
 class idRenderSystem
 {
 public:
@@ -184,7 +420,12 @@ public:
 	
 // BEATO Begin:
 	/// @brief global acess to render system 
-	static idRenderSystem*	Get( void );		
+	static idRenderSystem*	Get( void );	
+
+	static idImageManager*	GetGlobalImages( void );
+
+	/// @brief check if render system is suceffuly initialized
+	static bool IsInitialized( void );
 // BEATO End
 
 	// set up cvars and basic data structures, but don't

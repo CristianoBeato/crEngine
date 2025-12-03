@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "tr_local.h"
+#include "renderer_common.h"
 
 const int AUTO_RENDER_STACK_SIZE = 256 * 1024;
 

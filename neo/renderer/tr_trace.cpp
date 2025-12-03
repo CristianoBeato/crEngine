@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "renderer_common.h"
 #include "renderer/models/Model_local.h"
 
 #include "idlib/geometry/DrawVert_intrinsics.h"
@@ -44,7 +44,6 @@ static void R_TracePointCullStatic( byte* cullBits, byte& totalOr, const float r
 {
 	assert_16_byte_aligned( cullBits );
 	assert_16_byte_aligned( verts );
-	
 	
 	idODSStreamedArray< idDrawVert, 16, SBT_DOUBLE, 4 > vertsODS( verts, numVerts );
 	

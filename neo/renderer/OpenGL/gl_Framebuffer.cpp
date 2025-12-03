@@ -36,7 +36,7 @@ Contains the Framebuffer implementation for OpenGL.
 ================================================================================================
 */
 
-#include "../tr_local.h"
+#include "renderer_common.h"
 
 /*
 ========================
@@ -47,17 +47,14 @@ Every framebuffer will pass through this function.
 This should not be done during normal game-play, if you can avoid it.
 ========================
 */
-void idFramebuffer::AllocFramebuffer()
+void idFramebuffer::AllocFramebuffer( void )
 {
 	PurgeFramebuffer();
 
 	// if we don't have a rendering context, just return after we
 	// have filled in the parms.
-	if( !R_IsInitialized() )
-	{
+	if( !idRenderSystem::IsInitialized() )
 		return;
-	}
-
 }
 
 /*

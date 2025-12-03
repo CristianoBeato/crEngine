@@ -30,13 +30,11 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
+#include "renderer_common.h"
 #include "Model_local.h"
-
 
 static const __m128 vector_float_posInfinity		= { idMath::INFINITY, idMath::INFINITY, idMath::INFINITY, idMath::INFINITY };
 static const __m128 vector_float_negInfinity		= { -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY, -idMath::INFINITY };
-
 
 static const char* MD5_SnapshotName = "_MD5_Snapshot_";
 

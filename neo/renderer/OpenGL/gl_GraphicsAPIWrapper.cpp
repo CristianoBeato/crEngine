@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "../tr_local.h"
+#include "renderer_common.h"
 
 /*
 ====================
@@ -39,7 +39,7 @@ GL_SelectTexture
 */
 void GL_SelectTexture( int unit )
 {
-	if( backEnd.glState.currenttmu == unit )
+	if( backEnd.trState.currenttmu == unit )
 		return;
 	
 	if( unit < 0 || unit >= glConfig.maxTextureImageUnits )
@@ -50,7 +50,7 @@ void GL_SelectTexture( int unit )
 	
 	RENDERLOG_PRINTF( "GL_SelectTexture( %i );\n", unit );
 	
-	backEnd.glState.currenttmu = unit;
+	backEnd.trState.currenttmu = unit;
 }
 
 /*
@@ -63,7 +63,7 @@ rendered is a mirored view.
 */
 void GL_Cull( int cullType )
 {
-	if( backEnd.glState.faceCulling == cullType )
+	if( backEnd.trState.faceCulling == cullType )
 	{
 		return;
 	}
@@ -74,7 +74,7 @@ void GL_Cull( int cullType )
 	}
 	else
 	{
-		if( backEnd.glState.faceCulling == CT_TWO_SIDED )
+		if( backEnd.trState.faceCulling == CT_TWO_SIDED )
 		{
 			glEnable( GL_CULL_FACE );
 		}
@@ -103,7 +103,7 @@ void GL_Cull( int cullType )
 		}
 	}
 	
-	backEnd.glState.faceCulling = cullType;
+	backEnd.trState.faceCulling = cullType;
 }
 
 /*
@@ -133,9 +133,9 @@ GL_PolygonOffset
 */
 void GL_PolygonOffset( float scale, float bias )
 {
-	backEnd.glState.polyOfsScale = scale;
-	backEnd.glState.polyOfsBias = bias;
-	if( backEnd.glState.glStateBits & GLS_POLYGON_OFFSET )
+	backEnd.trState.polyOfsScale = scale;
+	backEnd.trState.polyOfsBias = bias;
+	if( backEnd.trState.glStateBits & GLS_POLYGON_OFFSET )
 	{
 		glPolygonOffset( scale, bias );
 	}
@@ -272,7 +272,7 @@ void GL_SetDefaultState()
 	glClearDepth( 1.0f );
 	
 	// make sure our GL state vector is set correctly
-	std::memset( &backEnd.glState, 0, sizeof( backEnd.glState ) );
+	std::memset( &backEnd.trState, 0, sizeof( backEnd.trState ) );
 	GL_State( 0, true );
 	
 	// These are changed by GL_Cull
@@ -314,7 +314,7 @@ This routine is responsible for setting the most commonly changed state
 */
 void GL_State( uint64_t stateBits, bool forceGlState )
 {
-	uint64_t diff = stateBits ^ backEnd.glState.glStateBits;
+	uint64_t diff = stateBits ^ backEnd.trState.glStateBits;
 	
 	if( !r_useStateCaching.GetBool() || forceGlState )
 	{
@@ -480,7 +480,7 @@ void GL_State( uint64_t stateBits, bool forceGlState )
 	{
 		if( stateBits & GLS_POLYGON_OFFSET )
 		{
-			glPolygonOffset( backEnd.glState.polyOfsScale, backEnd.glState.polyOfsBias );
+			glPolygonOffset( backEnd.trState.polyOfsScale, backEnd.trState.polyOfsBias );
 			glEnable( GL_POLYGON_OFFSET_FILL );
 			glEnable( GL_POLYGON_OFFSET_LINE );
 		}
@@ -665,7 +665,7 @@ void GL_State( uint64_t stateBits, bool forceGlState )
 		glStencilOp( sFail, zFail, pass );
 	}
 	
-	backEnd.glState.glStateBits = stateBits;
+	backEnd.trState.glStateBits = stateBits;
 }
 
 /*
@@ -675,7 +675,7 @@ GL_GetCurrentState
 */
 uint64_t GL_GetCurrentState()
 {
-	return backEnd.glState.glStateBits;
+	return backEnd.trState.glStateBits;
 }
 
 /*

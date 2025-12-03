@@ -30,15 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 
-#include "tr_local.h"
-
-// RB begin
-#if defined(_WIN32)
-
-// Vista OpenGL wrapper check
-#include "../sys/win32/win_local.h"
-#endif
-// RB end
+#include "renderer_common.h"
 
 // foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #define BUGFIXEDSCREENSHOTRESOLUTION 1
@@ -662,13 +654,13 @@ void R_SetNewMode( const bool fullInit )
 		if( fullInit )
 		{
 			// create the context as well as setting up the window
-			if( GLimp_Init( ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER ) ? true : false, r_multiSamples.GetInteger() ) )
+			if( tr.glContext->Init( ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER ) ? true : false, r_multiSamples.GetInteger() ) )
 				break; // it worked
 		}
 		else
 		{
 			// just rebuild the window
-			if( GLimp_SetScreenParms( ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER ) ? true : false, r_multiSamples.GetInteger() ) )
+			if( tr.glContext->SetScreenParms( ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER ) ? true : false, r_multiSamples.GetInteger() ) )
 				break; // it worked
 		}
 		
@@ -1788,7 +1780,7 @@ void R_SetColorMappings()
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
 	
-	GLimp_SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
+	tr.glContext->SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 }
 
 static void DumpAllDisplayDevices( void )
@@ -1978,7 +1970,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 		globalImages->PurgeAllImages();
 		
 		// free the context and close the window
-		GLimp_Shutdown();
+		tr.glContext->Shutdown();
 		r_initialized = false;
 		
 		// create the new context and vertex cache
@@ -2005,7 +1997,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 		// parms.multiSamples = r_multiSamples.GetInteger();
 		// parms.stereo = false;
 
-		GLimp_SetScreenParms( false, r_multiSamples.GetInteger() );
+		tr.glContext->SetScreenParms( false, r_multiSamples.GetInteger() );
 	}
 	
 	// make sure the regeneration doesn't use anything no longer valid
@@ -2648,7 +2640,7 @@ void idRenderSystemLocal::InitOpenGL( void )
 		common->Printf( "----- R_InitOpenGL -----\n" );
 	
 		// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
-		GLimp_PreInit();
+		tr.glContext->PreInit();
 		// DG end
 		
 		R_SetNewMode( true );
@@ -2733,11 +2725,11 @@ void idRenderSystemLocal::InitOpenGL( void )
 idRenderSystemLocal::ShutdownOpenGL
 ========================
 */
-void idRenderSystemLocal::ShutdownOpenGL()
+void idRenderSystemLocal::ShutdownOpenGL( void )
 {
 	// free the context and close the window
 	R_ShutdownFrameData();
-	GLimp_Shutdown();
+	tr.glContext->Shutdown();
 	r_initialized = false;
 }
 

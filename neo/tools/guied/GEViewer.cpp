@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 //#include "renderer/gl.h"
 #include "sys/win32/rc/guied_resource.h"
-#include "renderer/tr_local.h"
+#include "renderer/renderer_common.h"
 
 #include "GEApp.h"
 #include "GEViewer.h"

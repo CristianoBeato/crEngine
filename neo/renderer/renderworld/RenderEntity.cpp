@@ -29,10 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+#include "renderer_common.h"
+#include "RenderEntity.hpp"
 
-#include "tr_local.h"
-
-idRenderEntityLocal::idRenderEntityLocal()
+idRenderEntityLocal::idRenderEntityLocal( void )
 {
 	std::memset( &parms, 0, sizeof( parms ) );
 	std::memset( modelMatrix, 0, sizeof( modelMatrix ) );

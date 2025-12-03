@@ -33,11 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 #define JPEG_INTERNALS
 extern "C" 
 {
-	#include <jpeglib.h> //"../libs/jpeg-6/jpeglib.h"
+	#include <jpeglib.h>
 }
 
 #include "renderer/images/jpeg_memory_src.h"
-#include "tr_local.h"
+#include "renderer_common.h"
 
 #define CIN_system	1
 #define CIN_loop	2

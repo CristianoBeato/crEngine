@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-
-#include "tr_local.h"
+#include "renderer_common.h"
+#include "RenderSystemLocal.h"
 
 idRenderSystemLocal	tr;
 
@@ -388,14 +388,11 @@ idRenderSystemLocal::DrawStretchPic
 static triIndex_t quadPicIndexes[6] = { 3, 0, 2, 2, 0, 1 };
 void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material )
 {
-	if( !R_IsInitialized() )
-	{
+	if( !IsInitialized() )
 		return;
-	}
-	if( material == nullptr )
-	{
+	
+	if( material == nullptr )	
 		return;
-	}
 	
 	idDrawVert* verts = guiModel->AllocTris( 4, quadPicIndexes, 6, material, currentGLState, STEREO_DEPTH_TYPE_NONE );
 	if( verts == nullptr )
@@ -443,22 +440,17 @@ idRenderSystemLocal::DrawStretchTri
 */
 void idRenderSystemLocal::DrawStretchTri( const idVec2& p1, const idVec2& p2, const idVec2& p3, const idVec2& t1, const idVec2& t2, const idVec2& t3, const idMaterial* material )
 {
-	if( !R_IsInitialized() )
-	{
+	if( !IsInitialized() )
 		return;
-	}
+	
 	if( material == nullptr )
-	{
 		return;
-	}
 	
 	triIndex_t tempIndexes[3] = { 1, 0, 2 };
 	
 	idDrawVert* verts = guiModel->AllocTris( 3, tempIndexes, 3, material, currentGLState, STEREO_DEPTH_TYPE_NONE );
 	if( verts == nullptr )
-	{
 		return;
-	}
 	
 	ALIGNTYPE16 idDrawVert localVerts[3];
 	
@@ -708,15 +700,10 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	SCOPED_PROFILE_EVENT( "SwapCommandBuffers" );
 	
 	if( gpuMicroSec != nullptr )
-	{
 		*gpuMicroSec = 0;		// until shown otherwise
-	}
 	
-	if( !R_IsInitialized() )
-	{
+	if( !IsInitialized() )
 		return;
-	}
-	
 	
 	// After coming back from an autoswap, we won't have anything to render
 	if( frameData->cmdHead->next != nullptr )
@@ -770,7 +757,7 @@ idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers
 */
 const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers()
 {
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 		return nullptr;
 	
 	// close any gui drawing
@@ -853,7 +840,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	
 	setBufferCommand_t* cmd2 = ( setBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd2 ) );
 	cmd2->commandId = RC_SET_BUFFER;
-	cmd2->buffer = ( int )GL_BACK;
+	//cmd2->buffer = ( int )GL_BACK;
 	
 	// the old command buffer can now be rendered, while the new one can
 	// be built in parallel
@@ -930,10 +917,9 @@ idRenderSystemLocal::CropRenderSize
 */
 void idRenderSystemLocal::CropRenderSize( int width, int height )
 {
-	if( !R_IsInitialized() )
-	{
+	if( !IsInitialized() )
 		return;
-	}
+	
 	
 	// close any gui drawing before changing the size
 	guiModel->EmitFullScreen();
@@ -977,10 +963,8 @@ idRenderSystemLocal::UnCrop
 */
 void idRenderSystemLocal::UnCrop()
 {
-	if( !R_IsInitialized() )
-	{
+	if( !IsInitialized() )
 		return;
-	}
 	
 	if( currentRenderCrop < 1 )
 	{
@@ -1012,10 +996,9 @@ idRenderSystemLocal::CaptureRenderToImage
 */
 void idRenderSystemLocal::CaptureRenderToImage( const char* imageName, bool clearColorAfterCopy )
 {
-	if( !R_IsInitialized() )
-	{
+	if( !IsInitialized() )
 		return;
-	}
+	
 	guiModel->EmitFullScreen();
 	guiModel->Clear();
 	
@@ -1057,10 +1040,8 @@ idRenderSystemLocal::CaptureRenderToFile
 */
 void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlpha )
 {
-	if( !R_IsInitialized() )
-	{
+	if( !IsInitialized() )
 		return;
-	}
 	
 	idScreenRect& rc = renderCrops[currentRenderCrop];
 	

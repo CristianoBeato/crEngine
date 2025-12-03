@@ -84,7 +84,7 @@ static byte*	faceCastsShadow; // faceCastsShadow will be 1 if the face is in the
 static int*		remap = nullptr;
 
 #include "dmap.h"
-#include "renderer/tr_local.h"
+#include "renderer/renderer_common.h"
 
 /*
 

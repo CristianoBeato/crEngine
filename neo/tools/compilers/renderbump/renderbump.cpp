@@ -32,10 +32,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "framework/Common_local.h"
 //#include "sys/platform.h"
 #include "renderer/ModelManager.h"
-#include "renderer/tr_local.h"
+#include "renderer/renderer_common.h"
 
 #include "tools/compilers/compiler_public.h"
-#include "tools/compilers/dmap/renderer/Dmap_tr_local.h"
 
 #ifdef WIN32
 #include <windows.h>

@@ -37,7 +37,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "splines.h"
 #include <GL/glu.h>
 
-#include "../../renderer/tr_local.h"
+#include "../../renderer/renderer_common.h"
 #include "../../renderer/model_local.h"	// for idRenderModelMD5
 
 // foresthale 2014-05-29: let's not use the MFC DEBUG_NEW when we have our own...

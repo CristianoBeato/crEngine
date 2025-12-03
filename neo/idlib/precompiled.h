@@ -116,15 +116,15 @@ const int MAX_EXPRESSION_OPS = 4096;
 const int MAX_EXPRESSION_REGISTERS = 4096;
 
 // renderer
-#include "renderer/OpenGL/OpenGL.h"
+//#include "renderer/OpenGL/OpenGL.h"
 #include "renderer/Cinematic.h"
 #include "renderer/Material.h"
 #include "renderer/BufferObject.h"
 #include "renderer/VertexCache.h"
 #include "renderer/models/Model.h"
 #include "renderer/models/ModelManager.h"
-#include "renderer/RenderSystem.h"
 #include "renderer/renderworld/RenderWorld.h"
+#include "renderer/RenderSystem.h"
 
 // sound engine
 #include "sound/sound.h"
