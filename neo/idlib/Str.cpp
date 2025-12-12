@@ -1549,9 +1549,7 @@ int idStr::Cmpn( const char* s1, const char* s2, int n )
 		c2 = *s2++;
 		
 		if( !n-- )
-		{
 			return 0;		// strings are equal until end point
-		}
 		
 		d = c1 - c2;
 		if( d )

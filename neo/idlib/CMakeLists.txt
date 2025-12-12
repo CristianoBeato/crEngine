@@ -52,6 +52,7 @@ set( IDLIB_MAIN_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/Token.h
 # BEATO Begin:
 	${CMAKE_CURRENT_SOURCE_DIR}/StaticPointer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Exception.h
 # BEATO End
 	)
 

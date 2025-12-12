@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __LIB_H__
 #define __LIB_H__
 
-#include <cstddef>
+#include <SDL3/SDL_stdinc.h>
 
 /*
 ===============================================================================
@@ -150,87 +150,6 @@ bool	Swap_IsBigEndian();
 void	SixtetsForInt( byte* out, int src );
 int		IntForSixtets( byte* in );
 
-/*
-================================================
-idException
-================================================
-*/
-class idException
-{
-public:
-	static const int MAX_ERROR_LEN = 2048;
-	
-	idException( const char* text = "" )
-	{
-		strncpy( error, text, MAX_ERROR_LEN );
-	}
-	
-	// this really, really should be a const function, but it's referenced too many places to change right now
-	const char* 	GetError()
-	{
-		return error;
-	}
-	
-protected:
-	// if GetError() were correctly const this would be named GetError(), too
-	char* 		GetErrorBuffer()
-	{
-		return error;
-	}
-	int			GetErrorBufferSize()
-	{
-		return MAX_ERROR_LEN;
-	}
-	
-private:
-	friend class idFatalException;
-	static char error[MAX_ERROR_LEN];
-};
-
-/*
-================================================
-idFatalException
-================================================
-*/
-class idFatalException
-{
-public:
-	static const int MAX_ERROR_LEN = 2048;
-	
-	idFatalException( const char* text = "" )
-	{
-		strncpy( idException::error, text, MAX_ERROR_LEN );
-	}
-	
-	// this really, really should be a const function, but it's referenced too many places to change right now
-	const char* 	GetError()
-	{
-		return idException::error;
-	}
-	
-protected:
-	// if GetError() were correctly const this would be named GetError(), too
-	char* 		GetErrorBuffer()
-	{
-		return idException::error;
-	}
-	int			GetErrorBufferSize()
-	{
-		return MAX_ERROR_LEN;
-	}
-};
-
-/*
-================================================
-idNetworkLoadException
-================================================
-*/
-class idNetworkLoadException : public idException
-{
-public:
-	idNetworkLoadException( const char* text = "" ) : idException( text ) { }
-};
-
 // BEATO Begin:
 template< typename _t >
 inline void SetZero( _t &in_struct  )
@@ -256,6 +175,10 @@ inline void SetZero( _t * in_array, const uint32_t in_count  )
 // System
 #include "sys/sys_assert.h"
 #include "sys/sys_threading.h"
+
+// BEATO Begin:
+#include "Exception.h"
+// BEATO end
 
 // memory management and arrays
 #include "Heap.h"
