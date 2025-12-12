@@ -306,7 +306,7 @@ public:
 
     /// @brief Vulkan state transition 
     /// @param in_state 
-    virtual void    StateTransition( const state_t in_state );
+    virtual void    StateTransition( const state_t in_state, const uintptr_t in_offset, const size_t in_size );
     state_t     State( void ) const { return m_state; }
 
 protected:
@@ -536,6 +536,9 @@ public:
 
     virtual void*   Handle( void ) const = 0;
 
+    const uint32_t  Width( void ) const { return m_width; }
+    const uint32_t  Height( void ) const { return m_height; }
+
 protected:
     uint32_t m_width;
     uint32_t m_height;
@@ -683,8 +686,8 @@ public:
     crPipeline( void );
     ~crPipeline( void );
 
-    virtual void    Create( const PipelineInfo_t in_pipelineInfo );
-    virtual void    Destroy( void );
+    virtual bool    Create( const PipelineInfo_t in_pipelineInfo ) = 0;
+    virtual void    Destroy( void ) = 0;
 
 protected:
     PipelineInfo_t  m_pipelineConfiguration;
@@ -703,7 +706,6 @@ public:
     virtual void    BindIndexBuffer( const crBuffer* in_buffer ) = 0;
     virtual void    BindVertexBuffers( const crBuffer* in_buffer, uint32_t in_binding, const uintptr_t in_offsets, const size_t in_sizes, const size_t in_strides ) = 0;
     virtual void    BindPipeline( const crPipeline* in_pipeline ) = 0;
-    virtual void    BeginRenderPass( void ) const = 0;
     virtual void    EndRenderPass( void ) const = 0;
     virtual void    Draw(  const uint32_t in_vertexCount, const uint32_t in_instanceCount, const uint32_t in_firstVertex, const uint32_t in_firstInstance ) const = 0;
     virtual void    DrawIndexed( const uint32_t in_indexCount, const uint32_t in_instanceCount, const uint32_t in_firstIndex, const int32_t in_vertexOffset, const uint32_t in_firstInstance ) const = 0;
@@ -760,7 +762,7 @@ private:
     uint32_t m_index;  // logic index 
 };
 
-/// @brief Store data block sto
+/// @brief 
 class crShaderStorage
 {
 public:

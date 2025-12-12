@@ -39,7 +39,6 @@ public:
     virtual void    BindIndexBuffer( const crBuffer* in_buffer );
     virtual void    BindVertexBuffers( const crBuffer* crPipelinein_buffer, uint32_t in_binding, const uintptr_t in_offsets, const size_t in_sizes, const size_t in_strides );
     virtual void    BindPipeline( const crPipeline* in_pipeline );
-    virtual void    BeginRenderPass( void ) const;
     virtual void    EndRenderPass( void ) const;
     virtual void    Draw(  const uint32_t in_vertexCount, const uint32_t in_instanceCount, const uint32_t in_firstVertex, const uint32_t in_firstInstance ) const;
     virtual void    DrawIndexed( const uint32_t in_indexCount, const uint32_t in_instanceCount, const uint32_t in_firstIndex, const int32_t in_vertexOffset, const uint32_t in_firstInstance ) const;

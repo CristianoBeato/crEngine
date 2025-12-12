@@ -34,7 +34,7 @@ glPipeline::~glPipeline( void )
 {
 }
 
-void glPipeline::Create(const PipelineInfo_t in_pipelineInfo)
+bool glPipeline::Create(  const PipelineInfo_t in_pipelineInfo )
 {
     m_pipelineConfiguration = in_pipelineInfo;
 
@@ -325,9 +325,12 @@ void glPipeline::Create(const PipelineInfo_t in_pipelineInfo)
         // DONE VIA SHADER
     };
 
-
     glCreateVertexArrays( 1, &m_vertexArray );
     glCreateProgramPipelines( 1, &m_programPipeline );
+
+    // Todo: validate pipeline and vertex array
+
+    return true;
 }
 
 void glPipeline::Destroy(void)

@@ -56,6 +56,8 @@ void glCommandBuffer::BindFrameBuffer( const crFramebuffer *in_framebuffef )
 	assert( in_framebuffef != nullptr );
 	auto fbHandle = static_cast<GLuint*>( in_framebuffef->Handle() );
 	tr.glContext->BindFrameBuffer( *fbHandle );
+
+	// TODO: clear frame buffer 
 }
 
 void glCommandBuffer::BindIndexBuffer( const crBuffer *in_buffer )
@@ -100,10 +102,6 @@ void glCommandBuffer::BindPipeline( const crPipeline *in_pipeline )
 							pipeline->m_blendOp );
 	
 	tr.glContext->StencilTest(	pipeline->m_stencilEnable, pipeline->m_stencilFace, pipeline->m_stencilPass, pipeline->m_stencilFail, pipeline->m_stencilZfail );
-}
-
-void glCommandBuffer::BeginRenderPass(void) const
-{
 }
 
 void glCommandBuffer::EndRenderPass(void) const

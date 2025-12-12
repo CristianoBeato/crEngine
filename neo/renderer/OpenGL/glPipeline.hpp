@@ -32,7 +32,7 @@ public:
     glPipeline( void );
     ~glPipeline( void );
 
-    virtual void    Create( const crPipeline::PipelineInfo_t in_pipelineInfo );
+    virtual bool    Create( const crPipeline::PipelineInfo_t in_pipelineInfo );
     virtual void    Destroy( void );
 
 protected:

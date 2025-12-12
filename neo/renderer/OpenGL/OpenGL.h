@@ -5,6 +5,10 @@
 #include <SDL3/SDL_video.h>
 #include <GL/glcorearb.h>
 
+// TODO:
+// GLint maxSamples = 0;
+// glGetIntegerv(GL_MAX_SAMPLES, &maxSamples);
+
 //
 // Matrix Mode 
 #define GL_MATRIX_MODE				0x0BA0
