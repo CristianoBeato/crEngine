@@ -109,6 +109,11 @@ class idVec4;
 #define SIZE_MB( x )						( ( ( SIZE_KB( x ) ) + 1023 ) / 1024 )
 #define SIZE_GB( x )						( ( ( SIZE_MB( x ) ) + 1023 ) / 1024 )
 
+inline constexpr int FNV_OFFSET_BASIS32 = 2166136261; 
+inline constexpr int FNV_PRIME32 = 16777619;
+inline constexpr int FNV_OFFSET_BASIS64 = 14695981039346656037; 
+inline constexpr int FNV_PRIME64 = 1099511628211; 
+
 // basic colors
 extern	idVec4 colorBlack;
 extern	idVec4 colorWhite;

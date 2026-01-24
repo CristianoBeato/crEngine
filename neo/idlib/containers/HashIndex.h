@@ -442,13 +442,9 @@ idHashIndex::GenerateKey
 ID_INLINE int idHashIndex::GenerateKey( const char* string, bool caseSensitive ) const
 {
 	if( caseSensitive )
-	{
 		return ( idStr::Hash( string ) & hashMask );
-	}
 	else
-	{
 		return ( idStr::IHash( string ) & hashMask );
-	}
 }
 
 /*
