@@ -181,6 +181,9 @@ public:
 	
 	///@brief returns size of the used elements in the list
 	const size_t	MemoryUsed( void ) const;
+
+	///@brief Check if we have some element in the list
+	const bool		IsEmpty( void ) const;
 	
 	idList<_type_, _tag_>& 		operator=( const idList<_type_, _tag_>& other );
 	const _type_& 	operator[]( uint32_t index ) const;
@@ -680,6 +683,20 @@ ID_INLINE void idList<_type_, _tag_>::AssureSizeAlloc( const uint32_t newSize, n
 	}
 	
 	num = newNum;
+}
+
+/*
+================
+idList<_type_,_tag_>::IsEmpty
+
+Makes sure the list has not elements
+
+================
+*/
+template <typename _type_, memTag_t _tag_>
+inline const bool idList<_type_, _tag_>::IsEmpty(void) const
+{
+    return num == 0;
 }
 
 /*
