@@ -32,6 +32,9 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "BinaryImageData.h"
 
+
+/// BEATO End
+
 /*
 ================================================
 idBinaryImage is used by the idImage class for constructing mipmapped
