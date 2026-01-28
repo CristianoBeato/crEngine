@@ -49,23 +49,24 @@ resident on the video hardware.
 class idRenderTexture
 {
 public:
-	idRenderTexture();
-	~idRenderTexture();
+	idRenderTexture( void );
+	~idRenderTexture( void );
 	
-	ID_INLINE int			GetWidth() const
+	ID_INLINE int			GetWidth( void ) const
 	{
 		return ( colorImage != nullptr ) ? colorImage->GetUploadWidth() : depthImage->GetUploadWidth();
 	}
-	ID_INLINE int			GetHeight() const
+	ID_INLINE int			GetHeight( void ) const
 	{
 		return ( colorImage != nullptr ) ? colorImage->GetUploadHeight() : depthImage->GetUploadHeight();
 	}
 	
-	ID_INLINE idImage* 		GetColorImage() const
+	ID_INLINE idImage* 		GetColorImage( void ) const
 	{
 		return colorImage;
 	}
-	ID_INLINE idImage* 		GetDepthImage() const
+
+	ID_INLINE idImage* 		GetDepthImage( void ) const
 	{
 		return depthImage;
 	}

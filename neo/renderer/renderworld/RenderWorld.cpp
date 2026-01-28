@@ -915,19 +915,15 @@ to handle mirrors,
 */
 void idRenderWorldLocal::RenderScene( const renderView_t* renderView )
 {
-	if( !R_IsInitialized() )
-	{
+	if( !idRenderSystem::IsInitialized() )
 		return;
-	}
 	
 	renderView_t copy = *renderView;
 	
 	// skip front end rendering work, which will result
 	// in only gui drawing
 	if( r_skipFrontEnd.GetBool() )
-	{
 		return;
-	}
 	
 	SCOPED_PROFILE_EVENT( "RenderWorld::RenderScene" );
 	
@@ -1400,17 +1396,13 @@ bool idRenderWorldLocal::ModelTrace( modelTrace_t& trace, qhandle_t entityHandle
 		{
 			// only trace vs collision surfaces
 			if( ( shader->GetSurfaceFlags() & SURF_COLLISION ) == 0 )
-			{
 				continue;
-			}
 		}
 		else
 		{
 			// skip if not drawn or translucent
 			if( !shader->IsDrawn() || ( shader->Coverage() != MC_OPAQUE && shader->Coverage() != MC_PERFORATED ) )
-			{
 				continue;
-			}
 		}
 		
 		localTrace_t localTrace = R_LocalTrace( localStart, localEnd, radius, surf->geometry );
@@ -1768,12 +1760,10 @@ Force the generation of all light / surface interactions at the start of a level
 If this isn't called, they will all be dynamically generated
 ===================
 */
-void idRenderWorldLocal::GenerateAllInteractions()
+void idRenderWorldLocal::GenerateAllInteractions( void )
 {
-	if( !R_IsInitialized() )
-	{
+	if( !idRenderSystem::IsInitialized() )
 		return;
-	}
 	
 	int start = Sys_Milliseconds();
 	
@@ -2176,15 +2166,15 @@ void idRenderWorldLocal::PushVolumeIntoTree( idRenderEntityLocal *def, idRenderL
 idRenderWorldLocal::DebugReset
 ====================
 */
-void idRenderWorldLocal::DebugReset()
+void idRenderWorldLocal::DebugReset( void )
 {
 	extern int rb_debugLineTime;
 	extern int rb_nextDebugLineTime;
 	rb_nextDebugLineTime = 0;
 	rb_debugLineTime = 0;
-	RB_ClearDebugLines( 0 );
-	RB_ClearDebugText( 0 );
-	RB_ClearDebugPolygons( 0 );
+	backEnd.ClearDebugLines( 0 );
+	backEnd.ClearDebugText( 0 );
+	backEnd.ClearDebugPolygons( 0 );
 }
 
 /*
@@ -2194,8 +2184,8 @@ idRenderWorldLocal::DebugClearLines
 */
 void idRenderWorldLocal::DebugClearLines( int time )
 {
-	RB_ClearDebugLines( time );
-	RB_ClearDebugText( time );
+	backEnd.ClearDebugLines( time );
+	backEnd.ClearDebugText( time );
 }
 
 /*
@@ -2205,7 +2195,7 @@ idRenderWorldLocal::DebugLine
 */
 void idRenderWorldLocal::DebugLine( const idVec4& color, const idVec3& start, const idVec3& end, const int lifetime, const bool depthTest )
 {
-	RB_AddDebugLine( color, start, end, lifetime, depthTest );
+	backEnd.AddDebugLine( color, start, end, lifetime, depthTest );
 }
 
 /*
@@ -2480,7 +2470,7 @@ idRenderWorldLocal::DebugClearPolygons
 */
 void idRenderWorldLocal::DebugClearPolygons( int time )
 {
-	RB_ClearDebugPolygons( time );
+	backEnd.ClearDebugPolygons( time );
 }
 
 /*
@@ -2490,7 +2480,7 @@ idRenderWorldLocal::DebugPolygon
 */
 void idRenderWorldLocal::DebugPolygon( const idVec4& color, const idWinding& winding, const int lifeTime, const bool depthTest )
 {
-	RB_AddDebugPolygon( color, winding, lifeTime, depthTest );
+	backEnd.AddDebugPolygon( color, winding, lifeTime, depthTest );
 }
 
 /*
@@ -2540,7 +2530,7 @@ idRenderWorldLocal::DrawTextLength
 */
 float idRenderWorldLocal::DrawTextLength( const char* text, float scale, int len )
 {
-	return RB_DrawTextLength( text, scale, len );
+	return backEnd.DrawTextLength( text, scale, len );
 }
 
 /*
@@ -2553,7 +2543,7 @@ idRenderWorldLocal::DrawText
 */
 void idRenderWorldLocal::DrawText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align, const int lifetime, const bool depthTest )
 {
-	RB_AddDebugText( text, origin, scale, color, viewAxis, align, lifetime, depthTest );
+	backEnd.AddDebugText( text, origin, scale, color, viewAxis, align, lifetime, depthTest );
 }
 
 /*
@@ -2561,7 +2551,7 @@ void idRenderWorldLocal::DrawText( const char* text, const idVec3& origin, float
 idRenderWorldLocal::RegenerateWorld
 ===============
 */
-void idRenderWorldLocal::RegenerateWorld()
+void idRenderWorldLocal::RegenerateWorld( void )
 {
 	R_FreeDerivedData();
 	R_ReCreateWorldReferences();
@@ -2574,11 +2564,8 @@ R_GlobalShaderOverride
 */
 bool R_GlobalShaderOverride( const idMaterial** shader )
 {
-
 	if( !( *shader )->IsDrawn() )
-	{
 		return false;
-	}
 	
 	if( tr.primaryRenderView.globalMaterial )
 	{
