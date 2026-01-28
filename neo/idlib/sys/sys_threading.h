@@ -110,6 +110,7 @@ interlockedInt_t	Sys_InterlockedCompareExchange( interlockedInt_t& value, interl
 void* 				Sys_InterlockedExchangePointer( void*& ptr, void* exchange );
 void* 				Sys_InterlockedCompareExchangePointer( void*& ptr, void* comparand, void* exchange );
 
+/// @brief Yield current thread execution to system scheduler
 extern void			Sys_Yield( void );
 
 #endif	// !__SYS_THREADING_H__

@@ -357,7 +357,6 @@ extern idCVar r_shadowMapStaticShadowsDistance;
 typedef struct renderEntity_s renderEntity_t;
 typedef struct renderLight_s renderLight_t;
 
-
 /// @brief idRenderEntity should become the new public interface replacing 
 /// the qhandle_t to entity defs in the idRenderWorld interface
 class idRenderEntity
@@ -396,18 +395,20 @@ class idImageManager
 public:
 	virtual void		Init( void ) = 0;
 	virtual void		Shutdown( void ) = 0;
-	virtual idImage*	ImageFromFile( const char* name, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap = CF_2D ) = 0;
-	/// @brief look for a loaded image, whatever the parameters
-	virtual idImage* 			GetImage( const char* name ) const;
-	/// @brief look for a loaded image, whatever the parameters
-	virtual idImage*	GetImageWithParameters( const char* name, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap ) const;
-		
-	// reloads all apropriate images after a vid_restart
-	virtual void	ReloadImages( bool all );
+	virtual idImage*	ImageFromFile( const idStr &name, const textureUsage_t usage, const cubeFiles_t cubeMap = CF_2D ) = 0;
 	
-	// used to clear and then write the dds conversion batch file
+	/// @brief look for a loaded image, whatever the parameters
+	virtual idImage*	GetImage( const idStr &name ) const;
+	
+	/// @brief look for a loaded image, whatever the parameters
+	virtual idImage*	GetImageWithParameters( const idStr &name, const textureUsage_t usage, const cubeFiles_t cubeMap ) const;
+		
+	/// @brief reloads all apropriate images after a vid_restart
+	virtual void	ReloadImages( const bool all );
+	
+	/// @brief used to clear and then write the dds conversion batch file
 	virtual void	StartBuild( void ) = 0;
-	virtual void	FinishBuild( bool removeDups = false ) = 0;
+	virtual void	FinishBuild( const bool removeDups = false ) = 0;
 	virtual void	PrintMemInfo( MemInfo_t* mi ) = 0;
 };
 
@@ -499,7 +500,7 @@ public:
 	
 	virtual void			DrawFilled( const idVec4& color, float x, float y, float w, float h ) = 0;
 	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material ) = 0;
-	void			DrawStretchPic( const idVec4& rect, const idVec4& st, const idMaterial* material )
+	void					DrawStretchPic( const idVec4& rect, const idVec4& st, const idMaterial* material )
 	{
 		DrawStretchPic( rect.x, rect.y, rect.z, rect.w, st[0], st[1], st.z, st.w, material );
 	}
@@ -515,11 +516,11 @@ public:
 	virtual void			DrawBigStringExt( int x, int y, const char* string, const idVec4& setColor, bool forceColor ) = 0;
 	
 	// dump all 2D drawing so far this frame to the demo file
-	virtual void			WriteDemoPics() = 0;
-	virtual void			WriteEndFrame() = 0;
+	virtual void			WriteDemoPics( void ) = 0;
+	virtual void			WriteEndFrame( void ) = 0;
 	
 	// draw the 2D pics that were saved out with the current demo frame
-	virtual void			DrawDemoPics() = 0;
+	virtual void			DrawDemoPics( void ) = 0;
 	
 	// Performs final closeout of any gui models being defined.
 	//
@@ -567,7 +568,7 @@ public:
 	// fixAlpha will set all the alpha channel values to 0xff, which allows screen captures
 	// to use the default tga loading code without having dimmed down areas in many places
 	virtual void			CaptureRenderToFile( const char* fileName, bool fixAlpha = false ) = 0;
-	virtual void			UnCrop() = 0;
+	virtual void			UnCrop( void ) = 0;
 	
 	// the image has to be already loaded ( most straightforward way would be through a FindMaterial )
 	// texture filter / mipmapping / repeat won't be modified by the upload

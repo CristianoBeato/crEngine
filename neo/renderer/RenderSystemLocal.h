@@ -153,8 +153,8 @@ public:
 	int						testVideoStartTime;
 	
 // BEATO Begin:
-	glContextState*			glContext;
-	vkContextState*			vkContext;
+	glContext*				glContext;
+	vkContext*				vkContext;
 // BEATO End
 
 	idImage* 				ambientCubeImage;	// hack for testing dependent ambient lighting
