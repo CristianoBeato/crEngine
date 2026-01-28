@@ -127,7 +127,10 @@ vkSampler::~vkSampler( void )
 bool vkSampler::Create(const filter_t in_filtering, const wrapping_t in_Swrap, const wrapping_t in_Twrap, const wrapping_t in_Rwrap)
 {
     VkResult result = VK_SUCCESS;
-    VkSamplerCreateInfo samplerCI{}; 
+    VkSamplerCreateInfo samplerCI{};
+    
+    auto device = tr.vkContext->Device();
+
     samplerCI.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     samplerCI.pNext = nullptr;
     samplerCI.flags = 0;
@@ -149,7 +152,7 @@ bool vkSampler::Create(const filter_t in_filtering, const wrapping_t in_Swrap, c
 
     switch ( in_filtering )
     {
-        case FILTER_NEARES:    
+        case FILTER_NEAREST:    
             samplerCI.magFilter = VK_FILTER_NEAREST;
             samplerCI.minFilter = VK_FILTER_NEAREST;
             samplerCI.mipmapMode = VK_SAMPLER_MIPMAP_MODE_NEAREST;
@@ -256,7 +259,7 @@ bool vkSampler::Create(const filter_t in_filtering, const wrapping_t in_Swrap, c
             break;    
     }
 
-    result = vkCreateSampler( tr.vkContext->Device(), &samplerCI, k_allocationCallbacks, &m_sampler );
+    result = vkCreateSampler( *device, &samplerCI, k_allocationCallbacks, &m_sampler );
     if( result != VK_SUCCESS )
     {
         common->Error( "vkSampler::Create::vkCreateSampler failed" );
@@ -270,7 +273,8 @@ void vkSampler::Destroy(void)
 {
     if( m_sampler != nullptr )
     {
-        vkDestroySampler( tr.vkContext->Device(), m_sampler, k_allocationCallbacks );
+        auto device = tr.vkContext->Device();
+        vkDestroySampler( *device, m_sampler, k_allocationCallbacks );
         m_sampler = nullptr;
     }
 }
@@ -297,8 +301,16 @@ static VkImageAspectFlags GetAspect( const VkFormat fmt )
     }
 }
 
-vkTexture::vkTexture( void )
+vkTexture::vkTexture( void ) : 
+    m_image( nullptr ),
+    m_view( nullptr ),
+    m_memory( nullptr ),
+    m_device( nullptr )
 {
+    m_state.layout = VK_IMAGE_LAYOUT_GENERAL;
+    m_state.aspect = VK_IMAGE_ASPECT_NONE;
+    m_state.stage = ;
+    m_state.access = ;
 }
 
 vkTexture::~vkTexture( void )
@@ -318,6 +330,7 @@ bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, c
 
     m_type = in_type;
     m_format = in_format;
+    m_dimensions = in_dimensions;
 
     ///
     ///
@@ -336,7 +349,7 @@ bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, c
     imageCI.sharingMode = VK_SHARING_MODE_CONCURRENT; // can be used for graphic and compute queues
     imageCI.queueFamilyIndexCount = queues.Num();
     imageCI.pQueueFamilyIndices = queues.Ptr();
-    imageCI.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+    imageCI.initialLayout = m_state.layout;
 
     switch ( in_type )
     {
@@ -426,6 +439,7 @@ bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, c
         return false;
     };
 
+    m_dimensions = in_dimensions;
     return true;
 }
 
@@ -452,43 +466,47 @@ void vkTexture::Destroy(void)
     m_device = nullptr;
 }
 
-void vkTexture::SubImage( const uint32_t in_alignament, const idList<subImage_t> &in_subImages )
+void *vkTexture::Handler(void) const
 {
-    VkCopyBufferToImageInfo2 copyBufferToImageInfo{};
-    idImageManagerLocal* imgl = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
-    VkBuffer pubo = *static_cast<VkBuffer*>( imgl->GetPixelUnpackBuffer()->Handle() ); 
-    idList<VkBufferImageCopy2, TAG_VULKAN> m_regions;
-    m_regions.Resize( in_subImages.Num() );
+    return m_image;
+}
 
-    for ( uint32_t i = 0; i < in_subImages.Num(); i++)
-    {
-        const auto& sub = in_subImages[i];
-        VkImageSubresourceLayers subresourceLayers{};
-        subresourceLayers.aspectMask = vulkanImageAspects[m_format];
-        subresourceLayers.mipLevel = sub.level;
-        subresourceLayers.baseArrayLayer = sub.layer;
-        subresourceLayers.layerCount = 1;
+void vkTexture::SetState( const textureState_t &in_state, const VkCommandBuffer in_commandBuffer )
+{
+    // we update the whole image, since we map the current texture state change, we can't handle sections
+    VkImageSubresourceRange subresourceRange{};
+    subresourceRange.aspectMask = in_state.aspect;    
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = m_dimensions.levels;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount = m_dimensions.layers;
 
-        VkBufferImageCopy2  bufferImageCopy{};
-        bufferImageCopy.sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2;
-        bufferImageCopy.pNext = nullptr;
-        bufferImageCopy.bufferOffset = sub.offset;
-        bufferImageCopy.bufferRowLength = sub.width;
-        bufferImageCopy.bufferImageHeight = sub.height;
-        bufferImageCopy.imageSubresource = subresourceLayers;
-        bufferImageCopy.imageOffset = { 0, 0, 0 };
-        bufferImageCopy.imageExtent.width = sub.width;
-        bufferImageCopy.imageExtent.height = sub.height;
-        bufferImageCopy.imageExtent.depth = sub.depth;
-        m_regions[i] = bufferImageCopy;
-    }
+    VkImageMemoryBarrier2 barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
+    barrier.pNext = nullptr;
+    barrier.srcStageMask = m_state.stage;
+    barrier.srcAccessMask = m_state.access;
+    barrier.dstStageMask = in_state.stage;
+    barrier.dstAccessMask = in_state.access;
+    barrier.oldLayout = m_state.layout;
+    barrier.newLayout = in_state.layout;
+    barrier.srcQueueFamilyIndex = m_state.queueFamily;
+    barrier.dstQueueFamilyIndex = in_state.queueFamily;
+    barrier.image = m_image;
+    barrier.subresourceRange = subresourceRange;
 
-    copyBufferToImageInfo.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2; 
-    copyBufferToImageInfo.pNext = nullptr;
-    copyBufferToImageInfo.srcBuffer = pubo;
-    copyBufferToImageInfo.dstImage = m_image; 
-    copyBufferToImageInfo.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL; 
-    copyBufferToImageInfo.regionCount = m_regions.Num(); 
-    copyBufferToImageInfo.pRegions = m_regions.Ptr(); 
-    vkCmdCopyBufferToImage2( imgl->TextureTransferBuffer(), &copyBufferToImageInfo );    
+    VkDependencyInfo depInfo{};
+    depInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    depInfo.pNext = nullptr;
+    depInfo.dependencyFlags = 0;
+    depInfo.memoryBarrierCount = 0;
+    depInfo.pMemoryBarriers = nullptr;
+    depInfo.bufferMemoryBarrierCount = 0;
+    depInfo.pBufferMemoryBarriers = nullptr;
+    depInfo.imageMemoryBarrierCount = 1;
+    depInfo.pImageMemoryBarriers = &barrier;
+    vkCmdPipelineBarrier2( in_commandBuffer, &depInfo );
+
+    // update image state info
+    m_state = in_state;
 }

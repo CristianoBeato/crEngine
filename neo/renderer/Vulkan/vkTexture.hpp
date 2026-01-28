@@ -43,20 +43,47 @@ private:
 class vkTexture : public crTexture
 {
 public:
+
+    /// @brief store texture state
+    struct textureState_t
+    {
+        VkImageLayout           layout;
+        VkImageAspectFlags      aspect; 
+        VkPipelineStageFlags2   stage;  
+        VkAccessFlags2          access;
+        uint32_t                queueFamily;
+    };
+
     vkTexture( void );
     ~vkTexture( void );
 
-    virtual bool    Create( const type_t in_type, const dimensions_t in_dimensions, const format_t in_format );
-    virtual void    Destroy( void );
-    virtual void    StateTransition( const state_t in_state );
-    virtual void    SubImage( const uint32_t in_alignament, const idList<subImage_t> &in_subImages );
-    virtual void*   Handler( void ) const;
+    virtual bool                Create( const type_t in_type, const dimensions_t in_dimensions, const format_t in_format );
+    virtual void                Destroy( void );
+    virtual void*               Handler( void ) const;
+
+    /// @brief Texture mip count  
+    /// @return number of mipmaps by layer
+    const uint16_t              Levels( void ) const { return m_dimensions.levels; }
+    
+    /// @brief Texture layer count 
+    /// @return number of layer ( faces if a cubemap )
+    const uint16_t              Layers( void ) const { return m_dimensions.layers; }
+    const uint32_t              CurrentQueue( void ) const { return m_state.queueFamily; }
+    const VkImage               Image( void ) const { return m_image; }
+    const VkImageView           ImageView( void ) const { return m_view; }
+    const VkImageLayout         Layout( void ) const { return m_state.layout; }
+    const VkPipelineStageFlags2 Stage( void ) const { return m_state.stage; }
+    const VkAccessFlags2        Access( void ) const {return m_state.access; }
+    const VkImageAspectFlags    Aspect( void ) const { return m_state.aspect; }
+    void                        SetState( const textureState_t &in_state, const VkCommandBuffer in_commandBuffer );
 
 private:
-    VkImage         m_image;
-    VkImageView     m_view;
-    VkDeviceMemory  m_memory;
-    VkDevice        m_device;
+    textureState_t          m_state;
+    dimensions_t            m_dimensions;
+    VkImage                 m_image;
+    VkImageView             m_view;
+    VkDeviceMemory          m_memory;
+    VkDevice                m_device;
 };
 
 #endif //!__VK_TEXTURE_HPP__
