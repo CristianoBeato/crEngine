@@ -34,6 +34,7 @@ vkCommandBuffer::vkCommandBuffer( const VkQueue in_queue, const VkCommandPool in
     m_commandPool( nullptr ),
     m_queue( nullptr )
 {
+    
     VkResult result = VK_SUCCESS;
     auto device = tr.vkContext->Device(); 
     m_device = *device; 
@@ -193,8 +194,8 @@ void vkCommandBuffer::Sumit(void)
     submitInfo.pSignalSemaphoreInfos = nullptr;
 #endif
 
-    result = vkQueueSubmit2( m_queue, 1, &submitInfo, m_renderDone[m_frame] );
-
+    VK_CHECK( vkQueueSubmit2( m_queue->Queue(), 1, &submitInfo, m_renderDone[m_frame] ) );   
+    
     // swap buffer
     m_frame = ( m_frame + 1 ) % SMP_FRAMES;
 }
@@ -303,6 +304,25 @@ void vkCommandBuffer::DepthBoundsTest(const float zmin, const float zmax)
     vkCmdSetDepthBounds( m_command[m_frame], zmin, zmax );
 }
 
+void vkCommandBuffer::FaceCull( const crPipeline::Face_t in_cullType )
+{
+    VkCullModeFlags cullModeFlags;
+    switch ( in_cullType )
+    {
+        case crPipeline::FC_BACK:
+            cullModeFlags = VK_CULL_MODE_BACK_BIT;
+            break;
+        case crPipeline::FC_FRONT:
+            cullModeFlags = VK_CULL_MODE_FRONT_BIT;
+            break;
+        case crPipeline::FC_TWO_FACES:
+            cullModeFlags = VK_CULL_MODE_NONE;
+            break;    
+    }
+
+    vkCmdSetCullMode( m_command[m_frame], cullModeFlags );   
+}
+
 void vkCommandBuffer::Scissor( const int x, const int y, const int w, const int h) const
 {
     VkRect2D r{};
@@ -323,6 +343,207 @@ void vkCommandBuffer::Viewport( const int x, const int y, const int w, const int
     vp.minDepth = 0.0f;
     vp.maxDepth = 1.0f;
     vkCmdSetViewport( m_command[m_frame], 0, 1, &vp );
+}
+
+void vkCommandBuffer::CopyTexture(const crTexture *in_src, const crTexture *in_dst, const idList<crTexture::subImage_t> in_subImages )
+{
+    uint32_t baseMipLevel = 512;
+    uint32_t baseArrayLayer = 512;
+    uint32_t topMipLevel = 0;
+    uint32_t topArrayLayer = 0;
+    vkTexture::textureState_t   copySrcTextureState{};
+    vkTexture::textureState_t   copydstTextureState{};
+    VkCopyImageInfo2            copyImageInfo{};
+    vkTexture*                  textureSrc = static_cast<vkTexture*>( const_cast<crTexture*>( in_src ) );
+    vkTexture*                  textureDst = static_cast<vkTexture*>( const_cast<crTexture*>( in_dst ) );
+    idList<VkImageCopy2, TAG_VULKAN> regions;
+
+    assert( textureSrc && textureDst );
+
+    regions.Resize( in_subImages.Num() );
+    for ( uint32_t i = 0; i < in_subImages.Num(); i++)
+    {
+        crTexture::subImage_t sub = in_subImages[i];
+        VkImageSubresourceLayers srcSubresourceLayers{};
+        VkImageSubresourceLayers dstSubresourceLayers{};
+
+        ///
+        srcSubresourceLayers.aspectMask = textureSrc->Aspect();
+        srcSubresourceLayers.mipLevel = sub.level;
+        srcSubresourceLayers.baseArrayLayer = sub.layer;
+        srcSubresourceLayers.layerCount = 1;
+
+        ///
+        dstSubresourceLayers.aspectMask = textureDst->Aspect();
+        dstSubresourceLayers.mipLevel = sub.level;
+        dstSubresourceLayers.baseArrayLayer = sub.layer;
+        dstSubresourceLayers.layerCount = 1;
+
+        VkImageCopy2 imageCopy{};
+        imageCopy.sType = VK_STRUCTURE_TYPE_IMAGE_COPY_2;
+        imageCopy.pNext = nullptr;
+        imageCopy.srcSubresource = srcSubresourceLayers;
+        imageCopy.srcOffset = { 0, 0, 0 };
+        imageCopy.dstSubresource = dstSubresourceLayers;
+        imageCopy.dstOffset = { 0, 0, 0 };
+        imageCopy.extent = { sub.width, sub.height, sub.depth };
+        
+        baseMipLevel = Min( static_cast<uint32_t>( sub.level ), baseMipLevel );
+        topMipLevel = Max( static_cast<uint32_t>( sub.level ), topMipLevel );
+        baseArrayLayer = Min( static_cast<uint32_t>( sub.layer ), baseArrayLayer );
+        topArrayLayer = Max( static_cast<uint32_t>( sub.layer ), topArrayLayer );
+
+        regions[i] = imageCopy;
+    }
+
+    ///
+    ///
+    ///
+    copyImageInfo.sType = VK_STRUCTURE_TYPE_COPY_IMAGE_INFO_2;
+    copyImageInfo.pNext = nullptr;
+    copyImageInfo.srcImage = textureSrc->Image();
+    copyImageInfo.srcImageLayout = textureSrc->Layout();
+    copyImageInfo.dstImage = textureDst->Image();
+    copyImageInfo.dstImageLayout = textureSrc->Layout();
+    copyImageInfo.regionCount = regions.Size();
+    copyImageInfo.pRegions = regions.Ptr();
+
+    // change texture state to copy source
+    copySrcTextureState.aspect = textureSrc->Aspect();
+    copySrcTextureState.queueFamily = m_queue->Family();
+    copySrcTextureState.layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    copySrcTextureState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    copySrcTextureState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
+    textureSrc->SetState( copySrcTextureState, m_command[m_frame] );
+
+    // change texture state to copy destination
+    copydstTextureState.aspect = textureDst->Aspect();
+    copydstTextureState.queueFamily = m_queue->Family();
+    copydstTextureState.layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    copydstTextureState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    copydstTextureState.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    textureDst->SetState( copydstTextureState, m_command[m_frame] );
+
+    ///  perform texture copy 
+    vkCmdCopyImage2( m_command[m_frame], &copyImageInfo );
+}
+
+void vkCommandBuffer::CopyBufferToTexture(const crBuffer *in_buffer, const crTexture *in_texture, const idList<crTexture::subImage_t> in_subImages)
+{
+    VkCopyBufferToImageInfo2    copyBufferToImageInfo{};
+    vkTexture::textureState_t   preCopyTextureState{};
+    vkBuffer::bufferState_t     preCopyBufferState{};
+    vkTexture*  texture = static_cast<vkTexture*>( const_cast<crTexture*>( in_texture ) );    
+    vkBuffer*   buffer = static_cast<vkBuffer*>( const_cast<crBuffer*>( in_buffer ) );
+    idList<VkBufferImageCopy2, TAG_VULKAN> regions;
+    
+    regions.Resize( in_subImages.Num() );
+    for ( uint32_t i = 0; i < in_subImages.Num(); i++)
+    {
+        const auto& sub = in_subImages[i];
+        VkImageSubresourceLayers subresourceLayers{};
+        subresourceLayers.aspectMask = texture->Aspect();
+        subresourceLayers.mipLevel = sub.level;
+        subresourceLayers.baseArrayLayer = sub.layer;
+        subresourceLayers.layerCount = 1;
+
+        VkBufferImageCopy2  bufferImageCopy{};
+        bufferImageCopy.sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2;
+        bufferImageCopy.pNext = nullptr;
+        bufferImageCopy.bufferOffset = sub.offset;
+        bufferImageCopy.bufferRowLength = sub.width;
+        bufferImageCopy.bufferImageHeight = sub.height;
+        bufferImageCopy.imageSubresource = subresourceLayers;
+        bufferImageCopy.imageOffset = { 0, 0, 0 };
+        bufferImageCopy.imageExtent.width = sub.width;
+        bufferImageCopy.imageExtent.height = sub.height;
+        bufferImageCopy.imageExtent.depth = sub.depth;
+        regions[i] = bufferImageCopy;
+    }
+
+    // change texture state to copy destination
+    preCopyTextureState.aspect = texture->Aspect();
+    preCopyTextureState.queueFamily = m_queue->Family();
+    preCopyTextureState.layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+    preCopyTextureState.stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    preCopyTextureState.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    texture->SetState( preCopyTextureState, m_command[m_frame] );
+    
+    // change buffer state to tranfer read
+    preCopyBufferState.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+    preCopyBufferState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    preCopyBufferState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
+    preCopyBufferState.queueFamily = m_queue->Family();
+    buffer->SetState( preCopyBufferState, m_command[m_frame] );
+
+    //
+    copyBufferToImageInfo.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2; 
+    copyBufferToImageInfo.pNext = nullptr;
+    copyBufferToImageInfo.srcBuffer = buffer->Buffer();
+    copyBufferToImageInfo.dstImage = texture->Image(); 
+    copyBufferToImageInfo.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL; 
+    copyBufferToImageInfo.regionCount = regions.Num(); 
+    copyBufferToImageInfo.pRegions = regions.Ptr(); 
+    vkCmdCopyBufferToImage2( m_command[m_frame], &copyBufferToImageInfo );    
+}
+
+void vkCommandBuffer::CopyTextureToBuffer(const crBuffer *in_buffer, const crTexture *in_texture, const idList<crTexture::subImage_t> in_subImages)
+{   
+    VkCopyImageToBufferInfo2    copyImageToBufferInfo{};
+    vkTexture::textureState_t   preCopyTextureState{};
+    vkBuffer::bufferState_t     preCopyBufferState{};
+    vkTexture*  texture = static_cast<vkTexture*>( const_cast<crTexture*>( in_texture ) );    
+    vkBuffer*   buffer = static_cast<vkBuffer*>( const_cast<crBuffer*>( in_buffer ) );
+    idList<VkBufferImageCopy2, TAG_VULKAN> regions;
+
+    regions.Resize( in_subImages.Num() );
+    for ( uint32_t i = 0; i < in_subImages.Num(); i++)
+    {
+        const auto& sub = in_subImages[i];
+        VkImageSubresourceLayers subresourceLayers{};
+        subresourceLayers.aspectMask = texture->Aspect();
+        subresourceLayers.mipLevel = sub.level;
+        subresourceLayers.baseArrayLayer = sub.layer;
+        subresourceLayers.layerCount = 1;
+
+        VkBufferImageCopy2  bufferImageCopy{};
+        bufferImageCopy.sType = VK_STRUCTURE_TYPE_BUFFER_IMAGE_COPY_2;
+        bufferImageCopy.pNext = nullptr;
+        bufferImageCopy.bufferOffset = sub.offset;
+        bufferImageCopy.bufferRowLength = sub.width;
+        bufferImageCopy.bufferImageHeight = sub.height;
+        bufferImageCopy.imageSubresource = subresourceLayers;
+        bufferImageCopy.imageOffset = { 0, 0, 0 };
+        bufferImageCopy.imageExtent.width = sub.width;
+        bufferImageCopy.imageExtent.height = sub.height;
+        bufferImageCopy.imageExtent.depth = sub.depth;
+        regions[i] = bufferImageCopy;
+    }
+
+    // change texture state to copy read
+    preCopyTextureState.aspect = texture->Aspect();
+    preCopyTextureState.queueFamily = m_queue->Family();
+    preCopyTextureState.layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    preCopyTextureState.stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+    preCopyTextureState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
+    texture->SetState( preCopyTextureState, m_command[m_frame] );
+    
+    // change buffer state to tranfer write
+    preCopyBufferState.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+    preCopyBufferState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    preCopyBufferState.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    preCopyBufferState.queueFamily = m_queue->Family();
+    buffer->SetState( preCopyBufferState, m_command[m_frame] );
+
+    ///
+    copyImageToBufferInfo.sType = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2;
+    copyImageToBufferInfo.pNext = nullptr;
+    copyImageToBufferInfo.srcImage = texture->Image();
+    copyImageToBufferInfo.srcImageLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
+    copyImageToBufferInfo.dstBuffer = buffer->Buffer();
+    copyImageToBufferInfo.regionCount = regions.Num();
+    copyImageToBufferInfo.pRegions = regions.Ptr();
+    vkCmdCopyImageToBuffer2( m_command[m_frame], &copyImageToBufferInfo );
 }
 
 void vkCommandBuffer::ExecuteCommands(const uint32_t in_commandBufferCount, const VkCommandBuffer *in_commandBuffers)

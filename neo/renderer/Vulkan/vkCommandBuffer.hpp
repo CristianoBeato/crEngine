@@ -29,6 +29,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 class vkCommandBuffer : public crCommandBuffer
 {
 public:
+
     vkCommandBuffer( const VkQueue in_queue, const VkCommandPool in_commandPool );
     ~vkCommandBuffer( void );
 
@@ -47,8 +48,13 @@ public:
     virtual void    Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
     virtual void    PolygonOffset( const float scale, const float bias );
     virtual void    DepthBoundsTest( const float zmin, const float zmax );
+    virtual void    FaceCull( const crPipeline::Face_t in_cullType );
     virtual void    Scissor( const int x, const int y, const int w, const int h ) const;
     virtual void    Viewport( const int x, const int y, const int w, const int h ) const;
+    virtual void    CopyTexture( const crTexture* in_src, const crTexture* in_dst, const idList<crTexture::subImage_t> in_subImages );
+    virtual void    CopyBufferToTexture( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages );    
+    virtual void    CopyTextureToBuffer( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages );
+    virtual void    CopyBuffer( const crBuffer* in_srcBuffer, const crBuffer* in_dstBuffer, const uintptr_t in_offset, const size_t in_size );
 
     // 
     void ExecuteCommands( const uint32_t in_commandBufferCount, const VkCommandBuffer* in_commandBuffers );
@@ -57,6 +63,9 @@ public:
     void            FrameOperationsFenceCountIncrement( void ) { m_frameOperationsFenceCount++; }
     VkSemaphore     FrameOperationsFenceSemaphore( void ) const { return m_frameOperationsFence; }
     
+    uint32_t        Family( void ) const { return m_queue->Family(); }
+    VkCommandBuffer CommandBuffer( void ) const { return m_command[m_frame]; }
+
 private:
     uint32_t            m_frame;
     uint64_t            m_frameOperationsFenceCount;
@@ -65,7 +74,7 @@ private:
     VkSemaphore         m_frameOperationsFence;
     VkDevice            m_device;
     VkCommandPool       m_commandPool;
-    VkQueue             m_queue;
+    vkDeviceQueue*      m_queue;
     VkCommandBuffer     m_command[SMP_FRAMES];
     VkFence             m_renderDone[SMP_FRAMES];
 };

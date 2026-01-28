@@ -146,14 +146,32 @@ void glCommandBuffer::Clear(const bool in_color, const bool in_depth, const bool
 	glClear( clearFlags );
 }
 
-void glCommandBuffer::PolygonOffset( const float in_scale, const float in_bias )
+void glCommandBuffer::PolygonOffset( const float in_scale, const float in_bias, const bool enable )
 {
-    glPolygonOffset( in_scale, in_bias );
+	if ( enable )
+	{
+		glEnable( GL_POLYGON_OFFSET_FILL );
+		glEnable( GL_POLYGON_OFFSET_LINE );
+		glPolygonOffset( in_scale, in_bias );
+	}
+	else
+	{
+		glDisable( GL_POLYGON_OFFSET_FILL );
+		glDisable( GL_POLYGON_OFFSET_LINE );
+	}
+	
 }
 
-void glCommandBuffer::DepthBoundsTest(const float zmin, const float zmax)
+void glCommandBuffer::DepthBoundsTest(const float zmin, const float zmax, const bool enable )
 {
-	// TODO by shadeer
+	// TODO by shader
+	if ( enable )
+	{
+		glEnable( GL_DEPTH_BOUNDS_TEST_EXT );
+		glDepthBoundsEXT( zmin, zmax );
+	}
+	else
+		glDisable( GL_DEPTH_BOUNDS_TEST_EXT );	
 }
 
 void glCommandBuffer::Scissor(int x, int y, int w, int h) const
@@ -164,4 +182,46 @@ void glCommandBuffer::Scissor(int x, int y, int w, int h) const
 void glCommandBuffer::Viewport(int x, int y, int w, int h) const
 {
 	glViewport( x, y, w, h );
+}
+
+void glCommandBuffer::CopyTexture(const crTexture *in_src, const crTexture *in_dst, const idList<crTexture::subImage_t> in_subImages)
+{
+	assert( !in_src || !in_dst );
+	const glTexture* srcImage = dynamic_cast<const glTexture*>( in_src );
+	const glTexture* dstImage = dynamic_cast<const glTexture*>( in_dst );
+	
+	// Make sure any previous writing is finished.
+	glMemoryBarrier( GL_TEXTURE_UPDATE_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT );
+
+	for ( uint32_t i = 0; i < in_subImages.Num(); i++)
+	{
+		crTexture::subImage_t image = in_subImages[i];
+
+		// perform the copy 
+		glCopyImageSubData(	srcImage->Texture(),
+							srcImage->Target(),
+							image.level,
+							0, 0, 0,
+							dstImage->Texture(),
+							dstImage->Target(),
+							image.level,
+							0, 0, 0,
+							image.width,
+							image.height,
+							image.depth );		
+	}
+
+	// prepare image for use
+	glMemoryBarrier( GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT );	
+}
+
+void glCommandBuffer::CopyBuffer( const crBuffer *in_srcBuffer, const crBuffer *in_dstBuffer, const uintptr_t in_offset, const size_t in_size )
+{
+	const glBuffer* src = dynamic_cast<const glBuffer*>( in_srcBuffer );
+	const glBuffer* dst = dynamic_cast<const glBuffer*>( in_dstBuffer );
+
+	///
+	//glMemoryBarrier( GL_BUFFER_UPDATE_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT | GL_TRANSFORM_FEEDBACK_BARRIER_BIT );
+
+	glCopyNamedBufferSubData( src->Buffer(), dst->Buffer(), in_offset, in_offset, in_size );
 }

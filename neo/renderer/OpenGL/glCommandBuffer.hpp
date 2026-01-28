@@ -44,10 +44,16 @@ public:
     virtual void    DrawIndexed( const uint32_t in_indexCount, const uint32_t in_instanceCount, const uint32_t in_firstIndex, const int32_t in_vertexOffset, const uint32_t in_firstInstance ) const;
     virtual void    Dispatch(  const uint32_t in_groupCountX, const uint32_t in_groupCountY, const uint32_t in_groupCountZ ) const;
     virtual void    Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
-    virtual void    PolygonOffset( float scale, float bias );
-    virtual void    DepthBoundsTest( const float zmin, const float zmax );
+    virtual void    PolygonOffset( float scale, float bias, const bool enable );
+    virtual void    DepthBoundsTest( const float zmin, const float zmax, const bool enable );
     virtual void    Scissor( int x /* left*/, int y /* bottom */, int w, int h ) const;
     virtual void    Viewport( int x /* left */, int y /* bottom */, int w, int h ) const;
+    virtual void    CopyTexture( const crTexture* in_src, const crTexture* in_dst, const idList<crTexture::subImage_t> in_subImages );
+    virtual void    CopyBufferToTexture( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages );    
+    virtual void    CopyTextureToBuffer( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages );
+    virtual void    CopyBuffer( const crBuffer* in_srcBuffer, const crBuffer* in_dstBuffer, const uintptr_t in_offset, const size_t in_size );
+
+
 private:
     GLuint  m_indexBuffer;
     GLuint  m_vertexBuffer;
