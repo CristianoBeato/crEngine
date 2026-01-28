@@ -295,6 +295,8 @@ PFNGLDEBUGMESSAGEINSERTPROC						glDebugMessageInsert = nullptr;
 PFNGLDEBUGMESSAGECALLBACKPROC					glDebugMessageCallback = nullptr;
 PFNGLGETDEBUGMESSAGELOGPROC						glGetDebugMessageLog = nullptr;
 
+PFNGLMEMORYBARRIERPROC                       	glMemoryBarrier = nullptr;
+PFNGLMEMORYBARRIERBYREGIONPROC               	glMemoryBarrierByRegion = nullptr;
 // TODO: Deprecate GL
 void ( APIENTRYP glRasterPos2f )( GLfloat x, GLfloat y );
 void ( APIENTRYP glDrawPixels )(GLsizei width, GLsizei height, GLenum format, GLenum type, const GLvoid *pixels);
@@ -1025,6 +1027,9 @@ bool QGL_Init( const char* dllname )
 	GET_GL_PROC( glDebugMessageInsert );
 	GET_GL_PROC( glDebugMessageCallback );
 	GET_GL_PROC( glGetDebugMessageLog );
+
+	GET_GL_PROC( glMemoryBarrier );
+	GET_GL_PROC( glMemoryBarrierByRegion );
 
 	glRasterPos2f = (decltype(glRasterPos2f))SDL_GL_GetProcAddress( "glRasterPos2f" );
 

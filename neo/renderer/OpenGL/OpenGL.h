@@ -322,6 +322,9 @@ extern PFNGLDEBUGMESSAGEINSERTPROC					glDebugMessageInsert;
 extern PFNGLDEBUGMESSAGECALLBACKPROC				glDebugMessageCallback;
 extern PFNGLGETDEBUGMESSAGELOGPROC					glGetDebugMessageLog;
 
+extern PFNGLMEMORYBARRIERPROC                       glMemoryBarrier;
+extern PFNGLMEMORYBARRIERBYREGIONPROC               glMemoryBarrierByRegion;
+
 //#include <SDL3/SDL_opengl.h>
 //#include <GL/glext.h>
 
