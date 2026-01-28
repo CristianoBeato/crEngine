@@ -363,6 +363,7 @@ void glTexture::Destroy(void)
     }
 }
 
+#if 0
 void glTexture::SubImage( const uint32_t in_alignament, const idList<subImage_t> &in_subImages )
 {
     GLenum format = formatTable[m_format];
@@ -408,6 +409,7 @@ void glTexture::SubImage( const uint32_t in_alignament, const idList<subImage_t>
         }
     }
 }
+#endif
 
 void *glTexture::Handler(void) const
 {

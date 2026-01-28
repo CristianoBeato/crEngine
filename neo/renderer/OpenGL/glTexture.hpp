@@ -45,11 +45,11 @@ public:
     ~glTexture( void );
     virtual bool    Create( const type_t in_type, const dimensions_t in_dimensions, const format_t in_format );
     virtual void    Destroy( void );
-    virtual void    SubImage( const uint32_t in_alignament, const idList<subImage_t> &in_subImages );
     virtual void*   Handler( void ) const;
 
-    const GLenum    Target( void ) const;
-    const GLenum    Internalformat( void ) const;
+    const GLuint    Texture( void ) const { return m_texture; }
+    const GLenum    Target( void ) const { return m_target; }
+    const GLenum    Internalformat( void ) const { return m_internalformat; }
 
 private:
     GLenum  m_target;
