@@ -201,6 +201,13 @@ public:
 	{
 		return SDL_GetAtomicInt( const_cast<SDL_AtomicInt*>( &value ) );
 	}
+
+	/// @brief Compares two integers for equality and, if they are equal,
+	/// replaces the first value, as an atomic operation.
+	int CompareExchange( const int oldValue, const int newValue )
+	{
+		return SDL_CompareAndSwapAtomicInt( &value, oldValue, newValue );
+	}
 	
 	/// @brief sets a new value
 	void SetValue( const int v )
