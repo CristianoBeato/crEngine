@@ -36,14 +36,18 @@ glShaderStorage::glShaderStorage( void ) :
     m_VTSSBO = new glBuffer();
     m_FGSSBO = new glBuffer();
     m_LHSSBO = new glBuffer();
+    m_TLSSBO = new glBuffer();
 }
 
 glShaderStorage::~glShaderStorage( void )
 {
+    delete m_TLSSBO;
     delete m_LHSSBO;
     delete m_FGSSBO;
     delete m_VTSSBO;
     delete m_TSSSBO;
+
+    m_TLSSBO = nullptr;
     m_LHSSBO = nullptr;
     m_FGSSBO = nullptr;
     m_VTSSBO = nullptr;
@@ -57,10 +61,12 @@ void glShaderStorage::StartUp(void)
     m_VTSSBO->Create( crBuffer::BUFFER_TYPE_SHADER, crBuffer::BUFFER_ACCESS_WRITE, FRAME_SSBO_VERT_SIZE * SMP_FRAMES );
     m_FGSSBO->Create( crBuffer::BUFFER_TYPE_SHADER, crBuffer::BUFFER_ACCESS_WRITE, FRAME_SSBO_FRAG_SIZE * SMP_FRAMES );
     m_LHSSBO->Create( crBuffer::BUFFER_TYPE_SHADER, crBuffer::BUFFER_ACCESS_WRITE, FRAME_SSBO_LIGH_SIZE * SMP_FRAMES );
+    m_TLSSBO->Create( crBuffer::BUFFER_TYPE_SHADER, crBuffer::BUFFER_ACCESS_WRITE, FRAME_SSBO_TXLC_SIZE * SMP_FRAMES );
 }
 
 void glShaderStorage::ShutDown(void)
 {
+    m_TLSSBO->Destroy();
     m_LHSSBO->Destroy();
     m_FGSSBO->Destroy();
     m_VTSSBO->Destroy();

@@ -48,10 +48,10 @@ inline bool ResultCheck( const VkResult in_result, const char* in_fnName )
 #if 1
 #define VK_CHECK(f)                                 \
 {                                                   \
-	result = (f);                                   \
-	if (result != VK_SUCCESS)	                    \
+	VkResult res = (f);                             \
+	if ( res != VK_SUCCESS )	                    \
 	{					                            \
-        ReturnError( result, #f, __FILE__, __LINE__ ); \
+        ReturnError( res, #f, __FILE__, __LINE__ ); \
  	}											    \
 }
 #else
