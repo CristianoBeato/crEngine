@@ -27,7 +27,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Vulkan/Vulkan.hpp"
 #include "vkBuffer.hpp"
 
-bool vkBuffer::Create( const crBuffer::type_t in_type, const crBuffer::acess_t in_acess, const size_t in_size )
+bool vkBuffer::Create( const crBuffer::type_t in_type, const crBuffer::access_t in_access, const size_t in_size )
 {
     VkResult result = VK_SUCCESS;
     VkBufferCreateInfo      clientBufferInfo{};
@@ -42,7 +42,7 @@ bool vkBuffer::Create( const crBuffer::type_t in_type, const crBuffer::acess_t i
 
     // strore the buffer type and the acess
     m_type = in_type;
-    m_acess = in_acess;
+    m_access = in_access;
     m_device = *device;
 
     /// check if transfer and compute 
@@ -90,10 +90,12 @@ bool vkBuffer::Create( const crBuffer::type_t in_type, const crBuffer::acess_t i
     switch ( m_access )
     {
         case BUFFER_ACCESS_WRITE:
-            clientBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+            m_state.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+            clientBufferInfo.usage = m_state.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
             break;
         case BUFFER_ACCESS_READ:
-            clientBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+            m_state.access = VK_ACCESS_2_TRANSFER_READ_BIT;
+            clientBufferInfo.usage = m_state.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
     default:
         common->Error( "vkBuffer::Create: Error invalid \"in_acess\"\n" );
@@ -285,7 +287,7 @@ void vkBuffer::CopyBuffer(const crBuffer *in_source, const uintptr_t in_srcOffse
     vkCmdCopyBuffer2( m_copyCmd, &copyBufferInfo );
 }
 
-void vkBuffer::Flush(const uintptr_t in_offset, const size_t in_size) const
+void vkBuffer::Flush(const uintptr_t in_offset, const size_t in_size ) const
 {
     VkMappedMemoryRange memoryRange{};
     memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
@@ -295,7 +297,7 @@ void vkBuffer::Flush(const uintptr_t in_offset, const size_t in_size) const
     memoryRange.size = in_size;
     vkFlushMappedMemoryRanges( m_device, 1, &memoryRange );
 
-    if( m_usage != BUFFER_TYPE_PIXEL )
+    if( m_bestate.usage != BUFFER_TYPE_PIXEL )
     {
         VkBuffer srcBuffer = nullptr;
         VkBuffer dstBuffer = nullptr;
@@ -303,7 +305,7 @@ void vkBuffer::Flush(const uintptr_t in_offset, const size_t in_size) const
         VkBufferCopy2 bufferCopy{};
 
         // we need to perform a internal state transition to be surre
-        if ( m_acess == BUFFER_ACCESS_READ )
+        if ( m_access == BUFFER_ACCESS_READ )
         {
             // we gona copy the host memory to client 
             const_cast<vkBuffer*>( this )->StateTransition( BUFFER_STATE_COPY_SOURCE, in_offset, in_size );
@@ -337,6 +339,7 @@ void vkBuffer::Flush(const uintptr_t in_offset, const size_t in_size) const
     }
 }
 
+#if 0
 void vkBuffer::StateTransition(const state_t in_state, const uintptr_t in_offset, const size_t in_size )
 {
     VkResult                result = VK_SUCCESS;
@@ -440,37 +443,6 @@ void vkBuffer::StateTransition(const state_t in_state, const uintptr_t in_offset
         break;
     }
 
-    VkBufferMemoryBarrier2 barrier{};
-    barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
-    barrier.pNext = nullptr;
-
-    // source state
-    barrier.srcStageMask = m_stage;
-    barrier.srcAccessMask = m_access;
-    barrier.srcQueueFamilyIndex = m_family;
-    
-    // destine state 
-    barrier.dstStageMask = stage;
-    barrier.dstAccessMask = access;
-    barrier.dstQueueFamilyIndex = family;
-    
-    /// set the buffer region to state transition
-    barrier.buffer = m_bufferHost;
-    barrier.offset = in_offset;
-    barrier.size = ( in_size == 0 ) ? VK_WHOLE_SIZE : in_size;
-
-    VkDependencyInfo depInfo{};
-    depInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-    depInfo.pNext = nullptr;
-    depInfo.dependencyFlags = 0;
-    depInfo.memoryBarrierCount = 0;
-    depInfo.pMemoryBarriers = nullptr;
-    depInfo.bufferMemoryBarrierCount = 1;
-    depInfo.pBufferMemoryBarriers = &barrier;
-    depInfo.imageMemoryBarrierCount = 0;
-    depInfo.pImageMemoryBarriers = nullptr;
-    vkCmdPipelineBarrier2( m_copyCmd, &depInfo );
-
     // if we change the state to use, we can flush the copy operation
     if ( in_state == BUFFER_STATE_USE_RENDER || in_state == BUFFER_STATE_USE_COMPUTE )
     {
@@ -487,15 +459,181 @@ void vkBuffer::StateTransition(const state_t in_state, const uintptr_t in_offset
             cmd = backEnd.GetComputeCMD();
         dynamic_cast<vkCommandBuffer*>( cmd )->ExecuteCommands( 1, &m_copyCmd );
     }
-
-    // update buffer state
-    m_family = family;
-    m_stage = stage;
-    m_access = access;
-    m_state = in_state;
 }
+#endif
 
 void *vkBuffer::Handle(void) const
 {
     return const_cast<VkBuffer*>( &m_bufferHost );
+}
+
+// help to remember
+// VK_BUFFER_USAGE_TRANSFER_SRC_BIT
+// VK_BUFFER_USAGE_TRANSFER_DST_BIT
+// VK_BUFFER_USAGE_STORAGE_BUFFER_BIT
+// VK_BUFFER_USAGE_INDEX_BUFFER_BIT
+// VK_BUFFER_USAGE_VERTEX_BUFFER_BIT
+// VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT
+// VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT
+
+void vkBuffer::StateTransition(const state_t in_state, const crCommandBuffer *in_commandBuffer)
+{
+    bufferState_t   state{};
+    auto commandbuffer = dynamic_cast<const vkCommandBuffer*>( in_commandBuffer );
+
+    switch ( in_state )
+    {
+        case RESOURCE_STATE_UNKNOW:
+        {
+            common->Warning( "Unknow state passed to buffer" );
+        } break;
+
+        /// we gone use buffer as data copy destination 
+        case RESOURCE_STATE_COPY_DESTINATION:
+        {
+            state.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+            state.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+            state.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+            state.queueFamily = commandbuffer->Family();
+        } break;
+
+        /// we gona use buffer as data copy source
+        case RESOURCE_STATE_COPY_SOURCE:
+        {
+            state.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+            state.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+            state.access = VK_ACCESS_2_TRANSFER_READ_BIT;
+            state.queueFamily = commandbuffer->Family();
+        } break;
+
+        /// we gona use data as shader 
+        case RESOURCE_STATE_USE_RENDER:
+        {
+            switch ( m_type )
+            {
+                case BUFFER_TYPE_INDEX:
+                {
+                    state.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
+                    state.stage = VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
+                    state.access = VK_ACCESS_2_INDEX_READ_BIT;
+                } break;
+                case BUFFER_TYPE_VERTEX:
+                {
+                    state.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+                    state.stage = VK_PIPELINE_STAGE_2_VERTEX_INPUT_BIT;
+                    state.access = VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
+                } break;
+                case BUFFER_TYPE_SHADER:
+                {
+                    state.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
+                    state.stage = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+                    state.access = VK_ACCESS_2_SHADER_STORAGE_READ_BIT;
+                } break;
+                case BUFFER_TYPE_COMMANDS:
+                {
+                    state.usage = VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+                    state.stage = VK_PIPELINE_STAGE_2_DRAW_INDIRECT_BIT;
+                    state.access = VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+                } break;
+                case BUFFER_TYPE_PIXEL:
+                {
+                    /// TODO: may we never get here 
+                    state.usage = VK_BUFFER_USAGE_STORAGE_TEXEL_BUFFER_BIT;
+                    state.stage = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT;
+                    state.access = VK_ACCESS_2_COLOR_ATTACHMENT_READ_BIT;
+                } break;
+
+                default:
+                {
+                    common->Warning( "vkBuffer::StateTransition: invalid buffer type!\n" );
+                } break;
+            }
+
+            state.queueFamily = commandbuffer->Family();
+        } break;
+        case RESOURCE_STATE_USE_COMPUTE:
+        {
+        } break;
+        case RESOURCE_STATE_WRITE_COMPUTE:
+        {
+        } break;
+        case RESOURCE_STATE_WRITE_RENDER:
+        {
+            
+        } break;
+    }
+
+
+
+    case BUFFER_STATE_USE_COMPUTE:
+    {
+        switch ( m_type )
+        {
+        case BUFFER_TYPE_SHADER:
+        {
+            stage = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+            access = VK_ACCESS_2_SHADER_STORAGE_READ_BIT;
+        } break;
+        case BUFFER_TYPE_COMMANDS:
+        {
+            stage = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+            access = VK_ACCESS_2_INDIRECT_COMMAND_READ_BIT;
+        } break;
+        default:
+            break;
+        }
+
+        family = device->ComputeQueue()->Family();
+    } break;
+    case BUFFER_STATE_WRITE_COMPUTE:
+    {
+        // the output is indiferent, we just write to buffer 
+        stage = VK_PIPELINE_STAGE_2_COMPUTE_SHADER_BIT;
+        access = VK_ACCESS_2_SHADER_WRITE_BIT;
+        family = device->ComputeQueue()->Family();
+    } break;
+ 
+    SetState( state, commandbuffer->CommandBuffer() );
+}
+
+void vkBuffer::SetState(const bufferState_t &in_state, const VkCommandBuffer in_commandBuffer)
+{
+    VkBufferMemoryBarrier2 barrier{};
+    barrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+    barrier.pNext = nullptr;
+
+    // ignore if no change
+    if ( m_bestate == in_state )
+        return;
+
+    // source state
+    barrier.srcStageMask = m_bestate.stage;
+    barrier.srcAccessMask = m_bestate.stage;
+    barrier.srcQueueFamilyIndex = m_family;
+    
+    // destination state state 
+    barrier.dstStageMask = in_state.stage;
+    barrier.dstAccessMask = in_state.access;
+    barrier.dstQueueFamilyIndex = in_state.queueFamily;
+    
+    // we update whole buffer 
+    barrier.buffer = m_bufferHost;
+    barrier.offset = 0;
+    barrier.size = VK_WHOLE_SIZE;
+
+    // submit barrier
+    VkDependencyInfo depInfo{};
+    depInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    depInfo.pNext = nullptr;
+    depInfo.dependencyFlags = 0;
+    depInfo.memoryBarrierCount = 0;
+    depInfo.pMemoryBarriers = nullptr;
+    depInfo.bufferMemoryBarrierCount = 1;
+    depInfo.pBufferMemoryBarriers = &barrier;
+    depInfo.imageMemoryBarrierCount = 0;
+    depInfo.pImageMemoryBarriers = nullptr;
+    vkCmdPipelineBarrier2( m_copyCmd, &depInfo );
+
+    // update buffer state
+    m_bestate = in_state;
 }

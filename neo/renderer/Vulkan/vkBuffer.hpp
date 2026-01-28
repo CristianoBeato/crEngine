@@ -28,29 +28,43 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 class vkBuffer : public crBuffer
 {
 public:
+    struct bufferState_t
+    {
+        VkBufferUsageFlags      usage;
+        VkPipelineStageFlags2   stage;
+        VkAccessFlags2          access;
+        uint32_t                queueFamily;
+
+        inline bool operator == ( const bufferState_t &ref ) const
+        {
+            return ( ( usage == ref.usage ) && ( stage != ref.stage ) && ( access != ref.access ) && ( queueFamily == ref.queueFamily ) );            
+        }
+    };
+
     vkBuffer( void );
     ~vkBuffer( void );
 
-    virtual bool    Create( const type_t in_type, const acess_t in_acess, const size_t in_size );
+    virtual bool    Create( const type_t in_type, const access_t in_acess, const size_t in_size );
     virtual bool    Resize( const size_t in_newSize );
     virtual void    Destroy( void );
     virtual void    CopyBuffer( const crBuffer* in_source, const uintptr_t in_srcOffset, const uintptr_t in_dstOffset, const size_t in_size ) const;
     virtual void    Flush( const uintptr_t in_offset, const size_t in_size ) const;
-    virtual void    StateTransition( const state_t in_state, const uintptr_t in_offset, const size_t in_size );
     virtual void*   Handle( void ) const;
-    
+    virtual void    StateTransition( const state_t in_state, const crCommandBuffer* in_commandBuffer );
+    void            SetState( const bufferState_t &in_state, const VkCommandBuffer in_commandBuffer );
+
+    VkBuffer        Buffer( void ) const { return m_bufferHost; }
+
 private:
     uint32_t                m_family;         // buffer current queue
-    VkBufferUsageFlags      m_usage;          // buffer usage 
+    bufferState_t           m_bestate;
     VkMemoryPropertyFlags   m_property;       // memory properties 
-    VkPipelineStageFlags2   m_stage;          // current buffer pipeline stage
-    VkAccessFlags2          m_access;         // buffer acess flags
     VkCommandBuffer         m_copyCmd;        // auxiliar command buffer, to store state transitins and copy commands 
     VkBuffer                m_bufferHost;     // buffer host side handler 
     VkBuffer                m_bufferClient;   // buffer client side handler 
-    VkDeviceMemory          m_memoryHost;     // buffer host side memory acess
-    VkDeviceMemory          m_memoryClient;   // buffer client side memory acess
-    VkDevice                m_device;         // buffer device handler
+    VkDeviceMemory          m_memoryHost;     // host side memory storage
+    VkDeviceMemory          m_memoryClient;   // client side memory storage
+    VkDevice                m_device;         // device handler
 };
 
 #endif //__VK_BUFFER_HPP__

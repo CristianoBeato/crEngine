@@ -31,16 +31,22 @@ public:
     glBuffer( void );
     ~glBuffer( void );
 
-    virtual bool    Create( const crBuffer::type_t in_type, const crBuffer::acess_t in_acess, const size_t in_size );
+    virtual bool    Create( const type_t in_type, const access_t in_acess, const size_t in_size );
     virtual bool    Resize( const size_t in_newSize );
     virtual void    Destroy( void );
     virtual void    CopyBuffer( const crBuffer* in_source, const uintptr_t in_srcOffset, const uintptr_t in_dstOffset, const size_t in_size ) const;
     virtual void    Flush( const uintptr_t in_offset, const size_t in_size ) const;
-    virtual void    StateTransition( const state_t in_state );
+    virtual void    StateTransition( const state_t in_state, const crCommandBuffer* in_commandBuffer );
     virtual void*   Handle( void ) const;
     
+    const GLenum    Target( void ) const { return m_target; }
+    const GLuint    Buffer( void ) const { return m_buffer; }
+
 private:
-    GLuint  m_buffer;
+    GLbitfield  m_flags;
+    GLbitfield  m_stateFlags;
+    GLenum      m_target;
+    GLuint      m_buffer;
 };
 
 #endif //__GL_BUFFER_HPP__
