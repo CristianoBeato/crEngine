@@ -44,13 +44,15 @@ set( RENDERER_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/ScreenRect.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ScreenRect.h
     ${CMAKE_CURRENT_SOURCE_DIR}/simplex.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/tr_local.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/renderer_common.h
     ${CMAKE_CURRENT_SOURCE_DIR}/tr_trace.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/tr_trisurf.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/VertexCache.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/VertexCache.h
     ${CMAKE_CURRENT_SOURCE_DIR}/DebugDraw.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/DebugDraw.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Format.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Format.hpp
     )
 
 set( RENDERER_BACKEND_SOURCES 
@@ -59,20 +61,6 @@ set( RENDERER_BACKEND_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/RenderProgs.h
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/tr_backend_draw.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/tr_backend_rendertools.cpp
-    )
-
-set( RENDERER_COLOR_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/Color/ColorSpace.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Color/ColorSpace.h
-    )
-
-
-set( RENDERER_DXT_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/DXT/DXTCodec.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/DXT/DXTCodec_local.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/DXT/DXTDecoder.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/DXT/DXTEncoder.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/DXT/DXTEncoder_SSE2.cpp
     )
 
 set( RENDERER_FRONTEND_SOURCES
@@ -85,9 +73,8 @@ set( RENDERER_FRONTEND_SOURCES
     )
 
 set( RENDERER_IMAGES_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/images/BinaryImage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/images/BinaryImageData.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/images/BinaryImage.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/images/BTFTextureFile.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/images/BTFTextureFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_files.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image.h
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_intrinsic.cpp
@@ -142,16 +129,32 @@ set( RENDERER_MODELS_SOURCES
     )
 
 set( RENDERER_OPENGL_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_backend.cpp
+    #${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_backend.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_Framebuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_GraphicsAPIWrapper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_Image.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/OpenGL.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/OpenGL.h
+
+    # Current Wip
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glBuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glCommandBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glCommandBuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glFrameBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glFrameBuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glPipeline.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glPipeline.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glProgram.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glProgram.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glShaderStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glShaderStorage.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glTexture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glTexture.hpp
     )
 
 set( RENDERER_RENDERWORLD_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/renderworld/RenderEntity.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/renderworld/RenderEntity.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/renderworld/RenderWorld.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/renderworld/RenderWorld_defs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/renderworld/RenderWorld_demo.cpp
@@ -161,17 +164,45 @@ set( RENDERER_RENDERWORLD_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/renderworld/RenderWorld_portals.cpp
     )
 
+set( RENDERER_VULKAN_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkAllocator.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkAllocator.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkBuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkCommandBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkCommandBuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkContext.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkContext.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkDevice.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkDevice.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkFrameBuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkFrameBuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkPipeline.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkPipeline.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkProgram.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkProgram.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkShaderStorage.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkShaderStorage.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkSwapchain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkSwapchain.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkTexture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkTexture.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkUtils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkUtils.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Vulkan.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Vulkan.hpp
+    )
+
 set( RENDERER_SOURCES
     ${RENDERER_MAIN_SOURCES}
     ${RENDERER_BACKEND_SOURCES}
-    ${RENDERER_COLOR_SOURCES}
-    ${RENDERER_DXT_SOURCES}
     ${RENDERER_FRONTEND_SOURCES}
     ${RENDERER_IMAGES_SOURCES}
     ${RENDERER_JOBS_SOURCES}
     ${RENDERER_MODELS_SOURCES}
     ${RENDERER_OPENGL_SOURCES}
     ${RENDERER_RENDERWORLD_SOURCES}
+    ${RENDERER_VULKAN_SOURCES}
     )
 
 ## library configurarion 
@@ -189,13 +220,12 @@ add_dependencies( renderer idLib )
 target_include_directories( renderer 
     PUBLIC ${CMAKE_SOURCE_DIR}/idlib 
     PRIVATE 
-        ${CMAKE_CURRENT_SOURCE_DIR} 
-        ${CMAKE_CURRENT_SOURCE_DIR}/libs/crglLib/lib/include ) 
+        ${CMAKE_CURRENT_SOURCE_DIR} ) 
 
 # set the precompiled header
 target_precompile_headers( renderer 
 	PUBLIC 
         ${CMAKE_SOURCE_DIR}/idlib/precompiled.h 
 	PRIVATE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/tr_local.h
+        ${CMAKE_CURRENT_SOURCE_DIR}/renderer_common.h
 	) 
