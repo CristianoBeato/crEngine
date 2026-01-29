@@ -149,3 +149,156 @@ VkFormat crInternalFormat::VKInternal(void) const
 {
     return K_VULKAN_FORMAT_TABLE[static_cast<uint32_t>( format )];
 }
+
+bool crInternalFormat::Compressed(void) const
+{
+    switch ( format )
+    {
+        case BC1_RGB:
+        case BC1_SRGB:
+        case BC3_RGBA:
+        case BC3_SRGBA:
+        case BC5_RG:
+        case BC7_RGBA:
+        case BC7_SRGBA:
+        case BC6H_RGBA:
+        case ETC2_RGBA:
+        case ETC2_SRGBA:
+        case RG_EAC_RG:
+            return true;
+    }
+
+    return false;
+}
+
+uint8_t crInternalFormat::BitsPerPixel(void) const
+{
+    switch ( format )
+    {
+        case R8U:
+            return 8;
+        case R8U_SRGB:
+            return 8;
+        case R16U:
+            return 16;
+        case RG8U:
+            return 16;
+        case RG8U_SRGB:
+            return 16;
+        case RG16U:
+            return 32;
+        case RGBA8U:
+            return 32;
+        case RGBA8U_SRGB:
+            return 32;
+        case RGBA16U:
+            return 64;
+        case RGBA16F:
+            return 64;
+        case RGBA32U:
+            return 128;
+        case RGBA32F:
+            return 128;
+        case DEPTH16:
+            return 16;
+        case DEPTH24:   // vulkan don't suport, so we round to 32
+            return 32;
+        case DEPTH32:
+            return 32;
+        case DEPTH24_STENCIL8:
+            return 32;
+        case DEPTH32_STENCIL8:
+            return 40;
+        case RGB565:
+            return 16;
+        case BC1_RGB:
+            return 4;
+        case BC1_SRGB:
+            return 4;
+        case BC3_RGBA:
+            return 8;
+        case BC3_SRGBA:
+            return 8;
+        case BC5_RG:
+            return 8;
+        case BC7_RGBA:
+            return 8;
+        case BC7_SRGBA:
+            return 8;
+        case BC6H_RGBA:
+            return 8;
+        case ETC2_RGBA:
+            return 8;
+        case ETC2_SRGBA:
+            return 8;
+        case RG_EAC_RG:
+            return 8;
+    }
+
+    return 0;
+}
+
+float crInternalFormat::BytesPerPixel(void) const
+{
+    switch ( format )
+    {
+        case R8U:
+            return 1.0f;
+        case R8U_SRGB:
+            return 1.0f;
+        case R16U:
+            return 2.0f;
+        case RG8U:
+            return 2.0f;
+        case RG8U_SRGB:
+            return 2.0f;
+        case RG16U:
+            return 4.0f;
+        case RGBA8U:
+            return 4.0f;
+        case RGBA8U_SRGB:
+            return 4.0f;
+        case RGBA16U:
+            return 8.0f;
+        case RGBA16F:
+            return 8.0f;
+        case RGBA32U:
+            return 16.0f;
+        case RGBA32F:
+            return 16.0f;
+        case DEPTH16:
+            return 2.0f;
+        case DEPTH24:   // vulkan don't suport, so we round to 32
+            return 4.0f;
+        case DEPTH32:
+            return 4.0f;
+        case DEPTH24_STENCIL8:
+            return 4.0f;
+        case DEPTH32_STENCIL8:
+            return 5.0f;
+        case RGB565:
+            return 2.0f;
+        case BC1_RGB:
+            return 0.5f;
+        case BC1_SRGB:
+            return 0.5f;
+        case BC3_RGBA:
+            return 1.0f;
+        case BC3_SRGBA:
+            return 1.0f;
+        case BC5_RG:
+            return 1.0f;
+        case BC7_RGBA:
+            return 1.0f;
+        case BC7_SRGBA:
+            return 1.0f;
+        case BC6H_RGBA:
+            return 1.0f;
+        case ETC2_RGBA:
+            return 1.0f;
+        case ETC2_SRGBA:
+            return 1.0f;
+        case RG_EAC_RG:
+            return 1.0f;
+    }
+}

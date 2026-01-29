@@ -88,7 +88,19 @@ typedef struct crInternalFormat
     GLenum      GLInternal( void ) const;
     GLenum      GLFormat( void ) const;
     VkFormat    VKInternal( void ) const;
+
+    operator    GLenum( void) const { return GLInternal(); } 
+    operator    VkFormat( void ) const { return VKInternal(); }
+    operator    format_t( void ) const { return format; }
+
+    /// @brief  Return true if are a compressed format
+    bool        Compressed( void ) const;
+
+    /// @brief  number of bit per pixel  
+    uint8_t     BitsPerPixel( void )const; 
     
+    float       BytesPerPixel( void ) const;
+
     format_t format;
 } crInternalFormat;
 
