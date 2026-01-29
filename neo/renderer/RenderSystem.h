@@ -410,6 +410,11 @@ public:
 	virtual void	StartBuild( void ) = 0;
 	virtual void	FinishBuild( const bool removeDups = false ) = 0;
 	virtual void	PrintMemInfo( MemInfo_t* mi ) = 0;
+
+	// BEATO Begin:
+	virtual crBuffer*	GetPixelUnpackBuffer( void ) const = 0;
+	virtual crBuffer*	GetPixelPackBuffer( void ) const = 0;
+	// BEATO End
 };
 
 class idRenderWorld;
@@ -579,6 +584,7 @@ public:
 	virtual int				GetFrameCount( void ) const = 0;
 
 	virtual void OnFrame( void ) = 0;
+	
 };
 
 // used by the view shot taker

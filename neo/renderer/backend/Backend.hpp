@@ -229,9 +229,11 @@ public:
 	drawSurf_t			zeroOneCubeSurface;
 	drawSurf_t			testImageSurface;
 
-	crShaderStorage*	GetShaderStorage( void ) const { return m_shaderStorage; }
-	crCommandBuffer*	GetRenderCMD( void ) const { return m_renderCMD; }
-	crCommandBuffer*	GetComputeCMD( void ) const { return m_computeCMD; }
+	crShaderStorage*			GetShaderStorage( void ) const { return m_shaderStorage; }
+	crGraphicCommandBuffer*		GetRenderCMD( void ) const { return m_renderCMD; }
+	crTransferCommandBuffer*	GetTransferCMD( void ) const { return m_transferCMD;}
+	crCommandBuffer*			GetComputeCMD( void ) const { return m_computeCMD; }
+
 private:
 	crSwapchain*				m_swapchain;		//
     crGraphicCommandBuffer*    	m_renderCMD;        // main render command buffer
