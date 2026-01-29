@@ -26,7 +26,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #define __FORMAT_HPP__
 
 /// pixel color format representation
-struct crInternalFormat
+typedef struct crInternalFormat
 {
     enum format_t : uint8_t
     {
@@ -90,7 +90,7 @@ struct crInternalFormat
     VkFormat    VKInternal( void ) const;
     
     format_t format;
-};
+} crInternalFormat;
 
 
 #endif //!__FORMAT_HPP__

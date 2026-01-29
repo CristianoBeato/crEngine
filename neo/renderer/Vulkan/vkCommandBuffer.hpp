@@ -25,17 +25,48 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VK_COMMAND_BUFFER_HPP__
 #define __VK_COMMAND_BUFFER_HPP__
 
-// this is just a workarround, since OpenGL use a single driver internal command buffer
 class vkCommandBuffer : public crCommandBuffer
 {
-public:
-
-    vkCommandBuffer( const VkQueue in_queue, const VkCommandPool in_commandPool );
+public: 
+    vkCommandBuffer( const vkDeviceQueue* in_queue );
     ~vkCommandBuffer( void );
 
-    virtual void    Begin( void );
-    virtual void    End( void );
-    virtual void    Sumit( void );
+    virtual void    Begin( void ) override;
+    virtual void    End( void ) override;
+    virtual void    Submit( void ) override;
+    
+    void ExecuteCommands( const uint32_t in_commandBufferCount, const VkCommandBuffer* in_commandBuffers );
+    ID_INLINE void              FrameOperationsFenceCountIncrement( void ) { m_frameOperationsFenceCount++; }
+    ID_INLINE VkSemaphore       FrameOperationsFenceSemaphore( void ) const { return m_frameOperationsFence; }
+    ID_INLINE uint32_t          Family( void ) const { return m_queue->Family(); }
+    ID_INLINE VkCommandBuffer   CommandBuffer( void ) const { return m_command[m_frame]; }   
+
+protected:
+    uint32_t            m_frame;
+    uint64_t            m_frameOperationsFenceCount;
+    VkSemaphore         m_frameOperationsFence;
+    VkDevice            m_device;
+    vkDeviceQueue*      m_queue;
+    VkCommandBuffer     m_command[SMP_FRAMES];
+    VkFence             m_renderDone[SMP_FRAMES];
+};
+
+class vkTransferCommandBuffer : public crTransferCommandBuffer, public vkCommandBuffer
+{
+public:
+    vkTransferCommandBuffer( const vkDeviceQueue* in_queue );
+    ~vkTransferCommandBuffer( void );
+    virtual void    CopyTexture( const crTexture* in_src, const crTexture* in_dst, const idList<crTexture::subImage_t> in_subImages ) override;
+    virtual void    CopyBufferToTexture( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages ) override;
+    virtual void    CopyTextureToBuffer( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages ) override;
+    virtual void    CopyBuffer( const crBuffer* in_srcBuffer, const crBuffer* in_dstBuffer, const uintptr_t in_offset, const size_t in_size ) override;
+};
+
+class vkGraphicCommandBuffer : public crGraphicCommandBuffer, public vkCommandBuffer
+{
+public:
+    vkGraphicCommandBuffer( const vkDeviceQueue* in_queue );
+    ~vkGraphicCommandBuffer( void );
     virtual void    LineWidth( const float in_lineWidth ) const;
     virtual void    BindFrameBuffer( const crFramebuffer* in_framebuffef );
     virtual void    BindIndexBuffer( const crBuffer* in_buffer );
@@ -55,28 +86,10 @@ public:
     virtual void    CopyBufferToTexture( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages );    
     virtual void    CopyTextureToBuffer( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages );
     virtual void    CopyBuffer( const crBuffer* in_srcBuffer, const crBuffer* in_dstBuffer, const uintptr_t in_offset, const size_t in_size );
-
-    // 
-    void ExecuteCommands( const uint32_t in_commandBufferCount, const VkCommandBuffer* in_commandBuffers );
-
-    // used in buffers and textures
-    void            FrameOperationsFenceCountIncrement( void ) { m_frameOperationsFenceCount++; }
-    VkSemaphore     FrameOperationsFenceSemaphore( void ) const { return m_frameOperationsFence; }
     
-    uint32_t        Family( void ) const { return m_queue->Family(); }
-    VkCommandBuffer CommandBuffer( void ) const { return m_command[m_frame]; }
-
 private:
-    uint32_t            m_frame;
-    uint64_t            m_frameOperationsFenceCount;
     VkClearValue        m_clearValues;
     VkDescriptorPool    m_descriptorPool;
-    VkSemaphore         m_frameOperationsFence;
-    VkDevice            m_device;
-    VkCommandPool       m_commandPool;
-    vkDeviceQueue*      m_queue;
-    VkCommandBuffer     m_command[SMP_FRAMES];
-    VkFence             m_renderDone[SMP_FRAMES];
 };
 
 #endif //!__VK_COMMAND_BUFFER_HPP__
