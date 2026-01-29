@@ -515,12 +515,12 @@ void vkGraphicCommandBuffer::Clear(bool color, bool depth, bool stencil, byte st
     m_clearValues.depthStencil.stencil = stencilValue;
 }
 
-void vkGraphicCommandBuffer::PolygonOffset(const float scale, const float bias)
+void vkGraphicCommandBuffer::PolygonOffset( const float scale, const float bias, const bool enable )
 {
     vkCmdSetDepthBias( CommandBuffer(), scale, 0.0f, bias );
 }
 
-void vkGraphicCommandBuffer::DepthBoundsTest(const float zmin, const float zmax)
+void vkGraphicCommandBuffer::DepthBoundsTest( const float zmin, const float zmax, const bool enable )
 {
     vkCmdSetDepthBounds( CommandBuffer(), zmin, zmax );
 }

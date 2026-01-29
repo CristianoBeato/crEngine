@@ -3,7 +3,7 @@
 #include "renderer_common.h"
 #include "glSwapchain.hpp"
 
-glSwapchain::glSwapchain( const uint32_t in_width, const uint32_t in_height, const uint8_t in_multisamples ) : crSwapchain( in_width, in_height, in_multisamples ) 
+glSwapchain::glSwapchain( const uint32_t in_width, const uint32_t in_height ) : crSwapchain( in_width, in_height ) 
 {
     //
     glCreateRenderbuffers( SMP_FRAMES, m_renderbuffers.Ptr() );
@@ -12,22 +12,11 @@ glSwapchain::glSwapchain( const uint32_t in_width, const uint32_t in_height, con
 
     for ( uint32_t i = 0; i < SMP_FRAMES; i++)
     {
-        if ( m_numSamples > 1 )
-        {
-            /// create multi sample color buffer
-            glNamedRenderbufferStorageMultisample( m_renderbuffers[i], m_numSamples, GL_SRGB8_ALPHA8, m_width, m_height );
+        /// create color buffer
+        glNamedRenderbufferStorage( m_renderbuffers[i], GL_SRGB8_ALPHA8, m_width, m_height );
 
-            /// create multi sample stencil buffer
-            glNamedRenderbufferStorageMultisample( m_depthStencil[i], m_numSamples, GL_DEPTH24_STENCIL8, m_width, m_height );
-        }
-        else
-        {
-            /// create color buffer
-            glNamedRenderbufferStorage( m_renderbuffers[i], GL_SRGB8_ALPHA8, m_width, m_height );
-
-            /// create sample buffer
-            glNamedRenderbufferStorage( m_depthStencil[i], GL_DEPTH24_STENCIL8, m_width, m_height );
-        }
+        /// create sample buffer
+        glNamedRenderbufferStorage( m_depthStencil[i], GL_DEPTH24_STENCIL8, m_width, m_height );
 
         /// attach color buffer
         glNamedFramebufferRenderbuffer( m_framebuffers[i], GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_renderbuffers[i] );
@@ -55,23 +44,12 @@ bool glSwapchain::Recreate(const uint32_t in_width, const uint32_t in_height)
     glCreateRenderbuffers( SMP_FRAMES, m_depthStencil.Ptr() );
     for ( uint32_t i = 0; i < SMP_FRAMES; i++)
     {
-        if ( m_numSamples > 1 )
-        {
-            /// create multi sample color buffer
-            glNamedRenderbufferStorageMultisample( m_renderbuffers[i], m_numSamples, GL_SRGB8_ALPHA8, m_width, m_height );
+        /// create color buffer
+        glNamedRenderbufferStorage( m_renderbuffers[i], GL_SRGB8_ALPHA8, m_width, m_height );
 
-            /// create multi sample stencil buffer
-            glNamedRenderbufferStorageMultisample( m_depthStencil[i], m_numSamples, GL_DEPTH24_STENCIL8, m_width, m_height );
-        }
-        else
-        {
-            /// create color buffer
-            glNamedRenderbufferStorage( m_renderbuffers[i], GL_SRGB8_ALPHA8, m_width, m_height );
-
-            /// create sample buffer
-            glNamedRenderbufferStorage( m_depthStencil[i], GL_DEPTH24_STENCIL8, m_width, m_height );
-        }
-
+        /// create sample buffer
+        glNamedRenderbufferStorage( m_depthStencil[i], GL_DEPTH24_STENCIL8, m_width, m_height );
+     
         /// attach color buffer
         glNamedFramebufferRenderbuffer( m_framebuffers[i], GL_COLOR_ATTACHMENT0, GL_RENDERBUFFER, m_renderbuffers[i] );
 

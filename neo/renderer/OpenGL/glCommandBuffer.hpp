@@ -25,9 +25,10 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __GL_COMMAND_BUFFER_HPP__
 #define __GL_COMMAND_BUFFER_HPP__
 
+/// base command node 
 typedef struct glCommand
 {
-    glCommand( void ) {};
+    glCommand( void ) : next( nullptr ) {};
     virtual void Execute( void ) = 0;
     glCommand*  next;
 }glCommand;
@@ -56,19 +57,28 @@ class glTransferCommandBuffer : public crTransferCommandBuffer, public glCommand
 public:
     glTransferCommandBuffer( void );
     ~glTransferCommandBuffer( void );
-    virtual void    CopyTexture( const crTexture* in_src, const crTexture* in_dst, const idList<crTexture::subImage_t> in_subImages );    
-    virtual void    CopyBufferToTexture( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages );
-    virtual void    CopyTextureToBuffer( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages );
-    virtual void    CopyBuffer( const crBuffer* in_srcBuffer, const crBuffer* in_dstBuffer, const uintptr_t in_offset, const size_t in_size );
+
+    virtual void    Begin( void ) override { glCommandBuffer::Begin(); };
+    virtual void    End( void ) override { glCommandBuffer::End(); };
+    virtual void    Submit( void ) override { glCommandBuffer::Submit(); };
+
+    virtual void    CopyTexture( const crTexture* in_src, const crTexture* in_dst, const idList<crTexture::subImage_t> in_subImages ) override;
+    virtual void    CopyBufferToTexture( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages ) override;
+    virtual void    CopyTextureToBuffer( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages ) override;
+    virtual void    CopyBuffer( const crBuffer* in_srcBuffer, const crBuffer* in_dstBuffer, const uintptr_t in_offset, const size_t in_size ) override;
 };
 
-
 // this is just a workarround, since OpenGL use a single driver internal command buffer
-class glGraphicCommandBuffer : public crGraphicCommandBuffer
+class glGraphicCommandBuffer : public crGraphicCommandBuffer, public glCommandBuffer
 {
 public:
     glGraphicCommandBuffer( void );
     ~glGraphicCommandBuffer( void );
+
+    virtual void    Begin( void ) override { glCommandBuffer::Begin(); };
+    virtual void    End( void ) override { glCommandBuffer::End(); };
+    virtual void    Submit( void ) override { glCommandBuffer::Submit(); };
+
     virtual void    LineWidth( const float in_lineWidth ) const;
     virtual void    BindFrameBuffer( const crFramebuffer* in_framebuffef );
     virtual void    BindIndexBuffer( const crBuffer* in_buffer );
@@ -81,6 +91,7 @@ public:
     virtual void    Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
     virtual void    PolygonOffset( float scale, float bias, const bool enable );
     virtual void    DepthBoundsTest( const float zmin, const float zmax, const bool enable );
+    virtual void    FaceCull( const crPipeline::Face_t in_cullType );
     virtual void    Scissor( int x /* left*/, int y /* bottom */, int w, int h ) const;
     virtual void    Viewport( int x /* left */, int y /* bottom */, int w, int h ) const;
 

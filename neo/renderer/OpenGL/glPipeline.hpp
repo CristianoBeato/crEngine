@@ -36,7 +36,7 @@ public:
     virtual void    Destroy( void );
 
 protected:
-    friend class glCommandBuffer;
+    friend class glGraphicCommandBuffer;
     GLboolean       m_cullFace;
     GLboolean       m_depthTest;
     GLboolean       m_blendEnable;       

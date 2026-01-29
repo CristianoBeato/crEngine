@@ -27,6 +27,8 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "OpenGL.h"
 #include "glCommandBuffer.hpp"
 
+#define USE_COMMAND_QUEUE 1 
+
 struct glCommandCopyBufferSubData : public glCommand
 {
 	GLuint 		readBuffer;
@@ -48,6 +50,27 @@ struct glCommandCopyBufferSubData : public glCommand
 	virtual void Execute( void )
 	{
 		glCopyNamedBufferSubData( readBuffer, writeBuffer, readOffset, writeOffset, size );
+	}
+};
+
+struct glCommandViewport : public glCommand
+{
+	GLint 		x;
+	GLint 		y;
+	GLsizei 	width;
+	GLsizei 	height;
+
+	glCommandViewport( GLint _x, GLint _y, GLsizei _width, GLsizei _height ) : glCommand(),
+	x( _x ), 
+	y( _y),
+	width( _width ),
+	height( _height )
+	{
+	}
+
+	virtual void Execute( void )
+	{
+		glViewport( x, y, width, height );
 	}
 };
 
@@ -75,6 +98,22 @@ void glCommandBuffer::End(void)
 
 void glCommandBuffer::Submit( void )
 {
+	/// execute list
+	glCommand* command = m_head;
+	while ( command != nullptr )
+	{
+		auto current = command; 
+		// get next
+		command = command->next;
+		
+		/// execute
+		current->Execute();
+
+		/// delete aftex execution 
+		delete current;
+	}
+	
+
 	/// execute command chain
 	for ( glCommand* command; command != nullptr; command = command->next )
 	{
@@ -283,6 +322,10 @@ void glGraphicCommandBuffer::DepthBoundsTest(const float zmin, const float zmax,
 		glDisable( GL_DEPTH_BOUNDS_TEST_EXT );	
 }
 
+void glGraphicCommandBuffer::FaceCull(const crPipeline::Face_t in_cullType)
+{
+}
+
 void glGraphicCommandBuffer::Scissor(int x, int y, int w, int h) const
 {
     glScissor( x, y, w, h );
@@ -290,5 +333,8 @@ void glGraphicCommandBuffer::Scissor(int x, int y, int w, int h) const
 
 void glGraphicCommandBuffer::Viewport(int x, int y, int w, int h) const
 {
+#if USE_COMMAND_QUEUE
+#else
 	glViewport( x, y, w, h );
+#else
 }

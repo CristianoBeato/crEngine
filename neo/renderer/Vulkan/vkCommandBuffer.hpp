@@ -51,22 +51,36 @@ protected:
     VkFence             m_renderDone[SMP_FRAMES];
 };
 
-class vkTransferCommandBuffer : public crTransferCommandBuffer, public vkCommandBuffer
+class vkTransferCommandBuffer : 
+    public crTransferCommandBuffer, 
+    public vkCommandBuffer
 {
 public:
     vkTransferCommandBuffer( const vkDeviceQueue* in_queue );
     ~vkTransferCommandBuffer( void );
+
+    virtual void    Begin( void ) override { vkCommandBuffer::Begin(); };
+    virtual void    End( void ) override { vkCommandBuffer::End(); };
+    virtual void    Submit( void ) override { vkCommandBuffer::Submit(); };
+
     virtual void    CopyTexture( const crTexture* in_src, const crTexture* in_dst, const idList<crTexture::subImage_t> in_subImages ) override;
     virtual void    CopyBufferToTexture( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages ) override;
     virtual void    CopyTextureToBuffer( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages ) override;
     virtual void    CopyBuffer( const crBuffer* in_srcBuffer, const crBuffer* in_dstBuffer, const uintptr_t in_offset, const size_t in_size ) override;
 };
 
-class vkGraphicCommandBuffer : public crGraphicCommandBuffer, public vkCommandBuffer
+class vkGraphicCommandBuffer : 
+    public crGraphicCommandBuffer, 
+    public vkCommandBuffer
 {
 public:
     vkGraphicCommandBuffer( const vkDeviceQueue* in_queue );
     ~vkGraphicCommandBuffer( void );
+
+    virtual void    Begin( void ) override { vkCommandBuffer::Begin(); };
+    virtual void    End( void ) override { vkCommandBuffer::End(); };
+    virtual void    Submit( void ) override { vkCommandBuffer::Submit(); };
+
     virtual void    LineWidth( const float in_lineWidth ) const;
     virtual void    BindFrameBuffer( const crFramebuffer* in_framebuffef );
     virtual void    BindIndexBuffer( const crBuffer* in_buffer );
@@ -77,8 +91,8 @@ public:
     virtual void    DrawIndexed( const uint32_t in_indexCount, const uint32_t in_instanceCount, const uint32_t in_firstIndex, const int32_t in_vertexOffset, const uint32_t in_firstInstance ) const;
     virtual void    Dispatch(  const uint32_t in_groupCountX, const uint32_t in_groupCountY, const uint32_t in_groupCountZ ) const;
     virtual void    Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
-    virtual void    PolygonOffset( const float scale, const float bias );
-    virtual void    DepthBoundsTest( const float zmin, const float zmax );
+    virtual void    PolygonOffset( const float scale, const float bias, const bool enable );
+    virtual void    DepthBoundsTest( const float zmin, const float zmax, const bool enable );
     virtual void    FaceCull( const crPipeline::Face_t in_cullType );
     virtual void    Scissor( const int x, const int y, const int w, const int h ) const;
     virtual void    Viewport( const int x, const int y, const int w, const int h ) const;

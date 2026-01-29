@@ -28,7 +28,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 class glSwapchain : public crSwapchain
 {
 public:
-    glSwapchain( const uint32_t in_width, const uint32_t in_height, const uint8_t in_multisamples );
+    glSwapchain( const uint32_t in_width, const uint32_t in_height );
     ~glSwapchain( void );
     virtual bool    Recreate( const uint32_t in_width, const uint32_t in_height );
     virtual void    AcquireImage( void );
