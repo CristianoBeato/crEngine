@@ -114,6 +114,8 @@ public:
 
 	bool	Open( void );
 
+	idImageOpts				GetImageParameters( void ) const;
+
 	/// 
 	ID_INLINE const char*	GetName( void ) const { return m_name.c_str(); }
 	

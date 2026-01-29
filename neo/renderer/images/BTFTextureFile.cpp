@@ -27,6 +27,62 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "renderer_common.h"
 #include "BTFTextureFile.hpp"
 
+static inline crInternalFormat ToInternalFormat( const BTF::format_t in_format, const bool sRGB )
+{
+    switch ( in_format )
+    {
+        case BTF::FORMAT_RED8U:
+            return sRGB ? crInternalFormat::R8U_SRGB : crInternalFormat::R8U;
+
+        case BTF::FORMAT_RED16U:
+            return crInternalFormat::R16U;
+
+        case BTF::FORMAT_RG8U:
+            return sRGB ? crInternalFormat::RG8U_SRGB : crInternalFormat::RG8U;
+
+        case BTF::FORMAT_RG16U:
+            return crInternalFormat::RG16U;
+
+        case BTF::FORMAT_RGBA8U:
+            return sRGB ? crInternalFormat::RGBA8U_SRGB : crInternalFormat::RGBA8U;
+
+        case BTF::FORMAT_RGBA16U:
+            return crInternalFormat::RGBA16U;
+
+        case BTF::FORMAT_RGBA16F:
+            return crInternalFormat::RGBA16F;
+
+        case BTF::FORMAT_RGBA32U:
+            return crInternalFormat::RGBA32U;
+
+        case BTF::FORMAT_RGBA32F:
+            return crInternalFormat::RGBA32F;
+
+        case BTF::FORMAT_BC1:
+            return sRGB ? crInternalFormat::BC1_SRGB : crInternalFormat::BC1_RGB;
+
+        case BTF::FORMAT_BC3:
+            return sRGB ? crInternalFormat::BC3_SRGBA : crInternalFormat::BC3_RGBA;
+
+        case BTF::FORMAT_BC5:
+            return crInternalFormat::BC5_RG;
+
+        case BTF::FORMAT_BC7:
+            return sRGB ? crInternalFormat::BC7_SRGBA : crInternalFormat::BC7_RGBA;
+
+        case BTF::FORMAT_BC6H:
+            return crInternalFormat::BC6H_RGBA;
+
+        case BTF::FORMAT_ETC2:
+            return sRGB ? crInternalFormat::ETC2_SRGBA : crInternalFormat::ETC2_RGBA;
+
+        case BTF::FORMAT_EAC:
+            return crInternalFormat::RG_EAC_RG;
+    }
+
+    return crInternalFormat::NONE;
+}  
+
 /*
 ================================================================================================
 	crBTFTextureFile: Beato Texture File Format 
@@ -100,4 +156,52 @@ bool crBTFTextureFile::Open(void)
     // TODO: check file CRC    
 
     return true;
+}
+
+idImageOpts crBTFTextureFile::GetImageParameters(void) const
+{
+    idImageOpts opts{};
+
+    opts.gammaMips = true;
+    opts.readback = false;
+    opts.sRGB = m_header.imageFlags & BTF::SRGB;    /// sRGB 
+    
+    if ( m_header.imageFlags & BTF::IMAGE1D )
+    {
+        opts.textureType = crTexture::TEXTURE_1D;
+        opts.width = m_images[0].width;
+        opts.height = 0;
+        opts.depth = 0;
+    }
+    else if ( m_header.imageFlags & BTF::IMAGE2D )
+    {
+        opts.textureType = crTexture::TEXTURE_2D;
+        opts.width = m_images[0].width;
+        opts.height = m_images[0].height;
+        opts.depth = 0;
+    }
+    else if ( m_header.imageFlags & BTF::IMAGE3D )
+    {
+        opts.textureType = crTexture::TEXTURE_3D;
+        opts.width = m_images[0].width;
+        opts.height = m_images[0].height;
+        opts.depth = m_images[0].depth;
+    }
+    else if ( m_header.imageFlags & BTF::CUBEMAP )
+    {
+        opts.textureType = crTexture::TEXTURE_CUBEMAP;
+        opts.width = m_images[0].width;
+        opts.height = m_images[0].width;
+    }
+    
+    /// get the internal pixel format
+    opts.format = ToInternalFormat( static_cast<BTF::format_t>( m_header.pixelFormat ), opts.sRGB );
+    
+    /// layers 
+    opts.numSides = m_header.layerCount;
+    
+    /// mipma count 
+    opts.numLevels = m_header.mipCount;
+    
+    return opts;
 }
