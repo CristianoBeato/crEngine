@@ -42,7 +42,6 @@ public:
     virtual void    End( void ) override;
     virtual void    Submit( void ) override;
 
-protected:
     void    AppendCommand( glCommand* in_cmd );
 
 private:

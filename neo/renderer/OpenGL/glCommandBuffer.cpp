@@ -27,7 +27,22 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "OpenGL.h"
 #include "glCommandBuffer.hpp"
 
-#define USE_COMMAND_QUEUE 1 
+#define USE_COMMAND_QUEUE 0
+
+struct glCommandMemoryBarrier : public glCommand
+{
+	GLbitfield barriers;
+
+	glCommandMemoryBarrier( GLbitfield _barriers ) : glCommand(), barriers( _barriers )
+	{
+	}
+
+	virtual void Execute( void ) override
+	{
+		glMemoryBarrier( barriers );
+	}
+
+};
 
 struct glCommandCopyBufferSubData : public glCommand
 {
@@ -47,7 +62,7 @@ struct glCommandCopyBufferSubData : public glCommand
 	}
 
 	///
-	virtual void Execute( void )
+	virtual void Execute( void ) override
 	{
 		glCopyNamedBufferSubData( readBuffer, writeBuffer, readOffset, writeOffset, size );
 	}
@@ -68,9 +83,30 @@ struct glCommandViewport : public glCommand
 	{
 	}
 
-	virtual void Execute( void )
+	virtual void Execute( void ) override
 	{
 		glViewport( x, y, width, height );
+	}
+};
+
+struct glCommandScissor : public glCommand
+{
+	GLint 	x; 
+	GLint 	y; 
+	GLsizei width; 
+	GLsizei height;
+
+	glCommandScissor( GLint _x, GLint _y, GLsizei _width, GLsizei _height ) : glCommand(),
+	x( _x ),
+	y( _y ),
+	width( _width ),
+	height( _height )
+	{
+	}
+
+	virtual void Execute( void ) override
+	{
+		glScissor( x, y, width, height );
 	}
 };
 
@@ -147,7 +183,11 @@ void glTransferCommandBuffer::CopyTexture(const crTexture *in_src, const crTextu
 	const glTexture* dstImage = dynamic_cast<const glTexture*>( in_dst );
 	
 	// Make sure any previous writing is finished.
+#if USE_COMMAND_QUEUE
+	AppendCommand( new glCommandMemoryBarrier( GL_TEXTURE_UPDATE_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT ) );
+#else
 	glMemoryBarrier( GL_TEXTURE_UPDATE_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT );
+#endif
 
 	for ( uint32_t i = 0; i < in_subImages.Num(); i++)
 	{
@@ -168,7 +208,11 @@ void glTransferCommandBuffer::CopyTexture(const crTexture *in_src, const crTextu
 	}
 
 	// prepare image for use
-	glMemoryBarrier( GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT );	
+#if USE_COMMAND_QUEUE
+	AppendCommand( new glCommandMemoryBarrier( GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT ) );
+#else
+	glMemoryBarrier( GL_TEXTURE_FETCH_BARRIER_BIT | GL_SHADER_IMAGE_ACCESS_BARRIER_BIT | GL_FRAMEBUFFER_BARRIER_BIT );
+#endif	
 }
 
 void glTransferCommandBuffer::CopyTextureToBuffer(const crBuffer *in_buffer, const crTexture *in_texture, const idList<crTexture::subImage_t> in_subImages)
@@ -180,11 +224,12 @@ void glTransferCommandBuffer::CopyBuffer(const crBuffer *in_srcBuffer, const crB
 	const glBuffer* src = dynamic_cast<const glBuffer*>( in_srcBuffer );
 	const glBuffer* dst = dynamic_cast<const glBuffer*>( in_dstBuffer );
 
-#if 0
-	AppendCommand( new glCommandCopyBufferSubData( src->Buffer(), dst->Buffer(), in_offset, in_offset, in_size ) )
-#else
+#if USE_COMMAND_QUEUE
+	AppendCommand( new glCommandMemoryBarrier( GL_BUFFER_UPDATE_BARRIER_BIT | GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT ) );
+	AppendCommand( new glCommandCopyBufferSubData( src->Buffer(), dst->Buffer(), in_offset, in_offset, in_size ) );
+	#else
 	///
-	//glMemoryBarrier( GL_BUFFER_UPDATE_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT | GL_ATOMIC_COUNTER_BARRIER_BIT | GL_TRANSFORM_FEEDBACK_BARRIER_BIT );
+	glMemoryBarrier( GL_BUFFER_UPDATE_BARRIER_BIT | GL_CLIENT_MAPPED_BUFFER_BARRIER_BIT | GL_SHADER_STORAGE_BARRIER_BIT );
 	glCopyNamedBufferSubData( src->Buffer(), dst->Buffer(), in_offset, in_offset, in_size );
 #endif
 }
@@ -328,13 +373,18 @@ void glGraphicCommandBuffer::FaceCull(const crPipeline::Face_t in_cullType)
 
 void glGraphicCommandBuffer::Scissor(int x, int y, int w, int h) const
 {
+#if USE_COMMAND_QUEUE
+	const_cast<glGraphicCommandBuffer*>( this )->AppendCommand( new glCommandScissor( x, y, w, h ) );
+#else
     glScissor( x, y, w, h );
+#endif
 }
 
 void glGraphicCommandBuffer::Viewport(int x, int y, int w, int h) const
 {
 #if USE_COMMAND_QUEUE
+	const_cast<glGraphicCommandBuffer*>(this)->AppendCommand( new glCommandViewport( x, y, w, h ) );
 #else
 	glViewport( x, y, w, h );
-#else
+#endif
 }
