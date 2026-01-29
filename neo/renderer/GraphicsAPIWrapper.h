@@ -691,7 +691,6 @@ public:
     virtual void    Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a ) = 0;
     virtual void    PolygonOffset( const float scale, const float bias, const bool enable ) = 0;
     virtual void    DepthBoundsTest( const float zmin, const float zmax, const bool enable ) = 0;
-    
     virtual void    FaceCull( const crPipeline::Face_t in_cullType ) = 0;
     virtual void    Scissor( const int x, const int y, const int w, const int h ) const = 0;
     virtual void    Viewport( const int x, const int y, const int w, const int h ) const = 0;
@@ -728,7 +727,7 @@ public:
     virtual void    PresentImage( void ) = 0;
 
 protected:
-    uint32_t    m_frame;        // current frame 
+    uint32_t    m_frame;        // current frame
     uint32_t    m_width; 
     uint32_t    m_height;
 };

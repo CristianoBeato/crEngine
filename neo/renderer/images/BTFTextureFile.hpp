@@ -25,7 +25,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __BRF_TEXTURE_FILE_HPP__
 #define __BRF_TEXTURE_FILE_HPP__
 
-
 /// @CristianoBeato: implement custom texture format, 
 /// inspirate by valve .VTF ( use a custom texture format )
 namespace BTF

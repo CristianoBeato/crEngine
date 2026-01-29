@@ -157,8 +157,8 @@ static void RB_SimpleSurfaceSetup( const drawSurf_t* drawSurf )
 	// change the scissor if needed
 	if( !backEnd.currentScissor.Equals( drawSurf->scissorRect ) && r_useScissor.GetBool() )
 	{
-		GL_Scissor( backEnd.viewDef->viewport.x1 + drawSurf->scissorRect.x1,
-					backEnd.viewDef->viewport.y1 + drawSurf->scissorRect.y1,
+		Scissor( backEnd.viewDef->viewport.x1 + drawSurf->scissorRect.x1,
+				backEnd.viewDef->viewport.y1 + drawSurf->scissorRect.y1,
 					drawSurf->scissorRect.x2 + 1 - drawSurf->scissorRect.x1,
 					drawSurf->scissorRect.y2 + 1 - drawSurf->scissorRect.y1 );
 		backEnd.currentScissor = drawSurf->scissorRect;
@@ -332,7 +332,7 @@ static void R_ColorByStencilBuffer()
 	RB_SimpleWorldSetup();
 	
 	// clear color buffer to white (>6 passes)
-	GL_Clear( true, false, false, 0, 1.0f, 1.0f, 1.0f, 1.0f );
+	Clear( true, false, false, 0, 1.0f, 1.0f, 1.0f, 1.0f );
 	// GL_Clear( true, false, false, 0, 0.5f, 0.0f, 0.5f, 1.0f );
 	
 	// now draw color for each stencil value
@@ -1984,9 +1984,7 @@ Debugging tool, won't work correctly with SMP or when mirrors are present
 static void RB_ShowPortals()
 {
 	if( !r_showPortals.GetBool() )
-	{
 		return;
-	}
 	
 	// all portals are expressed in world coordinates
 	RB_SimpleWorldSetup();
@@ -2004,10 +2002,10 @@ static void RB_ShowPortals()
 
 /*
 ================
-RB_ClearDebugText
+crBackend::ClearDebugText
 ================
 */
-void RB_ClearDebugText( int time )
+void crBackend::ClearDebugText( int time )
 {
 	rb_nextDebugTextTime=time;
 
@@ -2026,7 +2024,7 @@ void RB_ClearDebugText( int time )
 	}
 }
 
-static void clearDebugText()
+static void clearDebugText( void )
 {
 	int			i;
 	int			num;
@@ -2054,10 +2052,10 @@ static void clearDebugText()
 
 /*
 ================
-RB_AddDebugText
+crBackend::AddDebugText
 ================
 */
-void RB_AddDebugText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align, const int lifetime, const bool depthTest )
+void crBackend::AddDebugText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align, const int lifetime, const bool depthTest )
 {
 	debugText_t* debugText;
 	
@@ -2077,12 +2075,12 @@ void RB_AddDebugText( const char* text, const idVec3& origin, float scale, const
 
 /*
 ================
-RB_DrawTextLength
+crBackend::::DrawTextLength
 
   returns the length of the given text
 ================
 */
-float RB_DrawTextLength( const char* text, float scale, int len )
+float crBackend::DrawTextLength( const char* text, float scale, int len )
 {
 	int i, num, index, charIndex;
 	float spacing, textLen = 0.0f;
@@ -2091,15 +2089,15 @@ float RB_DrawTextLength( const char* text, float scale, int len )
 	{
 		if( !len )
 		{
-			len = strlen( text );
+			len = std::strlen( text );
 		}
+
 		for( i = 0; i < len; i++ )
 		{
 			charIndex = text[i] - 32;
 			if( charIndex < 0 || charIndex > NUM_SIMPLEX_CHARS )
-			{
 				continue;
-			}
+			
 			num = simplex[charIndex][0] * 2;
 			spacing = simplex[charIndex][1];
 			index = 2;
@@ -2308,16 +2306,17 @@ void RB_ShowDebugText()
 
 /*
 ================
-RB_ClearDebugLines
+crBackend::ClearDebugLines
 ================
 */
-void RB_ClearDebugLines( int time )
+void crBackend::ClearDebugLines( int time )
 {
 	rb_nextDebugLineTime=time;
-	if (!time) rb_numDebugLines=0;
+	if (!time) 
+		rb_numDebugLines = 0;
 }
 
-static void clearDebugLines()
+static void clearDebugLines( void )
 {
 	int			i;
 	int			num;
@@ -2460,10 +2459,10 @@ void RB_ShowDebugLines()
 
 /*
 ================
-RB_ClearDebugPolygons
+crBackend::ClearDebugPolygons
 ================
 */
-void RB_ClearDebugPolygons( int time )
+void crBackend::ClearDebugPolygons( int time )
 {
 	rb_nextDebugPolygonTime=time;
 	
@@ -2474,7 +2473,7 @@ void RB_ClearDebugPolygons( int time )
 	}
 }
 
-static void clearDebugPolygons()
+static void clearDebugPolygons( void )
 {
 	int				i;
 	int				num;
@@ -2503,10 +2502,10 @@ static void clearDebugPolygons()
 
 /*
 ================
-RB_AddDebugPolygon
+crBackend::AddDebugPolygon
 ================
 */
-void RB_AddDebugPolygon( const idVec4& color, const idWinding& winding, const int lifeTime, const bool depthTest )
+void crBackend::AddDebugPolygon( const idVec4& color, const idWinding& winding, const int lifeTime, const bool depthTest )
 {
 	debugPolygon_t* poly;
 	
@@ -2522,10 +2521,10 @@ void RB_AddDebugPolygon( const idVec4& color, const idWinding& winding, const in
 
 /*
 ================
-RB_ShowDebugPolygons
+crBackend::ShowDebugPolygons
 ================
 */
-void RB_ShowDebugPolygons()
+void crBackend::ShowDebugPolygons( void )
 {
 	int				i, j;
 	debugPolygon_t*	poly;
@@ -3107,7 +3106,7 @@ void RB_ShowTrace( drawSurf_t** drawSurfs, int numDrawSurfs )
 		GL_State( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 		
 		GL_Color( 1, 0, 0, 0.25 );
-		RB_DrawElementsWithCounters( surf );
+		DrawElementsWithCounters( surf );
 		
 		// draw the bounding box
 		GL_State( GLS_DEPTHFUNC_ALWAYS );
@@ -3218,7 +3217,8 @@ RB_SetGL2D
 This is not used by the normal game paths, just by some tools
 =============
 */
-void RB_SetGL2D( void ) {
+void RB_SetGL2D( void ) 
+{
 	// set 2D virtual screen size
 	glViewport( 0, 0, glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
 	if ( r_useScissor.GetBool() ) {

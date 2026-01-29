@@ -37,129 +37,20 @@ If you have questions concerning this license or the applicable additional terms
 GL_SelectTexture
 ====================
 */
-void GL_SelectTexture( int unit )
+void crBackend::SelectTexture( uint32_t unit )
 {
-	if( backEnd.trState.currenttmu == unit )
+	if( trState.currenttmu == unit )
 		return;
 	
 	if( unit < 0 || unit >= glConfig.maxTextureImageUnits )
 	{
-		common->Warning( "GL_SelectTexture: unit = %i", unit );
+		common->Warning( "crBackend::SelectTexture: unit = %i", unit );
 		return;
 	}
 	
-	RENDERLOG_PRINTF( "GL_SelectTexture( %i );\n", unit );
+	RENDERLOG_PRINTF( "crBackend::SelectTexture( %i );\n", unit );
 	
-	backEnd.trState.currenttmu = unit;
-}
-
-/*
-====================
-GL_Cull
-
-This handles the flipping needed when the view being
-rendered is a mirored view.
-====================
-*/
-void GL_Cull( int cullType )
-{
-	if( backEnd.trState.faceCulling == cullType )
-	{
-		return;
-	}
-	
-	if( cullType == CT_TWO_SIDED )
-	{
-		glDisable( GL_CULL_FACE );
-	}
-	else
-	{
-		if( backEnd.trState.faceCulling == CT_TWO_SIDED )
-		{
-			glEnable( GL_CULL_FACE );
-		}
-		
-		if( cullType == CT_BACK_SIDED )
-		{
-			if( backEnd.viewDef->isMirror )
-			{
-				glCullFace( GL_FRONT );
-			}
-			else
-			{
-				glCullFace( GL_BACK );
-			}
-		}
-		else
-		{
-			if( backEnd.viewDef->isMirror )
-			{
-				glCullFace( GL_BACK );
-			}
-			else
-			{
-				glCullFace( GL_FRONT );
-			}
-		}
-	}
-	
-	backEnd.trState.faceCulling = cullType;
-}
-
-/*
-====================
-GL_Scissor
-====================
-*/
-void GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h )
-{
-	glScissor( x, y, w, h );
-}
-
-/*
-====================
-GL_Viewport
-====================
-*/
-void GL_Viewport( int x /* left */, int y /* bottom */, int w, int h )
-{
-	glViewport( x, y, w, h );
-}
-
-/*
-====================
-GL_PolygonOffset
-====================
-*/
-void GL_PolygonOffset( float scale, float bias )
-{
-	backEnd.trState.polyOfsScale = scale;
-	backEnd.trState.polyOfsBias = bias;
-	if( backEnd.trState.glStateBits & GLS_POLYGON_OFFSET )
-	{
-		glPolygonOffset( scale, bias );
-	}
-}
-
-/*
-========================
-GL_DepthBoundsTest
-========================
-*/
-void GL_DepthBoundsTest( const float zmin, const float zmax )
-{
-	if( !glConfig.depthBoundsTestAvailable || zmin > zmax )
-		return;
-	
-	if( zmin == 0.0f && zmax == 0.0f )
-	{
-		glDisable( GL_DEPTH_BOUNDS_TEST_EXT );
-	}
-	else
-	{
-		glEnable( GL_DEPTH_BOUNDS_TEST_EXT );
-		glDepthBoundsEXT( zmin, zmax );
-	}
+	trState.currenttmu = unit;
 }
 
 /*
@@ -227,31 +118,6 @@ void GL_Color( float r, float g, float b, float a )
 	parm[2] = idMath::ClampFloat( 0.0f, 1.0f, b );
 	parm[3] = idMath::ClampFloat( 0.0f, 1.0f, a );
 	renderProgManager.SetRenderParm( RENDERPARM_COLOR, parm );
-}
-
-/*
-========================
-GL_Clear
-========================
-*/
-void GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a )
-{
-	int clearFlags = 0;
-	if( color )
-	{
-		glClearColor( r, g, b, a );
-		clearFlags |= GL_COLOR_BUFFER_BIT;
-	}
-	if( depth )
-	{
-		clearFlags |= GL_DEPTH_BUFFER_BIT;
-	}
-	if( stencil )
-	{
-		glClearStencil( stencilValue );
-		clearFlags |= GL_STENCIL_BUFFER_BIT;
-	}
-	glClear( clearFlags );
 }
 
 /*
