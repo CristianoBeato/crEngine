@@ -309,11 +309,11 @@ idCVar r_useOpenGL32( "r_useOpenGL32", "1", CVAR_INTEGER, "0 = OpenGL 2.0, 1 = O
 
 static void APIENTRY DebugOutputCall( GLenum in_source, GLenum in_type, GLuint in_id, GLenum in_severity, GLsizei in_length, const GLchar *in_message, const void *in_userParam );
 
-glContextState::glContextState( void )
+glContext::glContext( void )
 {
 }
 
-glContextState::~glContextState( void )
+glContext::~glContext( void )
 {
 }
 
@@ -322,14 +322,14 @@ static void QGL_Shutdown( void );
 
 /*
 ===================
-glContextState::PreInit
+glContext::PreInit
 
  R_GetModeListForDisplay is called before GLimp_Init(), but SDL needs SDL_Init() first.
  So do that in GLimp_PreInit()
  Calling that function more than once doesn't make a difference
 ===================
 */
-void glContextState::PreInit( void ) // DG: added this function for SDL compatibility
+void glContext::PreInit( void ) // DG: added this function for SDL compatibility
 {
 	if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 	{
@@ -340,14 +340,14 @@ void glContextState::PreInit( void ) // DG: added this function for SDL compatib
 
 /*
 ===================
-glContextState::Init
+glContext::Init
 ===================
 */
-bool glContextState::Init( const bool in_stereo, const uint8_t in_multiSamples )
+bool glContext::Init( const bool in_stereo, const uint8_t in_multiSamples )
 {
 	common->Printf( "Initializing OpenGL subsystem\n" );
 	
-	glContextState::PreInit(); // DG: make sure SDL is initialized
+	glContext::PreInit(); // DG: make sure SDL is initialized
 	
     // get window handler
     m_window = static_cast<SDL_Window*>( sys->GetVideoSystem()->WindowHandler() );
@@ -516,10 +516,10 @@ bool glContextState::Init( const bool in_stereo, const uint8_t in_multiSamples )
 
 /*
 ===================
-glContextState::Shutdown
+glContext::Shutdown
 ===================
 */
-void glContextState::Shutdown( void )
+void glContext::Shutdown( void )
 {
 	if ( !m_context )
 		return;
@@ -531,10 +531,10 @@ void glContextState::Shutdown( void )
 
 /*
 ===================
-glContextState::SetScreenParms
+glContext::SetScreenParms
 ===================
 */
-bool glContextState::SetScreenParms( const bool in_stereo, const uint8_t in_multiSamples )
+bool glContext::SetScreenParms( const bool in_stereo, const uint8_t in_multiSamples )
 {
 	// Note: the following stuff would also work with SDL1.2
 	SDL_GL_SetAttribute( SDL_GL_STEREO, in_stereo ? 1 : 0 );	
@@ -549,10 +549,10 @@ bool glContextState::SetScreenParms( const bool in_stereo, const uint8_t in_mult
 
 /*
 ===================
-glContextState::SwapBuffers
+glContext::SwapBuffers
 ===================
 */
-void glContextState::SwapBuffers( void )
+void glContext::SwapBuffers( void )
 {
     if( r_swapInterval.IsModified() )
 	{
@@ -572,19 +572,19 @@ void glContextState::SwapBuffers( void )
 
 /*
 =================
-glContextState::SetGamma
+glContext::SetGamma
 =================
 */
-void glContextState::SetGamma( unsigned short red[256], unsigned short green[256], unsigned short blue[256] )
+void glContext::SetGamma( unsigned short red[256], unsigned short green[256], unsigned short blue[256] )
 {
 }
 
 /*
 =================
-glContextState::BindFrameBuffer
+glContext::BindFrameBuffer
 =================
 */
-void glContextState::BindFrameBuffer(const GLuint in_frameBuffer)
+void glContext::BindFrameBuffer(const GLuint in_frameBuffer)
 {
 	if ( m_state.frameBuffer != in_frameBuffer )
 	{
@@ -595,10 +595,10 @@ void glContextState::BindFrameBuffer(const GLuint in_frameBuffer)
 
 /*
 =================
-glContextState::BindVertexArray
+glContext::BindVertexArray
 =================
 */
-void glContextState::BindVertexArray(const GLuint in_vertexArray)
+void glContext::BindVertexArray(const GLuint in_vertexArray)
 {
 	if( m_state.vertexArray != in_vertexArray )
 	{
@@ -609,10 +609,10 @@ void glContextState::BindVertexArray(const GLuint in_vertexArray)
 
 /*
 =================
-glContextState::BindProgramPipeline
+glContext::BindProgramPipeline
 =================
 */
-void glContextState::BindProgramPipeline(const GLuint in_programPipeline)
+void glContext::BindProgramPipeline(const GLuint in_programPipeline)
 {
 	if ( m_state.program.pipeline != in_programPipeline )
 	{
@@ -623,10 +623,10 @@ void glContextState::BindProgramPipeline(const GLuint in_programPipeline)
 
 /*
 =================
-glContextState::FaceCull
+glContext::FaceCull
 =================
 */
-void glContextState::FaceCull( const GLboolean in_enable, const GLenum in_face )
+void glContext::FaceCull( const GLboolean in_enable, const GLenum in_face )
 {
 	/// is disable, change nothing
 	if( m_state.cullFaceState.enable == GL_FALSE && in_enable == GL_FALSE )
@@ -652,7 +652,7 @@ void glContextState::FaceCull( const GLboolean in_enable, const GLenum in_face )
 	m_state.cullFaceState.enable = in_enable;
 }
 
-void glContextState::DepthTest(const GLboolean in_enable, const GLenum in_func)
+void glContext::DepthTest(const GLboolean in_enable, const GLenum in_func)
 {
 	if ( m_state.depthFuncState.depthTest == GL_FALSE && in_enable == GL_FALSE )
 		return;
@@ -675,7 +675,7 @@ void glContextState::DepthTest(const GLboolean in_enable, const GLenum in_func)
 	}	
 }
 
-void glContextState::Blending( const GLboolean in_enable, const GLenum in_SRCFactor, const GLenum in_SRCAlphaFactor, const GLenum in_DSTFactor, const GLenum in_DSTAlphaFactor, const GLenum in_blendOp )
+void glContext::Blending( const GLboolean in_enable, const GLenum in_SRCFactor, const GLenum in_SRCAlphaFactor, const GLenum in_DSTFactor, const GLenum in_DSTAlphaFactor, const GLenum in_blendOp )
 {
 	// ignore if blend is blend is disable
 	if ( m_state.blendingState.enable == GL_FALSE && in_enable == GL_FALSE )
@@ -704,7 +704,7 @@ void glContextState::Blending( const GLboolean in_enable, const GLenum in_SRCFac
 		glBlendEquation( in_blendOp );
 }
 
-void glContextState::StencilTest(const GLboolean in_enable, const GLenum in_face, const GLenum in_pass, const GLenum in_fail, const GLenum in_Zfail)
+void glContext::StencilTest(const GLboolean in_enable, const GLenum in_face, const GLenum in_pass, const GLenum in_fail, const GLenum in_Zfail)
 {
 	if ( m_state.stencilState.enable == GL_FALSE && in_enable == GL_FALSE )
 		return;	
@@ -729,7 +729,7 @@ void glContextState::StencilTest(const GLboolean in_enable, const GLenum in_face
 	}
 }
 
-void glContextState::PolygonMode( const GLenum in_face, const GLenum in_mode )
+void glContext::PolygonMode( const GLenum in_face, const GLenum in_mode )
 {
 	if ( m_state.polygonMode.face == in_face && m_state.polygonMode.mode == in_mode )
 		return;

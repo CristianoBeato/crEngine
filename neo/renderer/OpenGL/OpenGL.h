@@ -335,9 +335,9 @@ extern void ( APIENTRYP glPushAttrib )(GLbitfield mask);
 extern void ( APIENTRYP glPopAttrib )(void);
 extern void ( APIENTRYP glArrayElement )(GLint i);
 
-/// @brief OpenGL is a stete machine, that driver has his own command buffer, 
+/// @brief OpenGL is a state machine, that driver has his own command buffer, 
 // and need SO ON... 
-class glContextState
+class glContext
 {
 public:
     // state structures
@@ -397,8 +397,8 @@ public:
         depthFuncState_t    depthFuncState;
     };
 
-    glContextState( void );
-    ~glContextState( void );
+    glContext( void );
+    ~glContext( void );
 
     // DG: R_GetModeListForDisplay is called before GLimp_Init(), but SDL needs SDL_Init() first.
     // So add PreInit for platforms that need it, others can just stub it.
