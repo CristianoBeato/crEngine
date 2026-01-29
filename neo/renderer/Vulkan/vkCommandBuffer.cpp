@@ -26,20 +26,22 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "renderer_common.h"
 #include "vkCommandBuffer.hpp"
 
-vkCommandBuffer::vkCommandBuffer( const VkQueue in_queue, const VkCommandPool in_commandPool ) : crCommandBuffer(),
+/*
+======================================================================================================================================
+vkCommandBuffer
+======================================================================================================================================
+*/
+vkCommandBuffer::vkCommandBuffer( const vkDeviceQueue* in_queue ) : crCommandBuffer(),
     m_frame( 0 ),
     m_frameOperationsFenceCount( 0 ),
     m_frameOperationsFence( 0 ),
     m_device( nullptr ),
-    m_commandPool( nullptr ),
     m_queue( nullptr )
 {
-    
     VkResult result = VK_SUCCESS;
     auto device = tr.vkContext->Device(); 
     m_device = *device; 
-    m_queue = in_queue;
-    m_commandPool = in_commandPool;
+    m_queue = const_cast<vkDeviceQueue*>( in_queue );
 
     //
     // allocate command buffers
@@ -47,31 +49,11 @@ vkCommandBuffer::vkCommandBuffer( const VkQueue in_queue, const VkCommandPool in
     VkCommandBufferAllocateInfo commandBufferAllocateCI{};
     commandBufferAllocateCI.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
     commandBufferAllocateCI.pNext = nullptr;
-    commandBufferAllocateCI.commandPool = m_commandPool;
+    commandBufferAllocateCI.commandPool = m_queue->CommandPool();
     commandBufferAllocateCI.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
     commandBufferAllocateCI.commandBufferCount = SMP_FRAMES;
     result = vkAllocateCommandBuffers( m_device, &commandBufferAllocateCI, m_command );
     if( result != VK_SUCCESS )
-        throw idException( "Failed to create command buffer" );
-
-    ///
-    /// Desciptor pool 
-    ///
-    VkDescriptorPoolSize poolSizes[2]{};
-    poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-    poolSizes[0].descriptorCount = MAX_BINDING_SAMPLERS; // por ex. 8192
-    poolSizes[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    poolSizes[1].descriptorCount = 16; // quantos SSBOs você planeja (normalmente 1 por binding)
-
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
-    poolInfo.poolSizeCount = 2;
-    poolInfo.pPoolSizes = poolSizes;
-    poolInfo.maxSets = 1; // provavelmente 1 set global
-
-    result = vkCreateDescriptorPool( m_device, &poolInfo, nullptr, &m_descriptorPool);
-    if ( result != VK_SUCCESS )
         throw idException( "Failed to create command buffer" );
 
     //
@@ -99,15 +81,9 @@ vkCommandBuffer::~vkCommandBuffer(void)
         m_frameOperationsFence = nullptr;
     }
     
-    if ( m_descriptorPool )
-    {
-        vkDestroyDescriptorPool( m_device, m_descriptorPool, k_allocationCallbacks );
-        m_descriptorPool = nullptr;
-    }
-
     if ( m_command[0] != nullptr )
     {
-        vkFreeCommandBuffers( m_device, m_commandPool, SMP_FRAMES, m_command );
+        vkFreeCommandBuffers( m_device, m_queue->CommandPool(), SMP_FRAMES, m_command );
         std::memset( m_command, 0x00, sizeof( VkCommandBuffer ) * SMP_FRAMES );
     }
 }
@@ -153,7 +129,7 @@ void vkCommandBuffer::End(void)
         common->Error( "vkCommandBuffer::Begin FAILED!\n" );
 }
 
-void vkCommandBuffer::Sumit(void)
+void vkCommandBuffer::Submit( void )
 {
     VkResult                    result = VK_SUCCESS;
     VkSubmitInfo2               submitInfo{};
@@ -200,157 +176,17 @@ void vkCommandBuffer::Sumit(void)
     m_frame = ( m_frame + 1 ) % SMP_FRAMES;
 }
 
-void vkCommandBuffer::LineWidth(const float in_lineWidth) const
+/*
+======================================================================================================================================
+vkTransferCommandBuffer
+======================================================================================================================================
+*/
+void vkTransferCommandBuffer::CopyTexture(const crTexture *in_src, const crTexture *in_dst, const idList<crTexture::subImage_t> in_subImages )
 {
-    vkCmdSetLineWidth( m_command[m_frame], in_lineWidth );
-}
-
-void vkCommandBuffer::BindFrameBuffer(const crFramebuffer *in_framebuffer )
-{
-    VkRect2D renderArea{};
-    assert( in_framebuffer );
-    auto fbh = static_cast<fbHandler_t*>( in_framebuffer->Handle() );
-    
-    ///
-    ///
-    ///
-    renderArea.offset.x = 0;
-    renderArea.offset.y = 0;
-    renderArea.extent.width = in_framebuffer->Width();
-    renderArea.extent.height = in_framebuffer->Height();
-
-    ///
-    ///
-    ///
-    VkRenderPassBeginInfo   renderPassBeginInfo{};
-    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    renderPassBeginInfo.pNext = nullptr;
-    renderPassBeginInfo.renderPass = fbh->rp;
-    renderPassBeginInfo.framebuffer = fbh->fb;
-    renderPassBeginInfo.renderArea = renderArea;
-    renderPassBeginInfo.clearValueCount = 1;
-    renderPassBeginInfo.pClearValues = &m_clearValues;
-
-    ///
-    ///
-    ///
-    VkSubpassBeginInfo subpassBeginInfo{};
-    subpassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-    subpassBeginInfo.pNext = nullptr;
-    subpassBeginInfo.contents = VK_SUBPASS_CONTENTS_INLINE;
-
-    vkCmdBeginRenderPass2( m_command[m_frame], &renderPassBeginInfo, &subpassBeginInfo );
-}
-
-void vkCommandBuffer::BindIndexBuffer(const crBuffer *in_buffer)
-{
-    VkBuffer** buffer = static_cast<VkBuffer**>( in_buffer->Handle() );
-    vkCmdBindIndexBuffer( m_command[m_frame], **buffer, 0, VK_INDEX_TYPE_UINT16 );
-}
-
-void vkCommandBuffer::BindVertexBuffers(const crBuffer *in_buffer, uint32_t in_binding, const uintptr_t in_offsets, const size_t in_sizes, const size_t in_strides)
-{
-    VkBuffer* buffer = *static_cast<VkBuffer**>( in_buffer->Handle() );
-    VkDeviceSize offsets = in_offsets;
-    VkDeviceSize sizes = in_sizes;
-    VkDeviceSize strides = in_strides;
-    vkCmdBindVertexBuffers2( m_command[m_frame], in_binding, 1, buffer, &offsets, &sizes, &strides );
-}
-
-void vkCommandBuffer::BindPipeline(const crPipeline *in_pipeline)
-{
-    vkCmdBindPipeline( m_command[m_frame], VK_PIPELINE_BIND_POINT_GRAPHICS, dynamic_cast<const vkPipeline*>( in_pipeline )->Pipeline() );
-}
-
-void vkCommandBuffer::EndRenderPass(void) const
-{
-    VkSubpassEndInfo subpassEndInfo{};
-    subpassEndInfo.sType = VK_STRUCTURE_TYPE_SUBPASS_END_INFO;
-    vkCmdEndRenderPass2( m_command[m_frame], &subpassEndInfo );
-}
-
-void vkCommandBuffer::Draw(const uint32_t in_vertexCount, const uint32_t in_instanceCount, const uint32_t in_firstVertex, const uint32_t in_firstInstance) const
-{
-    vkCmdDraw( m_command[m_frame], in_vertexCount, in_instanceCount, in_firstVertex, in_firstInstance );
-}
-
-void vkCommandBuffer::DrawIndexed(const uint32_t in_indexCount, const uint32_t in_instanceCount, const uint32_t in_firstIndex, const int32_t in_vertexOffset, const uint32_t in_firstInstance) const
-{
-    vkCmdDrawIndexed( m_command[m_frame], in_indexCount, in_instanceCount, in_firstIndex, in_vertexOffset, in_firstInstance );
-}
-
-void vkCommandBuffer::Dispatch(const uint32_t in_groupCountX, const uint32_t in_groupCountY, const uint32_t in_groupCountZ) const
-{
-    vkCmdDispatch( m_command[m_frame], in_groupCountX, in_groupCountY, in_groupCountZ );
-}
-
-void vkCommandBuffer::Clear(bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a)
-{
-    m_clearValues.color.float32[0] = r;
-    m_clearValues.color.float32[1] = g;
-    m_clearValues.color.float32[2] = b;
-    m_clearValues.color.float32[3] = a;
-    m_clearValues.depthStencil.depth = 0.0f;
-    m_clearValues.depthStencil.stencil = stencilValue;
-}
-
-void vkCommandBuffer::PolygonOffset(const float scale, const float bias)
-{
-    vkCmdSetDepthBias( m_command[m_frame], scale, 0.0f, bias );
-}
-
-void vkCommandBuffer::DepthBoundsTest(const float zmin, const float zmax)
-{
-    vkCmdSetDepthBounds( m_command[m_frame], zmin, zmax );
-}
-
-void vkCommandBuffer::FaceCull( const crPipeline::Face_t in_cullType )
-{
-    VkCullModeFlags cullModeFlags;
-    switch ( in_cullType )
-    {
-        case crPipeline::FC_BACK:
-            cullModeFlags = VK_CULL_MODE_BACK_BIT;
-            break;
-        case crPipeline::FC_FRONT:
-            cullModeFlags = VK_CULL_MODE_FRONT_BIT;
-            break;
-        case crPipeline::FC_TWO_FACES:
-            cullModeFlags = VK_CULL_MODE_NONE;
-            break;    
-    }
-
-    vkCmdSetCullMode( m_command[m_frame], cullModeFlags );   
-}
-
-void vkCommandBuffer::Scissor( const int x, const int y, const int w, const int h) const
-{
-    VkRect2D r{};
-    r.offset.x = x;
-    r.offset.y = y;
-    r.extent.width = w;
-    r.extent.height = h;
-    vkCmdSetScissor( m_command[m_frame], 0, 1, &r );
-}
-
-void vkCommandBuffer::Viewport( const int x, const int y, const int w, const int h ) const
-{
-    VkViewport vp{};
-    vp.x = x;
-    vp.y = y + h;
-    vp.width = w;
-    vp.height = -std::abs(h);;
-    vp.minDepth = 0.0f;
-    vp.maxDepth = 1.0f;
-    vkCmdSetViewport( m_command[m_frame], 0, 1, &vp );
-}
-
-void vkCommandBuffer::CopyTexture(const crTexture *in_src, const crTexture *in_dst, const idList<crTexture::subImage_t> in_subImages )
-{
-    uint32_t baseMipLevel = 512;
-    uint32_t baseArrayLayer = 512;
-    uint32_t topMipLevel = 0;
-    uint32_t topArrayLayer = 0;
+    uint32_t                    baseMipLevel = 512;
+    uint32_t                    baseArrayLayer = 512;
+    uint32_t                    topMipLevel = 0;
+    uint32_t                    topArrayLayer = 0;
     vkTexture::textureState_t   copySrcTextureState{};
     vkTexture::textureState_t   copydstTextureState{};
     VkCopyImageInfo2            copyImageInfo{};
@@ -410,25 +246,25 @@ void vkCommandBuffer::CopyTexture(const crTexture *in_src, const crTexture *in_d
 
     // change texture state to copy source
     copySrcTextureState.aspect = textureSrc->Aspect();
-    copySrcTextureState.queueFamily = m_queue->Family();
+    copySrcTextureState.queueFamily = Family();
     copySrcTextureState.layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     copySrcTextureState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
     copySrcTextureState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
-    textureSrc->SetState( copySrcTextureState, m_command[m_frame] );
+    textureSrc->SetState( copySrcTextureState, CommandBuffer() );
 
     // change texture state to copy destination
     copydstTextureState.aspect = textureDst->Aspect();
-    copydstTextureState.queueFamily = m_queue->Family();
+    copydstTextureState.queueFamily = Family();
     copydstTextureState.layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     copydstTextureState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
     copydstTextureState.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-    textureDst->SetState( copydstTextureState, m_command[m_frame] );
+    textureDst->SetState( copydstTextureState, CommandBuffer() );
 
     ///  perform texture copy 
-    vkCmdCopyImage2( m_command[m_frame], &copyImageInfo );
+    vkCmdCopyImage2( CommandBuffer(), &copyImageInfo );
 }
 
-void vkCommandBuffer::CopyBufferToTexture(const crBuffer *in_buffer, const crTexture *in_texture, const idList<crTexture::subImage_t> in_subImages)
+void vkTransferCommandBuffer::CopyBufferToTexture(const crBuffer *in_buffer, const crTexture *in_texture, const idList<crTexture::subImage_t> in_subImages)
 {
     VkCopyBufferToImageInfo2    copyBufferToImageInfo{};
     vkTexture::textureState_t   preCopyTextureState{};
@@ -463,18 +299,18 @@ void vkCommandBuffer::CopyBufferToTexture(const crBuffer *in_buffer, const crTex
 
     // change texture state to copy destination
     preCopyTextureState.aspect = texture->Aspect();
-    preCopyTextureState.queueFamily = m_queue->Family();
+    preCopyTextureState.queueFamily = Family();
     preCopyTextureState.layout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
     preCopyTextureState.stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     preCopyTextureState.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-    texture->SetState( preCopyTextureState, m_command[m_frame] );
+    texture->SetState( preCopyTextureState, CommandBuffer() );
     
     // change buffer state to tranfer read
     preCopyBufferState.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
     preCopyBufferState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
     preCopyBufferState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
-    preCopyBufferState.queueFamily = m_queue->Family();
-    buffer->SetState( preCopyBufferState, m_command[m_frame] );
+    preCopyBufferState.queueFamily = Family();
+    buffer->SetState( preCopyBufferState, CommandBuffer() );
 
     //
     copyBufferToImageInfo.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_TO_IMAGE_INFO_2; 
@@ -484,10 +320,10 @@ void vkCommandBuffer::CopyBufferToTexture(const crBuffer *in_buffer, const crTex
     copyBufferToImageInfo.dstImageLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL; 
     copyBufferToImageInfo.regionCount = regions.Num(); 
     copyBufferToImageInfo.pRegions = regions.Ptr(); 
-    vkCmdCopyBufferToImage2( m_command[m_frame], &copyBufferToImageInfo );    
+    vkCmdCopyBufferToImage2( CommandBuffer(), &copyBufferToImageInfo );    
 }
 
-void vkCommandBuffer::CopyTextureToBuffer(const crBuffer *in_buffer, const crTexture *in_texture, const idList<crTexture::subImage_t> in_subImages)
+void vkTransferCommandBuffer::CopyTextureToBuffer(const crBuffer *in_buffer, const crTexture *in_texture, const idList<crTexture::subImage_t> in_subImages)
 {   
     VkCopyImageToBufferInfo2    copyImageToBufferInfo{};
     vkTexture::textureState_t   preCopyTextureState{};
@@ -522,18 +358,18 @@ void vkCommandBuffer::CopyTextureToBuffer(const crBuffer *in_buffer, const crTex
 
     // change texture state to copy read
     preCopyTextureState.aspect = texture->Aspect();
-    preCopyTextureState.queueFamily = m_queue->Family();
+    preCopyTextureState.queueFamily = Family();
     preCopyTextureState.layout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
     preCopyTextureState.stage = VK_PIPELINE_STAGE_TRANSFER_BIT;
     preCopyTextureState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
-    texture->SetState( preCopyTextureState, m_command[m_frame] );
+    texture->SetState( preCopyTextureState, CommandBuffer() );
     
     // change buffer state to tranfer write
     preCopyBufferState.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
     preCopyBufferState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
     preCopyBufferState.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-    preCopyBufferState.queueFamily = m_queue->Family();
-    buffer->SetState( preCopyBufferState, m_command[m_frame] );
+    preCopyBufferState.queueFamily = Family();
+    buffer->SetState( preCopyBufferState, CommandBuffer() );
 
     ///
     copyImageToBufferInfo.sType = VK_STRUCTURE_TYPE_COPY_IMAGE_TO_BUFFER_INFO_2;
@@ -543,10 +379,194 @@ void vkCommandBuffer::CopyTextureToBuffer(const crBuffer *in_buffer, const crTex
     copyImageToBufferInfo.dstBuffer = buffer->Buffer();
     copyImageToBufferInfo.regionCount = regions.Num();
     copyImageToBufferInfo.pRegions = regions.Ptr();
-    vkCmdCopyImageToBuffer2( m_command[m_frame], &copyImageToBufferInfo );
+    vkCmdCopyImageToBuffer2( CommandBuffer(), &copyImageToBufferInfo );
+}
+
+/*
+======================================================================================================================================
+vkGraphicCommandBuffer
+======================================================================================================================================
+*/
+vkGraphicCommandBuffer::vkGraphicCommandBuffer( const vkDeviceQueue* in_queue ) : crGraphicCommandBuffer(), vkCommandBuffer( in_queue )
+{
+    VkResult result = VK_SUCCESS;
+
+    ///
+    /// Desciptor pool 
+    ///
+    VkDescriptorPoolSize poolSizes[2]{};
+    poolSizes[0].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+    poolSizes[0].descriptorCount = MAX_BINDING_SAMPLERS; // por ex. 8192
+    poolSizes[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+    poolSizes[1].descriptorCount = 16; // quantos SSBOs você planeja (normalmente 1 por binding)
+
+    VkDescriptorPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+    poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+    poolInfo.poolSizeCount = 2;
+    poolInfo.pPoolSizes = poolSizes;
+    poolInfo.maxSets = 1; // provavelmente 1 set global
+
+    result = vkCreateDescriptorPool( m_device, &poolInfo, nullptr, &m_descriptorPool);
+    if ( result != VK_SUCCESS )
+        throw idException( "Failed to create command buffer" );
+}
+
+vkGraphicCommandBuffer::~vkGraphicCommandBuffer( void )
+{
+    if ( m_descriptorPool )
+    {
+        vkDestroyDescriptorPool( m_device, m_descriptorPool, k_allocationCallbacks );
+        m_descriptorPool = nullptr;
+    }
+}
+
+void vkGraphicCommandBuffer::LineWidth(const float in_lineWidth) const
+{
+    vkCmdSetLineWidth( CommandBuffer(), in_lineWidth );
+}
+
+void vkGraphicCommandBuffer::BindFrameBuffer(const crFramebuffer *in_framebuffer )
+{
+    VkRect2D renderArea{};
+    assert( in_framebuffer );
+    auto fbh = static_cast<fbHandler_t*>( in_framebuffer->Handle() );
+    
+    ///
+    ///
+    ///
+    renderArea.offset.x = 0;
+    renderArea.offset.y = 0;
+    renderArea.extent.width = in_framebuffer->Width();
+    renderArea.extent.height = in_framebuffer->Height();
+
+    ///
+    ///
+    ///
+    VkRenderPassBeginInfo   renderPassBeginInfo{};
+    renderPassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    renderPassBeginInfo.pNext = nullptr;
+    renderPassBeginInfo.renderPass = fbh->rp;
+    renderPassBeginInfo.framebuffer = fbh->fb;
+    renderPassBeginInfo.renderArea = renderArea;
+    renderPassBeginInfo.clearValueCount = 1;
+    renderPassBeginInfo.pClearValues = &m_clearValues;
+
+    ///
+    ///
+    ///
+    VkSubpassBeginInfo subpassBeginInfo{};
+    subpassBeginInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+    subpassBeginInfo.pNext = nullptr;
+    subpassBeginInfo.contents = VK_SUBPASS_CONTENTS_INLINE;
+
+    vkCmdBeginRenderPass2( CommandBuffer(), &renderPassBeginInfo, &subpassBeginInfo );
+}
+
+void vkGraphicCommandBuffer::BindIndexBuffer(const crBuffer *in_buffer)
+{
+    VkBuffer** buffer = static_cast<VkBuffer**>( in_buffer->Handle() );
+    vkCmdBindIndexBuffer( CommandBuffer(), **buffer, 0, VK_INDEX_TYPE_UINT16 );
+}
+
+void vkGraphicCommandBuffer::BindVertexBuffers(const crBuffer *in_buffer, uint32_t in_binding, const uintptr_t in_offsets, const size_t in_sizes, const size_t in_strides)
+{
+    VkBuffer* buffer = *static_cast<VkBuffer**>( in_buffer->Handle() );
+    VkDeviceSize offsets = in_offsets;
+    VkDeviceSize sizes = in_sizes;
+    VkDeviceSize strides = in_strides;
+    vkCmdBindVertexBuffers2( CommandBuffer(), in_binding, 1, buffer, &offsets, &sizes, &strides );
+}
+
+void vkGraphicCommandBuffer::BindPipeline(const crPipeline *in_pipeline)
+{
+    vkCmdBindPipeline( CommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, dynamic_cast<const vkPipeline*>( in_pipeline )->Pipeline() );
+}
+
+void vkGraphicCommandBuffer::EndRenderPass(void) const
+{
+    VkSubpassEndInfo subpassEndInfo{};
+    subpassEndInfo.sType = VK_STRUCTURE_TYPE_SUBPASS_END_INFO;
+    vkCmdEndRenderPass2( CommandBuffer(), &subpassEndInfo );
+}
+
+void vkGraphicCommandBuffer::Draw(const uint32_t in_vertexCount, const uint32_t in_instanceCount, const uint32_t in_firstVertex, const uint32_t in_firstInstance) const
+{
+    vkCmdDraw( CommandBuffer(), in_vertexCount, in_instanceCount, in_firstVertex, in_firstInstance );
+}
+
+void vkGraphicCommandBuffer::DrawIndexed(const uint32_t in_indexCount, const uint32_t in_instanceCount, const uint32_t in_firstIndex, const int32_t in_vertexOffset, const uint32_t in_firstInstance) const
+{
+    vkCmdDrawIndexed( CommandBuffer(), in_indexCount, in_instanceCount, in_firstIndex, in_vertexOffset, in_firstInstance );
+}
+
+void vkGraphicCommandBuffer::Dispatch(const uint32_t in_groupCountX, const uint32_t in_groupCountY, const uint32_t in_groupCountZ) const
+{
+    vkCmdDispatch( CommandBuffer(), in_groupCountX, in_groupCountY, in_groupCountZ );
+}
+
+void vkGraphicCommandBuffer::Clear(bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a)
+{
+    m_clearValues.color.float32[0] = r;
+    m_clearValues.color.float32[1] = g;
+    m_clearValues.color.float32[2] = b;
+    m_clearValues.color.float32[3] = a;
+    m_clearValues.depthStencil.depth = 0.0f;
+    m_clearValues.depthStencil.stencil = stencilValue;
+}
+
+void vkGraphicCommandBuffer::PolygonOffset(const float scale, const float bias)
+{
+    vkCmdSetDepthBias( CommandBuffer(), scale, 0.0f, bias );
+}
+
+void vkGraphicCommandBuffer::DepthBoundsTest(const float zmin, const float zmax)
+{
+    vkCmdSetDepthBounds( CommandBuffer(), zmin, zmax );
+}
+
+void vkGraphicCommandBuffer::FaceCull( const crPipeline::Face_t in_cullType )
+{
+    VkCullModeFlags cullModeFlags;
+    switch ( in_cullType )
+    {
+        case crPipeline::FC_BACK:
+            cullModeFlags = VK_CULL_MODE_BACK_BIT;
+            break;
+        case crPipeline::FC_FRONT:
+            cullModeFlags = VK_CULL_MODE_FRONT_BIT;
+            break;
+        case crPipeline::FC_TWO_FACES:
+            cullModeFlags = VK_CULL_MODE_NONE;
+            break;    
+    }
+
+    vkCmdSetCullMode( CommandBuffer(), cullModeFlags );   
+}
+
+void vkGraphicCommandBuffer::Scissor( const int x, const int y, const int w, const int h) const
+{
+    VkRect2D r{};
+    r.offset.x = x;
+    r.offset.y = y;
+    r.extent.width = w;
+    r.extent.height = h;
+    vkCmdSetScissor( CommandBuffer(), 0, 1, &r );
+}
+
+void vkGraphicCommandBuffer::Viewport( const int x, const int y, const int w, const int h ) const
+{
+    VkViewport vp{};
+    vp.x = x;
+    vp.y = y + h;
+    vp.width = w;
+    vp.height = -std::abs(h);;
+    vp.minDepth = 0.0f;
+    vp.maxDepth = 1.0f;
+    vkCmdSetViewport( CommandBuffer(), 0, 1, &vp );
 }
 
 void vkCommandBuffer::ExecuteCommands(const uint32_t in_commandBufferCount, const VkCommandBuffer *in_commandBuffers)
 {
-    vkCmdExecuteCommands( m_command[m_frame], in_commandBufferCount, in_commandBuffers );
+    vkCmdExecuteCommands( CommandBuffer(), in_commandBufferCount, in_commandBuffers );
 }

@@ -136,6 +136,11 @@ struct alignas( 16 ) vertexUniformBlock_t
 	float4  rpEnableSkinning;
 };
 
+struct alignas( 16 ) textureLocationBlock_t
+{
+    uint32_t samplersLocation[MAX_MULTITEXTURE_UNITS];
+};
+
 struct alignas( 16 ) fragmentUniformBlock_t
 {
     float4  rpScreenCorrectionFactor;
@@ -164,7 +169,8 @@ struct alignas( 16 ) lightUnifomBlock_t
 
 inline constexpr size_t FRAME_SSBO_VERT_SIZE = MAX_UNIFORM_BLOCKS * sizeof( vertexUniformBlock_t );
 inline constexpr size_t FRAME_SSBO_FRAG_SIZE = MAX_UNIFORM_BLOCKS * sizeof( fragmentUniformBlock_t );
-inline constexpr size_t FRAME_SSBO_LIGH_SIZE = MAX_UNIFORM_BLOCKS * sizeof( fragmentUniformBlock_t );
+inline constexpr size_t FRAME_SSBO_LIGH_SIZE = MAX_UNIFORM_BLOCKS * sizeof( lightUnifomBlock_t );
+inline constexpr size_t FRAME_SSBO_TXLC_SIZE = MAX_UNIFORM_BLOCKS * sizeof( textureLocationBlock_t );
 
 /*
 ================================================================================================
@@ -245,38 +251,12 @@ void			GL_GetDepthPassRect( idScreenRect& rect );
 
 void			GL_SetDefaultState();
 void			GL_State( uint64_t stateVector, bool forceGlState = false );
-uint64_t			GL_GetCurrentState();
-uint64_t			GL_GetCurrentStateMinusStencil();
-void			GL_Cull( int cullType );
-void			GL_Scissor( int x /* left*/, int y /* bottom */, int w, int h );
-void			GL_Viewport( int x /* left */, int y /* bottom */, int w, int h );
-ID_INLINE void	GL_Scissor( const idScreenRect& rect )
-{
-	GL_Scissor( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
-}
-ID_INLINE void	GL_Viewport( const idScreenRect& rect )
-{
-	GL_Viewport( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
-}
-ID_INLINE void	GL_ViewportAndScissor( int x, int y, int w, int h )
-{
-	GL_Viewport( x, y, w, h );
-	GL_Scissor( x, y, w, h );
-}
-ID_INLINE void	GL_ViewportAndScissor( const idScreenRect& rect )
-{
-	GL_Viewport( rect );
-	GL_Scissor( rect );
-}
+uint64_t		GL_GetCurrentState();
+uint64_t        GL_GetCurrentStateMinusStencil();
 
-void			GL_Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
-void			GL_PolygonOffset( float scale, float bias );
-void			GL_DepthBoundsTest( const float zmin, const float zmax );
 void			GL_Color( float* color );
 void			GL_Color( float r, float g, float b );
 void			GL_Color( float r, float g, float b, float a );
-void			GL_SelectTexture( int unit );
-
 void			GL_Flush();		// flush the GPU command buffer
 void			GL_Finish();	// wait for the GPU to have executed all commands
 void			GL_CheckErrors_Extended(const char* file, int line);
@@ -291,23 +271,24 @@ class crResourceState
 public:
     enum state_t : uint8_t
     {
-        BUFFER_STATE_UNKNOW,
-        BUFFER_STATE_COPY_DESTINATION,  // buffer is a destination of a copy operation 
-        BUFFER_STATE_COPY_SOURCE,       // buffer is a source from a copy operation
-        BUFFER_STATE_USE_RENDER,        // buffer is used in a render operation
-        BUFFER_STATE_USE_COMPUTE,       // buffer is used in a compute operation
-        BUFFER_STATE_WRITE_COMPUTE      // buffer is a compute shader destination
+        RESOURCE_STATE_UNKNOW,
+        RESOURCE_STATE_COPY_DESTINATION,  // resource is a destination of a copy operation 
+        RESOURCE_STATE_COPY_SOURCE,       // resource is a source from a copy operation
+        RESOURCE_STATE_USE_RENDER,        // resource is used in a render operation
+        RESOURCE_STATE_USE_COMPUTE,       // resource is used in a compute operation
+        RESOURCE_STATE_WRITE_COMPUTE,     // resource is a compute shader destination
+        RESOURCE_STATE_WRITE_RENDER       // resource is a render targer
     };
 
-    crResourceState( void ): m_state( BUFFER_STATE_UNKNOW )
+    crResourceState( void ): m_state( RESOURCE_STATE_UNKNOW )
     {
     }
 
-
     /// @brief Vulkan state transition 
     /// @param in_state 
-    virtual void    StateTransition( const state_t in_state, const uintptr_t in_offset, const size_t in_size );
-    state_t     State( void ) const { return m_state; }
+    virtual void    StateTransition( const state_t in_state, const crCommandBuffer* in_commandBuffer ) = 0;
+    
+    state_t         State( void ) const { return m_state; }
 
 protected:
     state_t m_state;    // resource transition state
@@ -319,7 +300,7 @@ protected:
 class crBuffer : public crResourceState
 {
 public:
-    enum acess_t : uint8_t
+    enum access_t : uint8_t
     {
         BUFFER_ACCESS_NONE,
         BUFFER_ACCESS_WRITE,
@@ -344,7 +325,7 @@ public:
     /// @param in_acess buffer acess for read or write 
     /// @param in_size buffer size
     /// @return true on sucess 
-    virtual bool    Create( const type_t in_type, const acess_t in_acess, const size_t in_size ) = 0;
+    virtual bool    Create( const type_t in_type, const access_t in_acess, const size_t in_size ) = 0;
     
     /// @brief try recreate the buffer and copy old content from old buffer
     /// @param in_newSize new buffer size 
@@ -387,10 +368,10 @@ public:
     size_t      Size( void ) const { return m_size; }
 
 protected:
-    type_t  m_type;     // type of buffer data storage
-    acess_t m_acess;    // buffer acess type
-    size_t  m_size;     // bufer whole size
-    void*   m_data;     // pointer from buffer mapped data
+    type_t      m_type;     // type of buffer data storage
+    access_t    m_access;   // buffer access type
+    size_t      m_size;     // bufer whole size
+    void*       m_data;     // pointer from buffer mapped data
 };
 
 class crTexture : public crResourceState
@@ -403,43 +384,6 @@ public:
         TEXTURE_2D,
         TEXTURE_3D,
         TEXTURE_CUBEMAP
-    };
-
-    enum format_t : uint8_t
-    {
-        TF_NONE,
-
-        // Red only
-        TF_R8I,
-        TF_R16I,
-
-        // Red green
-        TF_RG8I,
-        TF_RG16I,
-        // Uncompressed color 
-        TF_RGBA8,       // 32 bpp
-        TF_SRGBA8,      // 32 SRGB
-        TF_RGBA16,      // 64 bpp
-        TF_RGBA16F,
-        TF_RGBA32,
-        TF_RGBA32F,
-        TF_RGB565,  // 16 bpp
-        
-        // Compresed colors
-        TF_DXT1,
-        TF_DXT1_SRGB,
-        TF_DXT5,
-        TF_DXT5_SRGB,
-        
-        // Depth component 
-        TF_DEPTH16,
-        TF_DEPTH24,
-        TF_DEPTH32,
-
-        // Depth Stencil component 
-        TF_DEPTH24_STENCIL8,
-        TF_DEPTH32_STENCIL8,
-        TF_FORMAT_COUNT
     };
 
     struct dimensions_t
@@ -465,17 +409,16 @@ public:
     crTexture( void );
     ~crTexture( void );
 
-    virtual bool    Create( const type_t in_type, const dimensions_t in_dimensions, const format_t in_format ) = 0;
-    virtual void    Destroy( void );
-    virtual void    SubImage( const uint32_t in_alignament, const idList<subImage_t> &in_subImages ) = 0;
-    virtual void*   Handler( void ) const;
-    const type_t    GetType( void ) const { return m_type; }
-    const format_t  GetFormat( void ) const { return m_format; }
+    virtual bool            Create( const type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format ) = 0;
+    virtual void            Destroy( void );
+    virtual void*           Handler( void ) const;
+    const type_t            GetType( void ) const { return m_type; }
+    const crInternalFormat  GetFormat( void ) const { return m_format; }
 
 protected:
-    type_t          m_type;
-    format_t        m_format;
-    dimensions_t    m_dimensions;
+    type_t              m_type;
+    crInternalFormat    m_format;
+    dimensions_t        m_dimensions;
 };
 
 class crSampler
@@ -486,7 +429,7 @@ public:
 
     enum filter_t
     {
-        FILTER_NEARES,
+        FILTER_NEAREST,
         FILTER_LINEAR,
         FILTER_BILINEAR,
         FILTER_TRILINEAR,
@@ -681,6 +624,8 @@ public:
         AlphaFunc_t             alphaFunc;
         uint32_t                numPrograms;
         crProgram**             shaderPrograms;
+
+        bool operator==(const PipelineKey_s &o) const = default;
     };
     
     crPipeline( void );
@@ -689,6 +634,8 @@ public:
     virtual bool    Create( const PipelineInfo_t in_pipelineInfo ) = 0;
     virtual void    Destroy( void ) = 0;
 
+    PipelineInfo_t  PipelineInfo( void ) const { return m_pipelineConfiguration; }
+
 protected:
     PipelineInfo_t  m_pipelineConfiguration;
 };
@@ -696,11 +643,42 @@ protected:
 class crCommandBuffer
 {
 public:
-    crCommandBuffer( void );
-    ~crCommandBuffer( void );
+    /// @brief Begin command recording for this frame 
     virtual void    Begin( void ) = 0;
+    
+    /// @brief End command recording 
     virtual void    End( void ) = 0;
-    virtual void    Sumit( void ) = 0;
+    
+    /// @brief Submit command queue, and swap buffer
+    virtual void    Submit( void ) = 0;
+};
+
+/// @brief Command buffer dedicate to transfer operations
+class crTransferCommandBuffer : public crCommandBuffer
+{
+public:
+    crTransferCommandBuffer( void );
+    ~crTransferCommandBuffer( void );
+
+    /// @brief Copy data texture from texture
+    virtual void    CopyTexture( const crTexture* in_src, const crTexture* in_dst, const idList<crTexture::subImage_t> in_subImages ) = 0;
+    
+    /// @brief Upload texture from buffer
+    virtual void    CopyBufferToTexture( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages ) = 0;
+    
+    /// @brief Download texture to buffer 
+    virtual void    CopyTextureToBuffer( const crBuffer* in_buffer, const crTexture* in_texture, const idList<crTexture::subImage_t> in_subImages ) = 0;
+
+    /// @brief Made a copy from source buffer to destination buffer
+    virtual void    CopyBuffer( const crBuffer* in_srcBuffer, const crBuffer* in_dstBuffer, const uintptr_t in_offset, const size_t in_size ) = 0;
+};
+
+/// @brief Graphic command buffer
+class crGraphicCommandBuffer : public crCommandBuffer
+{
+public:
+    crGraphicCommandBuffer( void );
+    ~crGraphicCommandBuffer( void );
     virtual void    LineWidth( const float in_lineWidth ) const = 0;
     virtual void    BindFrameBuffer( const crFramebuffer* in_framebuffef ) = 0;
     virtual void    BindIndexBuffer( const crBuffer* in_buffer ) = 0;
@@ -711,27 +689,30 @@ public:
     virtual void    DrawIndexed( const uint32_t in_indexCount, const uint32_t in_instanceCount, const uint32_t in_firstIndex, const int32_t in_vertexOffset, const uint32_t in_firstInstance ) const = 0;
     virtual void    Dispatch(  const uint32_t in_groupCountX, const uint32_t in_groupCountY, const uint32_t in_groupCountZ ) const = 0;
     virtual void    Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a ) = 0;
-    virtual void    PolygonOffset( const float scale, const float bias ) = 0;
-    virtual void    DepthBoundsTest( const float zmin, const float zmax ) = 0;
+    virtual void    PolygonOffset( const float scale, const float bias, const bool enable ) = 0;
+    virtual void    DepthBoundsTest( const float zmin, const float zmax, const bool enable ) = 0;
+    
+    virtual void    FaceCull( const crPipeline::Face_t in_cullType ) = 0;
     virtual void    Scissor( const int x, const int y, const int w, const int h ) const = 0;
     virtual void    Viewport( const int x, const int y, const int w, const int h ) const = 0;
 
-    void    Scissor( const idScreenRect& rect ) const;
-    void    Viewport( const idScreenRect& rect ) const;
-    void	ViewportAndScissor( const idScreenRect& rect ) const;
+    ID_INLINE void  Scissor( const idScreenRect& rect ) const;
+    ID_INLINE void  Viewport( const idScreenRect& rect ) const;
+    ID_INLINE void  ViewportAndScissor( const idScreenRect& rect ) const;
 };
 
-ID_INLINE void crCommandBuffer::Scissor( const idScreenRect& rect ) const
+
+ID_INLINE void crGraphicCommandBuffer::Scissor( const idScreenRect& rect ) const
 {
 	Scissor( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
 }
 
-ID_INLINE void	crCommandBuffer::Viewport( const idScreenRect& rect ) const
+ID_INLINE void	crGraphicCommandBuffer::Viewport( const idScreenRect& rect ) const
 {
 	Viewport( rect.x1, rect.y1, rect.x2 - rect.x1 + 1, rect.y2 - rect.y1 + 1 );
 }
 
-ID_INLINE void	crCommandBuffer::ViewportAndScissor( const idScreenRect& rect ) const
+ID_INLINE void	crGraphicCommandBuffer::ViewportAndScissor( const idScreenRect& rect ) const
 {
 	Viewport( rect );
 	Scissor( rect );
@@ -774,9 +755,10 @@ public:
     virtual void                    End( void );
     virtual crBindlessTextureSlot*  BindTexture( const crTexture* in_texture, const crSampler* in_sampler ) = 0;
     virtual void                    FreeSlot( crBindlessTextureSlot* &in_handle ) = 0;
-    virtual vertexUniformBlock_t*   GetvertexUniformBlock( void ) { return &m_vertexUniformBlock; };
-    virtual fragmentUniformBlock_t* GetFragmentUniformBlock( void ) { return &m_fragmentUniformBlock; };
-    virtual lightUnifomBlock_t*     GetLightUnifomBlock( void ) { return &m_lightUnifomBlock; }
+    vertexUniformBlock_t*           GetvertexUniformBlock( void ) { return &m_vertexUniformBlock; };
+    fragmentUniformBlock_t*         GetFragmentUniformBlock( void ) { return &m_fragmentUniformBlock; };
+    lightUnifomBlock_t*             GetLightUnifomBlock( void ) { return &m_lightUnifomBlock; }
+    textureLocationBlock_t*         GetTextureLocationBlock( void ) { return &m_textureLocationBlock; }
 
 protected:
     uint32_t                m_frame;
@@ -787,9 +769,11 @@ protected:
     crBuffer*               m_VTSSBO;
     crBuffer*               m_FGSSBO;
     crBuffer*               m_LHSSBO;
+    crBuffer*               m_TLSSBO;
     vertexUniformBlock_t    m_vertexUniformBlock;
     fragmentUniformBlock_t  m_fragmentUniformBlock;  
     lightUnifomBlock_t      m_lightUnifomBlock;      
+    textureLocationBlock_t  m_textureLocationBlock;
     idList<uint32_t>        m_freeList;
 };
 // BEATO End
