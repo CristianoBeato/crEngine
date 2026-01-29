@@ -274,17 +274,11 @@ public:
 		pe.resourceName = _resourceName;
 		entries.Append( pe );
 	}
-	void AddImage( const char* _resourceName, int _filter, int _repeat, int _usage, int _cube )
+	void AddImage( const char* _resourceName, int _usage, int _cube )
 	{
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_IMAGE;
 		pe.resourceName = _resourceName;
-// BEATO Begin:
-#if 0
-		pe.imgData.filter = _filter;
-		pe.imgData.repeat = _repeat;
-#endif
-// BEATO End
 		pe.imgData.usage = _usage;
 		pe.imgData.cubeMap = _cube;
 		entries.Append( pe );

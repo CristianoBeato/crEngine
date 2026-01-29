@@ -199,10 +199,12 @@ public:
 	{
 		resourceBufferAvailable = resourceBufferSize;
 	}
-	virtual void			AddImagePreload( const char* resName, int _filter, int _repeat, int _usage, int _cube )
+
+	virtual void			AddImagePreload( const char* resName, int _usage, int _cube )
 	{
-		preloadList.AddImage( resName, _filter, _repeat, _usage, _cube );
+		preloadList.AddImage( resName,_usage, _cube );
 	}
+	
 	virtual void			AddSamplePreload( const char* resName )
 	{
 		preloadList.AddSample( resName );
