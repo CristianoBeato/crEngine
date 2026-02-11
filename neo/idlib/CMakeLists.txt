@@ -51,7 +51,7 @@ set( IDLIB_MAIN_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/Token.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Token.h
 # BEATO Begin:
-	${CMAKE_CURRENT_SOURCE_DIR}/StaticPointer.h
+	${CMAKE_CURRENT_SOURCE_DIR}/Pointers.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/Exception.h
 # BEATO End
 	)
@@ -177,6 +177,10 @@ set( IDLIB_SYS_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_types.h
 	)
 
+##set( IDLIB_GUI_SOURCES 
+##	${CMAKE_CURRENT_SOURCE_DIR}/gui/controls/Base.cpp
+##	${CMAKE_CURRENT_SOURCE_DIR}/gui/controls/Base.hpp
+##	)
 
 set( IDLIB_SOURCES 
 	${IDLIB_MAIN_SOURCES}
@@ -186,6 +190,7 @@ set( IDLIB_SOURCES
 	${IDLIB_HASHING_SOURCES}
 	${IDLIB_MATH_SOURCES}
 	${IDLIB_SYS_SOURCES}
+#	${IDLIB_GUI_SOURCES}
 	)
 
 ## library configurarion 
@@ -201,6 +206,8 @@ target_include_directories( idLib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} )
 
 # set the precompiled header
 target_precompile_headers( idLib 
-	PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h 
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Lib.h
+	PUBLIC 
+		${CMAKE_CURRENT_SOURCE_DIR}/precompiled.h 
+	PRIVATE 
+		${CMAKE_CURRENT_SOURCE_DIR}/Lib.h
 	) 

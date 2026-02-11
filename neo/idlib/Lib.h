@@ -190,6 +190,10 @@ inline void SetZero( _t * in_array, const uint32_t in_count  )
 #include "containers/Sort.h"
 #include "containers/List.h"
 
+// BEATO Begin:
+#include "Pointers.hpp" // smart pointers (RAII) and reference counters
+// BEATO End
+
 // math
 #include "math/Simd.h"
 #include "math/Math.h"
@@ -271,10 +275,6 @@ inline void SetZero( _t * in_array, const uint32_t in_count  )
 #include "Swap.h"
 #include "Callback.h"
 #include "ParallelJobList.h"
-
-// BEATO Begin:
-#include "StaticPointer.h" // smart pointer (RAII)
-// BEATO End
 
 #include "SoftwareCache.h"
 
