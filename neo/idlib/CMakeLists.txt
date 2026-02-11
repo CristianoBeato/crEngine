@@ -177,10 +177,10 @@ set( IDLIB_SYS_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_types.h
 	)
 
-##set( IDLIB_GUI_SOURCES 
-##	${CMAKE_CURRENT_SOURCE_DIR}/gui/controls/Base.cpp
-##	${CMAKE_CURRENT_SOURCE_DIR}/gui/controls/Base.hpp
-##	)
+set( IDLIB_GUI_SOURCES 
+	${CMAKE_CURRENT_SOURCE_DIR}/gui/controls/Base.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/gui/controls/Base.hpp
+	)
 
 set( IDLIB_SOURCES 
 	${IDLIB_MAIN_SOURCES}
@@ -190,7 +190,7 @@ set( IDLIB_SOURCES
 	${IDLIB_HASHING_SOURCES}
 	${IDLIB_MATH_SOURCES}
 	${IDLIB_SYS_SOURCES}
-#	${IDLIB_GUI_SOURCES}
+	${IDLIB_GUI_SOURCES}
 	)
 
 ## library configurarion 
