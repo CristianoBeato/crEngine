@@ -165,6 +165,8 @@ Defines and macros usable in all code
 
 // BEATO Begin: 
 
+#define ID_TIME_T int64_t // Signed because -1 means "File not found" and we don't want that to compare > than any other time
+
 /// @CristianoBeato use portable c++11 alignas specifier
 #define ALIGN16( x )  alignas( 16 ) x
 #define ALIGNTYPE16   alignas( 16 )

@@ -211,7 +211,7 @@ public:
 	virtual bool			IsSoundSample( const idStr& resName ) const = 0;
 	virtual bool			GetResourceCacheEntry( const char* fileName, idResourceCacheEntry& rc ) = 0;
 	virtual void			FreeResourceBuffer() = 0;
-	virtual void			AddImagePreload( const char* resName, int filter, int repeat, int usage, int cube ) = 0;
+	virtual void			AddImagePreload( const char* resName, int usage, int cube ) = 0;
 	virtual void			AddSamplePreload( const char* resName ) = 0;
 	virtual void			AddModelPreload( const char* resName ) = 0;
 	virtual void			AddAnimPreload( const char* resName ) = 0;

@@ -115,12 +115,10 @@ void idMenuWidget::AddChild( idMenuWidget* widget )
 idMenuWidget::RemoveAllChildren
 ========================
 */
-void idMenuWidget::RemoveAllChildren()
+void idMenuWidget::RemoveAllChildren( void )
 {
-
 	for( int i = 0; i < children.Num(); ++ i )
 	{
-	
 		assert( children[ i ]->GetParent() == this );
 		
 		children[ i ]->SetParent( nullptr );
