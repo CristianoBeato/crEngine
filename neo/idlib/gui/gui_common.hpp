@@ -13,6 +13,7 @@ namespace gui
     };
 };
 
+#include "renderer/Renderer.hpp"
 #include "controls/Base.hpp"
 
 #endif //!__GUI_COMMON_HPP__

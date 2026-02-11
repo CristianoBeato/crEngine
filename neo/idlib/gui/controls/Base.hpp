@@ -15,6 +15,8 @@ namespace gui
             crBase( const crBasePointer &in_parent, const idStr in_name );
             ~crBase( void );
 
+            virtual const char* GetTypeName( void ) { return "crBase"; }
+
 
             virtual void DoThink( void ) {}
 
