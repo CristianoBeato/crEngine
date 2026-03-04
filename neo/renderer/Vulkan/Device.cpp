@@ -22,9 +22,8 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "precompiled.h"
-#include "renderer_common.h"
-#include "vkDevice.hpp"
+#include "Device.hpp"
+#include "Core.hpp"
 
 static const float k_PRIORITY = 1.0f;
 
@@ -98,7 +97,7 @@ bool vkDeviceQueue::Init( const VkDevice in_device )
     VkCommandPoolCreateInfo commandPoolCI{};
     commandPoolCI.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     commandPoolCI.pNext = nullptr;
-    commandPoolCI.flags = 0;
+    commandPoolCI.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
     commandPoolCI.queueFamilyIndex = m_family;
     auto result = vkCreateCommandPool( m_device, &commandPoolCI, k_allocationCallbacks, &m_commandPool );
     if ( !ResultCheck( result, "vkCreateCommandPool" ) )
@@ -160,14 +159,23 @@ vkRenderDevice::vkRenderDevice( void ) :
 {
 }
 
-bool vkRenderDevice::Init(const VkPhysicalDevice in_device, const VkSurfaceKHR in_surface)
+bool vkRenderDevice::Init( const uint32_t in_ID, const VkPhysicalDevice in_device, const VkSurfaceKHR in_surface )
 {
     VkResult result = VK_SUCCESS;
+    uint32_t i = 0;
     uint32_t queueFamilyCount = 0;
     uint32_t deviceExtensionCount = 0;
     uint32_t formatCount = 0;
     uint32_t presentModeCount = 0;
-
+    
+    m_id = in_ID;
+    m_queueFamilyPropertiesList = idList<VkQueueFamilyProperties2, TAG_VULKAN>();
+    m_deviceExtensions = idList<VkExtensionProperties>();
+    m_surfaceFormats = idList<VkSurfaceFormat2KHR>();
+    m_presentModes = idList<VkPresentModeKHR>();
+    m_queues = idList<queueInfo_t>();
+    m_physical = in_device;
+    
     VkPhysicalDeviceSurfaceInfo2KHR deviceSurfaceInfo{}; 
     deviceSurfaceInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
     deviceSurfaceInfo.surface = in_surface;
@@ -230,7 +238,12 @@ bool vkRenderDevice::Init(const VkPhysicalDevice in_device, const VkSurfaceKHR i
 
     // Find a queue family that supports graphics and presentation
 	vkGetPhysicalDeviceQueueFamilyProperties2( m_physical, &queueFamilyCount, nullptr);
-	m_queueFamilyPropertiesList.Resize( queueFamilyCount );
+    m_queueFamilyPropertiesList.Resize( queueFamilyCount );
+    for ( i = 0; i < queueFamilyCount; ++i) 
+    {
+        m_queueFamilyPropertiesList[i].sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2;
+        m_queueFamilyPropertiesList[i].pNext = nullptr; // Boa prática garantir que seja nulo
+    }
     vkGetPhysicalDeviceQueueFamilyProperties2( m_physical, &queueFamilyCount, m_queueFamilyPropertiesList.Ptr() );
 
     // list the device available extensions 
@@ -248,7 +261,13 @@ bool vkRenderDevice::Init(const VkPhysicalDevice in_device, const VkSurfaceKHR i
     if( !ResultCheck( result, "vkGetPhysicalDeviceSurfaceFormats2KHR" ) )
         return false;
  
-    m_surfaceFormats.Resize( formatCount );   
+    m_surfaceFormats.Resize( formatCount );
+    for ( i = 0; i < formatCount; i++)
+    {
+        m_surfaceFormats[i].sType = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
+        m_surfaceFormats[i].pNext = nullptr;
+    }
+    
     result = vkGetPhysicalDeviceSurfaceFormats2KHR( m_physical, &deviceSurfaceInfo, &formatCount, m_surfaceFormats.Ptr() );
     if( !ResultCheck( result, "vkGetPhysicalDeviceSurfaceFormats2KHR" ) )
         return false;
@@ -270,24 +289,32 @@ bool vkRenderDevice::Init(const VkPhysicalDevice in_device, const VkSurfaceKHR i
     if( !ResultCheck( result, "vkGetPhysicalDeviceSurfaceCapabilities2KHR" ) )
         return false;
 
-    for ( uint32_t i = 0; i < m_queueFamilyPropertiesList.Num(); i++)
+    for ( uint32_t family = 0; family < m_queueFamilyPropertiesList.Num(); family++ )
     {
         VkBool32 presentSupport = VK_FALSE;
-        auto queueFamilyProperties = m_queueFamilyPropertiesList[i].queueFamilyProperties;
-        vkGetPhysicalDeviceSurfaceSupportKHR( m_physical, i, in_surface, &presentSupport );
+        auto queueFamilyProperties = m_queueFamilyPropertiesList[family].queueFamilyProperties;
+        vkGetPhysicalDeviceSurfaceSupportKHR( m_physical, family, in_surface, &presentSupport );
         queueInfo_t queue{};
-        queue.family = i;
+        queue.family = family;
         queue.graphic = ( queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT );
         queue.compute = ( queueFamilyProperties.queueFlags & VK_QUEUE_COMPUTE_BIT ); 
         queue.transfer = ( queueFamilyProperties.queueFlags & VK_QUEUE_TRANSFER_BIT ); 
         queue.present = presentSupport == VK_TRUE;
 
-        for ( uint32_t j = 0; j < queueFamilyProperties.queueCount; i++)
+        for ( uint32_t index = 0; index < queueFamilyProperties.queueCount; index++)
         {
-            queue.index = j;
+            queue.index = index;
             m_queues.Append( queue );
         }
     }
+    
+    for ( i = 0; i < m_queues.Num(); i++)
+    {
+        auto queue = m_queues[i];
+        common->Printf( "Queue %u: - index %u - family %u - present %s - graphic %s - compute %s - transfer %s\n", 
+            i, queue.index, queue.family, queue.present ? "Yes" : "No", queue.graphic ? "Yes" : "No", queue.compute ? "Yes" : "No", queue.transfer ? "Yes" : "No" );
+    }
+    
 
     return true;
 }
@@ -300,7 +327,7 @@ vkRenderDevice::StartUp
 bool vkRenderDevice::StartUp( const idList<const char*> &in_layers, const idList<const char *> &in_enabledExtensions )
 {
     VkResult result = VK_SUCCESS;
-    idList<VkDeviceQueueCreateInfo, TAG_VULKAN> queuesCI;
+    idList<VkDeviceQueueCreateInfo> queuesCI;
 
     common->Printf( "Initializing Vulkan Device %s\n", Name() );
 
@@ -313,17 +340,17 @@ bool vkRenderDevice::StartUp( const idList<const char*> &in_layers, const idList
     deviceCI.queueCreateInfoCount = queuesCI.Num();
     deviceCI.pQueueCreateInfos = queuesCI.Ptr();
 
-    if ( m_featuresv12.timelineSemaphore == VK_TRUE )
+    if ( m_featuresv12.timelineSemaphore != VK_TRUE )
     {
-        // todo: print feature missing
+        common->Error( "unsuported device, Missing Vulkan 1.2 Timeline Semaphore feature!\n");
         return false;
     }
 
-    if ( m_featuresv13.dynamicRendering == VK_TRUE )
+    if ( m_featuresv13.dynamicRendering != VK_TRUE )
     {
+        common->Error( "unsuported device, Missing Vulkan 1.3 DynamicRendering features!\n");
         return false;
     }
-    
     
     // configure device features
     // concatenate device features initialization 
@@ -331,6 +358,16 @@ bool vkRenderDevice::StartUp( const idList<const char*> &in_layers, const idList
     m_featuresv11.pNext = &m_featuresv12;   // initialize vulkan 1.2 device features 
     m_featuresv10.pNext = &m_featuresv11;   // initialize vulkan 1.1 device features 
     deviceCI.pNext = &m_featuresv10;        // initialize vulkan 1.0 device features 
+
+    /// check if all device extenions are available
+    for ( uint32_t i = 0; i < in_enabledExtensions.Num(); i++)
+    {
+        auto ext = in_enabledExtensions[i];
+        if( !ExtensionAvailable( ext ) )
+        {
+            return false;
+        }
+    }
 
     // Enable extensions
     deviceCI.enabledExtensionCount = in_enabledExtensions.Num();
@@ -348,9 +385,9 @@ bool vkRenderDevice::StartUp( const idList<const char*> &in_layers, const idList
     if ( !m_present || !m_graphic )
     {
         if( !m_present )
-            common->Warning( "Missing Present Queue\n" );
+            common->Error( "Missing Present Queue\n" );
         if( !m_graphic )
-            common->Warning( "Missing Present Queue\n" );
+            common->Error( "Missing Present Queue\n" );
         return false;
     }
     
@@ -359,14 +396,14 @@ bool vkRenderDevice::StartUp( const idList<const char*> &in_layers, const idList
 
     // if we found a compute queue, initialize
     // if no compute queue is found, we will use the graphic queue
-    if ( m_compute )
+    if ( m_compute != nullptr )
         m_compute->Init( m_logic );
     else
         common->Warning( "No compute queue found, using graphic!\n" );
 
     // If a transfer queue is found, initialize
     // if not, use a graphic queue copy
-    if( m_transfer )
+    if( m_transfer != nullptr )
         m_transfer->Init( m_logic );
     else
         common->Warning( "No transfer queue found, using graphic!\n" );
@@ -473,19 +510,17 @@ uint32_t vkRenderDevice::Score(void) const
     return score;
 }
 
-/*
-==============
-vkRenderDevice::vkRenderDevice
-==============
-*/
-vkRenderDevice::vkRenderDevice( void )
+bool vkRenderDevice::ExtensionAvailable(const idStr &in_ext) const
 {
-    m_queueFamilyPropertiesList.Clear();
-    m_deviceExtensions.Clear();
-    m_surfaceFormats.Clear();
-    m_presentModes.Clear();
-    m_queues.Clear();
-    m_physical = nullptr;
+    for ( uint32_t i = 0; i < m_deviceExtensions.Num(); i++)
+    {
+        idStr ext = m_deviceExtensions[i].extensionName;
+        if( ext == in_ext )
+            return true;
+    }
+    
+    printf( "%s not found!\n", in_ext.c_str() );
+    return false;
 }
 
 /*
@@ -508,6 +543,44 @@ uint32_t vkRenderDevice::FindMemoryType(const uint32_t in_filter, const VkMemory
     }
     
     return UINT32_MAX;
+}
+
+const uint32_t vkRenderDevice::ShaderStorageBufferAlignament(void) const
+{
+    return m_propertiesv10.properties.limits.minStorageBufferOffsetAlignment;
+}
+
+const bool vkRenderDevice::SupportedFormat(const VkFormat in_format, const VkColorSpaceKHR in_colorSpace) const
+{
+    for ( uint32_t i = 0; i < m_surfaceFormats.Num(); i++)
+    {
+        auto format = m_surfaceFormats[i].surfaceFormat;
+        if ( format.format == in_format && format.colorSpace == in_colorSpace )
+            return true;       
+    }
+
+    return false;
+}
+
+const bool vkRenderDevice::SupportedPresentMode( const VkPresentModeKHR in_mode )
+{
+    for ( uint32_t i = 0; i < m_presentModes.Num(); i++)
+    {
+        auto mode = m_presentModes[i];
+        if ( mode == in_mode )
+            return true;        
+    }
+    
+    return false;
+}
+
+const VkSurfaceFormatKHR vkRenderDevice::GetPresentFormat(const uint32_t in_formatID)
+{
+    // todo get a better format list
+    if ( in_formatID >= m_surfaceFormats.Num() )
+        return m_surfaceFormats[0].surfaceFormat;
+
+    return m_surfaceFormats[in_formatID].surfaceFormat;
 }
 
 /*
@@ -618,59 +691,67 @@ vkRenderDevice::SelectDeviceQueues
 @CristianoBeato: holly cow hard coded as fuck, need found a new algoritm, or easy way to do this 
 ==============
 */
-void vkRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo, TAG_VULKAN> &in_queueList )
+void vkRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &in_queueList )
 {
-    std::optional<queueInfo_t> present;
     std::optional<queueInfo_t> graphic;
+    std::optional<queueInfo_t> present;
     std::optional<queueInfo_t> transfer;
     std::optional<queueInfo_t> compute;
 
-    // find present (first queue with present == true)
+    // find present (first queue with graphic == true)
     for (uint32_t i = 0; i < m_queues.Num(); ++i)
     {
         auto q = m_queues[i];
-        if (!q.present) // skip non-present
+        if (!q.graphic) // skip non-graphic
             continue;
+
+        graphic = q;
+        break;
+    }
+
+    /// if not found, don't continue 
+    if (!graphic.has_value())
+        throw idException("No Graphic queue found in initialized device\n");
+
+    // find present
+    // prefer a present in a different family than present (dedicated)
+    for (uint32_t i = 0; i < m_queues.Num(); ++i)
+    {
+        auto q = m_queues[i];
+        if (!q.present)
+            continue;
+
+        if (q.family == graphic->family)
+            continue; // prefer different family
 
         present = q;
         break;
     }
 
-    /// if not found, don't continue 
+    // fallback: any present (including from graphic same family)
     if (!present.has_value())
-        return;
-    //    throw idException("No present queue found in initialized device\n");
-
-    // find graphic
-    // prefer a graphic in a different family than present (dedicated)
-    for (uint32_t i = 0; i < m_queues.Num(); ++i)
-    {
-        auto q = m_queues[i];
-        if (!q.graphic)
-            continue;
-        if (q.family == present->family)
-            continue; // prefer different family
-        graphic = q;
-        break;
-    }
-
-    // fallback: any graphic (including from same family)
-    if (!graphic.has_value())
     {
         for (uint32_t i = 0; i < m_queues.Num(); ++i)
         {
             auto q = m_queues[i];
-            if (!q.graphic)
+            if (!q.present)
                 continue;
-            graphic = q;
+
+            if ( graphic.value().family == q.family )
+            {
+                /// we can't use the same queue for both since family count 
+                if( m_queueFamilyPropertiesList[q.family].queueFamilyProperties.queueCount < 2 )
+                    continue; 
+            }
+            
+            present = q;
             break;
         }
     }
 
-    // if no graphic queue found, we don't need to proceed
-    if (!graphic.has_value())
-        return;
-        //throw idException("No graphic queue found in initialized device\n");
+    // if no present queue found, we don't need to proceed
+    if (!present.has_value())
+        throw idException("No present queue found in initialized device\n");
 
     // if enabled, find a transfer queue
     if (vk_useTransferQueue.GetBool())
@@ -776,8 +857,11 @@ void vkRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo, TAG_VUL
         {
             if (in_queueList[i].queueFamilyIndex == q.family)
             {
-                in_queueList[i].queueCount++;
-                return;
+                if (q.index >= in_queueList[i].queueCount)
+                {
+                    in_queueList[i].queueCount = q.index + 1;
+                    return;
+                }
             }
         }
 
@@ -786,7 +870,7 @@ void vkRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo, TAG_VUL
         ci.pNext = nullptr;
         ci.flags = 0;
         ci.queueFamilyIndex = q.family;
-        ci.queueCount = 1;
+        ci.queueCount = q.index + 1;
         ci.pQueuePriorities = k_PRIORITY_LIST;
         in_queueList.Append(ci);
     };
@@ -809,11 +893,19 @@ void vkRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo, TAG_VUL
         AppendQueue(t);
         m_transfer = new vkDeviceQueue(t.family, t.index);
     }
+    else
+    {
+        m_transfer = nullptr;
+    }
 
     if ( compute.has_value() )
     {
         auto c = compute.value();
         AppendQueue(c);
         m_compute = new vkDeviceQueue(c.family, c.index);
+    }
+    else
+    {
+        m_compute = nullptr;
     }
 }

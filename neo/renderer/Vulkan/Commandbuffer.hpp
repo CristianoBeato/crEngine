@@ -22,25 +22,30 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __VK_PROGRAM_HPP__
-#define __VK_PROGRAM_HPP__
+#ifndef __VK_COMMAND_BUFFER_HPP__
+#define __VK_COMMAND_BUFFER_HPP__
 
-class vkProgram : public crProgram
+class vkCommandbuffer
 {
 public:
-    
-    vkProgram( void );
-    ~vkProgram( void );
+    vkCommandbuffer( void );
+    ~vkCommandbuffer( void );
 
-    virtual bool    Create( const type_t in_type, const void* in_source, const size_t in_size );
-    virtual void    Destroy( void );
+    bool    Create( void );
+    void    Destroy( void );
 
-    VkPipelineShaderStageCreateInfo ShaderStage( void ) const { return m_shaderStage; }
+    void    Begin( const uint32_t in_bufferID );
+    void    Submit( const VkSemaphore in_imageAvailable );
+
+    ID_INLINE   VkCommandBuffer     CommandBuffer( void ) const { return m_commandBuffers[m_bufferID]; }
+    ID_INLINE   VkSemaphore         FinishFence( void ) const { return m_submitFinish[m_bufferID]; }
 
 private:
-    VkDevice                        m_device;
-    VkShaderModule                  m_shaderModule;
-    VkPipelineShaderStageCreateInfo m_shaderStage;
+    uint32_t                                        m_bufferID;
+    vkDeviceQueuep                                  m_graphicQueue;
+    idStaticList<VkCommandBuffer, SMP_FRAMES>       m_commandBuffers;
+    idStaticList<VkSemaphore, SMP_FRAMES>	        m_submitFinish;
+    idStaticList<VkFence, SMP_FRAMES>    	        m_frameFences;
 };
 
-#endif //!__PROGRAM_HPP__
+#endif //!__VK_COMMAND_BUFFER_HPP__

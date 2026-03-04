@@ -22,9 +22,8 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "precompiled.h"
-#include "renderer/renderer_common.h"
-#include "vkProgram.hpp"
+#include "Program.hpp"
+#include "Core.hpp"
 
 vkProgram::vkProgram( void )
 {
@@ -37,12 +36,14 @@ vkProgram::~vkProgram( void )
 bool vkProgram::Create( const type_t in_type, const void* in_source, const size_t in_size )
 {
     VkResult result = VK_SUCCESS; 
+    auto device = tr.vkContext->Device();
+
     VkShaderModuleCreateInfo shaderModuleCI{};
     shaderModuleCI.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     shaderModuleCI.codeSize = in_size / sizeof( uint32_t );
     shaderModuleCI.pCode = reinterpret_cast<const uint32_t*>( in_source );
 
-    result = vkCreateShaderModule( m_device, &shaderModuleCI, k_allocationCallbacks, &m_shaderModule);
+    result = vkCreateShaderModule( *device, &shaderModuleCI, k_allocationCallbacks, &m_shaderModule);
     if ( result != VK_SUCCESS )
     {
         common->Error( "vkProgram::Create failed to create shader\n");
@@ -84,8 +85,8 @@ void vkProgram::Destroy( void )
 {
     if ( m_shaderModule == nullptr )
     {
-        vkDestroyShaderModule( m_device, m_shaderModule, k_allocationCallbacks );
-        m_device = nullptr; 
+        auto device = tr.vkContext->Device();
+        vkDestroyShaderModule( *device, m_shaderModule, k_allocationCallbacks );
         m_shaderModule = nullptr;
     }
 }

@@ -22,13 +22,11 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __VULKAN_HPP__
-#define __VULKAN_HPP__
+#ifndef __VK_CORE_HPP__
+#define __VK_CORE_HPP__
 
 #define VK_NO_PROTOTYPES
-#define NO_SDL_VULKAN_TYPEDEFS
 #include <vulkan/vulkan.h>
-#include <SDL3/SDL_vulkan.h>
 
 extern PFN_vkEnumerateInstanceLayerProperties           vkEnumerateInstanceLayerProperties;
 extern PFN_vkEnumerateInstanceExtensionProperties       vkEnumerateInstanceExtensionProperties;
@@ -40,7 +38,6 @@ extern PFN_vkGetInstanceProcAddr                        vkGetInstanceProcAddr;
 extern PFN_vkEnumeratePhysicalDevices                   vkEnumeratePhysicalDevices;
 
 extern PFN_vkDestroySurfaceKHR                          vkDestroySurfaceKHR;
-
 
 // VkPhysicalDevice
 extern PFN_vkGetPhysicalDeviceMemoryProperties2         vkGetPhysicalDeviceMemoryProperties2;
@@ -108,17 +105,12 @@ extern PFN_vkGetBufferMemoryRequirements                vkGetBufferMemoryRequire
 extern PFN_vkBindBufferMemory                           vkBindBufferMemory;
 extern PFN_vkCmdUpdateBuffer                            vkCmdUpdateBuffer;
 extern PFN_vkCmdFillBuffer                              vkCmdFillBuffer;
-extern PFN_vkCmdCopyBuffer2                             vkCmdCopyBuffer2;
 
 // VkImage
 extern PFN_vkCreateImage                                vkCreateImage;
 extern PFN_vkDestroyImage                               vkDestroyImage;
 extern PFN_vkGetImageMemoryRequirements                 vkGetImageMemoryRequirements;
 extern PFN_vkBindImageMemory                            vkBindImageMemory;
-extern PFN_vkCmdCopyImage2                              vkCmdCopyImage2;
-extern PFN_vkCmdCopyBufferToImage2                      vkCmdCopyBufferToImage2;
-extern PFN_vkCmdCopyImageToBuffer2                      vkCmdCopyImageToBuffer2;
-extern PFN_vkCmdBlitImage2                              vkCmdBlitImage2;
 extern PFN_vkCmdClearColorImage                         vkCmdClearColorImage;
 extern PFN_vkCmdClearDepthStencilImage                  vkCmdClearDepthStencilImage;
 extern PFN_vkCmdResolveImage2                           vkCmdResolveImage2;
@@ -172,11 +164,13 @@ extern PFN_vkCmdSetScissor                              vkCmdSetScissor;
 extern PFN_vkCmdSetLineWidth                            vkCmdSetLineWidth;
 extern PFN_vkCmdSetDepthBias                            vkCmdSetDepthBias;
 extern PFN_vkCmdSetBlendConstants                       vkCmdSetBlendConstants;
+extern PFN_vkCmdSetDepthBoundsTestEnable                vkCmdSetDepthBoundsTestEnable;
 extern PFN_vkCmdSetDepthBounds                          vkCmdSetDepthBounds;
 extern PFN_vkCmdSetCullMode                             vkCmdSetCullMode;
 extern PFN_vkCmdSetStencilCompareMask                   vkCmdSetStencilCompareMask;
 extern PFN_vkCmdSetStencilWriteMask                     vkCmdSetStencilWriteMask;
 extern PFN_vkCmdSetStencilReference                     vkCmdSetStencilReference;
+extern PFN_vkCmdPushConstants                           vkCmdPushConstants;
 
 //
 extern PFN_vkCreateDescriptorSetLayout                  vkCreateDescriptorSetLayout;
@@ -208,23 +202,56 @@ extern PFN_vkCmdCopyBufferToImage2                      vkCmdCopyBufferToImage2;
 extern PFN_vkCmdCopyImage2                              vkCmdCopyImage2;
 extern PFN_vkCmdCopyImageToBuffer2                      vkCmdCopyImageToBuffer2;
 
+// VK_KHR_dynamic_rendering
 extern PFN_vkCmdBeginRendering                          vkCmdBeginRendering;
+extern PFN_vkCmdEndRendering                            vkCmdEndRendering;
+extern PFN_vkCmdClearAttachments                        vkCmdClearAttachments;
 
 // VK_EXT_debug_utils
 extern PFN_vkCreateDebugUtilsMessengerEXT               vkCreateDebugUtilsMessengerEXT;
 extern PFN_vkDestroyDebugUtilsMessengerEXT              vkDestroyDebugUtilsMessengerEXT;
 
-#include "vkAllocator.hpp"
-#include "vkUtils.hpp"
-#include "vkDevice.hpp"
-#include "vkContext.hpp"
-#include "vkProgram.hpp"
-#include "vkBuffer.hpp"
-#include "vkTexture.hpp"
-#include "vkShaderStorage.hpp"
-#include "vkPipeline.hpp"
-#include "vkFrameBuffer.hpp"
-#include "vkSwapchain.hpp"
-#include "vkCommandBuffer.hpp"
+extern VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBitsEXT in_severity, VkDebugUtilsMessageTypeFlagsEXT in_types, const VkDebugUtilsMessengerCallbackDataEXT* in_data, void *in_user );
 
-#endif //!__VULKAN_HPP__
+typedef struct vkBufferHandle_s 
+{
+    VkBufferUsageFlags      usage;
+    VkPipelineStageFlags2   stage;
+    VkAccessFlags2          access;
+    VkBuffer                buffer;
+    operator VkBuffer( void ) const { return buffer; }
+} vkBufferHandle_t;
+
+// Helper to manage texture 
+typedef struct vkImageHandle_s
+{
+    VkImageLayout           layout      = VK_IMAGE_LAYOUT_UNDEFINED;
+    VkPipelineStageFlags2   stage       = VK_PIPELINE_STAGE_NONE;
+    VkAccessFlags2          access      = VK_ACCESS_NONE;
+    VkImage                 image       = nullptr;
+    VkImageView             view        = nullptr;
+
+    operator VkImage( void ) const { return image; }
+    operator VkImageView( void ) const { return view; }
+} vkImageHandle_t;
+
+extern void VkImageStateTransition( vkImageHandle_t* in_image,
+                                const VkCommandBuffer in_commandBuffer, 
+                                const VkImageLayout in_newLayout, 
+                                const VkPipelineStageFlags2 in_stageMask,
+                                const VkAccessFlags2 in_accessMask );
+
+#include "Utils.hpp"
+#include "Device.hpp"
+#include "Context.hpp"
+#include "Commandbuffer.hpp"
+#include "Swapchain.hpp"
+#include "Resource.hpp"
+#include "Buffer.hpp"
+#include "Format.hpp"
+#include "Texture.hpp"
+#include "Program.hpp"
+#include "Pipeline.hpp"
+#include "Framebuffer.hpp"
+
+#endif //!__VULKAN_MAIN_HPP__

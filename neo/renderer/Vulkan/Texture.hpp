@@ -25,25 +25,27 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VK_TEXTURE_HPP__
 #define __VK_TEXTURE_HPP__
 
-class vkSampler : public crSampler
+class vkTexture : public vkResourceState
 {
 public:
-    vkSampler( void );
-    ~vkSampler( void );
+    enum type_t : uint8_t
+    {
+		TEXTURE_NONE,
+        TEXTURE_1D,
+        TEXTURE_2D,
+        TEXTURE_3D,
+        TEXTURE_CUBEMAP
+    };
 
-    virtual bool    Create( const filter_t in_filtering, const wrapping_t in_Swrap, const wrapping_t in_Twrap, const wrapping_t in_Rwrap );
-    virtual void    Destroy( void );
-    virtual void*   Handler( void ) const;
-
-private:
-    VkDevice    m_device;
-    VkSampler   m_sampler;
-};
-
-class vkTexture : public crTexture
-{
-public:
-
+    struct dimensions_t
+    {
+        uint16_t    levels = 0;
+        uint16_t    layers = 0;
+        uint32_t    width = 0;
+        uint32_t    heigth = 0;
+        uint32_t    depth = 0;
+    };
+    
     /// @brief store texture state
     struct textureState_t
     {
@@ -57,16 +59,9 @@ public:
     vkTexture( void );
     ~vkTexture( void );
 
-    virtual bool                Create( const type_t in_type, const dimensions_t in_dimensions, const format_t in_format );
+    virtual bool                Create( const type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
     virtual void                Destroy( void );
-    virtual void*               Handler( void ) const;
-
-    /// @brief Texture mip count  
-    /// @return number of mipmaps by layer
     const uint16_t              Levels( void ) const { return m_dimensions.levels; }
-    
-    /// @brief Texture layer count 
-    /// @return number of layer ( faces if a cubemap )
     const uint16_t              Layers( void ) const { return m_dimensions.layers; }
     const uint32_t              CurrentQueue( void ) const { return m_state.queueFamily; }
     const VkImage               Image( void ) const { return m_image; }
@@ -76,14 +71,52 @@ public:
     const VkAccessFlags2        Access( void ) const {return m_state.access; }
     const VkImageAspectFlags    Aspect( void ) const { return m_state.aspect; }
     void                        SetState( const textureState_t &in_state, const VkCommandBuffer in_commandBuffer );
+    const type_t                GetType( void ) const { return m_type; }
+    const crInternalFormat      GetFormat( void ) const { return m_format; }
+
+protected:
+    type_t              m_type;
+    crInternalFormat    m_format;
+    dimensions_t        m_dimensions;
+    textureState_t      m_state;
+    VkImage             m_image;
+    VkImageView         m_view;
+    VkDeviceMemory      m_memory;
+};
+
+class vkSampler
+{
+public:
+    vkSampler( void );
+    ~vkSampler( void );
+
+    enum filter_t
+    {
+        FILTER_NEAREST,
+        FILTER_LINEAR,
+        FILTER_BILINEAR,
+        FILTER_TRILINEAR,
+        FILTER_ANISOTROPIC2X,
+        FILTER_ANISOTROPIC4X,
+        FILTER_ANISOTROPIC8X,
+        FILTER_ANISOTROPIC16X
+    };
+
+    enum wrapping_t 
+    {
+        WRAP_NONE,
+        WRAP_REPEAT,
+        WRAP_MIRRORED,
+        WRAP_EDGE,
+        WRAP_BORDER        
+    };
+
+    bool    Create( const filter_t in_filtering, const wrapping_t in_Swrap, const wrapping_t in_Twrap, const wrapping_t in_Rwrap );
+    void    Destroy( void );
+    void*   Handler( void ) const { return reinterpret_cast<void*>( m_sampler ); };
 
 private:
-    textureState_t          m_state;
-    dimensions_t            m_dimensions;
-    VkImage                 m_image;
-    VkImageView             m_view;
-    VkDeviceMemory          m_memory;
-    VkDevice                m_device;
+    VkSampler   m_sampler;
 };
 
 #endif //!__VK_TEXTURE_HPP__

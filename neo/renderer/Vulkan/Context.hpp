@@ -25,42 +25,35 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VK_CONTEXT_HPP__
 #define __VK_CONTEXT_HPP__
 
+extern const VkAllocationCallbacks* k_allocationCallbacks;
+
 class vkContext
 {
 public:
     vkContext( void );
     ~vkContext( void );
 
-    // Tryes to initialize a valid funtional vulkan 1.3 instance
-    bool    Init( void );
+    bool                StarUp( void );
+    void                Shutdown( void );
 
-    // Destroys the rendering context, closes the window, resets the resolution,
-    // and resets the gamma ramps.
-    void    Shutdown( void );
-
-    /// @brief access the instance handle 
     VkInstance          Instance( void ) const { return m_instance; }
-    
-    /// access the window surface handle
     VkSurfaceKHR        Surface( void )  const { return m_surface; }
-    VkSurfaceFormatKHR  SurfaceFormat( void ) const;
-    VkPresentModeKHR    PresentMode( void ) const;
     vkRenderDevice *    Device( void ) { return &m_devices[m_currentDevice]; }
 
 private:
-    bool                        m_hasDebugUtils;    // Enable debug layer
-    bool                        m_portabilityEnumerationAvailable; //
-    uint32_t                    m_currentDevice;    // current initialized device 
-    VkInstance                  m_instance;         // The Vulkan instance.
-    VkDebugUtilsMessengerEXT    m_debugCallback;    // The debug utility messenger callback.
-	VkSurfaceKHR                m_surface;          // The surface we will render to.
-    idList<VkExtensionProperties, TAG_VULKAN>       m_availableInstanceExtensions;  //
-    idList<VkLayerProperties, TAG_VULKAN>           m_supportedInstanceLayers;
-    idList<VkPhysicalDevice, TAG_VULKAN>            m_availablePhysicalDevices; // list of vulkan compatible devices
-	idList<vkRenderDevice, TAG_VULKAN>              m_devices; // our interal device list 
+    bool                                        m_hasDebugUtils;    // Enable debug layer
+    bool                                        m_portabilityEnumerationAvailable; //
+    uint32_t                                    m_currentDevice;    // current initialized device 
+    VkInstance                                  m_instance;
+    VkDebugUtilsMessengerEXT                    m_debugCallback;    // The debug utility messenger callback.
+	VkSurfaceKHR                                m_surface;          // The surface we will render to.
+    idList<VkExtensionProperties, TAG_VULKAN>   m_availableInstanceExtensions;  //
+    idList<VkLayerProperties, TAG_VULKAN>       m_supportedInstanceLayers;
+    idList<VkPhysicalDevice, TAG_VULKAN>        m_availablePhysicalDevices; // list of vulkan compatible devices
+	idList<vkRenderDevice, TAG_VULKAN>          m_devices; // our interal device list 
 
-	void	InitInstanceProcs( void );
-	void	LoadVulkanProcs( void );
+    void    InitInstanceProcs( void );
+    void    LoadVulkanProcs( void );
     bool    ExtensionAvailable( const idStr &in_ext ) const;
     bool    LayersAvailable( const idStr &in_layer ) const;
 };

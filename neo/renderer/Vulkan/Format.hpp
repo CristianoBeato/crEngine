@@ -85,11 +85,8 @@ typedef struct crInternalFormat
     {
     }
 
-    GLenum      GLInternal( void ) const;
-    GLenum      GLFormat( void ) const;
     VkFormat    VKInternal( void ) const;
 
-    operator    GLenum( void) const { return GLInternal(); } 
     operator    VkFormat( void ) const { return VKInternal(); }
     operator    format_t( void ) const { return format; }
 

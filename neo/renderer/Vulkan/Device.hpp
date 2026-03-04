@@ -25,7 +25,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VK_DEVICE_HPP__
 #define __VK_DEVICE_HPP__
 
-// todo: move to include headers
 #include <atomic>
 
 struct queueInfo_t
@@ -37,6 +36,8 @@ struct queueInfo_t
     uint32_t    index = 0;          // queue index 
     uint32_t    family = 0;         // quque family
 };
+
+typedef class vkDeviceQueue* vkDeviceQueuep;
 
 /// @brief 
 class vkDeviceQueue
@@ -64,18 +65,21 @@ private:
     VkDevice                m_device;       // parent device
 };
 
+typedef class vkRenderDevice* vkRenderDevicep;
+
 class vkRenderDevice
 {
 public:
     vkRenderDevice( void );
     ~vkRenderDevice( void );
 
-    bool        Init( const VkPhysicalDevice in_device, const VkSurfaceKHR in_surface );
+    bool        Init( const uint32_t in_ID, const VkPhysicalDevice in_device, const VkSurfaceKHR in_surface );
     bool        StartUp( const idList<const char*> &in_layers, const idList<const char*> &in_enabledExtensions );
     void        ShutDown( void );
 
-    uint32_t    Score(void) const;
+    uint32_t    Score( void ) const;
 
+    uint32_t    Mask( void ) const { return m_id + 1; }
 
     /// @brief check for extension if available in the device 
     /// @return 
@@ -87,6 +91,14 @@ public:
     /// @return the index of the type 
     uint32_t FindMemoryType( const uint32_t in_filter, const VkMemoryPropertyFlags in_properties ) const;
 
+    const uint32_t  ShaderStorageBufferAlignament( void ) const;
+
+    const bool                      SupportedFormat( const VkFormat in_format, const VkColorSpaceKHR in_colorSpace ) const;
+
+    const bool                      SupportedPresentMode( const VkPresentModeKHR in_mode );
+
+    const VkSurfaceFormatKHR        GetPresentFormat( const uint32_t in_formatID );
+    
     /// @brief 
     /// @param depthFormat 
     /// @return 
@@ -116,12 +128,12 @@ public:
     uint32_t                        MaxSamples( void ) const;
 
     /// @brief logic device handler
-    inline VkDevice         Device( void ) const { return m_logic; }
+    inline VkDevice                 Device( void ) const { return m_logic; }
     
-    inline vkDeviceQueue*   PresentQueue( void ) const { return m_present; }
-    inline vkDeviceQueue*   GraphicQueue( void ) const { return m_graphic; }
-    inline vkDeviceQueue*   ComputeQueue( void ) const { return ( m_compute != nullptr ) ? m_compute : m_graphic; }
-    inline vkDeviceQueue*   TransferQueue( void ) const { return ( m_transfer != nullptr ) ? m_transfer : m_graphic; }
+    inline vkDeviceQueuep   PresentQueue( void ) const { return m_present; }
+    inline vkDeviceQueuep   GraphicQueue( void ) const { return m_graphic; }
+    inline vkDeviceQueuep   ComputeQueue( void ) const { return ( m_compute != nullptr ) ? m_compute : m_graphic; }
+    inline vkDeviceQueuep   TransferQueue( void ) const { return ( m_transfer != nullptr ) ? m_transfer : m_graphic; }
 
     /// @brief Physic device handler
     inline VkPhysicalDevice PhysicalDevice( void ) const { return m_physical; }
@@ -130,6 +142,8 @@ public:
     inline operator VkPhysicalDevice( void ) const { return m_physical; }
 
 private:
+    uint32_t                                        m_id;
+
     // device properties
     VkPhysicalDeviceProperties2                     m_propertiesv10;
     VkPhysicalDeviceVulkan11Properties              m_propertiesv11;
@@ -151,10 +165,10 @@ private:
     VkDevice                                        m_logic;    // Logic Device handler
     
     // device queues
-    vkDeviceQueue*                                  m_present;
-    vkDeviceQueue*                                  m_graphic;
-    vkDeviceQueue*                                  m_compute;
-    vkDeviceQueue*                                  m_transfer;
+    vkDeviceQueuep                                  m_present;
+    vkDeviceQueuep                                  m_graphic;
+    vkDeviceQueuep                                  m_compute;
+    vkDeviceQueuep                                  m_transfer;
 
     idList<VkQueueFamilyProperties2, TAG_VULKAN>    m_queueFamilyPropertiesList;
     idList<VkExtensionProperties, TAG_VULKAN>       m_deviceExtensions;
@@ -162,7 +176,7 @@ private:
     idList<VkPresentModeKHR, TAG_VULKAN>            m_presentModes;
     idList<queueInfo_t, TAG_VULKAN>                 m_queues;
 
-    void SelectDeviceQueues( idList<VkDeviceQueueCreateInfo, TAG_VULKAN> &in_queueList );
+    void SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &in_queueList );
 };
 
 #endif //!__VK_DEVICE_HPP__

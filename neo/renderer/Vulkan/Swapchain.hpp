@@ -25,37 +25,32 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VK_SWAPCHAIN_HPP__
 #define __VK_SWAPCHAIN_HPP__
 
-class vkSwapchain : public crSwapchain
+class vkSwapchain
 {
 public:
-    vkSwapchain( const uint32_t in_width, const uint32_t in_height );
+    vkSwapchain( void );
     ~vkSwapchain( void );
-    virtual bool    Recreate( const uint32_t in_width, const uint32_t in_height );
-    virtual void    AcquireImage( void );
-    virtual void    PresentImage( void );
+
+    bool                            Create( const uint32_t in_width, const uint32_t in_height, const bool in_recreate );
+    void                            Destroy( void );
+    void                            AcquireImage( const uint32_t in_bufferID );
+    void                            SwapBuffers( const VkSemaphore in_renderDone );
+    ID_INLINE VkSemaphore           ImageAvailableSemaphore( void ) const { return m_imageAvailable[m_bufferID]; }
+    ID_INLINE vkImageHandle_t*      Image( void ) const { return const_cast<vkImageHandle_t*>( &m_presentImages[m_currentImage] ); }
 
 private:
-    uint32_t                                    m_currentImage;
-    uint64_t                                    m_frameOperationsFenceCount;
-    VkFormat                                    m_format;
-    VkDevice                                    m_device;
-    VkSwapchainKHR                              m_swapChain;
-    VkQueue                                     m_presentQueue;
-    VkQueue                                     m_graphicQueue;
-    VkSemaphore                                 m_frameOperationsFence;
-    idList<VkImage>                             m_colorImages;
-    idList<VkImageView>                         m_colorViews;
-    idList<VkImage>                             m_depthStencilImages;
-    idList<VkImageView>                         m_depthStencilViews;
-    idList<VkDeviceMemory>                      m_depthStencilMemory;
-    idStaticList<VkSemaphore, SMP_FRAMES>       m_imageAvailable;
-    idStaticList<VkSemaphore, SMP_FRAMES>       m_renderFinished;
-    idStaticList<VkFence, SMP_FRAMES>           m_frameFences;
-    idStaticList<VkFence, SMP_FRAMES>           m_renderSubmit;
-    idStaticList<VkCommandBuffer, SMP_FRAMES>   m_commandBuffers;       // the main render command buffer
-    void    CreateSwapChain( const VkFormat in_format, const VkColorSpaceKHR in_colorSpace, const VkPresentModeKHR in_presentMode, const uint32_t in_presentFamily, const uint32_t in_graphycFamily );
-    void    PrepareImages( const bool in_recreate, const VkFormat in_format, const uint32_t in_graphycFamily );
-    void    CreateFences( void );
+    uint32_t                                        m_width;
+    uint32_t                                        m_height;
+    uint32_t                                        m_currentImage;
+    uint32_t                                        m_bufferID;
+    vkDeviceQueuep                                  m_presentQueue;
+    vkDeviceQueuep                                  m_graphicQueue;
+    vkRenderDevicep                                 m_device;
+    VkSwapchainKHR                                  m_swapchain;
+    idStaticList<VkSemaphore, SMP_FRAMES>           m_imageAvailable;
+    idList<VkRenderingAttachmentInfo, TAG_VULKAN>   m_colorAttachments;
+    idList<VkImage, TAG_VULKAN>                     m_imagesArray;
+    idList<vkImageHandle_t, TAG_VULKAN>             m_presentImages;
 };
 
 #endif //!__VK_SWAPCHAIN_HPP__
