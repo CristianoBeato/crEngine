@@ -28,6 +28,9 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
+/// 
+extern const VkAllocationCallbacks* k_allocationCallbacks;
+
 extern PFN_vkEnumerateInstanceLayerProperties           vkEnumerateInstanceLayerProperties;
 extern PFN_vkEnumerateInstanceExtensionProperties       vkEnumerateInstanceExtensionProperties;
 
@@ -243,7 +246,6 @@ extern void VkImageStateTransition( vkImageHandle_t* in_image,
 
 #include "Utils.hpp"
 #include "Device.hpp"
-#include "Context.hpp"
 #include "Commandbuffer.hpp"
 #include "Swapchain.hpp"
 #include "Resource.hpp"
