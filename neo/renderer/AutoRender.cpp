@@ -52,13 +52,12 @@ idAutoRender::idAutoRender()
 idAutoRender::Run
 ============================
 */
-int idAutoRender::Run()
+int idAutoRender::Run( void )
 {
 	while( !IsTerminating() )
 	{
 		RenderFrame();
 	}
-	
 	
 	return 0;
 }
@@ -70,12 +69,10 @@ idAutoRender::StartBackgroundAutoSwaps
 */
 void idAutoRender::StartBackgroundAutoSwaps( autoRenderIconType_t iconType )
 {
-
+	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
 
 	if( IsRunning() )
-	{
 		EndBackgroundAutoSwaps();
-	}
 	
 	autoRenderIcon = iconType;
 	
@@ -83,11 +80,13 @@ void idAutoRender::StartBackgroundAutoSwaps( autoRenderIconType_t iconType )
 	
 	const bool captureToImage = true;
 	common->UpdateScreen( captureToImage );
-	
+
+#if 0 // TODO: unbind pipelines here
 	// unbind any shaders prior to entering the background autoswaps so we don't run
 	// into any problems with cached vertex shader indices from the main thread
 	renderProgManager.Unbind();
-	
+#endif
+
 	// unbind all texture units so we don't run into a race condition where the device is owned
 	// by the autorender thread but an image is trying to be unset from the main thread because
 	// it is getting purged before our our first frame has been rendered.
@@ -106,9 +105,7 @@ idAutoRender::EndBackgroundAutoSwaps
 void idAutoRender::EndBackgroundAutoSwaps()
 {
 	idLib::Printf( "End Background AutoSwaps\n" );
-	
 	StopThread();
-	
 }
 
 /*
@@ -118,6 +115,7 @@ idAutoRender::RenderFrame
 */
 void idAutoRender::RenderFrame( void )
 {
+	auto backEnd = crBackend::Get();
 	// values are 0 to 1
 	float loadingIconPosX = 0.5f;
 	float loadingIconPosY = 0.6f;
@@ -136,10 +134,9 @@ void idAutoRender::RenderFrame( void )
 		loadingIconPosY = 0.73f;
 	}
 	
-	
-	GL_SetDefaultState();
-	
-	GL_Cull( CT_TWO_SIDED );
+
+	// backEnd->SetDefaultState();
+	// backEnd->Cull( CT_TWO_SIDED );
 	
 	const bool stereoRender = false;
 	
@@ -151,18 +148,17 @@ void idAutoRender::RenderFrame( void )
 	{
 		for( int viewNum = 0 ; viewNum < 2; viewNum++ )
 		{
-			GL_ViewportAndScissor( 0, viewNum * ( height + guardBand ), width, height );
+			//backEnd.ViewportAndScissor( 0, viewNum * ( height + guardBand ), width, height );
 			RenderBackground();
 			RenderLoadingIcon( loadingIconPosX, loadingIconPosY, loadingIconScale, loadingIconSpeed );
 		}
 	}
 	else
 	{
-		GL_ViewportAndScissor( 0, 0, width, height );
+		// backEnd.ViewportAndScissor( 0, 0, width, height );
 		RenderBackground();
 		RenderLoadingIcon( loadingIconPosX, loadingIconPosY, loadingIconScale, loadingIconSpeed );
 	}
-	
 }
 
 /*
@@ -170,36 +166,38 @@ void idAutoRender::RenderFrame( void )
 idAutoRender::RenderBackground
 ============================
 */
-void idAutoRender::RenderBackground()
+void idAutoRender::RenderBackground( void )
 {
-	GL_SelectTexture( 0 );
-	
+	auto globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+	auto uniforms = crUniformManager::Get();
+	auto pipelines = crPipelineManager::Get();
+	auto vertex = uniforms->GetVertexUniforms();
 	globalImages->currentRenderImage->Bind();
 	
-	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
+	// set by the pipeline
+	// State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_ONE | GLS_DSTBLEND_ZERO );
 	
 	float mvpMatrix[16] = { 0 };
 	mvpMatrix[0] = 1;
 	mvpMatrix[5] = 1;
 	mvpMatrix[10] = 1;
 	mvpMatrix[15] = 1;
+	std::memcpy( vertex->MVPMatrix.ToFloatPtr(), mvpMatrix, sizeof( float ) * 16 );
 	
-	// Set Parms
-	float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
-	float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
-	renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
-	renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
+	// Set Parms7
+	// float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+	// float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
+	vertex->diffuseMatrixS = idVec4( 1.0f, 0.0f, 0.0f, 0.0f );
+	vertex->diffuseMatrixS = idVec4( 0.0f, 1.0f, 0.0f, 0.0f );
 	
 	// disable texgen
-	float texGenEnabled[4] = { 0, 0, 0, 0 };
-	renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
+	//float texGenEnabled[4] = { 0, 0, 0, 0 };
+	vertex->texGen0Enabled = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
+		
+	pipelines->GetPipeline( PIPELINE_TEXTURED_COLOR )->Bind();
 	
-	// set matrix
-	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, mvpMatrix, 4 );
-	
-	renderProgManager.BindShader_TextureVertexColor();
-	
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	uniforms->SubmitVertexUniforms(); // we only modify vertex uniforms 
+	// backEnd.DrawElementsWithCounters( &backEnd.unitSquareSurface );
 }
 
 /*
@@ -208,7 +206,11 @@ idAutoRender::RenderLoadingIcon
 ============================
 */
 void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, float speed )
-{
+{	
+	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+	auto uniforms = crUniformManager::Get();
+	auto pipelines = crPipelineManager::Get();
+	auto vertex = uniforms->GetVertexUniforms();
 
 	float s = 0.0f;
 	float c = 1.0f;
@@ -262,8 +264,9 @@ void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, floa
 	
 	float projMatrixTranspose[16];
 	R_MatrixTranspose( finalOrtho, projMatrixTranspose );
-	renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, projMatrixTranspose, 4 );
-	
+	//renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, projMatrixTranspose, 4 );
+	std::memcpy( vertex->MVPMatrix.ToFloatPtr(), projMatrixTranspose, sizeof( float ) * 16 );
+
 	float a = 1.0f;
 	if( autoRenderIcon == AUTORENDER_HELLICON )
 	{
@@ -272,35 +275,32 @@ void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, floa
 		a = 0.35f + ( 0.65f * idMath::Fabs( a ) );
 	}
 	
-	GL_SelectTexture( 0 );
-	
 	if( autoRenderIcon == AUTORENDER_HELLICON )
-	{
 		globalImages->hellLoadingIconImage->Bind();
-	}
 	else
-	{
 		globalImages->loadingIconImage->Bind();
-	}
 	
-	GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+	// GL_State( GLS_DEPTHFUNC_ALWAYS | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 	
 	// Set Parms
-	float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
-	float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
-	renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
-	renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
+	//float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
+	//float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
+	//renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
+	//renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
+	vertex->diffuseMatrixS = idVec4( 1.0f, 0.0f, 0.0f, 0.0f );
+	vertex->diffuseMatrixT = idVec4( 0.0f, 1.0f, 0.0f, 0.0f );
 	
 	if( autoRenderIcon == AUTORENDER_HELLICON )
-	{
-		GL_Color( 1.0f, 1.0f, 1.0f, a );
-	}
-	
+		vertex->color = idVec4( 1.0f, 1.0f, 1.0f, a );
+		
 	// disable texgen
-	float texGenEnabled[4] = { 0, 0, 0, 0 };
-	renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
+	//float texGenEnabled[4] = { 0, 0, 0, 0 };
+	//renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
+	vertex->texGen0Enabled = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
 	
-	renderProgManager.BindShader_TextureVertexColor();
-	
-	RB_DrawElementsWithCounters( &backEnd.unitSquareSurface );
+	//renderProgManager.BindShader_TextureVertexColor();
+	pipelines->GetPipeline( PIPELINE_TEXTURED_COLOR )->Bind();
+
+	uniforms->SubmitVertexUniforms(); // we only modify vertex uniforms 
+	// backEnd.DrawElementsWithCounters( &backEnd.unitSquareSurface );
 }

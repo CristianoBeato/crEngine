@@ -248,7 +248,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // DG: alternative for GCC with attribute (NOOP for MSVC)
 #define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
 
-#elif __COMPILER_GCC__ // FIXME: what about clang?
+#elif __COMPILER_GCC__ || __COMPILER_CLANG__ // 
 #define	VERIFY_FORMAT_STRING
 // STRIDX: index of format string in function arguments (first arg == 1)
 // FIRSTARGIDX: index of first argument for the format string

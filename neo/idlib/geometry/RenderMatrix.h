@@ -78,6 +78,9 @@ public:
 	{
 		std::memset( m, 0, sizeof( m ) );
 	}
+	
+	ID_INLINE float*		ToFloatPtr( void ) const { return const_cast<float*>( &m[0] ); }
+
 	ID_INLINE void			Identity();
 	
 	// Matrix classification (only meant to be used for asserts).

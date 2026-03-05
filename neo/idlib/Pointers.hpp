@@ -220,6 +220,26 @@ public:
 	    }
     }
 
+    crAutoPointer& operator = ( const crAutoPointer< __type__, __tag__> &in_ref )
+    {
+        // if the pointer are in use, release the old reference
+        if ( this->m_data != nullptr )
+        {
+            // decrease reference
+		    if ( DecRefCount( this->m_data ) < 1 )
+			    Delete( *this );
+        }
+
+        // copy pointer endress
+	    this->m_data = in_ref.m_data;
+
+        // incrase pointer reference
+	    if( this->m_data != nullptr )
+		    IncRefCount( this->m_data );
+
+        return *this;
+    }
+
     /// @brief Allocate a new data array  
     /// @param in_count number of the elements
     /// @return 
