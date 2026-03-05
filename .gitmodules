@@ -1,0 +1,3 @@
+[submodule "neo/libs/SDL3PP"]
+	path = neo/libs/SDL3PP
+	url = https://github.com/CristianoBeato/SDL3PlusPlus.git

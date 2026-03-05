@@ -27,6 +27,7 @@ option( OPENAL "Use OpenAL as sound backend" OFF)
 
 find_package( SDL3 REQUIRED CONFIG )
 include_directories( SDL3::Headers )
+include_directories( ${CMAKE_SOURCE_DIR}/libs/SDL3PP )
 
 find_package( ZLIB REQUIRED )
 find_package( PNG REQUIRED )
