@@ -38,6 +38,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "framework/Common_local.h"
 #endif
 
+idCVar vk_deviceID( "vk_deviceID", "-1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " -1 select the device with the highest score, +0 select the device by index" );
+
 static bool r_initialized = false;
 
 // DeviceContext bypasses RenderSystem to work directly with this
