@@ -1,9 +1,6 @@
-# Storm Engine 2
-brought to you by Kot in Action Creative Artel
+# crEngine
 
-Storm Engine 2 Readme - https://github.com/motorsep/StormEngine2
-
-Note: It due time minimal set of assets and external content authoring tools might be made available to the public under suitable licenses.
+Based on the eforts of Kot in Action Creative Artel Storm Engine 2 - Readme - https://github.com/motorsep/StormEngine2
 
 DISCLAIMER
 ----------
@@ -73,62 +70,9 @@ OVERALL CHANGES AND ADDITIONAL FEATURES
 - Linux support (32 and 64 bit)
 
 - Win64 support (including Win64 tools)
-
-- OpenAL Soft sound backend primarily developed for Linux but works on Windows as well
-
-- PNG screenshots support
-
-- Soft shadows using PCF hardware shadow mapping
-
-- True 64 bit HDR imaging
-
-- Soft (feathered) particles
-
-- Gloss maps support
-
-- Oblique view frustum (for proper reflections in the water)
-
-- High resolution RoQ videos playback
-
-- Blurry real-time reflections
-
-- Image based bloom ("glow")
-
-- Image dithering (eliminates banding artifacts on gradients)
-
-- Underwater view warping
-
-- Material flag to force images to be kept in RGBA format (unocmpressed)
-
-- Full set of built-in tools for Win32/Win64 platforms (with various fixes and improvements)
-
-- envShot cmd to generate cubemaps
-
-- Higher quality YCoCg "scaled" DXT5 compression for diffuse images (from GIMP DDS)
-
-- YCoCg "scaled" DXT 5 compression for skyboxes and cubemaps (yields high quality skies with minimal artifacts and no banding)
-
-- Demo recording and playback
-
-- LOD for static and animated entities (although not for map brushes)
-
-- Mods loading and packaging into .resources
-
-- Wheeled Vehicles (player driven and self-driving)
-
-- Automatic overwrite of outdated binary files when auto-authoring updated content
-
-- Fixed inlining (embedding) of static meshes into .proc while retaining collisions
-
-- Map loading progress indicator
-
-- Texure compression progress indicator
-
-- Collision fix for large coordinates
-
-- noSpecular option for lights now works (fill lights should use it to avoid unnecessary specular highlights)
-
-
+  
+- SDL3 Multiplatform systems suport
+   
 KNOWN ISSUES
 ------------
 
@@ -136,6 +80,11 @@ KNOWN ISSUES
 
 A WISHLIST OF FEATURES (to be added to the engine by some programming wizard :) )
 ---------------------------------------------------------------------------------
+- VULKAN 1.3 PORT
+- PBR Rendering
+- SDL3 Sound Egine ( OpenAL is crashing on my linux [Debian 13] )
+- May, an who knows implement Valve's Steam Audio.
+- Checkboard rendering for performance
 - ~~Fix vehicles (savegame crash fix; networking)~~
 - 8-way texture blending using vertex colors with transition masking using height maps
 - Equirectangular skybox (in addition to existing 6-image cubemaps)
@@ -150,17 +99,12 @@ A WISHLIST OF FEATURES (to be added to the engine by some programming wizard :) 
 - Reverb zones (XAudio2 supports reverb afaik)
 - Native multiplayer coop
 - Headless dedicated server
-- Master server app
 - Improve shadowmapping (particularly cascaded shadowmaps on huge levels)
 - Replace current texture compressor with fast BC7 compressor
-- Replace all legacy OpenGL 1.x stuff with OpenGL 3.3 (or whatever base standard is nowadays)
 - Parallax-corrected cubemap reflections (with support for equirectangle textures; or better yet reflection capture entities)
 - SSAO
 - Light shafts
-- Good looking and (relatively) fast POM shader with self-shadowing
-- Volumetric fog supporting shadows
-- Replace SWF renderer with SVG renderer
-
+- Replace SWF renderer with a more suitable gui renderer
 
 AUTHORING OF BITMAP FONTS
 -------------------------
