@@ -25,20 +25,29 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __SYS_VULKAN_HPP__
 #define __SYS_VULKAN_HPP__
 
-class crVulkanRenderDevice
+class crVulkanRenderDevice : public crRenderDevice
 {
 public:
     crVulkanRenderDevice( void );
     ~crVulkanRenderDevice( void );
 
+    virtual bool				Create( const uint32_t in_flags ) override;
+	virtual void				Destroy( void ) override;
+	virtual char*				Name( void ) const override;
+	virtual const properties_t	Properties( void ) const override;
+	virtual const features_t	Features( void ) const override;
+
+    inline VkPipelineCache  PipelineCache( void ) const { return m_pipelineCache; }
     inline VkPhysicalDevice PhysicDevice( void ) const { return m_phisicDevice; }
     inline VkDevice LogicDevice( void ) const { return m_logicDevce; }
+    inline operator VkPipelineCache( void ) const { return m_pipelineCache; }
     inline operator VkPhysicalDevice( void ) const { return m_phisicDevice; }
     inline operator VkDevice( void ) const { return m_logicDevce; }
     
 private: 
     VkPhysicalDevice    m_phisicDevice;
     VkDevice            m_logicDevce;
+    VkPipelineCache     m_pipelineCache;
 };
 
 class crVulkanAPI : public crRenderAPI

@@ -61,6 +61,30 @@ crVulkanRenderDevice::~crVulkanRenderDevice( void )
 {
 }
 
+bool crVulkanRenderDevice::Create(const uint32_t in_flags)
+{
+    return false;
+}
+
+void crVulkanRenderDevice::Destroy(void)
+{
+}
+
+char *crVulkanRenderDevice::Name(void) const
+{
+    return nullptr;
+}
+
+const properties_t crVulkanRenderDevice::Properties(void) const
+{
+    return properties_t();
+}
+
+const features_t crVulkanRenderDevice::Features(void) const
+{
+    return features_t();
+}
+
 /*
 ==============
 crVulkanAPI::crVulkanAPI
