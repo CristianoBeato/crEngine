@@ -1,3 +1,26 @@
+/*
+===========================================================================
+
+crEngine GPL Source Code
+Copyright (C) 2025 Cristiano B. Santos.
+
+This file is part of the crEngine GPL Source Code ("crEngine Source Code").
+
+crEngine Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+crEngine Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+===========================================================================
+*/
 
 #include "precompiled.h"
 #include "sys_video.h"
@@ -6,11 +29,15 @@
 #include <SDL3/SDL_events.h>
 #include <SDL3/SDL_vulkan.h>
 
-
-
 static idCVar in_nograb( "in_nograb", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "prevents input grabbing" );
 
-crDisplaySDL::crDisplaySDL( void ) : 
+crVideo *crVideo::Get(void)
+{
+    static crVideoSDL3 gVideo = crVideoSDL3();
+    return &gVideo;
+}
+
+crDisplaySDL3::crDisplaySDL3( void ) : 
     m_x( 0 ),
     m_y( 0 ),
     m_width( 0 ),
@@ -19,7 +46,7 @@ crDisplaySDL::crDisplaySDL( void ) :
 {
 }
 
-crDisplaySDL::~crDisplaySDL( void )
+crDisplaySDL3::~crDisplaySDL3( void )
 {
     SDL_free( m_videoModes );
     m_videoModes = nullptr;
@@ -28,7 +55,7 @@ crDisplaySDL::~crDisplaySDL( void )
     m_modes.Clear();   
 }
 
-bool crDisplaySDL::Init( const SDL_DisplayID in_displayID, const int in_displayIndex )
+bool crDisplaySDL3::Init( const SDL_DisplayID in_displayID, const int in_displayIndex )
 {
     m_display = in_displayID; 
     int numModes = 0;
@@ -66,12 +93,12 @@ bool crDisplaySDL::Init( const SDL_DisplayID in_displayID, const int in_displayI
     return true;
 }
 
-const char *crDisplaySDL::Name(void) const
+const char *crDisplaySDL3::Name(void) const
 {
     return m_name.c_str();
 }
 
-const vidMode_t *crDisplaySDL::Modes( uint32_t *in_count ) const
+const vidMode_t *crDisplaySDL3::Modes( uint32_t *in_count ) const
 {
     if ( in_count != nullptr)
         *in_count = m_modes.Num();
@@ -121,7 +148,7 @@ bool crVideoSDL3::StartUp( const uint32_t in_flags )
     SDL_DisplayID * displays = SDL_GetDisplays( &displayCount );
     for ( uint32_t i = 0; i < displayCount; i++)
     {
-        crDisplaySDL* display = new( TAG_VIDEO_SYS ) crDisplaySDL();
+        crDisplaySDL3* display = new( TAG_VIDEO_SYS ) crDisplaySDL3();
         if ( !display->Init( displays[i], i ) )
             continue;
 
@@ -203,12 +230,12 @@ bool crVideoSDL3::SetMode(const vidMode_t in_mode, const videoMode_t in_fullScre
         // we use a listed mode 
         if( in_fullScreen == VIDEO_MODE_DEDICATED )
         {
-            SDL_DisplayMode** modes = dynamic_cast<crDisplaySDL*>( m_displays[in_mode.displayID] )->FullScreenModes(); 
+            SDL_DisplayMode** modes = dynamic_cast<crDisplaySDL3*>( m_displays[in_mode.displayID] )->FullScreenModes(); 
             fsmode = modes[in_mode.modeID];
         }
         else // try a custom mode
         { 
-            auto displayID = dynamic_cast<crDisplaySDL*>( m_displays[in_mode.displayID])->ID();
+            auto displayID = dynamic_cast<crDisplaySDL3*>( m_displays[in_mode.displayID])->ID();
             if( !SDL_GetClosestFullscreenDisplayMode( displayID, in_mode.width, in_mode.height, in_mode.displayHz, true, fsmode ) )
             {
 	    	    common->Warning( "Couldn't found compatible window mode for fullscreen, reason: %s", SDL_GetError() );

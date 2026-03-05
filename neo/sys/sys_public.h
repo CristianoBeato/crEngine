@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014-2016 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2025-2026 Cristiano B. Santos
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -833,18 +834,88 @@ public:
 class crVideo
 {
 public:
+	static crVideo*				Get( void );
+
+	/// @brief Initialize video management system, list displays and video modes 
+	/// @param in_flags 
+	/// @return true on success, false on error 
 	virtual bool    			StartUp( const uint32_t in_flags ) = 0;
+
+	/// @brief Release video system
+	/// @param  
 	virtual void    			ShutDown( void ) = 0;
+
+	/// @brief Retrieve native window handler 
+	/// @return pointer to handle object
 	virtual void*				WindowHandler( void ) = 0;
+	
+	/// @brief Grab mouse and keyboard to window 
+	/// @param in_flags 
 	virtual void				GrabInput( const uint32_t in_flags ) = 0;
+
+	/// @brief Set window to a 
+	/// @param in_mode 
+	/// @param in_fullScreen 
+	/// @return 
 	virtual bool				SetMode( const vidMode_t in_mode, const videoMode_t in_fullScreen ) = 0;
+
+	/// @brief Configure video gama ( TODO: Move to renderer )
+	/// @param red gama curve
+	/// @param green gama curve
+	/// @param blue gama cuver
 	virtual void				SetGamma( uint16_t red[256], uint16_t green[256], uint16_t blue[256] ) = 0;
+
+	/// @brief Show or hide window 
+	/// @param show on true show window if hide, on false hiden window 
 	virtual void				ShowWindow( bool show ) = 0;
+
+	/// @brief Enable or disable text input event, it enable window to record
+	/// keyboard events as text input, utilized by the console.
+	/// @param in_enable set text input moode enable
 	virtual void				TextInput( const bool in_enable ) = 0;	
+
+	/// @brief Check if window is visible
+	/// @return true if window is not hiden 
 	virtual bool				IsWindowVisible( void ) const = 0;
+
+	/// @brief 
+	/// @return 
 	virtual crDisplay* const* 	Displays( uint32_t* in_count ) const = 0;
 };
 
+/// Render API Context Management
+class crRenderDevice
+{
+public:
+	struct properties_t
+	{
+		uint16_t deviceID;
+		uint16_t vendorID;
+		uint32_t driverVersion;
+	};
+
+	/// list device usable features
+	struct features_t
+	{
+
+	};
+
+	virtual bool				Create( const uint32_t in_flags ) = 0;
+	virtual void				Destroy( void ) = 0;
+	virtual char*				Name( void ) const = 0;
+	virtual const properties_t	Properties( void ) const = 0;
+	virtual const features_t	Features( void ) const = 0;
+};
+
+/// Render API Context Management
+class crRenderAPI
+{
+public:
+	static crRenderAPI* Get( void );
+	virtual bool				StartUp( void ) = 0;
+	virtual void				ShutDown( void ) = 0;
+	virtual uint32_t			GetDevices( crRenderDevice** m_deviceArray ) = 0;
+};
 // BEATO End
 
 /*
@@ -885,12 +956,9 @@ public:
 	
 	virtual void			OpenURL( const char* url, bool quit ) = 0;
 	virtual void			StartProcess( const char* exePath, bool quit ) = 0;
-
-// BEATO Begin:
-	virtual crVideo*		GetVideoSystem( void ) const = 0;
-// BEATO End
 };
 
+// TODO: implement as singleton
 extern idSys* 				sys;
 
 bool Sys_LoadOpenAL();

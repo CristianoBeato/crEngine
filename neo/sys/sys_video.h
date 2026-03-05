@@ -1,14 +1,37 @@
+/*
+===========================================================================
+
+crEngine GPL Source Code
+Copyright (C) 2025 Cristiano B. Santos.
+
+This file is part of the crEngine GPL Source Code ("crEngine Source Code").
+
+crEngine Source Code is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+crEngine Source Code is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
+
+===========================================================================
+*/
 
 #ifndef __VIDEO_H__
 #define __VIDEO_H__
 
 #include <SDL3/SDL_window.hpp>
 
-class crDisplaySDL : public crDisplay
+class crDisplaySDL3 : public crDisplay
 {
 public:
-    crDisplaySDL( void );
-    virtual ~crDisplaySDL( void );
+    crDisplaySDL3( void );
+    virtual ~crDisplaySDL3( void );
     bool Init( const SDL_DisplayID in_displayID, const int in_displayIndex );
     virtual const char* Name( void ) const;
     virtual const vidMode_t* Modes( uint32_t *in_count ) const;

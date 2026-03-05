@@ -27,9 +27,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 // to don't suck whit game console  
 #include <iostream> // std::cerr 
 
-#define NO_SDL_VULKAN_TYPEDEFS
-#include <SDL3/SDL_vulkan.h>
-
 PFN_vkEnumerateInstanceLayerProperties           vkEnumerateInstanceLayerProperties = nullptr;
 PFN_vkEnumerateInstanceExtensionProperties       vkEnumerateInstanceExtensionProperties = nullptr;
 
@@ -215,13 +212,28 @@ PFN_vkCmdClearAttachments                       vkCmdClearAttachments = nullptr;
 PFN_vkCreateDebugUtilsMessengerEXT               vkCreateDebugUtilsMessengerEXT = nullptr;
 PFN_vkDestroyDebugUtilsMessengerEXT              vkDestroyDebugUtilsMessengerEXT = nullptr;
 
-template< typename _type_ >
-inline static void GetVkProc( _type_ &in_proc, const char* in_pName, VkInstance in_instance )
-{
-    in_proc = reinterpret_cast<_type_>( vkGetInstanceProcAddr( in_instance, in_pName ) );
-}
+static VKAPI_ATTR void* VKAPI_CALL vkAllocation( void* pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope );
+static VKAPI_ATTR void* VKAPI_CALL vkReallocation( void* pUserData, void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope);
+static VKAPI_ATTR void  VKAPI_CALL vkFree( void* pUserData, void* pMemory );
+static VKAPI_ATTR void  VKAPI_CALL vkInternalAllocation( void* pUserData, size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope);
+static VKAPI_ATTR void  VKAPI_CALL vkInternalFree( void* pUserData, size_t size, VkInternalAllocationType allocationType, VkSystemAllocationScope allocationScope );
 
-#define GET_VK_PROC( P, I ) GetVkProc( P, #P, I )
+// our onw allocation structure using SDL_malloc
+static const VkAllocationCallbacks allocationCallbacksLocal = 
+{
+    nullptr,
+    vkAllocation,
+    vkReallocation,
+    vkFree,
+    vkInternalAllocation,
+    vkInternalFree
+};
+
+#if 1 // TODO: a define to easy control
+const VkAllocationCallbacks* k_allocationCallbacks = &allocationCallbacksLocal;
+#else 
+const VkAllocationCallbacks* k_allocationCallbacks = nullptr;
+#endif 
 
 /*
 ==============================================
@@ -287,209 +299,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBit
     return VK_FALSE;
 }
 
-void vkContext::InitInstanceProcs( void )
-{
-    /// get tne vkGetInstanceProcAddr from SDL_Vulkan_LoadLibrary, called before window creation 
-    vkGetInstanceProcAddr = reinterpret_cast<PFN_vkGetInstanceProcAddr>( SDL_Vulkan_GetVkGetInstanceProcAddr() );
-    assert( vkGetInstanceProcAddr != nullptr );
-
-    //
-    GET_VK_PROC( vkEnumerateInstanceLayerProperties, nullptr );
-    assert( vkEnumerateInstanceLayerProperties != nullptr );
-
-    GET_VK_PROC( vkEnumerateInstanceExtensionProperties, nullptr );
-    assert( vkEnumerateInstanceExtensionProperties != nullptr );
-
-    GET_VK_PROC( vkCreateInstance, nullptr );
-    assert( vkCreateInstance != nullptr );
-
-}
-
-void vkContext::LoadVulkanProcs( void )
-{
-    GET_VK_PROC( vkCreateDebugUtilsMessengerEXT, m_instance );
-    GET_VK_PROC( vkDestroyDebugUtilsMessengerEXT, m_instance );
-
-    GET_VK_PROC( vkGetInstanceProcAddr, m_instance );
-    GET_VK_PROC( vkEnumerateInstanceLayerProperties, m_instance );
-    GET_VK_PROC( vkCreateInstance, m_instance );
-    GET_VK_PROC( vkDestroyInstance, m_instance );
-    GET_VK_PROC( vkEnumeratePhysicalDevices, m_instance );
-
-    GET_VK_PROC( vkDestroySurfaceKHR, m_instance );
-
-    // VkPhysicalDevice
-    GET_VK_PROC( vkGetPhysicalDeviceMemoryProperties2, m_instance );
-    GET_VK_PROC( vkGetPhysicalDeviceProperties2, m_instance );
-    GET_VK_PROC( vkGetPhysicalDeviceFeatures2, m_instance );
-    GET_VK_PROC( vkEnumerateDeviceExtensionProperties, m_instance );
-    GET_VK_PROC( vkGetPhysicalDeviceQueueFamilyProperties2, m_instance );
-    GET_VK_PROC( vkGetPhysicalDeviceSurfacePresentModesKHR, m_instance );
-    GET_VK_PROC( vkGetPhysicalDeviceSurfaceCapabilities2KHR, m_instance );
-    GET_VK_PROC( vkGetPhysicalDeviceSurfaceFormats2KHR, m_instance );
-    GET_VK_PROC( vkGetPhysicalDeviceSurfaceSupportKHR, m_instance );
-    GET_VK_PROC( vkGetPhysicalDeviceFormatProperties2, m_instance );
-
-    // VkDevice
-    GET_VK_PROC( vkCreateDevice, m_instance ) ;
-    GET_VK_PROC( vkDestroyDevice, m_instance ) ;
-    GET_VK_PROC( vkDeviceWaitIdle, m_instance ) ;
-    GET_VK_PROC( vkGetDeviceProcAddr, m_instance ) ;
-
-    // VkQueue
-    GET_VK_PROC( vkGetDeviceQueue, m_instance );
-    GET_VK_PROC( vkGetDeviceQueue2, m_instance );
-    GET_VK_PROC( vkQueuePresentKHR, m_instance );
-    GET_VK_PROC( vkQueueSubmit, m_instance );
-    GET_VK_PROC( vkQueueSubmit2, m_instance );
-    GET_VK_PROC( vkQueueWaitIdle, m_instance );
-    GET_VK_PROC( vkCreateCommandPool, m_instance );
-    GET_VK_PROC( vkDestroyCommandPool, m_instance );
-
-    // VkFence
-    GET_VK_PROC( vkCreateFence, m_instance );
-    GET_VK_PROC( vkDestroyFence, m_instance );
-    GET_VK_PROC( vkResetFences, m_instance );
-    GET_VK_PROC( vkWaitForFences, m_instance );
-    GET_VK_PROC( vkGetFenceStatus, m_instance );
-
-    // VkSemaphore
-    GET_VK_PROC( vkCreateSemaphore, m_instance );
-    GET_VK_PROC( vkDestroySemaphore, m_instance );
-    GET_VK_PROC( vkSignalSemaphore, m_instance );
-    GET_VK_PROC( vkWaitSemaphores, m_instance );
-    GET_VK_PROC( vkGetSemaphoreCounterValue, m_instance );
-
-    // VkShaderModule
-    GET_VK_PROC( vkCreateShaderModule, m_instance );
-    GET_VK_PROC( vkDestroyShaderModule, m_instance );
-
-    // VkSwapchainKHR
-    GET_VK_PROC( vkCreateSwapchainKHR, m_instance );
-    GET_VK_PROC( vkDestroySwapchainKHR, m_instance );
-    GET_VK_PROC( vkGetSwapchainImagesKHR, m_instance );
-    GET_VK_PROC( vkAcquireNextImage2KHR, m_instance );
-
-    // VkDeviceMemory
-    GET_VK_PROC( vkAllocateMemory, m_instance );
-    GET_VK_PROC( vkFreeMemory, m_instance );
-    GET_VK_PROC( vkMapMemory, m_instance );
-    GET_VK_PROC( vkUnmapMemory, m_instance );
-    GET_VK_PROC( vkFlushMappedMemoryRanges, m_instance );
-
-    // VkBuffer
-    GET_VK_PROC( vkCreateBuffer, m_instance );
-    GET_VK_PROC( vkDestroyBuffer, m_instance );
-    GET_VK_PROC( vkGetBufferMemoryRequirements, m_instance );
-    GET_VK_PROC( vkBindBufferMemory, m_instance );
-    GET_VK_PROC( vkCmdUpdateBuffer, m_instance );
-    GET_VK_PROC( vkCmdFillBuffer, m_instance );
-
-    // VkImage
-    GET_VK_PROC( vkCreateImage,  m_instance );
-    GET_VK_PROC( vkDestroyImage,  m_instance );
-    GET_VK_PROC( vkGetImageMemoryRequirements,  m_instance );
-    GET_VK_PROC( vkBindImageMemory,  m_instance );
-    GET_VK_PROC( vkCmdClearColorImage,  m_instance );
-    GET_VK_PROC( vkCmdClearDepthStencilImage,  m_instance );
-    GET_VK_PROC( vkCmdResolveImage2,  m_instance );
-
-    // VkImageView
-    GET_VK_PROC( vkCreateImageView, m_instance );
-    GET_VK_PROC( vkDestroyImageView, m_instance );
-
-    // VkSampler
-    GET_VK_PROC( vkCreateSampler, m_instance );
-    GET_VK_PROC( vkDestroySampler, m_instance );
-
-    // VkPipeline
-    GET_VK_PROC( vkCreatePipelineLayout, m_instance );
-    GET_VK_PROC( vkDestroyPipelineLayout, m_instance );
-    GET_VK_PROC( vkCreateGraphicsPipelines, m_instance );
-    GET_VK_PROC( vkDestroyPipeline, m_instance );
-
-    // VkPipeline 
-    GET_VK_PROC( vkCmdBindPipeline, m_instance );
-    GET_VK_PROC( vkCmdSetViewport, m_instance );
-    GET_VK_PROC( vkCmdSetScissor, m_instance );
-    GET_VK_PROC( vkCmdSetLineWidth, m_instance );
-    GET_VK_PROC( vkCmdSetDepthBias, m_instance );
-    GET_VK_PROC( vkCmdSetBlendConstants, m_instance );
-    GET_VK_PROC( vkCmdSetDepthBoundsTestEnable, m_instance );
-    GET_VK_PROC( vkCmdSetDepthBounds, m_instance );
-    GET_VK_PROC( vkCmdSetCullMode, m_instance );
-    GET_VK_PROC( vkCmdSetStencilCompareMask, m_instance );
-    GET_VK_PROC( vkCmdSetStencilWriteMask, m_instance );
-    GET_VK_PROC( vkCmdSetStencilReference, m_instance );
-    GET_VK_PROC( vkCmdPushConstants, m_instance );
-
-    //
-    GET_VK_PROC( vkCreateDescriptorSetLayout, m_instance );
-    GET_VK_PROC( vkDestroyDescriptorSetLayout, m_instance );
-    GET_VK_PROC( vkCreateDescriptorPool, m_instance );
-    GET_VK_PROC( vkDestroyDescriptorPool, m_instance );
-    GET_VK_PROC( vkResetDescriptorPool, m_instance );
-
-    // VkDescriptorSet
-    GET_VK_PROC( vkAllocateDescriptorSets, m_instance );
-    GET_VK_PROC( vkFreeDescriptorSets, m_instance );
-    GET_VK_PROC( vkUpdateDescriptorSets, m_instance );
-
-    // VkRenderPass
-    GET_VK_PROC( vkCreateRenderPass, m_instance );
-    GET_VK_PROC( vkCreateRenderPass2, m_instance );
-    GET_VK_PROC( vkDestroyRenderPass, m_instance );
-    GET_VK_PROC( vkCmdBeginRenderPass2, m_instance );
-    GET_VK_PROC( vkCmdEndRenderPass2, m_instance );
-
-    // VkFramebuffer
-    GET_VK_PROC( vkCreateFramebuffer, m_instance );
-    GET_VK_PROC( vkDestroyFramebuffer, m_instance );
-
-    // VkCommandBuffer
-    GET_VK_PROC( vkAllocateCommandBuffers, m_instance );
-    GET_VK_PROC( vkFreeCommandBuffers, m_instance );
-    GET_VK_PROC( vkResetCommandBuffer, m_instance );
-    GET_VK_PROC( vkBeginCommandBuffer, m_instance );
-    GET_VK_PROC( vkEndCommandBuffer, m_instance );
-    GET_VK_PROC( vkCmdExecuteCommands, m_instance );
-    GET_VK_PROC( vkCmdBindIndexBuffer, m_instance );
-    GET_VK_PROC( vkCmdBindVertexBuffers2, m_instance );
-    GET_VK_PROC( vkCmdDraw, m_instance );
-    GET_VK_PROC( vkCmdDrawIndexed, m_instance );
-    GET_VK_PROC( vkCmdDrawIndirect, m_instance );
-    GET_VK_PROC( vkCmdDrawIndexedIndirect, m_instance );
-    GET_VK_PROC( vkCmdDispatch, m_instance );
-    GET_VK_PROC( vkCmdDispatchIndirect, m_instance );
-    GET_VK_PROC( vkCmdPipelineBarrier2, m_instance );
-
-    // VkEvent
-    GET_VK_PROC( vkCmdSetEvent2, m_instance );
-    GET_VK_PROC( vkCmdResetEvent2, m_instance );
-    GET_VK_PROC( vkCmdWaitEvents2, m_instance );
-
-    // VkQueryPool
-    GET_VK_PROC( vkCmdBeginQuery, m_instance );
-    GET_VK_PROC( vkCmdResetQueryPool, m_instance );
-    GET_VK_PROC( vkCmdEndQuery, m_instance );
-    GET_VK_PROC( vkCmdCopyQueryPoolResults, m_instance );
-
-    // VK_KHR_copy_commands2
-    GET_VK_PROC( vkCmdBlitImage2, m_instance );
-    GET_VK_PROC( vkCmdCopyBuffer2, m_instance );
-    GET_VK_PROC( vkCmdCopyBufferToImage2, m_instance );
-    GET_VK_PROC( vkCmdCopyImage2, m_instance );
-    GET_VK_PROC( vkCmdCopyImageToBuffer2, m_instance );
-
-    // VK_KHR_dynamic_rendering
-    GET_VK_PROC( vkCmdBeginRendering, m_instance );
-    GET_VK_PROC( vkCmdEndRendering, m_instance );
-    GET_VK_PROC( vkCmdClearAttachments, m_instance );
-
-    GET_VK_PROC( vkCreateDebugUtilsMessengerEXT,  m_instance );
-    GET_VK_PROC( vkDestroyDebugUtilsMessengerEXT,  m_instance );
-}
-
 void VkImageStateTransition( vkImageHandle_t* in_image,
                                 const VkCommandBuffer in_commandBuffer, 
                                 const VkImageLayout in_newLayout, 
@@ -533,4 +342,95 @@ void VkImageStateTransition( vkImageHandle_t* in_image,
     in_image->layout = in_newLayout;
     in_image->stage = in_stageMask;
     in_image->access = in_accessMask;
+}
+
+
+/*
+==============================================
+vkAllocation
+==============================================
+*/
+void *VKAPI_ATTR vkAllocation( void * in_userData, size_t in_size, size_t in_alignment, VkSystemAllocationScope in_allocationScope )
+{
+    void* memptr = nullptr;
+#if 1
+    void* original = SDL_malloc( in_size + in_alignment - 1 + sizeof(void*) );
+    uintptr_t aligned = ( reinterpret_cast<uintptr_t>( original ) + sizeof(void*) + in_alignment - 1) & ~( in_alignment - 1 );
+    (reinterpret_cast<void**>(aligned))[-1] = original;
+    memptr = reinterpret_cast<void*>( aligned );
+    // check if memory is aligned 
+    assert( memptr && ( (uintptr_t)memptr % in_alignment ) == 0 );
+#else
+    memptr = SDL_aligned_alloc( in_alignment, in_size );
+#endif
+    return memptr;
+}
+
+/*
+==============================================
+vkReallocation
+==============================================
+*/
+void* VKAPI_CALL vkReallocation( void* in_userData, void* in_original, size_t in_size, size_t in_alignment, VkSystemAllocationScope in_allocationScope )
+{
+    void* memptr = nullptr;
+#if 1
+    void* original = static_cast<void**>( in_original )[-1];
+    if( original != nullptr )
+        original = SDL_realloc( original, in_size + in_alignment - 1 + sizeof(void*) );
+    else
+        original = SDL_malloc( in_size + in_alignment - 1 + sizeof(void*) );
+
+    uintptr_t aligned = ( reinterpret_cast<uintptr_t>( original ) + sizeof(void*) + in_alignment - 1) & ~( in_alignment - 1 );
+    (reinterpret_cast<void**>(aligned))[-1] = original;
+    memptr = reinterpret_cast<void*>( aligned );
+
+    // check if memory is aligned 
+    assert( memptr && ( (uintptr_t)memptr % in_alignment ) == 0 );
+#else
+    memptr = SDL_aligned_alloc( in_alignment, in_size );
+    SDL_memcpy( memptr, in_original, sizeof( in_original ) );
+    SDL_free( in_original );    
+#endif
+    return memptr;
+}
+
+/*
+==============================================
+vkFree
+==============================================
+*/
+void VKAPI_CALL vkFree( void* in_userData, void* in_memory )
+{
+#if 1
+    if ( in_memory ) 
+    {
+        void* original = static_cast<void**>( in_memory )[-1];
+        SDL_free( original );
+    }
+#else
+    SDL_aligned_free( in_memory );
+#endif
+}
+
+/*
+==============================================
+vkInternalAllocation
+==============================================
+*/
+void VKAPI_CALL vkInternalAllocation( void* in_userData, size_t in_size, VkInternalAllocationType in_allocationType, VkSystemAllocationScope in_allocationScope )
+{
+    //vkCtx.allocedMemory += size;
+    //std::printf("[Vulkan] Internal allocation of %zu bytes, total %i\n", in_size, 0 );
+}
+
+/*
+==============================================
+vkInternalFree
+==============================================
+*/
+void VKAPI_CALL vkInternalFree( void* in_userData, size_t in_size, VkInternalAllocationType in_allocationType, VkSystemAllocationScope in_allocationScope )
+{
+    // vkCtx.allocedMemory -= size; 
+    //std::printf("[Vulkan] Internal free of %zu bytes, total %i\n", in_size, 0 );
 }
