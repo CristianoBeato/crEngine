@@ -39,18 +39,18 @@ static struct scMode_t
     { "Shared Continuous",  VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR },
 };
 
-//static struct scFormat_t
-//{
-//    const char*         decr;
-//    VkSurfaceFormatKHR  format;
-//} formats[]
-//{
-//    { "", { VK_FORMAT_B8G8R8A8_SRGB,    VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }},
-//    { "", { VK_FORMAT_R8G8B8A8_SRGB,    VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }},
-//    { "", { VK_FORMAT_B8G8R8A8_UNORM,   VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }},
-//    { "", { VK_FORMAT_A2B10G10R10_UNORM_PACK32, VK_COLOR_SPACE_HDR10_ST2084_EXT }},
-//    { "", { VK_FORMAT_R16G16B16A16_SFLOAT,  }}
-//}
+static struct scFormat_t
+{
+    const char*         descrip;
+    VkSurfaceFormatKHR  format;
+} formats[]
+{
+    { "RGB8-sRGB", { VK_FORMAT_B8G8R8A8_SRGB,    VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }},
+    { "RGB8A8-sRGB", { VK_FORMAT_R8G8B8A8_SRGB,    VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }},
+    { "BGR8A8-sRGB", { VK_FORMAT_B8G8R8A8_UNORM,   VK_COLOR_SPACE_SRGB_NONLINEAR_KHR }},
+    { "RGB10A02-ST2084", { VK_FORMAT_A2B10G10R10_UNORM_PACK32, VK_COLOR_SPACE_HDR10_ST2084_EXT }},
+    { "RGB16A16-sRGB", { VK_FORMAT_R16G16B16A16_SFLOAT,  }}
+};
 
 idCVar vk_swapchainFormat( "vk_swapChainFormat", "5", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " TODO " );
 idCVar vk_swapchainPresent( "vk_swapchainPresent", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " TODO " );
@@ -79,8 +79,8 @@ bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     VkResult result = VK_SUCCESS;
     uint32_t queueFamilyIndices[2] { m_presentQueue->Family(), m_graphicQueue->Family() };
     
-    auto context = tr.vkContext;
-    auto device = context->Device();
+    auto context = dynamic_cast<crVulkanAPIp>( crRenderAPI::Get() );
+    auto device = tr.GetRenderDevice();
     m_width = in_width;
     m_height = in_height;
 
@@ -109,7 +109,7 @@ bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     presentMode = selected.present;
 
     // Get Surface format
-    format = device->GetPresentFormat( vk_swapchainFormat.GetInteger() );
+    format = GetPresentFormat( vk_swapchainFormat.GetInteger() );
 
     ///
     /// Create Swapchain and Imageview 
@@ -153,14 +153,14 @@ bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     ///
     
     // Get the available image count 
-    vkGetSwapchainImagesKHR( m_device->Device(), m_swapchain, &numImages, nullptr );
+    vkGetSwapchainImagesKHR( *m_device, m_swapchain, &numImages, nullptr );
     
     // prepare the arrays
     m_imagesArray.Resize( numImages );
     m_presentImages.Resize( numImages );
     
     // Get the image array 
-    vkGetSwapchainImagesKHR( m_device->Device(), m_swapchain, &numImages, m_imagesArray.Ptr() );
+    vkGetSwapchainImagesKHR( *m_device, m_swapchain, &numImages, m_imagesArray.Ptr() );
     
     VkImageViewCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -183,10 +183,10 @@ bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
 
         // destroy old view 
         if ( in_recreate )
-            vkDestroyImageView( m_device->Device(), m_presentImages[i], k_allocationCallbacks );
+            vkDestroyImageView( *m_device, m_presentImages[i], k_allocationCallbacks );
     
         createInfo.image = m_presentImages[i];    
-        result = vkCreateImageView( m_device->Device(), &createInfo, k_allocationCallbacks, &m_presentImages[i].view ); 
+        result = vkCreateImageView( *m_device, &createInfo, k_allocationCallbacks, &m_presentImages[i].view ); 
         if ( result != VK_SUCCESS ) 
             common->FatalError( "vkSwapchain::PrepareImages::vkCreateImageView ERROR: %s\n", VulkanErrorString( result ).c_str() );
     }
@@ -220,7 +220,7 @@ bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
 void vkSwapchain::Destroy(void)
 {
     uint32_t i = 0;
-    auto device = tr.vkContext->Device();
+    auto device = tr.GetRenderDevice();
     
     for ( i = 0; i < SMP_FRAMES; i++)
     {
@@ -252,7 +252,7 @@ void vkSwapchain::Destroy(void)
 void vkSwapchain::AcquireImage( const uint32_t in_bufferID )
 {
     VkResult result = VK_SUCCESS;
-    auto device = tr.vkContext->Device();
+    auto device = tr.GetRenderDevice();
     m_bufferID = in_bufferID;
 
     //
@@ -285,6 +285,21 @@ void vkSwapchain::SwapBuffers( const VkSemaphore in_renderDone )
     presentInfo.pSwapchains = &m_swapchain;
     presentInfo.pImageIndices = &m_currentImage;
     vkQueuePresentKHR( m_presentQueue->Queue(), &presentInfo );
+}
 
-    m_frame = ( m_frame + 1 ) % SMP_FRAMES;  
+VkSurfaceFormatKHR vkSwapchain::GetPresentFormat( uint32_t in_format )
+{
+    auto device = static_cast<crVulkanRenderDevicep>( tr.GetRenderDevice() );
+    VkSurfaceFormatKHR format = formats[in_format].format;
+    while ( in_format > 0 )
+    {
+        // suported
+        if( device->SupportedFormat( format ) )
+            break;
+            
+        /// fall back
+        in_format--;
+    }
+    
+    return format;
 }

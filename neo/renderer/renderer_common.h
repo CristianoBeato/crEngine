@@ -39,13 +39,12 @@ inline constexpr uint32_t	FALLOFF_TEXTURE_SIZE = 64;
 inline constexpr float		DEFAULT_FOG_DISTANCE = 500.0f;
 
 // picky to get the bilerp correct at terminator
-const int FOG_ENTER_SIZE			= 64;
-const float FOG_ENTER				= ( FOG_ENTER_SIZE + 1.0f ) / ( FOG_ENTER_SIZE * 2 );
+inline constexpr int 		FOG_ENTER_SIZE	= 64;
+inline constexpr float 		FOG_ENTER		= ( FOG_ENTER_SIZE + 1.0f ) / ( FOG_ENTER_SIZE * 2 );
 
 #include "GLState.h"
+#include "Vulkan/Core.hpp"
 #include "ScreenRect.h"
-#include "Format.hpp"
-#include "images/ImageOpts.h"
 #include "images/Image.h"
 #include "images/ImageManager.hpp"
 #include "Framebuffer.h"
@@ -367,9 +366,13 @@ struct drawInteraction_t
 	const drawSurf_t* 	surf;
 	
 	idImage* 			bumpImage;
+	crSampler*			bumpSampler;
 	idImage* 			diffuseImage;
+	crSampler*			diffuseSampler;
 	idImage* 			specularImage;
+	crSampler*			specularSampler;
 	idImage* 			glossImage;
+	crSampler*			glossSampler;
 	
 	idVec4				diffuseColor;	// may have a light color baked into it
 	idVec4				specularColor;	// may have a light color baked into it
@@ -724,14 +727,12 @@ BACKEND
 #include "Geometry.h"
 
 // BEATO Begin:
-#include "OpenGL/OpenGL.h"		// OpenGL 
-#include "Vulkan/Vulkan.hpp"	// Vulkan 
-
+#include "backend/UniformManager.hpp"
+#include "backend/PipelineManager.hpp"
 #include "backend/Backend.hpp"
 // BEATO End
 
 #include "BufferObject.h"
-#include "backend/RenderProgs.h"
 #include "renderworld/RenderEntity.hpp"
 #include "renderworld/RenderWorld_local.h"
 #include "models/GuiModel.h"

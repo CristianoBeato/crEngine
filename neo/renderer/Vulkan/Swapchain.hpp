@@ -45,12 +45,14 @@ private:
     uint32_t                                        m_bufferID;
     vkDeviceQueuep                                  m_presentQueue;
     vkDeviceQueuep                                  m_graphicQueue;
-    vkRenderDevicep                                 m_device;
+    crVulkanRenderDevicep                           m_device;
     VkSwapchainKHR                                  m_swapchain;
     idStaticList<VkSemaphore, SMP_FRAMES>           m_imageAvailable;
     idList<VkRenderingAttachmentInfo, TAG_VULKAN>   m_colorAttachments;
     idList<VkImage, TAG_VULKAN>                     m_imagesArray;
     idList<vkImageHandle_t, TAG_VULKAN>             m_presentImages;
+
+    VkSurfaceFormatKHR GetPresentFormat( uint32_t in_format );
 };
 
 #endif //!__VK_SWAPCHAIN_HPP__
