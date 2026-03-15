@@ -30,10 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __TR_LOCAL_H__
 #define __TR_LOCAL_H__
 
-// everything that is needed by the backend needs
-// to be double buffered to allow it to run in
-// parallel on a dual cpu machine
-inline constexpr uint32_t	SMP_FRAMES = 3;
 inline constexpr uint32_t	MAX_PROG_TEXTURE_PARMS	= 16; // maximum texture units
 inline constexpr uint32_t	FALLOFF_TEXTURE_SIZE = 64;
 inline constexpr float		DEFAULT_FOG_DISTANCE = 500.0f;
@@ -46,6 +42,7 @@ inline constexpr float 		FOG_ENTER		= ( FOG_ENTER_SIZE + 1.0f ) / ( FOG_ENTER_SI
 #include "Vulkan/Core.hpp"
 #include "ScreenRect.h"
 #include "images/Image.h"
+#include "images/Image_files.hpp"
 #include "images/ImageManager.hpp"
 #include "Framebuffer.h"
 #include "RenderTexture.h"

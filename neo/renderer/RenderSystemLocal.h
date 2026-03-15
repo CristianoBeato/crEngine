@@ -42,9 +42,9 @@ public:
 	virtual void			Init();
 	virtual void			Shutdown();
 	virtual void			ResetGuiModels();
-	virtual void			InitOpenGL();
-	virtual void			ShutdownOpenGL();
-	virtual bool			IsOpenGLRunning() const;
+	virtual void			InitRenderAPI( void );
+	virtual void			ShutdownRenderAPI( void );
+	virtual bool			IsRenderAPIRunning( void ) const;
 	virtual bool			IsFullScreen() const;
 	virtual stereo3DMode_t	GetStereo3DMode() const;
 	virtual bool			HasQuadBufferSupport() const;
@@ -74,7 +74,7 @@ public:
 	virtual void			PrintMemInfo( MemInfo_t* mi );
 	
 	virtual void			SetColor( const idVec4& color );
-	virtual uint32_t			GetColor();
+	virtual uint32_t		GetColor( void );
 	virtual void			SetGLState( const uint64_t glState ) ;
 	virtual void			DrawFilled( const idVec4& color, float x, float y, float w, float h );
 	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material );
@@ -106,7 +106,10 @@ public:
 	virtual void			CaptureRenderToFile( const char* fileName, bool fixAlpha );
 	virtual void			UnCrop();
 	virtual bool			UploadImage( const char* imageName, const byte* data, int width, int height );
-		
+
+	/// get current vulkan device
+	crVulkanRenderDevicep	GetRenderDevice( void ) { return dynamic_cast<crVulkanRenderDevicep>( m_renderDevice ); }
+
 public:
 	// internal functions
 	idRenderSystemLocal();
@@ -138,6 +141,12 @@ public:
 	
 	idList<idRenderWorldLocal*>worlds;
 	
+// BEATO Begin:
+	// list that store render devices list
+	idList<crRenderDevicep>			m_renderDeviceList;
+	crRenderDevicep					m_renderDevice;
+// BEATO End
+
 	idRenderWorldLocal* 	primaryWorld;
 	renderView_t			primaryRenderView;
 	viewDef_t* 				primaryView;
@@ -152,10 +161,6 @@ public:
 	idCinematic* 			testVideo;
 	int						testVideoStartTime;
 	
-// BEATO Begin:
-	glContext*				glContext;
-	vkContext*				vkContext;
-// BEATO End
 
 	idImage* 				ambientCubeImage;	// hack for testing dependent ambient lighting
 	

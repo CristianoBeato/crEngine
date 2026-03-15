@@ -32,7 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "renderer_common.h"
 #include "RenderSystemLocal.h"
 
-idRenderSystemLocal	tr;
+idRenderSystemLocal	tr = idRenderSystemLocal();
 
 /*
 =====================
@@ -54,13 +54,14 @@ only be called when the back end thread is idle.
 */
 static void R_PerformanceCounters()
 {
+	auto backEnd = crBackend::Get();
 	if( r_showPrimitives.GetInteger() != 0 )
 	{
 		common->Printf( "views:%i draws:%i tris:%i (shdw:%i)\n",
 						tr.pc.c_numViews,
-						backEnd.pc.c_drawElements + backEnd.pc.c_shadowElements,
-						( backEnd.pc.c_drawIndexes + backEnd.pc.c_shadowIndexes ) / 3,
-						backEnd.pc.c_shadowIndexes / 3
+						backEnd->PerformanceCounters().c_drawElements + backEnd->PerformanceCounters().c_shadowElements,
+						( backEnd->PerformanceCounters().c_drawIndexes + backEnd->PerformanceCounters().c_shadowIndexes ) / 3,
+						backEnd->PerformanceCounters().c_shadowIndexes / 3
 					  );
 	}
 	
@@ -101,7 +102,7 @@ static void R_PerformanceCounters()
 	}
 	
 	std::memset( &tr.pc, 0, sizeof( tr.pc ) );
-	std::memset( &backEnd.pc, 0, sizeof( backEnd.pc ) );
+	crBackend::Get()->ZeroPerformanceCounters();
 }
 
 /*
@@ -111,6 +112,7 @@ RenderCommandBuffers
 */
 void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdHead )
 {
+	auto backend = crBackend::Get();
 	// if there isn't a draw view command, do nothing to avoid swapping a bad frame
 	bool	hasView = false;
 	for( const emptyCommand_t* cmd = cmdHead ; cmd ; cmd = ( const emptyCommand_t* )cmd->next )
@@ -140,16 +142,16 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 		{
 			if( tr.timerQueryId == 0 )
 			{
-				glGenQueries( 1, & tr.timerQueryId );
+				//glGenQueries( 1, & tr.timerQueryId );
 			}
-			glBeginQuery( GL_TIME_ELAPSED, tr.timerQueryId );
-			RB_ExecuteBackEndCommands( cmdHead );
-			glEndQuery( GL_TIME_ELAPSED );
-			glFlush();
+			//glBeginQuery( GL_TIME_ELAPSED, tr.timerQueryId );
+			backend->ExecuteBackEndCommands( cmdHead );
+			//glEndQuery( GL_TIME_ELAPSED );
+			//glFlush();
 		}
 		else
 		{
-			RB_ExecuteBackEndCommands( cmdHead );
+			backend->ExecuteBackEndCommands( cmdHead );
 		}
 	}
 	
@@ -243,6 +245,7 @@ See if some cvars that we watch have changed
 */
 void R_CheckCvars( void )
 {
+	auto globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
 	// gamma stuff
 	if( r_gamma.IsModified() || r_brightness.IsModified() )
 	{
@@ -274,10 +277,10 @@ void R_CheckCvars( void )
 		r_useSeamlessCubeMap.ClearModified();
 		if( glConfig.seamlessCubeMapAvailable )
 		{
-			if( r_useSeamlessCubeMap.GetBool() )
-				glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
-			else
-				glDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
+			// if( r_useSeamlessCubeMap.GetBool() )
+			// 	glEnable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
+			// else
+			// 	glDisable( GL_TEXTURE_CUBE_MAP_SEAMLESS );
 		}
 	}
 	
@@ -287,20 +290,20 @@ void R_CheckCvars( void )
 		r_useSRGB.ClearModified();
 		if( glConfig.sRGBFramebufferAvailable )
 		{
-			if( r_useSRGB.GetBool() )
-				glEnable( GL_FRAMEBUFFER_SRGB );
-			else
-				glDisable( GL_FRAMEBUFFER_SRGB );
+			//if( r_useSRGB.GetBool() )
+			//	glEnable( GL_FRAMEBUFFER_SRGB );
+			//else
+			//	glDisable( GL_FRAMEBUFFER_SRGB );
 		}
 	}
 	
 	
 	if( r_multiSamples.IsModified() )
 	{
-		if( r_multiSamples.GetInteger() > 0 )
-			glEnable( GL_MULTISAMPLE );
-		else
-			glDisable( GL_MULTISAMPLE );
+		//if( r_multiSamples.GetInteger() > 0 )
+		//	glEnable( GL_MULTISAMPLE );
+		//else
+		//	glDisable( GL_MULTISAMPLE );
 	}
 	
 	// check for changes to logging state
@@ -699,6 +702,8 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 {
 	SCOPED_PROFILE_EVENT( "SwapCommandBuffers" );
 	
+	auto backEnd = crBackend::Get();
+
 	if( gpuMicroSec != nullptr )
 		*gpuMicroSec = 0;		// until shown otherwise
 	
@@ -718,14 +723,14 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	if( glConfig.timerQueryAvailable )
 	{
 		// RB: 64 bit fixes, changed int64_t to GLuint64EXT
-		GLuint64EXT drawingTimeNanoseconds = 0;
+		//GLuint64EXT drawingTimeNanoseconds = 0;
 		// RB end
 		
-		if( tr.timerQueryId != 0 )
-			glGetQueryObjectui64v( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
+		//if( tr.timerQueryId != 0 )
+		//	glGetQueryObjectui64v( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
 
-		if( gpuMicroSec != nullptr )
-			*gpuMicroSec = drawingTimeNanoseconds / 1000;
+		//if( gpuMicroSec != nullptr )
+		//	*gpuMicroSec = drawingTimeNanoseconds / 1000;
 	}
 	
 	//------------------------------
@@ -735,10 +740,10 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		*frontEndMicroSec = pc.frontEndMicroSec;
 	
 	if( backEndMicroSec != nullptr )
-		*backEndMicroSec = backEnd.pc.totalMicroSec;
+		*backEndMicroSec = backEnd->PerformanceCounters().totalMicroSec;
 	
 	if( shadowMicroSec != nullptr )
-		*shadowMicroSec = backEnd.pc.shadowMicroSec;
+		*shadowMicroSec = backEnd->PerformanceCounters().shadowMicroSec;
 	
 	// print any other statistics and clear all of them
 	R_PerformanceCounters();
@@ -759,7 +764,9 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 {
 	if( !IsInitialized() )
 		return nullptr;
-	
+
+	auto backEnd = crBackend::Get();
+
 	// close any gui drawing
 	guiModel->EmitFullScreen();
 	guiModel->Clear();
@@ -772,9 +779,9 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	
 	// copy the code-used drawsurfs that were
 	// allocated at the start of the buffer memory to the backEnd referenced locations
-	backEnd.unitSquareSurface = tr.unitSquareSurface_;
-	backEnd.zeroOneCubeSurface = tr.zeroOneCubeSurface_;
-	backEnd.testImageSurface = tr.testImageSurface_;
+	backEnd->unitSquareSurface = tr.unitSquareSurface_;
+	backEnd->zeroOneCubeSurface = tr.zeroOneCubeSurface_;
+	backEnd->testImageSurface = tr.testImageSurface_;
 	
 	// use the other buffers next frame, because another CPU
 	// may still be rendering into the current buffers
@@ -783,13 +790,9 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// possibly change the stereo3D mode
 	// PC
 	if( glConfig.nativeScreenWidth == 1280 && glConfig.nativeScreenHeight == 1470 )
-	{
 		glConfig.stereo3Dmode = STEREO3D_HDMI_720;
-	}
 	else
-	{
 		glConfig.stereo3Dmode = GetStereoScopicRenderingMode();
-	}
 	
 	// prepare the new command buffer
 	guiModel->BeginFrame();
@@ -999,6 +1002,7 @@ void idRenderSystemLocal::CaptureRenderToImage( const char* imageName, bool clea
 	if( !IsInitialized() )
 		return;
 	
+	idImageManagerLocal* globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
 	guiModel->EmitFullScreen();
 	guiModel->Clear();
 	
@@ -1056,7 +1060,7 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	int	c = ( rc.GetWidth() + 3 ) * rc.GetHeight();
 	byte* data = ( byte* )R_StaticAlloc( c * 3 );
 	
-	glReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data );
+	//glReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data );
 	
 	byte* data2 = ( byte* )R_StaticAlloc( c * 4 );
 	
@@ -1110,6 +1114,8 @@ idRenderSystemLocal::PrintMemInfo
 */
 void idRenderSystemLocal::PrintMemInfo( MemInfo_t* mi )
 {
+	idImageManagerLocal* globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
+
 	// sum up image totals
 	globalImages->PrintMemInfo( mi );
 	
@@ -1127,11 +1133,11 @@ idRenderSystemLocal::UploadImage
 */
 bool idRenderSystemLocal::UploadImage( const char* imageName, const byte* data, int width, int height )
 {
+	idImageManagerLocal* globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
 	idImage* image = globalImages->GetImage( imageName );
 	if( !image )
-	{
 		return false;
-	}
+	
 	image->UploadScratch( data, width, height );
 	return true;
 }
@@ -1140,7 +1146,7 @@ bool idRenderSystemLocal::UploadImage( const char* imageName, const byte* data, 
 void idRenderSystemLocal::Editor_SetupState()
 {
 	// make sure we're using fixed function rendering (program = 0)
-	renderProgManager.Unbind();
+	//renderProgManager.Unbind();
 	// make sure we're drawing to the system framebuffer (fbo = 0)
 	globalFramebuffers->BindSystemFramebuffer();
 }
@@ -1178,11 +1184,11 @@ void idRenderSystemLocal::Editor_EndView(int restoreWidth, int restoreHeight)
 //	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 //	glDepthMask(GL_TRUE);
 //	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glPopAttrib();
+	//glPopAttrib();
 	// make sure we're using fixed function rendering
-	renderProgManager.Unbind();
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glEnable(GL_TEXTURE_2D);
-	glDisable(GL_TEXTURE_3D);
-	glDisable(GL_TEXTURE_CUBE_MAP);
+	//renderProgManager.Unbind();
+	//glBindTexture(GL_TEXTURE_2D, 0);
+	//glEnable(GL_TEXTURE_2D);
+	//glDisable(GL_TEXTURE_3D);
+	//glDisable(GL_TEXTURE_CUBE_MAP);
 }

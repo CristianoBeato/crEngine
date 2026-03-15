@@ -431,13 +431,14 @@ idConsoleLocal::Close
 */
 void	idConsoleLocal::Close( void )
 {
+	crVideop video = crVideo::Get(); 
 	keyCatching = false;
 	SetDisplayFraction( 0 );
 	displayFrac = 0;	// don't scroll to that point, go immediately
 	ClearNotifyLines();
 
 // BEATO Begin:
-	sys->GetVideoSystem()->TextInput( false );
+	video->TextInput( false );
 // BEATO End
 }
 
@@ -799,7 +800,8 @@ ProcessEvent
 bool	idConsoleLocal::ProcessEvent( const sysEvent_t* event, bool forceAccept )
 {
 	const bool consoleKey = event->evType == SE_KEY && event->evValue == K_GRAVE && com_allowConsole.GetBool();
-	
+	crVideop video = crVideo::Get();
+
 	// we always catch the console key event
 	if( !forceAccept && consoleKey )
 	{
@@ -826,7 +828,7 @@ bool	idConsoleLocal::ProcessEvent( const sysEvent_t* event, bool forceAccept )
 
 // BEATO Begin:
 			// we need to tel SDL3, that we are waiting the keyboard input as a text editor, for console input
-			sys->GetVideoSystem()->TextInput( true );
+			video->TextInput( true );
 // BEATO End
 		}
 		return true;

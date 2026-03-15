@@ -165,8 +165,8 @@ void idMenuScreen_Shell_Resolution::ShowScreen( const mainMenuTransition_t trans
 	optionData.Append( optionData_t( 0, 0 ) );
 	
 	// get the displays list from video system
-	auto displays = sys->GetVideoSystem()->Displays( &numDisplays );
-	
+	crVideop video = crVideo::Get();
+	auto displays = video->Displays( &numDisplays );
 	for( int displayNum = 0 ; displayNum < numDisplays; displayNum++ )
 	{
 		uint32_t numModes = 0;

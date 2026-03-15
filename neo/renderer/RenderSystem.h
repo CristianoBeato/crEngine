@@ -103,9 +103,6 @@ struct glconfig_t
 	
 	float				glVersion;				// atof( version_string )
 	graphicsVendor_t	vendor;
-// BEATO Begin: 
-	backend_t			backend;		
-// BEATO End
 
 	int					maxTextureSize;			// queried from GL
 	int					maxTextureCoords;
@@ -390,9 +387,12 @@ public:
 ///
 ///
 ///
+class vkBuffer;
+typedef class idImageManager* idImageManagerp;
 class idImageManager
 {
 public:
+	static idImageManager*	Get( void );
 	virtual void		Init( void ) = 0;
 	virtual void		Shutdown( void ) = 0;
 	virtual idImage*	ImageFromFile( const idStr &name, const textureUsage_t usage, const cubeFiles_t cubeMap = CF_2D ) = 0;
@@ -404,7 +404,10 @@ public:
 	virtual idImage*	GetImageWithParameters( const idStr &name, const textureUsage_t usage, const cubeFiles_t cubeMap ) const;
 		
 	/// @brief reloads all apropriate images after a vid_restart
-	virtual void	ReloadImages( const bool all );
+	virtual void	ReloadImages( const bool all ) = 0;
+
+	/// @brief purges all the images before a vid_restart
+	virtual void	PurgeAllImages( void ) = 0;
 	
 	/// @brief used to clear and then write the dds conversion batch file
 	virtual void	StartBuild( void ) = 0;
@@ -412,8 +415,14 @@ public:
 	virtual void	PrintMemInfo( MemInfo_t* mi ) = 0;
 
 	// BEATO Begin:
-	virtual crBuffer*	GetPixelUnpackBuffer( void ) const = 0;
-	virtual crBuffer*	GetPixelPackBuffer( void ) const = 0;
+	virtual void		BeginLevelLoad( void ) = 0;
+	virtual void		EndLevelLoad( void ) = 0;
+	virtual void		Preload( const idPreloadManifest& manifest, const bool& mapPreload ) = 0;
+	virtual idImage*	DefaultImage( void ) const = 0;
+
+
+	virtual vkBuffer*	GetPixelUnpackBuffer( void ) const = 0;
+	virtual vkBuffer*	GetPixelPackBuffer( void ) const = 0;
 	// BEATO End
 };
 
@@ -443,10 +452,12 @@ public:
 	
 	virtual void			ResetGuiModels( void ) = 0;
 	
-	virtual void			InitOpenGL( void ) = 0;
-	virtual void			ShutdownOpenGL( void ) = 0;
-	virtual bool			IsOpenGLRunning( void ) const = 0;
-	
+// BEATO Begin: change the naming
+	virtual void			InitRenderAPI( void ) = 0;
+	virtual void			ShutdownRenderAPI( void ) = 0;
+	virtual bool			IsRenderAPIRunning( void ) const = 0;
+// BEATO End
+
 	virtual bool			IsFullScreen( void ) const = 0;
 	virtual uint32_t		GetWidth( void ) const = 0;
 	virtual uint32_t		GetHeight( void ) const = 0;

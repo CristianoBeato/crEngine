@@ -334,6 +334,7 @@ idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 */
 void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData()
 {
+	crVideop video = crVideo::Get();
 	originalFramerate = com_engineHz.GetInteger();
 	originalAntialias = r_multiSamples.GetInteger();
 	originalMotionBlur = r_motionBlur.GetInteger();
@@ -358,7 +359,7 @@ void idMenuScreen_Shell_SystemOptions::idMenuDataSource_SystemSettings::LoadData
 	if( fullscreen > 0 )
 	{
 		uint32_t numDisplays = 0;
-		auto displays = sys->GetVideoSystem()->Displays( &numDisplays );
+		auto displays = video->Displays( &numDisplays );
 		for ( uint32_t i = 0; i < numDisplays; i++)
 		{
 			uint32_t numModes = 0;
