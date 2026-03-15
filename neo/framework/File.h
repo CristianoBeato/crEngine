@@ -48,7 +48,7 @@ typedef enum
 
 class idFileSystemLocal;
 
-
+typedef class idFile* idFilep;
 class idFile
 {
 public:
