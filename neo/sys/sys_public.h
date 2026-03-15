@@ -831,10 +831,11 @@ public:
     virtual const vidMode_t* Modes( uint32_t *in_count ) const = 0;
 };
 
+typedef class crVideo* crVideop;
 class crVideo
 {
 public:
-	static crVideo*				Get( void );
+	static crVideop				Get( void );
 
 	/// @brief Initialize video management system, list displays and video modes 
 	/// @param in_flags 
@@ -884,6 +885,8 @@ public:
 };
 
 /// Render API Context Management
+
+typedef class crRenderDevice* crRenderDevicep;
 class crRenderDevice
 {
 public:
@@ -897,14 +900,16 @@ public:
 	/// list device usable features
 	struct features_t
 	{
-
+		uint32_t	maxSampleCount = 0;
+		uint32_t 	shaderStorageAlignment = 0;
 	};
 
-	virtual bool				Create( const uint32_t in_flags ) = 0;
+	virtual bool				Create(  const char** in_layers, const uint32_t in_numLayers, const char** in_enabledExtensions, const uint32_t in_numExtensions ) = 0;
 	virtual void				Destroy( void ) = 0;
-	virtual char*				Name( void ) const = 0;
+	virtual const char*			Name( void ) const = 0;
 	virtual const properties_t	Properties( void ) const = 0;
 	virtual const features_t	Features( void ) const = 0;
+	virtual const uint32_t		Score( void ) const = 0;
 };
 
 /// Render API Context Management
@@ -914,7 +919,7 @@ public:
 	static crRenderAPI* Get( void );
 	virtual bool				StartUp( void ) = 0;
 	virtual void				ShutDown( void ) = 0;
-	virtual uint32_t			GetDevices( crRenderDevice** m_deviceArray ) = 0;
+	virtual uint32_t			GetDevices( crRenderDevicep* m_deviceArray ) = 0;
 };
 // BEATO End
 
