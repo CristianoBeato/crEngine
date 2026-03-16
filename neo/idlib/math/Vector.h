@@ -988,6 +988,12 @@ public:
 	{
 		Set( x, x, x, x );
 	}
+
+	explicit idVec4( const idVec3 in_vec, const float w )
+	{
+		Set( in_vec.x, in_vec.y, in_vec.z, w );
+	}
+
 	explicit idVec4( const float x, const float y, const float z, const float w )
 	{
 		Set( x, y, z, w );
