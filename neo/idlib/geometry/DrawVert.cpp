@@ -78,3 +78,28 @@ int idShadowVertSkinned::CreateShadowCache( idShadowVertSkinned* vertexCache, co
 	}
 	return numVerts * 2;
 }
+
+/// BEATO Begin:
+idDrawWeight::idDrawWeight(void)
+{
+}
+
+idDrawWeight::~idDrawWeight(void)
+{
+}
+
+void idDrawWeight::SetWheights( const idVec4 &in_weights )
+{
+	idVec4 weights4 = in_weights;
+	weights4.Normalize();
+	weights = weights4.ToVec3();
+}
+
+idVec4 idDrawWeight::GetWheights( void ) const
+{
+	idVec4 weights4 = idVec4( weights, 0.0f );
+	weights4.w = std::max( 0.0f, 1.0f - ( weights4.x + weights4.y + weights4.z ) );
+	weights4.Normalize();
+    return weights4;
+}
+/// BEATO End

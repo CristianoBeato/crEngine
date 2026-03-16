@@ -111,15 +111,15 @@ ID_INLINE halfFloat_t F32toF16( float a )
 ===============================================================================
 */
 
-class idDrawVert
+class alignas( 16 ) idDrawVert
 {
 public:
-	idVec3				xyz;			// 12 bytes
-	halfFloat_t			st[2];			// 4 bytes
-	uint8_t				normal[4];		// 4 bytes
-	uint8_t				tangent[4];		// 4 bytes -- [3] is texture polarity sign
-	uint8_t				color[4];		// 4 bytes
-	uint8_t				color2[4];		// 4 bytes -- weights for skinning
+	idVec3				xyz;			// 12 bytes ( 96bits ) 0
+	halfFloat_t			st[2];			// 4 bytes ( 32 bits ) 96
+	uint8_t				normal[4];		// 4 bytes ( 32 bits ) 128
+	uint8_t				tangent[4];		// 4 bytes ( 32 bits ) 160 -- [3] is texture polarity sign
+	uint8_t				color[4];		// 4 bytes ( 32 bits ) 192
+	uint8_t				color2[4];		// 4 bytes ( 32 bits ) 224 -- weights for skinning
 	
 	float				operator[]( const int index ) const;
 	float& 				operator[]( const int index );
@@ -179,13 +179,13 @@ public:
 	static idVec3		GetSkinnedDrawVertPosition( const idDrawVert& vert, const idJointMat* joints );
 };
 
-#define DRAWVERT_SIZE				32
-#define DRAWVERT_XYZ_OFFSET			(0*4)
-#define DRAWVERT_ST_OFFSET			(3*4)
-#define DRAWVERT_NORMAL_OFFSET		(4*4)
-#define DRAWVERT_TANGENT_OFFSET		(5*4)
-#define DRAWVERT_COLOR_OFFSET		(6*4)
-#define DRAWVERT_COLOR2_OFFSET		(7*4)
+inline constexpr size_t DRAWVERT_SIZE			= sizeof( idDrawVert ); // 32;
+inline constexpr size_t DRAWVERT_XYZ_OFFSET		= offsetof( idDrawVert, xyz ); // 0 * 4;
+inline constexpr size_t DRAWVERT_ST_OFFSET		= offsetof( idDrawVert, st ); // 3 * 4;
+inline constexpr size_t DRAWVERT_NORMAL_OFFSET	= offsetof( idDrawVert, normal ); // 4 * 4;
+inline constexpr size_t DRAWVERT_TANGENT_OFFSET	= offsetof( idDrawVert, tangent ); // 5 * 4;
+inline constexpr size_t DRAWVERT_COLOR_OFFSET	= offsetof( idDrawVert, color ); // 6 * 4;
+inline constexpr size_t DRAWVERT_COLOR2_OFFSET	= offsetof( idDrawVert, color2 ); // 7 * 4;
 
 assert_offsetof( idDrawVert, xyz,		DRAWVERT_XYZ_OFFSET );
 assert_offsetof( idDrawVert, normal,	DRAWVERT_NORMAL_OFFSET );
@@ -778,9 +778,9 @@ public:
 	static int		CreateShadowCache( idShadowVertSkinned* vertexCache, const idDrawVert* verts, const int numVerts );
 };
 
-#define SHADOWVERTSKINNED_XYZW_OFFSET		(0)
-#define SHADOWVERTSKINNED_COLOR_OFFSET		(16)
-#define SHADOWVERTSKINNED_COLOR2_OFFSET		(20)
+inline constexpr size_t SHADOWVERTSKINNED_XYZW_OFFSET = 0;
+inline constexpr size_t SHADOWVERTSKINNED_COLOR_OFFSET = 16;
+inline constexpr size_t SHADOWVERTSKINNED_COLOR2_OFFSET = 20;
 
 assert_offsetof( idShadowVertSkinned, xyzw, SHADOWVERTSKINNED_XYZW_OFFSET );
 assert_offsetof( idShadowVertSkinned, color, SHADOWVERTSKINNED_COLOR_OFFSET );
@@ -790,5 +790,21 @@ ID_INLINE void idShadowVertSkinned::Clear()
 {
 	xyzw.Zero();
 }
+
+/// BEATO Begin:
+class alignas( 16 ) idDrawWeight // 128 bits
+{
+public:
+	idDrawWeight( void );
+	~idDrawWeight( void );
+
+	void	SetWheights( const idVec4 &in_weights );
+	idVec4	GetWheights( void ) const;
+
+private:
+	uint8_t	joints[4]; // 32 bits
+	idVec3	weights;   // 96 bits
+};
+/// BEATO End
 
 #endif /* !__DRAWVERT_H__ */

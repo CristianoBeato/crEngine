@@ -1019,6 +1019,8 @@ public:
 	friend idVec4	operator*( const float a, const idVec4 b );
 	
 	idVec4			Multiply( const idVec4& a ) const;
+
+	static float	Dot( const idVec4 &a, const idVec4 &b );
 	
 	bool			Compare( const idVec4& a ) const;							// exact compare, no epsilon
 	bool			Compare( const idVec4& a, const float epsilon ) const;		// compare with epsilon
@@ -1159,6 +1161,11 @@ ID_INLINE idVec4& idVec4::operator*=( const float a )
 ID_INLINE idVec4 idVec4::Multiply( const idVec4& a ) const
 {
 	return idVec4( x * a.x, y * a.y, z * a.z, w * a.w );
+}
+
+ID_INLINE float idVec4::Dot(const idVec4 &a, const idVec4 &b)
+{
+    return ( a.x * b.x ) + ( a.y * b.y ) + ( a.z * b.z ) + ( a.w * b.w );
 }
 
 ID_INLINE bool idVec4::Compare( const idVec4& a ) const
