@@ -335,7 +335,7 @@ static void R_CheckPortableExtensions()
 	glConfig.anisotropicFilterAvailable = R_CheckExtension( "GL_EXT_texture_filter_anisotropic" );
 	if( glConfig.anisotropicFilterAvailable )
 	{
-		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY, &glConfig.maxTextureAnisotropy );
+//		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY, &glConfig.maxTextureAnisotropy );
 		common->Printf( "   maxTextureAnisotropy: %f\n", glConfig.maxTextureAnisotropy );
 	}
 	else
@@ -348,13 +348,9 @@ static void R_CheckPortableExtensions()
 	// of the texture object.  The behavior in GL 1.4 is the behavior we use.
 	glConfig.textureLODBiasAvailable = ( glConfig.glVersion >= 1.4 || R_CheckExtension( "GL_EXT_texture_lod_bias" ) );
 	if( glConfig.textureLODBiasAvailable )
-	{
 		common->Printf( "...using %s\n", "GL_EXT_texture_lod_bias" );
-	}
 	else
-	{
 		common->Printf( "X..%s not found\n", "GL_EXT_texture_lod_bias" );
-	}
 	
 	// GL_ARB_seamless_cube_map
 	glConfig.seamlessCubeMapAvailable = R_CheckExtension( "GL_ARB_seamless_cube_map" );
@@ -393,7 +389,7 @@ static void R_CheckPortableExtensions()
 	}
 	
 	//glGetIntegerv( GL_MAX_TEXTURE_COORDS, ( GLint* )&glConfig.maxTextureCoords );
-	glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, ( GLint* )&glConfig.maxTextureImageUnits );
+	//glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, ( GLint* )&glConfig.maxTextureImageUnits );
 		
 	// GLSL, core in OpenGL > 2.0
 	glConfig.glslAvailable = ( glConfig.glVersion >= 2.0f );
@@ -415,11 +411,9 @@ static void R_CheckPortableExtensions()
 	glConfig.uniformBufferAvailable = R_CheckExtension( "GL_ARB_uniform_buffer_object" );
 	if( glConfig.uniformBufferAvailable )
 	{
-		glGetIntegerv( GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, ( GLint* )&glConfig.uniformBufferOffsetAlignment );
+		// glGetIntegerv( GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, ( GLint* )&glConfig.uniformBufferOffsetAlignment );
 		if( glConfig.uniformBufferOffsetAlignment < 256 )
-		{
 			glConfig.uniformBufferOffsetAlignment = 256;
-		}
 	}
 	
 	// ATI_separate_stencil / OpenGL 2.0 separate stencil
@@ -467,12 +461,13 @@ static void R_CheckPortableExtensions()
 		if( r_debugContext.GetInteger() >= 2 )
 		{
 			// force everything to happen in the main thread instead of in a separate driver thread
-			glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
+			// glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
 		}
+
 		if( r_debugContext.GetInteger() >= 3 )
 		{
 			// enable all the low priority messages
-			glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, nullptr, true );
+			// glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, nullptr, true );
 		}
 	}
 	
@@ -486,6 +481,7 @@ static void R_CheckPortableExtensions()
 	{
 		idLib::Error( "GL_ARB_texture_compression not available" );
 	}
+
 	if( !glConfig.S3TCtextureCompressionAvailable )
 	{
 		idLib::Error( "GL_EXT_texture_compression_s3tc not available" );
@@ -501,6 +497,7 @@ static void R_CheckPortableExtensions()
 	{
 		idLib::Error( "GL_ARB_map_buffer_range not available" );
 	}
+
 	// GL_ARB_vertex_array_object
 	if( !glConfig.vertexArrayObjectAvailable )
 	{
@@ -539,8 +536,8 @@ static void R_CheckPortableExtensions()
 	}
 	
 	// generate one global Vertex Array Object (VAO)
-	glGenVertexArrays( 1, &glConfig.global_vao );
-	glBindVertexArray( glConfig.global_vao );
+	// glGenVertexArrays( 1, &glConfig.global_vao );
+	// glBindVertexArray( glConfig.global_vao );
 }
 
 /*
@@ -577,7 +574,8 @@ void R_SetNewMode( const bool fullInit )
 	uint32_t numDisplay = 0;
 	crDisplay* const* displays = nullptr;
 	
-	auto video = sys->GetVideoSystem();
+	auto video = crVideo::Get();
+	auto backend = crBackend::Get();
 	
 	// get available displays 
 	displays = video->Displays( &numDisplay );
@@ -649,20 +647,26 @@ void R_SetNewMode( const bool fullInit )
 			}
 		}
 
-		// try sert full screen
+		/// We update window 
 		if( !video->SetMode( mode, fullscreen ) )
 			continue;
 		
 		if( fullInit )
 		{
-			// create the context as well as setting up the window
-			if( tr.glContext->Init( ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER ) ? true : false, r_multiSamples.GetInteger() ) )
-				break; // it worked
+			/// We create uniforms and frame buffers 
+			bool stereo = ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER ) ? true : false;
+			uint8_t samples = r_multiSamples.GetInteger();
+			if( backend->StartUp( samples, tr.GetWidth(), tr.GetHeight() ) )
+				break;
 		}
 		else
 		{
-			// just rebuild the window
-			if( tr.glContext->SetScreenParms( ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER ) ? true : false, r_multiSamples.GetInteger() ) )
+			/// We create uniforms and frame buffers 
+			bool stereo = ( stereoRender_enable.GetInteger() == STEREO3D_QUAD_BUFFER ) ? true : false;
+			uint8_t samples = r_multiSamples.GetInteger();
+		
+			// ressize framebuffers
+			if( backend->SetScreenParms( samples, tr.GetWidth(), tr.GetHeight() ) )
 				break; // it worked
 		}
 		
@@ -683,62 +687,6 @@ safeMode:
 }
 
 idStr extensions_string;
-
-/*
-==================
-GL_CheckErrors
-==================
-*/
-// RB: added filename, line parms
-void GL_CheckErrors_Extended(const char* file, int line)
-{
-	int		i = 0;
-	int		err = 0;
-	char	s[64];
-	
-	// check for up to 10 errors pending
-	for( i = 0 ; i < 10 ; i++ )
-	{
-		err = glGetError();
-		if( err == GL_NO_ERROR )
-		{
-			return;
-		}
-		switch( err )
-		{
-			case GL_INVALID_ENUM:
-				strcpy( s, "GL_INVALID_ENUM" );
-				break;
-			case GL_INVALID_VALUE:
-				strcpy( s, "GL_INVALID_VALUE" );
-				break;
-			case GL_INVALID_OPERATION:
-				strcpy( s, "GL_INVALID_OPERATION" );
-				break;
-			case GL_STACK_OVERFLOW:
-				strcpy( s, "GL_STACK_OVERFLOW" );
-				break;
-			case GL_STACK_UNDERFLOW:
-				strcpy( s, "GL_STACK_UNDERFLOW" );
-				break;
-			case GL_OUT_OF_MEMORY:
-				strcpy( s, "GL_OUT_OF_MEMORY" );
-				break;
-			case GL_INVALID_FRAMEBUFFER_OPERATION:
-				strcpy( s, "GL_INVALID_FRAMEBUFFER_OPERATION" );
-				break;
-			default:
-				idStr::snPrintf( s, sizeof( s ), "%i", err );
-				break;
-		}
-		
-		if( !r_ignoreGLErrors.GetBool() )
-		{
-			common->Printf( "GL_CheckErrors: %s in \"%s\" on line %d\n", s, file, line );
-		}
-	}
-}
-// RB end
 
 /*
 =====================
@@ -805,6 +753,7 @@ testimage <filename>
 void R_TestImage_f( const idCmdArgs& args )
 {
 	int imageNum;
+	idImageManagerLocal* globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
 	
 	if( tr.testVideo )
 	{
@@ -828,7 +777,7 @@ void R_TestImage_f( const idCmdArgs& args )
 	}
 	else
 	{
-		tr.testImage = globalImages->ImageFromFile( args.Argv( 1 ), TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
+		tr.testImage = globalImages->ImageFromFile( args.Argv( 1 ), TD_DEFAULT );
 	}
 }
 
@@ -841,6 +790,9 @@ Plays the cinematic file in a testImage
 */
 void R_TestVideo_f( const idCmdArgs& args )
 {
+
+	auto globalImages = idImageManager::Get();
+
 	if( tr.testVideo )
 	{
 		delete tr.testVideo;
@@ -853,7 +805,7 @@ void R_TestVideo_f( const idCmdArgs& args )
 		return;
 	}
 	
-	tr.testImage = globalImages->ImageFromFile( "_scratch", TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
+	tr.testImage = globalImages->ImageFromFile( "_scratch", TD_DEFAULT );
 	tr.testVideo = idCinematic::Alloc();
 	tr.testVideo->InitFromFile( args.Argv( 1 ), true );
 	
@@ -888,31 +840,21 @@ static int R_QsortSurfaceAreas( const void* a, const void* b )
 	
 	ea = *( idMaterial** )a;
 	if( !ea->EverReferenced() )
-	{
 		ac = 0;
-	}
 	else
-	{
 		ac = ea->GetSurfaceArea();
-	}
+
 	eb = *( idMaterial** )b;
 	if( !eb->EverReferenced() )
-	{
 		bc = 0;
-	}
 	else
-	{
 		bc = eb->GetSurfaceArea();
-	}
 	
 	if( ac < bc )
-	{
 		return -1;
-	}
+
 	if( ac > bc )
-	{
 		return 1;
-	}
 	
 	return idStr::Icmp( ea->GetName(), eb->GetName() );
 }
@@ -933,9 +875,7 @@ void R_ReportSurfaceAreas_f( const idCmdArgs& args )
 	
 	const unsigned int count = declManager->GetNumDecls( DECL_MATERIAL );
 	if( count == 0 )
-	{
 		return;
-	}
 	
 	list = ( idMaterial** )_alloca( count * sizeof( *list ) );
 	
@@ -950,9 +890,7 @@ void R_ReportSurfaceAreas_f( const idCmdArgs& args )
 	for( i = 0 ; i < count ; i++ )
 	{
 		if( list[i]->GetSurfaceArea() > 0 )
-		{
 			break;
-		}
 	}
 	
 	for( ; i < count ; i++ )
@@ -1077,8 +1015,8 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 				h = height - yo;
 			}
 			
-			glReadBuffer( GL_FRONT );
-			glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, temp );
+			//glReadBuffer( GL_FRONT );
+			//glReadPixels( 0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, temp );
 			
 			int	row = ( w * 3 + 3 ) & ~3;		// OpenGL pads to dword boundaries
 			
@@ -1405,7 +1343,7 @@ void R_StencilShot()
 	
 	idTempArray< byte > byteBuffer( pix );
 	
-	glReadPixels( 0, 0, width, height, GL_STENCIL_INDEX , GL_UNSIGNED_BYTE, byteBuffer.Ptr() );
+	//glReadPixels( 0, 0, width, height, GL_STENCIL_INDEX , GL_UNSIGNED_BYTE, byteBuffer.Ptr() );
 	
 	for( i = 0 ; i < pix ; i++ )
 	{
@@ -1770,8 +1708,9 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 R_SetColorMappings
 ===============
 */
-void R_SetColorMappings()
+void R_SetColorMappings( void )
 {
+	auto video = crVideo::Get();
 	float b = r_brightness.GetFloat();
 	float invg = 1.0f / r_gamma.GetFloat();
 	
@@ -1782,13 +1721,15 @@ void R_SetColorMappings()
 		tr.gammaTable[i] = idMath::ClampInt( 0, 0xFFFF, inf );
 	}
 	
-	tr.glContext->SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
+	
+	//tr.glContext->SetGamma( tr.gammaTable, tr.gammaTable, tr.gammaTable );
 }
 
 static void DumpAllDisplayDevices( void )
 {
 	uint32_t numDisplays = 0;
-	auto displays = sys->GetVideoSystem()->Displays( &numDisplays );
+	auto video = crVideo::Get();
+	auto displays = video->Displays( &numDisplays );
 	for ( uint32_t i = 0; i < numDisplays; i++)
 	{
 		uint32_t numModes = 0;
@@ -1929,6 +1870,9 @@ void R_VidRestart_f( const idCmdArgs& args )
 	if( !R_IsInitialized() )
 		return;
 	
+	auto globalImages = idImageManager::Get();
+	auto backend = crBackend::Get();
+
 	// set the mode without re-initializing the context
 	R_SetNewMode( false );
 	
@@ -1971,16 +1915,20 @@ void R_VidRestart_f( const idCmdArgs& args )
 		globalFramebuffers->PurgeAllFramebuffers();
 		globalImages->PurgeAllImages();
 		
-		// free the context and close the window
-		tr.glContext->Shutdown();
+		/// release uniforms buffers and shaders
+		backend->ShutDown();
+
+		/// release current render device
+		if( tr.m_renderDevice != nullptr )
+			tr.m_renderDevice->Destroy();
+		
 		r_initialized = false;
 		
 		// create the new context and vertex cache
 		bool latch = cvarSystem->GetCVarBool( "r_fullscreen" );
 		if( forceWindow )
-		{
 			cvarSystem->SetCVarBool( "r_fullscreen", false );
-		}
+		
 		// R_InitOpenGL();
 		// TODO: reinitialize OpenGL Context
 		cvarSystem->SetCVarBool( "r_fullscreen", latch );
@@ -1992,26 +1940,13 @@ void R_VidRestart_f( const idCmdArgs& args )
 	{
 		// TODO: update video mode
 
-		// parms.width = glConfig.nativeScreenWidth;
-		// parms.height = glConfig.nativeScreenHeight;
-		// parms.fullScreen = ( forceWindow ) ? false : r_fullscreen.GetInteger();
-		// parms.displayHz = r_displayRefresh.GetInteger();
-		// parms.multiSamples = r_multiSamples.GetInteger();
-		// parms.stereo = false;
-
-		tr.glContext->SetScreenParms( false, r_multiSamples.GetInteger() );
+		/// update framebuffers 
+		backend->SetScreenParms( r_multiSamples.GetInteger(), tr.GetWidth(), tr.GetHeight() );
 	}
 	
 	// make sure the regeneration doesn't use anything no longer valid
 	tr.viewCount++;
 	tr.viewDef = nullptr;
-	
-	// check for problems
-	int err = glGetError();
-	if( err != GL_NO_ERROR )
-	{
-		common->Printf( "glGetError() = 0x%x\n", err );
-	}	
 }
 
 /*
@@ -2058,13 +1993,9 @@ Keybinding command
 static void R_SizeDown_f( const idCmdArgs& args )
 {
 	if( r_screenFraction.GetInteger() - 10 < 10 )
-	{
 		r_screenFraction.SetInteger( 10 );
-	}
 	else
-	{
 		r_screenFraction.SetInteger( r_screenFraction.GetInteger() - 10 );
-	}
 }
 
 
@@ -2391,10 +2322,8 @@ idRenderSystemLocal::Init
 */
 void idRenderSystemLocal::Init( void )
 {
-// BEATO Begin: Move to inside the renderSystem->Init, since we separate render api fom window api
-	// init OpenGL, which will open a window and connect sound and input hardware
-	InitOpenGL();
-// BEATO End
+	/// Initialize Vulkan Logic Render Device
+	InitRenderAPI();
 
 	common->Printf( "------- Initializing renderSystem --------\n" );
 	
@@ -2408,8 +2337,6 @@ void idRenderSystemLocal::Init( void )
 	ambientLightVector[2] = 0.8925f;
 	ambientLightVector[3] = 1.0f;
 	
-	std::memset( &backEnd, 0, sizeof( backEnd ) );
-	
 	R_InitCvars();
 	
 	R_InitCommands();
@@ -2418,6 +2345,7 @@ void idRenderSystemLocal::Init( void )
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
 	
+	auto globalImages = idImageManager::Get();
 	globalImages->Init();
 	globalFramebuffers->Init(); // foresthale 2014-02-18: framebuffer objects
 	
@@ -2437,19 +2365,15 @@ void idRenderSystemLocal::Init( void )
 	
 	// make sure the tr.unitSquareTriangles data is current in the vertex / index cache
 	if( unitSquareTriangles == nullptr )
-	{
 		unitSquareTriangles = R_MakeFullScreenTris();
-	}
+	
 	// make sure the tr.zeroOneCubeTriangles data is current in the vertex / index cache
 	if( zeroOneCubeTriangles == nullptr )
-	{
 		zeroOneCubeTriangles = R_MakeZeroOneCubeTris();
-	}
+
 	// make sure the tr.testImageTriangles data is current in the vertex / index cache
 	if( testImageTriangles == nullptr )
-	{
 		testImageTriangles = R_MakeTestImageTriangles();
-	}
 	
 	// foresthale 2014-05-28: due to increased MAX_INTERACTIONS_PER_LIGHT the job limit also has to be increased
 #ifdef ID_ALLOW_TOOLS
@@ -2473,7 +2397,8 @@ idRenderSystemLocal::Shutdown
 void idRenderSystemLocal::Shutdown()
 {
 	common->Printf( "idRenderSystem::Shutdown()\n" );
-	
+	auto globalImages = idImageManager::Get();
+
 	fonts.DeleteContents();
 	
 	if( R_IsInitialized() )
@@ -2497,7 +2422,7 @@ void idRenderSystemLocal::Shutdown()
 	// free the vertex cache, which should have nothing allocated now
 	vertexCache.Shutdown();
 	
-	RB_ShutdownDebugTools();
+	// RB_ShutdownDebugTools();
 	
 	delete guiModel;
 	
@@ -2505,7 +2430,7 @@ void idRenderSystemLocal::Shutdown()
 	
 	Clear();
 	
-	ShutdownOpenGL();
+	ShutdownRenderAPI();
 }
 
 /*
@@ -2513,7 +2438,7 @@ void idRenderSystemLocal::Shutdown()
 idRenderSystemLocal::ResetGuiModels
 ========================
 */
-void idRenderSystemLocal::ResetGuiModels()
+void idRenderSystemLocal::ResetGuiModels( void )
 {
 	delete guiModel;
 	guiModel = new( TAG_RENDER ) idGuiModel;
@@ -2527,9 +2452,9 @@ void idRenderSystemLocal::ResetGuiModels()
 idRenderSystemLocal::BeginLevelLoad
 ========================
 */
-void idRenderSystemLocal::BeginLevelLoad()
-{
-	globalImages->BeginLevelLoad();
+void idRenderSystemLocal::BeginLevelLoad( void )
+{ 
+	static_cast<idImageManagerLocal*>( idImageManager::Get() )->BeginLevelLoad();
 	renderModelManager->BeginLevelLoad();
 	
 	// Re-Initialize the Default Materials if needed.
@@ -2543,7 +2468,7 @@ idRenderSystemLocal::LoadLevelImages
 */
 void idRenderSystemLocal::LoadLevelImages()
 {
-	globalImages->LoadLevelImages( false );
+	static_cast<idImageManagerLocal*>( idImageManager::Get() )->LoadLevelImages( false );
 }
 
 /*
@@ -2553,6 +2478,7 @@ idRenderSystemLocal::Preload
 */
 void idRenderSystemLocal::Preload( const idPreloadManifest& manifest, const char* mapName )
 {
+	auto globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
 	globalImages->Preload( manifest, true );
 	uiManager->Preload( mapName );
 	renderModelManager->Preload( manifest );
@@ -2563,9 +2489,10 @@ void idRenderSystemLocal::Preload( const idPreloadManifest& manifest, const char
 idRenderSystemLocal::EndLevelLoad
 ========================
 */
-void idRenderSystemLocal::EndLevelLoad()
+void idRenderSystemLocal::EndLevelLoad( void )
 {
 	renderModelManager->EndLevelLoad();
+	auto globalImages = idImageManager::Get();
 	globalImages->EndLevelLoad();
 }
 
@@ -2625,7 +2552,7 @@ idFont* idRenderSystemLocal::RegisterFont( const char* fontName )
 idRenderSystemLocal::ResetFonts
 ========================
 */
-void idRenderSystemLocal::ResetFonts()
+void idRenderSystemLocal::ResetFonts( void )
 {
 	fonts.DeleteContents( true );
 }
@@ -2634,29 +2561,33 @@ void idRenderSystemLocal::ResetFonts()
 idRenderSystemLocal::InitOpenGL
 ========================
 */
-void idRenderSystemLocal::InitOpenGL( void )
+void idRenderSystemLocal::InitRenderAPI( void )
 {
-	// if OpenGL isn't started, start it now
+	// if Vulkan isn't started, start it now
 	if( !R_IsInitialized() )
 	{
-		common->Printf( "----- R_InitOpenGL -----\n" );
-	
-		// DG: make sure SDL has setup video so getting supported modes in R_SetNewMode() works
-		tr.glContext->PreInit();
-		// DG end
-		
+		common->Printf( "----- InitVulkan -----\n" );
+			
+		crRenderAPI* renderAPI =  crRenderAPI::Get();
+
 		R_SetNewMode( true );
-		
-		
+			
 		// input and sound systems need to be tied to the new window
 		Sys_InitInput();
 		
+		// Get vulkan devices
+		uint32_t deviceCount = renderAPI->GetDevices( nullptr );
+		m_renderDeviceList.Resize( deviceCount );
+		renderAPI->GetDevices( m_renderDeviceList.Ptr() );
+
+		// TODO: Init a render device
+
 		// get our config strings
+#if 0
 		glConfig.vendor_string = ( const char* )glGetString( GL_VENDOR );
 		glConfig.renderer_string = ( const char* )glGetString( GL_RENDERER );
 		glConfig.version_string = ( const char* )glGetString( GL_VERSION );
 		glConfig.shading_language_string = ( const char* )glGetString( GL_SHADING_LANGUAGE_VERSION );
-		
 		//glConfig.extensions_string = ( const char* )glGetString( GL_EXTENSIONS ); // lead to error
 		// Build the extensions string
 		GLint numExtensions;
@@ -2667,21 +2598,17 @@ void idRenderSystemLocal::InitOpenGL( void )
 			extensions_string.Append( ( const char* )glGetStringi( GL_EXTENSIONS, i ) );
 			// the now deprecated glGetString method usaed to create a single string with each extension separated by a space
 			if( i < numExtensions - 1 )
-				extensions_string.Append( ' ' );
+			extensions_string.Append( ' ' );
 		}
 		glConfig.extensions_string = extensions_string.c_str();
 		
 		
 		float glVersion = atof( glConfig.version_string );
 		float glslVersion = atof( glConfig.shading_language_string );
-		idLib::Printf( "OpenGL Version: %3.1f\n", glVersion );
-		idLib::Printf( "OpenGL Vendor : %s\n", glConfig.vendor_string );
-		idLib::Printf( "OpenGL GLSL   : %3.1f\n", glslVersion );
-		
-		// OpenGL driver constants
-		GLint temp;
-		glGetIntegerv( GL_MAX_TEXTURE_SIZE, &temp );
-		glConfig.maxTextureSize = temp;
+		idLib::Printf( "Vulkan Version: %3.1f\n", glVersion );
+		idLib::Printf( "Vulkan Vendor : %s\n", glConfig.vendor_string );
+		idLib::Printf( "Vulkan GLSL   : %3.1f\n", glslVersion );
+#endif
 		
 		// stubbed or broken drivers may have reported 0...
 		if( glConfig.maxTextureSize <= 0 )
@@ -2691,8 +2618,6 @@ void idRenderSystemLocal::InitOpenGL( void )
 		
 		// recheck all the extensions (FIXME: this might be dangerous)
 		R_CheckPortableExtensions();
-		
-		renderProgManager.Init();
 		
 		r_initialized = true;
 		
@@ -2704,22 +2629,14 @@ void idRenderSystemLocal::InitOpenGL( void )
 		
 		// Reset our gamma
 		R_SetColorMappings();
-
-		// foresthale 2014-02-19: init the view framebuffer object
-		globalFramebuffers->InitIntrinsics();
 		
-		// Reloading images here causes the rendertargets to get deleted. Figure out how to handle this properly on 360
+		// Reloading images here causes the rendertargets to get deleted.
+		auto globalImages = idImageManager::Get();
 		globalImages->ReloadImages( true );
-		
-		int err = glGetError();
-		if( err != GL_NO_ERROR )
-		{
-			common->Printf( "glGetError() = 0x%x\n", err );
-		}
 	}
 
 	// show window
-	sys->GetVideoSystem()->ShowWindow( true );
+	crVideo::Get()->ShowWindow( true );
 }
 
 /*
@@ -2727,11 +2644,16 @@ void idRenderSystemLocal::InitOpenGL( void )
 idRenderSystemLocal::ShutdownOpenGL
 ========================
 */
-void idRenderSystemLocal::ShutdownOpenGL( void )
+void idRenderSystemLocal::ShutdownRenderAPI( void )
 {
+	crBackend* backend = crBackend::Get();
 	// free the context and close the window
 	R_ShutdownFrameData();
-	tr.glContext->Shutdown();
+
+	backend->ShutDown();
+	if( m_renderDevice )
+		m_renderDevice->Destroy();
+	
 	r_initialized = false;
 }
 
@@ -2740,7 +2662,7 @@ void idRenderSystemLocal::ShutdownOpenGL( void )
 idRenderSystemLocal::IsOpenGLRunning
 ========================
 */
-bool idRenderSystemLocal::IsOpenGLRunning() const
+bool idRenderSystemLocal::IsRenderAPIRunning( void ) const
 {
 	return R_IsInitialized();
 }

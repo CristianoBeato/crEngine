@@ -39,7 +39,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 class idIndexBuffer;
-
+typedef struct vkBufferHandle_s vkBufferHandle_t;
 enum bufferMapType_t
 {
 	BM_READ,			// map for reading
@@ -91,7 +91,8 @@ public:
 	{
 		return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15;
 	}
-	void* 				GetAPIObject() const
+	
+	vkBufferHandle_t*	GetAPIObject( void ) const
 	{
 		return apiObject;
 	}
@@ -103,7 +104,7 @@ public:
 private:
 	int					size;					// size in bytes
 	int					offsetInOtherBuffer;	// offset in bytes
-	void* 				apiObject;
+	vkBufferHandle_t*	apiObject;
 	
 	// sizeof() confuses typeinfo...
 	static const int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
@@ -168,7 +169,7 @@ public:
 	{
 		return ( ( size & ~MAPPED_FLAG ) + 15 ) & ~15;
 	}
-	void* 				GetAPIObject() const
+	vkBufferHandle_t*	GetAPIObject( void ) const
 	{
 		return apiObject;
 	}
@@ -180,7 +181,7 @@ public:
 private:
 	int					size;					// size in bytes
 	int					offsetInOtherBuffer;	// offset in bytes
-	void* 				apiObject;
+	vkBufferHandle_t*	apiObject;
 	
 	// sizeof() confuses typeinfo...
 	static const int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );
@@ -245,10 +246,12 @@ public:
 	{
 		return ( numJoints & ~MAPPED_FLAG ) * 3 * 4 * sizeof( float );
 	}
-	void* 				GetAPIObject() const
+
+	vkBufferHandle_t*	GetAPIObject( void ) const
 	{
 		return apiObject;
 	}
+
 	int					GetOffset() const
 	{
 		return ( offsetInOtherBuffer & ~OWNS_BUFFER_FLAG );
@@ -259,7 +262,7 @@ public:
 private:
 	int					numJoints;
 	int					offsetInOtherBuffer;	// offset in bytes
-	void* 				apiObject;
+	vkBufferHandle_t*	apiObject;
 	
 	// sizeof() confuses typeinfo...
 	static const int	MAPPED_FLAG			= 1 << ( 4 /* sizeof( int ) */ * 8 - 1 );

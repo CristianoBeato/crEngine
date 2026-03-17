@@ -1367,7 +1367,9 @@ void R_AddModels()
 			}
 
 			int end = Sys_Microseconds();
-			backEnd.pc.shadowMicroSec += end - start;
+			crBackend::Get()->PerformanceCounters().shadowMicroSec += end - start;
+			// backEnd.pc.shadowMicroSec += end - start;
+
 		}
 	}
 	

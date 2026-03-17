@@ -405,9 +405,12 @@ int idCinematicLocal::AnimationLength() {
 idCinematicLocal::ResetTime
 ==============
 */
-void idCinematicLocal::ResetTime(int time) {
+void idCinematicLocal::ResetTime(int time) 
+{
+	crBackend* backEnd = crBackend::Get();
 	//startTime = ( backEnd.viewDef ) ? 1000 * backEnd.viewDef->floatTime : -1;
-	startTime = ( backEnd.viewDef ) ? Sys_Milliseconds() : -1;
+	// startTime = ( backEnd.viewDef ) ? Sys_Milliseconds() : -1;
+	startTime = backEnd->ViewDefTime();
 	status = FMV_PLAY;
 }
 

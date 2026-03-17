@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 
 #include "renderer_common.h"
+#include "Material.h"
 
 /*
 
@@ -80,10 +81,10 @@ idCVar r_forceSoundOpAmplitude( "r_forceSoundOpAmplitude", "0", CVAR_FLOAT, "Don
 idMaterial::CommonInit
 =============
 */
-void idMaterial::CommonInit()
+void idMaterial::CommonInit( void )
 {
 	desc = "<none>";
-	renderBump = "";
+//	renderBump = "";
 	contentFlags = CONTENTS_SOLID;
 	surfaceFlags = SURFTYPE_NONE;
 	materialFlags = 0;
@@ -101,6 +102,7 @@ void idMaterial::CommonInit()
 	numAmbientStages = 0;
 	stages = nullptr;
 	editorImage = nullptr;
+	lightFalloffSampler = nullptr;
 	lightFalloffImage = nullptr;
 	shouldCreateBackSides = false;
 	entityGui = 0;
@@ -119,6 +121,7 @@ void idMaterial::CommonInit()
 	suppressInSubview = false;
 	refCount = 0;
 	portalSky = false;
+	fastPathSampler = nullptr;
 	fastPathBumpImage = nullptr;
 	fastPathDiffuseImage = nullptr;
 	fastPathSpecularImage = nullptr;
@@ -143,7 +146,7 @@ void idMaterial::CommonInit()
 idMaterial::idMaterial
 =============
 */
-idMaterial::idMaterial()
+idMaterial::idMaterial( void )
 {
 	CommonInit();
 	
@@ -157,7 +160,7 @@ idMaterial::idMaterial()
 idMaterial::~idMaterial
 =============
 */
-idMaterial::~idMaterial()
+idMaterial::~idMaterial( void )
 {
 }
 
@@ -180,6 +183,7 @@ void idMaterial::FreeData()
 				delete stages[i].texture.cinematic;
 				stages[i].texture.cinematic = nullptr;
 			}
+
 			if( stages[i].newStage != nullptr )
 			{
 				Mem_Free( stages[i].newStage );
@@ -211,13 +215,13 @@ void idMaterial::FreeData()
 idMaterial::GetEditorImage
 ==============
 */
-idImage* idMaterial::GetEditorImage() const
+idImage* idMaterial::GetEditorImage( void ) const
 {
+	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+
 	if( editorImage )
-	{
 		return editorImage;
-	}
-	
+
 	// if we don't have an editorImageName, use the first stage image
 	if( !editorImageName.Length() )
 	{
@@ -246,7 +250,7 @@ idImage* idMaterial::GetEditorImage() const
 	else
 	{
 		// look for an explicit one
-		editorImage = globalImages->ImageFromFile( editorImageName, TF_DEFAULT, TR_REPEAT, TD_EDITOR_DEFAULT );
+		editorImage = globalImages->ImageFromFile( editorImageName, TD_EDITOR_DEFAULT );
 	}
 	
 	if( !editorImage )
@@ -429,7 +433,7 @@ void idMaterial::ParseSort( idLexer& src )
 	}
 	else
 	{
-		sort = atof( token );
+		sort = std::atof( token );
 	}
 }
 
@@ -561,40 +565,31 @@ int idMaterial::EmitOp( int a, int b, expOpType_t opType )
 	if( opType == OP_TYPE_ADD )
 	{
 		if( !pd->registerIsTemporary[a] && pd->shaderRegisters[a] == 0 )
-		{
 			return b;
-		}
+		
 		if( !pd->registerIsTemporary[b] && pd->shaderRegisters[b] == 0 )
-		{
 			return a;
-		}
+		
 		if( !pd->registerIsTemporary[a] && !pd->registerIsTemporary[b] )
-		{
 			return GetExpressionConstant( pd->shaderRegisters[a] + pd->shaderRegisters[b] );
-		}
 	}
+
 	if( opType == OP_TYPE_MULTIPLY )
 	{
 		if( !pd->registerIsTemporary[a] && pd->shaderRegisters[a] == 1 )
-		{
 			return b;
-		}
+
 		if( !pd->registerIsTemporary[a] && pd->shaderRegisters[a] == 0 )
-		{
 			return a;
-		}
+		
 		if( !pd->registerIsTemporary[b] && pd->shaderRegisters[b] == 1 )
-		{
 			return a;
-		}
+
 		if( !pd->registerIsTemporary[b] && pd->shaderRegisters[b] == 0 )
-		{
 			return b;
-		}
+
 		if( !pd->registerIsTemporary[a] && !pd->registerIsTemporary[b] )
-		{
 			return GetExpressionConstant( pd->shaderRegisters[a] * pd->shaderRegisters[b] );
-		}
 	}
 	
 	op = GetExpressionOp();
@@ -1034,30 +1029,45 @@ void idMaterial::ParseBlend( idLexer& src, shaderStage_t* stage )
 	int		srcBlend, dstBlend;
 	
 	if( !src.ReadToken( &token ) )
-	{
 		return;
-	}
 	
 	// blending combinations
 	if( !token.Icmp( "blend" ) )
 	{
 		stage->drawStateBits = GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+// BEATO Begin: pipeline blending state creation
+		//m_pipelineInfo.blendSource = crPipeline::BLEND_SRC_SRC_ALPHA;
+		//m_pipelineInfo.blendDestination = crPipeline::BLEND_DST_ONE_MINUS_SRC_ALPHA;
+// BEATO End
 		return;
 	}
 	if( !token.Icmp( "add" ) )
 	{
 		stage->drawStateBits = GLS_SRCBLEND_ONE | GLS_DSTBLEND_ONE;
+// BEATO Begin: pipeline blending state creation
+		//m_pipelineInfo.blendSource = crPipeline::BLEND_SRC_SRC_ALPHA;
+		//m_pipelineInfo.blendDestination = crPipeline::BLEND_DST_ONE_MINUS_SRC_ALPHA;
+// BEATO End
 		return;
 	}
 	if( !token.Icmp( "filter" ) || !token.Icmp( "modulate" ) )
 	{
 		stage->drawStateBits = GLS_SRCBLEND_DST_COLOR | GLS_DSTBLEND_ZERO;
+// BEATO Begin: pipeline blending state creation
+		//m_pipelineInfo.blendSource = crPipeline::BLEND_SRC_DST_COLOR;
+		//m_pipelineInfo.blendDestination = crPipeline::BLEND_DST_ZERO;
+// BEATO End
 		return;
 	}
 	if( !token.Icmp( "none" ) )
 	{
 		// none is used when defining an alpha mask that doesn't draw
 		stage->drawStateBits = GLS_SRCBLEND_ZERO | GLS_DSTBLEND_ONE;
+// BEATO Begin: pipeline blending state creation
+		//m_pipelineInfo.blendSource = crPipeline::BLEND_SRC_ZERO;
+		//m_pipelineInfo.blendDestination = crPipeline::BLEND_DST_ONE;
+// BEATO End
+
 		return;
 	}
 	if( !token.Icmp( "bumpmap" ) )
@@ -1085,9 +1095,8 @@ void idMaterial::ParseBlend( idLexer& src, shaderStage_t* stage )
 	
 	MatchToken( src, "," );
 	if( !src.ReadToken( &token ) )
-	{
 		return;
-	}
+	
 	dstBlend = NameToDstBlendMode( token );
 	
 	stage->drawStateBits = srcBlend | dstBlend;
@@ -1170,9 +1179,7 @@ void idMaterial::ParseVertexParm2( idLexer& src, newShaderStage_t* newStage )
 	}
 	
 	if( parm >= newStage->numVertexParms )
-	{
 		newStage->numVertexParms = parm + 1;
-	}
 	
 	newStage->vertexParms[parm][0] = ParseExpression( src );
 	MatchToken( src, "," );
@@ -1192,14 +1199,19 @@ idMaterial::ParseFragmentMap
 void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 {
 	const char*			str;
-	textureFilter_t		tf;
-	textureRepeat_t		trp;
 	textureUsage_t		td;
 	cubeFiles_t			cubeMap;
 	idToken				token;
 	
-	tf = TF_DEFAULT;
-	trp = TR_REPEAT;
+// BEATO Begin:
+#if 0
+	textureFilter_t		tf = = TF_DEFAULT;
+	textureRepeat_t		trp = TR_REPEAT;
+#else
+	vkSampler::filter_t sf = vkSampler::FILTER_NEAREST;
+	vkSampler::wrapping_t sr = vkSampler::WRAP_REPEAT;
+#endif
+// BEATO End
 	td = TD_DEFAULT;
 	cubeMap = CF_2D;
 	
@@ -1222,9 +1234,7 @@ void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 	*/
 	
 	if( unit >= newStage->numFragmentProgramImages )
-	{
 		newStage->numFragmentProgramImages = unit + 1;
-	}
 	
 	while( 1 )
 	{
@@ -1252,32 +1262,40 @@ void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 		}
 		if( !token.Icmp( "nearest" ) )
 		{
-			tf = TF_NEAREST;
+// BEATO Begin:
+			//tf = TF_NEAREST;
+			sf = vkSampler::FILTER_NEAREST;
+// BEATO End
 			continue;
 		}
 		if( !token.Icmp( "linear" ) )
 		{
-			tf = TF_LINEAR;
+			// tf = TF_LINEAR;
+			sf = vkSampler::FILTER_LINEAR;
 			continue;
 		}
 		if( !token.Icmp( "clamp" ) )
 		{
-			trp = TR_CLAMP;
+			// trp = TR_CLAMP;
+			sr = vkSampler::WRAP_BORDER;
 			continue;
 		}
 		if( !token.Icmp( "noclamp" ) )
 		{
-			trp = TR_REPEAT;
+			// trp = TR_REPEAT;
+			sr = vkSampler::WRAP_REPEAT;
 			continue;
 		}
 		if( !token.Icmp( "zeroclamp" ) )
 		{
-			trp = TR_CLAMP_TO_ZERO;
+			// trp = TR_CLAMP_TO_ZERO;
+			sr = vkSampler::WRAP_EDGE;
 			continue;
 		}
 		if( !token.Icmp( "alphazeroclamp" ) )
 		{
-			trp = TR_CLAMP_TO_ZERO_ALPHA;
+			// trp = TR_CLAMP_TO_ZERO_ALPHA;
+			sr = vkSampler::WRAP_BORDER;
 			continue;
 		}
 		if( !token.Icmp( "forceHighQuality" ) )
@@ -1309,12 +1327,10 @@ void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 	// foresthale 2014-05-17: don't binarize when in the editors - we just run uncompressed from the source assets
 	td = CheckEditorUsage( td );
 	
-	newStage->fragmentProgramImages[unit] =
-		globalImages->ImageFromFile( str, tf, trp, td, cubeMap );
+	auto globalImages = idRenderSystem::GetGlobalImages();
+	newStage->fragmentProgramImages[unit] = globalImages->ImageFromFile( str, td, cubeMap );
 	if( !newStage->fragmentProgramImages[unit] )
-	{
-		newStage->fragmentProgramImages[unit] = globalImages->defaultImage;
-	}
+		newStage->fragmentProgramImages[unit] = globalImages->DefaultImage();
 }
 
 /*
@@ -1322,7 +1338,7 @@ void idMaterial::ParseFragmentMap( idLexer& src, newShaderStage_t* newStage )
 idMaterial::MultiplyTextureMatrix
 ===============
 */
-void idMaterial::MultiplyTextureMatrix( textureStage_t* ts, int registers[2][3] )
+void idMaterial::MultiplyTextureMatrix( textureStage_t* ts, const int registers[2][3] )
 {
 	int		old[2][3];
 	
@@ -1378,29 +1394,30 @@ An open brace has been parsed
 
 =================
 */
-void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
+void idMaterial::ParseStage( idLexer& src )
 {
-	idToken				token;
-	const char*			str;
-	shaderStage_t*		ss;
-	textureStage_t*		ts;
-	textureFilter_t		tf;
-	textureRepeat_t		trp;
-	textureUsage_t		td;
+	idToken					token;
+	const char*				str;
+	shaderStage_t*			ss;
+	textureStage_t*			ts;
+	vkSampler::filter_t		tf;
+	vkSampler::wrapping_t	trp;
+	textureUsage_t			td;
 	cubeFiles_t			cubeMap;
 	char				imageName[MAX_IMAGE_NAME];
 	int					a, b;
 	int					matrix[2][3];
 	newShaderStage_t	newStage;
-	
+	auto globalImages = idImageManager::Get();
+
 	if( numStages >= MAX_SHADER_STAGES )
 	{
 		SetMaterialFlag( MF_DEFAULTED );
 		common->Warning( "material '%s' exceeded %i stages", GetName(), MAX_SHADER_STAGES );
 	}
 	
-	tf = TF_DEFAULT;
-	trp = trpDefault;
+	tf = vkSampler::FILTER_TRILINEAR;
+	trp = vkSampler::WRAP_REPEAT;
 	td = TD_DEFAULT;
 	cubeMap = CF_2D;
 	
@@ -1417,9 +1434,8 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 	while( 1 )
 	{
 		if( TestMaterialFlag( MF_DEFAULTED ) )  	// we have a parse error
-		{
 			return;
-		}
+		
 		if( !src.ExpectAnyToken( &token ) )
 		{
 			SetMaterialFlag( MF_DEFAULTED );
@@ -1428,9 +1444,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 		
 		// the close brace for the entire material ends the draw block
 		if( token == "}" )
-		{
 			break;
-		}
 		
 		//BSM Nerve: Added for stage naming in the material editor
 		if( !token.Icmp( "name" ) )
@@ -1485,21 +1499,25 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			ts->texgen = TG_SCREEN;
 			continue;
 		}
+
 		if( !token.Icmp( "screen" ) )
 		{
 			ts->texgen = TG_SCREEN;
 			continue;
 		}
+
 		if( !token.Icmp( "screen2" ) )
 		{
 			ts->texgen = TG_SCREEN2;
 			continue;
 		}
+
 		if( !token.Icmp( "glassWarp" ) )
 		{
 			ts->texgen = TG_GLASSWARP;
 			continue;
-		}		
+		}
+
 		if( !token.Icmp( "videomap" ) )
 		{
 			// note that videomaps will always be in clamp mode, so texture
@@ -1523,6 +1541,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			ts->cinematic->InitFromFile( token.c_str(), loop );
 			continue;
 		}		
+
 		if( !token.Icmp( "soundmap" ) )
 		{
 			if( !src.ReadToken( &token ) )
@@ -1533,7 +1552,8 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			ts->cinematic = new( TAG_MATERIAL ) idSndWindow();
 			ts->cinematic->InitFromFile( token.c_str(), true );
 			continue;
-		}		
+		}
+
 		if( !token.Icmp( "cubeMap" ) )
 		{
 			str = R_ParsePastImageProgram( src );
@@ -1541,6 +1561,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			cubeMap = CF_NATIVE;
 			continue;
 		}		
+
 		if( !token.Icmp( "cameraCubeMap" ) )
 		{
 			str = R_ParsePastImageProgram( src );
@@ -1548,6 +1569,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			cubeMap = CF_CAMERA;
 			continue;
 		}		
+
 		if (!token.Icmp("cameraCubeSky")) // motorsep 12-30-2022; to use with cubemaps created from equirectangular panoramas in Bixorama (or perhaps any other similar software)
 		{
 			str = R_ParsePastImageProgram(src);
@@ -1555,74 +1577,90 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 			cubeMap = CF_CAMERA_ALT;
 			continue;
 		}
+
 		if( !token.Icmp( "ignoreAlphaTest" ) )
 		{
 			ss->ignoreAlphaTest = true;
 			continue;
 		}
+
 		if( !token.Icmp( "nearest" ) )
 		{
-			tf = TF_NEAREST;
+			tf = vkSampler::FILTER_NEAREST;
 			continue;
 		}
+
 		if( !token.Icmp( "linear" ) )
 		{
-			tf = TF_LINEAR;
+			tf = vkSampler::FILTER_LINEAR;
 			continue;
 		}
+
 		if( !token.Icmp( "clamp" ) )
 		{
-			trp = TR_CLAMP;
+			trp = vkSampler::WRAP_BORDER;
 			continue;
 		}
+
 		if( !token.Icmp( "noclamp" ) )
 		{
-			trp = TR_REPEAT;
+			trp = vkSampler::WRAP_REPEAT;
 			continue;
 		}
+
 		if( !token.Icmp( "zeroclamp" ) )
 		{
-			trp = TR_CLAMP_TO_ZERO;
+			trp = vkSampler::WRAP_BORDER;
 			continue;
 		}
+
 		if( !token.Icmp( "alphazeroclamp" ) )
 		{
-			trp = TR_CLAMP_TO_ZERO_ALPHA;
+			trp = vkSampler::WRAP_BORDER;
 			continue;
 		}
+
 		if( !token.Icmp( "forceHighQuality" ) )
 		{
 			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
+
 		if( !token.Icmp( "highquality" ) )
 		{
 			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
+
 		if( !token.Icmp( "uncompressed" ) )
 		{
 			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
-		if( !token.Icmp( "uncompressedCubeMap" ) ) {			
-			if( r_useHightQualitySky.GetBool() ) {
+
+		if( !token.Icmp( "uncompressedCubeMap" ) ) 
+		{			
+			if( r_useHightQualitySky.GetBool() ) 
+			{
 				td = TD_HIGHQUALITY_CUBE;	// motorsep 05-17-2015; token to mark cumebap/skybox to be uncompressed texture									
 			}
-			if( !r_useHightQualitySky.GetBool() ) {
+
+			if( !r_useHightQualitySky.GetBool() ) 
+			{
 				td = TD_LOWQUALITY_CUBE;
 			}
 			continue;
-		}		
+		}	
+
 		if( !token.Icmp( "nopicmip" ) )
-		{
 			continue;
-		}
+
 		if( !token.Icmp( "vertexColor" ) )
 		{
 			ss->vertexColor = SVC_MODULATE;
 			continue;
 		}
+
 		if( !token.Icmp( "inverseVertexColor" ) )
 		{
 			ss->vertexColor = SVC_INVERSE_MODULATE;
@@ -1787,33 +1825,51 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 		if( !token.Icmp( "maskRed" ) )
 		{
 			ss->drawStateBits |= GLS_REDMASK;
+// BEATO Begin:
+			// m_pipelineInfo.colorMask |= crPipeline::CM_RED_MASK;
+// BEATO End
 			continue;
 		}
 		if( !token.Icmp( "maskGreen" ) )
 		{
 			ss->drawStateBits |= GLS_GREENMASK;
+// BEATO Begin:
+			// m_pipelineInfo.colorMask |= crPipeline::CM_RED_MASK;
+// BEATO End
 			continue;
 		}
 		if( !token.Icmp( "maskBlue" ) )
 		{
 			ss->drawStateBits |= GLS_BLUEMASK;
+// BEATO Begin:
+			// m_pipelineInfo.colorMask |= crPipeline::CM_BLUE_MASK;
+// BEATO End
 			continue;
 		}
 		if( !token.Icmp( "maskAlpha" ) )
 		{
 			ss->drawStateBits |= GLS_ALPHAMASK;
+// BEATO Begin:
+			// m_pipelineInfo.colorMask |= crPipeline::CM_ALPHA_MASK;
+// BEATO End
 			continue;
 		}
+		
 		if( !token.Icmp( "maskColor" ) )
 		{
 			ss->drawStateBits |= GLS_COLORMASK;
+// BEATO Begin:
+			// m_pipelineInfo.colorMask |= crPipeline::CM_RED_MASK | crPipeline::CM_GREEN_MASK | crPipeline::CM_BLUE_MASK;
+// BEATO End
 			continue;
 		}
+		
 		if( !token.Icmp( "maskDepth" ) )
 		{
 			ss->drawStateBits |= GLS_DEPTHMASK;
 			continue;
 		}
+
 		if( !token.Icmp( "alphaTest" ) )
 		{
 			ss->hasAlphaTest = true;
@@ -1894,8 +1950,8 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 		{
 			if( src.ReadTokenOnLine( &token ) )
 			{
-				newStage.vertexProgram = renderProgManager.FindVertexShader( token.c_str() );
-				newStage.fragmentProgram = renderProgManager.FindFragmentShader( token.c_str() );
+				newStage.vertexProgram = 0; // renderProgManager.FindVertexShader( token.c_str() );
+				newStage.fragmentProgram = 0; //renderProgManager.FindFragmentShader( token.c_str() );
 			}
 			continue;
 		}
@@ -1903,7 +1959,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 		{
 			if( src.ReadTokenOnLine( &token ) )
 			{
-				newStage.fragmentProgram = renderProgManager.FindFragmentShader( token.c_str() );
+				newStage.fragmentProgram = 0;//renderProgManager.FindFragmentShader( token.c_str() );
 			}
 			continue;
 		}
@@ -1911,7 +1967,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 		{
 			if( src.ReadTokenOnLine( &token ) )
 			{
-				newStage.vertexProgram = renderProgManager.FindVertexShader( token.c_str() );
+				newStage.vertexProgram = 0;// renderProgManager.FindVertexShader( token.c_str() );
 			}
 			continue;
 		}
@@ -1944,7 +2000,7 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 	// if we are using newStage, allocate a copy of it
 	if( newStage.fragmentProgram || newStage.vertexProgram )
 	{
-		newStage.glslProgram = renderProgManager.FindGLSLProgram( GetName(), newStage.vertexProgram, newStage.fragmentProgram );
+		newStage.glslProgram = 0;// renderProgManager.FindGLSLProgram( GetName(), newStage.vertexProgram, newStage.fragmentProgram );
 		ss->newStage = ( newShaderStage_t* )Mem_Alloc( sizeof( newStage ), TAG_MATERIAL );
 		*( ss->newStage ) = newStage;
 	}
@@ -1993,16 +2049,15 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 		if( imageName[0] )
 		{
 			// foresthale 2014-05-17: don't binarize when in the editors - we just run uncompressed from the source assets
-			coverageTS->image = globalImages->ImageFromFile( imageName, tf, trp, CheckEditorUsage( TD_COVERAGE ), cubeMap );
+			coverageTS->image = globalImages->ImageFromFile( imageName, CheckEditorUsage( TD_COVERAGE ), cubeMap );
 			if( !coverageTS->image )
-			{
-				coverageTS->image = globalImages->defaultImage;
-			}
+				coverageTS->image = globalImages->DefaultImage();
+			
 		}
 		else if( !coverageTS->cinematic && !coverageTS->dynamic && !ss->newStage )
 		{
 			common->Warning( "material '%s' had stage with no image", GetName() );
-			coverageTS->image = globalImages->defaultImage;
+			coverageTS->image = globalImages->DefaultImage();
 		}
 	}
 
@@ -2012,16 +2067,14 @@ void idMaterial::ParseStage( idLexer& src, const textureRepeat_t trpDefault )
 	// now load the image with all the parms we parsed
 	if( imageName[0] )
 	{
-		ts->image = globalImages->ImageFromFile( imageName, tf, trp, td, cubeMap );
+		ts->image = globalImages->ImageFromFile( imageName, td, cubeMap );
 		if( !ts->image )
-		{
-			ts->image = globalImages->defaultImage;
-		}
+			ts->image = globalImages->DefaultImage();
 	}
 	else if( !ts->cinematic && !ts->dynamic && !ss->newStage )
 	{
 		common->Warning( "material '%s' had stage with no image", GetName() );
-		ts->image = globalImages->defaultImage;
+		ts->image = globalImages->DefaultImage();
 	}
 }
 
@@ -2139,7 +2192,7 @@ It is valid to have either a diffuse or specular without the other.
 It is valid to have a reflection map and a bump map for bumpy reflection
 ==============
 */
-void idMaterial::AddImplicitStages( const textureRepeat_t trpDefault /* = TR_REPEAT  */ )
+void idMaterial::AddImplicitStages( void )
 {
 	char	buffer[1024];
 	idLexer		newSrc;
@@ -2189,7 +2242,7 @@ void idMaterial::AddImplicitStages( const textureRepeat_t trpDefault /* = TR_REP
 		idStr::snPrintf( buffer, sizeof( buffer ), "blend bumpmap\nmap _flat\n}\n" );
 		newSrc.LoadMemory( buffer, strlen( buffer ), "bumpmap" );
 		newSrc.SetFlags( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		ParseStage( newSrc, trpDefault );
+		ParseStage( newSrc );
 		newSrc.FreeSource();
 	}
 	
@@ -2198,10 +2251,9 @@ void idMaterial::AddImplicitStages( const textureRepeat_t trpDefault /* = TR_REP
 		idStr::snPrintf( buffer, sizeof( buffer ), "blend diffusemap\nmap _white\n}\n" );
 		newSrc.LoadMemory( buffer, strlen( buffer ), "diffusemap" );
 		newSrc.SetFlags( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-		ParseStage( newSrc, trpDefault );
+		ParseStage( newSrc );
 		newSrc.FreeSource();
-	}
-	
+	}	
 }
 
 /*
@@ -2268,14 +2320,14 @@ If there is any error during parsing, defaultShader will be set.
 */
 void idMaterial::ParseMaterial( idLexer& src )
 {
-	idToken		token;
-	int			s;
+	int			i = 0;
+	int			s = 0;
+	const char*	str = nullptr;
 	char		buffer[1024];
-	const char*	str;
+	idToken		token;
 	idLexer		newSrc;
-	int			i;
-	
-	s = 0;
+	vkSampler::filter_t sampFilter = vkSampler::FILTER_NEAREST;
+	vkSampler::wrapping_t sampWraping = vkSampler::WRAP_BORDER;
 	
 	numOps = 0;
 	numRegisters = EXP_REG_NUM_PREDEFINED;	// leave space for the parms to be copied in
@@ -2286,14 +2338,13 @@ void idMaterial::ParseMaterial( idLexer& src )
 	
 	numStages = 0;
 	pd->registersAreConstant = true;			// until shown otherwise
-	textureRepeat_t	trpDefault = TR_REPEAT;		// allow a global setting for repeat
+	///textureRepeat_t	trpDefault = TR_REPEAT;		// allow a global setting for repeat
 	
 	while( 1 )
 	{
 		if( TestMaterialFlag( MF_DEFAULTED ) )  	// we have a parse error
-		{
 			return;
-		}
+		
 		if( !src.ExpectAnyToken( &token ) )
 		{
 			SetMaterialFlag( MF_DEFAULTED );
@@ -2302,9 +2353,8 @@ void idMaterial::ParseMaterial( idLexer& src )
 		
 		// end of material definition
 		if( token == "}" )
-		{
 			break;
-		}
+
 		else if( !token.Icmp( "qer_editorimage" ) )
 		{
 			src.ReadTokenOnLine( &token );
@@ -2321,11 +2371,8 @@ void idMaterial::ParseMaterial( idLexer& src )
 		}
 		// check for the surface / content bit flags
 		else if( CheckSurfaceParm( &token ) )
-		{
 			continue;
-		}
-		
-		
+				
 		// polygonOffset
 		else if( !token.Icmp( "polygonOffset" ) )
 		{
@@ -2337,6 +2384,8 @@ void idMaterial::ParseMaterial( idLexer& src )
 			}
 			// explict larger (or negative) offset
 			polygonOffset = token.GetFloatValue();
+
+			// TODO: set direct in the pipeline ( may be a waste of pipeline allocation )
 			continue;
 		}
 		// noshadow
@@ -2394,19 +2443,28 @@ void idMaterial::ParseMaterial( idLexer& src )
 		// global zero clamp
 		else if( !token.Icmp( "zeroclamp" ) )
 		{
-			trpDefault = TR_CLAMP_TO_ZERO;
+// BEATO Begin:
+			//trpDefault = TR_CLAMP_TO_ZERO;
+			sampWraping = vkSampler::WRAP_BORDER; // TODO: create a black border in texture
+// BEATO End
 			continue;
 		}
 		// global clamp
 		else if( !token.Icmp( "clamp" ) )
 		{
-			trpDefault = TR_CLAMP;
+// BEATO Begin
+			// trpDefault = TR_CLAMP;
+			sampWraping = vkSampler::WRAP_BORDER;
+// BEATO End
 			continue;
 		}
 		// global clamp
 		else if( !token.Icmp( "alphazeroclamp" ) )
 		{
-			trpDefault = TR_CLAMP_TO_ZERO;
+// BEATO Begin:
+			// trpDefault = TR_CLAMP_TO_ZERO;
+			sampWraping = vkSampler::WRAP_BORDER;
+// BEATO End
 			continue;
 		}
 		// forceOpaque is used for skies-behind-windows
@@ -2419,17 +2477,30 @@ void idMaterial::ParseMaterial( idLexer& src )
 		else if( !token.Icmp( "twoSided" ) )
 		{
 			cullType = CT_TWO_SIDED;
+
 			// twoSided implies no-shadows, because the shadow
 			// volume would be coplanar with the surface, giving depth fighting
 			// we could make this no-self-shadows, but it may be more important
 			// to receive shadows from no-self-shadow monsters
 			if( !r_useShadowMapping.GetBool() ) // motorsep 11-08-2014; when shadow mapping is on, we allow two-sided surfaces to cast shadows 
 				SetMaterialFlag( MF_NOSHADOWS );
+// BEATO Begin: Pipeline configuration
+			// m_pipelineInfo.faceCull = crPipeline::FC_TWO_FACES;
+			// m_pipelineInfo.polygonModeFace = crPipeline::FC_TWO_FACES;
+			// m_pipelineInfo.stencilFace = crPipeline::FC_TWO_FACES;
+// BEATO End
 		}
 		// backSided
 		else if( !token.Icmp( "backSided" ) )
 		{
 			cullType = CT_BACK_SIDED;
+
+// BEATO Begin: Pipeline configuration
+		// m_pipelineInfo.faceCull = crPipeline::FC_FRONT;
+		// m_pipelineInfo.polygonModeFace = crPipeline::FC_FRONT;
+		// m_pipelineInfo.stencilFace = crPipeline::FC_FRONT;
+// BEATO End
+			
 			// the shadow code doesn't handle this, so just disable shadows.
 			// We could fix this in the future if there was a need.
 			SetMaterialFlag( MF_NOSHADOWS );
@@ -2480,7 +2551,12 @@ void idMaterial::ParseMaterial( idLexer& src )
 			idStr	copy;
 			
 			copy = str;	// so other things don't step on it
-			lightFalloffImage = globalImages->ImageFromFile( copy, TF_LINEAR, TR_CLAMP /* TR_CLAMP_TO_ZERO */, TD_LIGHT );	// sikk - changed to TD_LIGHT (no compression), was TD_DEFAULT
+			
+			lightFalloffSampler = new vkSampler();
+			lightFalloffSampler->Create( vkSampler::FILTER_LINEAR, vkSampler::WRAP_BORDER, vkSampler::WRAP_BORDER, vkSampler::WRAP_BORDER );
+			
+			auto globalImages = idRenderSystem::GetGlobalImages();
+			lightFalloffImage = globalImages->ImageFromFile( copy, TD_LIGHT );	// sikk - changed to TD_LIGHT (no compression), was TD_DEFAULT
 			continue;
 		}
 		// guisurf <guifile> | guisurf entity
@@ -2537,12 +2613,16 @@ void idMaterial::ParseMaterial( idLexer& src )
 			ParseDecalInfo( src );
 			continue;
 		}
+// BEATO Begin: Nowdays modeling tools have better bumpmap/normal generation options
+#if 0
 		// renderbump <args...>
 		else if( !token.Icmp( "renderbump" ) )
 		{
 			src.ParseRestOfLine( renderBump );
 			continue;
 		}
+#endif
+// BEATO End
 		// diffusemap for stage shortcut
 		else if( !token.Icmp( "diffusemap" ) )
 		{
@@ -2550,7 +2630,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 			idStr::snPrintf( buffer, sizeof( buffer ), "blend diffusemap\nmap %s\n}\n", str );
 			newSrc.LoadMemory( buffer, strlen( buffer ), "diffusemap" );
 			newSrc.SetFlags( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-			ParseStage( newSrc, trpDefault );
+			ParseStage( newSrc );
 			newSrc.FreeSource();
 			continue;
 		}
@@ -2561,7 +2641,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 			idStr::snPrintf( buffer, sizeof( buffer ), "blend specularmap\nmap %s\n}\n", str );
 			newSrc.LoadMemory( buffer, strlen( buffer ), "specularmap" );
 			newSrc.SetFlags( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-			ParseStage( newSrc, trpDefault );
+			ParseStage( newSrc );
 			newSrc.FreeSource();
 			continue;
 		}
@@ -2572,7 +2652,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 			idStr::snPrintf( buffer, sizeof( buffer ), "blend glossmap\nmap %s\n}\n", str );
 			newSrc.LoadMemory( buffer, strlen( buffer ), "glossmap" );
 			newSrc.SetFlags( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-			ParseStage( newSrc, trpDefault );
+			ParseStage( newSrc );
 			newSrc.FreeSource();
 			continue;
 		}
@@ -2583,7 +2663,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 			idStr::snPrintf( buffer, sizeof( buffer ), "blend bumpmap\nmap %s\n}\n", str );
 			newSrc.LoadMemory( buffer, strlen( buffer ), "bumpmap" );
 			newSrc.SetFlags( LEXFL_NOFATALERRORS | LEXFL_NOSTRINGCONCAT | LEXFL_NOSTRINGESCAPECHARS | LEXFL_ALLOWPATHNAMES );
-			ParseStage( newSrc, trpDefault );
+			ParseStage( newSrc );
 			newSrc.FreeSource();
 			continue;
 		}
@@ -2635,7 +2715,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 		else if( token == "{" )
 		{
 			// create the new stage
-			ParseStage( src, trpDefault );
+			ParseStage( src );
 			continue;
 		}
 		else
@@ -2661,6 +2741,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 	// in temporary form
 	if( cullType == CT_TWO_SIDED )
 	{
+		//m_pipelineInfo.faceCull = crPipeline::FC_TWO_FACES;
 		for( i = 0 ; i < numStages ; i++ )
 		{
 			if( pd->parseStages[i].lighting != SL_AMBIENT || pd->parseStages[i].texture.texgen != TG_EXPLICIT )
@@ -2669,10 +2750,16 @@ void idMaterial::ParseMaterial( idLexer& src )
 				{
 					cullType = CT_FRONT_SIDED;
 					shouldCreateBackSides = true;
+
+					// BEATO Begin:
+					//m_pipelineInfo.faceCull = crPipeline::FC_FRONT; 
+					// BEATO End
+
 				}
 				break;
 			}
 		}
+
 	}
 	
 	// currently a surface can only have one unique texgen for all the stages on old hardware
@@ -2838,7 +2925,8 @@ bool idMaterial::Parse( const char* text, const int textLength, bool allowBinary
 	
 	// anything that references _currentRender will automatically get sort = SS_POST_PROCESS
 	// and coverage = MC_TRANSLUCENT
-	
+	idImageManagerLocal* globalImages = static_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+
 	for( i = 0 ; i < numStages ; i++ )
 	{
 		shaderStage_t*	pStage = &pd->parseStages[i];
@@ -3447,45 +3535,37 @@ idMaterial::SetFastPathImages
 See if the material is trivial for the fast path
 =============
 */
-void idMaterial::SetFastPathImages()
+void idMaterial::SetFastPathImages( void )
 {
 	fastPathBumpImage = nullptr;
 	fastPathDiffuseImage = nullptr;
 	fastPathSpecularImage = nullptr;
 	fastPathGlossImage = nullptr;
+	idImageManagerLocal* globalImages = static_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
 	
 	if( constantRegisters == nullptr )
-	{
 		return;
-	}
 	
 	// go through the individual surface stages
 	//
 	// We also have the very rare case of some materials that have conditional interactions
 	// for the "hell writing" that can be shined on them.
-	
 	for( int surfaceStageNum = 0; surfaceStageNum < GetNumStages(); surfaceStageNum++ )
 	{
 		const shaderStage_t*	surfaceStage = GetStage( surfaceStageNum );
 		
 		if( surfaceStage->texture.hasMatrix )
-		{
 			goto fail;
-		}
 		
 		// check for vertex coloring
 		if( surfaceStage->vertexColor != SVC_IGNORE )
-		{
 			goto fail;
-		}
 		
 		// check for non-identity colors
 		for( int i = 0; i < 4; i++ )
 		{
 			if( idMath::Fabs( constantRegisters[surfaceStage->color.registers[i]] - 1.0f ) > 0.1f )
-			{
 				goto fail;
-			}
 		}
 		
 		switch( surfaceStage->lighting )
@@ -3496,35 +3576,31 @@ void idMaterial::SetFastPathImages()
 			case SL_BUMP:
 			{
 				if( fastPathBumpImage )
-				{
 					goto fail;
-				}
+				
 				fastPathBumpImage = surfaceStage->texture.image;
 				break;
 			}
 			case SL_DIFFUSE:
 			{
 				if( fastPathDiffuseImage )
-				{
 					goto fail;
-				}
+				
 				fastPathDiffuseImage = surfaceStage->texture.image;
 				break;
 			}
 			case SL_SPECULAR:
 			{
 				if( fastPathSpecularImage )
-				{
 					goto fail;
-				}
+
 				fastPathSpecularImage = surfaceStage->texture.image;
 			}
 			case SL_GLOSS:
 			{
 				if( fastPathGlossImage )
-				{
 					goto fail;
-				}
+	
 				fastPathGlossImage = surfaceStage->texture.image;
 			}
 		}
@@ -3534,17 +3610,14 @@ void idMaterial::SetFastPathImages()
 	// from 565 DXT.  The general-path code also sets the diffuse color to 0 in the default case,
 	// but the fast path can't.
 	if( fastPathBumpImage == nullptr || fastPathDiffuseImage == nullptr )
-	{
 		goto fail;
-	}
+	
 	if( fastPathSpecularImage == nullptr )
-	{
 		fastPathSpecularImage = globalImages->blackImage;
-	}
+
 	if( fastPathGlossImage == nullptr )
-	{
 		fastPathGlossImage = globalImages->glossImage;
-	}
+	
 	return;
 	
 fail:

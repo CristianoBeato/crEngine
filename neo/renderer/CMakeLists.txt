@@ -51,16 +51,17 @@ set( RENDERER_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/VertexCache.h
     ${CMAKE_CURRENT_SOURCE_DIR}/DebugDraw.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/DebugDraw.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Format.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Format.hpp
     )
 
 set( RENDERER_BACKEND_SOURCES 
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend/RenderProgs.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend/RenderProgs_GLSL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend/RenderProgs.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend/tr_backend_draw.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend/tr_backend_rendertools.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/Backend.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/Backend.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/PipelineManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/PipelineManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/ShaderManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/ShaderManager.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/UniformManager.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/UniformManager.hpp
     )
 
 set( RENDERER_FRONTEND_SOURCES
@@ -80,7 +81,7 @@ set( RENDERER_IMAGES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_intrinsic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_load.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/ImageManager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/images/ImageOpts.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/images/ImageManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_process.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_program.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/jpeg_memory_src.cpp
@@ -127,31 +128,7 @@ set( RENDERER_MODELS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/models/Model_prt.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/models/Model_sprite.cpp
     )
-
-set( RENDERER_OPENGL_SOURCES
-    #${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_backend.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_Framebuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/gl_GraphicsAPIWrapper.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/OpenGL.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/OpenGL.h
-
-    # Current Wip
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glBuffer.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glCommandBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glCommandBuffer.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glFrameBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glFrameBuffer.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glPipeline.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glPipeline.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glProgram.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glProgram.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glShaderStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glShaderStorage.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glTexture.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/OpenGL/glTexture.hpp
-    )
-
+    
 set( RENDERER_RENDERWORLD_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/renderworld/RenderEntity.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/renderworld/RenderEntity.hpp
@@ -165,32 +142,28 @@ set( RENDERER_RENDERWORLD_SOURCES
     )
 
 set( RENDERER_VULKAN_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkAllocator.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkAllocator.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkBuffer.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkCommandBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkCommandBuffer.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkContext.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkContext.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkDevice.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkDevice.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkFrameBuffer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkFrameBuffer.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkPipeline.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkPipeline.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkProgram.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkProgram.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkShaderStorage.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkShaderStorage.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkSwapchain.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkSwapchain.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkTexture.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkTexture.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkUtils.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/vkUtils.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Vulkan.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Vulkan.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Buffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Buffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Commandbuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Commandbuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Core.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Core.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Format.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Format.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Framebuffer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Framebuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Pipeline.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Pipeline.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Program.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Program.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Resource.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Resource.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Texture.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Texture.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Utils.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Utils.hpp
     )
 
 set( RENDERER_SOURCES
@@ -200,7 +173,6 @@ set( RENDERER_SOURCES
     ${RENDERER_IMAGES_SOURCES}
     ${RENDERER_JOBS_SOURCES}
     ${RENDERER_MODELS_SOURCES}
-    ${RENDERER_OPENGL_SOURCES}
     ${RENDERER_RENDERWORLD_SOURCES}
     ${RENDERER_VULKAN_SOURCES}
     )
@@ -211,7 +183,7 @@ set( RENDERER_SOURCES
 add_library( renderer STATIC ${RENDERER_SOURCES} )
 
 #set the idLib specific definitions
-#target_compile_definitions( renderer PRIVATE __DOOM_DLL__ )
+target_compile_definitions( renderer PRIVATE __RENDERER_LIB__ )
 
 # d3xp need idLib
 add_dependencies( renderer idLib )

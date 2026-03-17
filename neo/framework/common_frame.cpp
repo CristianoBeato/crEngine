@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Common_local.h"
+#include "renderer/Vulkan/Core.hpp"
 #include "renderer/images/Image.h"
-#include "renderer/images/ImageOpts.h"
 
 /*
 

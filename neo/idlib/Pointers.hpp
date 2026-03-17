@@ -95,6 +95,28 @@ public:
     /// @brief Overloading the "*" operator to dereference the pointer.
     ID_INLINE const_reference   operator*( void ) const { return *m_data; }
 
+    /// @brief OVerloading the reference pointer
+    ID_INLINE pointer           operator&( void ) { return m_data; };
+
+    /// @brief OVerloading the reference pointer
+    ID_INLINE const_pointer     operator&( void ) const { return m_data; }
+
+    /// @brief Equality compare operator to pointer address
+    /// @param in_pointer pointer to compare
+    /// @return true if equal, false if diferent
+    ID_INLINE const bool        operator==( const pointer in_pointer ) const
+    {
+        return m_data == in_pointer;
+    }
+
+    /// @brief Diference compare operator 
+    /// @param in_pointer pointer to compare
+    /// @return 
+    ID_INLINE const bool        operator!=( const pointer in_pointer ) const
+    {
+        return m_data != in_pointer;
+    }
+
     /// @brief 
     /// @param i 
     /// @return 
@@ -107,7 +129,7 @@ public:
     
     /// @brief 
     /// @param  
-    ID_INLINE operator __type__*( void ) const { return m_data; }
+    ID_INLINE operator const __type__*( void ) const { return m_data; }
 
     /// @brief 
     /// @param  
@@ -121,7 +143,7 @@ protected:
 /// @brief Base pointer estructure ( RAII patern )
 /// @tparam __type__ the pointer holding type
 /// @tparam __tag__ Memory tag definition
-template< typename __type__, memTag_t __tag__ >
+template< typename __type__, memTag_t __tag__ = TAG_DECL >
 class crStaticPointer : public crPointer< __type__, __tag__ >
 {
 public:
@@ -132,6 +154,12 @@ public:
 
     crStaticPointer( void ) : crPointer<__type__, __tag__>()
     {
+    }
+
+    explicit crStaticPointer( const pointer &in_ptr_ref ) : crPointer<__type__, __tag__>()
+    {
+        crPointer<__type__, __tag__>::m_data = in_ptr_ref;
+        crPointer<__type__, __tag__>::m_size = sizeof( in_ptr_ref );
     }
 
     explicit crStaticPointer( const uint32_t in_count, const size_t in_alignament ) : crPointer<__type__, __tag__>()

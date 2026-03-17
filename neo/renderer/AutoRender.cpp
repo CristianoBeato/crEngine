@@ -171,7 +171,7 @@ void idAutoRender::RenderBackground( void )
 	auto globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
 	auto uniforms = crUniformManager::Get();
 	auto pipelines = crPipelineManager::Get();
-	auto vertex = uniforms->GetVertexUniforms();
+	auto vertex = uniforms->GetMeshUniforms();
 	globalImages->currentRenderImage->Bind();
 	
 	// set by the pipeline
@@ -182,21 +182,21 @@ void idAutoRender::RenderBackground( void )
 	mvpMatrix[5] = 1;
 	mvpMatrix[10] = 1;
 	mvpMatrix[15] = 1;
-	std::memcpy( vertex->MVPMatrix.ToFloatPtr(), mvpMatrix, sizeof( float ) * 16 );
+	std::memcpy( vertex->MVPMatrix, mvpMatrix, sizeof( float ) * 16 );
 	
 	// Set Parms7
 	// float texS[4] = { 1.0f, 0.0f, 0.0f, 0.0f };
 	// float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
-	vertex->diffuseMatrixS = idVec4( 1.0f, 0.0f, 0.0f, 0.0f );
-	vertex->diffuseMatrixS = idVec4( 0.0f, 1.0f, 0.0f, 0.0f );
+	// vertex->diffuseMatrixS = idVec4( 1.0f, 0.0f, 0.0f, 0.0f );
+	// vertex->diffuseMatrixS = idVec4( 0.0f, 1.0f, 0.0f, 0.0f );
 	
 	// disable texgen
 	//float texGenEnabled[4] = { 0, 0, 0, 0 };
-	vertex->texGen0Enabled = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
+	//vertex->texGen0Enabled = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
 		
 	pipelines->GetPipeline( PIPELINE_TEXTURED_COLOR )->Bind();
 	
-	uniforms->SubmitVertexUniforms(); // we only modify vertex uniforms 
+	// uniforms->SubmitVertexUniforms(); // we only modify vertex uniforms 
 	// backEnd.DrawElementsWithCounters( &backEnd.unitSquareSurface );
 }
 
@@ -210,7 +210,7 @@ void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, floa
 	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
 	auto uniforms = crUniformManager::Get();
 	auto pipelines = crPipelineManager::Get();
-	auto vertex = uniforms->GetVertexUniforms();
+	auto vertex = uniforms->GetMeshUniforms();
 
 	float s = 0.0f;
 	float c = 1.0f;
@@ -264,8 +264,7 @@ void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, floa
 	
 	float projMatrixTranspose[16];
 	R_MatrixTranspose( finalOrtho, projMatrixTranspose );
-	//renderProgManager.SetRenderParms( RENDERPARM_MVPMATRIX_X, projMatrixTranspose, 4 );
-	std::memcpy( vertex->MVPMatrix.ToFloatPtr(), projMatrixTranspose, sizeof( float ) * 16 );
+	std::memcpy( vertex->MVPMatrix, projMatrixTranspose, sizeof( float ) * 16 );
 
 	float a = 1.0f;
 	if( autoRenderIcon == AUTORENDER_HELLICON )
@@ -287,20 +286,19 @@ void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, floa
 	//float texT[4] = { 0.0f, 1.0f, 0.0f, 0.0f };
 	//renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_S, texS );
 	//renderProgManager.SetRenderParm( RENDERPARM_TEXTUREMATRIX_T, texT );
-	vertex->diffuseMatrixS = idVec4( 1.0f, 0.0f, 0.0f, 0.0f );
-	vertex->diffuseMatrixT = idVec4( 0.0f, 1.0f, 0.0f, 0.0f );
+	// vertex->diffuseMatrixS = idVec4( 1.0f, 0.0f, 0.0f, 0.0f );
+	// vertex->diffuseMatrixT = idVec4( 0.0f, 1.0f, 0.0f, 0.0f );
 	
-	if( autoRenderIcon == AUTORENDER_HELLICON )
-		vertex->color = idVec4( 1.0f, 1.0f, 1.0f, a );
+	// if( autoRenderIcon == AUTORENDER_HELLICON )
+	// 	vertex->color = idVec4( 1.0f, 1.0f, 1.0f, a );
 		
 	// disable texgen
 	//float texGenEnabled[4] = { 0, 0, 0, 0 };
 	//renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
-	vertex->texGen0Enabled = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
+	// vertex->texGen0Enabled = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
 	
 	//renderProgManager.BindShader_TextureVertexColor();
 	pipelines->GetPipeline( PIPELINE_TEXTURED_COLOR )->Bind();
 
-	uniforms->SubmitVertexUniforms(); // we only modify vertex uniforms 
 	// backEnd.DrawElementsWithCounters( &backEnd.unitSquareSurface );
 }

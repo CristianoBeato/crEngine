@@ -32,13 +32,12 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Common_local.h"
 
-
-
 #include "ConsoleHistory.h"
+
+#include "renderer/Vulkan/Core.hpp" // prevent ‘image_type_t’ does not name a type error
 #include "renderer/AutoRenderBink.h"
-
+#include "renderer/images/Image.h"
 #include "sound/sound.h"
-
 #include "sys/sys_savegame.h"
 
 #ifdef WIN32
@@ -989,8 +988,6 @@ CONSOLE_COMMAND( reloadLanguage, "reload language dict", nullptr )
 	commonLocal.InitLanguageDict();
 }
 
-#include "renderer/images/Image.h"
-
 /*
 =================
 Com_StartBuild_f
@@ -998,6 +995,7 @@ Com_StartBuild_f
 */
 CONSOLE_COMMAND( startBuild, "prepares to make a build", nullptr )
 {
+	idImageManagerp globalImages = idImageManager::Get();
 	globalImages->StartBuild();
 }
 
@@ -1011,6 +1009,7 @@ CONSOLE_COMMAND( finishBuild, "finishes the build process", nullptr )
 	if( game )
 		game->CacheDictionaryMedia( nullptr );
 	
+	idImageManagerp globalImages = idImageManager::Get();
 	globalImages->FinishBuild( ( args.Argc() > 1 ) );
 }
 
@@ -1626,6 +1625,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		{
 			idPreloadManifest manifest;
 			manifest.LoadManifest( "_common.preload" );
+			idImageManagerp globalImages = idImageManager::Get();
 			globalImages->Preload( manifest, false );
 			soundSystem->Preload( manifest );
 		}

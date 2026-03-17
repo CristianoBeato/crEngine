@@ -47,8 +47,9 @@ idCVar stereoRender_warpTargetFraction( "stereoRender_warpTargetFraction", "1.0"
 idCVar r_showSwapBuffers( "r_showSwapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
 idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU buffer execution past swapbuffers" );
 
-static int		swapIndex;		// 0 or 1 into renderSync
-static GLsync	renderSync[2];
+static const idVec4 zero = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
+static const idVec4 one = idVec4( 1.0f, 1.0f, 1.0f, 1.0f );
+static const idVec4 negOne = idVec4( -1.0f, -1.0f, -1.0f, -1.0f );
 
 /*
 ============================================================================
@@ -58,8 +59,6 @@ RENDER BACK END THREAD FUNCTIONS
 ============================================================================
 */
 
-crBackend backEnd;
-
 crBackend::crBackend( void )
 {
 }
@@ -68,48 +67,55 @@ crBackend::~crBackend( void )
 {
 }
 
-void crBackend::StartUp(void)
+crBackend *crBackend::Get(void)
 {
-    if ( glConfig.backend == BACKEND_VULKAN )
-    {
-        auto renderQueue = tr.vkContext->Device()->GraphicQueue();
-        m_renderCMD = new vkGraphicCommandBuffer( renderQueue );
-		m_transferCMD = new vkTransferCommandBuffer( renderQueue );
-        m_shaderStorage = new vkShaderStorage();
-        m_swapchain = new vkSwapchain( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
-    }
-    else if( glConfig.backend == BACKEND_OPENGL )
-    {
-        m_renderCMD = new glGraphicCommandBuffer();
-		m_transferCMD = new glTransferCommandBuffer();
-        m_shaderStorage = new glShaderStorage();
-        m_swapchain = new glSwapchain( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight );
-    }
+	static crBackend backEnd = crBackend();
+    return &backEnd;
+}
+
+bool crBackend::StartUp( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth )
+{
+	m_swapchain = new vkSwapchain();
+	m_swapchain->Create( in_width, in_heigth, false );
+	
+	m_defaultFB = new vkFramebuffer();
+	m_defaultFB->Create( { in_width, in_heigth, 0, VK_FORMAT_R8G8B8A8_SRGB, VK_FORMAT_D24_UNORM_S8_UINT } );
+
+	return true;
+}
+
+bool crBackend::SetScreenParms( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth )
+{
+	// TODO: RECONFIGURE SWAP CHAIN AND FRAME BUFFERS
+	return false;
 }
 
 void crBackend::ShutDown(void)
 {
-    if ( m_shaderStorage != nullptr )
-    {
-        delete m_shaderStorage;
-        m_shaderStorage = nullptr;
-    }
-
-    if ( m_renderCMD != nullptr )
-    {
-        delete m_renderCMD;
-        m_renderCMD = nullptr;
-    }    
+	if ( m_defaultFB != nullptr )
+	{
+		m_defaultFB->Destroy();
+		delete m_defaultFB;
+		m_defaultFB = nullptr;
+	}
+	
+	if( m_swapchain != nullptr )
+	{
+		m_swapchain->Destroy();
+		delete m_swapchain;
+		m_swapchain = nullptr;
+	}
 }
 
 
 /*
 =============
-RB_DrawFlickerBox
+crBackend::DrawFlickerBox
 =============
 */
 void crBackend::DrawFlickerBox( void )
 {
+#if 0
 	if( !r_drawFlickerBox.GetBool() )
 		return;
 	
@@ -121,6 +127,7 @@ void crBackend::DrawFlickerBox( void )
 
 	glScissor( 0, 0, 256, 256 );
 	glClear( GL_COLOR_BUFFER_BIT );
+#endif
 }
 
 /*
@@ -131,11 +138,58 @@ crBackend::SetBuffer
 void crBackend::SetBuffer( const void* data )
 {
 	// see which draw buffer we want to render the frame to
-	
 	const setBufferCommand_t* cmd = ( const setBufferCommand_t* )data;
+	uint32_t bufferID = m_frame % SMP_FRAMES;
 	
-	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", cmd->buffer );
+	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", bufferID );
+
+	/// Wait for parity command buffer begin to be recorded
+	m_graphicCommandBuffer->Begin( bufferID );
+
+	/// It waits for the resources of the previous paired frame to be released,
+	/// acquires and prepares the presentation image state, clears the command buffer, 
+	/// and initializes command recording for the frame.
+	m_swapchain->AcquireImage( bufferID );
 	
+	auto presentImage = m_swapchain->Image();
+
+	/// Before use the SwapChainImage, we need to perform a state transition
+	presentImage->layout = VK_IMAGE_LAYOUT_UNDEFINED;
+	presentImage->stage = VK_PIPELINE_STAGE_2_TOP_OF_PIPE_BIT; // Come from SO
+	presentImage->access = VK_ACCESS_2_NONE;
+	VkImageStateTransition( presentImage, m_graphicCommandBuffer->CommandBuffer(), VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, VK_PIPELINE_STAGE_2_COLOR_ATTACHMENT_OUTPUT_BIT, VK_ACCESS_2_COLOR_ATTACHMENT_WRITE_BIT );
+
+	/// jut clear images
+    VkRenderingAttachmentInfo colorAttachment{};
+    colorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO; 
+    colorAttachment.pNext = nullptr; 
+    colorAttachment.imageView = *m_swapchain->Image();
+    colorAttachment.imageLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+    colorAttachment.resolveMode = VK_RESOLVE_MODE_NONE; 
+    colorAttachment.resolveImageView = nullptr;
+    colorAttachment.resolveImageLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR; //VK_IMAGE_LAYOUT_SHARED_PRESENT_KHR
+    colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; //VK_ATTACHMENT_LOAD_OP_LOAD;
+    colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+	colorAttachment.clearValue = m_clearValues;
+
+	VkRenderingInfo renderingInfo{};
+    renderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+    renderingInfo.pNext = nullptr;
+    renderingInfo.flags = 0;
+    renderingInfo.renderArea = { 0, 0, tr.GetWidth(), tr.GetHeight() };
+    renderingInfo.layerCount = 1;
+    renderingInfo.viewMask = 0;
+    renderingInfo.colorAttachmentCount = 1;
+    renderingInfo.pColorAttachments = &colorAttachment;
+    renderingInfo.pDepthAttachment = nullptr;
+    renderingInfo.pStencilAttachment = nullptr;
+    vkCmdBeginRendering( m_graphicCommandBuffer->CommandBuffer(), &renderingInfo );
+	/// End frame rendering
+    vkCmdEndRendering( m_graphicCommandBuffer->CommandBuffer() );
+
+	m_defaultFB->Bind();
+
+	/// Reset Scissor
 	Scissor( 0, 0, tr.GetWidth(), tr.GetHeight() );
 	
 	// clear screen for debugging
@@ -153,6 +207,7 @@ void crBackend::SetBuffer( const void* data )
 		else
 			Clear( true, false, false, 0, 0.4f, 0.0f, 0.25f, 1.0f );
 	}
+
 }
 
 /*
@@ -168,25 +223,34 @@ void crBackend::BlockingSwapBuffers( void )
 	
 	const int beforeFinish = Sys_Milliseconds();
 	
-	if( !glConfig.syncAvailable )
-	{
-		glFinish();
-	}
-	
 	const int beforeSwap = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && beforeSwap - beforeFinish > 1 )
-	{
 		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
-	}
 	
-	tr.glContext->SwapBuffers();
+	///
+	m_defaultFB->Unbind();
 	
+	/// Waits for the presentation image to become available and prepares for presentation,
+	/// sends the recorded commands throughout the frame, and sends it to the window.
+	m_defaultFB->BlitColorAttachament( { 0, 0, 0, 0, 0, 0, tr.GetWidth(), tr.GetHeight(), 1, tr.GetWidth(), tr.GetHeight() } );
+
+	///
+	/// Prepare image to present
+	VkImageStateTransition( m_swapchain->Image(), m_graphicCommandBuffer->CommandBuffer(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_NONE );
+
+	///
+	/// sumit frame command buffer 
+	m_graphicCommandBuffer->Submit( m_swapchain->ImageAvailableSemaphore() );
+
+	/// present image to screen
+	m_swapchain->SwapBuffers( m_graphicCommandBuffer->FinishFence() );
+	
+	#if 0
 	const int beforeFence = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 )
 	{
 		common->Printf( "%i msec to swapBuffers\n", beforeFence - beforeSwap );
 	}
-	
 	if( glConfig.syncAvailable )
 	{
 		swapIndex ^= 1;
@@ -224,7 +288,8 @@ void crBackend::BlockingSwapBuffers( void )
 	
 	const int afterFence = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && afterFence - beforeFence > 1 )
-		common->Printf( "%i msec to wait on fence\n", afterFence - beforeFence );
+	common->Printf( "%i msec to wait on fence\n", afterFence - beforeFence );
+	#endif
 	
 	const int64_t exitBlockTime = Sys_Microseconds();
 	
@@ -234,6 +299,7 @@ void crBackend::BlockingSwapBuffers( void )
 		const int delta = ( int )( exitBlockTime - prevBlockTime );
 		common->Printf( "blockToBlock: %i\n", delta );
 	}
+
 	prevBlockTime = exitBlockTime;
 }
 
@@ -248,7 +314,7 @@ static void R_MakeStereoRenderImage( idImage* image )
 	opts.width = tr.GetWidth();
 	opts.height = tr.GetHeight();
 	opts.numLevels = 1;
-	opts.format = FMT_RGBA8;
+	opts.format = crInternalFormat::RGBA8U;
 	image->AllocImage( opts );
 }
 
@@ -259,6 +325,7 @@ crBackend::StereoRenderExecuteBackEndCommands
 Renders the draw list twice, with slight modifications for left eye / right eye
 ====================
 */
+#if 0
 void crBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds )
 {
 	uint64_t backEndStartTime = Sys_Microseconds();
@@ -270,7 +337,6 @@ void crBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* const 
 	// To allow stereo deghost processing, the views have to be copied to separate
 	// textures anyway, so there isn't any benefit to rendering to BACK_RIGHT for
 	// that eye.
-	glDrawBuffer( GL_BACK_LEFT );
 	
 	auto globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
 
@@ -305,9 +371,7 @@ void crBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* const 
 		const int targetEye = ( stereoEye == 1 ) ? 1 : 0;
 		
 		// Set the back end into a known default state to fix any stale render state issues
-		GL_SetDefaultState();
-		renderProgManager.Unbind();
-		renderProgManager.ZeroUniforms();
+		SetDefaultState();
 		
 		for( const emptyCommand_t* cmds = allCmds; cmds != nullptr; cmds = ( const emptyCommand_t* )cmds->next )
 		{
@@ -361,7 +425,7 @@ void crBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* const 
 	// perform the final compositing / warping / deghosting to the actual framebuffer(s)
 	assert( foundEye[0] && foundEye[1] );
 	
-	GL_SetDefaultState();
+	SetDefaultState();
 	
 	SetMVP( renderMatrix_identity );
 	
@@ -374,7 +438,7 @@ void crBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* const 
 		glDrawBuffer( GL_BACK );
 	}
 	
-	GL_State( GLS_DEPTHFUNC_ALWAYS );
+	// GL_State( GLS_DEPTHFUNC_ALWAYS );
 	Cull( CT_TWO_SIDED );
 	
 	// We just want to do a quad pass - so make sure we disable any texgen and
@@ -558,6 +622,7 @@ void crBackend::StereoRenderExecuteBackEndCommands( const emptyCommand_t* const 
 	uint64_t backEndFinishTime = Sys_Microseconds();
 	pc.totalMicroSec = backEndFinishTime - backEndStartTime;
 }
+#endif
 
 /*
 ====================
@@ -582,17 +647,21 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	if( cmds->commandId == RC_NOP && !cmds->next )
 		return;
 	
+/// Don't suport stereo rendering... fow now 
+#if 0
 	if( tr.GetStereo3DMode() != STEREO3D_OFF )
 	{
 		StereoRenderExecuteBackEndCommands( cmds );
 		renderLog.EndFrame();
 		return;
 	}
-	
+#endif
+/// gunganlan 
+
 	uint64_t backEndStartTime = Sys_Microseconds();
 	
 	// needed for editor rendering
-	GL_SetDefaultState();
+	SetDefaultState();
 	
 	// foresthale 2014-04-21: r_glow
 	// we can only render the postprocess glow if the buffer is updated in the same frame
@@ -601,8 +670,6 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	// If we have a stereo pixel format, this will draw to both
 	// the back left and back right buffers, which will have a
 	// performance penalty.
-	glDrawBuffer( GL_BACK );
-	
 	for( ; cmds != nullptr; cmds = ( const emptyCommand_t* )cmds->next )
 	{
 		switch( cmds->commandId )
@@ -613,15 +680,12 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 			case RC_DRAW_VIEW_GUI:
 				DrawView( cmds, 0 );
 				if( ( ( const drawSurfsCommand_t* )cmds )->viewDef->viewEntitys )
-				{
 					c_draw3d++;
-				}
 				else
-				{
 					c_draw2d++;
-				}
 				break;
 			case RC_SET_BUFFER:
+				SetBuffer( cmds );
 				c_setBuffers++;
 				break;
 			case RC_COPY_RENDER:
@@ -640,9 +704,10 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	DrawFlickerBox();
 	
 	// Fix for the steam overlay not showing up while in game without Shell/Debug/Console/Menu also rendering
-	glColorMask( 1, 1, 1, 1 );
-	
-	glFlush();
+	// glColorMask( 1, 1, 1, 1 );
+	// glFlush();
+
+	/// TODO: submit here? 
 	
 	// stop rendering on this thread
 	uint64_t backEndFinishTime = Sys_Microseconds();
@@ -654,4 +719,314 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		pc.c_copyFrameBuffer = 0;
 	}
 	renderLog.EndFrame();
+}
+
+
+/*
+================
+crBackend::DrawElementsWithCounters
+================
+*/
+void crBackend::DrawElementsWithCounters( const drawSurf_t* surf )
+{
+	// get vertex buffer
+	idVertexBuffer* vertexBuffer = nullptr;
+	const vertCacheHandle_t vbHandle = surf->ambientCache;
+	if( vertexCache.CacheIsStatic( vbHandle ) )
+	{
+		vertexBuffer = &vertexCache.staticData.vertexBuffer;
+	}
+	else
+	{
+		const uint64_t frameNum = ( int )( vbHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "DrawElementsWithCounters, vertexBuffer == nullptr" );
+			return;
+		}
+		vertexBuffer = &vertexCache.frameData[vertexCache.drawListNum].vertexBuffer;
+	}
+
+	const int vertOffset = ( int )( vbHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	
+	// get index buffer
+	const vertCacheHandle_t ibHandle = surf->indexCache;
+	idIndexBuffer* indexBuffer;
+	if( vertexCache.CacheIsStatic( ibHandle ) )
+	{
+		indexBuffer = &vertexCache.staticData.indexBuffer;
+	}
+	else
+	{
+		const uint64_t frameNum = ( int )( ibHandle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
+		if( frameNum != ( ( vertexCache.currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+		{
+			idLib::Warning( "RB_DrawElementsWithCounters, indexBuffer == nullptr" );
+			return;
+		}
+		indexBuffer = &vertexCache.frameData[vertexCache.drawListNum].indexBuffer;
+	}
+	// RB: 64 bit fixes, changed int to GLintptr
+	const uintptr_t indexOffset = ( uintptr_t )( ibHandle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
+	// RB end
+	
+	RENDERLOG_PRINTF( "Binding Buffers: %p:%i %p:%i\n", vertexBuffer, vertOffset, indexBuffer, indexOffset );
+	
+	/// update uniform buffers positions
+	crUniformManager* uniformManager = crUniformManager::Get();
+	uniformManager->SubmitOffsets( m_graphicCommandBuffer );
+	
+	// RB: 64 bit fixes, changed GLuint to GLintptr
+	if( trState.currentIndexBuffer != indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
+	{
+		VkDeviceSize offset = indexOffset;
+		VkDeviceSize size = VK_WHOLE_SIZE;
+		vkBufferHandle_t* indexBufferHandle = indexBuffer->GetAPIObject();
+		vkCmdBindIndexBuffer( m_graphicCommandBuffer->CommandBuffer(), *indexBufferHandle, offset, VK_INDEX_TYPE_UINT16 );
+		trState.currentIndexBuffer = indexBufferHandle;
+	}
+	
+	if( ( trState.vertexLayout != LAYOUT_DRAW_VERT ) || ( trState.currentVertexBuffer != vertexBuffer->GetAPIObject() ) || !r_useStateCaching.GetBool() )
+	{
+		VkDeviceSize offset = vertOffset;
+		VkDeviceSize size = VK_WHOLE_SIZE;
+		VkDeviceSize stride = sizeof( idDrawVert );
+		vkBufferHandle_t* vertexBufferHandle = vertexBuffer->GetAPIObject();
+		vkCmdBindVertexBuffers2( m_graphicCommandBuffer->CommandBuffer(), 0, 1, &vertexBufferHandle->buffer, &offset, &size, &stride );
+		trState.currentVertexBuffer = vertexBufferHandle;		
+		trState.vertexLayout = LAYOUT_DRAW_VERT;
+	}
+	// RB end
+	
+#if 0
+	uint32_t firstIndex = indexOffset / sizeof( triIndex_t );
+	int32_t vertexOffset = vertOffset / sizeof( idDrawVert );
+	vkCmdDrawIndexed( m_swapchain->CommandBuffer(), r_singleTriangle.GetBool() ? 3 : surf->numIndexes, 1, firstIndex, vertexOffset, 0  );
+#else
+	vkCmdDrawIndexed( m_graphicCommandBuffer->CommandBuffer(), r_singleTriangle.GetBool() ? 3 : surf->numIndexes, 1, 0, 0, 0  );
+#endif
+	
+	// RB: added stats
+	pc.c_drawElements++;
+	pc.c_drawIndexes += surf->numIndexes;
+	// RB end
+}
+
+/*
+================
+crBackend::SetVertexColorParms
+================
+*/
+void crBackend::SetVertexColorParms( stageVertexColor_t svc )
+{
+	crUniformManager* uniformManager = crUniformManager::Get(); 
+	//auto vertexUniforms = uniformManager->GetMeshUniforms();
+	auto material = uniformManager->GetMaterialUniforms();
+
+	switch( svc )
+	{
+		case SVC_IGNORE:
+			material->colorModulate = zero; ;// SetVertexParm( RENDERPARM_VERTEXCOLOR_MODULATE, zero );
+			material->colorAdd = one; ;// SetVertexParm( RENDERPARM_VERTEXCOLOR_ADD, 		one );
+			break;
+		case SVC_MODULATE:
+			material->colorModulate = one;// SetVertexParm( RENDERPARM_VERTEXCOLOR_MODULATE, one );
+			material->colorAdd = zero;// SetVertexParm( RENDERPARM_VERTEXCOLOR_ADD, zero );
+			break;
+		case SVC_INVERSE_MODULATE:
+			material->colorModulate = negOne;// SetVertexParm( RENDERPARM_VERTEXCOLOR_MODULATE, negOne );
+			material->colorAdd = one;// SetVertexParm( RENDERPARM_VERTEXCOLOR_ADD, one );
+			break;
+	}
+}
+
+void crBackend::ZeroPerformanceCounters( void )
+{
+	std::memset( &pc, 0, sizeof( pc ) );
+}
+
+/*
+========================
+crBackend::SetDefaultState
+This should initialize all Dynamic Pipeline state that any part of the entire program
+may touch, including the editor.
+========================
+*/
+void crBackend::SetDefaultState(void)
+{
+	RENDERLOG_PRINTF( "--- GL_SetDefaultState ---\n" );
+	auto cmd = m_graphicCommandBuffer->CommandBuffer();
+
+	//m_swapchain->ClearDepth( 1.0f );
+	
+	// make sure our GL state vector is set correctly
+	std::memset( &trState, 0, sizeof( trState ) );
+
+	// These are changed by GL_Cull
+	vkCmdSetCullMode( cmd, VK_CULL_MODE_NONE );
+
+	/// now changed direct by the pipeline
+	// qglColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
+	// qglBlendFunc( GL_ONE, GL_ZERO );
+	// qglDepthMask( GL_TRUE );
+	// qglDepthFunc( GL_LESS );
+	// qglDisable( GL_STENCIL_TEST );
+	// qglDisable( GL_POLYGON_OFFSET_FILL );
+	// qglDisable( GL_POLYGON_OFFSET_LINE );
+	// qglPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+
+	// These should never be changed
+	// qglEnable( GL_DEPTH_TEST );
+	// qglEnable( GL_BLEND );
+	// qglEnable( GL_SCISSOR_TEST );
+
+	if ( r_useScissor.GetBool() ) 
+	{
+		VkRect2D rect{};
+    	rect.offset.x = 0;
+    	rect.offset.y = 0;
+    	rect.extent.width = tr.GetWidth();
+    	rect.extent.height = tr.GetHeight();
+    	vkCmdSetScissor( cmd, 0, 1, &rect );
+	}
+}
+
+/*
+====================
+crBackend::Cull
+
+This handles the flipping needed when the view being
+rendered is a mirored view.
+====================
+*/
+void crBackend::Cull( const cullType_t cullType )
+{
+	VkCullModeFlags cullMode = VK_CULL_MODE_NONE;
+    if ( trState.faceCulling == cullType ) 
+        return;
+
+    if ( cullType == CT_TWO_SIDED ) 
+	{
+        cullMode = VK_CULL_MODE_NONE;
+    } 
+	else 
+	{
+        if ( cullType == CT_BACK_SIDED ) 
+            // If it's a mirror image, flip it over.
+            cullMode = viewDef->isMirror ? VK_CULL_MODE_FRONT_BIT : VK_CULL_MODE_BACK_BIT;
+		else 
+            // CT_FRONT_SIDED
+            cullMode = viewDef->isMirror ? VK_CULL_MODE_BACK_BIT : VK_CULL_MODE_FRONT_BIT;
+    }
+
+    // Vulkan 1.3 function or VK_EXT_extended_dynamic_state
+	auto cmd = m_graphicCommandBuffer->CommandBuffer();
+	vkCmdSetCullMode( cmd, cullMode );
+
+    trState.faceCulling = cullType;
+}
+
+/*
+====================
+crBackend::PolygonOffset
+====================
+*/
+void crBackend::PolygonOffset( const float scale, const float bias )
+{
+	auto cmd = m_graphicCommandBuffer->CommandBuffer();
+	trState.polyOfsScale = scale;
+	trState.polyOfsBias = bias;
+	vkCmdSetDepthBias( cmd, scale, 0.0f, bias );
+}
+
+/*
+========================
+crBackend::DepthBoundsTest
+========================
+*/
+void crBackend::DepthBoundsTest( const float zmin, const float zmax )
+{   
+	/// Check if the hardware supports it.
+	if( !glConfig.depthBoundsTestAvailable )
+		return;
+
+	// get current frame, command buffer from swapchain     
+	auto cmd = m_graphicCommandBuffer->CommandBuffer();
+	if ( zmin == 0.0f && zmax == 0.0f ) /// Disable the test
+	{
+		/// Requires Vulkan 1.3 or VK_EXT_extended_dynamic_state
+		vkCmdSetDepthBoundsTestEnable( cmd, VK_FALSE );
+	}
+	else // Enable and configure limits.
+	{
+		vkCmdSetDepthBoundsTestEnable( cmd, VK_TRUE );
+		vkCmdSetDepthBounds( cmd, zmin, zmax );
+	}
+
+	vkCmdSetDepthBounds( cmd, zmin, zmax );
+}
+
+void crBackend::Scissor( const int x /* left*/, const int y /* bottom */, const int w, const int h )
+{
+	VkRect2D rect{};
+	auto cmd = m_graphicCommandBuffer->CommandBuffer();
+	rect.offset.x = x;
+    rect.offset.y = y;
+    rect.extent.width = w;
+    rect.extent.height = h;
+    vkCmdSetScissor( cmd, 0, 1, &rect );
+}
+
+void crBackend::Viewport( const int x /* left */, const int y /* bottom */, const int w, const int h )
+{
+	VkViewport viewport{};
+	auto cmd = m_graphicCommandBuffer->CommandBuffer();
+    viewport.x = x;
+    viewport.y = y + h;
+    viewport.width = w;
+    viewport.height = -std::abs(h);;
+    viewport.minDepth = 0.0f;
+    viewport.maxDepth = 1.0f;
+    vkCmdSetViewport( cmd, 0, 1, &viewport );
+}	
+
+void crBackend::Clear(bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a)
+{
+	uint32_t attachaments = 0;
+	VkClearAttachment	clearAttachment[2]{};
+
+	VkClearRect			clearRect{};
+	clearRect.rect.extent.width = tr.GetWidth();
+	clearRect.rect.extent.height = tr.GetHeight();
+	clearRect.rect.offset.x = 0;
+	clearRect.rect.offset.y = 0;
+	clearRect.baseArrayLayer = 0;
+	clearRect.layerCount = 1;
+	
+	if( color )
+	{
+		clearAttachment[attachaments].aspectMask = VK_IMAGE_ASPECT_COLOR_BIT; 
+		clearAttachment[attachaments].colorAttachment = attachaments;
+		clearAttachment[attachaments].clearValue.color.float32[0] = r;
+		clearAttachment[attachaments].clearValue.color.float32[1] = g;
+		clearAttachment[attachaments].clearValue.color.float32[2] = b;
+		clearAttachment[attachaments].clearValue.color.float32[3] = a; 
+		attachaments++;
+	}
+
+	if( depth || stencil )
+	{
+		clearAttachment[attachaments].aspectMask = VK_IMAGE_ASPECT_NONE; 
+		if( depth )
+			clearAttachment[attachaments].aspectMask |= VK_IMAGE_ASPECT_DEPTH_BIT;
+		if( stencil )
+			clearAttachment[attachaments].aspectMask |= VK_IMAGE_ASPECT_STENCIL_BIT;
+
+		clearAttachment[attachaments].colorAttachment = 0;
+		clearAttachment[attachaments].clearValue.depthStencil.depth = 0.0f;
+		clearAttachment[attachaments].clearValue.depthStencil.stencil = stencilValue;
+		attachaments++;
+	}
+
+	vkCmdClearAttachments( m_graphicCommandBuffer->CommandBuffer(), attachaments, clearAttachment, 1, &clearRect );
 }

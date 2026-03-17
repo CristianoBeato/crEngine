@@ -42,21 +42,15 @@ class idImage;
 class idCinematic;
 class idUserInterface;
 
-// moved from image.h for default parm
-typedef enum
-{
-	TF_LINEAR,
-	TF_NEAREST,
-	TF_DEFAULT				// use the user-specified r_textureFilter
-} textureFilter_t;
+inline constexpr int MAX_FRAGMENT_IMAGES = 8;
+inline constexpr int MAX_VERTEX_PARMS = 4;
+// these don't effect per-material storage, so they can be very large
+inline constexpr int MAX_SHADER_STAGES			= 256;
 
-typedef enum
-{
-	TR_REPEAT,
-	TR_CLAMP,
-	TR_CLAMP_TO_ZERO,		// guarantee 0,0,0,255 edge for projected textures
-	TR_CLAMP_TO_ZERO_ALPHA	// guarantee 0 alpha edge for projected textures
-} textureRepeat_t;
+inline constexpr int MAX_TEXGEN_REGISTERS		= 4;
+
+inline constexpr int MAX_ENTITY_SHADER_PARMS	= 16;
+inline constexpr int MAX_GLOBAL_SHADER_PARMS	= 12;	// ? this looks like it should only be 8
 
 // How is this texture used?  Determines the storage and color format
 typedef enum
@@ -203,18 +197,20 @@ typedef enum
 	TG_GLASSWARP
 } texgen_t;
 
+class crSampler;
 typedef struct
 {
-	idCinematic* 		cinematic;
-	idImage* 			image;
-	texgen_t			texgen;
 	bool				hasMatrix;
 	int					matrix[2][3];	// we only allow a subset of the full projection matrix
-	
 	// dynamic image variables
-	dynamicidImage_t	dynamic;
 	int					width, height;
 	int					dynamicFrameCount;
+	dynamicidImage_t	dynamic;
+	idCinematic* 		cinematic;
+	crSampler*			sample;
+	idImage* 			image;
+	texgen_t			texgen;
+	
 } textureStage_t;
 
 // the order BUMP / DIFFUSE / SPECULAR is necessary for interactions to draw correctly on low end cards
@@ -237,39 +233,37 @@ typedef enum
 	SVC_INVERSE_MODULATE
 } stageVertexColor_t;
 
-static const int	MAX_FRAGMENT_IMAGES = 8;
-static const int	MAX_VERTEX_PARMS = 4;
-
 typedef struct
 {
 	int					vertexProgram;
 	int					numVertexParms;
 	int					vertexParms[MAX_VERTEX_PARMS][4];	// evaluated register indexes
-	
 	int					fragmentProgram;
 	int					glslProgram;
 	int					numFragmentProgramImages;
 	idImage* 			fragmentProgramImages[MAX_FRAGMENT_IMAGES];
 } newShaderStage_t;
 
+class vkPipeline;
 typedef struct
 {
-	int					conditionRegister;	// if registers[conditionRegister] == 0, skip stage
-	stageLighting_t		lighting;			// determines which passes interact with lights
-	uint64_t				drawStateBits;
-	colorStage_t		color;
-	bool				hasAlphaTest;
+// BEATO Begin:
+	bool				ignoreAlphaTest;		// this stage should act as translucent, even
+	bool				hasAlphaTest;			// if the surface is alpha tested	
+	bool				noMotionBlur;			// sikk - Added - When set, stage will draw after the motionblur pass
+	bool				glowStage;				// foresthale 20140403: glowStage
+	int					conditionRegister;		// if registers[conditionRegister] == 0, skip stage
 	int					alphaTestRegister;
+	float				privatePolygonOffset;	// a per-stage polygon offset
+	float				pad;
+	uint64_t			drawStateBits;
+	stageLighting_t		lighting;				// determines which passes interact with lights
+	colorStage_t		color;
 	textureStage_t		texture;
 	stageVertexColor_t	vertexColor;
-	bool				ignoreAlphaTest;	// this stage should act as translucent, even
-	// if the surface is alpha tested
-	float				privatePolygonOffset;	// a per-stage polygon offset
-
-	bool				noMotionBlur;		// sikk - Added - When set, stage will draw after the motionblur pass
-	bool				glowStage;			// foresthale 20140403: glowStage
-	
-	newShaderStage_t*	newStage;			// vertex / fragment program based stage
+	newShaderStage_t*	newStage;				// vertex / fragment program based stage
+	vkPipeline*			pipeline;				// pipeline configuration
+// BEATO End
 } shaderStage_t;
 
 typedef enum
@@ -315,13 +309,6 @@ typedef enum
 	CT_TWO_SIDED
 } cullType_t;
 
-// these don't effect per-material storage, so they can be very large
-const int MAX_SHADER_STAGES			= 256;
-
-const int MAX_TEXGEN_REGISTERS		= 4;
-
-const int MAX_ENTITY_SHADER_PARMS	= 16;
-const int MAX_GLOBAL_SHADER_PARMS	= 12;	// ? this looks like it should only be 8
 
 // material flags
 typedef enum
@@ -415,15 +402,15 @@ typedef enum
 								  // won't collect light from any angle
 } surfaceFlags_t;
 
+class vkSampler;
 class idSoundEmitter;
-
 class idMaterial : public idDecl
 {
 public:
-	idMaterial();
+	idMaterial( void );
 	virtual				~idMaterial();
 	
-	virtual size_t		Size() const;
+	virtual size_t		Size( void ) const;
 	virtual bool		SetDefaultText();
 	virtual const char* DefaultDefinition() const;
 	virtual bool		Parse( const char* text, const int textLength, bool allowBinaryVersion );
@@ -453,14 +440,17 @@ public:
 	{
 		return fastPathBumpImage;
 	};
+
 	idImage* 			GetFastPathDiffuseImage() const
 	{
 		return fastPathDiffuseImage;
 	};
+
 	idImage* 			GetFastPathSpecularImage() const
 	{
 		return fastPathSpecularImage;
 	};
+
 	idImage* 			GetFastPathGlossImage() const
 	{
 		return fastPathGlossImage;
@@ -652,13 +642,7 @@ public:
 	}
 	
 	//------------------------------------------------------------------
-	
-	// returns the renderbump command line for this shader, or an empty string if not present
-	const char* 		GetRenderBump() const
-	{
-		return renderBump;
-	};
-	
+
 	// set specific material flag(s)
 	void				SetMaterialFlag( const int flag ) const
 	{
@@ -866,7 +850,7 @@ public:
 	
 private:
 	// parse the entire material
-	void				CommonInit();
+	void				CommonInit( void );
 	void				ParseMaterial( idLexer& src );
 	bool				MatchToken( idLexer& src, const char* match );
 	void				ParseSort( idLexer& src );
@@ -875,7 +859,7 @@ private:
 	void				ParseVertexParm( idLexer& src, newShaderStage_t* newStage );
 	void				ParseVertexParm2( idLexer& src, newShaderStage_t* newStage );
 	void				ParseFragmentMap( idLexer& src, newShaderStage_t* newStage );
-	void				ParseStage( idLexer& src, const textureRepeat_t trpDefault = TR_REPEAT );
+	void				ParseStage( idLexer& src );
 	void				ParseDeform( idLexer& src );
 	void				ParseDecalInfo( idLexer& src );
 	bool				CheckSurfaceParm( idToken* token );
@@ -883,29 +867,36 @@ private:
 	int					GetExpressionTemporary();
 	expOp_t*				GetExpressionOp();
 	int					EmitOp( int a, int b, expOpType_t opType );
-	int					ParseEmitOp( idLexer& src, int a, expOpType_t opType, int priority );
+	int					ParseEmitOp( idLexer& src, int a, expOpType_t opType, const int priority );
 	int					ParseTerm( idLexer& src );
-	int					ParseExpressionPriority( idLexer& src, int priority );
+	int					ParseExpressionPriority( idLexer& src, const int priority );
 	int					ParseExpression( idLexer& src );
 	void				ClearStage( shaderStage_t* ss );
 	int					NameToSrcBlendMode( const idStr& name );
 	int					NameToDstBlendMode( const idStr& name );
-	void				MultiplyTextureMatrix( textureStage_t* ts, int registers[2][3] );	// FIXME: for some reason the const is bad for gcc and Mac
-	void				SortInteractionStages();
-	void				AddImplicitStages( const textureRepeat_t trpDefault = TR_REPEAT );
-	void				CheckForConstantRegisters();
-	void				SetFastPathImages();
+	void				MultiplyTextureMatrix( textureStage_t* ts, const int registers[2][3] );	// FIXME: for some reason the const is bad for gcc and Mac
+	void				SortInteractionStages( void );
+	void				AddImplicitStages( void );
+	void				CheckForConstantRegisters( void );
+	void				SetFastPathImages( void );
 	
 private:
 	idStr				desc;				// description
-	idStr				renderBump;			// renderbump command options, without the "renderbump" at the start
-	
+
+// BEATO Begin:
+	vkSampler*			lightFalloffSampler;
+// BEATO End
+
 	idImage*			lightFalloffImage;	// only for light shaders
 	
 	idImage* 			fastPathBumpImage;	// if any of these are set, they all will be
 	idImage* 			fastPathDiffuseImage;
 	idImage* 			fastPathSpecularImage;
 	idImage* 			fastPathGlossImage;
+
+	// BEATO Begin:
+	vkSampler*			fastPathSampler;	// use the same filtering and repeat to fast path texture
+	// BEATO End
 	
 	int					entityGui;			// draw a gui with the idUserInterface from the renderEntity_t
 	// non zero will draw gui, gui2, or gui3 from renderEnitty_t
@@ -944,15 +935,14 @@ private:
 	bool				allowOverlays;
 	
 	int					numOps;
+	int					numRegisters;																			//
+	int					numStages;
+	int					numAmbientStages;
 	expOp_t* 			ops;				// evaluate to make expressionRegisters
 	
-	int					numRegisters;																			//
 	float* 				expressionRegisters;
 	
 	float* 				constantRegisters;	// nullptr if ops ever reference globalParms or entityParms
-	
-	int					numStages;
-	int					numAmbientStages;
 	
 	shaderStage_t* 		stages;
 	
@@ -970,6 +960,7 @@ private:
 	bool				suppressInSubview;
 	bool				portalSky;
 	int					refCount;
+
 };
 
 typedef idList<const idMaterial*, TAG_MATERIAL> idMatList;

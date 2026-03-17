@@ -31,9 +31,26 @@ Source Code.
 #define __DEBUG_DRAW_HPP__
 
 /// @brief Fixed Pipeline WorkArround
-class glDebugDraw
+class crDebugDraw
 {
 public:
+    enum drawMode_t
+    {
+        DRAW_MODE_NONE = 0,
+        DRAW_MODE_POINTS,
+        DRAW_MODE_LINES,
+        DRAW_MODE_LINE_LOOP,
+        DRAW_MODE_TRIANGLES,
+    };
+
+    enum matrixMode_t
+    {
+        MATRIX_TEXTURE,
+        MATRIX_PROJECTION,
+        MATRIX_MODELVIEW,
+        MATRIX_MODEL
+    };
+
     struct alignas( 16 ) fixedVertex_t
     {
         // vertex positions
@@ -70,68 +87,65 @@ public:
     static void StartUp( void );
     static void ShutDown( void );
 
-    static void Begin( const GLenum mode );
+    static void Begin( const drawMode_t mode );
 
     static void End( void );
 
     // position
-    static void Vertex2f( const GLfloat x, const GLfloat y );
-    static void Vertex2fv( const GLfloat *v );
-    static void Vertex3f( const GLfloat x, const GLfloat y, const GLfloat z );
-    static void Vertex3fv(const GLfloat *v);
-    static void Vertex4f( const GLfloat x, const GLfloat y, const GLfloat z, const GLfloat w );
-    static void Vertex4fv( const GLfloat *v );
+    static void Vertex2f( const float x, const float y );
+    static void Vertex2fv( const float *v );
+    static void Vertex3f( const float x, const float y, const float z );
+    static void Vertex3fv(const float *v);
+    static void Vertex4f( const float x, const float y, const float z, const float w );
+    static void Vertex4fv( const float *v );
 
     // texture coordinate
-    static void TexCoord1f( const GLfloat s );
-    static void TexCoord1fv( const GLfloat *v );
-    static void TexCoord2f( const GLfloat s, const GLfloat t );
-    static void TexCoord2fv( const GLfloat *v);
-    static void TexCoord3f( const GLfloat s, const GLfloat t, const GLfloat r );
-    static void TexCoord3fv( const GLfloat *v);
-    static void TexCoord4f( const GLfloat s,GLfloat t,GLfloat r,GLfloat q);
-    static void TexCoord4fv(const GLfloat *v);
+    static void TexCoord1f( const float s );
+    static void TexCoord1fv( const float *v );
+    static void TexCoord2f( const float s, const float t );
+    static void TexCoord2fv( const float *v);
+    static void TexCoord3f( const float s, const float t, const float r );
+    static void TexCoord3fv( const float *v);
+    static void TexCoord4f( const float s,float t,float r,float q);
+    static void TexCoord4fv(const float *v);
  
     // color
-    static void Color3f( const GLfloat red, const GLfloat green, const GLfloat blue );
-    static void Color3fv(const GLfloat *v );
-    static void Color4f( const GLfloat red, const GLfloat green, const GLfloat blue, const GLfloat alpha );
-    static void Color4fv( const GLfloat *v );
-    static void Color3b( const GLbyte red, const GLbyte green, const GLbyte blue );
-    static void Color3bv( const GLbyte *v );
-    static void Color4b( const GLbyte red, const GLbyte green, const GLbyte blue, const GLbyte alpha );
-    static void Color4bv( const GLbyte *v );
-    static void Color4ubv( const GLubyte *v );
+    static void Color3f( const float red, const float green, const float blue );
+    static void Color3fv(const float *v );
+    static void Color4f( const float red, const float green, const float blue, const float alpha );
+    static void Color4fv( const float *v );
+    static void Color3b( const int8_t red, const int8_t green, const int8_t blue );
+    static void Color3bv( const int8_t *v );
+    static void Color4b( const int8_t red, const int8_t green, const int8_t blue, const int8_t alpha );
+    static void Color4bv( const int8_t *v );
+    static void Color4ubv( const uint8_t *v );
     
     // normal 
-    static void Normal3b ( const GLbyte nx, const GLbyte ny, const GLbyte nz );
-    static void Normal3bv( const GLbyte *v);
-    static void Normal3f( const GLfloat nx, const GLfloat ny, const GLfloat nz );
-    static void Normal3fv( const GLfloat *v );
+    static void Normal3b ( const int8_t nx, const int8_t ny, const int8_t nz );
+    static void Normal3bv( const int8_t *v);
+    static void Normal3f( const float nx, const float ny, const float nz );
+    static void Normal3fv( const float *v );
 
     //
-    static void VertexPointer( const GLint size, const GLenum type, const GLsizei stride, const GLvoid *pointer);
-    static void TexCoordPointer( const GLint size, const GLenum type, const GLsizei stride, const GLvoid *pointer);
-    static void ColorPointer( const GLint size, const GLenum type, const GLsizei stride, const GLvoid *pointer );
-    static void NormalPointer( const GLenum type, const GLsizei stride, const GLvoid *pointer );
+    static void VertexPointer( const int size, const uint32_t type, const size_t stride, const void *pointer);
+    static void TexCoordPointer( const int size, const uint32_t type, const size_t stride, const void *pointer);
+    static void ColorPointer( const int size, const uint32_t type, const size_t stride, const void *pointer );
+    static void NormalPointer( const uint32_t type, const size_t stride, const void *pointer );
 
     // projection matrix
-    static void MatrixMode( const GLenum mode );
+    static void MatrixMode( const uint32_t mode );
     static void PopMatrix( void );
     static void PushMatrix( void );
     static void LoadIdentity( void );
-    static void LoadMatrixf( const GLfloat *m );
-    static void Ortho( const GLfloat left, const GLfloat right, const GLfloat bottom, const GLfloat top, const GLfloat zNear, const GLfloat zFar );
+    static void LoadMatrixf( const float *m );
+    static void Ortho( const float left, const float right, const float bottom, const float top, const float zNear, const float zFar );
 
 private:
-    static GLint            m_first;        // first vertex of the current draw   
-    static GLsizei          m_count;        // num vertex to draw
-    static GLenum           m_mode;         // draw mode
-    static GLenum           m_matrixMode;   //  
-    static GLuint           m_vertexArray;  // vertex array object
-    static GLuint           m_program;      // shader program object
-    static GLenum           m_vertexType;
-    static GLuint           m_uniformBuffer;//
+    static uint32_t         m_first;        // first vertex of the current draw   
+    static uint32_t         m_count;        // num vertex to draw
+    static drawMode_t       m_mode;         // draw mode
+    static matrixMode_t     m_matrixMode;   //  
+//    static GLenum           m_vertexType;
     static fixedVertex_t    m_vertex;
     static fixedVertex_t*   m_vertexes;
 };

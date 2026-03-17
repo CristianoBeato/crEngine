@@ -352,6 +352,8 @@ R_RemoteRender
 */
 static void R_RemoteRender( const drawSurf_t* surf, textureStage_t* stage )
 {
+	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+
 	// remote views can be reused in a single frame
 	if( stage->dynamicFrameCount == tr.frameCount )
 	{
@@ -411,6 +413,8 @@ R_MirrorRender
 */
 void R_MirrorRender( const drawSurf_t* surf, textureStage_t* stage, idScreenRect scissor )
 {
+	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+
 	// remote views can be reused in a single frame
 	if( stage->dynamicFrameCount == tr.frameCount )
 	{
@@ -457,18 +461,16 @@ R_XrayRender
 */
 void R_XrayRender( const drawSurf_t* surf, textureStage_t* stage, idScreenRect scissor )
 {
+	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+
 	// remote views can be reused in a single frame
 	if( stage->dynamicFrameCount == tr.frameCount )
-	{
 		return;
-	}
 	
 	// issue a new view command
 	viewDef_t* parms = R_XrayViewBySurface( surf );
 	if( parms == nullptr )
-	{
 		return;
-	}
 	
 	int stageWidth = stage->width;
 	int stageHeight = stage->height;
