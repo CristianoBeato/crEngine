@@ -206,10 +206,10 @@ typedef struct
 	int					width, height;
 	int					dynamicFrameCount;
 	dynamicidImage_t	dynamic;
+	texgen_t			texgen;
 	idCinematic* 		cinematic;
 	crSampler*			sample;
 	idImage* 			image;
-	texgen_t			texgen;
 	
 } textureStage_t;
 
@@ -233,38 +233,61 @@ typedef enum
 	SVC_INVERSE_MODULATE
 } stageVertexColor_t;
 
-typedef struct
-{
-	int					vertexProgram;
-	int					numVertexParms;
-	int					vertexParms[MAX_VERTEX_PARMS][4];	// evaluated register indexes
-	int					fragmentProgram;
-	int					glslProgram;
-	int					numFragmentProgramImages;
-	idImage* 			fragmentProgramImages[MAX_FRAGMENT_IMAGES];
-} newShaderStage_t;
-
 class vkPipeline;
-typedef struct
+class crShaderStage
 {
-// BEATO Begin:
-	bool				ignoreAlphaTest;		// this stage should act as translucent, even
-	bool				hasAlphaTest;			// if the surface is alpha tested	
-	bool				noMotionBlur;			// sikk - Added - When set, stage will draw after the motionblur pass
-	bool				glowStage;				// foresthale 20140403: glowStage
-	int					conditionRegister;		// if registers[conditionRegister] == 0, skip stage
-	int					alphaTestRegister;
-	float				privatePolygonOffset;	// a per-stage polygon offset
-	float				pad;
-	uint64_t			drawStateBits;
-	stageLighting_t		lighting;				// determines which passes interact with lights
-	colorStage_t		color;
-	textureStage_t		texture;
-	stageVertexColor_t	vertexColor;
-	newShaderStage_t*	newStage;				// vertex / fragment program based stage
-	vkPipeline*			pipeline;				// pipeline configuration
-// BEATO End
-} shaderStage_t;
+public:
+	crShaderStage( void );
+	~crShaderStage( void );
+	void				Clear( void );
+	void				SetDrawStateBits( const uint64_t in_flags );
+	stageLighting_t 	Lighting( void ) const { return m_lighting; }
+	textureStage_t		Texture( void ) const { return m_texture; }
+	const bool			IgnoreAlphaTest( void ) const { return m_ignoreAlphaTest; }
+	const bool			HasAlphaTest( void ) const { return m_ignoreAlphaTest; }
+	const uint64_t		DrawStateBits( void ) const { return m_drawStateBits; }
+	stageVertexColor_t	StageVertexColor( void ) const { m_vertexColor; }
+	const uint32_t		NumFragmentProgramImages( void ) const { return m_numFragmentProgramImages; }
+	idImage**			FragmentProgramImages( void ) const { return const_cast<idImage**>( m_fragmentProgramImages ); }
+
+protected:
+	friend class idMaterial;
+	int		ParseExpression( idLexer& src );
+	bool	MatchToken( idLexer& src, const char* match );
+	bool	ParseStage( idLexer& src, idMaterial &mtr );
+	void	ParseBlend( idLexer& in_src );
+
+private:
+	// BEATO Begin:
+	bool				m_ignoreAlphaTest;					// this stage should act as translucent, even
+	bool				m_hasAlphaTest;						// if the surface is alpha tested	
+	bool				m_noMotionBlur;						// sikk - Added - When set, stage will draw after the motionblur pass
+	bool				m_glowStage;						// foresthale 20140403: glowStage
+	int					m_conditionRegister;				// if registers[conditionRegister] == 0, skip stage
+	int					m_alphaTestRegister;
+	uint32_t			m_vertexProgram;
+	uint32_t			m_numVertexParms;
+	uint32_t			m_fragmentProgram;
+	uint32_t			m_numFragmentProgramImages;
+	float				m_privatePolygonOffset;				// a per-stage polygon offset
+	int					m_vertexParms[MAX_VERTEX_PARMS][4];	// evaluated register indexes
+	
+	/// @brief 
+	uint64_t			m_drawStateBits; // TODO: port too pipeline flags
+
+	colorStage_t		m_color;
+	stageVertexColor_t	m_vertexColor;
+
+	/// @brief determines which passes interact with lights
+	stageLighting_t		m_lighting;				
+
+	textureStage_t		m_texture;
+
+	idImage* 			m_fragmentProgramImages[MAX_FRAGMENT_IMAGES];
+
+	/// @brief shader stage pipeline configuration
+	vkPipeline*			m_pipeline;
+};
 
 typedef enum
 {
@@ -428,9 +451,9 @@ public:
 	void				ReloadImages( bool force ) const;
 	
 	// returns number of stages this material contains
-	const int			GetNumStages() const
+	const uint32_t		GetNumStages( void ) const
 	{
-		return numStages;
+		return stages.Num();
 	}
 	
 	// if the material is simple, all that needs to be known are
@@ -457,15 +480,15 @@ public:
 	};
 	
 	// get a specific stage
-	const shaderStage_t* GetStage( const int index ) const
+	const crShaderStage* GetStage( const int index ) const
 	{
-		assert( index >= 0 && index < numStages );
+		assert( index >= 0 && index < stages.Num() );
 		return &stages[index];
 	}
 	
 	// get the first bump map stage, or nullptr if not present.
 	// used for bumpy-specular
-	const shaderStage_t* GetBumpStage() const;
+	const crShaderStage* GetBumpStage( void ) const;
 	
 	// returns true if the material will draw anything at all.  Triggers, portals,
 	// etc, will not have anything to draw.  A not drawn surface can still castShadow,
@@ -473,7 +496,7 @@ public:
 	// as noShadow
 	bool				IsDrawn() const
 	{
-		return ( numStages > 0 || entityGui != 0 || gui != nullptr );
+		return ( stages.Num() > 0 || entityGui != 0 || gui != nullptr );
 	}
 	
 	// returns true if the material will draw any non light interaction stages
@@ -514,7 +537,7 @@ public:
 	// stages, and don't interact with lights at all
 	bool				ReceivesLighting() const
 	{
-		return numAmbientStages != numStages;
+		return numAmbientStages != stages.Num();
 	}
 	
 	// returns true if the material should generate interactions on sides facing away
@@ -855,7 +878,6 @@ private:
 	bool				MatchToken( idLexer& src, const char* match );
 	void				ParseSort( idLexer& src );
 	void				ParseStereoEye( idLexer& src );
-	void				ParseBlend( idLexer& src, shaderStage_t* stage );
 	void				ParseVertexParm( idLexer& src, newShaderStage_t* newStage );
 	void				ParseVertexParm2( idLexer& src, newShaderStage_t* newStage );
 	void				ParseFragmentMap( idLexer& src, newShaderStage_t* newStage );
@@ -865,13 +887,12 @@ private:
 	bool				CheckSurfaceParm( idToken* token );
 	int					GetExpressionConstant( float f );
 	int					GetExpressionTemporary();
-	expOp_t*				GetExpressionOp();
+	expOp_t*			GetExpressionOp();
 	int					EmitOp( int a, int b, expOpType_t opType );
 	int					ParseEmitOp( idLexer& src, int a, expOpType_t opType, const int priority );
 	int					ParseTerm( idLexer& src );
 	int					ParseExpressionPriority( idLexer& src, const int priority );
 	int					ParseExpression( idLexer& src );
-	void				ClearStage( shaderStage_t* ss );
 	int					NameToSrcBlendMode( const idStr& name );
 	int					NameToDstBlendMode( const idStr& name );
 	void				MultiplyTextureMatrix( textureStage_t* ts, const int registers[2][3] );	// FIXME: for some reason the const is bad for gcc and Mac
@@ -914,7 +935,6 @@ private:
 	
 	decalInfo_t			decalInfo;
 	
-	
 	mutable	float		sort;				// lower numbered shaders draw before higher numbered
 	int					stereoEye;
 	deform_t			deform;
@@ -934,21 +954,17 @@ private:
 	bool				hasSubview;			// mirror, remote render, etc
 	bool				allowOverlays;
 	
-	int					numOps;
-	int					numRegisters;																			//
-	int					numStages;
-	int					numAmbientStages;
-	expOp_t* 			ops;				// evaluate to make expressionRegisters
+	int						numOps;
+	int						numRegisters;
+	int						numAmbientStages;
+	expOp_t*				ops;				// evaluate to make expressionRegisters
 	
-	float* 				expressionRegisters;
+	float*					expressionRegisters;
+	float*					constantRegisters;	// nullptr if ops ever reference globalParms or entityParms
+	idList<crShaderStage, TAG_MATERIAL>	stages;
+	struct mtrParsingData_s*			pd;			// only used during parsing
 	
-	float* 				constantRegisters;	// nullptr if ops ever reference globalParms or entityParms
-	
-	shaderStage_t* 		stages;
-	
-	struct mtrParsingData_s*	pd;			// only used during parsing
-	
-	float				surfaceArea;		// only for listSurfaceAreas
+	float						surfaceArea;		// only for listSurfaceAreas
 	
 	// we defer loading of the editor image until it is asked for, so the game doesn't load up
 	// all the invisible and uncompressed images.
@@ -960,7 +976,6 @@ private:
 	bool				suppressInSubview;
 	bool				portalSky;
 	int					refCount;
-
 };
 
 typedef idList<const idMaterial*, TAG_MATERIAL> idMatList;
