@@ -65,7 +65,7 @@ bool vkPipeline::Create( const uint64_t in_flags )
     /// Describe vertex shader attributes buffer bindings
     VkVertexInputBindingDescription vertexInputBindingDescription[]
     {
-        { VERTEX_BINDING, sizeof( idDrawVert ), VK_VERTEX_INPUT_RATE_VERTEX },
+        { VERTEX_BINDING, DRAWVERT_SIZE, VK_VERTEX_INPUT_RATE_VERTEX },
     };
 
     ///
@@ -73,12 +73,12 @@ bool vkPipeline::Create( const uint64_t in_flags )
     /// Describe vertex components
     VkVertexInputAttributeDescription vertexInputAttributeDescription[NUM_ATTRIBS_DESCR]
     {
-        { VERTEX_ATTRIBUTE_POS, VERTEX_BINDING, VK_FORMAT_R32G32B32_SFLOAT, 0 },
-        { VERTEX_ATTRIBUTE_TEX, VERTEX_BINDING, VK_FORMAT_R16G16_SFLOAT, offsetof( idDrawVert, st ) },
-        { VERTEX_ATTRIBUTE_NOR, VERTEX_BINDING, VK_FORMAT_R8G8B8A8_UNORM, offsetof( idDrawVert, normal ) },
-        { VERTEX_ATTRIBUTE_TAN, VERTEX_BINDING, VK_FORMAT_R8G8B8A8_UNORM, offsetof( idDrawVert, tangent ) },
-        { VERTEX_ATTRIBUTE_JOI, VERTEX_BINDING, VK_FORMAT_R8G8B8A8_UNORM, offsetof( idDrawVert, color ) },
-        { VERTEX_ATTRIBUTE_WEI, VERTEX_BINDING, VK_FORMAT_R8G8B8A8_UNORM, offsetof( idDrawVert, color2 ) }
+        { VERTEX_ATTRIBUTE_POS, VERTEX_BINDING, VK_FORMAT_R32G32B32_SFLOAT, DRAWVERT_XYZ_OFFSET },
+        { VERTEX_ATTRIBUTE_TEX, VERTEX_BINDING, VK_FORMAT_R16G16_SFLOAT, DRAWVERT_ST_OFFSET },
+        { VERTEX_ATTRIBUTE_NOR, VERTEX_BINDING, VK_FORMAT_R8G8B8A8_UNORM, DRAWVERT_NORMAL_OFFSET },
+        { VERTEX_ATTRIBUTE_TAN, VERTEX_BINDING, VK_FORMAT_R8G8B8A8_UNORM, DRAWVERT_TANGENT_OFFSET },
+        { VERTEX_ATTRIBUTE_JOI, VERTEX_BINDING, VK_FORMAT_R8G8B8A8_UNORM, DRAWVERT_COLOR_OFFSET },
+        { VERTEX_ATTRIBUTE_WEI, VERTEX_BINDING, VK_FORMAT_R8G8B8A8_UNORM, DRAWVERT_COLOR2_OFFSET }
     };
 
     /// 
@@ -306,7 +306,7 @@ bool vkPipeline::Create( const uint64_t in_flags )
                 srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; 
                 break;
 			default:
-				assert( !"GL_State: invalid src blend state bits\n" );
+				idAssert( !"GL_State: invalid src blend state bits\n" );
 				break;
 		}
 
