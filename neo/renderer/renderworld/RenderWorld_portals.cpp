@@ -1192,33 +1192,27 @@ void idRenderWorldLocal::ShowPortals()
 			{
 				// red = can't see
 				//GL_Color( 1, 0, 0 );
-				if( !r_showNvidiaHack.GetBool() )
-					glDebugDraw::Color3f(1, 0, 0);
-				else
-					GL_Color( 1, 0, 0 );
+				crDebugDraw::Color3f(1, 0, 0);
 			}
 			else
 			{
 				// green = see through
 				//GL_Color( 0, 1, 0 );
-				if( !r_showNvidiaHack.GetBool() )
-					glDebugDraw::Color3f(0, 1, 0);
-				else
-					GL_Color( 0, 1, 0 );
+				crDebugDraw::Color3f(0, 1, 0);
 			}
 
 			// RB begin
-			renderProgManager.CommitUniforms();
+			// renderProgManager.CommitUniforms();
 			// RB end
 			
-			glDebugDraw::Begin( GL_LINE_LOOP );
+			crDebugDraw::Begin( crDebugDraw::DRAW_MODE_LINE_LOOP );
 			
 			for( j = 0; j < w->GetNumPoints(); j++ )
 			{
-				glDebugDraw::Vertex3fv( ( *w )[j].ToFloatPtr() );
+				crDebugDraw::Vertex3fv( ( *w )[j].ToFloatPtr() );
 			}
 
-			glDebugDraw::End();
+			crDebugDraw::End();
 		}
 	}
 }

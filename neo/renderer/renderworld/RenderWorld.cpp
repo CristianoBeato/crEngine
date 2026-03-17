@@ -194,9 +194,9 @@ idRenderWorldLocal::~idRenderWorldLocal()
 	}
 	
 	// free up the debug lines, polys, and text
-	RB_ClearDebugPolygons( 0 );
-	RB_ClearDebugLines( 0 );
-	RB_ClearDebugText( 0 );
+	// RB_ClearDebugPolygons( 0 );
+	// RB_ClearDebugLines( 0 );
+	// RB_ClearDebugText( 0 );
 }
 
 /*
@@ -2172,9 +2172,9 @@ void idRenderWorldLocal::DebugReset( void )
 	extern int rb_nextDebugLineTime;
 	rb_nextDebugLineTime = 0;
 	rb_debugLineTime = 0;
-	backEnd.ClearDebugLines( 0 );
-	backEnd.ClearDebugText( 0 );
-	backEnd.ClearDebugPolygons( 0 );
+	// backEnd.ClearDebugLines( 0 );
+	// backEnd.ClearDebugText( 0 );
+	// backEnd.ClearDebugPolygons( 0 );
 }
 
 /*
@@ -2184,8 +2184,8 @@ idRenderWorldLocal::DebugClearLines
 */
 void idRenderWorldLocal::DebugClearLines( int time )
 {
-	backEnd.ClearDebugLines( time );
-	backEnd.ClearDebugText( time );
+	// backEnd.ClearDebugLines( time );
+	// backEnd.ClearDebugText( time );
 }
 
 /*
@@ -2195,7 +2195,7 @@ idRenderWorldLocal::DebugLine
 */
 void idRenderWorldLocal::DebugLine( const idVec4& color, const idVec3& start, const idVec3& end, const int lifetime, const bool depthTest )
 {
-	backEnd.AddDebugLine( color, start, end, lifetime, depthTest );
+	//backEnd.AddDebugLine( color, start, end, lifetime, depthTest );
 }
 
 /*
@@ -2470,7 +2470,7 @@ idRenderWorldLocal::DebugClearPolygons
 */
 void idRenderWorldLocal::DebugClearPolygons( int time )
 {
-	backEnd.ClearDebugPolygons( time );
+	/// backEnd.ClearDebugPolygons( time );
 }
 
 /*
@@ -2480,7 +2480,7 @@ idRenderWorldLocal::DebugPolygon
 */
 void idRenderWorldLocal::DebugPolygon( const idVec4& color, const idWinding& winding, const int lifeTime, const bool depthTest )
 {
-	backEnd.AddDebugPolygon( color, winding, lifeTime, depthTest );
+	// backEnd.AddDebugPolygon( color, winding, lifeTime, depthTest );
 }
 
 /*
@@ -2530,7 +2530,8 @@ idRenderWorldLocal::DrawTextLength
 */
 float idRenderWorldLocal::DrawTextLength( const char* text, float scale, int len )
 {
-	return backEnd.DrawTextLength( text, scale, len );
+	// return backEnd.DrawTextLength( text, scale, len );
+	return 0.0f;
 }
 
 /*
@@ -2543,7 +2544,7 @@ idRenderWorldLocal::DrawText
 */
 void idRenderWorldLocal::DrawText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align, const int lifetime, const bool depthTest )
 {
-	backEnd.AddDebugText( text, origin, scale, color, viewAxis, align, lifetime, depthTest );
+	// backEnd.AddDebugText( text, origin, scale, color, viewAxis, align, lifetime, depthTest );
 }
 
 /*

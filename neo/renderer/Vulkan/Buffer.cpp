@@ -45,7 +45,7 @@ bool vkBuffer::Create( const type_t in_type, const access_t in_access, const siz
     VkMemoryAllocateInfo    hostAllocInfo{};
     VkMemoryPropertyFlags   clientMemoryProperty = VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
     VkMemoryPropertyFlags   hostMemoryProperty = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-    auto device             = tr.vkContext->Device();
+    auto device             = tr.GetRenderDevice();
 
     // strore the buffer type and the acess
     m_type = in_type;
@@ -230,7 +230,7 @@ bool vkBuffer::Resize(const size_t in_newSize)
 
 void vkBuffer::Destroy(void)
 {
-    auto device = tr.vkContext->Device();
+    auto device = tr.GetRenderDevice();
 
     //
     if ( m_copyCmd != nullptr )
@@ -271,7 +271,7 @@ void vkBuffer::Destroy(void)
 
 void vkBuffer::Flush(const uintptr_t in_offset, const size_t in_size ) const
 {
-    auto device = tr.vkContext->Device();
+    auto device = tr.GetRenderDevice();
     VkMappedMemoryRange memoryRange{};
     memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     memoryRange.pNext = nullptr;
@@ -320,11 +320,6 @@ void vkBuffer::Flush(const uintptr_t in_offset, const size_t in_size ) const
         // registes our copy command 
         vkCmdCopyBuffer2( m_copyCmd, &copyBufferInfo );
     }
-}
-
-void *vkBuffer::Handle(void) const
-{
-    return const_cast<VkBuffer*>( &m_bufferHost );
 }
 
 // help to remember

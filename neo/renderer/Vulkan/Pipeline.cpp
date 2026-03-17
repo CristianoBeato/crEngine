@@ -191,7 +191,7 @@ bool vkPipeline::Create( const uint64_t in_flags )
 		    stencilOpState.reference = uint32_t( ( m_flags & PLS_STENCIL_FUNC_REF_BITS ) >> PLS_STENCIL_FUNC_REF_SHIFT );
 		    stencilOpState.compareMask = uint32_t( ( m_flags & PLS_STENCIL_FUNC_MASK_BITS ) >> PLS_STENCIL_FUNC_MASK_SHIFT );
 		    
-		    switch ( m_flags & GLS_STENCIL_FUNC_BITS ) 
+		    switch ( m_flags & PLS_STENCIL_FUNC_BITS ) 
             {
 			    case PLS_STENCIL_FUNC_NEVER:	stencilOpState.compareOp = VK_COMPARE_OP_NEVER; break;
 			    case PLS_STENCIL_FUNC_LESS:		stencilOpState.compareOp = VK_COMPARE_OP_LESS; break;
@@ -264,7 +264,7 @@ bool vkPipeline::Create( const uint64_t in_flags )
     //
 	// check colormask
 	//
-	if ( m_flags & ( GLS_REDMASK | GLS_GREENMASK | GLS_BLUEMASK | GLS_ALPHAMASK ) ) 
+	if ( m_flags & ( PLS_REDMASK | PLS_GREENMASK | PLS_BLUEMASK | PLS_ALPHAMASK ) ) 
     {
         if ( m_flags & PLS_REDMASK )    colorBlendAttachment.colorWriteMask |= VK_COLOR_COMPONENT_R_BIT;
 		if ( m_flags & PLS_GREENMASK )  colorBlendAttachment.colorWriteMask |= VK_COLOR_COMPONENT_G_BIT;
@@ -275,45 +275,84 @@ bool vkPipeline::Create( const uint64_t in_flags )
     //
 	// check blend bits
 	//
-	if ( m_flags & ( GLS_SRCBLEND_BITS | GLS_DSTBLEND_BITS ) ) 
+	if ( m_flags & ( PLS_SRCBLEND_BITS | PLS_DSTBLEND_BITS ) ) 
     {
-		GLenum srcFactor = GL_ONE;
-		GLenum dstFactor = GL_ZERO;
-
-		switch ( stateBits & GLS_SRCBLEND_BITS ) {
-			case GLS_SRCBLEND_ZERO:					srcFactor = GL_ZERO; break;
-			case GLS_SRCBLEND_ONE:					srcFactor = GL_ONE; break;
-			case GLS_SRCBLEND_DST_COLOR:			srcFactor = GL_DST_COLOR; break;
-			case GLS_SRCBLEND_ONE_MINUS_DST_COLOR:	srcFactor = GL_ONE_MINUS_DST_COLOR; break;
-			case GLS_SRCBLEND_SRC_ALPHA:			srcFactor = GL_SRC_ALPHA; break;
-			case GLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:	srcFactor = GL_ONE_MINUS_SRC_ALPHA; break;
-			case GLS_SRCBLEND_DST_ALPHA:			srcFactor = GL_DST_ALPHA; break;
-			case GLS_SRCBLEND_ONE_MINUS_DST_ALPHA:	srcFactor = GL_ONE_MINUS_DST_ALPHA; break;
+        VkBlendFactor srcFactor;
+        VkBlendFactor dstFactor;
+		switch ( m_flags & PLS_SRCBLEND_BITS ) 
+        {
+			case PLS_SRCBLEND_ZERO:
+                srcFactor = VK_BLEND_FACTOR_ZERO; 
+                break;
+			case PLS_SRCBLEND_ONE:
+                srcFactor = VK_BLEND_FACTOR_ONE; 
+                break;
+			case PLS_SRCBLEND_DST_COLOR:
+                srcFactor = VK_BLEND_FACTOR_DST_COLOR; 
+                break;
+			case PLS_SRCBLEND_ONE_MINUS_DST_COLOR:
+                srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; 
+                break;
+			case PLS_SRCBLEND_SRC_ALPHA:
+                srcFactor = VK_BLEND_FACTOR_SRC_ALPHA; 
+                break;
+			case PLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
+                srcFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; 
+                break;
+			case PLS_SRCBLEND_DST_ALPHA:
+                srcFactor = VK_BLEND_FACTOR_DST_ALPHA; 
+                break;
+			case PLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
+                srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; 
+                break;
 			default:
 				assert( !"GL_State: invalid src blend state bits\n" );
 				break;
 		}
 
-		switch ( stateBits & GLS_DSTBLEND_BITS ) {
-			case GLS_DSTBLEND_ZERO:					dstFactor = GL_ZERO; break;
-			case GLS_DSTBLEND_ONE:					dstFactor = GL_ONE; break;
-			case GLS_DSTBLEND_SRC_COLOR:			dstFactor = GL_SRC_COLOR; break;
-			case GLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	dstFactor = GL_ONE_MINUS_SRC_COLOR; break;
-			case GLS_DSTBLEND_SRC_ALPHA:			dstFactor = GL_SRC_ALPHA; break;
-			case GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	dstFactor = GL_ONE_MINUS_SRC_ALPHA; break;
-			case GLS_DSTBLEND_DST_ALPHA:			dstFactor = GL_DST_ALPHA; break;
-			case GLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  dstFactor = GL_ONE_MINUS_DST_ALPHA; break;
+		switch ( m_flags & PLS_DSTBLEND_BITS ) 
+        {
+			case PLS_DSTBLEND_ZERO:					
+                dstFactor = VK_BLEND_FACTOR_ZERO; 
+                break;
+			case PLS_DSTBLEND_ONE:					
+                dstFactor = VK_BLEND_FACTOR_ONE; 
+                break;
+			case PLS_DSTBLEND_SRC_COLOR:			
+                dstFactor = VK_BLEND_FACTOR_SRC_COLOR; 
+                break;
+			case PLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	
+                dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; 
+                break;
+			case PLS_DSTBLEND_SRC_ALPHA:			
+                dstFactor = VK_BLEND_FACTOR_SRC_ALPHA; 
+                break;
+			case PLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	
+                dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; 
+                break;
+			case PLS_DSTBLEND_DST_ALPHA:			
+                dstFactor = VK_BLEND_FACTOR_DST_ALPHA; 
+                break;
+			case PLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  
+                dstFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; 
+                break;
 			default:
 				assert( !"GL_State: invalid dst blend state bits\n" );
 				break;
 		}
 
 		// Only actually update GL's blend func if blending is enabled.
-		if ( srcFactor == GL_ONE && dstFactor == GL_ZERO ) {
-			qglDisable( GL_BLEND );
-		} else {
-			qglEnable( GL_BLEND );
-			qglBlendFunc( srcFactor, dstFactor );
+		if ( srcFactor == VK_BLEND_FACTOR_ONE && dstFactor == VK_BLEND_FACTOR_ZERO ) 
+        {
+            colorBlendAttachment.blendEnable = VK_FALSE;
+		} 
+        else 
+        {
+            colorBlendAttachment.blendEnable = VK_TRUE;
+            colorBlendAttachment.srcColorBlendFactor = srcFactor;
+            colorBlendAttachment.dstColorBlendFactor = dstFactor;
+            colorBlendAttachment.srcAlphaBlendFactor = srcFactor;
+            colorBlendAttachment.dstAlphaBlendFactor = dstFactor;
 		}
 	}
 

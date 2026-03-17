@@ -25,7 +25,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Core.hpp"
 
 // to don't suck whit game console  
-#include <iostream> // std::cerr 
+// #include <iostream> // std::cerr 
 
 PFN_vkEnumerateInstanceLayerProperties           vkEnumerateInstanceLayerProperties = nullptr;
 PFN_vkEnumerateInstanceExtensionProperties       vkEnumerateInstanceExtensionProperties = nullptr;
@@ -48,7 +48,7 @@ PFN_vkGetPhysicalDeviceSurfacePresentModesKHR    vkGetPhysicalDeviceSurfacePrese
 PFN_vkGetPhysicalDeviceSurfaceCapabilities2KHR   vkGetPhysicalDeviceSurfaceCapabilities2KHR = nullptr;
 PFN_vkGetPhysicalDeviceSurfaceFormats2KHR        vkGetPhysicalDeviceSurfaceFormats2KHR = nullptr;
 PFN_vkGetPhysicalDeviceSurfaceSupportKHR         vkGetPhysicalDeviceSurfaceSupportKHR = nullptr;
-PFN_vkGetPhysicalDeviceFormatProperties2         vkGetPhysicalDeviceFormatProperties2;
+PFN_vkGetPhysicalDeviceFormatProperties2         vkGetPhysicalDeviceFormatProperties2 = nullptr;
 
 
 // VkDevice
@@ -157,6 +157,12 @@ PFN_vkCmdDispatch                                vkCmdDispatch = nullptr;
 PFN_vkCmdDispatchIndirect                        vkCmdDispatchIndirect = nullptr;
 PFN_vkCmdPipelineBarrier2                        vkCmdPipelineBarrier2 = nullptr;
 
+// pipeline cache
+PFN_vkCreatePipelineCache                       vkCreatePipelineCache = nullptr;
+PFN_vkDestroyPipelineCache                      vkDestroyPipelineCache = nullptr;
+PFN_vkGetPipelineCacheData                      vkGetPipelineCacheData = nullptr;
+PFN_vkMergePipelineCaches                       vkMergePipelineCaches = nullptr;
+
 //
 PFN_vkCmdBindPipeline                            vkCmdBindPipeline = nullptr;
 PFN_vkCmdSetViewport                             vkCmdSetViewport = nullptr;
@@ -180,9 +186,10 @@ PFN_vkDestroyDescriptorPool                      vkDestroyDescriptorPool = nullp
 PFN_vkResetDescriptorPool                        vkResetDescriptorPool = nullptr;
 
 // VkDescriptorSet
-PFN_vkAllocateDescriptorSets                     vkAllocateDescriptorSets = nullptr;
-PFN_vkFreeDescriptorSets                         vkFreeDescriptorSets = nullptr;
-PFN_vkUpdateDescriptorSets                       vkUpdateDescriptorSets = nullptr;
+PFN_vkAllocateDescriptorSets                    vkAllocateDescriptorSets = nullptr;
+PFN_vkFreeDescriptorSets                        vkFreeDescriptorSets = nullptr;
+PFN_vkCmdBindDescriptorSets                     vkCmdBindDescriptorSets = nullptr;
+PFN_vkUpdateDescriptorSets                      vkUpdateDescriptorSets = nullptr;
 
 // VkEvent
 PFN_vkCmdSetEvent2                               vkCmdSetEvent2 = nullptr;
@@ -206,7 +213,6 @@ PFN_vkCmdCopyImageToBuffer2                     vkCmdCopyImageToBuffer2 = nullpt
 PFN_vkCmdBeginRendering                         vkCmdBeginRendering = nullptr;
 PFN_vkCmdEndRendering                           vkCmdEndRendering = nullptr;
 PFN_vkCmdClearAttachments                       vkCmdClearAttachments = nullptr;
-
 
 // VK_EXT_debug_utils
 PFN_vkCreateDebugUtilsMessengerEXT               vkCreateDebugUtilsMessengerEXT = nullptr;
@@ -283,6 +289,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBit
             break;
     }
 
+    #if 0
     std::cerr << color << "[VULKAN][" << severityStr << "][" << typeStr << "] " << in_callbackData->pMessage << "\033[0m" << std::endl;
 
     if ( in_callbackData->objectCount > 0) 
@@ -295,7 +302,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBit
                       << std::endl;
         }
     }
-
+#endif
     return VK_FALSE;
 }
 

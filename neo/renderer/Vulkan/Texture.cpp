@@ -25,6 +25,15 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Texture.hpp"
 #include "Core.hpp"
 
+static VkImageType k_IMAGE_TYPE_TABLE[IMAGE_TYPE_COUNT] = 
+{
+    VK_IMAGE_TYPE_MAX_ENUM, // IMAGE_NONE ( VK_IMAGE_TYPE_MAX_ENUM Will cause a error )
+    VK_IMAGE_TYPE_1D,       // IMAGE_1D
+    VK_IMAGE_TYPE_2D,       // IMAGE_2D
+    VK_IMAGE_TYPE_3D,       // IMAGE_3D
+    VK_IMAGE_TYPE_3D,       // IMAGE_CUBEMAP
+};
+
 static inline VkImageAspectFlags GetAspect( const VkFormat fmt )
 {
     switch (fmt)
@@ -42,7 +51,7 @@ static inline VkImageAspectFlags GetAspect( const VkFormat fmt )
     }
 }
 
-bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format)
+bool vkTexture::Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format )
 {    
     idList<uint32_t>    queues;
     VkResult result = VK_SUCCESS;
@@ -52,7 +61,7 @@ bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, c
     VkMemoryAllocateInfo        memoryAllocateInfo{};
     VkImageSubresourceRange     imageSubresource{};
     VkImageViewCreateInfo       imageViewCI{};
-    auto device = tr.vkContext->Device();
+    auto device = tr.GetRenderDevice();
 
     m_type = in_type;
     m_format = in_format;
@@ -76,27 +85,9 @@ bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, c
     imageCI.queueFamilyIndexCount = queues.Num();
     imageCI.pQueueFamilyIndices = queues.Ptr();
     imageCI.initialLayout = m_state.layout;
-
-    switch ( in_type )
-    {
-        case TEXTURE_1D:
-            imageCI.imageType = VK_IMAGE_TYPE_1D;
-            break;
-        case TEXTURE_2D:
-            imageCI.imageType = VK_IMAGE_TYPE_2D;
-            break;
-        case TEXTURE_3D:
-            imageCI.imageType = VK_IMAGE_TYPE_3D;
-            break;
-        case TEXTURE_CUBEMAP:
-            imageCI.imageType = VK_IMAGE_TYPE_2D;
-            break;
-    default:
-         // TODO: error call
-        break;
-    }
+    imageCI.imageType = k_IMAGE_TYPE_TABLE[in_type];
     
-    result = vkCreateImage( device->Device(), &imageCI, k_allocationCallbacks, &m_image );
+    result = vkCreateImage( *device, &imageCI, k_allocationCallbacks, &m_image );
     if ( result != VK_SUCCESS )
     {
         common->Error( "vkCreateImage error %s\n", VulkanErrorString( result ) );
@@ -104,21 +95,21 @@ bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, c
     };
 
     // get the image memory requirements
-    vkGetImageMemoryRequirements( device->Device(), m_image, &req );
+    vkGetImageMemoryRequirements( *device, m_image, &req );
     
     memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     memoryAllocateInfo.pNext = nullptr;
     memoryAllocateInfo.allocationSize = req.size;
     memoryAllocateInfo.memoryTypeIndex = device->FindMemoryType( req.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
     
-    result = vkAllocateMemory( device->Device(), &memoryAllocateInfo, k_allocationCallbacks, &m_memory );
+    result = vkAllocateMemory( *device, &memoryAllocateInfo, k_allocationCallbacks, &m_memory );
     if ( result != VK_SUCCESS )
     {
         common->Error( "vkAllocateMemory error %s\n", VulkanErrorString( result ) );
         return false;
     };
 
-    result = vkBindImageMemory( device->Device(), m_image, m_memory, 0 );
+    result = vkBindImageMemory( *device, m_image, m_memory, 0 );
     if ( result != VK_SUCCESS )
     {
         common->Error( "vkBindImageMemory error %s\n", VulkanErrorString( result ) );
@@ -142,23 +133,24 @@ bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, c
 
     switch ( m_type )
     {
-    case TEXTURE_1D:
+    case IMAGE_1D:
         imageViewCI.viewType = ( in_dimensions.layers > 1 ) ? VK_IMAGE_VIEW_TYPE_1D_ARRAY : VK_IMAGE_VIEW_TYPE_1D;
         break;
-    case TEXTURE_2D:
+    case IMAGE_2D:
         imageViewCI.viewType = ( in_dimensions.layers > 1 ) ? VK_IMAGE_VIEW_TYPE_2D_ARRAY : VK_IMAGE_VIEW_TYPE_2D;
         break;
-    case TEXTURE_3D:
+    case IMAGE_3D:
         imageViewCI.viewType = VK_IMAGE_VIEW_TYPE_3D;
         break;
-    case TEXTURE_CUBEMAP:
+    case IMAGE_CUBEMAP:
         imageViewCI.viewType = ( in_dimensions.layers > 1 ) ? VK_IMAGE_VIEW_TYPE_CUBE_ARRAY : VK_IMAGE_VIEW_TYPE_CUBE;
         break;    
     default:
+        idLib::Error( "INVALID IMAGE TYPE %i\n", m_type );
         break;
     }
 
-    result = vkCreateImageView( device->Device(), &imageViewCI, k_allocationCallbacks, &m_view );
+    result = vkCreateImageView( *device, &imageViewCI, k_allocationCallbacks, &m_view );
     if ( result != VK_SUCCESS )
     {
         common->Error( "vkCreateImageView error %s\n", VulkanErrorString( result ) );
@@ -171,23 +163,23 @@ bool vkTexture::Create(const type_t in_type, const dimensions_t in_dimensions, c
 
 void vkTexture::Destroy(void)
 {
-    auto device = tr.vkContext->Device();
-
+    auto device = tr.GetRenderDevice();
+    
     if( m_view != nullptr )
     {
-        vkDestroyImageView( device->Device(), m_view, k_allocationCallbacks );
+        vkDestroyImageView( *device, m_view, k_allocationCallbacks );
         m_view = nullptr;
     }
 
     if( m_memory != nullptr )
     {
-        vkFreeMemory( device->Device(), m_memory, k_allocationCallbacks );
+        vkFreeMemory( *device, m_memory, k_allocationCallbacks );
         m_memory = nullptr;
     }
 
     if( m_image != nullptr )
     {
-        vkDestroyImage( device->Device(), m_image, k_allocationCallbacks );
+        vkDestroyImage( *device, m_image, k_allocationCallbacks );
         m_image = nullptr;
     }
 }
@@ -206,7 +198,7 @@ bool vkSampler::Create( const filter_t in_filtering, const wrapping_t in_Swrap, 
     VkResult result = VK_SUCCESS;
     VkSamplerCreateInfo samplerCI{};
     
-    auto device = tr.vkContext->Device();
+    auto device = tr.GetRenderDevice();
 
     samplerCI.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
     samplerCI.pNext = nullptr;
@@ -336,7 +328,7 @@ bool vkSampler::Create( const filter_t in_filtering, const wrapping_t in_Swrap, 
             break;    
     }
 
-    result = vkCreateSampler( device->Device(), &samplerCI, k_allocationCallbacks, &m_sampler );
+    result = vkCreateSampler( *device, &samplerCI, k_allocationCallbacks, &m_sampler );
     if( result != VK_SUCCESS )
     {
         common->Error( "vkSampler::Create::vkCreateSampler failed" );
@@ -350,7 +342,7 @@ void vkSampler::Destroy(void)
 {
     if( m_sampler != nullptr )
     {
-        auto device = tr.vkContext->Device();
+        auto device = tr.GetRenderDevice();
         vkDestroySampler( *device, m_sampler, k_allocationCallbacks );
         m_sampler = nullptr;
     }

@@ -31,87 +31,13 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 
-#include "tr_local.h"
-
-#define	DEFAULT_SIZE	16
+#include "renderer_common.h"
 
 // motorsep 07-18-2015; r_shadowMapImageSize cvar does nothing; resolution is tied to r_shadowMapLodBias cvar (and vLight->shadowLOD respectively). At 0 is uses first parameter from the array, 
 // and at 1 it uses second. This issue needs to be resolved!
 
 //int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 1024, 512, 512, 256 };
 int shadowMapResolutions[MAX_SHADOWMAP_RESOLUTIONS] = { 2048, 2048, 128, 128, 128 };
-
-/*
-==================
-idImage::MakeDefault
-
-the default image will be grey with a white box outline
-to allow you to see the mapping coordinates on a surface
-==================
-*/
-void idImage::MakeDefault()
-{
-	int		x, y;
-	byte	data[DEFAULT_SIZE][DEFAULT_SIZE][4];
-	
-	if( com_developer.GetBool() )
-	{
-		// grey center
-		for( y = 0 ; y < DEFAULT_SIZE ; y++ )
-		{
-			for( x = 0 ; x < DEFAULT_SIZE ; x++ )
-			{
-				data[y][x][0] = 32;
-				data[y][x][1] = 32;
-				data[y][x][2] = 32;
-				data[y][x][3] = 255;
-			}
-		}
-		
-		// white border
-		for( x = 0 ; x < DEFAULT_SIZE ; x++ )
-		{
-			data[0][x][0] =
-				data[0][x][1] =
-					data[0][x][2] =
-						data[0][x][3] = 255;
-						
-			data[x][0][0] =
-				data[x][0][1] =
-					data[x][0][2] =
-						data[x][0][3] = 255;
-						
-			data[DEFAULT_SIZE - 1][x][0] =
-				data[DEFAULT_SIZE - 1][x][1] =
-					data[DEFAULT_SIZE - 1][x][2] =
-						data[DEFAULT_SIZE - 1][x][3] = 255;
-						
-			data[x][DEFAULT_SIZE - 1][0] =
-				data[x][DEFAULT_SIZE - 1][1] =
-					data[x][DEFAULT_SIZE - 1][2] =
-						data[x][DEFAULT_SIZE - 1][3] = 255;
-		}
-	}
-	else
-	{
-		for( y = 0 ; y < DEFAULT_SIZE ; y++ )
-		{
-			for( x = 0 ; x < DEFAULT_SIZE ; x++ )
-			{
-				data[y][x][0] = 0;
-				data[y][x][1] = 0;
-				data[y][x][2] = 0;
-				data[y][x][3] = 0;
-			}
-		}
-	}
-	
-	GenerateImage( ( byte* )data,
-				   DEFAULT_SIZE, DEFAULT_SIZE,
-				   TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
-				   
-	defaulted = true;
-}
 
 static void R_DefaultImage( idImage* image )
 {
@@ -124,8 +50,7 @@ static void R_WhiteImage( idImage* image )
 	
 	// solid white texture
 	std::memset( data, 255, sizeof( data ) );
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE,
-						  TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEFAULT );
 }
 
 static void R_BlackImage( idImage* image )
@@ -134,8 +59,7 @@ static void R_BlackImage( idImage* image )
 	
 	// solid black texture
 	std::memset( data, 0, sizeof( data ) );
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE,
-						  TF_DEFAULT, TR_REPEAT, TD_DEFAULT );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEFAULT );
 }
 
 static void R_GlossImage( idImage* image )
@@ -145,8 +69,7 @@ static void R_GlossImage( idImage* image )
 	// default 120 specular power texture (this gets multiplied by 32.0, so this is roughly pow(n,15) exponent)
 	// TD_GLOSS uses FMT_INT8 so we don't care about the green, blue or alpha bytes, just red
 	std::memset( data, 120, sizeof( data ) );
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE,
-						  TF_DEFAULT, TR_REPEAT, TD_GLOSS );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_GLOSS );
 }
 
 static void R_RGBA8Image( idImage* image )
@@ -159,7 +82,7 @@ static void R_RGBA8Image( idImage* image )
 	data[0][0][2] = 48;
 	data[0][0][3] = 96;
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_DEFAULT, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_LOOKUP_TABLE_RGBA );
 }
 
 // foresthale 2014-02-20: renamed from R_DepthImage to R_DepthImageNearest to imply TF_NEAREST
@@ -173,7 +96,7 @@ static void R_DepthImageNearest( idImage* image )
 	data[0][0][2] = 48;
 	data[0][0][3] = 96;
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_NEAREST, TR_CLAMP, TD_DEPTH );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEPTH );
 }
 
 // foresthale 2014-02-20: modified version of R_RGBA8Image that uses TF_LINEAR for view renders
@@ -187,7 +110,7 @@ static void R_RGBA8ImageLinear( idImage* image )
 	data[0][0][2] = 48;
 	data[0][0][3] = 96;
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_LOOKUP_TABLE_RGBA );
 }
 
 // foresthale 2014-02-19: added TD_RGBA16F for HDR view rendering
@@ -197,7 +120,7 @@ static void R_RGBA16FImageLinear( idImage* image )
 	
 	std::memset( data, 0, sizeof( data ) );
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_LINEAR, TR_CLAMP, TD_RGBA16F );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_RGBA16F );
 }
 
 // foresthale 2014-02-19: added TD_DEPTHSTENCIL
@@ -211,7 +134,7 @@ static void R_DepthStencilImageNearest( idImage* image )
 	data[0][0][2] = 0;
 	data[0][0][3] = 0;
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TF_NEAREST, TR_CLAMP, TD_DEPTHSTENCIL );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEPTHSTENCIL );
 }
 
 static void R_AlphaNotchImage( idImage* image )
@@ -225,7 +148,7 @@ static void R_AlphaNotchImage( idImage* image )
 	data[1][0] = data[1][1] = data[1][2] = 255;
 	data[1][3] = 255;
 	
-	image->GenerateImage( ( byte* )data, 2, 1, TF_NEAREST, TR_CLAMP, TD_LOOKUP_TABLE_ALPHA );
+	image->GenerateImage( ( byte* )data, 2, 1, TD_LOOKUP_TABLE_ALPHA );
 }
 
 static void R_FlatNormalImage( idImage* image )
@@ -240,7 +163,7 @@ static void R_FlatNormalImage( idImage* image )
 		data[0][i][2] = 255;
 		data[0][i][3] = 255;
 	}
-	image->GenerateImage( ( byte* )data, 2, 2, TF_DEFAULT, TR_REPEAT, TD_BUMP );
+	image->GenerateImage( ( byte* )data, 2, 2, TD_BUMP );
 }
 
 /*
@@ -266,7 +189,7 @@ static void R_CreateNoFalloffImage( idImage* image )
 			data[y][x][3] = 255;
 		}
 	}
-	image->GenerateImage( ( byte* )data, FALLOFF_TEXTURE_SIZE, 16, TF_DEFAULT, TR_CLAMP_TO_ZERO, TD_LOOKUP_TABLE_MONO );
+	image->GenerateImage( ( byte* )data, FALLOFF_TEXTURE_SIZE, 16, TD_LOOKUP_TABLE_MONO );
 }
 
 /*
@@ -325,7 +248,7 @@ void R_FogImage( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, FOG_SIZE, FOG_SIZE, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_ALPHA );
+	image->GenerateImage( ( byte* )data, FOG_SIZE, FOG_SIZE, TD_LOOKUP_TABLE_ALPHA );
 }
 
 
@@ -453,7 +376,7 @@ void R_FogEnterImage( idImage* image )
 	}
 	
 	// if mipmapped, acutely viewed surfaces fade wrong
-	image->GenerateImage( ( byte* )data, FOG_ENTER_SIZE, FOG_ENTER_SIZE, TF_LINEAR, TR_CLAMP, TD_LOOKUP_TABLE_ALPHA );
+	image->GenerateImage( ( byte* )data, FOG_ENTER_SIZE, FOG_ENTER_SIZE, TD_LOOKUP_TABLE_ALPHA );
 }
 
 
@@ -503,38 +426,38 @@ void R_QuadraticImage( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, QUADRATIC_WIDTH, QUADRATIC_HEIGHT, TF_DEFAULT, TR_CLAMP, TD_LOOKUP_TABLE_RGB1 );
+	image->GenerateImage( ( byte* )data, QUADRATIC_WIDTH, QUADRATIC_HEIGHT, TD_LOOKUP_TABLE_RGB1 );
 }
 
 // RB begin
 static void R_CreateShadowMapImage_Res0( idImage* image )
 {
 	int size = shadowMapResolutions[0];
-	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
 }
 
 static void R_CreateShadowMapImage_Res1( idImage* image )
 {
 	int size = shadowMapResolutions[1];
-	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
 }
 
 static void R_CreateShadowMapImage_Res2( idImage* image )
 {
 	int size = shadowMapResolutions[2];
-	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
 }
 
 static void R_CreateShadowMapImage_Res3( idImage* image )
 {
 	int size = shadowMapResolutions[3];
-	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
 }
 
 static void R_CreateShadowMapImage_Res4( idImage* image )
 {
 	int size = shadowMapResolutions[4];
-	image->GenerateShadowArray( size, size, TF_LINEAR, TR_CLAMP_TO_ZERO_ALPHA, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
 }
 
 const static int JITTER_SIZE = 128;
@@ -559,7 +482,7 @@ static void R_CreateJitterImage16( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, JITTER_SIZE * 16, JITTER_SIZE, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, JITTER_SIZE * 16, JITTER_SIZE, TD_LOOKUP_TABLE_RGBA );
 }
 
 static void R_CreateJitterImage4( idImage* image )
@@ -583,7 +506,7 @@ static void R_CreateJitterImage4( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, JITTER_SIZE * 4, JITTER_SIZE, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, JITTER_SIZE * 4, JITTER_SIZE, TD_LOOKUP_TABLE_RGBA );
 }
 
 static void R_CreateJitterImage1( idImage* image )
@@ -601,7 +524,7 @@ static void R_CreateJitterImage1( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, JITTER_SIZE, JITTER_SIZE, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, JITTER_SIZE, JITTER_SIZE, TD_LOOKUP_TABLE_RGBA );
 }
 
 static void R_CreateRandom256Image( idImage* image )
@@ -619,7 +542,7 @@ static void R_CreateRandom256Image( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, 256, 256, TF_NEAREST, TR_REPEAT, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, 256, 256, TD_LOOKUP_TABLE_RGBA );
 }
 // RB end
 
@@ -628,7 +551,7 @@ static void R_CreateRandom256Image( idImage* image )
 idImageManager::CreateIntrinsicImages
 ================
 */
-void idImageManager::CreateIntrinsicImages()
+void idImageManagerLocal::CreateIntrinsicImages( void )
 {
 	// create built in images
 	defaultImage = ImageFromFunction( "_default", R_DefaultImage );
@@ -660,11 +583,11 @@ void idImageManager::CreateIntrinsicImages()
 	shadowImage[3] = ImageFromFunction( va( "_shadowMapArray3_%i", shadowMapResolutions[3] ), R_CreateShadowMapImage_Res3 );
 	shadowImage[4] = ImageFromFunction( va( "_shadowMapArray4_%i", shadowMapResolutions[4] ), R_CreateShadowMapImage_Res4 );
 
-	jitterImage1 = globalImages->ImageFromFunction( "_jitter1", R_CreateJitterImage1 );
-	jitterImage4 = globalImages->ImageFromFunction( "_jitter4", R_CreateJitterImage4 );
-	jitterImage16 = globalImages->ImageFromFunction( "_jitter16", R_CreateJitterImage16 );
+	jitterImage1 = ImageFromFunction( "_jitter1", R_CreateJitterImage1 );
+	jitterImage4 = ImageFromFunction( "_jitter4", R_CreateJitterImage4 );
+	jitterImage16 = ImageFromFunction( "_jitter16", R_CreateJitterImage16 );
 
-	randomImage256 = globalImages->ImageFromFunction( "_random256", R_CreateRandom256Image );
+	randomImage256 = ImageFromFunction( "_random256", R_CreateRandom256Image );
 	// RB end
 	
 	// scratchImage is used for screen wipes/doublevision etc..
@@ -676,7 +599,7 @@ void idImageManager::CreateIntrinsicImages()
 	viewFramebufferDepthImage = ImageFromFunction( "_currentFramebufferDepth", R_DepthStencilImageNearest );
 	currentRenderImage = ImageFromFunction( "_currentRender", R_RGBA8ImageLinear );
 	currentDepthImage = ImageFromFunction( "_currentDepth", R_DepthImageNearest );
-	ditherImage = ImageFromFile( "textures/dither4x4.tga", TF_NEAREST, TR_REPEAT, TD_HIGHQUALITY );
+	ditherImage = ImageFromFile( "textures/dither4x4.tga", TD_HIGHQUALITY );
 	cameraImage = ImageFromFunction( "_camera", R_RGBA8ImageLinear );
 	// foresthale 2014-04-08: r_glow
 	glowFramebufferImage8[0] = ImageFromFunction( "_glowFramebuffer0", R_RGBA8ImageLinear );
@@ -694,8 +617,8 @@ void idImageManager::CreateIntrinsicImages()
 	
 	//loadingIconImage = ImageFromFile( "textures/loadingicon2", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 	//hellLoadingIconImage = ImageFromFile( "textures/loadingicon3", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
-	loadingIconImage = ImageFromFile("textures/da_kat", TF_DEFAULT, TR_CLAMP, TD_HIGHQUALITY, CF_2D);
-	hellLoadingIconImage = ImageFromFile("textures/da_kat", TF_DEFAULT, TR_CLAMP, TD_HIGHQUALITY, CF_2D);
+	loadingIconImage = ImageFromFile("textures/da_kat", TD_HIGHQUALITY, CF_2D );
+	hellLoadingIconImage = ImageFromFile("textures/da_kat", TD_HIGHQUALITY, CF_2D );
 	
 	release_assert( loadingIconImage->referencedOutsideLevelLoad );
 	release_assert( hellLoadingIconImage->referencedOutsideLevelLoad );

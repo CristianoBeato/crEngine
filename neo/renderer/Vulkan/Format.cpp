@@ -59,10 +59,12 @@ static const VkFormat K_VULKAN_FORMAT_TABLE[crInternalFormat::FORMAT_COUNT] =
     VK_FORMAT_EAC_R11G11_UNORM_BLOCK,   // FORMAT_EAC
 };
 
+#ifdef __RENDERER_LIB__
 VkFormat crInternalFormat::VKInternal(void) const
 {
     return K_VULKAN_FORMAT_TABLE[static_cast<uint32_t>( format )];
 }
+#endif //!__RENDERER__
 
 bool crInternalFormat::Compressed(void) const
 {
@@ -215,4 +217,6 @@ float crInternalFormat::BytesPerPixel(void) const
         case RG_EAC_RG:
             return 1.0f;
     }
+
+    return 0.0f;
 }

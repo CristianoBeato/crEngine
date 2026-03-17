@@ -28,6 +28,11 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
+// everything that is needed by the backend needs
+// to be triple buffered to allow it to run in
+// parallel on a dual cpu machine ( CPU -> DRIVER -> GPU )
+inline constexpr uint32_t	SMP_FRAMES = 3;
+
 /// 
 extern const VkAllocationCallbacks* k_allocationCallbacks;
 
@@ -160,6 +165,12 @@ extern PFN_vkCmdDispatch                                vkCmdDispatch;
 extern PFN_vkCmdDispatchIndirect                        vkCmdDispatchIndirect;
 extern PFN_vkCmdPipelineBarrier2                        vkCmdPipelineBarrier2;
 
+// pipeline cache
+extern PFN_vkCreatePipelineCache                        vkCreatePipelineCache;
+extern PFN_vkDestroyPipelineCache                       vkDestroyPipelineCache;
+extern PFN_vkGetPipelineCacheData                       vkGetPipelineCacheData;
+extern PFN_vkMergePipelineCaches                        vkMergePipelineCaches;
+
 // Pipeline
 extern PFN_vkCmdBindPipeline                            vkCmdBindPipeline;
 extern PFN_vkCmdSetViewport                             vkCmdSetViewport;
@@ -185,6 +196,7 @@ extern PFN_vkResetDescriptorPool                        vkResetDescriptorPool;
 // VkDescriptorSet
 extern PFN_vkAllocateDescriptorSets                     vkAllocateDescriptorSets;
 extern PFN_vkFreeDescriptorSets                         vkFreeDescriptorSets;
+extern PFN_vkCmdBindDescriptorSets                      vkCmdBindDescriptorSets;
 extern PFN_vkUpdateDescriptorSets                       vkUpdateDescriptorSets;
 
 // VkEvent
@@ -216,6 +228,17 @@ extern PFN_vkDestroyDebugUtilsMessengerEXT              vkDestroyDebugUtilsMesse
 
 extern VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBitsEXT in_severity, VkDebugUtilsMessageTypeFlagsEXT in_types, const VkDebugUtilsMessengerCallbackDataEXT* in_data, void *in_user );
 
+/// 
+enum image_type_t : uint8_t
+{
+	IMAGE_NONE,
+    IMAGE_1D,
+    IMAGE_2D,
+    IMAGE_3D,
+    IMAGE_CUBEMAP,
+    IMAGE_TYPE_COUNT
+};
+
 typedef struct vkBufferHandle_s 
 {
     VkBufferUsageFlags      usage;
@@ -244,13 +267,13 @@ extern void VkImageStateTransition( vkImageHandle_t* in_image,
                                 const VkPipelineStageFlags2 in_stageMask,
                                 const VkAccessFlags2 in_accessMask );
 
+#include "sys/sys_vulkan.hpp"
+#include "Format.hpp"
 #include "Utils.hpp"
-#include "Device.hpp"
 #include "Commandbuffer.hpp"
 #include "Swapchain.hpp"
 #include "Resource.hpp"
 #include "Buffer.hpp"
-#include "Format.hpp"
 #include "Texture.hpp"
 #include "Program.hpp"
 #include "Pipeline.hpp"

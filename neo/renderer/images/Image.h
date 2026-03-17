@@ -2,7 +2,7 @@
 ===========================================================================
 
 Doom 3 BFG Edition GPL Source Code
-Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
+Copyright (C) 1993-2012 id Softwa              re LLC, a ZeniMax Media company.
 Copyright (C) 2014-2016 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
 
@@ -28,49 +28,24 @@ If you have questions concerning this license or the applicable additional terms
 ===========================================================================
 */
 
+#ifndef __IMAGE_H__
+#define __IMAGE_H__
+
+#include "renderer/Vulkan/Core.hpp"
+
 /*
 ====================================================================
 
 IMAGE
 
-idImage have a one to one correspondance with GL/DX/GCM textures.
+idImage have a one to one correspondance with Vulkan textures.
 
 No texture is ever used that does not have a corresponding idImage.
 
 ====================================================================
 */
-
-static const int	MAX_TEXTURE_LEVELS = 14;
-
-// How is this texture used?  Determines the storage and color format
-typedef enum
-{
-	TD_SPECULAR,			// may be compressed, and always zeros the alpha channel
-	TD_DIFFUSE,				// may be compressed
-	TD_DEFAULT,				// generic RGBA texture (particles, etc...)
-	TD_BUMP,				// may be compressed with 8 bit lookup
-	TD_FONT,				// Font image
-	TD_LIGHT,				// Light image
-	TD_LOOKUP_TABLE_MONO,	// Mono lookup table (including alpha)
-	TD_LOOKUP_TABLE_ALPHA,	// Alpha lookup table with a white color channel
-	TD_LOOKUP_TABLE_RGB1,	// RGB lookup table with a solid white alpha
-	TD_LOOKUP_TABLE_RGBA,	// RGBA lookup table
-	TD_COVERAGE,			// coverage map for fill depth pass when YCoCG is used
-	TD_DEPTH,				// depth buffer copy for motion blur
-	TD_HIGHQUALITY,			// sikk - Added - High Quality Texture Depth (full RGBA)
-	TD_HIGHQUALITY_CUBE,	// motorsep - Uncompressed cubemap texture (RGB colorspace)
-	TD_LOWQUALITY_CUBE,		// motorsep - Compressed cubemap texture (YCoCg colorspace DXT5)
-	TD_RGBA16F,				// foresthale 2014-02-19: generic RGBA16F texture (for HDR view rendering)
-	TD_DEPTHSTENCIL,		// foresthale 2014-02-19: generic DEPTHSTENCIL texture (for HDR view rendering)
-	TD_EDITOR_DEFAULT,		// foresthale 2014-05-17: uncompressed editor version of TD_DEFAULT (always loads tga, does not write bimage)
-	TD_EDITOR_DIFFUSE,		// foresthale 2014-05-17: uncompressed editor version of TD_DIFFUSE (always loads tga, does not write bimage)
-	TD_EDITOR_BUMP,			// foresthale 2014-05-17: uncompressed editor version of TD_BUMP (always loads tga, does not write bimage)
-	TD_EDITOR_COVERAGE,		// foresthale 2014-05-17: uncompressed editor version of TD_COVERAGE (always loads tga, does not write bimage)
-	TD_GLOSS,				// gloss map image, grayscale (FMT_INT8) internally
-	// RB begin
-	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
-	// RB end
-} textureUsage_t;
+inline constexpr int MAX_TEXTURE_LEVELS = 14;
+inline constexpr int DEFAULT_SIZE = 16;
 
 inline bool IsToolUsage( textureUsage_t usage )
 {
@@ -82,374 +57,218 @@ inline bool IsToolUsage( textureUsage_t usage )
 
 textureUsage_t CheckEditorUsage( textureUsage_t usage );
 
-typedef enum
+struct sub_image_t
 {
-	CF_2D,			// not a cube map
-	CF_NATIVE,		// _px, _nx, _py, etc, directly sent to GL
-	CF_CAMERA,		// _forward, _back, etc, rotated and flipped as needed before sending to GL
-	CF_2D_ARRAY,	// not a cube map but not a single 2d texture either
-	CF_CAMERA_ALT	// motorsep 12-30-2022; to use with cubemaps created from equirectangular panoramas in Bixorama (or perhaps any other similar software)
-} cubeFiles_t;
+    uint16_t    level;  // mipmap level
+    uint16_t    layer;  // layer of the multi texture
+    uint32_t    width;  // face width 
+    uint32_t    height; // face height
+    uint32_t    depth;  // face depth
+    uintptr_t   offset; // offset in texture buffer
+    size_t      size;   // pixel legenth
+};
 
-#include "ImageOpts.h"
-#include "BinaryImage.h"
+/*
+================================================
+idImageOpts hold parameters for texture operations.
+================================================
+*/
+class idImageOpts
+{
+public:
+	idImageOpts( void ) : 
+		format( crInternalFormat::NONE ),
+		width( 0 ),
+		height( 0 ),
+		depth( 0 ),
+		numSides( 0 ),
+		numLevels( 0 ),
+		textureType( IMAGE_2D ),
+		gammaMips( false ),
+		readback( false ),
+		sRGB( false ) // foresthale 2014-02-20: fixed r_useSRGB texture handling
+	{
+	}
+	
+	ID_INLINE bool	operator==( const idImageOpts& opts )
+	{
+		return ( std::memcmp( this, &opts, sizeof( *this ) ) == 0 );
+	}
+	
+	//---------------------------------------------------
+	// these determine the physical memory size and layout
+	//---------------------------------------------------
+	bool				gammaMips;		// if true, mips will be generated with gamma correction
+	bool				readback;		// 360 specific - cpu reads back from this texture, so allocate with cached memory
+	bool				sRGB; 			// foresthale 2014-02-20: fixed r_useSRGB texture handling
+	image_type_t		textureType;
+	crInternalFormat	format;
+	int16_t				numSides; 		// 6 cubemap / n shadow array
+	int16_t				numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size
+	uint32_t			width;
+	uint32_t			height;			// not needed for cube maps
+	uint32_t			depth;
+};
 
 #define	MAX_IMAGE_NAME	256
 
+class vkTexture;
 class idImage
 {
 public:
-	idImage( const char* name );
+	idImage( const idStr &name );
 	
-	const char* 	GetName() const
+	ID_INLINE const char* 	GetName( void ) const
 	{
 		return imgName;
 	}
 	
-	// Makes this image active on the current GL texture unit.
-	// automatically enables or disables cube mapping
-	// May perform file loading if the image was not preloaded.
-	void		Bind();
-	
-	// Should be called at least once
-	void		SetSamplerState( textureFilter_t tf, textureRepeat_t tr );
-	
-	// used by callback functions to specify the actual data
-	// data goes from the bottom to the top line of the image, as OpenGL expects it
-	// These perform an implicit Bind() on the current texture unit
-	// FIXME: should we implement cinematics this way, instead of with explicit calls?
-	void		GenerateImage( const byte* pic, int width, int height,
-							   textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
-	void		GenerateCubeImage( const byte* pic[6], int size,
-								   textureFilter_t filter, textureUsage_t usage );
+	/// @brief Makes this image active on the current GL texture unit.
+	/// automatically enables or disables cube mapping
+	/// May perform file loading if the image was not preloaded.
+	void		Bind( void );
+		
+	/// @brief used by callback functions to specify the actual data
+	/// data goes from the bottom to the top line of the image, as OpenGL expects it
+	/// These perform an implicit Bind() on the current texture unit
+	/// FIXME: should we implement cinematics this way, instead of with explicit calls?
+	void		GenerateImage( const byte* pic, const uint32_t width, const uint32_t height, textureUsage_t usage );
+	void		GenerateCubeImage( const byte* pic[6], int size, textureUsage_t usage );
 								   
 	// RB begin
-	void		GenerateShadowArray( int width, int height, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
+	void		GenerateShadowArray( uint32_t width, uint32_t height, textureUsage_t usage );
 	// RB end
 	
-	void		CopyFramebuffer( int x, int y, int width, int height );
-	void		CopyDepthbuffer( int x, int y, int width, int height );
+	void		CopyFramebuffer( int32_t x, int32_t y, uint32_t width, uint32_t height );
+	void		CopyDepthbuffer( int32_t x, int32_t y, uint32_t width, uint32_t height );
 	
 	void		UploadScratch( const byte* pic, int width, int height );
 	
-	// estimates size of the GL image based on dimensions and storage type
-	int			StorageSize() const;
+	/// @brief estimates size of the image based on dimensions and storage type
+	size_t		StorageSize( void ) const;
 	
-	// print a one line summary of the image
-	void		Print() const;
+	/// @brief print a one line summary of the image
+	void		Print( void ) const;
 	
-	// check for changed timestamp on disk and reload if necessary
-	void		Reload( bool force );
+	/// @brief check for changed timestamp on disk and reload if necessary
+	void		Reload( const bool force );
 	
-	void		AddReference()
+	ID_INLINE void	AddReference( void ) { refCount++; };
+	
+	/// @brief fill with a grid pattern
+	void		MakeDefault( void );	
+	
+	void		ActuallyLoadImage( bool fromBackEnd );
+
+	//---------------------------------------------
+	// Platform specific implementations
+	//---------------------------------------------
+	void		AllocImage( const idImageOpts& imgOpts );
+	
+	/// @brief Deletes the texture object, but leaves the structure so it can be reloaded
+	/// or resized.
+	void		PurgeImage( void );
+								
+	/// @brief SetPixel is assumed to be a fast memory write on consoles, degenerating to a
+	/// SubImageUpload on PCs.  Used to update the page mapping images.
+	/// We could remove this now, because the consoles don't use the intermediate page mapping
+	/// textures now that they can pack everything into the virtual page table images.
+	void		SetPixel( int mipLevel, int x, int y, const void* data, int dataSize );
+	
+	/// @brief some scratch images are dynamically resized based on the display window size.  This
+	/// simply purges the image and recreates it if the sizes are different, so it should not be
+	/// done under any normal circumstances, and probably not at all on consoles.
+	void		Resize( const uint32_t width, const u_int32_t height );
+
+	void		SetTexParameters( void );	// update aniso and trilinear
+
+	void		BindAttachmentOnFBO(int attachmentType, int layer = -1);
+		
+	ID_INLINE bool IsCompressed( void ) const
 	{
-		refCount++;
-	};
+		return opts.format.Compressed();
+	}
 	
-	void		MakeDefault();	// fill with a grid pattern
-	
-	const idImageOpts& 	GetOpts() const
+	ID_INLINE bool IsLoaded( void ) const
+	{
+		return texnum != nullptr;
+	}
+
+	ID_INLINE const idImageOpts& GetOpts( void ) const
 	{
 		return opts;
 	}
-	int			GetUploadWidth() const
+
+	ID_INLINE int GetUploadWidth( void ) const
 	{
 		return opts.width;
 	}
-	int			GetUploadHeight() const
+
+	ID_INLINE int GetUploadHeight( void ) const
 	{
 		return opts.height;
 	}
 
-	GLuint		GetTexnum() const
+	ID_INLINE vkTexture* GetTexnum( void ) const
 	{
 		return texnum;
 	}
 	
-	void		SetReferencedOutsideLevelLoad()
+	ID_INLINE void SetReferencedOutsideLevelLoad( void )
 	{
 		referencedOutsideLevelLoad = true;
 	}
-	void		SetReferencedInsideLevelLoad()
+	
+	ID_INLINE void SetReferencedInsideLevelLoad( void )
 	{
 		levelLoadReferenced = true;
 	}
-	void		ActuallyLoadImage( bool fromBackEnd );
-	//---------------------------------------------
-	// Platform specific implementations
-	//---------------------------------------------
 	
-	void		AllocImage( const idImageOpts& imgOpts, textureFilter_t filter, textureRepeat_t repeat );
-	
-	// Deletes the texture object, but leaves the structure so it can be reloaded
-	// or resized.
-	void		PurgeImage();
-	
-	// z is 0 for 2D textures, 0 - 5 for cube maps, and 0 - uploadDepth for 3D textures. Only
-	// one plane at a time of 3D textures can be uploaded. The data is assumed to be correct for
-	// the format, either bytes, halfFloats, floats, or DXT compressed. The data is assumed to
-	// be in OpenGL RGBA format, the consoles may have to reorganize. pixelPitch is only needed
-	// when updating from a source subrect. Width, height, and dest* are always in pixels, so
-	// they must be a multiple of four for dxt data.
-	void		SubImageUpload( int mipLevel, int destX, int destY, int destZ,
-								int width, int height, const void* data,
-								int pixelPitch = 0 ) const;
-								
-	// SetPixel is assumed to be a fast memory write on consoles, degenerating to a
-	// SubImageUpload on PCs.  Used to update the page mapping images.
-	// We could remove this now, because the consoles don't use the intermediate page mapping
-	// textures now that they can pack everything into the virtual page table images.
-	void		SetPixel( int mipLevel, int x, int y, const void* data, int dataSize );
-	
-	// some scratch images are dynamically resized based on the display window size.  This
-	// simply purges the image and recreates it if the sizes are different, so it should not be
-	// done under any normal circumstances, and probably not at all on consoles.
-	void		Resize( int width, int height );
-	
-	bool		IsCompressed() const
-	{
-		return ( opts.format == FMT_DXT1 || opts.format == FMT_DXT5 );
-	}
-	
-	void		SetTexParameters();	// update aniso and trilinear
-	
-	bool		IsLoaded() const
-	{
-		return texnum != TEXTURE_NOT_LOADED;
-	}
+protected:
+	friend class idImageManagerLocal;
+	void				AllocImage( void );
+	void				DeriveOpts( void );
+	idList<sub_image_t>	GetSubImages( void ) const { return subimages; }
 
-	void		BindAttachmentOnFBO(int attachmentType, int layer = -1);
-	
-	static void			GetGeneratedName( idStr& _name, const textureUsage_t& _usage, const cubeFiles_t& _cube );
-	
 private:
-	friend class idImageManager;
-	
-	void				AllocImage();
-	void				DeriveOpts();
-	
-	// parameters that define this image
-	idStr				imgName;				// game path, including extension (except for cube maps), may be an image program
-	cubeFiles_t			cubeFiles;				// If this is a cube map, and if so, what kind
-	void	( *generatorFunction )( idImage* image );	// nullptr for files
-	textureUsage_t		usage;					// Used to determine the type of compression to use
-	idImageOpts			opts;					// Parameters that determine the storage method
-	
-	// Sampler settings
-	textureFilter_t		filter;
-	textureRepeat_t		repeat;
-	
 	bool				referencedOutsideLevelLoad;
 	bool				levelLoadReferenced;	// for determining if it needs to be purged
 	bool				defaulted;				// true if the default image was generated because a file couldn't be loaded
+	int					refCount;				// overall ref count
 	ID_TIME_T			sourceFileTime;			// the most recent of all images used in creation, for reloadImages command
 	ID_TIME_T			binaryFileTime;			// the time stamp of the binary file
+
 	
-	int					refCount;				// overall ref count
+	///
+	/// parameters that define this image
+	///
 	
-	static const GLuint TEXTURE_NOT_LOADED = 0xFFFFFFFF;
+	// If this is a cube map, and if so, what kind
+	cubeFiles_t						cubeFiles;				
+	// Used to determine the type of compression to use
+	textureUsage_t					usage;					
 	
-	GLuint				texnum;				// gl texture binding
+	// Parameters that determine the storage method
+	idImageOpts						opts;					
+
+	// game path, including extension (except for cube maps), may be an image program
+	idStr							imgName;
+	vkTexture*						texnum;
+	idList<sub_image_t>				subimages;
 	
-	// we could derive these in subImageUpload each time if necessary
-	GLuint				internalFormat;
-	GLuint				dataFormat;
-	GLuint				dataType;
+	// nullptr for files
+	void	( *generatorFunction )( idImage* image );	
+
+// BEATO Begin: Upload/Dowload images to image memory
+
+	/// @brief 
+	void	DoUpload( void );
+
+	/// @brief 
+	void	DoDownload( void );
 	
-	
+// BEATO End
+
 };
 
-ID_INLINE idImage::idImage( const char* name ) : imgName( name )
-{
-	texnum = TEXTURE_NOT_LOADED;
-	internalFormat = 0;
-	dataFormat = 0;
-	dataType = 0;
-	generatorFunction = nullptr;
-	filter = TF_DEFAULT;
-	repeat = TR_REPEAT;
-	usage = TD_DEFAULT;
-	cubeFiles = CF_2D;
-	
-	referencedOutsideLevelLoad = false;
-	levelLoadReferenced = false;
-	defaulted = false;
-	sourceFileTime = FILE_NOT_FOUND_TIMESTAMP;
-	binaryFileTime = FILE_NOT_FOUND_TIMESTAMP;
-	refCount = 0;
-}
-
-
-// data is RGBA
-void	R_WriteTGA( const char* filename, const byte* data, int width, int height, bool flipVertical = false, const char* basePath = "fs_savepath" );
-void	R_WritePNG( const char* filename, const byte* data, int width, int height, bool flipVertical = false, const char* basePath = "fs_savepath" );
-// data is in top-to-bottom raster order unless flipVertical is set
-
-
-
-class idImageManager
-{
-public:
-
-	idImageManager()
-	{
-		insideLevelLoad = false;
-		preloadingMapImages = false;
-	}
-	
-	void				Init();
-	void				Shutdown();
-	
-	// If the exact combination of parameters has been asked for already, an existing
-	// image will be returned, otherwise a new image will be created.
-	// Be careful not to use the same image file with different filter / repeat / etc parameters
-	// if possible, because it will cause a second copy to be loaded.
-	// If the load fails for any reason, the image will be filled in with the default
-	// grid pattern.
-	// Will automatically execute image programs if needed.
-	idImage* 			ImageFromFile( const char* name,
-									   textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap = CF_2D );
-									   
-	// look for a loaded image, whatever the parameters
-	idImage* 			GetImage( const char* name ) const;
-	
-	// look for a loaded image, whatever the parameters
-	idImage* 			GetImageWithParameters( const char* name, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage, cubeFiles_t cubeMap ) const;
-	
-	// The callback will be issued immediately, and later if images are reloaded or vid_restart
-	// The callback function should call one of the idImage::Generate* functions to fill in the data
-	idImage* 			ImageFromFunction( const char* name, void ( *generatorFunction )( idImage* image ) );
-	
-	// scratch images are for internal renderer use.  ScratchImage names should always begin with an underscore
-	idImage* 			ScratchImage( const char* name, idImageOpts* imgOpts, textureFilter_t filter, textureRepeat_t repeat, textureUsage_t usage );
-	
-	// purges all the images before a vid_restart
-	void				PurgeAllImages();
-	
-	// reloads all apropriate images after a vid_restart
-	void				ReloadImages( bool all );
-	
-	// unbind all textures from all texture units
-	void				UnbindAll();
-	
-	// disable the active texture unit
-	void				BindNull();
-	
-	// Called only by renderSystem::BeginLevelLoad
-	void				BeginLevelLoad();
-	
-	// Called only by renderSystem::EndLevelLoad
-	void				EndLevelLoad();
-	
-	void				Preload( const idPreloadManifest& manifest, const bool& mapPreload );
-	
-	// Loads unloaded level images
-	int					LoadLevelImages( bool pacifier );
-	
-	// used to clear and then write the dds conversion batch file
-	void				StartBuild();
-	void				FinishBuild( bool removeDups = false );
-	
-	void				PrintMemInfo( MemInfo_t* mi );
-	
-	// built-in images
-	void CreateIntrinsicImages();
-	idImage* 			defaultImage;
-	idImage* 			flatNormalMap;				// 128 128 255 in all pixels
-	idImage* 			alphaNotchImage;			// 2x1 texture with just 1110 and 1111 with point sampling
-	idImage* 			whiteImage;					// full of 0xff
-	idImage* 			blackImage;					// full of 0x00
-	idImage* 			glossImage;					// 15 15 15 in all pixels
-	idImage* 			noFalloffImage;				// all 255, but zero clamped
-	idImage* 			fogImage;					// increasing alpha is denser fog
-	idImage* 			fogEnterImage;				// adjust fogImage alpha based on terminator plane
-	idImage*			cinematicImage;
-	// RB begin
-	idImage*			shadowImage[5];
-	idImage*			jitterImage1;				// shadow jitter
-	idImage*			jitterImage4;
-	idImage*			jitterImage16;
-	idImage*			randomImage256;
-	// RB end
-	idImage* 			scratchImage;
-	idImage* 			scratchImage2;
-	idImage* 			accumImage;
-	idImage* 			currentRenderImage;				// for SS_POST_PROCESS shaders
-	idImage* 			currentDepthImage;				// for motion blur
-	idImage* 			originalCurrentRenderImage;		// currentRenderImage before any changes for stereo rendering
-	idImage* 			loadingIconImage;				// loading icon must exist always
-	idImage* 			hellLoadingIconImage;				// loading icon must exist always
-	// foresthale 2014-02-19: added an HDR framebuffer object, which needs images to back it
-	idImage*			viewFramebufferRenderImage16;
-	idImage*			viewFramebufferDepthImage;
-	idImage*			ditherImage;
-	idImage*			cameraImage;
-	// foresthale 2014-04-07: r_glow
-	// we blend a series of progressively smaller (and more blurred) images over the view
-	// the first is full resolution, the later ones are progressively smaller
-	idImage*			glowFramebufferImage8[4];
-	idImage*			glowFramebufferImage16[4];
-	
-	//--------------------------------------------------------
-	
-	idImage* 			AllocImage( const char* name );
-	idImage* 			AllocStandaloneImage( const char* name );
-	
-	bool				ExcludePreloadImage( const char* name );
-	
-	idList<idImage*, TAG_IDLIB_LIST_IMAGE>	images;
-	idHashIndex			imageHash;
-	
-	bool				insideLevelLoad;			// don't actually load images now
-	bool				preloadingMapImages;		// unless this is set
-};
-
-extern idImageManager*	globalImages;		// pointer to global list for the rest of the system
-
-int MakePowerOfTwo( int num );
-
-/*
-====================================================================
-
-IMAGEPROCESS
-
-FIXME: make an "imageBlock" type to hold byte*,width,height?
-====================================================================
-*/
-
-byte* R_Dropsample( const byte* in, int inwidth, int inheight, int outwidth, int outheight );
-byte* R_ResampleTexture( const byte* in, int inwidth, int inheight, int outwidth, int outheight );
-byte* R_MipMapWithAlphaSpecularity( const byte* in, int width, int height );
-byte* R_MipMapWithGamma( const byte* in, int width, int height );
-byte* R_MipMap( const byte* in, int width, int height );
-
-// these operate in-place on the provided pixels
-void R_BlendOverTexture( byte* data, int pixelCount, const byte blend[4] );
-void R_HorizontalFlip( byte* data, int width, int height );
-void R_VerticalFlip( byte* data, int width, int height );
-void R_RotatePic( byte* data, int width );
-void R_ApplyCubeMapTransforms( int i, byte* data, int size );
-
-/*
-====================================================================
-
-IMAGEFILES
-
-====================================================================
-*/
-
-void R_LoadImage( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp, bool makePowerOf2 );
-// pic is in top to bottom raster format
-bool R_LoadCubeImages( const char* cname, cubeFiles_t extensions, byte* pic[6], int* size, ID_TIME_T* timestamp );
-
-/*
-====================================================================
-
-IMAGEPROGRAM
-
-====================================================================
-*/
-
-void R_LoadImageProgram( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp, textureUsage_t* usage = nullptr );
-const char* R_ParsePastImageProgram( idLexer& src );
-
+#endif //!__IMAGE_H__

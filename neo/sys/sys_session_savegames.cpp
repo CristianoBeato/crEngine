@@ -392,7 +392,7 @@ saveGameHandle_t idSessionLocal::LoadGameSync( const char* name, saveFileEntryLi
 // BEATO BEgin
 		crStaticPointer< idFile_SaveGame > gameDetailsFile( new( TAG_SAVEGAMES ) idFile_SaveGame( SAVEGAME_DETAILS_FILENAME, SAVEGAMEFILE_TEXT ) );
 // BEATO End
-		filesWithDetails.Append( gameDetailsFile.GetPtr() );
+		filesWithDetails.Append( &gameDetailsFile );
 		
 		// Check the cached save details from the enumeration and make sure we don't load a save from a newer version of the game!
 		const saveGameDetailsList_t details = GetSaveGameManager().GetEnumeratedSavegames();

@@ -158,6 +158,8 @@ public:
     bool    Create( const uint64_t m_flags );
     void    Destroy( void );
     
+    void    Bind( void );
+
     bool operator==( const vkPipeline &p );
     
 private:

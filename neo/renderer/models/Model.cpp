@@ -1292,15 +1292,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 		im1 = declManager->FindMaterial( material->name );
 		
 		bool normalsParsed = mesh->normalsParsed;
-		
-		// completely ignore any explict normals on surfaces with a renderbump command
-		// which will guarantee the best contours and least vertexes.
-		const char* rb = im1->GetRenderBump();
-		if( rb != nullptr && rb[0] != '\0' )
-		{
-			normalsParsed = false;
-		}
-		
+				
 		// It seems like the tools our artists are using often generate
 		// verts and texcoords slightly separated that should be merged
 		// note that we really should combine the surfaces with common materials
@@ -1753,17 +1745,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 	for( lwoSurf = lwo->surf, i = 0; lwoSurf; lwoSurf = lwoSurf->next, i++ )
 	{
 		im1 = declManager->FindMaterial( lwoSurf->name );
-		
-		bool normalsParsed = true;
-		
-		// completely ignore any explict normals on surfaces with a renderbump command
-		// which will guarantee the best contours and least vertexes.
-		const char* rb = im1->GetRenderBump();
-		if( rb && rb[0] )
-		{
-			normalsParsed = false;
-		}
-		
+				
 		// we need to find out how many unique vertex / texcoord combinations there are
 		
 		// the maximum possible number of combined vertexes is the number of indexes
@@ -1777,7 +1759,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 		tri->NumVerts() = 0;
 		tri->NumIndexes() = 0;
 		tri->AllocStaticTriSurfIndexes( layer->polygon.count * 3 );
-		tri->GenerateNormals() = !normalsParsed;
+		tri->GenerateNormals() = true;
 		
 		// find all the unique combinations
 		float	normalEpsilon = 1.0f;
@@ -1861,23 +1843,21 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 				for( lastmv = nullptr, mv = mvHash[v]; mv != nullptr; lastmv = mv, mv = mv->next )
 				{
 					if( mv->tv != tv )
-					{
 						continue;
-					}
+					
 					if( *( unsigned* )mv->color != *( unsigned* )color )
-					{
 						continue;
-					}
+
+#if 0
 					if( !normalsParsed )
 					{
 						// if we are going to create the normals, just
 						// matching texcoords is enough
 						break;
 					}
+#endif
 					if( mv->normal * normal > normalEpsilon )
-					{
 						break;		// we already have this one
-					}
 				}
 				if( !mv )
 				{
@@ -2275,14 +2255,6 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces( const struct maModel_s* ma )
 		}
 		
 		bool normalsParsed = mesh->normalsParsed;
-		
-		// completely ignore any explict normals on surfaces with a renderbump command
-		// which will guarantee the best contours and least vertexes.
-		const char* rb = im1->GetRenderBump();
-		if( rb != nullptr && rb[0] != '\0' )
-		{
-			normalsParsed = false;
-		}
 		
 		// It seems like the tools our artists are using often generate
 		// verts and texcoords slightly separated that should be merged

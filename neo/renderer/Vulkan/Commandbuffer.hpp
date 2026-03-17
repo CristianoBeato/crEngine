@@ -25,6 +25,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VK_COMMAND_BUFFER_HPP__
 #define __VK_COMMAND_BUFFER_HPP__
 
+typedef class vkDeviceQueue* vkDeviceQueuep;
 class vkCommandbuffer
 {
 public:
@@ -39,6 +40,7 @@ public:
 
     ID_INLINE   VkCommandBuffer     CommandBuffer( void ) const { return m_commandBuffers[m_bufferID]; }
     ID_INLINE   VkSemaphore         FinishFence( void ) const { return m_submitFinish[m_bufferID]; }
+    ID_INLINE   operator VkCommandBuffer( void ) const { return m_commandBuffers[m_bufferID]; }
 
 private:
     uint32_t                                        m_bufferID;

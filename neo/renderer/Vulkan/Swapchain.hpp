@@ -25,6 +25,9 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VK_SWAPCHAIN_HPP__
 #define __VK_SWAPCHAIN_HPP__
 
+typedef class vkDeviceQueue* vkDeviceQueuep;
+typedef class crVulkanRenderDevice* crVulkanRenderDevicep;
+
 class vkSwapchain
 {
 public:

@@ -100,7 +100,7 @@ namespace BTF
 	inline constexpr uint32_t   MAGIC = { 'BTF\0' }; /// 0x00465442u; // "BTF\0"
 	inline constexpr uint32_t   VERSION = 10; // 1.0 
 	inline constexpr size_t     HEADER_SIZE = sizeof( Header_t );
-	inline constexpr size_t     SUBIMAGE_SIZE = sizeof( SubImage_t );
+	inline constexpr size_t     SUBIMAGE_SIZE = sizeof( Image_t );
 };
 /// Beato end
 

@@ -28,15 +28,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 class vkTexture : public vkResourceState
 {
 public:
-    enum type_t : uint8_t
-    {
-		TEXTURE_NONE,
-        TEXTURE_1D,
-        TEXTURE_2D,
-        TEXTURE_3D,
-        TEXTURE_CUBEMAP
-    };
-
     struct dimensions_t
     {
         uint16_t    levels = 0;
@@ -59,7 +50,7 @@ public:
     vkTexture( void );
     ~vkTexture( void );
 
-    virtual bool                Create( const type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
+    virtual bool                Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
     virtual void                Destroy( void );
     const uint16_t              Levels( void ) const { return m_dimensions.levels; }
     const uint16_t              Layers( void ) const { return m_dimensions.layers; }
@@ -71,11 +62,11 @@ public:
     const VkAccessFlags2        Access( void ) const {return m_state.access; }
     const VkImageAspectFlags    Aspect( void ) const { return m_state.aspect; }
     void                        SetState( const textureState_t &in_state, const VkCommandBuffer in_commandBuffer );
-    const type_t                GetType( void ) const { return m_type; }
+    const image_type_t          GetType( void ) const { return m_type; }
     const crInternalFormat      GetFormat( void ) const { return m_format; }
 
 protected:
-    type_t              m_type;
+    image_type_t        m_type;
     crInternalFormat    m_format;
     dimensions_t        m_dimensions;
     textureState_t      m_state;

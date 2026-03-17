@@ -58,7 +58,7 @@ Manager
 
 // tr_imageprogram.c
 
-#include "tr_local.h"
+#include "renderer_common.h"
 
 /*
 
@@ -431,15 +431,11 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 	// Without a YCoCG compliant black texture we will get color artifacts for any interaction
 	// material that specifies the _black texture.
 	if( token == "_black" )
-	{
 		token = "textures\\black";
-	}
 	
 	// also check for _white
 	if( token == "_white" )
-	{
 		token = "guis\\assets\\white";
-	}
 	
 	AppendToken( token );
 	
@@ -448,9 +444,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		MatchAndAppendToken( src, "(" );
 		
 		if( !R_ParseImageProgram_r( src, pic, width, height, timestamps, usage ) )
-		{
 			return false;
-		}
 		
 		MatchAndAppendToken( src, "," );
 		
@@ -463,9 +457,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		{
 			R_HeightmapToNormalMap( *pic, *width, *height, scale );
 			if( usage )
-			{
 				*usage = TD_BUMP;
-			}
 		}
 		
 		MatchAndAppendToken( src, ")" );
@@ -480,9 +472,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		MatchAndAppendToken( src, "(" );
 		
 		if( !R_ParseImageProgram_r( src, pic, width, height, timestamps, usage ) )
-		{
 			return false;
-		}
 		
 		MatchAndAppendToken( src, "," );
 		
@@ -502,9 +492,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 			R_AddNormalMaps( *pic, *width, *height, pic2, width2, height2 );
 			R_StaticFree( pic2 );
 			if( usage )
-			{
 				*usage = TD_BUMP;
-			}
 		}
 		
 		MatchAndAppendToken( src, ")" );
@@ -516,17 +504,13 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		MatchAndAppendToken( src, "(" );
 		
 		if( !R_ParseImageProgram_r( src, pic, width, height, timestamps, usage ) )
-		{
 			return false;
-		}
 		
 		if( pic )
 		{
 			R_SmoothNormalMap( *pic, *width, *height );
 			if( usage )
-			{
 				*usage = TD_BUMP;
-			}
 		}
 		
 		MatchAndAppendToken( src, ")" );
@@ -541,9 +525,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		MatchAndAppendToken( src, "(" );
 		
 		if( !R_ParseImageProgram_r( src, pic, width, height, timestamps, usage ) )
-		{
 			return false;
-		}
 		
 		MatchAndAppendToken( src, "," );
 		

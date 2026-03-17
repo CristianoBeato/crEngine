@@ -23,6 +23,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Swapchain.hpp"
+#include "sys/sys_vulkan.hpp"
 #include "Core.hpp"
 
 static struct scMode_t

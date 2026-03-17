@@ -682,7 +682,7 @@ void Sys_GrabMouseCursor( bool grabIt )
 	else
 		flags = GRAB_SETSTATE;
 	
-	sys->GetVideoSystem()->GrabInput( flags );
+	crVideo::Get()->GrabInput( flags );
 }
 
 /*

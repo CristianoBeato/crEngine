@@ -36,7 +36,7 @@ vkCommandbuffer::~vkCommandbuffer( void )
 bool vkCommandbuffer::Create(void)
 {
     VkResult result = VK_SUCCESS;
-    auto device = tr.vkContext->Device();
+    crVulkanRenderDevicep device = tr.GetRenderDevice();
     m_graphicQueue = device->GraphicQueue();
 
     /// reserve array 
@@ -95,7 +95,7 @@ bool vkCommandbuffer::Create(void)
 void vkCommandbuffer::Destroy(void)
 {
     uint32_t i = 0;
-    auto device = tr.vkContext->Device();
+    crVulkanRenderDevicep device = tr.GetRenderDevice();
  
     for ( i = 0; i < SMP_FRAMES; i++)
     {
@@ -112,7 +112,7 @@ void vkCommandbuffer::Begin( const uint32_t in_bufferID )
 {
     VkResult result = VK_SUCCESS;
     m_bufferID = in_bufferID;
-    auto device = tr.vkContext->Device();
+    crVulkanRenderDevicep device = tr.GetRenderDevice();
 
     //
     // Wait for the device finish last render in previous match frame, before reuse command buffer

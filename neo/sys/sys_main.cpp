@@ -34,7 +34,7 @@ void Sys_Init()
 #endif
 
 // BEATO Begin:
-	sys->GetVideoSystem()->StartUp( 0 );
+	crVideo::Get()->StartUp( 1 );
 // BEATO End
 }
 
@@ -45,7 +45,9 @@ Sys_Shutdown
 */
 void Sys_Shutdown( void )
 {
-	sys->GetVideoSystem()->ShutDown();
+/// BEATO Begin:
+	crVideo::Get()->ShutDown();
+/// BEATO End
 
     Sys_ReleaseAlreadyRunningLock();
 

@@ -29,9 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-
-
-#include "tr_local.h"
+#include "renderer_common.h"
+#include "Image_files.hpp"
 
 /*
 
@@ -900,28 +899,21 @@ void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIM
 	idStr name = cname;
 	
 	if( pic )
-	{
 		*pic = nullptr;
-	}
+	
 	if( timestamp )
-	{
 		*timestamp = FILE_NOT_FOUND_TIMESTAMP;
-	}
+
 	if( width )
-	{
 		*width = 0;
-	}
+
 	if( height )
-	{
 		*height = 0;
-	}
 	
 	name.DefaultFileExtension( ".tga" );
 	
 	if( name.Length() < 5 )
-	{
 		return;
-	}
 	
 	name.ToLower();
 	idStr ext;
@@ -938,12 +930,9 @@ void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIM
 		}
 	}
 	else if( ext == "jpg" )
-	{
 		LoadJPG( name.c_str(), pic, width, height, timestamp );
-	} else if( ext == "png" )
-	{
+	else if( ext == "png" )
 		LoadPNG( name.c_str(), pic, width, height, timestamp );
-	}
 	
 	if( ( width && *width < 1 ) || ( height && *height < 1 ) )
 	{

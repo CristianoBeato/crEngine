@@ -36,7 +36,7 @@ vkProgram::~vkProgram( void )
 bool vkProgram::Create( const type_t in_type, const void* in_source, const size_t in_size )
 {
     VkResult result = VK_SUCCESS; 
-    auto device = tr.vkContext->Device();
+    auto device = tr.GetRenderDevice();
 
     VkShaderModuleCreateInfo shaderModuleCI{};
     shaderModuleCI.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -85,7 +85,7 @@ void vkProgram::Destroy( void )
 {
     if ( m_shaderModule == nullptr )
     {
-        auto device = tr.vkContext->Device();
+        auto device = tr.GetRenderDevice();
         vkDestroyShaderModule( *device, m_shaderModule, k_allocationCallbacks );
         m_shaderModule = nullptr;
     }
