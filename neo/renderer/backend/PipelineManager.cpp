@@ -1,5 +1,6 @@
 
 #include "precompiled.h"
+#include "Vulkan/Core.hpp"
 #include "PipelineManager.hpp"
 
 crPipelineManager::crPipelineManager( void )
@@ -8,4 +9,144 @@ crPipelineManager::crPipelineManager( void )
 
 crPipelineManager::~crPipelineManager( void )
 {
+}
+
+struct PipelineKey 
+{
+    uint64_t shaders; // vsID em 32 bits altos, fsID em 32 bits baixos
+    uint64_t flags;   // Suas 64 flags de configuração
+
+    PipelineKey( const uint32_t in_vertexShader, const uint32_t in_fragmentShader, const uint64_t in_flags )
+    {
+        shaders = ( static_cast<uint64_t>( in_vertexShader ) << 32 ) | in_fragmentShader;
+        flags = in_flags;
+    }
+
+    bool operator==(const PipelineKey& other) const 
+    {
+        return shaders == other.shaders && flags == other.flags;
+    }
+};
+
+inline void hash_combine( size_t& seed, uint64_t v ) 
+{
+    seed ^= std::hash<uint64_t>{}(v) + 0x9e3779b9 + (seed << 6) + (seed >> 2);
+}
+
+size_t generateKey(uint32_t vs, uint32_t fs, uint64_t flags) 
+{
+    size_t seed = 0;
+    uint64_t shaders = (static_cast<uint64_t>(vs) << 32) | fs;
+    
+    hash_combine( seed, shaders);
+    hash_combine( seed, flags);
+    
+    return seed;
+}
+
+vkPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, const uint32_t in_fragmentShader, const uint64_t in_flags )
+{
+    int index = 0;
+    int key = 0;
+    vkPipelinep pipeline = nullptr;
+
+#if 1
+    /// try find the same pipeline in the list
+    for ( uint32_t i = 0; i < m_pipelinesList.Num(); i++)
+    {
+        auto pipe = m_pipelinesList[i];
+        
+        /// Ignore if vertex shader don't match
+        if( pipe->VertexProgramID() != in_vertexShader )
+            continue;
+
+        /// Ignore if fragment shader don't match
+        if( pipe->FragmentProgramID() != in_fragmentShader )
+            continue;
+
+        /// well, shaders match and flags match
+        if( pipe->Flags() == in_flags )
+        {
+            pipeline = pipe;
+            break; 
+        }
+    }
+#else
+
+#endif 
+
+    if( pipeline == nullptr )
+    {
+        /// look for a reference pipeline
+        vkPipelinep reference = nullptr;
+
+        for ( uint32_t i = 0; i < m_pipelinesList.Num(); i++)
+        {
+            auto vert = m_pipelinesList[i]->VertexProgramID();
+            auto frag = m_pipelinesList[i]->FragmentProgramID();
+
+            /// if we found another pipeline that use same prograns,
+            /// re use that pipeline to create the new one 
+            if ( vert == in_vertexShader && frag == in_fragmentShader )
+            {
+                index = i;
+                reference = m_pipelinesList[i];
+                break;
+            }
+        }
+        
+        /// get vertex program
+        vkProgramp vertex = GetProgram( in_vertexShader );
+        if( vertex == nullptr )
+        {
+            idLib::Error( "Vertex program Index %u not found!\n", in_vertexShader );
+            return nullptr;
+        }
+        
+        /// get fragment program
+        vkProgramp fragment = GetProgram( in_fragmentShader );
+        if( vertex == nullptr )
+        {
+            idLib::Error( "Fragment program Index %u not found!\n", in_fragmentShader );
+            return nullptr;
+        }
+
+        pipeline = new vkPipeline();
+        if( !pipeline->Create( in_flags, vertex, fragment, reference ) )
+        {
+            delete pipeline;
+            return nullptr;
+        }
+
+        /// append new pipeline to the list
+        index = m_pipelinesList.Append( pipeline );
+        // m_pipelinesIndex.Add( key, index );
+    }
+
+    return pipeline;
+}
+
+vkSamplerp crPipelineManager::GetSampler(const vkSampler::filter_t in_filter, const vkSampler::wrapping_t in_repeat)
+{
+    vkSamplerp sampler;
+
+    /// try find a match sampler
+    for ( uint32_t i = 0; i < m_samplers.Num(); i++)
+    {
+        sampler = m_samplers[i];
+        if( sampler->Filtering() == in_filter && sampler->WrapS() == in_repeat )
+            break;
+    }
+    
+    /// no match found, create a new sampler
+    if( sampler == nullptr )
+    {
+        sampler = new vkSampler();
+        if( !sampler->Create( in_filter, in_repeat, in_repeat, in_repeat ) )
+            idLib::FatalError( "Failed to create sampler!!!\n" );
+            
+        m_samplers.Append( sampler );
+    }
+
+    return sampler;
 }

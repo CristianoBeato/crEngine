@@ -22,6 +22,8 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
+#include "idlib/precompiled.h"
+#include "renderer/renderer_common.h"
 #include "Pipeline.hpp"
 #include "Core.hpp"
 
@@ -36,9 +38,24 @@ vkPipeline::~vkPipeline( void )
 constexpr uint32_t NUM_DYNAMIC_STATE = 6;
 constexpr uint32_t NUM_ATTRIBS_DESCR = 7;
 
-bool vkPipeline::Create( const uint64_t in_flags )
+bool vkPipeline::Create( const uint64_t in_flags, const vkProgramp in_vertexProgram, const vkProgramp in_fragmentProgram, const vkPipeline* in_reference )
 {
+    uint32_t attachmentCount = 0;
     m_flags = in_flags;
+    auto device = tr.GetRenderDevice();
+    m_vProgram = in_vertexProgram;
+    m_fProgram = in_fragmentProgram;
+
+    if( !m_vProgram || !m_fProgram )
+        return false;
+
+    ///
+    ///
+    ///
+    VkPipelineShaderStageCreateInfo shaderStageCI[2];
+    shaderStageCI[0] = m_vProgram->ShaderStage();
+    shaderStageCI[1] = m_fProgram->ShaderStage();
+
     VkDynamicState dynamicStates[NUM_DYNAMIC_STATE] =
     {
         VK_DYNAMIC_STATE_VIEWPORT,                  //
@@ -84,14 +101,14 @@ bool vkPipeline::Create( const uint64_t in_flags )
     /// 
     /// Vertex input
     /// describes the format of the vertex data that will be passed to the vertex shader
-    VkPipelineVertexInputStateCreateInfo vertexInputStateCI{};
-    vertexInputStateCI.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;;
-    vertexInputStateCI.pNext = nullptr;
-    vertexInputStateCI.flags = 0;
-    vertexInputStateCI.vertexBindingDescriptionCount = 1;
-    vertexInputStateCI.pVertexBindingDescriptions = vertexInputBindingDescription;
-    vertexInputStateCI.vertexAttributeDescriptionCount = NUM_ATTRIBS_DESCR;
-    vertexInputStateCI.pVertexAttributeDescriptions = vertexInputAttributeDescription;
+    VkPipelineVertexInputStateCreateInfo vertexInputState{};
+    vertexInputState.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;;
+    vertexInputState.pNext = nullptr;
+    vertexInputState.flags = 0;
+    vertexInputState.vertexBindingDescriptionCount = 1;
+    vertexInputState.pVertexBindingDescriptions = vertexInputBindingDescription;
+    vertexInputState.vertexAttributeDescriptionCount = NUM_ATTRIBS_DESCR;
+    vertexInputState.pVertexAttributeDescriptions = vertexInputAttributeDescription;
 
     ///
     /// Input Assembly
@@ -103,9 +120,18 @@ bool vkPipeline::Create( const uint64_t in_flags )
     inputAssemblyState.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
     inputAssemblyState.primitiveRestartEnable = VK_FALSE;
 
+    /// TODO: implement by material tesselation, and vertex displacement
+    /// Tessellation State
+    /// Control tesselation path
+    VkPipelineTessellationStateCreateInfo tessellationState{};
+    tessellationState.sType = VK_STRUCTURE_TYPE_PIPELINE_TESSELLATION_STATE_CREATE_INFO;
+    tessellationState.pNext = nullptr;
+    tessellationState.flags = 0;
+    tessellationState.patchControlPoints = 0;
+
     ///
-    ///
-    ///
+    /// Viewport State
+    /// Viewport and scissor configuration ( not set in pipeline, dynamic )
     VkPipelineViewportStateCreateInfo viewportState{};
     viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
     viewportState.pNext = nullptr;
@@ -116,7 +142,7 @@ bool vkPipeline::Create( const uint64_t in_flags )
     viewportState.pScissors = nullptr; // Dynamically defined 
 
     ///
-    ///
+    /// Rasterization State
     ///
     VkPipelineRasterizationStateCreateInfo rasterizationState{};
     rasterizationState.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
@@ -125,7 +151,7 @@ bool vkPipeline::Create( const uint64_t in_flags )
     rasterizationState.depthClampEnable = VK_FALSE;
     rasterizationState.rasterizerDiscardEnable = VK_FALSE;
     rasterizationState.polygonMode = ( m_flags & PLS_POLYMODE_LINE ) == PLS_POLYMODE_LINE ? VK_POLYGON_MODE_LINE : VK_POLYGON_MODE_FILL;
-    rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
+    rasterizationState.cullMode = VK_CULL_MODE_NONE;
     rasterizationState.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
     rasterizationState.depthBiasEnable = VK_FALSE;
     rasterizationState.depthBiasConstantFactor = 0.0f;
@@ -133,20 +159,31 @@ bool vkPipeline::Create( const uint64_t in_flags )
     rasterizationState.depthBiasSlopeFactor = 0.0f;
     rasterizationState.lineWidth = 1.0f;
 
-    ///
-    ///
-    ///
+    uint64_t cullVal = (m_flags & PLS_CULLFACE_BITS) >> 0;
+    if (cullVal == ( PLS_CULLFACE_BACK >> 0 )) 
+        rasterizationState.cullMode = VK_CULL_MODE_BACK_BIT;
+    else if (cullVal == ( PLS_CULLFACE_FRONT >> 0 ) )
+        rasterizationState.cullMode = VK_CULL_MODE_FRONT_BIT;
+    else 
+        rasterizationState.cullMode = VK_CULL_MODE_NONE;
+    
+    /// TODO:
+    /// Multisample State
+    /// configure multisample state
     VkPipelineMultisampleStateCreateInfo multisampleState{};
     multisampleState.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
-    multisampleState.pNext = VK_FALSE;
+    multisampleState.pNext = nullptr;
     multisampleState.flags = 0;
-    multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT; 
+    multisampleState.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT; //TODO: cvar for multisampling ( on that we required )
     multisampleState.sampleShadingEnable = VK_FALSE;
-    multisampleState.minSampleShading = 1.0f;
-    multisampleState.pSampleMask = nullptr;
+    multisampleState.minSampleShading = 0.1;
+    multisampleState.pSampleMask = 0;
     multisampleState.alphaToCoverageEnable = VK_FALSE;
     multisampleState.alphaToOneEnable = VK_FALSE;
 
+    ///
+    /// Pipeline Depth Stencil State 
+    ///
     VkPipelineDepthStencilStateCreateInfo depthStencilState{};
     depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     depthStencilState.pNext = nullptr;
@@ -250,111 +287,177 @@ bool vkPipeline::Create( const uint64_t in_flags )
         depthStencilState.back = stencilOpState;
     }
 
-
-    VkPipelineColorBlendAttachmentState colorBlendAttachment{};
-    colorBlendAttachment.blendEnable = VK_FALSE;
-    colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
-    colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
-    colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-    colorBlendAttachment.colorWriteMask = 0;
+    ////
+    VkPipelineColorBlendAttachmentState attachmentsStates[3]{};
     
-    //
-	// check colormask
-	//
-	if ( m_flags & ( PLS_REDMASK | PLS_GREENMASK | PLS_BLUEMASK | PLS_ALPHAMASK ) ) 
+    ////
+    if( m_flags & PLS_COLOR_ATTACHAMENT )
     {
-        if ( m_flags & PLS_REDMASK )    colorBlendAttachment.colorWriteMask |= VK_COLOR_COMPONENT_R_BIT;
-		if ( m_flags & PLS_GREENMASK )  colorBlendAttachment.colorWriteMask |= VK_COLOR_COMPONENT_G_BIT;
-		if ( m_flags & PLS_BLUEMASK )   colorBlendAttachment.colorWriteMask |= VK_COLOR_COMPONENT_B_BIT;
-		if ( m_flags & PLS_ALPHAMASK )  colorBlendAttachment.colorWriteMask |= VK_COLOR_COMPONENT_A_BIT;
-	}
+        attachmentsStates[attachmentCount].blendEnable = VK_FALSE;
+        attachmentsStates[attachmentCount].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        attachmentsStates[attachmentCount].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+        attachmentsStates[attachmentCount].colorBlendOp = VK_BLEND_OP_ADD;
+        attachmentsStates[attachmentCount].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        attachmentsStates[attachmentCount].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        attachmentsStates[attachmentCount].alphaBlendOp = VK_BLEND_OP_ADD;
+        attachmentsStates[attachmentCount].colorWriteMask = 0;
+        
+        //
+        // check colormask
+        //
+        if ( m_flags & ( PLS_REDMASK | PLS_GREENMASK | PLS_BLUEMASK | PLS_ALPHAMASK ) ) 
+        {
+            if ( m_flags & PLS_REDMASK )    attachmentsStates[attachmentCount].colorWriteMask |= VK_COLOR_COMPONENT_R_BIT;
+            if ( m_flags & PLS_GREENMASK )  attachmentsStates[attachmentCount].colorWriteMask |= VK_COLOR_COMPONENT_G_BIT;
+            if ( m_flags & PLS_BLUEMASK )   attachmentsStates[attachmentCount].colorWriteMask |= VK_COLOR_COMPONENT_B_BIT;
+            if ( m_flags & PLS_ALPHAMASK )  attachmentsStates[attachmentCount].colorWriteMask |= VK_COLOR_COMPONENT_A_BIT;
+        }
 
-    //
-	// check blend bits
-	//
-	if ( m_flags & ( PLS_SRCBLEND_BITS | PLS_DSTBLEND_BITS ) ) 
+        //
+        // check blend bits
+        //
+        if ( m_flags & ( PLS_SRCBLEND_BITS | PLS_DSTBLEND_BITS ) ) 
+        {
+            VkBlendFactor srcFactor;
+            VkBlendFactor dstFactor;
+            switch ( m_flags & PLS_SRCBLEND_BITS ) 
+            {
+                case PLS_SRCBLEND_ZERO:
+                    srcFactor = VK_BLEND_FACTOR_ZERO; 
+                    break;
+                case PLS_SRCBLEND_ONE:
+                    srcFactor = VK_BLEND_FACTOR_ONE; 
+                    break;
+                case PLS_SRCBLEND_DST_COLOR:
+                    srcFactor = VK_BLEND_FACTOR_DST_COLOR; 
+                    break;
+                case PLS_SRCBLEND_ONE_MINUS_DST_COLOR:
+                    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; 
+                    break;
+                case PLS_SRCBLEND_SRC_ALPHA:
+                    srcFactor = VK_BLEND_FACTOR_SRC_ALPHA; 
+                    break;
+                case PLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
+                    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; 
+                    break;
+                case PLS_SRCBLEND_DST_ALPHA:
+                    srcFactor = VK_BLEND_FACTOR_DST_ALPHA; 
+                    break;
+                case PLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
+                    srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; 
+                    break;
+                default:
+                    idassert( !"GL_State: invalid src blend state bits\n" );
+                    break;
+            }
+
+            switch ( m_flags & PLS_DSTBLEND_BITS ) 
+            {
+                case PLS_DSTBLEND_ZERO:					
+                    dstFactor = VK_BLEND_FACTOR_ZERO; 
+                    break;
+                case PLS_DSTBLEND_ONE:					
+                    dstFactor = VK_BLEND_FACTOR_ONE; 
+                    break;
+                case PLS_DSTBLEND_SRC_COLOR:			
+                    dstFactor = VK_BLEND_FACTOR_SRC_COLOR; 
+                    break;
+                case PLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	
+                    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; 
+                    break;
+                case PLS_DSTBLEND_SRC_ALPHA:			
+                    dstFactor = VK_BLEND_FACTOR_SRC_ALPHA; 
+                    break;
+                case PLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	
+                    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; 
+                    break;
+                case PLS_DSTBLEND_DST_ALPHA:			
+                    dstFactor = VK_BLEND_FACTOR_DST_ALPHA; 
+                    break;
+                case PLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  
+                    dstFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; 
+                    break;
+                default:
+                    assert( !"GL_State: invalid dst blend state bits\n" );
+                    break;
+            }
+
+            // Only actually update GL's blend func if blending is enabled.
+            if ( srcFactor == VK_BLEND_FACTOR_ONE && dstFactor == VK_BLEND_FACTOR_ZERO ) 
+            {
+                attachmentsStates[attachmentCount].blendEnable = VK_FALSE;
+            } 
+            else 
+            {
+                attachmentsStates[attachmentCount].blendEnable = VK_TRUE;
+                attachmentsStates[attachmentCount].srcColorBlendFactor = srcFactor;
+                attachmentsStates[attachmentCount].dstColorBlendFactor = dstFactor;
+                attachmentsStates[attachmentCount].srcAlphaBlendFactor = srcFactor;
+                attachmentsStates[attachmentCount].dstAlphaBlendFactor = dstFactor;
+            }
+        }
+
+        attachmentCount++;
+    }
+
+    if( m_flags & PLS_NORMAL_ATTACHAMENT )
     {
-        VkBlendFactor srcFactor;
-        VkBlendFactor dstFactor;
-		switch ( m_flags & PLS_SRCBLEND_BITS ) 
-        {
-			case PLS_SRCBLEND_ZERO:
-                srcFactor = VK_BLEND_FACTOR_ZERO; 
-                break;
-			case PLS_SRCBLEND_ONE:
-                srcFactor = VK_BLEND_FACTOR_ONE; 
-                break;
-			case PLS_SRCBLEND_DST_COLOR:
-                srcFactor = VK_BLEND_FACTOR_DST_COLOR; 
-                break;
-			case PLS_SRCBLEND_ONE_MINUS_DST_COLOR:
-                srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_COLOR; 
-                break;
-			case PLS_SRCBLEND_SRC_ALPHA:
-                srcFactor = VK_BLEND_FACTOR_SRC_ALPHA; 
-                break;
-			case PLS_SRCBLEND_ONE_MINUS_SRC_ALPHA:
-                srcFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; 
-                break;
-			case PLS_SRCBLEND_DST_ALPHA:
-                srcFactor = VK_BLEND_FACTOR_DST_ALPHA; 
-                break;
-			case PLS_SRCBLEND_ONE_MINUS_DST_ALPHA:
-                srcFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; 
-                break;
-			default:
-				idAssert( !"GL_State: invalid src blend state bits\n" );
-				break;
-		}
+        attachmentsStates[attachmentCount].blendEnable = VK_FALSE;
+        attachmentsStates[attachmentCount].srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+        attachmentsStates[attachmentCount].dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
+        attachmentsStates[attachmentCount].colorBlendOp = VK_BLEND_OP_ADD;
+        attachmentsStates[attachmentCount].srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+        attachmentsStates[attachmentCount].dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
+        attachmentsStates[attachmentCount].alphaBlendOp = VK_BLEND_OP_ADD;
+        attachmentsStates[attachmentCount].colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+        attachmentCount++;
+    }
 
-		switch ( m_flags & PLS_DSTBLEND_BITS ) 
-        {
-			case PLS_DSTBLEND_ZERO:					
-                dstFactor = VK_BLEND_FACTOR_ZERO; 
-                break;
-			case PLS_DSTBLEND_ONE:					
-                dstFactor = VK_BLEND_FACTOR_ONE; 
-                break;
-			case PLS_DSTBLEND_SRC_COLOR:			
-                dstFactor = VK_BLEND_FACTOR_SRC_COLOR; 
-                break;
-			case PLS_DSTBLEND_ONE_MINUS_SRC_COLOR:	
-                dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_COLOR; 
-                break;
-			case PLS_DSTBLEND_SRC_ALPHA:			
-                dstFactor = VK_BLEND_FACTOR_SRC_ALPHA; 
-                break;
-			case PLS_DSTBLEND_ONE_MINUS_SRC_ALPHA:	
-                dstFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; 
-                break;
-			case PLS_DSTBLEND_DST_ALPHA:			
-                dstFactor = VK_BLEND_FACTOR_DST_ALPHA; 
-                break;
-			case PLS_DSTBLEND_ONE_MINUS_DST_ALPHA:  
-                dstFactor = VK_BLEND_FACTOR_ONE_MINUS_DST_ALPHA; 
-                break;
-			default:
-				assert( !"GL_State: invalid dst blend state bits\n" );
-				break;
-		}
+    ///
+    ///
+    ///
+    VkPipelineColorBlendStateCreateInfo colorBlendState{};
+    colorBlendState.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendState.pNext = nullptr;
+    colorBlendState.flags = 0;
+    colorBlendState.logicOpEnable = VK_FALSE;
+    colorBlendState.logicOp = VK_LOGIC_OP_CLEAR;
+    colorBlendState.attachmentCount = attachmentCount; // TODO: defferred light pass need 4 attachaments...
+    colorBlendState.pAttachments = attachmentsStates;
+    colorBlendState.blendConstants[0] = 0.0f;
+    colorBlendState.blendConstants[1] = 0.0f;
+    colorBlendState.blendConstants[2] = 0.0f;
+    colorBlendState.blendConstants[3] = 0.0f;
 
-		// Only actually update GL's blend func if blending is enabled.
-		if ( srcFactor == VK_BLEND_FACTOR_ONE && dstFactor == VK_BLEND_FACTOR_ZERO ) 
-        {
-            colorBlendAttachment.blendEnable = VK_FALSE;
-		} 
-        else 
-        {
-            colorBlendAttachment.blendEnable = VK_TRUE;
-            colorBlendAttachment.srcColorBlendFactor = srcFactor;
-            colorBlendAttachment.dstColorBlendFactor = dstFactor;
-            colorBlendAttachment.srcAlphaBlendFactor = srcFactor;
-            colorBlendAttachment.dstAlphaBlendFactor = dstFactor;
-		}
-	}
+    ///
+    ///
+    ///
+    VkGraphicsPipelineCreateInfo pipelineCI{};
+    pipelineCI.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
+    pipelineCI.pNext = nullptr;
+    pipelineCI.flags = in_reference != nullptr ? VK_PIPELINE_CREATE_DERIVATIVE_BIT : VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
+    pipelineCI.stageCount = 2;
+    pipelineCI.pStages = shaderStageCI;
+    pipelineCI.pVertexInputState = &vertexInputState;
+    pipelineCI.pInputAssemblyState = &inputAssemblyState;
+    pipelineCI.pTessellationState = &tessellationState;
+    pipelineCI.pViewportState = &viewportState;
+    pipelineCI.pRasterizationState = &rasterizationState;
+    pipelineCI.pMultisampleState = &multisampleState;
+    pipelineCI.pDepthStencilState = &depthStencilState;
+    pipelineCI.pColorBlendState = &colorBlendState;
+    pipelineCI.pDynamicState = &dynamicState;
+    pipelineCI.layout = crUniformManager::Get()->Layout();
+    pipelineCI.renderPass = VK_NULL_HANDLE; /// VK_KHR_dynamic_rendering 
+    pipelineCI.subpass = 0;
+    pipelineCI.basePipelineHandle = *in_reference;
+    pipelineCI.basePipelineIndex = -1;
+    auto result = vkCreateGraphicsPipelines( *device, device->PipelineCache(), 1, &pipelineCI, k_allocationCallbacks, &m_pipeline );
+    if( result != VK_SUCCESS )
+    {
+        idLib::Error( "crPipeline::Create::vkCreateGraphicsPipelines Failed\n %s\n", VulkanErrorString( result ).c_str() );
+        return false;
+    }
 
     return true;
 }
@@ -364,10 +467,10 @@ bool vkPipeline::operator==(const vkPipeline &p)
     if ( m_flags != p.m_flags )
         return false;
 
-    if ( m_vertexShader != p.m_vertexShader )
+    if ( m_vProgram->ID() != p.m_vProgram->ID() )
         return false;
 
-    if ( m_fragmentShader != p.m_fragmentShader )
+    if ( m_fProgram->ID() != p.m_fProgram->ID() )
         return false;
 
     return true;

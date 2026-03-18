@@ -74,7 +74,8 @@ public:
 	void	ShutDown( void );
 	void	SetFrame( const uint32_t in_frameID, const vkCommandbuffer* in_commandBuffer );
 	void	SubmitOffsets( const vkCommandbuffer * in_commandBuffer );
-
+	VkPipelineLayout Layout( void ) const { return m_layout; }
+	
 	uMesh_t*		GetMeshUniforms( void );
 	uMaterial_t*	GetMaterialUniforms( void );
 	uLight_t*		GetLightUniforms( void );

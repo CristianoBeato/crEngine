@@ -42,12 +42,16 @@ public:
     virtual bool    Create( const type_t in_type, const void* in_source, const size_t in_size );
     virtual void    Destroy( void );
 
+    const uint32_t  ID( void ) const { return m_ID; }
     VkPipelineShaderStageCreateInfo ShaderStage( void ) const { return m_shaderStage; }
 
 private:
+    uint32_t                        m_ID;
     type_t                          m_type;
     VkShaderModule                  m_shaderModule;
     VkPipelineShaderStageCreateInfo m_shaderStage;
 };
+
+typedef vkProgram* vkProgramp;
 
 #endif //!__PROGRAM_HPP__
