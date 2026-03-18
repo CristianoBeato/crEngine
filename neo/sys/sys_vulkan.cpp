@@ -35,6 +35,9 @@ constexpr uint32_t k_PIPELINE_CACHE_FILE_VERSION = 10; // 1.0
 constexpr uint32_t k_PIPELINE_CAHCE_FILE_SEED = 0x1337;
 static const float k_PRIORITY = 1.0f;
 
+/// the cache will be stored in the user space path
+static const char* k_CACHE_FILE = { "generated/%s_pipeline_cache.pcf" };
+
 idCVar vk_useComputQueues( "vk_useComputQueue", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan find a compute queue, or 0 to use compute queue" );
 idCVar vk_useTransferQueue( "vk_useTransferQueue", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan transfer queues, or 0 to use just graphic queue" );
 
@@ -980,6 +983,183 @@ void crVulkanRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &
     {
         m_compute = nullptr;
     }
+}
+
+/*
+==============
+crVulkanRenderDevice::LoadCache
+==============
+*/
+bool crVulkanRenderDevice::LoadCache( void )
+{
+    idFile* cacheFile = nullptr;
+    cache_header_t header{};
+    VkPipelineCacheCreateInfo pipelineCacheCI{};
+
+    /// 
+    pipelineCacheCI.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
+    pipelineCacheCI.pNext = nullptr;
+    pipelineCacheCI.flags = 0;
+    
+    // no cache available
+    pipelineCacheCI.initialDataSize = 0;    
+    pipelineCacheCI.pInitialData = nullptr;
+    m_cacheLoaded = false;
+
+    /// Try read cache file from save dir
+    cacheFile = fs->Open( in_path, crFileSystem::FS_OPEN_READ | crFileSystem::FS_OPEN_SAVE_PATH | crFileSystem::FS_OPEN_BINARY ); 
+    if ( cacheFile != nullptr )
+    {
+        /// retrieve cache header
+        cacheFile->Read( &header, sizeof( cache_header_t), 1 );
+
+        /// check device cache compatibility
+        if( ( header.magic == k_PIPELINE_CACHE_FILE_MAGIC ) || 
+            ( header.version == k_PIPELINE_CACHE_FILE_VERSION ) || 
+            ( header.length == sizeof( cache_header_t ) ) )
+        {
+            /// validate cache compatibility
+            if( ( header.driverABI != inf.driverABI ) ||
+                ( header.vendorID != inf.vendorID ) ||
+                ( header.deviceID != inf.deviceID ) ||
+                ( header.driverVersion != inf.driverVersion ) ||
+                ( std::memcmp( header.uuid, inf.uuid, sizeof(uint8_t) * VK_UUID_SIZE ) != 0 ) )
+            {
+                void* cacheData = Mem_Alloc( header.dataSize );
+                /// read the cache 
+                cacheFile->Read( cacheData, header.dataSize, 1 );
+
+                auto hash = SDL_murmur3_32( cacheData, header.dataSize, k_PIPELINE_CAHCE_FILE_SEED );
+                if ( hash == header.dataHash )
+                {
+                    /// A valid cache available
+                    pipelineCacheCI.initialDataSize = header.dataSize;
+                    pipelineCacheCI.pInitialData = cacheData;
+                    m_cacheLoaded = true;
+                }
+                else
+                {
+                    Mem_Free( cacheData );
+                    idLib::Error( "Pipeline cache invalid data hash!\n" );
+                    m_cacheLoaded = false;
+                }
+            }
+            else
+            {
+                idLib::Warning( "Pipeline Cache Out of date, rebuilt!\n" );
+                m_cacheLoaded = false;
+            }
+        }
+        else
+        {
+            idLib::Warning( "Unconpatible pipeline cache, engine may updated, rebuild!\n" );
+            m_cacheLoaded = false;
+        }
+
+        fs->Close( cacheFile );
+    }
+    else
+    {
+        idLib::Warning( "Can't read cache file from disk, pipeline conpilation can be slow\n" );
+        m_cacheLoaded = false;
+    }
+    
+    /// create a cache from source, or allocate for new one
+    auto result = vkCreatePipelineCache( m_logic, &pipelineCacheCI, k_allocationCallbacks, &m_pipelineCache );
+    if ( result != VK_SUCCESS )
+    {
+        if( pipelineCacheCI.pInitialData != nullptr )
+            Mem_Free( const_cast<void*>( pipelineCacheCI.pInitialData ) );
+
+        /// fallback, some drivers can invalidade cache data and pass a vkCreatePipelineCache error
+        /// so if we fail to create a cache from loaded data, try create a empty cache
+        /// recomandation from 
+        /// It’s not paranoia if they are really out to get you - "https://zeux.io/2019/07/17/serializing-pipeline-cache/" 
+        m_cacheLoaded = false;
+        pipelineCacheCI.initialDataSize = 0;    
+        pipelineCacheCI.pInitialData = nullptr;
+        result = vkCreatePipelineCache( m_logic, &pipelineCacheCI, k_allocationCallbacks, &m_pipelineCache );
+        if( result )
+        {
+            idLib::Error( "crPipelineManager::StartUp::vkCreatePipelineCache %s\n", VulkanErrorString( result ).c_str() );
+            return false;
+        }
+    }
+
+    /// don't leak memory 
+    if( pipelineCacheCI.pInitialData != nullptr )
+        Mem_Free( const_cast<void*>( pipelineCacheCI.pInitialData ) );
+
+    return true;
+}
+
+/*
+==============
+crVulkanRenderDevice::SaveCache
+==============
+*/
+bool crVulkanRenderDevice::SaveCache(void)
+{
+    size_t cacheSize = 0;
+    VkResult result = VK_SUCCESS;
+    void* cacheData = nullptr;
+    idFile* cacheFile = nullptr;
+    if( m_cacheLoaded )
+        return true;
+
+    cache_header_t header{};
+    header.magic = k_PIPELINE_CACHE_FILE_MAGIC;
+    header.version = k_PIPELINE_CACHE_FILE_VERSION;
+    header.length = sizeof( cache_header_t );
+    header.dataSize = 0; 
+    header.dataHash = 0;
+    header.vendorID = inf.vendorID;
+    header.deviceID = inf.deviceID;
+    header.driverVersion = inf.driverVersion;
+    header.driverABI = inf.driverABI;
+
+    /// retrieve the cache data size 
+    result = vkGetPipelineCacheData( m_logic, m_pipelineCache, &cacheSize, nullptr );
+    if ( result != VK_SUCCESS )
+    {
+        idLib::Error( "Failed to retrive pipeline cache size\n%s\n", VulkanErrorString( result ).c_str() );
+        return false;
+    }
+    
+    /// alloc cache data
+    cacheData = Mem_Alloc( cacheSize );
+
+    /// retrieve the cache source data 
+    result = vkGetPipelineCacheData( m_logic, m_pipelineCache, &cacheSize, cacheData );
+    if ( result != VK_SUCCESS )
+    {
+        idLib::Error( "Failed to retrive pipeline cache data\n%s\n", VulkanErrorString( result ).c_str() );
+        return false;
+    }
+
+    /// store cache size
+    header.dataSize = cacheSize;
+    
+    /// hash cache data to prevent file corruption
+    header.dataHash =  SDL_murmur3_32( cacheData, cacheSize, k_PIPELINE_CAHCE_FILE_SEED );
+
+    /// Try create cache file in the save directory
+    cacheFile = fs->Open( in_path, crFileSystem::FS_OPEN_WRITE | crFileSystem::FS_OPEN_SAVE_PATH | crFileSystem::FS_OPEN_BINARY ); 
+    if ( !cacheFile )
+    {
+        Mem_Free( cacheData );
+        idLib::Error( "Can't write cache file to disk\n" );
+        return false;
+    }
+
+    /// write the header
+    cacheFile->Write( &header, header.length, 1 );
+    cacheFile->Write( cacheData, cacheSize, 1 );
+
+    Mem_Free( cacheData );
+    fs->Close( cacheFile );
+
+    return true;
 }
 
 /*

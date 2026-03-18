@@ -103,6 +103,7 @@ public:
     ID_INLINE operator VkDevice( void ) const { return m_logicDevce; }
     
 private: 
+    bool                                            m_cacheLoaded;   // if cache is loaded, we don't save it again
     uint32_t                                        m_id;
     idStr                                           m_name;
     properties_t                                    m_internalProperties;
@@ -144,8 +145,8 @@ private:
     idList<queueInfo_t, TAG_VULKAN>                 m_queues;
 
     void SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &in_queueList );
-    void LoadCache( void );
-    void SaveCache( void );
+    bool LoadCache( void );
+    bool SaveCache( void );
 } * crVulkanRenderDevicep;
 
 typedef class crVulkanAPI : public crRenderAPI
