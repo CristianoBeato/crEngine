@@ -106,8 +106,17 @@ public:
     void    Destroy( void );
     void*   Handler( void ) const { return reinterpret_cast<void*>( m_sampler ); };
 
+    const filter_t      Filtering( void ) const { return m_filtering; }
+    const wrapping_t    WrapS( void ) const { return m_wrapS; }
+
 private:
+    filter_t    m_filtering;
+    wrapping_t  m_wrapS;
+    wrapping_t  m_wrapT;
+    wrapping_t  m_wrapR;
     VkSampler   m_sampler;
 };
+
+typedef vkSampler* vkSamplerp;
 
 #endif //!__VK_TEXTURE_HPP__
