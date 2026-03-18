@@ -197,7 +197,7 @@ typedef enum
 	TG_GLASSWARP
 } texgen_t;
 
-class crSampler;
+class vkSampler;
 typedef struct
 {
 	bool				hasMatrix;
@@ -208,7 +208,7 @@ typedef struct
 	dynamicidImage_t	dynamic;
 	texgen_t			texgen;
 	idCinematic* 		cinematic;
-	crSampler*			sample;
+	vkSampler*			sample;
 	idImage* 			image;
 	
 } textureStage_t;
@@ -260,6 +260,7 @@ protected:
 	bool	ParseVertexParm( idLexer& src, idMaterial &mtr );
 	bool	ParseVertexParm2( idLexer& src, idMaterial &mtr );
 	bool	ParseFragmentMap( idLexer& src, idMaterial &mtr );
+	bool	InitPipeline( idMaterial &mtr );
 
 private:
 	// BEATO Begin:
