@@ -10,9 +10,18 @@ enum pipeline_t : uint16_t
     PIPELINE_TEXTURED_COLOR,
 };
 
+
 class crPipelineManager
 {
 public:
+
+    enum shader_type_e : uint8_t
+    {
+        ST_VERTEX,
+        ST_FRAGMENT
+    };
+
+
     static crPipelineManager*  Get( void );
 
     crPipelineManager( void );
@@ -20,6 +29,7 @@ public:
 
 
     vkPipeline* GetPipeline( const pipeline_t in_ID );
+    uint32_t    FindShader( const idStr &in_program, const shader_type_e in_type );
 
 private:
 

@@ -245,6 +245,7 @@ public:
 	textureStage_t		Texture( void ) const { return m_texture; }
 	const bool			IgnoreAlphaTest( void ) const { return m_ignoreAlphaTest; }
 	const bool			HasAlphaTest( void ) const { return m_ignoreAlphaTest; }
+	const bool			NewShaderStage( void ) const { return m_fragmentProgram || m_vertexProgram;}
 	const uint64_t		DrawStateBits( void ) const { return m_drawStateBits; }
 	stageVertexColor_t	StageVertexColor( void ) const { m_vertexColor; }
 	const uint32_t		NumFragmentProgramImages( void ) const { return m_numFragmentProgramImages; }
@@ -255,7 +256,10 @@ protected:
 	int		ParseExpression( idLexer& src );
 	bool	MatchToken( idLexer& src, const char* match );
 	bool	ParseStage( idLexer& src, idMaterial &mtr );
-	void	ParseBlend( idLexer& in_src );
+	void	ParseBlend( idLexer& in_src, idMaterial &mtr );
+	bool	ParseVertexParm( idLexer& src, idMaterial &mtr );
+	bool	ParseVertexParm2( idLexer& src, idMaterial &mtr );
+	bool	ParseFragmentMap( idLexer& src, idMaterial &mtr );
 
 private:
 	// BEATO Begin:
@@ -878,14 +882,10 @@ private:
 	bool				MatchToken( idLexer& src, const char* match );
 	void				ParseSort( idLexer& src );
 	void				ParseStereoEye( idLexer& src );
-	void				ParseVertexParm( idLexer& src, newShaderStage_t* newStage );
-	void				ParseVertexParm2( idLexer& src, newShaderStage_t* newStage );
-	void				ParseFragmentMap( idLexer& src, newShaderStage_t* newStage );
 	void				ParseStage( idLexer& src );
 	void				ParseDeform( idLexer& src );
 	void				ParseDecalInfo( idLexer& src );
 	bool				CheckSurfaceParm( idToken* token );
-	int					GetExpressionConstant( float f );
 	int					GetExpressionTemporary();
 	expOp_t*			GetExpressionOp();
 	int					EmitOp( int a, int b, expOpType_t opType );
@@ -900,6 +900,10 @@ private:
 	void				AddImplicitStages( void );
 	void				CheckForConstantRegisters( void );
 	void				SetFastPathImages( void );
+	
+protected:
+	friend class crShaderStage;
+	int					GetExpressionConstant( float f );
 	
 private:
 	idStr				desc;				// description

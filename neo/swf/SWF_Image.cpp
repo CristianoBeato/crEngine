@@ -45,12 +45,14 @@ void swf_jpeg_error_exit( jpeg_common_struct* cinfo )
 	( *cinfo->err->format_message )( cinfo, buffer );
 	throw idException( buffer );
 }
+
 void swf_jpeg_output_message( jpeg_common_struct* cinfo )
 {
 	char buffer[JMSG_LENGTH_MAX] = {0};
 	( *cinfo->err->format_message )( cinfo, buffer );
 	idLib::Printf( "%s\n", buffer );
 }
+
 void swf_jpeg_init_source( jpeg_decompress_struct* cinfo )
 {
 }
