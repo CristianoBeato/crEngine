@@ -36,7 +36,7 @@ constexpr uint32_t k_PIPELINE_CAHCE_FILE_SEED = 0x1337;
 static const float k_PRIORITY = 1.0f;
 
 /// the cache will be stored in the user space path
-static const char* k_CACHE_FILE = { "generated/%s_pipeline_cache.pcf" };
+static const char* k_CACHE_FILE = { "_pipeline_cache.pcf" };
 
 idCVar vk_useComputQueues( "vk_useComputQueue", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan find a compute queue, or 0 to use compute queue" );
 idCVar vk_useTransferQueue( "vk_useTransferQueue", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan transfer queues, or 0 to use just graphic queue" );
@@ -464,6 +464,9 @@ bool crVulkanRenderDevice::Create( const char** in_layers, const uint32_t in_num
     else
         idLib::Warning( "No transfer queue found, using graphic!\n" );
 
+    if( !LoadCache() )
+        idLib::Printf( "failed to load cache\n" );
+
     idLib::Printf( " -> succes\n" );
 
     return true;
@@ -476,6 +479,10 @@ crVulkanRenderDevice::Destroy
 */
 void crVulkanRenderDevice::Destroy(void)
 {
+    ///
+    if( !SaveCache() )
+        idLib::Error( "Failed to load cache\n" );
+
     if( m_transfer != nullptr )
     {
         delete m_transfer;
@@ -995,6 +1002,10 @@ bool crVulkanRenderDevice::LoadCache( void )
     idFile* cacheFile = nullptr;
     cache_header_t header{};
     VkPipelineCacheCreateInfo pipelineCacheCI{};
+    auto deviceProperties = m_propertiesv10.properties; 
+    idStr cacheName = "generated/";
+    cacheName += deviceProperties.deviceName;
+    cacheName += k_CACHE_FILE;
 
     /// 
     pipelineCacheCI.sType = VK_STRUCTURE_TYPE_PIPELINE_CACHE_CREATE_INFO;
@@ -1007,11 +1018,11 @@ bool crVulkanRenderDevice::LoadCache( void )
     m_cacheLoaded = false;
 
     /// Try read cache file from save dir
-    cacheFile = fs->Open( in_path, crFileSystem::FS_OPEN_READ | crFileSystem::FS_OPEN_SAVE_PATH | crFileSystem::FS_OPEN_BINARY ); 
+    cacheFile =  fileSystem->OpenFileRead( cacheName.c_str() ); 
     if ( cacheFile != nullptr )
     {
         /// retrieve cache header
-        cacheFile->Read( &header, sizeof( cache_header_t), 1 );
+        cacheFile->Read( &header, sizeof( cache_header_t) );
 
         /// check device cache compatibility
         if( ( header.magic == k_PIPELINE_CACHE_FILE_MAGIC ) || 
@@ -1019,15 +1030,15 @@ bool crVulkanRenderDevice::LoadCache( void )
             ( header.length == sizeof( cache_header_t ) ) )
         {
             /// validate cache compatibility
-            if( ( header.driverABI != inf.driverABI ) ||
-                ( header.vendorID != inf.vendorID ) ||
-                ( header.deviceID != inf.deviceID ) ||
-                ( header.driverVersion != inf.driverVersion ) ||
-                ( std::memcmp( header.uuid, inf.uuid, sizeof(uint8_t) * VK_UUID_SIZE ) != 0 ) )
+            if( ( header.driverABI != sizeof( void *) ) ||
+                ( header.vendorID != deviceProperties.vendorID ) ||
+                ( header.deviceID != deviceProperties.deviceID ) ||
+                ( header.driverVersion != deviceProperties.driverVersion ) ||
+                ( std::memcmp( header.uuid, deviceProperties.pipelineCacheUUID, sizeof(uint8_t) * VK_UUID_SIZE ) != 0 ) )
             {
-                void* cacheData = Mem_Alloc( header.dataSize );
+                void* cacheData = Mem_Alloc( header.dataSize, TAG_VULKAN);
                 /// read the cache 
-                cacheFile->Read( cacheData, header.dataSize, 1 );
+                cacheFile->Read( cacheData, header.dataSize );
 
                 auto hash = SDL_murmur3_32( cacheData, header.dataSize, k_PIPELINE_CAHCE_FILE_SEED );
                 if ( hash == header.dataHash )
@@ -1056,7 +1067,7 @@ bool crVulkanRenderDevice::LoadCache( void )
             m_cacheLoaded = false;
         }
 
-        fs->Close( cacheFile );
+        fileSystem->CloseFile( cacheFile );
     }
     else
     {
@@ -1104,6 +1115,11 @@ bool crVulkanRenderDevice::SaveCache(void)
     VkResult result = VK_SUCCESS;
     void* cacheData = nullptr;
     idFile* cacheFile = nullptr;
+    auto deviceProperties = m_propertiesv10.properties; 
+    idStr cacheName = "generated/";
+    cacheName += deviceProperties.deviceName;
+    cacheName += k_CACHE_FILE;
+
     if( m_cacheLoaded )
         return true;
 
@@ -1113,10 +1129,10 @@ bool crVulkanRenderDevice::SaveCache(void)
     header.length = sizeof( cache_header_t );
     header.dataSize = 0; 
     header.dataHash = 0;
-    header.vendorID = inf.vendorID;
-    header.deviceID = inf.deviceID;
-    header.driverVersion = inf.driverVersion;
-    header.driverABI = inf.driverABI;
+    header.vendorID = deviceProperties.vendorID;
+    header.deviceID = deviceProperties.deviceID;
+    header.driverVersion = deviceProperties.driverVersion;
+    header.driverABI = sizeof( void *);
 
     /// retrieve the cache data size 
     result = vkGetPipelineCacheData( m_logic, m_pipelineCache, &cacheSize, nullptr );
@@ -1127,7 +1143,7 @@ bool crVulkanRenderDevice::SaveCache(void)
     }
     
     /// alloc cache data
-    cacheData = Mem_Alloc( cacheSize );
+    cacheData = Mem_Alloc( cacheSize, TAG_TEMP );
 
     /// retrieve the cache source data 
     result = vkGetPipelineCacheData( m_logic, m_pipelineCache, &cacheSize, cacheData );
@@ -1144,7 +1160,7 @@ bool crVulkanRenderDevice::SaveCache(void)
     header.dataHash =  SDL_murmur3_32( cacheData, cacheSize, k_PIPELINE_CAHCE_FILE_SEED );
 
     /// Try create cache file in the save directory
-    cacheFile = fs->Open( in_path, crFileSystem::FS_OPEN_WRITE | crFileSystem::FS_OPEN_SAVE_PATH | crFileSystem::FS_OPEN_BINARY ); 
+    cacheFile = fileSystem->OpenFileWrite( cacheName.c_str() ); 
     if ( !cacheFile )
     {
         Mem_Free( cacheData );
@@ -1153,11 +1169,11 @@ bool crVulkanRenderDevice::SaveCache(void)
     }
 
     /// write the header
-    cacheFile->Write( &header, header.length, 1 );
-    cacheFile->Write( cacheData, cacheSize, 1 );
+    cacheFile->Write( &header, header.length );
+    cacheFile->Write( cacheData, cacheSize );
 
     Mem_Free( cacheData );
-    fs->Close( cacheFile );
+    fileSystem->CloseFile( cacheFile );
 
     return true;
 }
