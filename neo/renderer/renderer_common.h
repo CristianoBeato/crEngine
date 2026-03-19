@@ -363,13 +363,13 @@ struct drawInteraction_t
 	const drawSurf_t* 	surf;
 	
 	idImage* 			bumpImage;
-	crSampler*			bumpSampler;
+	vkSampler*			bumpSampler;
 	idImage* 			diffuseImage;
-	crSampler*			diffuseSampler;
+	vkSampler*			diffuseSampler;
 	idImage* 			specularImage;
-	crSampler*			specularSampler;
+	vkSampler*			specularSampler;
 	idImage* 			glossImage;
-	crSampler*			glossSampler;
+	vkSampler*			glossSampler;
 	
 	idVec4				diffuseColor;	// may have a light color baked into it
 	idVec4				specularColor;	// may have a light color baked into it

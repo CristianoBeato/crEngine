@@ -22,6 +22,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
+#include "idlib/precompiled.h"
 #include "Program.hpp"
 #include "Core.hpp"
 
@@ -46,9 +47,8 @@ bool vkProgram::Create( const type_t in_type, const void* in_source, const size_
     result = vkCreateShaderModule( *device, &shaderModuleCI, k_allocationCallbacks, &m_shaderModule);
     if ( result != VK_SUCCESS )
     {
-        idlib::Error( "vkProgram::Create failed to create shader\n");
+        idLib::Error( "vkProgram::Create failed to create shader\n" );
         return false;
-        //throw std::runtime_error("failed to create shader module!");
     }
 
     m_shaderStage.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;;

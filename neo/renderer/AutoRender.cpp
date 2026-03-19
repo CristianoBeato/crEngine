@@ -194,7 +194,7 @@ void idAutoRender::RenderBackground( void )
 	//float texGenEnabled[4] = { 0, 0, 0, 0 };
 	//vertex->texGen0Enabled = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
 		
-	pipelines->GetPipeline( PIPELINE_TEXTURED_COLOR )->Bind();
+	// pipelines->GetPipeline( PIPELINE_TEXTURED_COLOR )->Bind();
 	
 	// uniforms->SubmitVertexUniforms(); // we only modify vertex uniforms 
 	// backEnd.DrawElementsWithCounters( &backEnd.unitSquareSurface );
@@ -297,8 +297,8 @@ void idAutoRender::RenderLoadingIcon( float fracX, float fracY, float size, floa
 	//renderProgManager.SetRenderParm( RENDERPARM_TEXGEN_0_ENABLED, texGenEnabled );
 	// vertex->texGen0Enabled = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
 	
-	//renderProgManager.BindShader_TextureVertexColor();
-	pipelines->GetPipeline( PIPELINE_TEXTURED_COLOR )->Bind();
+	// renderProgManager.BindShader_TextureVertexColor();
+	// pipelines->GetPipeline( PIPELINE_TEXTURED_COLOR )->Bind();
 
 	// backEnd.DrawElementsWithCounters( &backEnd.unitSquareSurface );
 }

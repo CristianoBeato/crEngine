@@ -144,29 +144,23 @@ static void R_AddSingleLight( viewLight_t* vLight )
 		int lightStageNum;
 		for( lightStageNum = 0; lightStageNum < lightShader->GetNumStages(); lightStageNum++ )
 		{
-			const shaderStage_t*	lightStage = lightShader->GetStage( lightStageNum );
+			const crShaderStage*	lightStage = lightShader->GetStage( lightStageNum );
 			
 			// ignore stages that fail the condition
-			if( !lightRegs[ lightStage->conditionRegister ] )
-			{
+			if( !lightRegs[ lightStage->ConditionRegister() ] )
 				continue;
-			}
 			
-			const int* registers = lightStage->color.registers;
+			const int* registers = lightStage->ColorStage().registers;
 			
 			// snap tiny values to zero
 			if( lightRegs[ registers[0] ] < 0.001f )
-			{
 				lightRegs[ registers[0] ] = 0.0f;
-			}
+
 			if( lightRegs[ registers[1] ] < 0.001f )
-			{
 				lightRegs[ registers[1] ] = 0.0f;
-			}
+			
 			if( lightRegs[ registers[2] ] < 0.001f )
-			{
 				lightRegs[ registers[2] ] = 0.0f;
-			}
 			
 			if( lightRegs[ registers[0] ] > 0.0f ||
 					lightRegs[ registers[1] ] > 0.0f ||

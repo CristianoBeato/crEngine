@@ -211,6 +211,13 @@ typedef struct
 	vkSampler*			sample;
 	idImage* 			image;
 	
+	void	CloseCinematic( void )
+	{
+		cinematic->Close();
+		delete cinematic;
+		cinematic = nullptr;
+	}
+
 } textureStage_t;
 
 // the order BUMP / DIFFUSE / SPECULAR is necessary for interactions to draw correctly on low end cards
@@ -241,7 +248,12 @@ public:
 	~crShaderStage( void );
 	void				Clear( void );
 	void				SetDrawStateBits( const uint64_t in_flags );
+	const int			ConditionRegister( void ) const { return m_conditionRegister; }
+	const int			AlphaTestRegister( void ) const { return m_alphaTestRegister; }
+	colorStage_t&		ColorStage( void ) { return m_color; }
+	colorStage_t		ColorStage( void ) const { return m_color; }
 	stageLighting_t 	Lighting( void ) const { return m_lighting; }
+	textureStage_t&		Texture( void ) { return m_texture; }
 	textureStage_t		Texture( void ) const { return m_texture; }
 	const bool			IgnoreAlphaTest( void ) const { return m_ignoreAlphaTest; }
 	const bool			HasAlphaTest( void ) const { return m_ignoreAlphaTest; }
@@ -964,8 +976,8 @@ private:
 	int						numAmbientStages;
 	expOp_t*				ops;				// evaluate to make expressionRegisters
 	
-	float*					expressionRegisters;
-	float*					constantRegisters;	// nullptr if ops ever reference globalParms or entityParms
+	float*								expressionRegisters;
+	float*								constantRegisters;	// nullptr if ops ever reference globalParms or entityParms
 	idList<crShaderStage, TAG_MATERIAL>	stages;
 	struct mtrParsingData_s*			pd;			// only used during parsing
 	

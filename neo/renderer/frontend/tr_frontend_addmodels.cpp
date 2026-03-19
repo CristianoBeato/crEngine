@@ -307,12 +307,12 @@ void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, cons
 					tr.viewDef->renderView.shaderParms,
 					tr.viewDef->renderView.time[renderEntity->timeGroup] * 0.001f, renderEntity->referenceSound );
 					
-			const shaderStage_t* pStage = renderEntity->referenceShader->GetStage( 0 );
+			const crShaderStage* pStage = renderEntity->referenceShader->GetStage( 0 );
 			
 			std::memcpy( generatedShaderParms, renderEntity->shaderParms, sizeof( generatedShaderParms ) );
-			generatedShaderParms[0] = refRegs[ pStage->color.registers[0] ];
-			generatedShaderParms[1] = refRegs[ pStage->color.registers[1] ];
-			generatedShaderParms[2] = refRegs[ pStage->color.registers[2] ];
+			generatedShaderParms[0] = refRegs[ pStage->ColorStage().registers[0] ];
+			generatedShaderParms[1] = refRegs[ pStage->ColorStage().registers[1] ];
+			generatedShaderParms[2] = refRegs[ pStage->ColorStage().registers[2] ];
 			
 			shaderParms = generatedShaderParms;
 		}

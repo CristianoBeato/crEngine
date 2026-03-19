@@ -469,9 +469,9 @@ bool idRenderWorldLocal::PortalIsFoggedOut( const portal_t* p )
 	lightShader->EvaluateRegisters( regs, ldef->parms.shaderParms,
 									tr.viewDef->renderView.shaderParms, tr.viewDef->renderView.time[0] * 0.001f, ldef->parms.referenceSound );
 									
-	const shaderStage_t*	stage = lightShader->GetStage( 0 );
+	const crShaderStage* stage = lightShader->GetStage( 0 );
 	
-	const float alpha = regs[ stage->color.registers[3] ];
+	const float alpha = regs[ stage->ColorStage().registers[3] ];
 	
 	// if they left the default value on, set a fog distance of 500
 	float a;

@@ -564,17 +564,18 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 	{
 		for( int i = 0; i < shader->GetNumStages(); i++ )
 		{
-			const shaderStage_t*	stage = shader->GetStage( i );
-			switch( stage->texture.dynamic )
+			const crShaderStage* stage = shader->GetStage( i );
+			auto texture = stage->Texture();
+			switch( stage->Texture().dynamic )
 			{
 				case DI_REMOTE_RENDER:
-					R_RemoteRender( drawSurf, const_cast<textureStage_t*>( &stage->texture ) );
+					R_RemoteRender( drawSurf, &texture );
 					break;
 				case DI_MIRROR_RENDER:
-					R_MirrorRender( drawSurf, const_cast<textureStage_t*>( &stage->texture ), scissor );
+					R_MirrorRender( drawSurf, &texture, scissor );
 					break;
 				case DI_XRAY_RENDER:
-					R_XrayRender( drawSurf, const_cast<textureStage_t*>( &stage->texture ), scissor );
+					R_XrayRender( drawSurf, &texture, scissor );
 					break;
 			}
 		}

@@ -34,6 +34,21 @@ If you have questions concerning this license or the applicable additional terms
 #include "renderer_common.h"
 #include "Material.h"
 
+extern idCVar r_useHightQualitySky;
+idCVar r_forceSoundOpAmplitude( "r_forceSoundOpAmplitude", "0", CVAR_FLOAT, "Don't call into the sound system for amplitudes" );
+
+// keep all of these on the stack, when they are static it makes material parsing non-reentrant
+typedef struct mtrParsingData_s
+{
+	bool			registersAreConstant;
+	bool			forceOverlays;
+	bool			registerIsTemporary[MAX_EXPRESSION_REGISTERS];
+	float			shaderRegisters[MAX_EXPRESSION_REGISTERS];
+	expOp_t			shaderOps[MAX_EXPRESSION_OPS];
+	uint32_t		numStages;
+	crShaderStage	parseStages[MAX_SHADER_STAGES];
+} mtrParsingData_t;
+
 /*
 =============
 crShaderStage::crShaderStage
@@ -466,7 +481,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 			{
 				common->Warning( "no sinTable for rotate defined" );
 				mtr.SetMaterialFlag( MF_DEFAULTED );
-				return;
+				return false;
 			}
 
 			sinReg = mtr.EmitOp( table->Index(), a, OP_TYPE_TABLE );
@@ -475,8 +490,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 			if( !table )
 			{
 				common->Warning( "no cosTable for rotate defined" );
-				mtr.SetMaterialFlag( MF_DEFAULTED );
-				return;
+				return false;
 			}
 
 			cosReg = mtr.EmitOp( table->Index(), a, OP_TYPE_TABLE );
@@ -665,8 +679,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		}
 		
 		common->Warning( "unknown token '%s' in material '%s'", token.c_str(), mtr.GetName() );
-		mtr.SetMaterialFlag( MF_DEFAULTED );
-		return;
+		return false;
 	}
 	
 	mtr.pd->numStages++;
@@ -1094,22 +1107,6 @@ same texture matrix calculations a half dozen times.
   but it could be a hassle to implement,
 
 */
-
-// keep all of these on the stack, when they are static it makes material parsing non-reentrant
-typedef struct mtrParsingData_s
-{
-	bool			registersAreConstant;
-	bool			forceOverlays;
-	bool			registerIsTemporary[MAX_EXPRESSION_REGISTERS];
-	float			shaderRegisters[MAX_EXPRESSION_REGISTERS];
-	expOp_t			shaderOps[MAX_EXPRESSION_OPS];
-	uint32_t		numStages;
-	crShaderStage	parseStages[MAX_SHADER_STAGES];
-} mtrParsingData_t;
-
-extern idCVar r_useHightQualitySky;
-
-idCVar r_forceSoundOpAmplitude( "r_forceSoundOpAmplitude", "0", CVAR_FLOAT, "Don't call into the sound system for amplitudes" );
 
 /*
 =============
@@ -3291,9 +3288,7 @@ void idMaterial::CloseCinematic( void ) const
 	{
 		if( stages[i].Texture().cinematic )
 		{
-			stages[i].Texture().cinematic->Close();
-			delete stages[i].Texture().cinematic;
-			stages[i].Texture().cinematic = nullptr;
+			stages[i].Texture().CloseCinematic();
 		}
 	}
 }
@@ -3511,7 +3506,7 @@ void idMaterial::SetFastPathImages( void )
 		// check for non-identity colors
 		for( int i = 0; i < 4; i++ )
 		{
-			if( idMath::Fabs( constantRegisters[surfaceStage->color.registers[i]] - 1.0f ) > 0.1f )
+			if( idMath::Fabs( constantRegisters[surfaceStage->ColorStage().registers[i]] - 1.0f ) > 0.1f )
 				goto fail;
 		}
 		
