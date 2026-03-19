@@ -106,7 +106,7 @@ const vidMode_t *crDisplaySDL3::Modes( uint32_t *in_count ) const
     return m_modes.Ptr();
 }
 
-crVideoSDL3::crVideoSDL3( void ) : m_grabbed( false ), m_vulkan( false )
+crVideoSDL3::crVideoSDL3( void ) : m_grabbed( false )
 {
 }
 
@@ -119,7 +119,7 @@ bool crVideoSDL3::StartUp( const uint32_t in_flags )
     int displayCount = 0;
 
     // we create a hiden window 
-    SDL_WindowFlags windowflags = SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY;
+    SDL_WindowFlags windowflags = SDL_WINDOW_HIDDEN | SDL_WINDOW_HIGH_PIXEL_DENSITY | SDL_WINDOW_VULKAN;
     
     if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 	{
@@ -129,21 +129,10 @@ bool crVideoSDL3::StartUp( const uint32_t in_flags )
             return false;
         }
 	}
-
-    m_vulkan = in_flags & 0 << 2; 
-    if ( m_vulkan ) 
-    {
-        // we need load libraries before window creation
-        windowflags |= SDL_WINDOW_VULKAN;
-        if( !SDL_Vulkan_LoadLibrary( nullptr ) )
-			common->Error( "SDL Error while loading Vulkan Library : %s", SDL_GetError() );
-    }
-    else
-    {
-        windowflags |= SDL_WINDOW_OPENGL;
-        if( !SDL_GL_LoadLibrary( nullptr ) )
-			common->Error( "SDL Error while loading OpenGL Library : %s", SDL_GetError() );
-    }
+    
+    // we need load libraries before window creation
+    if( !SDL_Vulkan_LoadLibrary( nullptr ) )
+		common->Error( "SDL Error while loading Vulkan Library : %s", SDL_GetError() );
 
     SDL_DisplayID * displays = SDL_GetDisplays( &displayCount );
     for ( uint32_t i = 0; i < displayCount; i++)
@@ -176,10 +165,8 @@ void crVideoSDL3::ShutDown(void)
 
     m_displays.Clear();
 
-    if( m_vulkan )
-        SDL_Vulkan_UnloadLibrary();
-    else
-        SDL_GL_UnloadLibrary();
+    SDL_Vulkan_UnloadLibrary();
+
 }
 
 void *crVideoSDL3::WindowHandler(void)

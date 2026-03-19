@@ -66,7 +66,6 @@ public:
 
 private:
     bool                                m_grabbed;
-    bool                                m_vulkan;
     SDL::Window                         m_mainWindow;
     idList<crDisplay*, TAG_VIDEO_SYS>   m_displays;
 };

@@ -58,7 +58,8 @@ idCVar r_displayRefresh( "r_displayRefresh", "0", CVAR_RENDERER | CVAR_INTEGER |
 
 // BEATO Begin:
 idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "-1 = bordeless window; 0 window mode; 1 dedicated fullscreen; 2 = bordeless full screen" );
-idCVar r_display( "r_display", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "select the display index" );
+idCVar r_display( "r_display", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "Select the display index" );
+idCvar vk_deviceID( "vk_deviceID", "-1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "Select the vulkan display by index ( -1 choose the best )" );
 // BEATO End
 
 idCVar r_customWidth( "r_customWidth", "1280", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen width. set r_vidMode to -1 to activate" );
@@ -77,8 +78,8 @@ idCVar r_useSilRemap( "r_useSilRemap", "1", CVAR_RENDERER | CVAR_BOOL, "consider
 idCVar r_useNodeCommonChildren( "r_useNodeCommonChildren", "1", CVAR_RENDERER | CVAR_BOOL, "stop pushing reference bounds early when possible" );
 idCVar r_useShadowSurfaceScissor( "r_useShadowSurfaceScissor", "1", CVAR_RENDERER | CVAR_BOOL, "scissor shadows by the scissor rect of the interaction surfaces" );
 idCVar r_useCachedDynamicModels( "r_useCachedDynamicModels", "1", CVAR_RENDERER | CVAR_BOOL, "cache snapshots of dynamic models" );
-idCVar r_useSeamlessCubeMap( "r_useSeamlessCubeMap", "1", CVAR_RENDERER | CVAR_BOOL, "use ARB_seamless_cube_map if available" );
-idCVar r_useSRGB( "r_useSRGB", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE, "1 = both texture and framebuffer, 2 = framebuffer only, 3 = texture only" );
+// idCVar r_useSeamlessCubeMap( "r_useSeamlessCubeMap", "1", CVAR_RENDERER | CVAR_BOOL, "use ARB_seamless_cube_map if available" );
+// idCVar r_useSRGB( "r_useSRGB", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE, "1 = both texture and framebuffer, 2 = framebuffer only, 3 = texture only" );
 idCVar r_useHDR( "r_useHDR", "1", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "use HDR rendering (64 bits per pixel, half floats)" ); // foresthale 2014-02-18: HDR view rendering
 idCVar r_maxAnisotropicFiltering( "r_maxAnisotropicFiltering", "8", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "limit aniso filtering" );
 idCVar r_useTrilinearFiltering( "r_useTrilinearFiltering", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "Extra quality filtering" );
@@ -287,258 +288,34 @@ static void CALLBACK DebugCallback( unsigned int source, unsigned int type,
 }
 // RB end
 
+constexpr uint32_t k_VID_NVI = 0x10DE; // NVIDIA
+constexpr uint32_t k_VID_AMD = 0x1002; // AMD
+constexpr uint32_t k_VID_INT = 0x8086; // Intel
+constexpr uint32_t k_VID_ARM = 0x13B5; // ARM
+constexpr uint32_t k_VID_QUA = 0x5143; //Qualcomm
+
 /*
 ==================
-R_CheckPortableExtensions
+idRenderSystemLocal::CheckPortableExtensions
 ==================
 */
-static void R_CheckPortableExtensions()
+void idRenderSystemLocal::CheckPortableExtensions( void )
 {
-	glConfig.glVersion = atof( glConfig.version_string );
-	const char* badVideoCard = idLocalization::GetString( "#str_06780" );
-	if( glConfig.glVersion < 2.0f )
-	{
-		idLib::FatalError( badVideoCard );
-	}
+	auto properties = m_renderDevice->Properties();
 	
-	if( idStr::Icmpn( glConfig.renderer_string, "ATI ", 4 ) == 0 || idStr::Icmpn( glConfig.renderer_string, "AMD ", 4 ) == 0 )
-		glConfig.vendor = VENDOR_AMD;
-	else if( idStr::Icmpn( glConfig.renderer_string, "NVIDIA", 6 ) == 0 )
-		glConfig.vendor = VENDOR_NVIDIA;
-	else if( idStr::Icmpn( glConfig.renderer_string, "Intel", 5 ) == 0 )
-		glConfig.vendor = VENDOR_INTEL;
-
-
-	// Integrate Features found in OpenGL 2.x
-	// GL_ARB_multitexture
-	glConfig.multitextureAvailable = R_CheckExtension( "GL_ARB_multitexture" );
-	if( 3.1f < glConfig.glVersion  )
+	switch ( properties.vendorID )
 	{
-		glConfig.multitextureAvailable = true;
+		case k_VID_AMD: glConfig.vendor = VENDOR_AMD; break;
+		case k_VID_ARM: glConfig.vendor = VENDOR_ARM; break;
+		case k_VID_INT: glConfig.vendor = VENDOR_INTEL; break;
+		case k_VID_NVI: glConfig.vendor = VENDOR_NVIDIA; break;
+		case k_VID_QUA: glConfig.vendor = VENDOR_QUALCOM; break;
+	default:
+		glConfig.vendor = VENDOR_UNKNOW;
+		break;
 	}
-	else if( glConfig.multitextureAvailable )
-	{
-		// RB: deprecated
-		//glClientActiveTextureARB = ( void( APIENTRY* )( GLenum ) )GLimp_ExtensionPointer( "glClientActiveTextureARB" );
-		// RB end
-	}
-	
-	// GL_EXT_direct_state_access
-	glConfig.directStateAccess = R_CheckExtension( "GL_EXT_direct_state_access" );
-	
-	// GL_ARB_texture_compression + GL_S3_s3tc
-	// DRI drivers may have GL_ARB_texture_compression but no GL_EXT_texture_compression_s3tc
-	glConfig.textureCompressionAvailable = R_CheckExtension( "GL_ARB_texture_compression" );
-	glConfig.S3TCtextureCompressionAvailable = R_CheckExtension( "GL_EXT_texture_compression_s3tc" );
-
-	// GL_EXT_texture_filter_anisotropic
-	glConfig.anisotropicFilterAvailable = R_CheckExtension( "GL_EXT_texture_filter_anisotropic" );
-	if( glConfig.anisotropicFilterAvailable )
-	{
-//		glGetFloatv( GL_MAX_TEXTURE_MAX_ANISOTROPY, &glConfig.maxTextureAnisotropy );
-		common->Printf( "   maxTextureAnisotropy: %f\n", glConfig.maxTextureAnisotropy );
-	}
-	else
-	{
-		glConfig.maxTextureAnisotropy = 1;
-	}
-	
-	// GL_EXT_texture_lod_bias
-	// The actual extension is broken as specificed, storing the state in the texture unit instead
-	// of the texture object.  The behavior in GL 1.4 is the behavior we use.
-	glConfig.textureLODBiasAvailable = ( glConfig.glVersion >= 1.4 || R_CheckExtension( "GL_EXT_texture_lod_bias" ) );
-	if( glConfig.textureLODBiasAvailable )
-		common->Printf( "...using %s\n", "GL_EXT_texture_lod_bias" );
-	else
-		common->Printf( "X..%s not found\n", "GL_EXT_texture_lod_bias" );
-	
-	// GL_ARB_seamless_cube_map
-	glConfig.seamlessCubeMapAvailable = R_CheckExtension( "GL_ARB_seamless_cube_map" );
-	r_useSeamlessCubeMap.SetModified();		// the CheckCvars() next frame will enable / disable it
-	
-	// GL_ARB_framebuffer_sRGB
-	glConfig.sRGBFramebufferAvailable = R_CheckExtension( "GL_ARB_framebuffer_sRGB" );
-	r_useSRGB.SetModified();		// the CheckCvars() next frame will enable / disable it
-	
-	// GL_ARB_vertex_buffer_object
-	glConfig.vertexBufferObjectAvailable = R_CheckExtension( "GL_ARB_vertex_buffer_object" );
-	if( glConfig.glVersion >= 3.1f )
-	{
-		glConfig.vertexBufferObjectAvailable = true; // This is found in OpenGL 3.2+
-	}
-	else if ( glConfig.vertexBufferObjectAvailable )
-	{
-	}
-	
-	// GL_ARB_map_buffer_range, map a section of a buffer object's data store
-	glConfig.mapBufferRangeAvailable = R_CheckExtension( "GL_ARB_map_buffer_range" );
-	if( glConfig.mapBufferRangeAvailable )
-	{
-	}
-	
-	// GL_ARB_vertex_array_object
-	glConfig.vertexArrayObjectAvailable = R_CheckExtension( "GL_ARB_vertex_array_object" );
-	if( glConfig.vertexArrayObjectAvailable )
-	{
-	}
-	
-	// GL_ARB_draw_elements_base_vertex
-	glConfig.drawElementsBaseVertexAvailable = R_CheckExtension( "GL_ARB_draw_elements_base_vertex" );
-	if( glConfig.drawElementsBaseVertexAvailable )
-	{
-	}
-	
-	//glGetIntegerv( GL_MAX_TEXTURE_COORDS, ( GLint* )&glConfig.maxTextureCoords );
-	//glGetIntegerv( GL_MAX_TEXTURE_IMAGE_UNITS, ( GLint* )&glConfig.maxTextureImageUnits );
-		
-	// GLSL, core in OpenGL > 2.0
-	glConfig.glslAvailable = ( glConfig.glVersion >= 2.0f );
-	if( glConfig.glslAvailable )
-	{
-		// foresthale 2014-02-18: added glDrawbuffers
-	}
-
-	// foresthale 2014-02-16: added GL_ARB_framebuffer_object
-	glConfig.frameBufferObjectAvailable = R_CheckExtension( "GL_ARB_framebuffer_object");
-	if( glConfig.frameBufferObjectAvailable )
-	{
-		// All of these features are in the OpenGL 3.0 core spec.
-	}
-
-	glConfig.textureFloatAvailable = R_CheckExtension( "GL_ARB_texture_float" );
-
-	// GL_ARB_uniform_buffer_object
-	glConfig.uniformBufferAvailable = R_CheckExtension( "GL_ARB_uniform_buffer_object" );
-	if( glConfig.uniformBufferAvailable )
-	{
-		// glGetIntegerv( GL_UNIFORM_BUFFER_OFFSET_ALIGNMENT, ( GLint* )&glConfig.uniformBufferOffsetAlignment );
-		if( glConfig.uniformBufferOffsetAlignment < 256 )
-			glConfig.uniformBufferOffsetAlignment = 256;
-	}
-	
-	// ATI_separate_stencil / OpenGL 2.0 separate stencil
-	glConfig.twoSidedStencilAvailable = ( glConfig.glVersion >= 2.0f ) || R_CheckExtension( "GL_ATI_separate_stencil" );
-	if( glConfig.twoSidedStencilAvailable )
-	{
-	}
-	
-	// GL_EXT_depth_bounds_test
-	glConfig.depthBoundsTestAvailable = R_CheckExtension( "GL_EXT_depth_bounds_test" );
-	if( glConfig.depthBoundsTestAvailable )
-	{
-	}
-	
-	// GL_ARB_sync
-	glConfig.syncAvailable = R_CheckExtension( "GL_ARB_sync" ) &&
-							 // as of 5/24/2012 (driver version 15.26.12.64.2761) sync objects
-							 // do not appear to work for the Intel HD 4000 graphics
-							 ( glConfig.vendor != VENDOR_INTEL || r_skipIntelWorkarounds.GetBool() );
-	if( glConfig.syncAvailable )
-	{
-	}
-	
-	// GL_ARB_occlusion_query
-	glConfig.occlusionQueryAvailable = R_CheckExtension( "GL_ARB_occlusion_query" );
-	if( glConfig.occlusionQueryAvailable )
-	{
-		// defined in GL_ARB_occlusion_query, which is required for GL_EXT_timer_query
-	}
-	
-	// GL_ARB_timer_query
-	glConfig.timerQueryAvailable = R_CheckExtension( "GL_ARB_timer_query" ) || R_CheckExtension( "GL_EXT_timer_query" );
-	if( glConfig.timerQueryAvailable )
-	{
-	}
-	
-	// GL_ARB_debug_output
-	glConfig.debugOutputAvailable = R_CheckExtension( "GL_ARB_debug_output" );
-	if( glConfig.debugOutputAvailable )
-	{
-		
-		if( r_debugContext.GetInteger() >= 1 )
-		{
-		}
-		if( r_debugContext.GetInteger() >= 2 )
-		{
-			// force everything to happen in the main thread instead of in a separate driver thread
-			// glEnable( GL_DEBUG_OUTPUT_SYNCHRONOUS );
-		}
-
-		if( r_debugContext.GetInteger() >= 3 )
-		{
-			// enable all the low priority messages
-			// glDebugMessageControl( GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW_ARB, 0, nullptr, true );
-		}
-	}
-	
-	// GL_ARB_multitexture
-	if( !glConfig.multitextureAvailable )
-	{
-		idLib::Error( "GL_ARB_multitexture not available" );
-	}
-	// GL_ARB_texture_compression + GL_EXT_texture_compression_s3tc
-	if( !glConfig.textureCompressionAvailable )
-	{
-		idLib::Error( "GL_ARB_texture_compression not available" );
-	}
-
-	if( !glConfig.S3TCtextureCompressionAvailable )
-	{
-		idLib::Error( "GL_EXT_texture_compression_s3tc not available" );
-	}
-
-	// GL_ARB_vertex_buffer_object
-	if( !glConfig.vertexBufferObjectAvailable )
-	{
-		idLib::Error( "GL_ARB_vertex_buffer_object not available" );
-	}
-	// GL_ARB_map_buffer_range
-	if( !glConfig.mapBufferRangeAvailable )
-	{
-		idLib::Error( "GL_ARB_map_buffer_range not available" );
-	}
-
-	// GL_ARB_vertex_array_object
-	if( !glConfig.vertexArrayObjectAvailable )
-	{
-		idLib::Error( "GL_ARB_vertex_array_object not available" );
-	}
-	// GL_ARB_draw_elements_base_vertex
-	if( !glConfig.drawElementsBaseVertexAvailable )
-	{
-		idLib::Error( "GL_ARB_draw_elements_base_vertex not available" );
-	}
-
-	// GLSL
-	if( !glConfig.glslAvailable )
-	{
-		idLib::Error( "GLSL not available" );
-	}
-	// GL_ARB_framebuffer_object
-	if( !glConfig.frameBufferObjectAvailable )
-	{
-		idLib::Error( "GL_ARB_framebuffer_object not available" );
-	}
-	// GL_ARB_texture_float
-	if( !glConfig.textureFloatAvailable )
-	{
-		idLib::Error( "GL_ARB_texture_float not available" );
-	}
-	// GL_ARB_uniform_buffer_object
-	if( !glConfig.uniformBufferAvailable )
-	{
-		idLib::Error( "GL_ARB_uniform_buffer_object not available" );
-	}
-	// GL_EXT_stencil_two_side
-	if( !glConfig.twoSidedStencilAvailable )
-	{
-		idLib::Error( "GL_ATI_separate_stencil not available" );
-	}
-	
-	// generate one global Vertex Array Object (VAO)
-	// glGenVertexArrays( 1, &glConfig.global_vao );
-	// glBindVertexArray( glConfig.global_vao );
 }
+	
 
 /*
 =============================
@@ -1762,10 +1539,7 @@ void GfxInfo_f( const idCmdArgs& args )
 	common->Printf( "GL_RENDERER: %s\n", glConfig.renderer_string );
 	common->Printf( "GL_VERSION: %s\n", glConfig.version_string );
 	common->Printf( "GL_EXTENSIONS: %s\n", glConfig.extensions_string );
-	if( glConfig.wgl_extensions_string )
-	{
-		common->Printf( "WGL_EXTENSIONS: %s\n", glConfig.wgl_extensions_string );
-	}
+
 	common->Printf( "GL_MAX_TEXTURE_SIZE: %d\n", glConfig.maxTextureSize );
 	common->Printf( "GL_MAX_TEXTURE_COORDS_ARB: %d\n", glConfig.maxTextureCoords );
 	common->Printf( "GL_MAX_TEXTURE_IMAGE_UNITS_ARB: %d\n", glConfig.maxTextureImageUnits );
@@ -2394,7 +2168,7 @@ void idRenderSystemLocal::Init( void )
 idRenderSystemLocal::Shutdown
 ===============
 */
-void idRenderSystemLocal::Shutdown()
+void idRenderSystemLocal::Shutdown( void )
 {
 	common->Printf( "idRenderSystem::Shutdown()\n" );
 	auto globalImages = idImageManager::Get();
@@ -2575,12 +2349,15 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		// input and sound systems need to be tied to the new window
 		Sys_InitInput();
 		
+		/// Initialize Vulkan
+		renderAPI->StartUp();
+
 		// Get vulkan devices
 		uint32_t deviceCount = renderAPI->GetDevices( nullptr );
 		m_renderDeviceList.Resize( deviceCount );
 		renderAPI->GetDevices( m_renderDeviceList.Ptr() );
 
-		// TODO: Init a render device
+		InitDevice();
 
 		// get our config strings
 #if 0
@@ -2616,8 +2393,8 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		
 		r_initialized = true;
 		
-		// recheck all the extensions (FIXME: this might be dangerous)
-		R_CheckPortableExtensions();
+		// recheck all the extensions
+		CheckPortableExtensions();
 		
 		r_initialized = true;
 		
@@ -2637,6 +2414,68 @@ void idRenderSystemLocal::InitRenderAPI( void )
 
 	// show window
 	crVideo::Get()->ShowWindow( true );
+}
+
+/*
+========================
+idRenderSystemLocal::InitDevice
+========================
+*/
+void idRenderSystemLocal::InitDevice(void)
+{
+	static const char* usedExtensions[]
+	{
+		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+		VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
+		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,	// Not needed vulkan 1.3
+	};
+
+	if( vk_deviceID.GetInteger() > -1 )
+	{
+		uint32_t deviceID = std::min<uint32_t>( vk_deviceID.GetInteger(), m_renderDeviceList.Num() - 1 );
+		if( !m_renderDeviceList[deviceID]->Create( nullptr, 0, usedExtensions, 3  ) )
+		{
+			idLib::Error( "Failed to initialize device %s!\ntrying to initialize, the next suitable device\n",
+					 m_renderDeviceList[deviceID]->Name() );
+
+			/// device failed, ignore
+			vk_deviceID.SetInteger( -1 );
+			InitDevice();
+		}
+	}
+	else
+	{
+		int32_t	bestScore = 0;
+		uint32_t bestIndex = 0;
+		uint32_t i = 0;
+
+		for ( i = 0; i < m_renderDeviceList.Num(); i++)
+		{
+			int32_t score = m_renderDeviceList[i]->Score();
+				
+			// The device does not meet the minimum requirements.
+			if( score < 0 )
+				continue;
+
+			if( bestScore < score )
+			{
+				bestIndex = i;
+				bestScore = score;
+			}
+		}
+
+		if( m_renderDeviceList[bestIndex]->Create( nullptr, 0, usedExtensions, 3  ) )
+		{
+			/// make default device
+			vk_deviceID.SetInteger( bestIndex );
+			m_renderDevice = m_renderDeviceList[bestIndex];
+		}
+		else
+		{
+			/// TODO Fallback
+			throw idException( "FAILED TO INITIALIZE BEST RENDER DEVICE\n" );
+		}
+	}
 }
 
 /*
@@ -2682,7 +2521,7 @@ bool idRenderSystemLocal::IsFullScreen( void ) const
 idRenderSystemLocal::GetWidth
 ========================
 */
-uint32_t idRenderSystemLocal::GetWidth() const
+uint32_t idRenderSystemLocal::GetWidth( void ) const
 {
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()

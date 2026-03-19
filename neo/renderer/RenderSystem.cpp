@@ -123,10 +123,9 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 			break;
 		}
 	}
+
 	if( !hasView )
-	{
 		return;
-	}
 	
 	// r_skipBackEnd allows the entire time of the back end
 	// to be removed from performance measurements, although
@@ -271,6 +270,7 @@ void R_CheckCvars( void )
 		}
 	}
 	
+#if 0
 	extern idCVar r_useSeamlessCubeMap;
 	if( r_useSeamlessCubeMap.IsModified() )
 	{
@@ -296,6 +296,7 @@ void R_CheckCvars( void )
 			//	glDisable( GL_FRAMEBUFFER_SRGB );
 		}
 	}
+#endif
 	
 	
 	if( r_multiSamples.IsModified() )
@@ -715,8 +716,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	{
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
-		void GL_BlockingSwapBuffers();
-		GL_BlockingSwapBuffers();
+		backEnd->BlockingSwapBuffers();
 	}
 	
 	// read back the start and end timer queries from the previous frame

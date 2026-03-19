@@ -892,24 +892,31 @@ class crRenderDevice
 public:
 	struct properties_t
 	{
-		uint16_t deviceID;
-		uint16_t vendorID;
-		uint32_t driverVersion;
-	};
+		bool		BCnTextureCompression = false;
+		bool		ETC2TextureCompression = false;
+		bool		asotropicFiltering = false;
+		bool		sRGBFramebufferAvailable = false;
+		bool		textureFloatAvailable = false;
+		bool		depthBoundsTestAvailable = false;
+		bool		timerQueryAvailable = false;
+		bool		occlusionQueryAvailable = false;
 
-	/// list device usable features
-	struct features_t
-	{
+		uint16_t 	deviceID = 0;
+		uint16_t 	vendorID = 0;
+		uint32_t 	driverVersion = 0;
+		
+		uint32_t	maxTextureSize = 0;
 		uint32_t	maxSampleCount = 0;
 		uint32_t 	shaderStorageAlignment = 0;
+		float		maxAnisotropicFiltering = 0.0f;
+		float		maxTextureLODBias = 0.0f;
 	};
 
 	virtual bool				Create(  const char** in_layers, const uint32_t in_numLayers, const char** in_enabledExtensions, const uint32_t in_numExtensions ) = 0;
 	virtual void				Destroy( void ) = 0;
 	virtual const char*			Name( void ) const = 0;
 	virtual const properties_t	Properties( void ) const = 0;
-	virtual const features_t	Features( void ) const = 0;
-	virtual const uint32_t		Score( void ) const = 0;
+	virtual const int32_t		Score( void ) const = 0;
 };
 
 /// Render API Context Management

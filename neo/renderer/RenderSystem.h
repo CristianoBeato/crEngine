@@ -79,15 +79,12 @@ enum stereoDepthType_t
 
 enum graphicsVendor_t
 {
-	VENDOR_NVIDIA,
+	VENDOR_UNKNOW,
 	VENDOR_AMD,
-	VENDOR_INTEL
-};
-
-enum backend_t
-{
-	BACKEND_OPENGL,
-	BACKEND_VULKAN
+	VENDOR_ARM,
+	VENDOR_INTEL,
+	VENDOR_NVIDIA,
+	VENDOR_QUALCOM
 };
 
 // Contains variables specific to the OpenGL configuration being run right now.
@@ -114,27 +111,10 @@ struct glconfig_t
 	int					depthBits;
 	int					stencilBits;
 	
-	bool				multitextureAvailable;
-	bool				directStateAccess;
-	bool				textureCompressionAvailable;
-	bool				S3TCtextureCompressionAvailable;
-	bool				anisotropicFilterAvailable;
-	bool				textureLODBiasAvailable;
-	bool				seamlessCubeMapAvailable;
-	bool				sRGBFramebufferAvailable;
-	bool				vertexBufferObjectAvailable;
-	bool				mapBufferRangeAvailable;
-	bool				vertexArrayObjectAvailable;
 	bool				drawElementsBaseVertexAvailable;
-	bool				glslAvailable;
-	bool				frameBufferObjectAvailable;
-	bool				textureFloatAvailable;
-	bool				uniformBufferAvailable;
-	bool				twoSidedStencilAvailable;
-	bool				depthBoundsTestAvailable;
+	
 	bool				syncAvailable;
-	bool				timerQueryAvailable;
-	bool				occlusionQueryAvailable;
+	
 	bool				debugOutputAvailable;
 	bool				swapControlTearAvailable;
 	

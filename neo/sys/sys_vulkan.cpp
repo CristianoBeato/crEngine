@@ -366,6 +366,17 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     m_internalProperties.deviceID = m_propertiesv10.properties.deviceID;
     m_internalProperties.vendorID = m_propertiesv10.properties.vendorID;
     m_internalProperties.driverVersion = m_propertiesv10.properties.driverVersion;
+    
+    ///
+    m_internalProperties.BCnTextureCompression = m_featuresv10.features.textureCompressionBC;
+    m_internalProperties.ETC2TextureCompression = m_featuresv10.features.textureCompressionETC2;
+    m_internalProperties.asotropicFiltering = m_featuresv10.features.samplerAnisotropy;
+    m_internalProperties.maxSampleCount = m_propertiesv10.properties.limits.maxSamplerAllocationCount;
+    m_internalProperties.maxAnisotropicFiltering = m_propertiesv10.properties.limits.maxSamplerAnisotropy;
+    m_internalProperties.maxTextureLODBias = m_propertiesv10.properties.limits.maxSamplerLodBias;
+    m_internalProperties.depthBoundsTestAvailable = m_featuresv10.features.depthBounds;
+    m_internalProperties.occlusionQueryAvailable = m_featuresv10.features.occlusionQueryPrecise;
+    m_internalProperties.timerQueryAvailable = m_propertiesv10.properties.limits.timestampComputeAndGraphics;
 }
 
 /*
@@ -529,63 +540,81 @@ const crRenderDevice::properties_t crVulkanRenderDevice::Properties(void) const
     return m_internalProperties;
 }
 
-const crRenderDevice::features_t crVulkanRenderDevice::Features(void) const
-{
-    return m_internalFeatures;
-}
-
 /*
 ==============
 crVulkanRenderDevice::DeviceScore
 ==============
 */
-const uint32_t crVulkanRenderDevice::Score( void ) const
+const int32_t crVulkanRenderDevice::Score( void ) const
 {
-    uint32_t score = 0;
+    int32_t score = 0;
+
+    // missing timeline semaphores, that is required
+    if ( !m_featuresv12.timelineSemaphore )
+        return -1;
+
+    // missing dynamic rendering, that is required
+    if( !m_featuresv13.dynamicRendering )
+        return -1;
 
     switch ( m_propertiesv10.properties.deviceType )
     {
     case VK_PHYSICAL_DEVICE_TYPE_CPU:
-        score += 5;
-        break;
-    case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
         score += 10;
         break;
+    case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+        score += 50;
+        break;
     case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-        score += 25;
+        score += 150;
         break;
     case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:
-        score += 50;
+        score += 200;
     default:
         score += 1;
         break;
     };
 
     // TODO:
-    //for ( uint32_t i = 0; i < m_presentModes.Num(); i++)
-    //{
-    //    switch ( m_presentModes[i] )
-    //    {
-    //    case VK_PRESENT_MODE_MAILBOX_KHR:
-    //        break;
-    //    case VK_PRESENT_MODE_FIFO_KHR:
-    //        break;
-    //    
-    //    default:
-    //        break;
-    //    }
-    //};
+    for ( uint32_t i = 0; i < m_presentModes.Num(); i++)
+    {
+        switch ( m_presentModes[i] )
+        {
+        case VK_PRESENT_MODE_MAILBOX_KHR:
+            score += 10;
+            break;
 
-    score += m_queueFamilyPropertiesList.Num() * 5;
+        case VK_PRESENT_MODE_FIFO_KHR:
+            score += 20;
+            break;
+
+        case VK_PRESENT_MODE_FIFO_RELAXED_KHR:
+            score += 50;
+            break;
+
+        case VK_PRESENT_MODE_SHARED_DEMAND_REFRESH_KHR:
+            score += 50;
+            break;
+
+        case VK_PRESENT_MODE_SHARED_CONTINUOUS_REFRESH_KHR:
+            score += 50;
+            break;
+        
+        default:
+            break;
+        }
+    };
+
+    score += m_queueFamilyPropertiesList.Num() * 10;
 
     for ( uint32_t i = 0; i < m_queueFamilyPropertiesList.Num(); i++)
     {
         auto queueFamilyProperties = m_queueFamilyPropertiesList[i].queueFamilyProperties;
         if ( queueFamilyProperties.queueFlags & VK_QUEUE_TRANSFER_BIT )
-            score += 10;
+            score += 100;
 
         if( queueFamilyProperties.queueFlags & VK_QUEUE_COMPUTE_BIT )
-            score += 10;
+            score += 100;
     };
 
     return score;

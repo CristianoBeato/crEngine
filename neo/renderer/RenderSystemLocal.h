@@ -39,17 +39,17 @@ class idRenderSystemLocal : public idRenderSystem
 {
 public:
 	// external functions
-	virtual void			Init();
-	virtual void			Shutdown();
-	virtual void			ResetGuiModels();
+	virtual void			Init( void );
+	virtual void			Shutdown( void );
+	virtual void			ResetGuiModels( void );
 	virtual void			InitRenderAPI( void );
 	virtual void			ShutdownRenderAPI( void );
 	virtual bool			IsRenderAPIRunning( void ) const;
-	virtual bool			IsFullScreen() const;
-	virtual stereo3DMode_t	GetStereo3DMode() const;
-	virtual bool			HasQuadBufferSupport() const;
-	virtual bool			IsStereoScopicRenderingSupported() const;
-	virtual stereo3DMode_t	GetStereoScopicRenderingMode() const;
+	virtual bool			IsFullScreen( void ) const;
+	virtual stereo3DMode_t	GetStereo3DMode( void ) const;
+	virtual bool			HasQuadBufferSupport( void ) const;
+	virtual bool			IsStereoScopicRenderingSupported( void ) const;
+	virtual stereo3DMode_t	GetStereoScopicRenderingMode( void ) const;
 	virtual void			EnableStereoScopicRendering( const stereo3DMode_t mode ) const;
 	virtual uint32_t		GetWidth( void ) const;
 	virtual uint32_t		GetHeight( void ) const;
@@ -114,8 +114,8 @@ public:
 	// internal functions
 	idRenderSystemLocal();
 	~idRenderSystemLocal();
-	
-	void					Clear();
+	void					InitDevice( void );
+	void					Clear( void );
 	void					GetCroppedViewport( idScreenRect* viewport );
 	void					PerformResolutionScaling( int& newWidth, int& newHeight );
 	int						GetFrameCount() const
@@ -150,8 +150,8 @@ public:
 	idRenderWorldLocal* 	primaryWorld;
 	renderView_t			primaryRenderView;
 	viewDef_t* 				primaryView;
+
 	// many console commands need to know which world they should operate on
-	
 	const idMaterial* 		whiteMaterial;
 	const idMaterial* 		charSetMaterial;
 	const idMaterial* 		defaultPointLight;
@@ -175,8 +175,8 @@ public:
 	
 	// GUI drawing variables for surface creation
 	int						guiRecursionLevel;		// to prevent infinite overruns
-	uint32_t					currentColorNativeBytesOrder;
-	uint64_t					currentGLState;
+	uint32_t				currentColorNativeBytesOrder;
+	uint64_t				currentGLState;
 	class idGuiModel* 		guiModel;
 	
 	idList<idFont*, TAG_FONT>		fonts;
@@ -202,6 +202,8 @@ public:
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()
 	int						screenshotOverrideWidth;
 	int						screenshotOverrideHeight;
+
+	void					CheckPortableExtensions( void );
 };
 
 extern idRenderSystemLocal	tr;

@@ -1353,9 +1353,12 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 {	
 	try
 	{
+// BEATO Begin:
+		auto video = crVideo::Get();
 		auto renderSystem = idRenderSystem::Get();
 		auto soundSystem = idSoundSystem::Get();
-		
+// BEATO End
+
 		// set interface pointers used by idLib
 		idLib::sys			= sys;
 		idLib::common		= common;
@@ -1378,6 +1381,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 			args.TokenizeString( cmdline, true );
 			argv = args.GetArgs( &argc );
 		}
+
 		ParseCommandLine( argc, argv );
 		
 		// init console command system
@@ -1430,7 +1434,6 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		Sys_SetLanguageFromSystem();
 		
 		// Pre-allocate our 20 MB save buffer here on time, instead of on-demand for each save....
-		
 		saveFile.SetNameAndType( SAVEGAME_CHECKPOINT_FILENAME, SAVEGAMEFILE_BINARY );
 		saveFile.PreAllocate( MIN_SAVEGAME_SIZE_BYTES );
 		
@@ -1483,6 +1486,10 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// start the sound system, but don't do any hardware operations yet
 		soundSystem->Init();
 		
+/// BEATO Begin: initialize video and Vulkan system
+		video->StartUp( 0 );
+/// BEATO End
+
 		// initialize the renderSystem data structures
 		renderSystem->Init();
 		

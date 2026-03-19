@@ -191,10 +191,10 @@ void Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats )
     char buffer[256];
     while (fgets(buffer, sizeof(buffer), f)) 
     {
-        if (sscanf(buffer, "MemTotal: %d kB", &stats.totalPhysical) == 1) continue;
-        if (sscanf(buffer, "MemAvailable: %d kB", &stats.availPhysical) == 1) continue;
-        if (sscanf(buffer, "SwapTotal: %d kB", &stats.totalVirtual) == 1) continue;
-        if (sscanf(buffer, "SwapFree: %d kB", &stats.availVirtual) == 1) continue;
+        if ( sscanf(buffer, "MemTotal: %d kB", &stats.totalPhysical) == 1) continue;
+        if ( sscanf(buffer, "MemAvailable: %d kB", &stats.availPhysical) == 1) continue;
+        if ( sscanf(buffer, "SwapTotal: %d kB", &stats.totalVirtual) == 1) continue;
+        if ( sscanf(buffer, "SwapFree: %d kB", &stats.availVirtual) == 1) continue;
     }
     fclose(f);
 
@@ -215,6 +215,7 @@ int main( int argc, char *argv[] )
 {
     if( !SDL_Init( SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO ) )
     {
+		Sys_Error( SDL_GetError() );
         return EXIT_FAILURE;    
     }
 
@@ -229,7 +230,6 @@ int main( int argc, char *argv[] )
 
     //	Sys_FPU_EnableExceptions( TEST_FPU_EXCEPTIONS );
 	Sys_FPU_SetPrecision( FPU_PRECISION_DOUBLE_EXTENDED );
-
 
 #if __PLATFORM_LINUX__ || __PLATFORM_FBSD__
 #ifdef ID_MCHECK
@@ -261,7 +261,6 @@ int main( int argc, char *argv[] )
 
     while ( true )
     {
-
         // debug clien frame
         DebuggerClientUpdate();
 

@@ -65,12 +65,17 @@ public:
     crVulkanRenderDevice( const uint32_t in_ID, const VkPhysicalDevice in_device, const VkSurfaceKHR in_surface );
     ~crVulkanRenderDevice( void );
 
+    /// @brief Create the logic device
+    /// @param in_layers the layer to be enabled
+    /// @param in_numLayers layer names count
+    /// @param in_enabledExtensions device extensions to be enable
+    /// @param in_numExtensions 
+    /// @return true on success
     virtual bool				Create( const char** in_layers, const uint32_t in_numLayers, const char** in_enabledExtensions, const uint32_t in_numExtensions ) override;
 	virtual void				Destroy( void ) override;
 	virtual const char*         Name( void ) const override;
 	virtual const properties_t	Properties( void ) const override;
-	virtual const features_t	Features( void ) const override;
-    virtual const uint32_t      Score( void ) const;
+    virtual const int32_t       Score( void ) const;
 
     /// @brief Find device memory type
     /// @param type_filter 
@@ -88,7 +93,7 @@ public:
     const bool      SupportedDepthStencilFormat( const VkFormat in_depthStencilFormat ) const;
 
     /// Device ID Mask
-    uint32_t Mask( void ) const { return m_id + 1; }
+    ID_INLINE unsigned int Mask( void ) const { return m_id + 1; }
 
     ID_INLINE vkDeviceQueuep   PresentQueue( void ) const { return m_present; }
     ID_INLINE vkDeviceQueuep   GraphicQueue( void ) const { return m_graphic; }
@@ -104,10 +109,9 @@ public:
     
 private: 
     bool                                            m_cacheLoaded;   // if cache is loaded, we don't save it again
-    uint32_t                                        m_id;
+    unsigned int                                    m_id;
     idStr                                           m_name;
     properties_t                                    m_internalProperties;
-    features_t                                      m_internalFeatures;
 
     // device properties
     VkPhysicalDeviceProperties2                     m_propertiesv10;
