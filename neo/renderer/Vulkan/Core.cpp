@@ -197,10 +197,16 @@ PFN_vkCmdResetEvent2                             vkCmdResetEvent2 = nullptr;
 PFN_vkCmdWaitEvents2                             vkCmdWaitEvents2 = nullptr;
 
 // VkQueryPool
-PFN_vkCmdBeginQuery                              vkCmdBeginQuery = nullptr;
-PFN_vkCmdResetQueryPool                          vkCmdResetQueryPool = nullptr;
-PFN_vkCmdEndQuery                                vkCmdEndQuery = nullptr;
-PFN_vkCmdCopyQueryPoolResults                    vkCmdCopyQueryPoolResults = nullptr;
+PFN_vkCreateQueryPool                           vkCreateQueryPool = nullptr;
+PFN_vkDestroyQueryPool                          vkDestroyQueryPool = nullptr;
+PFN_vkResetQueryPool                            vkResetQueryPool = nullptr;
+PFN_vkGetQueryPoolResults                       vkGetQueryPoolResults = nullptr;
+
+PFN_vkCmdBeginQuery                             vkCmdBeginQuery = nullptr;
+PFN_vkCmdResetQueryPool                         vkCmdResetQueryPool = nullptr;
+PFN_vkCmdEndQuery                               vkCmdEndQuery = nullptr;
+PFN_vkCmdCopyQueryPoolResults                   vkCmdCopyQueryPoolResults = nullptr;
+PFN_vkCmdWriteTimestamp                         vkCmdWriteTimestamp = nullptr;
 
 // VK_KHR_copy_commands2
 PFN_vkCmdBlitImage2                             vkCmdBlitImage2 = nullptr;

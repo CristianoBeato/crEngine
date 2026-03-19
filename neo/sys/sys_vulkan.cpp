@@ -377,6 +377,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     m_internalProperties.depthBoundsTestAvailable = m_featuresv10.features.depthBounds;
     m_internalProperties.occlusionQueryAvailable = m_featuresv10.features.occlusionQueryPrecise;
     m_internalProperties.timerQueryAvailable = m_propertiesv10.properties.limits.timestampComputeAndGraphics;
+    m_internalProperties.timestampPeriod = m_propertiesv10.properties.limits.timestampPeriod;
 }
 
 /*
@@ -1729,10 +1730,16 @@ void crVulkanAPI::LoadVulkanProcs( void )
     GET_VK_PROC( vkCmdWaitEvents2, m_instance );
 
     // VkQueryPool
+    GET_VK_PROC( vkCreateQueryPool, m_instance );
+    GET_VK_PROC( vkDestroyQueryPool, m_instance );
+    GET_VK_PROC( vkResetQueryPool, m_instance );
+    GET_VK_PROC( vkGetQueryPoolResults, m_instance );
+
     GET_VK_PROC( vkCmdBeginQuery, m_instance );
     GET_VK_PROC( vkCmdResetQueryPool, m_instance );
     GET_VK_PROC( vkCmdEndQuery, m_instance );
     GET_VK_PROC( vkCmdCopyQueryPoolResults, m_instance );
+    GET_VK_PROC( vkCmdWriteTimestamp, m_instance );
 
     // VK_KHR_copy_commands2
     GET_VK_PROC( vkCmdBlitImage2, m_instance );

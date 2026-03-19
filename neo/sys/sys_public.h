@@ -910,6 +910,7 @@ public:
 		uint32_t 	shaderStorageAlignment = 0;
 		float		maxAnisotropicFiltering = 0.0f;
 		float		maxTextureLODBias = 0.0f;
+		float		timestampPeriod = 0.0f;
 	};
 
 	virtual bool				Create(  const char** in_layers, const uint32_t in_numLayers, const char** in_enabledExtensions, const uint32_t in_numExtensions ) = 0;

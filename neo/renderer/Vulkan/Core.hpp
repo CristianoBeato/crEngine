@@ -205,10 +205,16 @@ extern PFN_vkCmdResetEvent2                             vkCmdResetEvent2;
 extern PFN_vkCmdWaitEvents2                             vkCmdWaitEvents2;
 
 // VkQueryPool
+extern PFN_vkCreateQueryPool                            vkCreateQueryPool;
+extern PFN_vkDestroyQueryPool                           vkDestroyQueryPool;
+extern PFN_vkResetQueryPool                             vkResetQueryPool;
+extern PFN_vkGetQueryPoolResults                        vkGetQueryPoolResults;
+
 extern PFN_vkCmdBeginQuery                              vkCmdBeginQuery;
 extern PFN_vkCmdResetQueryPool                          vkCmdResetQueryPool;
 extern PFN_vkCmdEndQuery                                vkCmdEndQuery;
 extern PFN_vkCmdCopyQueryPoolResults                    vkCmdCopyQueryPoolResults;
+extern PFN_vkCmdWriteTimestamp                          vkCmdWriteTimestamp;
 
 // VK_KHR_copy_commands2
 extern PFN_vkCmdBlitImage2                              vkCmdBlitImage2;
@@ -277,6 +283,7 @@ extern void VkImageStateTransition( vkImageHandle_t* in_image,
 #include "Texture.hpp"
 #include "Program.hpp"
 #include "Pipeline.hpp"
+#include "Queries.hpp"
 #include "Framebuffer.hpp"
 
 #endif //!__VULKAN_MAIN_HPP__
