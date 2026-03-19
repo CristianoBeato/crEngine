@@ -156,6 +156,8 @@ set( RENDERER_VULKAN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Pipeline.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Program.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Program.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Queries.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Queries.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Resource.cpp
