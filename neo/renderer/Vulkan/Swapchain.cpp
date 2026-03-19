@@ -268,7 +268,7 @@ void vkSwapchain::AcquireImage( const uint32_t in_bufferID )
     acquireNextImageInfo.deviceMask = device->Mask();
     result = vkAcquireNextImage2KHR( *device, &acquireNextImageInfo, &m_currentImage );
     if ( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR )
-        common->Error( "vkSwapchain::AcquireImage::vkAcquireNextImage2KHR %s\n", VulkanErrorString( result ).c_str() );
+        idlib::Error( "vkSwapchain::AcquireImage::vkAcquireNextImage2KHR %s\n", VulkanErrorString( result ).c_str() );
 }
 
 void vkSwapchain::SwapBuffers( const VkSemaphore in_renderDone )

@@ -682,6 +682,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers(
 	uint64_t* gpuMicroSec )
 {
 
+	///
 	SwapCommandBuffers_FinishRendering( frontEndMicroSec, backEndMicroSec, shadowMicroSec, gpuMicroSec );
 	
 	return SwapCommandBuffers_FinishCommandBuffers();
@@ -755,7 +756,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers
 =====================
 */
-const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers()
+const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffers( void )
 {
 	if( !IsInitialized() )
 		return nullptr;

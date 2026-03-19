@@ -50,4 +50,6 @@ private:
     idStaticList<VkFence, SMP_FRAMES>    	        m_frameFences;
 };
 
+typedef vkCommandbuffer* vkCommandbufferp;
+
 #endif //!__VK_COMMAND_BUFFER_HPP__

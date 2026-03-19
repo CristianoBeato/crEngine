@@ -146,6 +146,7 @@ public:
 	bool				SetScreenParms( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth );
     void    			ShutDown( void );
 	void 				ExecuteBackEndCommands( const emptyCommand_t* cmds );
+	void				BlockingSwapBuffers( void );
 	float				ViewDefTime( void ) const { return viewDef != nullptr ? Sys_Milliseconds() : -1; }
 	void				SetDefaultState( void );
 	void				ZeroPerformanceCounters( void );
@@ -182,7 +183,6 @@ private:
 
 	void	DrawFlickerBox( void );
 	void	SetBuffer( const void* data );
-	void	BlockingSwapBuffers( void );
 	void	StereoRenderExecuteBackEndCommands( const emptyCommand_t* const allCmds );
 	void 	DrawElementsWithCounters( const drawSurf_t* surf );
 
@@ -209,6 +209,11 @@ private:
 	void	Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
 	void	Scissor( const int x /* left*/, const int y /* bottom */, const int w, const int h );
 	void	Viewport( const int x /* left */, const int y /* bottom */, const int w, const int h );
+	
+	
+	
+	// wait for the GPU to reach the last end frame marker
+	void	WaitForEndFrame( void );
 
 	ID_INLINE void	Scissor( const idScreenRect& rect );
 	ID_INLINE void	Viewport( const idScreenRect& rect );

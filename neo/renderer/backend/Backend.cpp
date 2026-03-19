@@ -133,14 +133,12 @@ void crBackend::SetBuffer( const void* data )
 	
 	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", bufferID );
 
-	/// Wait for parity command buffer begin to be recorded
-	m_graphicCommandBuffer->Begin( bufferID );
-
 	/// It waits for the resources of the previous paired frame to be released,
 	/// acquires and prepares the presentation image state, clears the command buffer, 
 	/// and initializes command recording for the frame.
-	m_swapchain->AcquireImage( bufferID );
+	tr.Swapchain()->AcquireImage( bufferID );
 	
+#if 0 // TODO: We gona bind the present image at end of rendering chain
 	auto presentImage = m_swapchain->Image();
 
 	/// Before use the SwapChainImage, we need to perform a state transition
@@ -176,6 +174,7 @@ void crBackend::SetBuffer( const void* data )
     vkCmdBeginRendering( m_graphicCommandBuffer->CommandBuffer(), &renderingInfo );
 	/// End frame rendering
     vkCmdEndRendering( m_graphicCommandBuffer->CommandBuffer() );
+#endif
 
 	m_defaultFB->Bind();
 
@@ -217,30 +216,16 @@ void crBackend::BlockingSwapBuffers( void )
 	if( r_showSwapBuffers.GetBool() && beforeSwap - beforeFinish > 1 )
 		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
 	
-	///
-	m_defaultFB->Unbind();
+	/// 
+	SwapBuffers();
 	
-	/// Waits for the presentation image to become available and prepares for presentation,
-	/// sends the recorded commands throughout the frame, and sends it to the window.
-	m_defaultFB->BlitColorAttachament( { 0, 0, 0, 0, 0, 0, tr.GetWidth(), tr.GetHeight(), 1, tr.GetWidth(), tr.GetHeight() } );
-
-	///
-	/// Prepare image to present
-	VkImageStateTransition( m_swapchain->Image(), m_graphicCommandBuffer->CommandBuffer(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_NONE );
-
-	///
-	/// sumit frame command buffer 
-	m_graphicCommandBuffer->Submit( m_swapchain->ImageAvailableSemaphore() );
-
-	/// present image to screen
-	m_swapchain->SwapBuffers( m_graphicCommandBuffer->FinishFence() );
-	
-	#if 0
 	const int beforeFence = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 )
 	{
 		common->Printf( "%i msec to swapBuffers\n", beforeFence - beforeSwap );
 	}
+
+#if 0
 	if( glConfig.syncAvailable )
 	{
 		swapIndex ^= 1;
@@ -275,11 +260,11 @@ void crBackend::BlockingSwapBuffers( void )
 			}
 		}
 	}
+#endif
 	
 	const int afterFence = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && afterFence - beforeFence > 1 )
-	common->Printf( "%i msec to wait on fence\n", afterFence - beforeFence );
-	#endif
+		common->Printf( "%i msec to wait on fence\n", afterFence - beforeFence );
 	
 	const int64_t exitBlockTime = Sys_Microseconds();
 	
@@ -764,7 +749,7 @@ void crBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	
 	/// update uniform buffers positions
 	crUniformManager* uniformManager = crUniformManager::Get();
-	uniformManager->SubmitOffsets( m_graphicCommandBuffer );
+	uniformManager->SubmitOffsets( tr.GraphicCommandBuffer() );
 	
 	// RB: 64 bit fixes, changed GLuint to GLintptr
 	if( trState.currentIndexBuffer != indexBuffer->GetAPIObject() || !r_useStateCaching.GetBool() )
@@ -772,7 +757,7 @@ void crBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		VkDeviceSize offset = indexOffset;
 		VkDeviceSize size = VK_WHOLE_SIZE;
 		vkBufferHandle_t* indexBufferHandle = indexBuffer->GetAPIObject();
-		vkCmdBindIndexBuffer( m_graphicCommandBuffer->CommandBuffer(), *indexBufferHandle, offset, VK_INDEX_TYPE_UINT16 );
+		vkCmdBindIndexBuffer( *tr.GraphicCommandBuffer(), *indexBufferHandle, offset, VK_INDEX_TYPE_UINT16 );
 		trState.currentIndexBuffer = indexBufferHandle;
 	}
 	
@@ -782,7 +767,7 @@ void crBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		VkDeviceSize size = VK_WHOLE_SIZE;
 		VkDeviceSize stride = sizeof( idDrawVert );
 		vkBufferHandle_t* vertexBufferHandle = vertexBuffer->GetAPIObject();
-		vkCmdBindVertexBuffers2( m_graphicCommandBuffer->CommandBuffer(), 0, 1, &vertexBufferHandle->buffer, &offset, &size, &stride );
+		vkCmdBindVertexBuffers2( *tr.GraphicCommandBuffer(), 0, 1, &vertexBufferHandle->buffer, &offset, &size, &stride );
 		trState.currentVertexBuffer = vertexBufferHandle;		
 		trState.vertexLayout = LAYOUT_DRAW_VERT;
 	}
@@ -793,7 +778,7 @@ void crBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	int32_t vertexOffset = vertOffset / sizeof( idDrawVert );
 	vkCmdDrawIndexed( m_swapchain->CommandBuffer(), r_singleTriangle.GetBool() ? 3 : surf->numIndexes, 1, firstIndex, vertexOffset, 0  );
 #else
-	vkCmdDrawIndexed( m_graphicCommandBuffer->CommandBuffer(), r_singleTriangle.GetBool() ? 3 : surf->numIndexes, 1, 0, 0, 0  );
+	vkCmdDrawIndexed( *tr.GraphicCommandBuffer(), r_singleTriangle.GetBool() ? 3 : surf->numIndexes, 1, 0, 0, 0  );
 #endif
 	
 	// RB: added stats
@@ -845,15 +830,14 @@ may touch, including the editor.
 void crBackend::SetDefaultState(void)
 {
 	RENDERLOG_PRINTF( "--- GL_SetDefaultState ---\n" );
-	auto cmd = m_graphicCommandBuffer->CommandBuffer();
-
+	
 	//m_swapchain->ClearDepth( 1.0f );
 	
 	// make sure our GL state vector is set correctly
 	std::memset( &trState, 0, sizeof( trState ) );
 
 	// These are changed by GL_Cull
-	vkCmdSetCullMode( cmd, VK_CULL_MODE_NONE );
+	//vkCmdSetCullMode( tr.GraphicCommandBuffer(), VK_CULL_MODE_NONE );
 
 	/// now changed direct by the pipeline
 	// qglColorMask( GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE );
@@ -877,7 +861,7 @@ void crBackend::SetDefaultState(void)
     	rect.offset.y = 0;
     	rect.extent.width = tr.GetWidth();
     	rect.extent.height = tr.GetHeight();
-    	vkCmdSetScissor( cmd, 0, 1, &rect );
+    	vkCmdSetScissor( *tr.GraphicCommandBuffer(), 0, 1, &rect );
 	}
 }
 
@@ -910,8 +894,7 @@ void crBackend::Cull( const cullType_t cullType )
     }
 
     // Vulkan 1.3 function or VK_EXT_extended_dynamic_state
-	auto cmd = m_graphicCommandBuffer->CommandBuffer();
-	vkCmdSetCullMode( cmd, cullMode );
+	vkCmdSetCullMode( *tr.GraphicCommandBuffer(), cullMode );
 
     trState.faceCulling = cullType;
 }
@@ -923,10 +906,9 @@ crBackend::PolygonOffset
 */
 void crBackend::PolygonOffset( const float scale, const float bias )
 {
-	auto cmd = m_graphicCommandBuffer->CommandBuffer();
 	trState.polyOfsScale = scale;
 	trState.polyOfsBias = bias;
-	vkCmdSetDepthBias( cmd, scale, 0.0f, bias );
+	vkCmdSetDepthBias( tr.GraphicCommandBuffer(), scale, 0.0f, bias );
 }
 
 /*
@@ -941,44 +923,55 @@ void crBackend::DepthBoundsTest( const float zmin, const float zmax )
 		return;
 
 	// get current frame, command buffer from swapchain     
-	auto cmd = m_graphicCommandBuffer->CommandBuffer();
+	auto cmd = tr.GraphicCommandBuffer();
 	if ( zmin == 0.0f && zmax == 0.0f ) /// Disable the test
 	{
 		/// Requires Vulkan 1.3 or VK_EXT_extended_dynamic_state
-		vkCmdSetDepthBoundsTestEnable( cmd, VK_FALSE );
+		vkCmdSetDepthBoundsTestEnable( *cmd, VK_FALSE );
 	}
 	else // Enable and configure limits.
 	{
-		vkCmdSetDepthBoundsTestEnable( cmd, VK_TRUE );
-		vkCmdSetDepthBounds( cmd, zmin, zmax );
+		vkCmdSetDepthBoundsTestEnable( *cmd, VK_TRUE );
+		vkCmdSetDepthBounds( *cmd, zmin, zmax );
 	}
 
-	vkCmdSetDepthBounds( cmd, zmin, zmax );
+	vkCmdSetDepthBounds( *cmd, zmin, zmax );
 }
 
 void crBackend::Scissor( const int x /* left*/, const int y /* bottom */, const int w, const int h )
 {
 	VkRect2D rect{};
-	auto cmd = m_graphicCommandBuffer->CommandBuffer();
 	rect.offset.x = x;
     rect.offset.y = y;
     rect.extent.width = w;
     rect.extent.height = h;
-    vkCmdSetScissor( cmd, 0, 1, &rect );
+    vkCmdSetScissor( *tr.GraphicCommandBuffer(), 0, 1, &rect );
 }
 
 void crBackend::Viewport( const int x /* left */, const int y /* bottom */, const int w, const int h )
 {
 	VkViewport viewport{};
-	auto cmd = m_graphicCommandBuffer->CommandBuffer();
     viewport.x = x;
     viewport.y = y + h;
     viewport.width = w;
     viewport.height = -std::abs(h);;
     viewport.minDepth = 0.0f;
     viewport.maxDepth = 1.0f;
-    vkCmdSetViewport( cmd, 0, 1, &viewport );
-}	
+    vkCmdSetViewport( *tr.GraphicCommandBuffer(), 0, 1, &viewport );
+}
+
+void crBackend::SwapBuffers(void)
+{
+	///
+	m_defaultFB->Unbind();
+	
+	/// Waits for the presentation image to become available and prepares for presentation,
+	/// sends the recorded commands throughout the frame, and sends it to the window.
+	m_defaultFB->BlitColorAttachament( { 0, 0, 0, 0, 0, 0, tr.GetWidth(), tr.GetHeight(), 1, tr.GetWidth(), tr.GetHeight() } );
+
+	
+
+}
 
 void crBackend::Clear(bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a)
 {

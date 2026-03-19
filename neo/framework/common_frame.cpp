@@ -354,9 +354,8 @@ void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 	auto renderSystem = idRenderSystem::Get(); 
 	
 	if( insideUpdateScreen )
-	{
 		return;
-	}
+	
 	insideUpdateScreen = true;
 	
 	// make sure the game / draw thread has completed
@@ -372,9 +371,7 @@ void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 	
 	// foresthale 2014-03-01: note: the only place that has captureToImage=true is idAutoRender::StartBackgroundAutoSwaps
 	if( captureToImage )
-	{
 		renderSystem->CaptureRenderToImage( "_currentRender", false );
-	}
 	
 	// this should exit right after vsync, with the GPU idle and ready to draw
 	const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );

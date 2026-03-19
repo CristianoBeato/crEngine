@@ -36,6 +36,7 @@ If you have questions concerning this license or the applicable additional terms
 #define BUGFIXEDSCREENSHOTRESOLUTION 1
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 #include "framework/Common_local.h"
+#include "RenderSystemLocal.h"
 #endif
 
 idCVar vk_deviceID( "vk_deviceID", "-1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " -1 select the device with the highest score, +0 select the device by index" );
@@ -315,7 +316,47 @@ void idRenderSystemLocal::CheckPortableExtensions( void )
 		break;
 	}
 }
-	
+
+/*
+=============================
+idRenderSystemLocal::Present
+=============================
+*/
+void idRenderSystemLocal::Present( void )
+{
+	/// present image to screen
+	m_swapchain->SwapBuffers( m_graphicCommandBuffer->FinishFence() );
+
+	/// TODO Implement a fence here ?
+}
+
+/*
+=============================
+idRenderSystemLocal::StartFrame
+=============================
+*/
+void idRenderSystemLocal::StartFrame( const uint64_t in_frame )
+{
+	m_graphicCommandBuffer->Begin( in_frame % SMP_FRAMES );
+}
+
+/*
+=============================
+idRenderSystemLocal::EndFrame
+=============================
+*/
+void idRenderSystemLocal::EndFrame( void )
+{
+	/// 
+	///
+	/// Prepare image to presente
+	VkImageStateTransition( m_swapchain->Image(), *tr.GraphicCommandBuffer(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_NONE );
+
+	///
+	///
+	/// sumit frame command buffer 
+	tr.GraphicCommandBuffer()->Submit( tr.Swapchain()->ImageAvailableSemaphore() );
+}
 
 /*
 =============================
@@ -1834,6 +1875,7 @@ void R_InitCommands()
 	cmdSystem->AddCommand( "reloadSurface", R_ReloadSurface_f, CMD_FL_RENDERER, "reloads the decl and images for selected surface" );
 }
 
+
 /*
 ===============
 idRenderSystemLocal::Clear
@@ -2411,7 +2453,7 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		///
 		/// Create the swapchain
 		m_swapchain = new vkSwapchain();
-		if( !m_swapchain->Create( , in_heigth, false ) )
+		if( !m_swapchain->Create( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, false ) )
 		{
 			/// TODO: 
 		}

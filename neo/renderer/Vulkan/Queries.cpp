@@ -81,7 +81,7 @@ uint64_t vkTimeQueries::Retrieve( void )
     crVulkanRenderDevicep device = tr.GetRenderDevice();
     // Reset and get results - we should be sure that the GPU is done at this point, for example by waiting on a semaphore
     // VK_QUERY_RESULT_64_BIT to get 64 bit timestamps
-    vkGetQueryPoolResults( *device, m_pools[m_bufferID], 0, 2, sizeof(uint64_t) * 2, results, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT );
+    vkGetQueryPoolResults( *device, m_pools[m_bufferID], 0, 2, sizeof(uint64_t) * 2, results, sizeof(uint64_t), VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WAIT_BIT );
     vkResetQueryPool( *device, m_pools[m_bufferID], 0, 2 );
     m_bufferID = ( m_bufferID + 1 ) % SMP_FRAMES;
 

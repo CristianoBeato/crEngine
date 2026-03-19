@@ -57,5 +57,6 @@ private:
 
     VkSurfaceFormatKHR GetPresentFormat( uint32_t in_format );
 };
+typedef vkSwapchain* vkSwapchainp;
 
 #endif //!__VK_SWAPCHAIN_HPP__

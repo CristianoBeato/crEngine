@@ -66,6 +66,10 @@ public:
 	virtual bool			AreAutomaticBackgroundSwapsRunning( autoRenderIconType_t* usingAlternateIcon = nullptr ) const;
 	
 // BEATO Begin:
+
+	/// @brief Resize framebuffers and swapchain
+	/// @param in_width 
+	/// @param in_height 
 	virtual void			UpdateRenderSize( const uint32_t in_width, const uint32_t in_height );
 // BEATO End
 
@@ -109,12 +113,27 @@ public:
 
 	/// get current vulkan device
 	crVulkanRenderDevicep	GetRenderDevice( void ) { return dynamic_cast<crVulkanRenderDevicep>( m_renderDevice ); }
+	vkSwapchainp 			Swapchain( void ) const { return m_swapchain; }
+	vkCommandbufferp 		GraphicCommandBuffer( void ) const { return m_graphicCommandBuffer; }
 
 public:
 	// internal functions
 	idRenderSystemLocal();
 	~idRenderSystemLocal();
 	void					InitDevice( void );
+	void					CheckPortableExtensions( void );
+	
+	/// Present render to screen
+	void					Present( void );
+
+	/// Begin register frame commands
+	// inserts a timing mark for the start of the GPU frame
+	void					StartFrame( const uint64_t in_frame ); 
+
+	/// End registr frame commands
+	// inserts a timing mark for the end of the GPU frame
+	void					EndFrame( void );
+
 	void					Clear( void );
 	void					GetCroppedViewport( idScreenRect* viewport );
 	void					PerformResolutionScaling( int& newWidth, int& newHeight );
@@ -202,8 +221,6 @@ public:
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()
 	int						screenshotOverrideWidth;
 	int						screenshotOverrideHeight;
-
-	void					CheckPortableExtensions( void );
 };
 
 extern idRenderSystemLocal	tr;

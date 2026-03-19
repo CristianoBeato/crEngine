@@ -146,7 +146,7 @@ void vkCommandbuffer::Submit(  const VkSemaphore in_imageAvailable )
     // Finish record draw commands
     result = vkEndCommandBuffer( m_commandBuffers[m_bufferID] );
     if( result != VK_SUCCESS )
-        common->Error( "vkCommandBuffer::Begin FAILED!\n" );
+        idlib::Error( "vkCommandBuffer::Begin FAILED!\n" );
 
     ///
     /// Wait for semaphores
@@ -175,7 +175,7 @@ void vkCommandbuffer::Submit(  const VkSemaphore in_imageAvailable )
     VkCommandBufferSubmitInfo   commandBufferSubmit{};
     commandBufferSubmit.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
     commandBufferSubmit.pNext = nullptr;
-    commandBufferSubmit.commandBuffer = CommandBuffer();
+    commandBufferSubmit.commandBuffer = m_commandBuffers[m_bufferID];
     commandBufferSubmit.deviceMask = 0;
 
     ///
@@ -190,5 +190,5 @@ void vkCommandbuffer::Submit(  const VkSemaphore in_imageAvailable )
     submitInfo.pSignalSemaphoreInfos = &signal;
     result = vkQueueSubmit2( m_graphicQueue->Queue(), 1, &submitInfo, m_frameFences[m_bufferID] );
     if( result != VK_SUCCESS )
-        common->Error( "vkCommandbuffer::Submit::vkQueueSubmit2 FAILED!\n" );
+        idLib::Error( "vkCommandbuffer::Submit::vkQueueSubmit2 FAILED!\n" );
 }
