@@ -162,6 +162,8 @@ set( RENDERER_VULKAN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Resource.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Resource.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Syncs.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Syncs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Texture.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Texture.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Utils.cpp
