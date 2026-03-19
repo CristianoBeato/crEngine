@@ -2398,6 +2398,28 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		
 		r_initialized = true;
 		
+		///
+		///
+		///
+		m_graphicCommandBuffer = new vkCommandbuffer();
+		if( !m_graphicCommandBuffer->Create() )
+		{
+			/// TODO: trow exceptions
+		}
+
+		///
+		///
+		/// Create the swapchain
+		m_swapchain = new vkSwapchain();
+		if( !m_swapchain->Create( , in_heigth, false ) )
+		{
+			/// TODO: 
+		}
+
+		/// Create time query
+		m_timerQuery = new vkTimeQueries();
+		m_timerQuery->Create();
+
 		// allocate the vertex array range or vertex objects
 		vertexCache.Init();
 		
@@ -2490,6 +2512,34 @@ void idRenderSystemLocal::ShutdownRenderAPI( void )
 	R_ShutdownFrameData();
 
 	backend->ShutDown();
+
+	if( m_timerQuery != nullptr )
+	{
+		m_timerQuery->Destroy();
+		delete m_timerQuery;
+		m_timerQuery = nullptr;
+	}
+
+	///
+	///
+	/// Release swapchain
+	if( m_swapchain != nullptr )
+	{
+		m_swapchain->Destroy();
+		delete m_swapchain;
+		m_swapchain = nullptr;
+	}
+
+	///
+	///
+	/// Release command buffer
+	if( m_graphicCommandBuffer != nullptr )
+	{
+		m_graphicCommandBuffer->Destroy();
+		delete m_graphicCommandBuffer;
+		m_graphicCommandBuffer = nullptr;
+	}
+
 	if( m_renderDevice )
 		m_renderDevice->Destroy();
 	

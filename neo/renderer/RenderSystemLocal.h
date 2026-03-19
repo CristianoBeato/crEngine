@@ -145,6 +145,9 @@ public:
 	// list that store render devices list
 	idList<crRenderDevicep>			m_renderDeviceList;
 	crRenderDevicep					m_renderDevice;
+	vkSwapchain*					m_swapchain;
+	vkCommandbuffer*				m_graphicCommandBuffer;
+	vkTimeQueries*					m_timerQuery;
 // BEATO End
 
 	idRenderWorldLocal* 	primaryWorld;
@@ -195,9 +198,6 @@ public:
 	drawSurf_t				testImageSurface_;
 	
 	idParallelJobList* 		frontEndJobList;
-	
-	unsigned				timerQueryId;		// for GL_TIME_ELAPSED_EXT queries
-
 
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()
 	int						screenshotOverrideWidth;

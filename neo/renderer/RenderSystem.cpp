@@ -139,19 +139,16 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 	{
 		if( glConfig.timerQueryAvailable )
 		{
-			if( tr.timerQueryId == 0 )
-			{
-				//glGenQueries( 1, & tr.timerQueryId );
-			}
-			//glBeginQuery( GL_TIME_ELAPSED, tr.timerQueryId );
+			m_timerQuery->BeginRegister( m_graphicCommandBuffer );
 			backend->ExecuteBackEndCommands( cmdHead );
-			//glEndQuery( GL_TIME_ELAPSED );
-			//glFlush();
+			m_timerQuery->EndRegister(  m_graphicCommandBuffer );
 		}
 		else
 		{
 			backend->ExecuteBackEndCommands( cmdHead );
 		}
+
+		///
 	}
 	
 	// pass in null for now - we may need to do some map specific hackery in the future
@@ -722,15 +719,13 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	// read back the start and end timer queries from the previous frame
 	if( glConfig.timerQueryAvailable )
 	{
-		// RB: 64 bit fixes, changed int64_t to GLuint64EXT
-		//GLuint64EXT drawingTimeNanoseconds = 0;
-		// RB end
-		
-		//if( tr.timerQueryId != 0 )
-		//	glGetQueryObjectui64v( tr.timerQueryId, GL_QUERY_RESULT, &drawingTimeNanoseconds );
+		uint64_t drawingTimeNanoseconds = 0;
+	
+		if( tr.m_timerQuery != nullptr )
+			drawingTimeNanoseconds = m_timerQuery->Retrieve();
 
-		//if( gpuMicroSec != nullptr )
-		//	*gpuMicroSec = drawingTimeNanoseconds / 1000;
+		if( gpuMicroSec != nullptr )
+			*gpuMicroSec = drawingTimeNanoseconds / 1000;
 	}
 	
 	//------------------------------

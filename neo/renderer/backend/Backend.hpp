@@ -140,9 +140,6 @@ public:
     crBackend( void );
     ~crBackend( void );
 	static crBackend* Get( void );
-
-	vkSwapchain*		Swapchain( void ) { return m_swapchain; }
-	vkCommandbuffer*	CommandBuffer( void ) { return m_graphicCommandBuffer; }
 	const uint32_t		FrameID( void ) const { return m_frameID; }
 
     bool    			StartUp( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth );
@@ -181,8 +178,6 @@ private:
 	uint32_t			m_frameID;		/// current frame buffers parity
 	uint64_t			m_frame;		/// current rendering frame number
 	VkClearValue 		m_clearValues;
-	vkCommandbuffer*	m_graphicCommandBuffer;
-	vkSwapchain*		m_swapchain;
 	vkFramebuffer*		m_defaultFB;		
 
 	void	DrawFlickerBox( void );

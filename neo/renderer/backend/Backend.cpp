@@ -74,10 +74,7 @@ crBackend *crBackend::Get(void)
 }
 
 bool crBackend::StartUp( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth )
-{
-	m_swapchain = new vkSwapchain();
-	m_swapchain->Create( in_width, in_heigth, false );
-	
+{	
 	m_defaultFB = new vkFramebuffer();
 	m_defaultFB->Create( { in_width, in_heigth, 0, VK_FORMAT_R8G8B8A8_SRGB, VK_FORMAT_D24_UNORM_S8_UINT } );
 
@@ -97,13 +94,6 @@ void crBackend::ShutDown(void)
 		m_defaultFB->Destroy();
 		delete m_defaultFB;
 		m_defaultFB = nullptr;
-	}
-	
-	if( m_swapchain != nullptr )
-	{
-		m_swapchain->Destroy();
-		delete m_swapchain;
-		m_swapchain = nullptr;
 	}
 }
 
