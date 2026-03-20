@@ -335,10 +335,10 @@ void idRenderSystemLocal::Present( void )
 idRenderSystemLocal::StartFrame
 =============================
 */
-void idRenderSystemLocal::StartFrame( const uint64_t in_frame )
+void idRenderSystemLocal::StartFrame( void )
 {
-	/// begin register commands 
-	m_graphicCommandBuffer->Begin( in_frame % SMP_FRAMES );
+	/// Prepare command buffer 
+	m_graphicCommandBuffer->Begin();
 
 	/// begin register GPU Time
 	m_timerQuery->BeginRegister( m_graphicCommandBuffer );
@@ -351,17 +351,15 @@ idRenderSystemLocal::EndFrame
 */
 void idRenderSystemLocal::EndFrame( void )
 {
-	/// 
 	/// Prepare image to presente
 	VkImageStateTransition( m_swapchain->Image(), *tr.GraphicCommandBuffer(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_NONE );
 
-	/// end register time
+	/// Register the timestap of the current frame
 	m_timerQuery->EndRegister(  m_graphicCommandBuffer );
 
-	///
-	///
-	/// sumit frame command buffer 
-	tr.GraphicCommandBuffer()->Submit( m_imageReady, m_frameSubmit, m_frameFence );
+	/// check/wait if swapchain image are available and 
+	/// submit current frame command buffer to GPU.  
+	m_graphicCommandBuffer->Submit( m_imageReady, m_frameSubmit, m_frameFence );
 }
 
 /*

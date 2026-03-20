@@ -44,8 +44,7 @@ template<class type, int size>
 class idStaticList
 {
 public:
-
-	idStaticList();
+	idStaticList( void );
 	idStaticList( const idStaticList<type, size>& other );
 	~idStaticList<type, size>();
 	

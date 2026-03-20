@@ -124,12 +124,14 @@ public:
 	
 	void					BlockingSwapBuffers( void );
 
+	void					SwapFrame( void );
+
 	/// Present render to screen
 	void					Present( void );
 
 	/// Begin register frame commands
 	// inserts a timing mark for the start of the GPU frame
-	void					StartFrame( const uint64_t in_frame ); 
+	void					StartFrame( void ); 
 
 	/// End registr frame commands
 	// inserts a timing mark for the end of the GPU frame
@@ -151,7 +153,7 @@ public:
 	
 	bool					takingScreenshot;
 	
-	int						frameCount;		// incremented every frame
+	uint64_t				frameCount;		// incremented every frame
 	int						viewCount;		// incremented every view (twice a scene if subviewed)
 	// and every R_MarkFragments call
 	

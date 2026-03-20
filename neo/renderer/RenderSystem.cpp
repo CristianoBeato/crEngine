@@ -32,6 +32,14 @@ If you have questions concerning this license or the applicable additional terms
 #include "renderer_common.h"
 #include "RenderSystemLocal.h"
 
+idCVar r_showSwapBuffers( "r_swapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
+idCVar r_showSwapBuffers( "r_showSwapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
+idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU buffer execution past swapbuffers" );
+idCvar r_bufferCount( "r_bufferCount", "3", CVAR_BOOL | CVAR_INTEGER | CVAR_RENDERER, "Define the number of buffers used for rendering:\
+	 1(Immediate): Instant presentation,\
+	 2(Double Buffering): Balances performance and latency,\
+	 3(Triple Buffering): Prioritizes FPS fluidity and stability." );
+
 idRenderSystemLocal	tr = idRenderSystemLocal();
 
 /*
@@ -112,7 +120,6 @@ RenderCommandBuffers
 */
 void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdHead )
 {
-	auto backend = crBackend::Get();
 	// if there isn't a draw view command, do nothing to avoid swapping a bad frame
 	bool	hasView = false;
 	for( const emptyCommand_t* cmd = cmdHead ; cmd ; cmd = ( const emptyCommand_t* )cmd->next )
@@ -137,20 +144,12 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 	// draw 2D graphics
 	if( !r_skipBackEnd.GetBool() )
 	{
-		/// since in vulkan timer Query are inserted in the 
-		/// command buffer, we insert the query at begin of the command buffer registry 
-		//if( glConfig.timerQueryAvailable )
-		//{
-		//	m_timerQuery->BeginRegister( m_graphicCommandBuffer );
-		//	backend->ExecuteBackEndCommands( cmdHead );
-		//	m_timerQuery->EndRegister(  m_graphicCommandBuffer );
-		//}
-		//else
-		{
-			backend->ExecuteBackEndCommands( cmdHead );
-		}
-
-		///
+		/// On vulkan time querry, are tied to command buffers,
+		/// we only can begin and end a time query inside of the
+		/// command buffer registrtion, so we moved queries register
+		StartFrame();
+		crBackend::Get()->ExecuteBackEndCommands( cmdHead );
+		EndFrame();
 	}
 	
 	// pass in null for now - we may need to do some map specific hackery in the future
@@ -169,7 +168,6 @@ current command chain.
 void* R_GetCommandBuffer( int bytes )
 {
 	emptyCommand_t*	cmd;
-	
 	cmd = ( emptyCommand_t* )R_FrameAlloc( bytes, FRAME_ALLOC_DRAW_COMMAND );
 	cmd->next = nullptr;
 	frameData->cmdTail->next = &cmd->commandId;
@@ -187,9 +185,8 @@ static void R_ViewStatistics( viewDef_t* parms )
 {
 	// report statistics about this view
 	if( !r_showSurfaces.GetBool() )
-	{
 		return;
-	}
+	
 	common->Printf( "view:%p surfs:%i\n", parms, parms->numDrawSurfs );
 }
 
@@ -705,21 +702,12 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
 		BlockingSwapBuffers();
-
-		// TODO: find a better place
-    	// Wait for the device finish last render in previous match frame, before reuse command buffer
-    	auto result = m_frameFence->Wait();
-    	if ( result != VK_SUCCESS )
-        	common->Error( "vkCommandbuffer::Begin::vkWaitForFences: %s\n", VulkanErrorString( result ).c_str() );
-    	else
-			m_frameFence->Reset();
 	}
 	
 	// read back the start and end timer queries from the previous frame
 	//if( glConfig.timerQueryAvailable )
 	{
 		uint64_t drawingTimeNanoseconds = 0;
-	
 		if( tr.m_timerQuery != nullptr )
 			drawingTimeNanoseconds = m_timerQuery->Retrieve();
 
@@ -837,13 +825,13 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	
 	setBufferCommand_t* cmd2 = ( setBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd2 ) );
 	cmd2->commandId = RC_SET_BUFFER;
-	//cmd2->buffer = ( int )GL_BACK;
+	uint32_t bufferCount = r_bufferCount.GetInteger();
+	cmd2->frameID = frameCount % bufferCount;
 	
 	// the old command buffer can now be rendered, while the new one can
 	// be built in parallel
 	return commandBufferHead;
 }
-
 
 /*
 =============
@@ -857,56 +845,44 @@ void idRenderSystemLocal::BlockingSwapBuffers( void )
 	RENDERLOG_PRINTF( "***************** BlockingSwapBuffers *****************\n\n\n" );
 	
 	const int beforeFinish = Sys_Milliseconds();
-	
+	// TODO perform a flush
 	const int beforeSwap = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && beforeSwap - beforeFinish > 1 )
 		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
 	
-	/// 
+	/// present current swapchain image to screen
 	Present();	
 	
 	const int beforeFence = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 )
-	{
 		common->Printf( "%i msec to swapBuffers\n", beforeFence - beforeSwap );
+
+	bool syncEveryFrame = r_syncEveryFrame.GetBool();
+
+	/// wait for current frame be renderer
+	if( syncEveryFrame )
+	{
+		/// Wait for the device finish last render in previous match frame, before reuse command buffer
+    	auto result = m_frameFence->Wait();
+    	if ( result != VK_SUCCESS )
+        	common->Error( "vkCommandbuffer::Begin::vkWaitForFences: %s\n", VulkanErrorString( result ).c_str() );
+    	else
+			m_frameFence->Reset();
 	}
 
-#if 0
-	if( glConfig.syncAvailable )
+	/// Swap command buffer, fences, semaphores and frame buffers 
+	SwapFrame();
+
+	/// wait for resources the next frame be released
+	if( !syncEveryFrame )
 	{
-		swapIndex ^= 1;
-		
-		if( glIsSync( renderSync[swapIndex] ) )
-		{
-			glDeleteSync( renderSync[swapIndex] );
-		}
-		// draw something tiny to ensure the sync is after the swap
-		const int start = Sys_Milliseconds();
-		glScissor( 0, 0, 1, 1 );
-		glEnable( GL_SCISSOR_TEST );
-		glClear( GL_COLOR_BUFFER_BIT );
-		renderSync[swapIndex] = glFenceSync( GL_SYNC_GPU_COMMANDS_COMPLETE, 0 );
-		const int end = Sys_Milliseconds();
-		if( r_showSwapBuffers.GetBool() && end - start > 1 )
-		{
-			common->Printf( "%i msec to start fence\n", end - start );
-		}
-		
-		GLsync	syncToWaitOn;
-		if( r_syncEveryFrame.GetBool() )
-			syncToWaitOn = renderSync[swapIndex];
-		else
-			syncToWaitOn = renderSync[!swapIndex];
-		
-		if( glIsSync( syncToWaitOn ) )
-		{
-			for( GLenum r = GL_TIMEOUT_EXPIRED; r == GL_TIMEOUT_EXPIRED; )
-			{
-				r = glClientWaitSync( syncToWaitOn, GL_SYNC_FLUSH_COMMANDS_BIT, 1000 * 1000 );
-			}
-		}
+		/// Wait for the device finish last render in previous match frame, before reuse command buffer
+    	auto result = m_frameFence->Wait();
+    	if ( result != VK_SUCCESS )
+        	common->Error( "vkCommandbuffer::Begin::vkWaitForFences: %s\n", VulkanErrorString( result ).c_str() );
+    	else
+			m_frameFence->Reset();
 	}
-#endif
 	
 	const int afterFence = Sys_Milliseconds();
 	if( r_showSwapBuffers.GetBool() && afterFence - beforeFence > 1 )
@@ -926,10 +902,23 @@ void idRenderSystemLocal::BlockingSwapBuffers( void )
 
 /*
 =====================
+idRenderSystemLocal::SwapFrame
+=====================
+*/
+void idRenderSystemLocal::SwapFrame(void)
+{
+	m_frameFence->SwapFrame();
+	m_frameSubmit->SwapFrame();
+	m_imageReady->SwapFrame();
+	m_graphicCommandBuffer->SwapFrame();
+}
+
+/*
+=====================
 idRenderSystemLocal::WriteDemoPics
 =====================
 */
-void idRenderSystemLocal::WriteDemoPics()
+void idRenderSystemLocal::WriteDemoPics( void )
 {
 	common->WriteDemo()->WriteInt( DS_RENDER );
 	common->WriteDemo()->WriteInt( DC_GUI_MODEL );
@@ -940,7 +929,7 @@ void idRenderSystemLocal::WriteDemoPics()
 idRenderSystemLocal::WriteEndFrame
 =====================
 */
-void idRenderSystemLocal::WriteEndFrame()
+void idRenderSystemLocal::WriteEndFrame( void )
 {
 	common->WriteDemo()->WriteInt( DS_RENDER );
 	common->WriteDemo()->WriteInt( DC_END_FRAME );
