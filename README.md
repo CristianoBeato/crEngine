@@ -2,26 +2,17 @@
 
 Based on the eforts of Kot in Action Creative Artel Storm Engine 2 - Readme - https://github.com/motorsep/StormEngine2
 
-DISCLAIMER
-----------
-
-This engine is provided as-is, without future support. Pull requests might or might not be accepted. Feel free to do with the engine anything you want, it's under GPL anyway. Please don't forget to credit us when using engine or parts of its code in your projects. IN ANY CASE, KOT IN ACTION CREATIVE ARTEL, AND ITS RESPECTIVE OFFICERS, REPRESENTATIVES, AGENTS, SUCCESSORS, AND ASSIGNS SHALL NOT BE LIABLE FOR LOSS OF DATA, LOSS OF PROFITS, LOST SAVINGS, SPECIAL, INCIDENTAL, CONSEQUENTIAL, INDIRECT OR PUNITIVE DAMAGES, OR ANY OTHER DAMAGES ARISING FROM ANY ALLEGED CLAIMS ARISING FROM USE OF THE ENGINE AND ITS SOURCE CODE EVEN IF KOT-IN-ACTION, OR THEIR RESPECTIVE AGENTS HAVE BEEN ADVISED OF THE POSSIBILITY OF ANY SUCH DAMAGES, OR EVEN IF SUCH DAMAGES ARE FORESEEABLE, OR LIABLE FOR ANY CLAIM BY ANY OTHER PARTY.
-
 COPYRIGHT
 ---------
-
-Steel Storm, Storm Engine, Phaeton, art assets, ascii assets and stormengine2.ico file copyright (C) 2008-2016 Kot in Action Creative Artel
-
-stormengine2.ico file is not allowed to be used in commercial projects.
 
 LICENSE
 -------
 
 Engine source code and shaders in base/renderprogs/ are licensed under GNU GPL v3. See GPL3-LICENSE.txt for the GNU GENERAL PUBLIC LICENSE
 
-All assets in base/ folder (with the exception of renderprogs/ folder) are licensed under Creative Common Attribution NonCommercial NoDerivatives 4.0 International. See CC-BY-NC-ND-40-LICENSE.txt
+All assets in base/ folder (with the exception of renderprogs/ folder) are licensed under Creative Common Attribution NonCommercial NoDerivatives 4.0 International. by Kot in Action Creative Artel, Storm Engine 2. See CC-BY-NC-ND-40-LICENSE.txt
 
-ADDITIONAL TERMS:  The Storm Engine 2 GPL Source Code is also subject to certain additional terms, same as Doom 3 BFG Edition GPL Source code.
+ADDITIONAL TERMS:  crEngine GPL Source Code is also subject to certain additional terms, same as Doom 3 BFG Edition GPL Source code.
 
 COMPILING ON WIN32/WIN64 WITH VISUAL C++ 2013/2015 COMMUNITY EDITION
 --------------------------------------------------------------------
@@ -80,31 +71,7 @@ KNOWN ISSUES
 
 A WISHLIST OF FEATURES (to be added to the engine by some programming wizard :) )
 ---------------------------------------------------------------------------------
-- VULKAN 1.3 PORT
-- PBR Rendering
-- SDL3 Sound Egine ( OpenAL is crashing on my linux [Debian 13] )
-- May, an who knows implement Valve's Steam Audio.
-- Checkboard rendering for performance
-- ~~Fix vehicles (savegame crash fix; networking)~~
-- 8-way texture blending using vertex colors with transition masking using height maps
-- Equirectangular skybox (in addition to existing 6-image cubemaps)
-- Refine LOD solution (make it a bit more performant; add support for skeletal meshes)
-- Distance culling (not render meshes past certain distance) 
-- Foliage shader with simple wind deformations (including using vertex color to anchor mesh and create gradient rigidity) 
-- Mesh instancing for static meshes (kinda like ISM/HISM in UE4)
-- AAS on meshes (to be able to have navigation built on mesh terrains)
-- Save/load game multithreading (to eliminate hiccups/freezes when performing saving/loading in-game)
-- Improve Lights Editor to allow spawning/deleting/moving/saving lights in-game
-- DoomScript nativization (optional, to improve performance)
-- Reverb zones (XAudio2 supports reverb afaik)
-- Native multiplayer coop
-- Headless dedicated server
-- Improve shadowmapping (particularly cascaded shadowmaps on huge levels)
-- Replace current texture compressor with fast BC7 compressor
-- Parallax-corrected cubemap reflections (with support for equirectangle textures; or better yet reflection capture entities)
-- SSAO
-- Light shafts
-- Replace SWF renderer with a more suitable gui renderer
+In file IDEAS.MD
 
 AUTHORING OF BITMAP FONTS
 -------------------------
