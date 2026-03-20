@@ -192,29 +192,6 @@ bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
             common->FatalError( "vkSwapchain::PrepareImages::vkCreateImageView ERROR: %s\n", VulkanErrorString( result ).c_str() );
     }
     
-    ///
-    ///
-    /// Create race condition structures 
-
-    // Semaphore configuration
-    VkSemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semaphoreInfo.pNext = nullptr;
-    semaphoreInfo.flags = 0;
-    
-    // alloc the structures arrays 
-    m_imageAvailable.SetNum( SMP_FRAMES );
-    for ( i = 0; i < SMP_FRAMES; i++)
-    {
-        // create the semaphore object
-        result = vkCreateSemaphore( *device, &semaphoreInfo, k_allocationCallbacks, &m_imageAvailable[i] ); 
-        if( result != VK_SUCCESS )
-        {
-            common->Error( "crvkSwapchain::Create::vkCreateSemaphore %s\n", VulkanErrorString( result ).c_str() );
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -223,11 +200,6 @@ void vkSwapchain::Destroy(void)
     uint32_t i = 0;
     auto device = tr.GetRenderDevice();
     
-    for ( i = 0; i < SMP_FRAMES; i++)
-    {
-        vkDestroySemaphore( *device, m_imageAvailable[i], k_allocationCallbacks );
-    }
-
     for ( i = 0; i < m_presentImages.Num(); i++ )
     {
         // release color image view 
@@ -245,12 +217,11 @@ void vkSwapchain::Destroy(void)
     m_currentImage = 0;
     m_presentQueue = nullptr;
     m_graphicQueue = nullptr;
-    m_imageAvailable.Clear();
     m_presentImages.Clear();
     m_imagesArray.Clear();
 }
 
-void vkSwapchain::AcquireImage( const uint32_t in_bufferID )
+void vkSwapchain::AcquireImage( const crSemaphore* in_imageAvailable )
 {
     VkResult result = VK_SUCCESS;
     auto device = tr.GetRenderDevice();
@@ -263,7 +234,7 @@ void vkSwapchain::AcquireImage( const uint32_t in_bufferID )
     acquireNextImageInfo.pNext = nullptr;
     acquireNextImageInfo.swapchain = m_swapchain;
     acquireNextImageInfo.timeout = UINT64_MAX;
-    acquireNextImageInfo.semaphore = m_imageAvailable[m_bufferID];
+    acquireNextImageInfo.semaphore = *in_imageAvailable;
     acquireNextImageInfo.fence = nullptr;
     acquireNextImageInfo.deviceMask = device->Mask();
     result = vkAcquireNextImage2KHR( *device, &acquireNextImageInfo, &m_currentImage );
@@ -271,7 +242,7 @@ void vkSwapchain::AcquireImage( const uint32_t in_bufferID )
         idlib::Error( "vkSwapchain::AcquireImage::vkAcquireNextImage2KHR %s\n", VulkanErrorString( result ).c_str() );
 }
 
-void vkSwapchain::SwapBuffers( const VkSemaphore in_renderDone )
+void vkSwapchain::Present( const crSemaphore* in_renderDone )
 {
     VkResult result = VK_SUCCESS;
 
@@ -281,7 +252,7 @@ void vkSwapchain::SwapBuffers( const VkSemaphore in_renderDone )
     presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
     presentInfo.pNext = nullptr;
     presentInfo.waitSemaphoreCount = 1;
-    presentInfo.pWaitSemaphores = &in_renderDone;
+    presentInfo.pWaitSemaphores =  in_renderDone->Pointer();
     presentInfo.swapchainCount = 1;
     presentInfo.pSwapchains = &m_swapchain;
     presentInfo.pImageIndices = &m_currentImage;

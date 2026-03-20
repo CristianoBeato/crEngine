@@ -37,8 +37,7 @@ public:
     bool                            Create( const uint32_t in_width, const uint32_t in_height, const bool in_recreate );
     void                            Destroy( void );
     void                            AcquireImage( const uint32_t in_bufferID );
-    void                            SwapBuffers( const VkSemaphore in_renderDone );
-    ID_INLINE VkSemaphore           ImageAvailableSemaphore( void ) const { return m_imageAvailable[m_bufferID]; }
+    void                            Present( const crSemaphore* in_renderDone );
     ID_INLINE vkImageHandle_t*      Image( void ) const { return const_cast<vkImageHandle_t*>( &m_presentImages[m_currentImage] ); }
 
 private:
@@ -50,7 +49,6 @@ private:
     vkDeviceQueuep                                  m_graphicQueue;
     crVulkanRenderDevicep                           m_device;
     VkSwapchainKHR                                  m_swapchain;
-    idStaticList<VkSemaphore, SMP_FRAMES>           m_imageAvailable;
     idList<VkRenderingAttachmentInfo, TAG_VULKAN>   m_colorAttachments;
     idList<VkImage, TAG_VULKAN>                     m_imagesArray;
     idList<vkImageHandle_t, TAG_VULKAN>             m_presentImages;
