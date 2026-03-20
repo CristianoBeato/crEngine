@@ -36,10 +36,9 @@ public:
     void    Destroy( void );
 
     void    Begin( const uint32_t in_bufferID );
-    void    Submit( const VkSemaphore in_imageAvailable );
+    void    Submit( const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence );
 
     ID_INLINE   VkCommandBuffer     CommandBuffer( void ) const { return m_commandBuffers[m_bufferID]; }
-    ID_INLINE   VkSemaphore         FinishFence( void ) const { return m_submitFinish[m_bufferID]; }
     ID_INLINE   operator VkCommandBuffer( void ) const { return m_commandBuffers[m_bufferID]; }
 
 private:
@@ -47,7 +46,6 @@ private:
     vkDeviceQueuep                                  m_graphicQueue;
     idStaticList<VkCommandBuffer, SMP_FRAMES>       m_commandBuffers;
     idStaticList<VkSemaphore, SMP_FRAMES>	        m_submitFinish;
-    idStaticList<VkFence, SMP_FRAMES>    	        m_frameFences;
 };
 
 typedef vkCommandbuffer* vkCommandbufferp;

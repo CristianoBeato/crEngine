@@ -41,8 +41,6 @@ bool vkCommandbuffer::Create(void)
 
     /// reserve array 
     m_commandBuffers.SetNum( SMP_FRAMES );
-    m_submitFinish.SetNum( SMP_FRAMES );
-    m_frameFences.SetNum( SMP_FRAMES );
 
     // allocate command buffers
     VkCommandBufferAllocateInfo commandBufferAllocateCI{};
@@ -58,37 +56,6 @@ bool vkCommandbuffer::Create(void)
         return false;
     }
 
-    // Semaphore configuration
-    VkSemaphoreCreateInfo semaphoreInfo{};
-    semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
-    semaphoreInfo.pNext = nullptr;
-    semaphoreInfo.flags = 0;
-
-        // Fence configuration
-    VkFenceCreateInfo fenceCI{};
-    fenceCI.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    fenceCI.pNext = nullptr;
-    fenceCI.flags = VK_FENCE_CREATE_SIGNALED_BIT; // Signaled, so we don't stuck at first frames 
-
-        // alloc the structures arrays 
-    for ( uint32_t i = 0; i < SMP_FRAMES; i++)
-    {
-        result = vkCreateSemaphore( *device, &semaphoreInfo, k_allocationCallbacks, &m_submitFinish[i] );
-        if( result != VK_SUCCESS )
-        {
-            common->Error( "crvkSwapchain::Create::vkCreateSemaphore %s\n", VulkanErrorString( result ).c_str() );
-            return false;
-        }
-
-        // create the fence object
-        result = vkCreateFence( *device, &fenceCI, k_allocationCallbacks, &m_frameFences[i] );
-        if( result != VK_SUCCESS )
-        {
-            common->Error( "crvkSwapchain::Create::vkCreateFence %s\n", VulkanErrorString( result ).c_str() );
-            return false;
-        }
-    }
-
     return true;
 }
 
@@ -96,12 +63,6 @@ void vkCommandbuffer::Destroy(void)
 {
     uint32_t i = 0;
     crVulkanRenderDevicep device = tr.GetRenderDevice();
- 
-    for ( i = 0; i < SMP_FRAMES; i++)
-    {
-        vkDestroySemaphore( *device, m_submitFinish[i], k_allocationCallbacks );
-        vkDestroyFence( *device, m_frameFences[i], k_allocationCallbacks );
-    }
  
     if ( m_commandBuffers[0] != nullptr )
         vkFreeCommandBuffers( *device, m_graphicQueue->CommandPool(), SMP_FRAMES, m_commandBuffers.Ptr() );
@@ -113,14 +74,6 @@ void vkCommandbuffer::Begin( const uint32_t in_bufferID )
     VkResult result = VK_SUCCESS;
     m_bufferID = in_bufferID;
     crVulkanRenderDevicep device = tr.GetRenderDevice();
-
-    //
-    // Wait for the device finish last render in previous match frame, before reuse command buffer
-    result = vkWaitForFences( *device, 1, &m_frameFences[m_bufferID], VK_TRUE, UINT64_MAX );
-    if ( result != VK_SUCCESS )
-        common->Error( "vkCommandbuffer::Begin::vkWaitForFences: %s\n", VulkanErrorString( result ).c_str() );
-    else
-        vkResetFences( *device, 1, &m_frameFences[m_bufferID] );
 
     ///
     /// Reset the main render command buffer
@@ -138,7 +91,7 @@ void vkCommandbuffer::Begin( const uint32_t in_bufferID )
         common->Warning( "vkCommandbuffer::Begin::vkBeginCommandBuffer FAILED to begin!\n" );
 }
 
-void vkCommandbuffer::Submit(  const VkSemaphore in_imageAvailable )
+void vkCommandbuffer::Submit(  const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence )
 {
     VkResult result = VK_SUCCESS;
 
@@ -146,30 +99,18 @@ void vkCommandbuffer::Submit(  const VkSemaphore in_imageAvailable )
     // Finish record draw commands
     result = vkEndCommandBuffer( m_commandBuffers[m_bufferID] );
     if( result != VK_SUCCESS )
-        idlib::Error( "vkCommandBuffer::Begin FAILED!\n" );
+        idLib::Error( "vkCommandBuffer::Begin FAILED!\n" );
 
     ///
     /// Wait for semaphores
     /// We wait for swap chain aquire a image
-    VkSemaphoreSubmitInfo       wait{};
-    wait.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-    wait.pNext = nullptr;
-    wait.semaphore = in_imageAvailable;
-    wait.value = 0;
-    wait.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT; 
-    wait.deviceIndex = 0; 
-
+    VkSemaphoreSubmitInfo wait = *in_imageAvailable;
+    
     ///
     /// Signal semaphores
     /// Signal that render is done
-    VkSemaphoreSubmitInfo       signal{};
-    signal.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
-    signal.pNext = nullptr;
-    signal.semaphore = m_submitFinish[m_bufferID];
-    signal.value = 0;
-    signal.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT; 
-    signal.deviceIndex = 0; 
-
+    VkSemaphoreSubmitInfo       signal = *in_renderDone;
+    
     ///
     /// Set command buffer to be submited
     VkCommandBufferSubmitInfo   commandBufferSubmit{};
@@ -188,7 +129,7 @@ void vkCommandbuffer::Submit(  const VkSemaphore in_imageAvailable )
     submitInfo.pCommandBufferInfos = &commandBufferSubmit;
     submitInfo.signalSemaphoreInfoCount = 1;
     submitInfo.pSignalSemaphoreInfos = &signal;
-    result = vkQueueSubmit2( m_graphicQueue->Queue(), 1, &submitInfo, m_frameFences[m_bufferID] );
+    result = vkQueueSubmit2( m_graphicQueue->Queue(), 1, &submitInfo, *in_frameFence );
     if( result != VK_SUCCESS )
         idLib::Error( "vkCommandbuffer::Submit::vkQueueSubmit2 FAILED!\n" );
 }
