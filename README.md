@@ -2,9 +2,6 @@
 
 Based on the eforts of Kot in Action Creative Artel Storm Engine 2 - Readme - https://github.com/motorsep/StormEngine2
 
-COPYRIGHT
----------
-
 LICENSE
 -------
 
