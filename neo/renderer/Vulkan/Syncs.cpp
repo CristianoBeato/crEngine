@@ -121,7 +121,7 @@ crSemaphoreRoundRobin::~crSemaphoreRoundRobin( void )
     Destroy();
 }
 
-bool crSemaphoreRoundRobin::Create(const uint16_t in_frameCount, const bool in_signaled)
+bool crSemaphoreRoundRobin::Create( const uint16_t in_frameCount )
 {
     auto device = tr.GetRenderDevice();
     m_device = *device;
@@ -187,6 +187,30 @@ VkResult crSemaphoreRoundRobin::Wait( const uint64_t in_timeout ) const
     semaphoreWait.pSemaphores = &m_semaphores[m_frameID];
     semaphoreWait.pValues = 0;
     return vkWaitSemaphores( m_device, &semaphoreWait, in_timeout );
+}
+
+VkSemaphoreSubmitInfo crSemaphoreRoundRobin::SubmitInfo(void)
+{
+    VkSemaphoreSubmitInfo submit{};
+    submit.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+    submit.pNext = nullptr;
+    submit.semaphore = m_semaphores[m_frameID];
+    submit.value = 0;
+    submit.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT; 
+    submit.deviceIndex = 0; // TODO get it 
+    return submit;
+}
+
+crSemaphoreRoundRobin::operator VkSemaphoreSubmitInfo(void) const
+{
+    VkSemaphoreSubmitInfo submit{};
+    submit.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+    submit.pNext = nullptr;
+    submit.semaphore = m_semaphores[m_frameID];
+    submit.value = 0;
+    submit.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT; 
+    submit.deviceIndex = 0; // TODO get it 
+    return submit;
 }
 
 /*

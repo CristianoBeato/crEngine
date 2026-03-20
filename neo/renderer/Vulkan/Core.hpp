@@ -276,6 +276,7 @@ extern void VkImageStateTransition( vkImageHandle_t* in_image,
 #include "sys/sys_vulkan.hpp"
 #include "Format.hpp"
 #include "Utils.hpp"
+#include "Syncs.hpp"
 #include "Commandbuffer.hpp"
 #include "Swapchain.hpp"
 #include "Resource.hpp"
