@@ -137,13 +137,15 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 	// draw 2D graphics
 	if( !r_skipBackEnd.GetBool() )
 	{
-		if( glConfig.timerQueryAvailable )
-		{
-			m_timerQuery->BeginRegister( m_graphicCommandBuffer );
-			backend->ExecuteBackEndCommands( cmdHead );
-			m_timerQuery->EndRegister(  m_graphicCommandBuffer );
-		}
-		else
+		/// since in vulkan timer Query are inserted in the 
+		/// command buffer, we insert the query at begin of the command buffer registry 
+		//if( glConfig.timerQueryAvailable )
+		//{
+		//	m_timerQuery->BeginRegister( m_graphicCommandBuffer );
+		//	backend->ExecuteBackEndCommands( cmdHead );
+		//	m_timerQuery->EndRegister(  m_graphicCommandBuffer );
+		//}
+		//else
 		{
 			backend->ExecuteBackEndCommands( cmdHead );
 		}
@@ -352,16 +354,6 @@ uint32_t idRenderSystemLocal::GetColor()
 
 /*
 =============
-idRenderSystemLocal::SetGLState
-=============
-*/
-void idRenderSystemLocal::SetGLState( const uint64_t glState )
-{
-	currentGLState = glState;
-}
-
-/*
-=============
 idRenderSystemLocal::DrawFilled
 =============
 */
@@ -395,11 +387,9 @@ void idRenderSystemLocal::DrawStretchPic( const idVec4& topLeft, const idVec4& t
 	if( material == nullptr )	
 		return;
 	
-	idDrawVert* verts = guiModel->AllocTris( 4, quadPicIndexes, 6, material, currentGLState, STEREO_DEPTH_TYPE_NONE );
+	idDrawVert* verts = guiModel->AllocTris( 4, quadPicIndexes, 6, material, STEREO_DEPTH_TYPE_NONE );
 	if( verts == nullptr )
-	{
 		return;
-	}
 	
 	ALIGNTYPE16 idDrawVert localVerts[4];
 	
@@ -449,7 +439,7 @@ void idRenderSystemLocal::DrawStretchTri( const idVec2& p1, const idVec2& p2, co
 	
 	triIndex_t tempIndexes[3] = { 1, 0, 2 };
 	
-	idDrawVert* verts = guiModel->AllocTris( 3, tempIndexes, 3, material, currentGLState, STEREO_DEPTH_TYPE_NONE );
+	idDrawVert* verts = guiModel->AllocTris( 3, tempIndexes, 3, material, STEREO_DEPTH_TYPE_NONE );
 	if( verts == nullptr )
 		return;
 	
@@ -486,7 +476,7 @@ idRenderSystemLocal::AllocTris
 */
 idDrawVert* idRenderSystemLocal::AllocTris( int numVerts, const triIndex_t* indexes, int numIndexes, const idMaterial* material, const stereoDepthType_t stereoType )
 {
-	return guiModel->AllocTris( numVerts, indexes, numIndexes, material, currentGLState, stereoType );
+	return guiModel->AllocTris( numVerts, indexes, numIndexes, material, stereoType );
 }
 
 /*
@@ -714,11 +704,19 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	{
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
-		backEnd->BlockingSwapBuffers();
+		BlockingSwapBuffers();
+
+		// TODO: find a better place
+    	// Wait for the device finish last render in previous match frame, before reuse command buffer
+    	auto result = m_frameFence->Wait();
+    	if ( result != VK_SUCCESS )
+        	common->Error( "vkCommandbuffer::Begin::vkWaitForFences: %s\n", VulkanErrorString( result ).c_str() );
+    	else
+			m_frameFence->Reset();
 	}
 	
 	// read back the start and end timer queries from the previous frame
-	if( glConfig.timerQueryAvailable )
+	//if( glConfig.timerQueryAvailable )
 	{
 		uint64_t drawingTimeNanoseconds = 0;
 	
@@ -844,6 +842,86 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// the old command buffer can now be rendered, while the new one can
 	// be built in parallel
 	return commandBufferHead;
+}
+
+
+/*
+=============
+crBackend::BlockingSwapBuffers
+
+We want to exit this with the GPU idle, right at vsync
+=============
+*/
+void idRenderSystemLocal::BlockingSwapBuffers( void )
+{
+	RENDERLOG_PRINTF( "***************** BlockingSwapBuffers *****************\n\n\n" );
+	
+	const int beforeFinish = Sys_Milliseconds();
+	
+	const int beforeSwap = Sys_Milliseconds();
+	if( r_showSwapBuffers.GetBool() && beforeSwap - beforeFinish > 1 )
+		common->Printf( "%i msec to glFinish\n", beforeSwap - beforeFinish );
+	
+	/// 
+	Present();	
+	
+	const int beforeFence = Sys_Milliseconds();
+	if( r_showSwapBuffers.GetBool() && beforeFence - beforeSwap > 1 )
+	{
+		common->Printf( "%i msec to swapBuffers\n", beforeFence - beforeSwap );
+	}
+
+#if 0
+	if( glConfig.syncAvailable )
+	{
+		swapIndex ^= 1;
+		
+		if( glIsSync( renderSync[swapIndex] ) )
+		{
+			glDeleteSync( renderSync[swapIndex] );
+		}
+		// draw something tiny to ensure the sync is after the swap
+		const int start = Sys_Milliseconds();
+		glScissor( 0, 0, 1, 1 );
+		glEnable( GL_SCISSOR_TEST );
+		glClear( GL_COLOR_BUFFER_BIT );
+		renderSync[swapIndex] = glFenceSync( GL_SYNC_GPU_COMMANDS_COMPLETE, 0 );
+		const int end = Sys_Milliseconds();
+		if( r_showSwapBuffers.GetBool() && end - start > 1 )
+		{
+			common->Printf( "%i msec to start fence\n", end - start );
+		}
+		
+		GLsync	syncToWaitOn;
+		if( r_syncEveryFrame.GetBool() )
+			syncToWaitOn = renderSync[swapIndex];
+		else
+			syncToWaitOn = renderSync[!swapIndex];
+		
+		if( glIsSync( syncToWaitOn ) )
+		{
+			for( GLenum r = GL_TIMEOUT_EXPIRED; r == GL_TIMEOUT_EXPIRED; )
+			{
+				r = glClientWaitSync( syncToWaitOn, GL_SYNC_FLUSH_COMMANDS_BIT, 1000 * 1000 );
+			}
+		}
+	}
+#endif
+	
+	const int afterFence = Sys_Milliseconds();
+	if( r_showSwapBuffers.GetBool() && afterFence - beforeFence > 1 )
+		common->Printf( "%i msec to wait on fence\n", afterFence - beforeFence );
+	
+	const int64_t exitBlockTime = Sys_Microseconds();
+	
+	static int64_t prevBlockTime;
+	if( r_showSwapBuffers.GetBool() && prevBlockTime )
+	{
+		const int delta = ( int )( exitBlockTime - prevBlockTime );
+		common->Printf( "blockToBlock: %i\n", delta );
+	}
+
+	prevBlockTime = exitBlockTime;
 }
 
 /*

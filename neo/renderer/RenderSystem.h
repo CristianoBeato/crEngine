@@ -490,9 +490,7 @@ public:
 		SetColor( idVec4( r, g, b, a ) );
 	}
 	
-	virtual uint32_t			GetColor() = 0;
-	
-	virtual void			SetGLState( const uint64_t glState ) = 0;
+	virtual uint32_t			GetColor( void ) = 0;
 	
 	virtual void			DrawFilled( const idVec4& color, float x, float y, float w, float h ) = 0;
 	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material ) = 0;

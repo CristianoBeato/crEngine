@@ -79,7 +79,6 @@ public:
 	
 	virtual void			SetColor( const idVec4& color );
 	virtual uint32_t		GetColor( void );
-	virtual void			SetGLState( const uint64_t glState ) ;
 	virtual void			DrawFilled( const idVec4& color, float x, float y, float w, float h );
 	virtual void			DrawStretchPic( float x, float y, float w, float h, float s1, float t1, float s2, float t2, const idMaterial* material );
 	virtual void			DrawStretchPic( const idVec4& topLeft, const idVec4& topRight, const idVec4& bottomRight, const idVec4& bottomLeft, const idMaterial* material );
@@ -123,6 +122,8 @@ public:
 	void					InitDevice( void );
 	void					CheckPortableExtensions( void );
 	
+	void					BlockingSwapBuffers( void );
+
 	/// Present render to screen
 	void					Present( void );
 
@@ -166,6 +167,9 @@ public:
 	crRenderDevicep					m_renderDevice;
 	vkSwapchain*					m_swapchain;
 	vkCommandbuffer*				m_graphicCommandBuffer;
+	crFence*						m_frameFence;
+	crSemaphoreRoundRobin*			m_frameSubmit;
+	crSemaphoreRoundRobin*			m_imageReady;
 	vkTimeQueries*					m_timerQuery;
 // BEATO End
 
@@ -198,7 +202,6 @@ public:
 	// GUI drawing variables for surface creation
 	int						guiRecursionLevel;		// to prevent infinite overruns
 	uint32_t				currentColorNativeBytesOrder;
-	uint64_t				currentGLState;
 	class idGuiModel* 		guiModel;
 	
 	idList<idFont*, TAG_FONT>		fonts;

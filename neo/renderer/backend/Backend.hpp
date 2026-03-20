@@ -146,7 +146,6 @@ public:
 	bool				SetScreenParms( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth );
     void    			ShutDown( void );
 	void 				ExecuteBackEndCommands( const emptyCommand_t* cmds );
-	void				BlockingSwapBuffers( void );
 	float				ViewDefTime( void ) const { return viewDef != nullptr ? Sys_Milliseconds() : -1; }
 	void				SetDefaultState( void );
 	void				ZeroPerformanceCounters( void );

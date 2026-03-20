@@ -111,7 +111,6 @@ struct drawSurf_t
 	vertCacheHandle_t		jointCache;			// idJointMat
 	const viewEntity_t* 	space;
 	const idMaterial* 		material;			// may be nullptr for shadow volumes
-	uint64_t					extraGLState;		// Extra GL state |'d with material->stage[].drawStateBits
 	float					sort;				// material->sort, modified by gui / entity sort offsets
 	const float* 				shaderRegisters;	// evaluated and adjusted for referenceShaders
 	drawSurf_t* 			nextOnLight;		// viewLight chains

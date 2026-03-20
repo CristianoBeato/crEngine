@@ -317,6 +317,8 @@ void idRenderSystemLocal::CheckPortableExtensions( void )
 	}
 }
 
+
+
 /*
 =============================
 idRenderSystemLocal::Present
@@ -325,9 +327,7 @@ idRenderSystemLocal::Present
 void idRenderSystemLocal::Present( void )
 {
 	/// present image to screen
-	m_swapchain->SwapBuffers( m_graphicCommandBuffer->FinishFence() );
-
-	/// TODO Implement a fence here ?
+	m_swapchain->Present( m_frameSubmit );
 }
 
 /*
@@ -337,7 +337,11 @@ idRenderSystemLocal::StartFrame
 */
 void idRenderSystemLocal::StartFrame( const uint64_t in_frame )
 {
+	/// begin register commands 
 	m_graphicCommandBuffer->Begin( in_frame % SMP_FRAMES );
+
+	/// begin register GPU Time
+	m_timerQuery->BeginRegister( m_graphicCommandBuffer );
 }
 
 /*
@@ -348,14 +352,16 @@ idRenderSystemLocal::EndFrame
 void idRenderSystemLocal::EndFrame( void )
 {
 	/// 
-	///
 	/// Prepare image to presente
 	VkImageStateTransition( m_swapchain->Image(), *tr.GraphicCommandBuffer(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_NONE );
+
+	/// end register time
+	m_timerQuery->EndRegister(  m_graphicCommandBuffer );
 
 	///
 	///
 	/// sumit frame command buffer 
-	tr.GraphicCommandBuffer()->Submit( tr.Swapchain()->ImageAvailableSemaphore() );
+	tr.GraphicCommandBuffer()->Submit( m_imageReady, m_frameSubmit, m_frameFence );
 }
 
 /*
@@ -1901,7 +1907,6 @@ void idRenderSystemLocal::Clear()
 	std::memset( renderCrops, 0, sizeof( renderCrops ) );
 	currentRenderCrop = 0;
 	currentColorNativeBytesOrder = 0xFFFFFFFF;
-	currentGLState = 0;
 	guiRecursionLevel = 0;
 	guiModel = nullptr;
 	std::memset( gammaTable, 0, sizeof( gammaTable ) );
@@ -2458,6 +2463,18 @@ void idRenderSystemLocal::InitRenderAPI( void )
 			/// TODO: 
 		}
 
+		m_frameFence = new crFence();
+		if( m_frameFence->Create( SMP_FRAMES, true ) )
+			throw idException( "ERROR!" );
+
+		m_frameSubmit = new crSemaphoreRoundRobin();
+		if( m_frameSubmit->Create( SMP_FRAMES ) )
+			throw idException( "ERROR!" );
+
+		m_imageReady = new crSemaphoreRoundRobin();
+		if( m_imageReady->Create( SMP_FRAMES ) )
+			throw idException( "ERROR!" );
+
 		/// Create time query
 		m_timerQuery = new vkTimeQueries();
 		m_timerQuery->Create();
@@ -2561,6 +2578,25 @@ void idRenderSystemLocal::ShutdownRenderAPI( void )
 		delete m_timerQuery;
 		m_timerQuery = nullptr;
 	}
+
+	if( m_imageReady != nullptr )
+	{
+		delete m_imageReady;
+		m_imageReady = nullptr;
+	}
+
+	if( m_frameSubmit != nullptr )
+	{
+		delete m_frameSubmit;
+		m_frameSubmit = nullptr;
+	}
+
+	if( m_frameFence != nullptr )
+	{
+		delete m_frameFence;
+		m_frameFence = nullptr;
+	}
+	
 
 	///
 	///

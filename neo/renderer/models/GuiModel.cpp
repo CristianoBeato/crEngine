@@ -162,7 +162,6 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 		drawSurf->frontEndGeo = nullptr;
 		drawSurf->space = guiSpace;
 		drawSurf->material = shader;
-		drawSurf->extraGLState = guiSurf.glState;
 		drawSurf->scissorRect = tr.viewDef->scissor;
 		drawSurf->sort = shader->GetSort();
 		drawSurf->renderZFail = 0;
@@ -334,15 +333,9 @@ void idGuiModel::AdvanceSurf()
 	guiModelSurface_t	s;
 	
 	if( surfaces.Num() )
-	{
 		s.material = surf->material;
-		s.glState = surf->glState;
-	}
 	else
-	{
 		s.material = tr.defaultMaterial;
-		s.glState = 0;
-	}
 	
 	// advance indexes so the pointer to each surface will be 16 byte aligned
 	numIndexes = ALIGN( numIndexes, 8 );
@@ -359,7 +352,7 @@ void idGuiModel::AdvanceSurf()
 AllocTris
 =============
 */
-idDrawVert* idGuiModel::AllocTris( int vertCount, const triIndex_t* tempIndexes, int indexCount, const idMaterial* material, const uint64_t glState, const stereoDepthType_t stereoType )
+idDrawVert* idGuiModel::AllocTris( int vertCount, const triIndex_t* tempIndexes, int indexCount, const idMaterial* material, const stereoDepthType_t stereoType )
 {
 	if( material == nullptr )
 	{
@@ -388,14 +381,12 @@ idDrawVert* idGuiModel::AllocTris( int vertCount, const triIndex_t* tempIndexes,
 	
 	// break the current surface if we are changing to a new material or we can't
 	// fit the data into our allocated block
-	if( material != surf->material || glState != surf->glState || stereoType != surf->stereoType )
+	if( material != surf->material || stereoType != surf->stereoType )
 	{
 		if( surf->numIndexes )
-		{
 			AdvanceSurf();
-		}
+		
 		surf->material = material;
-		surf->glState = glState;
 		surf->stereoType = stereoType;
 	}
 	
