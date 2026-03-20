@@ -98,6 +98,7 @@ struct emptyCommand_t
 struct setBufferCommand_t
 {
 	renderCommand_t		commandId;
+	uint32_t			frameID;
 	renderCommand_t* 	next;
 //	GLenum	buffer;
 };

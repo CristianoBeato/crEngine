@@ -37,42 +37,38 @@ public:
         uint32_t    depth = 0;
     };
     
-    /// @brief store texture state
-    struct textureState_t
-    {
-        VkImageLayout           layout;
-        VkImageAspectFlags      aspect; 
-        VkPipelineStageFlags2   stage;  
-        VkAccessFlags2          access;
-        uint32_t                queueFamily;
-    };
-
     vkTexture( void );
     ~vkTexture( void );
-
-    virtual bool                Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
-    virtual void                Destroy( void );
-    const uint16_t              Levels( void ) const { return m_dimensions.levels; }
-    const uint16_t              Layers( void ) const { return m_dimensions.layers; }
-    const uint32_t              CurrentQueue( void ) const { return m_state.queueFamily; }
+    
+    bool                Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
+    void                Create( const VkImage in_image, const crInternalFormat in_format, const VkImageViewType in_viewType );
+    void                Destroy( void );
+    void                State( const VkCommandBuffer in_commandBuffer, const VkImageLayout in_newLayout, const VkPipelineStageFlags2 in_stageMask, const VkAccessFlags2 in_accessMask );
+    dimensions_t                Dimensions( void ) const { return m_dimensions; }
     const VkImage               Image( void ) const { return m_image; }
-    const VkImageView           ImageView( void ) const { return m_view; }
-    const VkImageLayout         Layout( void ) const { return m_state.layout; }
-    const VkPipelineStageFlags2 Stage( void ) const { return m_state.stage; }
-    const VkAccessFlags2        Access( void ) const {return m_state.access; }
-    const VkImageAspectFlags    Aspect( void ) const { return m_state.aspect; }
-    void                        SetState( const textureState_t &in_state, const VkCommandBuffer in_commandBuffer );
+    const VkImageView           View( void ) const { return m_view; }
+    const VkImageLayout         Layout( void ) const { return m_layout; }
+    const VkPipelineStageFlags2 Stage( void ) const { return m_stage; }
+    const VkAccessFlags2        Access( void ) const {return m_access; }
+    const VkImageAspectFlags    Aspect( void ) const { return m_aspect; }
     const image_type_t          GetType( void ) const { return m_type; }
     const crInternalFormat      GetFormat( void ) const { return m_format; }
 
+    operator VkImage( void ) const { return m_image; }
+    operator VkImageView( void ) const { return m_view; }
+
 protected:
-    image_type_t        m_type;
-    crInternalFormat    m_format;
-    dimensions_t        m_dimensions;
-    textureState_t      m_state;
-    VkImage             m_image;
-    VkImageView         m_view;
-    VkDeviceMemory      m_memory;
+    image_type_t            m_type;
+    VkPipelineStageFlags2   m_stage;
+    VkImageAspectFlags      m_aspect;
+    VkImageLayout           m_layout;
+    VkAccessFlags2          m_access;
+    VkImageAspectFlags      m_aspectMask;
+    crInternalFormat        m_format;
+    dimensions_t            m_dimensions;
+    VkImage                 m_image;
+    VkImageView             m_view;
+    VkDeviceMemory          m_memory;
 };
 
 class vkSampler

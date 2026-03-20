@@ -34,7 +34,6 @@ public:
 
     vkFramebuffer( void );
     ~vkFramebuffer( void );
-    
     void                Create( const createInfo_t &in_createInfo );
     void                Destroy( void );
     void                Bind( void );
@@ -43,15 +42,17 @@ public:
     void                DrawPixels(	uint32_t width, uint32_t height, VkFormat format, const void * data);
     void                BlitColorAttachament( const blitInfo_t &in_blitInfo );
     void                BlitDepthStencilAttachament( const blitInfo_t &in_blitInfo );
-    vkImageHandle_t*    ImageColor( void ) const { return const_cast<vkImageHandle_t*>( &m_colorAttachament[m_bufferID] ); }
-    vkImageHandle_t*    ImageDepthStencil( void ) const { return const_cast<vkImageHandle_t*>( &m_depthAttachament[m_bufferID] ); }
+    ID_INLINE void      SwapFrame( void ) { m_frameID = ( m_frameID + 1 ) % m_frameCount; }
+    vkImageHandle_t*    ImageColor( void ) const { return const_cast<vkImageHandle_t*>( &m_colorAttachament[m_frameID] ); }
+    vkImageHandle_t*    ImageDepthStencil( void ) const { return const_cast<vkImageHandle_t*>( &m_depthAttachament[m_frameID] ); }
 
 private:
-    uint32_t                                    m_bufferID;
-    createInfo_t                                m_properties;
-    VkDeviceMemory                              m_unifiedMemory;
-    idStaticList<vkImageHandle_t, SMP_FRAMES>   m_colorAttachament;
-    idStaticList<vkImageHandle_t, SMP_FRAMES>   m_depthAttachament;
+    uint16_t        m_frameID;
+    uint16_t        m_frameCount;
+    createInfo_t    m_properties;
+    VkDeviceMemory  m_unifiedMemory;
+    vkImageHandle_t m_colorAttachament[MAX_SMP_FRAMES];
+    vkImageHandle_t m_depthAttachament[MAX_SMP_FRAMES];
 };
 
 #endif //!__FRAMEBUFFER_HPP__

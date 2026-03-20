@@ -90,7 +90,7 @@ bool vkTexture::Create( const image_type_t in_type, const dimensions_t in_dimens
     result = vkCreateImage( *device, &imageCI, k_allocationCallbacks, &m_image );
     if ( result != VK_SUCCESS )
     {
-        common->Error( "vkCreateImage error %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkCreateImage error %s\n", VulkanErrorString( result ) );
         return false;
     };
 
@@ -105,14 +105,14 @@ bool vkTexture::Create( const image_type_t in_type, const dimensions_t in_dimens
     result = vkAllocateMemory( *device, &memoryAllocateInfo, k_allocationCallbacks, &m_memory );
     if ( result != VK_SUCCESS )
     {
-        common->Error( "vkAllocateMemory error %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkAllocateMemory error %s\n", VulkanErrorString( result ) );
         return false;
     };
 
     result = vkBindImageMemory( *device, m_image, m_memory, 0 );
     if ( result != VK_SUCCESS )
     {
-        common->Error( "vkBindImageMemory error %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkBindImageMemory error %s\n", VulkanErrorString( result ) );
         return false;
     };
 
@@ -153,7 +153,7 @@ bool vkTexture::Create( const image_type_t in_type, const dimensions_t in_dimens
     result = vkCreateImageView( *device, &imageViewCI, k_allocationCallbacks, &m_view );
     if ( result != VK_SUCCESS )
     {
-        common->Error( "vkCreateImageView error %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkCreateImageView error %s\n", VulkanErrorString( result ) );
         return false;
     };
 
@@ -331,7 +331,7 @@ bool vkSampler::Create( const filter_t in_filtering, const wrapping_t in_Swrap, 
     result = vkCreateSampler( *device, &samplerCI, k_allocationCallbacks, &m_sampler );
     if( result != VK_SUCCESS )
     {
-        common->Error( "vkSampler::Create::vkCreateSampler failed" );
+        idLib::Error( "vkSampler::Create::vkCreateSampler failed" );
         return false;
     }
 

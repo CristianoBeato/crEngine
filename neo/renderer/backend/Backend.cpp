@@ -44,9 +44,6 @@ idCVar stereoRender_warpParmZ( "stereoRender_warpParmZ", "0", CVAR_RENDERER | CV
 idCVar stereoRender_warpParmW( "stereoRender_warpParmW", "0", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "development parm" );
 idCVar stereoRender_warpTargetFraction( "stereoRender_warpTargetFraction", "1.0", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "fraction of half-width the through-lens view covers" );
 
-idCVar r_showSwapBuffers( "r_showSwapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
-idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU buffer execution past swapbuffers" );
-
 static const idVec4 zero = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
 static const idVec4 one = idVec4( 1.0f, 1.0f, 1.0f, 1.0f );
 static const idVec4 negOne = idVec4( -1.0f, -1.0f, -1.0f, -1.0f );
@@ -566,7 +563,7 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	// If we have a stereo pixel format, this will draw to both
 	// the back left and back right buffers, which will have a
 	// performance penalty.
-	for( ; cmds != nullptr; cmds = ( const emptyCommand_t* )cmds->next )
+	for( ; cmds != nullptr; cmds = static_cast<const emptyCommand_t*>( cmds->next ) )
 	{
 		switch( cmds->commandId )
 		{
@@ -829,7 +826,7 @@ void crBackend::PolygonOffset( const float scale, const float bias )
 {
 	trState.polyOfsScale = scale;
 	trState.polyOfsBias = bias;
-	vkCmdSetDepthBias( tr.GraphicCommandBuffer(), scale, 0.0f, bias );
+	vkCmdSetDepthBias( *tr.GraphicCommandBuffer(), scale, 0.0f, bias );
 }
 
 /*
