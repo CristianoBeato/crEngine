@@ -31,21 +31,19 @@ class vkCommandbuffer
 public:
     vkCommandbuffer( void );
     ~vkCommandbuffer( void );
-
     bool    Create( void );
     void    Destroy( void );
-
-    void    Begin( const uint32_t in_bufferID );
-    void    Submit( const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence );
-
-    ID_INLINE   VkCommandBuffer     CommandBuffer( void ) const { return m_commandBuffers[m_bufferID]; }
-    ID_INLINE   operator VkCommandBuffer( void ) const { return m_commandBuffers[m_bufferID]; }
+    void                        Begin( void );
+    void                        Submit( const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence );
+    ID_INLINE void              SwapFrame( void ) { m_frameID = ( m_frameID + 1 ) % m_frameCount; }
+    ID_INLINE VkCommandBuffer   CommandBuffer( void ) const { return m_commandBuffers[m_frameID]; }
+    ID_INLINE operator VkCommandBuffer( void ) const { return m_commandBuffers[m_frameID]; }
 
 private:
-    uint32_t                                        m_bufferID;
-    vkDeviceQueuep                                  m_graphicQueue;
-    idStaticList<VkCommandBuffer, SMP_FRAMES>       m_commandBuffers;
-    idStaticList<VkSemaphore, SMP_FRAMES>	        m_submitFinish;
+    uint16_t        m_frameID;
+    uint16_t        m_frameCount;
+    vkDeviceQueuep  m_graphicQueue;
+    VkCommandBuffer m_commandBuffers[MAX_SMP_FRAMES];
 };
 
 typedef vkCommandbuffer* vkCommandbufferp;

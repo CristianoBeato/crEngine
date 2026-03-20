@@ -30,16 +30,18 @@ class vkTimeQueries
 public:
     vkTimeQueries( void );
     ~vkTimeQueries( void );
-    void        Create( void );
-    void        Destroy( void );
-    void        BeginRegister( const vkCommandbuffer* in_cmd );
-    void        EndRegister( const vkCommandbuffer* in_cmd );
-    uint64_t    Retrieve( void );
+    void            Create( const uint16_t in_frameCount );
+    void            Destroy( void );
+    void            BeginRegister( const vkCommandbuffer* in_cmd );
+    void            EndRegister( const vkCommandbuffer* in_cmd );
+    uint64_t        Retrieve( void );
+    ID_INLINE void  SwapFrame( void ) { m_frameID = ( m_frameID + 1 ) % m_frameCount; }
 
 private:
+    uint16_t    m_frameID;
+    uint16_t    m_frameCount;
     float       m_timestampPeriod;
-    uint32_t    m_bufferID;
-    VkQueryPool m_pools[SMP_FRAMES];
+    VkQueryPool m_pools[MAX_SMP_FRAMES];
 };
 
 #endif //!__QUERIES_HPP__

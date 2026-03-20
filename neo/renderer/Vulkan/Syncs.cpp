@@ -22,13 +22,14 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
+#include "idlib/precompiled.h"
+#include "renderer/renderer_common.h"
 #include "Core.hpp"
 #include "Syncs.hpp"
 
 crFence::crFence( void ) : 
     m_frameID( 0 ),
     m_frameCount( 0 ),
-    m_fences( nullptr ),
     m_device( nullptr )
 {
 }
@@ -43,7 +44,6 @@ bool crFence::Create( const uint16_t in_frameCount, const bool in_signaled )
     auto device = tr.GetRenderDevice();
     m_device = *device;
     m_frameCount = in_frameCount;
-    m_fences = static_cast<VkFence*>( Mem_Alloc( sizeof( VkFence ) * m_frameCount, TAG_VULKAN ) );
 
     VkFenceCreateInfo fenceCI{};
     fenceCI.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -75,10 +75,8 @@ void crFence::Destroy(void)
                 continue; 
 
             vkDestroyFence( m_device, m_fences[i], k_allocationCallbacks );
-        }
-        
-        Mem_Free( m_fences );
-        m_fences = nullptr;
+            m_fences[i] = nullptr;
+        }        
     }
     
     m_frameCount = 0;
@@ -111,7 +109,6 @@ crSemaphoreRoundRobin::crSemaphoreRoundRobin
 crSemaphoreRoundRobin::crSemaphoreRoundRobin( void ) :
     m_frameID( 0 ),
     m_frameCount( 0 ),
-    m_semaphores( nullptr ),
     m_device( nullptr )
 {
 }
@@ -126,7 +123,6 @@ bool crSemaphoreRoundRobin::Create( const uint16_t in_frameCount )
     auto device = tr.GetRenderDevice();
     m_device = *device;
     m_frameCount = in_frameCount;
-    m_semaphores = static_cast<VkSemaphore*>( Mem_Alloc( sizeof( VkSemaphore ) * m_frameCount, TAG_VULKAN ) );
 
     VkSemaphoreCreateInfo semaphoreCI{};
     semaphoreCI.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -155,9 +151,6 @@ void crSemaphoreRoundRobin::Destroy(void)
             vkDestroySemaphore( m_device, m_semaphores[i], k_allocationCallbacks );
             m_semaphores[i] = nullptr;
         }
-
-        Mem_Free( m_semaphores );
-        m_semaphores = nullptr;
     }
 
     m_frameID = 0;
@@ -189,26 +182,26 @@ VkResult crSemaphoreRoundRobin::Wait( const uint64_t in_timeout ) const
     return vkWaitSemaphores( m_device, &semaphoreWait, in_timeout );
 }
 
-VkSemaphoreSubmitInfo crSemaphoreRoundRobin::SubmitInfo(void)
+VkSemaphoreSubmitInfo crSemaphoreRoundRobin::SubmitInfo( void )
 {
     VkSemaphoreSubmitInfo submit{};
     submit.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
     submit.pNext = nullptr;
     submit.semaphore = m_semaphores[m_frameID];
     submit.value = 0;
-    submit.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT; 
+    submit.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT; 
     submit.deviceIndex = 0; // TODO get it 
     return submit;
 }
 
-crSemaphoreRoundRobin::operator VkSemaphoreSubmitInfo(void) const
+crSemaphoreRoundRobin::operator VkSemaphoreSubmitInfo( void ) const
 {
     VkSemaphoreSubmitInfo submit{};
     submit.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
     submit.pNext = nullptr;
     submit.semaphore = m_semaphores[m_frameID];
     submit.value = 0;
-    submit.stageMask = VK_PIPELINE_STAGE_2_ALL_GRAPHICS_BIT; 
+    submit.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT; 
     submit.deviceIndex = 0; // TODO get it 
     return submit;
 }
@@ -285,4 +278,28 @@ VkResult crSemaphoreTimeline::Wait(const uint64_t in_value, const uint64_t in_ti
     semaphoreWait.pSemaphores = &m_semaphore;
     semaphoreWait.pValues = &in_value;
     return vkWaitSemaphores( m_device, &semaphoreWait, in_timeout );
+}
+
+VkSemaphoreSubmitInfo crSemaphoreTimeline::SubmitInfo(void)
+{
+    VkSemaphoreSubmitInfo submit{};
+    submit.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+    submit.pNext = nullptr;
+    submit.semaphore = m_semaphore;
+    submit.value = m_timeline;
+    submit.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT; 
+    submit.deviceIndex = 0; // TODO get it 
+    return submit;
+}
+
+crSemaphoreTimeline::operator VkSemaphoreSubmitInfo(void) const
+{
+    VkSemaphoreSubmitInfo submit{};
+    submit.sType = VK_STRUCTURE_TYPE_SEMAPHORE_SUBMIT_INFO;
+    submit.pNext = nullptr;
+    submit.semaphore = m_semaphore;
+    submit.value = m_timeline;
+    submit.stageMask = VK_PIPELINE_STAGE_2_ALL_COMMANDS_BIT; 
+    submit.deviceIndex = 0; // TODO get it 
+    return submit;    
 }

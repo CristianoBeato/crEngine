@@ -32,6 +32,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 // to be triple buffered to allow it to run in
 // parallel on a dual cpu machine ( CPU -> DRIVER -> GPU )
 inline constexpr uint32_t	SMP_FRAMES = 3;
+inline constexpr uint32_t   MAX_SMP_FRAMES = 3;
 
 /// 
 extern const VkAllocationCallbacks* k_allocationCallbacks;

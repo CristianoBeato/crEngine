@@ -36,7 +36,7 @@ public:
 
     bool                            Create( const uint32_t in_width, const uint32_t in_height, const bool in_recreate );
     void                            Destroy( void );
-    void                            AcquireImage( const uint32_t in_bufferID );
+    void                            AcquireImage( const crSemaphore* in_imageAvailable );
     void                            Present( const crSemaphore* in_renderDone );
     ID_INLINE vkImageHandle_t*      Image( void ) const { return const_cast<vkImageHandle_t*>( &m_presentImages[m_currentImage] ); }
 
@@ -44,7 +44,6 @@ private:
     uint32_t                                        m_width;
     uint32_t                                        m_height;
     uint32_t                                        m_currentImage;
-    uint32_t                                        m_bufferID;
     vkDeviceQueuep                                  m_presentQueue;
     vkDeviceQueuep                                  m_graphicQueue;
     crVulkanRenderDevicep                           m_device;

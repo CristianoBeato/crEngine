@@ -22,9 +22,10 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#include "Swapchain.hpp"
-#include "sys/sys_vulkan.hpp"
+#include "idlib/precompiled.h"
+#include "renderer_common.h"
 #include "Core.hpp"
+#include "Swapchain.hpp"
 
 static struct scMode_t
 {
@@ -149,10 +150,6 @@ bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     if ( old != nullptr )
         vkDestroySwapchainKHR( *device, old, k_allocationCallbacks );
     
-    ///
-    ///
-    ///
-    
     // Get the available image count 
     vkGetSwapchainImagesKHR( *m_device, m_swapchain, &numImages, nullptr );
     
@@ -225,7 +222,6 @@ void vkSwapchain::AcquireImage( const crSemaphore* in_imageAvailable )
 {
     VkResult result = VK_SUCCESS;
     auto device = tr.GetRenderDevice();
-    m_bufferID = in_bufferID;
 
     //
     // Aquire the current frame image idex
@@ -239,7 +235,7 @@ void vkSwapchain::AcquireImage( const crSemaphore* in_imageAvailable )
     acquireNextImageInfo.deviceMask = device->Mask();
     result = vkAcquireNextImage2KHR( *device, &acquireNextImageInfo, &m_currentImage );
     if ( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR )
-        idlib::Error( "vkSwapchain::AcquireImage::vkAcquireNextImage2KHR %s\n", VulkanErrorString( result ).c_str() );
+        idLib::Error( "vkSwapchain::AcquireImage::vkAcquireNextImage2KHR %s\n", VulkanErrorString( result ).c_str() );
 }
 
 void vkSwapchain::Present( const crSemaphore* in_renderDone )

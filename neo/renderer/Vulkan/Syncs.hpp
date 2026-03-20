@@ -46,7 +46,7 @@ public:
 private:
     uint16_t    m_frameID;
     uint16_t    m_frameCount;
-    VkFence*    m_fences;
+    VkFence     m_fences[MAX_SMP_FRAMES];
     VkDevice    m_device;
 };
 
@@ -76,16 +76,16 @@ public:
 
     ID_INLINE void      SwapFrame( void ) { m_frameID = ( m_frameID + 1 ) % m_frameCount; }
 
-    virtual VkSemaphore*            Pointer( void ) const { return m_semaphores[m_frameID]; }
-    virtual VkSemaphoreSubmitInfo SubmitInfo( void );
-    virtual VkSemaphore Semaphore( void ) const override { return m_semaphores[m_frameID]; }
-    virtual operator    VkSemaphoreSubmitInfo( void ) const;
-    virtual operator    VkSemaphore( void ) const override { return m_semaphores[m_frameID]; }
+    virtual VkSemaphore*            Pointer( void ) const override { return const_cast<VkSemaphore*>( &m_semaphores[m_frameID] ); }
+    virtual VkSemaphoreSubmitInfo   SubmitInfo( void ) override;
+    virtual VkSemaphore             Semaphore( void ) const override { return m_semaphores[m_frameID]; }
+    virtual operator                VkSemaphoreSubmitInfo( void ) const override;
+    virtual operator                VkSemaphore( void ) const override { return m_semaphores[m_frameID]; }
 
 private:
     uint16_t        m_frameID;
     uint16_t        m_frameCount;
-    VkSemaphore*    m_semaphores;
+    VkSemaphore     m_semaphores[MAX_SMP_FRAMES];
     VkDevice        m_device;
 };
 
@@ -100,8 +100,8 @@ public:
     VkResult            Wait( const uint64_t in_value, const uint64_t in_timeout = UINT64_MAX ) const;
     ID_INLINE void      SwapFrame( void ) { m_timeline++; }
     ID_INLINE uint64_t  Timeline( void ) const { return m_timeline; }
-    virtual VkSemaphore*            Pointer( void ) const { return &m_semaphore; }
-    virtual VkSemaphoreSubmitInfo   SubmitInfo( void );
+    virtual VkSemaphore*            Pointer( void ) const override { return const_cast<VkSemaphore*>( &m_semaphore ); }
+    virtual VkSemaphoreSubmitInfo   SubmitInfo( void ) override;
     virtual VkSemaphore             Semaphore( void ) const override { return m_semaphore; }
     virtual operator                VkSemaphoreSubmitInfo( void ) const;
     virtual operator                VkSemaphore( void ) const override { return m_semaphore; }
