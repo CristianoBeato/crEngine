@@ -152,6 +152,8 @@ set( RENDERER_VULKAN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Format.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Framebuffer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Framebuffer.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Memory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Memory.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Pipeline.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Pipeline.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Program.cpp

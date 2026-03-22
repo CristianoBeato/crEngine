@@ -25,19 +25,88 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __MEMORY_HPP__
 #define __MEMORY_HPP__
 
+/// @brief Suballocate from the pool
+class crMemoryPage
+{
+public:
+    crMemoryPage( void );
+    ~crMemoryPage( void );
+
+    void                Bind( const vkBuffer* in_buffer );
+    void                Bind( const vkTexture* in_texture );
+    void*               Map( void ) const;
+    void                Flush( const size_t in_size, const uintptr_t in_offset ) const;
+    ID_INLINE size_t    Alignment( void ) const { return m_alignment; }
+    ID_INLINE uintptr_t Offset( void ) const { return m_offset; }
+    ID_INLINE size_t    Size( void ) const { return m_size; }
+    ID_INLINE VkDeviceMemory    Memory( void ) const { return m_memory; }
+
+private:
+    size_t          m_alignment;
+    size_t          m_size;
+    uintptr_t       m_offset;
+    VkDeviceMemory  m_memory;
+    VkDevice        m_device;
+};
+
+/// @brief Allocate a Device memory pool ( to use whit multiples images or buffer)
 class crMemoryPool
 {
 public:
     crMemoryPool( void );
     ~crMemoryPool( void );
+    ID_INLINE size_t  Size( void ) const { return m_size; }
 
-    bool    Create( const size_t in_size );
-    void    Destroy( void );
+protected:
+    friend class crMemoryHeap;
+    bool            Create( const size_t in_size, const size_t in_alignment, const uint32_t in_filter );
+    void            Destroy( void );
+    void            SetProperties( const uint32_t in_index, const uint32_t in_type );
+    uint32_t        GetIndex( void ) const { return m_index; }
+    uint32_t        GetType( void ) const { return m_type; }
 
 private:
-    size_t          m_size;
-    VkDeviceMemory  m_memory;
-    VkDevice        m_device;
+    uint32_t                            m_index;
+    uint32_t                            m_type;
+    size_t                              m_size;
+    size_t                              m_alignment;
+    VkDeviceMemory                      m_memory;
+    VkDevice                            m_device;
+    idList<crMemoryPage, TAG_VULKAN>    m_pages;
+};
+
+class crMemoryHeap
+{
+public:
+    struct memoryHeapInfo_t
+    {
+        size_t                  total = 0;  // total available heap
+        size_t                  allocated = 0; // total used
+        size_t                  free = 0;
+        VkMemoryPropertyFlags   propertyFlags = 0;
+    };
+
+    struct memoryTypeInfo_t
+    {
+        uint32_t                            typeIndex = 0;
+        uint32_t                            heapIndex = 0;
+        VkMemoryPropertyFlags               propertyFlags = 0;
+        idList<crMemoryPool*, TAG_VULKAN>   pools;
+    };
+
+    crMemoryHeap( void );
+    ~crMemoryHeap( void );
+    bool            Create( void );
+    void            Destroy( void );
+    /// @brief Allocate a memory page to be used by structures with the same configuration.
+    crMemoryPool*   Alloc( const size_t in_size, const size_t in_alignament, const uint32_t in_filter, const VkMemoryPropertyFlags in_properties );
+    /// @brief Releasse a memory block
+    void            Free( crMemoryPool* in_pool );
+    void            Defrag( void );
+
+private:
+    idList<memoryHeapInfo_t, TAG_VULKAN>    m_heaps;
+    idList<memoryTypeInfo_t, TAG_VULKAN>    m_types;
 };
 
 #endif //!__MEMORY_HPP__
