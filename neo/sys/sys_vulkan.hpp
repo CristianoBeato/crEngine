@@ -77,12 +77,6 @@ public:
 	virtual const properties_t	Properties( void ) const override;
     virtual const int32_t       Score( void ) const;
 
-    /// @brief Find device memory type
-    /// @param type_filter 
-    /// @param properties 
-    /// @return the index of the type 
-    const uint32_t  FindMemoryType( const uint32_t in_filter, const VkMemoryPropertyFlags in_properties ) const;
-
     /// @brief check for extension if available in the device 
     /// @return 
     const bool      ExtensionAvailable( const idStr &in_ext ) const;

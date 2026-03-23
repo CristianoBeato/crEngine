@@ -117,8 +117,8 @@ public:
 
 public:
 	// internal functions
-	idRenderSystemLocal();
-	~idRenderSystemLocal();
+	idRenderSystemLocal( void );
+	~idRenderSystemLocal( void );
 	void					InitDevice( void );
 	void					CheckPortableExtensions( void );
 	
@@ -167,6 +167,7 @@ public:
 	// list that store render devices list
 	idList<crRenderDevicep>			m_renderDeviceList;
 	crRenderDevicep					m_renderDevice;
+	crMemoryHeap*					m_deviceHeap;
 	vkSwapchain*					m_swapchain;
 	vkCommandbuffer*				m_graphicCommandBuffer;
 	crFence*						m_frameFence;

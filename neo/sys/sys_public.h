@@ -911,6 +911,11 @@ public:
 		float		maxAnisotropicFiltering = 0.0f;
 		float		maxTextureLODBias = 0.0f;
 		float		timestampPeriod = 0.0f;
+
+		/// buffes aligments
+		size_t 		uniformBuffersAlignment = 0;
+		size_t 		storageBuffersAlignment = 0;
+		size_t		texelBufferOffsetAlignment = 0;
 	};
 
 	virtual bool				Create(  const char** in_layers, const uint32_t in_numLayers, const char** in_enabledExtensions, const uint32_t in_numExtensions ) = 0;

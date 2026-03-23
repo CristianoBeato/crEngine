@@ -281,6 +281,7 @@ extern void VkImageStateTransition( vkImageHandle_t* in_image,
 #include "Commandbuffer.hpp"
 #include "Swapchain.hpp"
 #include "Resource.hpp"
+#include "Memory.hpp"
 #include "Buffer.hpp"
 #include "Texture.hpp"
 #include "Program.hpp"

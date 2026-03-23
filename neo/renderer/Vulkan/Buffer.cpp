@@ -25,18 +25,123 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Buffer.hpp"
 #include "Core.hpp"
 
-vkBuffer::vkBuffer(void)
+VkAccessFlags2 access[]
+{
+    VK_ACCESS_2_TRANSFER_WRITE_BIT,
+    VK_ACCESS_2_TRANSFER_READ_BIT
+};
+
+VkBufferUsageFlags usages[]
+{
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT
+};
+
+VkBufferUsageFlags bufferUsageFlags[]
+{
+    0, // BUFFER_TYPE_UNDEFINED
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,    // BUFFER_TYPE_INDEX
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,   // BUFFER_TYPE_VERTEX
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT, // BUFFER_TYPE_COMMANDS
+    /* VK_BUFFER_USAGE_TRANSFER_DST_BIT |*/ VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,  // BUFFER_TYPE_SHADER
+    VK_BUFFER_USAGE_TRANSFER_SRC_BIT,   // BUFFER_TYPE_SOURCE
+    VK_BUFFER_USAGE_TRANSFER_DST_BIT    // BUFFER_TYPE_DESTINATION
+};
+
+crBuffer::crBuffer( void )
 {
 }
 
-vkBuffer::~vkBuffer(void)
+crBuffer::~crBuffer( void )
 {
     Destroy();
 }
 
-bool vkBuffer::Create( const type_t in_type, const access_t in_access, const size_t in_size )
+bool crBuffer::Create( const type_t in_type, const access_t in_acess, const size_t in_size )
 {
     VkResult result = VK_SUCCESS;
+    auto device = tr.GetRenderDevice();
+    
+    ///
+    ///
+    /// Create buffer object
+    VkBufferCreateInfo buffer{};
+    buffer.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+    buffer.pNext = nullptr;
+    buffer.flags = 0;
+    buffer.size = in_size;
+    buffer.usage = ;
+    buffer.sharingMode = ;
+    buffer.queueFamilyIndexCount = ;
+    buffer.pQueueFamilyIndices = ;
+    result = vkCreateBuffer( *device, &buffer, k_allocationCallbacks, &m_buffer );
+    if ( result != VK_SUCCESS) 
+    {
+        common->Error( "crvkBufferStatic::Create::vkCreateBuffer" );
+        return false;
+    }
+
+    return true;
+}
+
+void crBuffer::Destroy( void )
+{
+    auto device = tr.GetRenderDevice();
+
+    // destroi client handle buffer
+    if( m_buffer != nullptr )
+    {
+        vkDestroyBuffer( *device, m_buffer, k_allocationCallbacks );
+        m_buffer = nullptr;
+    }
+}
+
+void crBuffer::SetState(const vkCommandbufferp in_commandBuffer, const state_t in_newState)
+{
+    // 
+    VkBufferMemoryBarrier2 destinationBarrier{};
+    destinationBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+    destinationBarrier.pNext = nullptr;
+    destinationBarrier.srcStageMask = m_stage;
+    destinationBarrier.srcAccessMask = m_access;
+    destinationBarrier.dstStageMask = in_newState.stage;
+    destinationBarrier.dstAccessMask = in_newState.access;
+    destinationBarrier.srcQueueFamilyIndex = m_queueFamily;
+    destinationBarrier.dstQueueFamilyIndex = in_newState.queueFamily;
+    destinationBarrier.buffer = m_buffer;
+
+    // update whole buffer, no region change
+    destinationBarrier.offset = 0;  
+    destinationBarrier.size = VK_WHOLE_SIZE;
+
+    // insert a state transition to destination
+    VkDependencyInfo dependencyInfo{};
+    dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    dependencyInfo.pNext = nullptr;
+    dependencyInfo.dependencyFlags = 0;
+    dependencyInfo.memoryBarrierCount = 0;
+    dependencyInfo.pMemoryBarriers = nullptr;
+    dependencyInfo.bufferMemoryBarrierCount = 1;
+    dependencyInfo.pBufferMemoryBarriers = &destinationBarrier;
+    dependencyInfo.imageMemoryBarrierCount = 0;
+    dependencyInfo.pImageMemoryBarriers = nullptr;
+    vkCmdPipelineBarrier2( *in_commandBuffer, &dependencyInfo );
+    
+    m_stage = in_newState.stage; 
+    m_access = in_newState.access;
+    m_queueFamily = in_newState.queueFamily;
+}
+
+void crBuffer::Flush(const uintptr_t in_offset, const size_t in_size) const
+{
+    idassert( m_page != nullptr );
+    m_page->Flush( in_offset, in_size );
+}
+
+
+bool vkBuffer::Create( const type_t in_type, const access_t in_access, const size_t in_size )
+{
+    
     VkBufferCreateInfo      clientBufferInfo{};
     VkBufferCreateInfo      hostBufferInfo{};
     VkMemoryRequirements    clientMemRequirements{};
@@ -95,13 +200,6 @@ bool vkBuffer::Create( const type_t in_type, const access_t in_access, const siz
     /// clien is a sorce or destination to data 
     switch ( m_access )
     {
-        case BUFFER_ACCESS_WRITE:
-            m_bestate.access = VK_ACCESS_2_TRANSFER_WRITE_BIT;
-            clientBufferInfo.usage = m_bestate.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
-            break;
-        case BUFFER_ACCESS_READ:
-            m_bestate.access = VK_ACCESS_2_TRANSFER_READ_BIT;
-            clientBufferInfo.usage = m_bestate.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
             break;
     default:
         common->Error( "vkBuffer::Create: Error invalid \"in_acess\"\n" );
@@ -112,21 +210,17 @@ bool vkBuffer::Create( const type_t in_type, const access_t in_access, const siz
     {
         /// Index buffer 
         case BUFFER_TYPE_INDEX:
-            hostBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
-            break;
+        break;
         /// Vertex buffer 
         case BUFFER_TYPE_VERTEX:
-            hostBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-            break;
+        break;
         /// Shader Storage buffer
         case BUFFER_TYPE_SHADER:
-            hostBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
-            break;
+        break;
         /// Indirect draw command buffer 
         case BUFFER_TYPE_COMMANDS:
-            hostBufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
-            break;
-
+        break;
+        
         /// pixel buffer are a CPU Side only
         case BUFFER_TYPE_PIXEL:
             break;
@@ -136,15 +230,7 @@ bool vkBuffer::Create( const type_t in_type, const access_t in_access, const siz
         break;
     };
 
-    ///
-    ///
-    /// Create the client buffer
-    result = vkCreateBuffer( *device, &clientBufferInfo, k_allocationCallbacks, &m_bufferClient );
-    if ( result != VK_SUCCESS) 
-    {
-        common->Error( "crvkBufferStatic::Create::vkCreateBuffer" );
-        return false;
-    }
+    
 
     vkGetBufferMemoryRequirements( *device, m_bufferClient, &clientMemRequirements );
 
@@ -247,12 +333,7 @@ void vkBuffer::Destroy(void)
         m_memoryClient = nullptr;
     }
 
-    // destroi client handle buffer
-    if( m_bufferClient != nullptr )
-    {
-        vkDestroyBuffer( *device, m_bufferHost, k_allocationCallbacks );
-        m_bufferClient = nullptr;
-    }
+
 
     // release host memorys
     if( m_memoryHost != nullptr )
@@ -271,7 +352,7 @@ void vkBuffer::Destroy(void)
 
 void vkBuffer::Flush(const uintptr_t in_offset, const size_t in_size ) const
 {
-    auto device = tr.GetRenderDevice();
+    
     VkMappedMemoryRange memoryRange{};
     memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     memoryRange.pNext = nullptr;

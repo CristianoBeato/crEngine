@@ -2555,6 +2555,11 @@ void idRenderSystemLocal::InitDevice(void)
 			throw idException( "FAILED TO INITIALIZE BEST RENDER DEVICE\n" );
 		}
 	}
+
+	m_deviceHeap = new crMemoryHeap();
+	if( !m_deviceHeap->Create() )
+		throw idException( "FAILED TO INITIALIZE DEVICE HEAP!\n" );
+	
 }
 
 /*
@@ -2564,12 +2569,12 @@ idRenderSystemLocal::ShutdownOpenGL
 */
 void idRenderSystemLocal::ShutdownRenderAPI( void )
 {
-	crBackend* backend = crBackend::Get();
 	// free the context and close the window
 	R_ShutdownFrameData();
 
-	backend->ShutDown();
+	crBackend::Get()->ShutDown();
 
+	/// Release 
 	if( m_timerQuery != nullptr )
 	{
 		m_timerQuery->Destroy();
@@ -2577,25 +2582,27 @@ void idRenderSystemLocal::ShutdownRenderAPI( void )
 		m_timerQuery = nullptr;
 	}
 
+	/// Release image ready
 	if( m_imageReady != nullptr )
 	{
 		delete m_imageReady;
 		m_imageReady = nullptr;
 	}
 
+	/// Release frame submit control
 	if( m_frameSubmit != nullptr )
 	{
 		delete m_frameSubmit;
 		m_frameSubmit = nullptr;
 	}
 
+	/// release frame control fence
 	if( m_frameFence != nullptr )
 	{
 		delete m_frameFence;
 		m_frameFence = nullptr;
 	}
 	
-
 	///
 	///
 	/// Release swapchain
@@ -2616,6 +2623,18 @@ void idRenderSystemLocal::ShutdownRenderAPI( void )
 		m_graphicCommandBuffer = nullptr;
 	}
 
+	///
+	///
+	/// Release used device memory 
+	if( m_deviceHeap != nullptr )
+	{
+		m_deviceHeap->Destroy();
+		delete m_deviceHeap;
+	}
+
+	///
+	///
+	/// Release used device 
 	if( m_renderDevice )
 		m_renderDevice->Destroy();
 	

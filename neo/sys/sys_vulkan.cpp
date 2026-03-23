@@ -531,11 +531,21 @@ void crVulkanRenderDevice::Destroy(void)
     }
 }
 
+/*
+==============
+crVulkanRenderDevice::Name
+==============
+*/
 const char *crVulkanRenderDevice::Name( void ) const
 {
     return m_name.c_str();
 }
 
+/*
+==============
+crVulkanRenderDevice::Properties
+==============
+*/
 const crRenderDevice::properties_t crVulkanRenderDevice::Properties(void) const
 {
     return m_internalProperties;
@@ -619,28 +629,6 @@ const int32_t crVulkanRenderDevice::Score( void ) const
     };
 
     return score;
-}
-
-/*
-==============
-crVulkanRenderDevice::FindMemoryType
-==============
-*/
-const uint32_t crVulkanRenderDevice::FindMemoryType( const uint32_t in_filter, const VkMemoryPropertyFlags properties ) const
-{
-    auto memoryProperties = m_memoryProperties.memoryProperties;
-    for ( uint32_t i = 0; i < memoryProperties.memoryTypeCount; i++ )
-    {
-        auto memoryType = memoryProperties.memoryTypes[i];    
-        // Check if the current memory type is acceptable based on the type_filter,
-		// the type_filter is a bitmask where each bit represents a memory type that is suitable
-        // Check if the memory type has all the desired property flags
-        // properties is a bitmask of the required memory properties
-		if ( in_filter & (1 << i) && ( memoryType.propertyFlags & properties ) == properties )
-				return i;
-    }
-    
-    return UINT32_MAX;
 }
 
 /*

@@ -25,10 +25,8 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __VK_BUFFER_HPP__
 #define __VK_BUFFER_HPP__
 
-/// crBuffer
-/// @brief base class abstraction for common graphic buffer storage
-///
-class vkBuffer : public vkResourceState
+/// @brief Base buffer class
+class crBuffer
 {
 public:
     enum access_t : uint8_t
@@ -43,24 +41,83 @@ public:
         BUFFER_TYPE_UNDEFINED,  // unknow buffer
         BUFFER_TYPE_INDEX,      // primitive index buffer 
         BUFFER_TYPE_VERTEX,     // vertex buffer
-        BUFFER_TYPE_SHADER,     // shader storage data
         BUFFER_TYPE_COMMANDS,   // indirec draw comand buffer
-        BUFFER_TYPE_PIXEL       // pixel storage buffer
+        BUFFER_TYPE_SHADER,     // shader storage data
+        BUFFER_TYPE_SOURCE,     // staging buffer source
+        BUFFER_TYPE_DESTINATION // staging buffer destination
     };
 
-    struct bufferState_t
+    struct state_t 
     {
-        VkBufferUsageFlags      usage;
-        VkPipelineStageFlags2   stage;
-        VkAccessFlags2          access;
-        uint32_t                queueFamily;
-
-        inline bool operator == ( const bufferState_t &ref ) const
-        {
-            return ( ( usage == ref.usage ) && ( stage != ref.stage ) && ( access != ref.access ) && ( queueFamily == ref.queueFamily ) );            
-        }
+        uint32_t                queueFamily = 0;
+        VkPipelineStageFlags2   stage = 0;
+        VkAccessFlags2          access = 0;
     };
 
+    crBuffer( void );
+    ~crBuffer( void );
+
+    /// @brief Create a fixed size buffer storage
+    /// @param in_type  the buffer storage usage type 
+    /// @param in_acess buffer acess for read or write 
+    /// @param in_size buffer size
+    /// @return true on sucess 
+    virtual bool    Create( const type_t in_type, const access_t in_acess, const size_t in_size );
+        
+    /// @brief Destroy the buffer releasing the map and the memory 
+    virtual void    Destroy( void );
+
+    /// @brief Insert a barrier and perform a state change of buffer and/or transfer the buffer
+    /// queue family owership.   
+    /// @param in_commandBuffer command buffer  
+    /// @param in_newState 
+    void            SetState( const vkCommandbufferp in_commandBuffer, const state_t in_newState );
+
+    /// @brief Flush buffer data ( Make visible to device/CPU, or copy source to destination device )
+    /// @param in_offset begin offset to be flushed 
+    /// @param in_size size to be flushed 
+    virtual void    Flush( const uintptr_t in_offset, const size_t in_size ) const;
+
+    /// @brief Send data to buffer 
+    /// @param in_data pointer to data to be uploaded.
+    /// @param in_offset offset in buffer to be copied.
+    /// @param in_size size of the data to be copied;
+    virtual void    Upload( const void* in_data, const uintptr_t in_offset, const size_t in_size ) const = 0;
+ 
+    /// @brief Retrieve the data from the buffer 
+    /// @param in_data pointer to destination to be copied 
+    /// @param in_offset offset in buffer to be copied.
+    /// @param in_size size of the data to be copied;
+    virtual void    Download( void* in_data, const uintptr_t in_offset, const size_t in_size ) const = 0;
+
+    /// @brief buffer allocated size. 
+    ID_INLINE size_t    Size( void ) { return m_page->Size(); }
+
+    /// @brief access buffer handle object
+    /// @return nullptr if object has destroyed or failed to created, 
+    /// or the native buffer handle
+    ID_INLINE VkBuffer  Handle( void ) const { return m_buffer; }
+    
+    /// @brief easy access to handle 
+    ID_INLINE  operator VkBuffer( void ) const { return m_buffer; }
+    
+private:
+    access_t                m_access;   // buffer access
+    type_t                  m_type;     // Buffer type
+    VkBufferUsageFlags      m_usage;      // current vulkan buffer usage
+    VkPipelineStageFlags2   m_stage;      // current vulkan buffer stage
+    VkAccessFlags2          m_access;     // current vulkan buffer access 
+    uint32_t                m_queueFamily;
+    VkBuffer                m_buffer;   // buffer host side handler 
+    crMemoryPage*           m_page;
+};
+
+/// crBuffer
+/// @brief base class abstraction for common graphic buffer storage
+///
+class vkBuffer : public vkResourceState
+{
+public:
     vkBuffer( void );
     ~vkBuffer( void );
 
@@ -70,43 +127,16 @@ public:
     /// @param in_size buffer size
     /// @return true on sucess 
     bool    Create( const type_t in_type, const access_t in_acess, const size_t in_size );
+            
     
-    /// @brief try recreate the buffer and copy old content from old buffer
-    /// @param in_newSize new buffer size 
-    /// @return true on sucess
-    bool    Resize( const size_t in_newSize );
-    
-    /// @brief Destroy the buffer releasing the map and the memory 
-    void    Destroy( void );
-        
-    /// @brief flush buffer data ( send to device )
-    /// @param in_offset 
-    /// @param in_size 
-    void    Flush( const uintptr_t in_offset, const size_t in_size ) const;
-    
-    /// @brief Send data to buffer, perform a cpu copy of the data to the dst buffer 
-    /// @param in_data 
-    /// @param in_offset 
-    /// @param in_size 
-    void    Upload( const void* in_data, const uintptr_t in_offset, const size_t in_size ) const;
-    
-    /// @brief 
-    /// @param in_data 
-    /// @param in_offset 
-    /// @param in_size 
-    void    Download( void* in_data, const uintptr_t in_offset, const size_t in_size ) const;
     
     virtual void    StateTransition( const state_t in_state ) override;
     
-    /// @brief 
-    /// @param  
-    /// @return 
-    VkBuffer    Handle( void ) const { return m_bufferHost; }
     
     type_t      Type( void ) const { return m_type; }
     size_t      Size( void ) const { return m_size; }
     void*       Map( void ) const { return m_data; }
-    
+    operator    VkBuffer( void ) const { return m_bufferHost; }
 protected:
     uint32_t                m_family;       // buffer current queue
     type_t                  m_type;         // type of buffer data storage
@@ -115,7 +145,6 @@ protected:
     bufferState_t           m_bestate;      //
     VkMemoryPropertyFlags   m_property;     // memory properties 
     VkCommandBuffer         m_copyCmd;      // auxiliar command buffer, to store state transitins and copy commands 
-    VkBuffer                m_bufferHost;   // buffer host side handler 
     VkBuffer                m_bufferClient; // buffer client side handler 
     VkDeviceMemory          m_memoryHost;   // host side memory storage
     VkDeviceMemory          m_memoryClient; // client side memory storage
