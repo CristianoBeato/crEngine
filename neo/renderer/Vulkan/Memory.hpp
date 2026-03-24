@@ -32,13 +32,26 @@ public:
     crMemoryPage( void );
     ~crMemoryPage( void );
 
-    void                Bind( const vkBuffer* in_buffer );
-    void                Bind( const vkTexture* in_texture );
-    void*               Map( void ) const;
-    void                Flush( const size_t in_size, const uintptr_t in_offset ) const;
-    ID_INLINE size_t    Alignment( void ) const { return m_alignment; }
-    ID_INLINE uintptr_t Offset( void ) const { return m_offset; }
-    ID_INLINE size_t    Size( void ) const { return m_size; }
+    /// @brief Bind the memory page to buffer handle 
+    /// @param in_buffer buffer bind 
+    void                        Bind( const VkBuffer in_buffer );
+
+    /// @brief Bind the memory page to image handle 
+    /// @param in_image 
+    void                        Bind( const VkImage in_image );
+
+    /// @brief Retrieve a host virtual address pointer to a region of a 
+    /// mappable memory ( VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT Only ) object
+    /// @return if succes a virtual pointer to memory
+    void*                       Map( void ) const;
+
+    /// @brief Flush memory page operations ( for non VK_MEMORY_PROPERTY_HOST_COHERENT_BIT )
+    /// guarantees that host writes to the memory are made available to the host memory domain.
+    void                        Flush( void ) const;
+
+    ID_INLINE size_t            Alignment( void ) const { return m_alignment; }
+    ID_INLINE uintptr_t         Offset( void ) const { return m_offset; }
+    ID_INLINE size_t            Size( void ) const { return m_size; }
     ID_INLINE VkDeviceMemory    Memory( void ) const { return m_memory; }
 
 private:
@@ -47,6 +60,9 @@ private:
     uintptr_t       m_offset;
     VkDeviceMemory  m_memory;
     VkDevice        m_device;
+
+protected:
+    crMemoryPage( const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, const VkDeviceMemory  in_memory );
 };
 
 /// @brief Allocate a Device memory pool ( to use whit multiples images or buffer)
@@ -56,12 +72,15 @@ public:
     crMemoryPool( void );
     ~crMemoryPool( void );
     ID_INLINE size_t  Size( void ) const { return m_size; }
+    crMemoryPage*   Alloc( const size_t in_size, const size_t in_alignment );
+    void            Free( crMemoryPage* in_page );
 
 protected:
     friend class crMemoryHeap;
     bool            Create( const size_t in_size, const size_t in_alignment, const uint32_t in_filter );
     void            Destroy( void );
     void            SetProperties( const uint32_t in_index, const uint32_t in_type );
+    
     uint32_t        GetIndex( void ) const { return m_index; }
     uint32_t        GetType( void ) const { return m_type; }
 
@@ -70,10 +89,13 @@ private:
     uint32_t                            m_type;
     size_t                              m_size;
     size_t                              m_alignment;
+    uintptr_t                           m_offsets;
     VkDeviceMemory                      m_memory;
     VkDevice                            m_device;
-    idList<crMemoryPage, TAG_VULKAN>    m_pages;
+    idList<crMemoryPage*, TAG_VULKAN>   m_freepages;
+    idList<crMemoryPage*, TAG_VULKAN>   m_usedpages
 };
+class crMemoryPool* crMemoryPoolp;
 
 class crMemoryHeap
 {
@@ -108,5 +130,6 @@ private:
     idList<memoryHeapInfo_t, TAG_VULKAN>    m_heaps;
     idList<memoryTypeInfo_t, TAG_VULKAN>    m_types;
 };
+typedef crMemoryHeap* crMemoryHeapp;
 
 #endif //!__MEMORY_HPP__

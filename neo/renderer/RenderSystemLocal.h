@@ -112,6 +112,7 @@ public:
 
 	/// get current vulkan device
 	crVulkanRenderDevicep	GetRenderDevice( void ) { return dynamic_cast<crVulkanRenderDevicep>( m_renderDevice ); }
+	crMemoryHeapp			GetHeap( void ) { return m_deviceHeap; }
 	vkSwapchainp 			Swapchain( void ) const { return m_swapchain; }
 	vkCommandbufferp 		GraphicCommandBuffer( void ) const { return m_graphicCommandBuffer; }
 
@@ -167,7 +168,7 @@ public:
 	// list that store render devices list
 	idList<crRenderDevicep>			m_renderDeviceList;
 	crRenderDevicep					m_renderDevice;
-	crMemoryHeap*					m_deviceHeap;
+	crMemoryHeapp					m_deviceHeap;
 	vkSwapchain*					m_swapchain;
 	vkCommandbuffer*				m_graphicCommandBuffer;
 	crFence*						m_frameFence;
@@ -189,7 +190,6 @@ public:
 	idImage* 				testImage;
 	idCinematic* 			testVideo;
 	int						testVideoStartTime;
-	
 
 	idImage* 				ambientCubeImage;	// hack for testing dependent ambient lighting
 	
