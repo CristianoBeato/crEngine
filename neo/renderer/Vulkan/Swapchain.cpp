@@ -57,7 +57,7 @@ static struct scFormat_t
 idCVar vk_swapchainFormat( "vk_swapChainFormat", "5", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " TODO " );
 idCVar vk_swapchainPresent( "vk_swapchainPresent", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " TODO " );
 
-vkSwapchain::vkSwapchain( void ) : 
+crSwapchain::crSwapchain( void ) : 
     m_width( 0 ),
     m_height( 0 ),
     m_currentImage( 0 ),
@@ -67,11 +67,11 @@ vkSwapchain::vkSwapchain( void ) :
 {
 }
 
-vkSwapchain::~vkSwapchain( void )
+crSwapchain::~crSwapchain( void )
 {
 }
 
-bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, const bool in_recreate )
+bool crSwapchain::Create( const uint32_t in_width, const uint32_t in_height, const bool in_recreate )
 {
     uint32_t i = 0;
     uint32_t numImages = 0;
@@ -160,39 +160,22 @@ bool vkSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     // Get the image array 
     vkGetSwapchainImagesKHR( *m_device, m_swapchain, &numImages, m_imagesArray.Ptr() );
     
-    VkImageViewCreateInfo createInfo{};
-    createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
-    createInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
-    createInfo.format = format.format;
-    createInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
-    createInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    createInfo.subresourceRange.baseMipLevel = 0;
-    createInfo.subresourceRange.levelCount = 1;
-    createInfo.subresourceRange.baseArrayLayer = 0;
-    createInfo.subresourceRange.layerCount = 1;
-
     // create the swap chain views
     for ( i = 0; i < numImages; i++) 
     {
-        m_presentImages[i].image = m_imagesArray[i];
-
         // destroy old view 
         if ( in_recreate )
             vkDestroyImageView( *m_device, m_presentImages[i], k_allocationCallbacks );
+
+        if( !m_presentImages[i].Create( m_imagesArray[i], crInternalFormat( format.format ), VK_IMAGE_VIEW_TYPE_2D ) )
+            return false;
     
-        createInfo.image = m_presentImages[i];    
-        result = vkCreateImageView( *m_device, &createInfo, k_allocationCallbacks, &m_presentImages[i].view ); 
-        if ( result != VK_SUCCESS ) 
-            common->FatalError( "vkSwapchain::PrepareImages::vkCreateImageView ERROR: %s\n", VulkanErrorString( result ).c_str() );
     }
     
     return true;
 }
 
-void vkSwapchain::Destroy(void)
+void crSwapchain::Destroy(void)
 {
     uint32_t i = 0;
     auto device = tr.GetRenderDevice();
@@ -200,7 +183,7 @@ void vkSwapchain::Destroy(void)
     for ( i = 0; i < m_presentImages.Num(); i++ )
     {
         // release color image view 
-        vkDestroyImageView( *device, m_presentImages[i].view, k_allocationCallbacks );
+        vkDestroyImageView( *device, m_presentImages[i].View(), k_allocationCallbacks );
     }
     
     if ( m_swapchain != nullptr )
@@ -218,7 +201,7 @@ void vkSwapchain::Destroy(void)
     m_imagesArray.Clear();
 }
 
-void vkSwapchain::AcquireImage( const crSemaphore* in_imageAvailable )
+void crSwapchain::AcquireImage( const crSemaphore* in_imageAvailable )
 {
     VkResult result = VK_SUCCESS;
     auto device = tr.GetRenderDevice();
@@ -235,10 +218,10 @@ void vkSwapchain::AcquireImage( const crSemaphore* in_imageAvailable )
     acquireNextImageInfo.deviceMask = device->Mask();
     result = vkAcquireNextImage2KHR( *device, &acquireNextImageInfo, &m_currentImage );
     if ( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR )
-        idLib::Error( "vkSwapchain::AcquireImage::vkAcquireNextImage2KHR %s\n", VulkanErrorString( result ).c_str() );
+        idLib::Error( "crSwapchain::AcquireImage::vkAcquireNextImage2KHR %s\n", VulkanErrorString( result ).c_str() );
 }
 
-void vkSwapchain::Present( const crSemaphore* in_renderDone )
+void crSwapchain::Present( const crSemaphore* in_renderDone )
 {
     VkResult result = VK_SUCCESS;
 
@@ -255,7 +238,7 @@ void vkSwapchain::Present( const crSemaphore* in_renderDone )
     vkQueuePresentKHR( m_presentQueue->Queue(), &presentInfo );
 }
 
-VkSurfaceFormatKHR vkSwapchain::GetPresentFormat( uint32_t in_format )
+VkSurfaceFormatKHR crSwapchain::GetPresentFormat( uint32_t in_format )
 {
     auto device = static_cast<crVulkanRenderDevicep>( tr.GetRenderDevice() );
     VkSurfaceFormatKHR format = formats[in_format].format;

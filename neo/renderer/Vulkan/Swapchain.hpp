@@ -22,23 +22,23 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __VK_SWAPCHAIN_HPP__
-#define __VK_SWAPCHAIN_HPP__
+#ifndef __SWAPCHAIN_HPP__
+#define __SWAPCHAIN_HPP__
 
 typedef class vkDeviceQueue* vkDeviceQueuep;
 typedef class crVulkanRenderDevice* crVulkanRenderDevicep;
 
-class vkSwapchain
+class crSwapchain
 {
 public:
-    vkSwapchain( void );
-    ~vkSwapchain( void );
+    crSwapchain( void );
+    ~crSwapchain( void );
 
     bool                            Create( const uint32_t in_width, const uint32_t in_height, const bool in_recreate );
     void                            Destroy( void );
     void                            AcquireImage( const crSemaphore* in_imageAvailable );
     void                            Present( const crSemaphore* in_renderDone );
-    ID_INLINE vkImageHandle_t*      Image( void ) const { return const_cast<vkImageHandle_t*>( &m_presentImages[m_currentImage] ); }
+    ID_INLINE crTexture*            Image( void ) const { return const_cast<crTexture*>( &m_presentImages[m_currentImage] ); }
 
 private:
     uint32_t                                        m_width;
@@ -50,10 +50,10 @@ private:
     VkSwapchainKHR                                  m_swapchain;
     idList<VkRenderingAttachmentInfo, TAG_VULKAN>   m_colorAttachments;
     idList<VkImage, TAG_VULKAN>                     m_imagesArray;
-    idList<vkImageHandle_t, TAG_VULKAN>             m_presentImages;
+    idList<crTexture, TAG_VULKAN>                   m_presentImages;
 
     VkSurfaceFormatKHR GetPresentFormat( uint32_t in_format );
 };
-typedef vkSwapchain* vkSwapchainp;
+typedef crSwapchain* crSwapchainp;
 
-#endif //!__VK_SWAPCHAIN_HPP__
+#endif //!__SWAPCHAIN_HPP__
