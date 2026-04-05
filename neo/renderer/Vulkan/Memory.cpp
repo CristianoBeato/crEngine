@@ -51,7 +51,7 @@ crMemoryPage::~crMemoryPage( void )
 crMemoryPage::Bind
 ==============
 */
-void crMemoryPage::Bind( const vkBuffer *in_buffer )
+void crMemoryPage::Bind( const crBuffer *in_buffer )
 {
     VkBuffer buffer = *in_buffer;
     auto result = vkBindBufferMemory( m_device, buffer, m_memory, static_cast<VkDeviceSize>( m_offset ) );
@@ -64,7 +64,7 @@ void crMemoryPage::Bind( const vkBuffer *in_buffer )
 crMemoryPage::Bind
 ==============
 */
-void crMemoryPage::Bind( const vkTexture *in_texture )
+void crMemoryPage::Bind( const crTexture *in_texture )
 {
     VkImage image = *in_texture;
     auto result = vkBindImageMemory( m_device, image, m_memory, static_cast<VkDeviceSize>( m_offset ) );
@@ -100,11 +100,20 @@ void crMemoryPage::Flush( const size_t in_size, const uintptr_t in_offset ) cons
     memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     memoryRange.pNext = nullptr;
     memoryRange.memory = m_memory;
-    memoryRange.offset = static_cast<VkDeviceSize>( in_offset );
+    memoryRange.offset = static_cast<VkDeviceSize>( m_offset + in_offset );
     memoryRange.size = static_cast<VkDeviceSize>( in_size );
     VkResult result = vkFlushMappedMemoryRanges( m_device, 1, &memoryRange );
     if( result != VK_SUCCESS )
         idLib::Error("crMemoryPage::Flush vkFlushMappedMemoryRanges failed %s\n", VulkanErrorString( result ) );
+}
+
+crMemoryPage::crMemoryPage(const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, VkDeviceMemory in_memory, VkDevice in_device ) :
+    m_size( in_size ),
+    m_alignment( in_alignment ),
+    m_offset( in_offset ),
+    m_memory( in_memory ),
+    m_device( in_device )
+{
 }
 
 /*
@@ -128,6 +137,101 @@ crMemoryPool::~crMemoryPool( void )
 
 /*
 ==============
+crMemoryPool::AllocPage
+==============
+*/
+crMemoryPage *crMemoryPool::AllocPage( const size_t in_size, const uintptr_t in_alignment )
+{
+    size_t      align = std::max( in_alignment, m_alignment );
+    size_t      size = __align( in_size, align );
+       
+    memoryBlock_t outBlock{};
+    for ( uint32_t i = 0; i < m_freeBlocks.Num(); i++ )
+    {
+        auto& block = m_freeBlocks[i];
+
+        size_t alignedOffset = __align( block.offset, align );
+        size_t padding = alignedOffset - block.offset;
+
+        if ( block.size < size + padding)
+            continue;
+
+        // encontrou espaço
+        outBlock.offset = alignedOffset;
+        outBlock.size = size;
+
+        // ajustar bloco livre
+        size_t remaining = block.size - ( size + padding );
+
+        if (padding > 0)
+            block.size = padding;
+        else
+            m_freeBlocks.RemoveIndex( i );
+
+        if (remaining > 0)
+            m_freeBlocks.Append( { alignedOffset + size, remaining } );
+
+        m_usedBlocks.Append( outBlock );
+        
+        break;
+    }
+
+    ///
+    crMemoryPage* page = new crMemoryPage( outBlock.size, align, outBlock.offset, m_memory, m_device );
+    m_pages.Append( page );
+    return page;
+}
+
+/*
+==============
+crMemoryPool::DeallocPage
+==============
+*/
+void crMemoryPool::DeallocPage( crMemoryPage *in_page )
+{
+    uint32_t i = 0, j = 0, k = 0;
+    for ( i = 0; i < m_usedBlocks.Num(); i++)
+    {
+        auto& block = m_freeBlocks[i];
+        if( block.offset == in_page->Offset() )
+        {
+            m_freeBlocks.Append( block );
+            
+            // merge blocos (coalescing)
+            for ( k = 0; k < m_freeBlocks.Num(); k++)
+            {
+                for ( j = i + 1; j < m_freeBlocks.Num(); j++)
+                {
+                    auto& a = m_freeBlocks[i];
+                    auto& b = m_freeBlocks[j];
+
+                    if (a.offset + a.size == b.offset)
+                    {
+                        a.size += b.size;
+                        m_freeBlocks.RemoveIndex( j );
+                        j--;
+                    }
+                    else if (b.offset + b.size == a.offset)
+                    {
+                        b.size += a.size;
+                        m_freeBlocks.RemoveIndex( k );
+                        i--;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    if ( in_page )
+    {
+        m_pages.Remove( in_page );
+        delete in_page;
+    }
+}
+
+/*
+==============
 crMemoryPool::Create
 ==============
 */
@@ -143,13 +247,16 @@ bool crMemoryPool::Create( const size_t in_size, const size_t in_alignment, cons
     allocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
     allocateInfo.pNext = nullptr;
     allocateInfo.allocationSize = in_size;
-    allocateInfo.memoryTypeIndex = in_filter;
+    allocateInfo.memoryTypeIndex = m_index;
     auto result = vkAllocateMemory( m_device, &allocateInfo, k_allocationCallbacks, &m_memory );
     if( result != VK_SUCCESS )
     {
         idLib::Error("crMemoryPool::Create vkAllocateMemory failed %s\n", VulkanErrorString( result ) );
         return false;
     }
+
+    // bloco livre inicial = tudo
+    m_freeBlocks.Append( { 0, in_size } );
 
     return true;
 }
@@ -177,6 +284,28 @@ void crMemoryPool::SetProperties(const uint32_t in_index, const uint32_t in_type
 {
     m_index = in_index;
     m_type = in_type;
+}
+
+/*
+==============
+crMemoryHeap::Map
+==============
+*/
+void *crMemoryPool::Map(void)
+{
+    vkMapMemory( m_device, m_memory, 0, VK_WHOLE_SIZE, 0, &m_mapped );
+    return m_mapped;
+}
+
+/*
+==============
+crMemoryHeap::Unmap
+==============
+*/
+void crMemoryPool::Unmap( void )
+{
+    vkUnmapMemory( m_device, m_memory );
+    m_mapped = nullptr;
 }
 
 /*
@@ -240,6 +369,7 @@ bool crMemoryHeap::Create( void )
     {
         /// aquire heap size
         m_heaps[i].total = props.memoryHeaps[i].size;
+        m_heaps[i].free = m_heaps[i].total;
         m_heaps[i].propertyFlags = props.memoryHeaps[i].flags;
     }
     
@@ -290,8 +420,12 @@ crMemoryPool* crMemoryHeap::Alloc( const size_t in_size, const size_t in_alignme
     }
 
     /// Alloc the memory
+    crMemoryPool* memoryPage = new crMemoryPool();
     if( !memoryPage->Create( alignedSize, in_alignment, in_properties ) )
+    {
+        delete memoryPage;
         return nullptr;
+    }
 
     /// update heap info
     m_heaps[type->heapIndex].free -= in_size;

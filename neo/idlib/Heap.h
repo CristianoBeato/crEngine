@@ -37,6 +37,11 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+static size_t __align( const size_t in_size, const size_t in_alignment ) 
+{
+    return ( in_size + in_alignment - 1) & ~( in_alignment - 1);
+}
+
 // memory tag names are used to sort allocations for sys_dumpMemory and other reporting functions
 enum memTag_t
 {

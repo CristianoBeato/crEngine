@@ -26,14 +26,17 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #define __MEMORY_HPP__
 
 /// @brief Suballocate from the pool
+class crBuffer;
+class crTexture;
+class crMemoryPool;
 class crMemoryPage
 {
 public:
     crMemoryPage( void );
     ~crMemoryPage( void );
 
-    void                Bind( const vkBuffer* in_buffer );
-    void                Bind( const vkTexture* in_texture );
+    void                Bind( const crBuffer* in_buffer );
+    void                Bind( const crTexture* in_texture );
     void*               Map( void ) const;
     void                Flush( const size_t in_size, const uintptr_t in_offset ) const;
     ID_INLINE size_t    Alignment( void ) const { return m_alignment; }
@@ -41,20 +44,33 @@ public:
     ID_INLINE size_t    Size( void ) const { return m_size; }
     ID_INLINE VkDeviceMemory    Memory( void ) const { return m_memory; }
 
+protected:
+    friend class crMemoryPool;
+    crMemoryPage( const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, VkDeviceMemory in_memory, VkDevice in_device );
+
 private:
     size_t          m_alignment;
     size_t          m_size;
     uintptr_t       m_offset;
     VkDeviceMemory  m_memory;
     VkDevice        m_device;
+    crMemoryPool*   m_pool;
 };
 
 /// @brief Allocate a Device memory pool ( to use whit multiples images or buffer)
 class crMemoryPool
 {
 public:
+    struct memoryBlock_t 
+    {
+        VkDeviceSize offset;
+        VkDeviceSize size;
+    };
+
     crMemoryPool( void );
     ~crMemoryPool( void );
+    crMemoryPage*   AllocPage( const size_t in_size, const uintptr_t in_offset );
+    void            DeallocPage( crMemoryPage* in_page );
     ID_INLINE size_t  Size( void ) const { return m_size; }
 
 protected:
@@ -62,6 +78,8 @@ protected:
     bool            Create( const size_t in_size, const size_t in_alignment, const uint32_t in_filter );
     void            Destroy( void );
     void            SetProperties( const uint32_t in_index, const uint32_t in_type );
+    void*           Map( void );
+    void            Unmap( void );
     uint32_t        GetIndex( void ) const { return m_index; }
     uint32_t        GetType( void ) const { return m_type; }
 
@@ -70,9 +88,12 @@ private:
     uint32_t                            m_type;
     size_t                              m_size;
     size_t                              m_alignment;
+    void*                               m_mapped = nullptr; // persistent mapping
     VkDeviceMemory                      m_memory;
     VkDevice                            m_device;
-    idList<crMemoryPage, TAG_VULKAN>    m_pages;
+    idList<memoryBlock_t>               m_freeBlocks;
+    idList<memoryBlock_t>               m_usedBlocks;
+    idList<crMemoryPage*, TAG_VULKAN>   m_pages;
 };
 
 class crMemoryHeap

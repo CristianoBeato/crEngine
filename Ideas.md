@@ -39,6 +39,9 @@
     - CommandBuffers. ( DONE )
         Vulkan, in order to summarize the Driver Overhead, uses command buffer structures, where commands are registered and sent in batches to the driver and subsequently executed sequentially by the GPU (this also serves to facilitate multithread management, but for now it is not necessary).
         
+    - Device memory management.
+        -Well, using AMD's VMA is a good option, but... Vulkan requires fine-tuned "manual" management of memory resources, unlike previous APIs where resources (Buffers, Images, etc.) have their memory allocated by the driver during object creation, or in the first allocation. In Vulkan, we have the available memory types and the total of each heap (each type of available device memory: device, system, cache), and then we have to manage how this memory will be allocated to each buffer and how each buffer will be linked to allocated portions of these memories. Things that VMA can handle easily, but for learning purposes and better use, I preferred to implement my own memory management system. 
+
     - Vertex/Index Buffers.
     - Transfer Buffers.
     - Texture Images.
