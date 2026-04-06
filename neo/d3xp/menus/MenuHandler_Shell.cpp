@@ -721,10 +721,10 @@ void idMenuHandler_Shell::ActivateMenu( bool show )
 							int c = mat->GetNumStages();
 							for( int i = 0; i < c; i++ )
 							{
-								const shaderStage_t* stage = mat->GetStage( i );
-								if( stage != nullptr && stage->texture.cinematic )
+								auto stage = mat->GetStage( i );
+								if( stage != nullptr && stage->Texture().cinematic )
 								{
-									stage->texture.cinematic->ResetTime( Sys_Milliseconds() );
+									stage->Texture().cinematic->ResetTime( Sys_Milliseconds() );
 								}
 							}
 						}
@@ -1454,10 +1454,10 @@ void idMenuHandler_Shell::ShowDoomIntro()
 			int c = mat->GetNumStages();
 			for( int i = 0; i < c; i++ )
 			{
-				const shaderStage_t* stage = mat->GetStage( i );
-				if( stage != nullptr && stage->texture.cinematic )
+				auto stage = mat->GetStage( i );
+				if( stage != nullptr && stage->Texture().cinematic )
 				{
-					stage->texture.cinematic->ResetTime( Sys_Milliseconds() );
+					stage->Texture().cinematic->ResetTime( Sys_Milliseconds() );
 				}
 			}
 		}
@@ -1646,10 +1646,10 @@ void idMenuHandler_Shell::ShowROEIntro()
 			int c = mat->GetNumStages();
 			for( int i = 0; i < c; i++ )
 			{
-				const shaderStage_t* stage = mat->GetStage( i );
-				if( stage != nullptr && stage->texture.cinematic )
+				const crShaderStage* stage = mat->GetStage( i );
+				if( stage != nullptr && stage->Texture().cinematic )
 				{
-					stage->texture.cinematic->ResetTime( Sys_Milliseconds() );
+					stage->Texture().cinematic->ResetTime( Sys_Milliseconds() );
 				}
 			}
 		}

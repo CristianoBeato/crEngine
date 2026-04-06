@@ -97,25 +97,7 @@ bool crTexture::Create( const image_type_t in_type, const dimensions_t in_dimens
     // get the image memory requirements
     vkGetImageMemoryRequirements( *device, m_image, &m_memoryRequirements );
     
-    memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    memoryAllocateInfo.pNext = nullptr;
-    memoryAllocateInfo.allocationSize = req.size;
-    memoryAllocateInfo.memoryTypeIndex = device->FindMemoryType( req.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
-    
-    result = vkAllocateMemory( *device, &memoryAllocateInfo, k_allocationCallbacks, &m_memory );
-    if ( result != VK_SUCCESS )
-    {
-        idLib::Error( "vkAllocateMemory error %s\n", VulkanErrorString( result ) );
-        return false;
-    };
-
-    result = vkBindImageMemory( *device, m_image, m_memory, 0 );
-    if ( result != VK_SUCCESS )
-    {
-        idLib::Error( "vkBindImageMemory error %s\n", VulkanErrorString( result ) );
-        return false;
-    };
-
+    /// Create image view
     imageSubresource.levelCount = in_dimensions.levels;
     imageSubresource.layerCount = in_dimensions.layers;
     imageSubresource.baseMipLevel = 0;

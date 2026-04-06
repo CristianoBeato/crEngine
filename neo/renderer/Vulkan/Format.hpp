@@ -88,7 +88,7 @@ typedef struct crInternalFormat
 // Just prevent missing enum outside of render library
 #ifdef __RENDERER_LIB__
     crInternalFormat( const VkFormat &in_format );
-    crInternalFormat    operator( const VkFormat in_format );
+    crInternalFormat    operator=( const VkFormat in_format );
     VkFormat            VKInternal( void ) const;
     operator            VkFormat( void ) const { return VKInternal(); }
 #endif //__RENDERER_LIB__ 

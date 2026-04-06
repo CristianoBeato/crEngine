@@ -393,7 +393,6 @@ crMemoryHeap::Alloc
 crMemoryPool* crMemoryHeap::Alloc( const size_t in_size, const size_t in_alignment, const uint32_t in_filter, const VkMemoryPropertyFlags in_properties )
 {
     memoryTypeInfo_t*   type = nullptr; 
-    crMemoryPool*       memoryPage = nullptr;
     size_t alignedSize = ( in_size + ( in_alignment - 1)) & ~( in_alignment - 1 );
 
     /// Find the suitabe memory type
