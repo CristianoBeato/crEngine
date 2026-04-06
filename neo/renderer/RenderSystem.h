@@ -248,6 +248,10 @@ extern idCVar r_skipShadows;				// disable shadows
 extern idCVar r_ignoreGLErrors;
 extern idCVar r_swapInterval;
 
+// BEATO Begin:
+extern idCVar r_bufferCount;				// 
+// BEATO End
+
 extern idCVar r_screenFraction;				// for testing fill rate, the resolution of the entire screen can be changed
 extern idCVar r_showUnsmoothedTangents;		// highlight geometry rendered with unsmoothed tangents
 extern idCVar r_showSilhouette;				// highlight edges that are casting shadow planes
@@ -367,7 +371,7 @@ public:
 ///
 ///
 ///
-class vkBuffer;
+class crBuffer;
 typedef class idImageManager* idImageManagerp;
 class idImageManager
 {
@@ -401,8 +405,8 @@ public:
 	virtual idImage*	DefaultImage( void ) const = 0;
 
 
-	virtual vkBuffer*	GetPixelUnpackBuffer( void ) const = 0;
-	virtual vkBuffer*	GetPixelPackBuffer( void ) const = 0;
+	virtual crBuffer*	GetPixelUnpackBuffer( void ) const = 0;
+	virtual crBuffer*	GetPixelPackBuffer( void ) const = 0;
 	// BEATO End
 };
 

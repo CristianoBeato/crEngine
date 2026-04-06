@@ -23,7 +23,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Format.hpp"
-#include "Core.hpp"
+#include "Core.hpp" 
 
 static const VkFormat K_VULKAN_FORMAT_TABLE[crInternalFormat::FORMAT_COUNT] = 
 {
@@ -60,6 +60,142 @@ static const VkFormat K_VULKAN_FORMAT_TABLE[crInternalFormat::FORMAT_COUNT] =
 };
 
 #ifdef __RENDERER_LIB__
+
+static inline crInternalFormat::format_t FromVulkan( const VkFormat &in_fmt )
+{
+    crInternalFormat::format_t format;
+    switch ( in_fmt )
+    {
+        case VK_FORMAT_R8_UNORM:
+            format = crInternalFormat::R8U;
+            break;
+        
+        case VK_FORMAT_R8_SRGB:
+            format = crInternalFormat::R8U_SRGB;
+            break;
+        
+        case VK_FORMAT_R16_UNORM:
+            format = crInternalFormat::R16U;
+            break;
+        
+        case VK_FORMAT_R8G8_UNORM:
+            format = crInternalFormat::RG8U;
+            break;
+        
+        case VK_FORMAT_R8G8_SRGB:
+            format = crInternalFormat::RG8U_SRGB;
+            break;
+        
+        case VK_FORMAT_R16G16_UNORM:
+            format = crInternalFormat::RG16U;
+            break;
+        
+        case VK_FORMAT_R8G8B8A8_UNORM:
+            format = crInternalFormat::RGBA8U;
+            break;
+        
+        case VK_FORMAT_R8G8B8A8_SRGB:
+            format = crInternalFormat::RGBA8U_SRGB;
+            break;
+        
+        case VK_FORMAT_R16G16B16A16_UNORM:
+            format = crInternalFormat::RGBA16U;
+            break;
+        
+        case VK_FORMAT_R16G16B16A16_SFLOAT:
+            format = crInternalFormat::RGBA16F;
+            break;
+        
+        case VK_FORMAT_R32G32B32A32_UINT:
+            format = crInternalFormat::RGBA32U;
+            break;
+        
+        case VK_FORMAT_R32G32B32A32_SFLOAT:
+            format = crInternalFormat::RGBA32F;
+            break;
+        
+        case VK_FORMAT_D16_UNORM:
+            format = crInternalFormat::DEPTH16;
+            break;
+        
+        case VK_FORMAT_D32_SFLOAT:
+            format = crInternalFormat::DEPTH32;
+            break;
+        
+        case VK_FORMAT_D24_UNORM_S8_UINT:
+            format = crInternalFormat::DEPTH24_STENCIL8;
+            break;
+        
+        case VK_FORMAT_D32_SFLOAT_S8_UINT:
+            format = crInternalFormat::DEPTH32_STENCIL8;
+            break;
+        
+        case VK_FORMAT_R5G6B5_UNORM_PACK16:
+            format = crInternalFormat::RGB565;
+            break;
+        
+        case VK_FORMAT_BC1_RGB_UNORM_BLOCK:
+            format = crInternalFormat::BC1_RGB;
+            break;
+        
+        case VK_FORMAT_BC1_RGB_SRGB_BLOCK:
+            format = crInternalFormat::BC1_SRGB;
+            break;
+        
+        case VK_FORMAT_BC3_UNORM_BLOCK:
+            format = crInternalFormat::BC3_RGBA;
+            break;
+        
+        case VK_FORMAT_BC3_SRGB_BLOCK:
+            format = crInternalFormat::BC3_SRGBA;
+            break;
+        
+        case VK_FORMAT_BC5_UNORM_BLOCK:
+            format = crInternalFormat::BC5_RG;
+            break;
+        
+        case VK_FORMAT_BC7_UNORM_BLOCK:
+            format = crInternalFormat::BC7_RGBA;
+            break;
+        
+        case VK_FORMAT_BC7_SRGB_BLOCK:
+            format = crInternalFormat::BC7_SRGBA;
+            break;
+        
+        case VK_FORMAT_BC6H_SFLOAT_BLOCK:
+            format = crInternalFormat::BC6H_RGBA;
+            break;
+        
+        case VK_FORMAT_ETC2_R8G8B8A8_UNORM_BLOCK:
+            format = crInternalFormat::ETC2_RGBA;
+            break;
+        
+        case VK_FORMAT_ETC2_R8G8B8A8_SRGB_BLOCK:
+            format = crInternalFormat::ETC2_SRGBA;
+            break;
+
+        case VK_FORMAT_EAC_R11G11_UNORM_BLOCK:
+            format = crInternalFormat::RG_EAC_RG;
+            break;
+    
+    default:
+        format = crInternalFormat::NONE;
+        break;
+    }
+
+    return format;
+}
+
+crInternalFormat::crInternalFormat( const VkFormat &in_format )
+{
+    format = FromVulkan( in_format );
+}
+
+crInternalFormat crInternalFormat::operator=( const VkFormat in_format )
+{
+    format = FromVulkan( in_format );
+}
+
 VkFormat crInternalFormat::VKInternal(void) const
 {
     return K_VULKAN_FORMAT_TABLE[static_cast<uint32_t>( format )];

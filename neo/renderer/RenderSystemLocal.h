@@ -31,6 +31,15 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERER_LOCAL_H__
 #define __RENDERER_LOCAL_H__
 
+// this just bypass to visual studio that can't 
+// see the definition in the CMake
+// Remove on release
+#ifndef __RENDERER_LIB__
+# define __RENDERER_LIB__
+#endif //!__RENDERER_LIB__
+
+#include "Vulkan/Core.hpp"
+
 /// @brief Most renderer globals are defined here.
 /// backend functions should never modify any of these fields,
 /// but may read fields that aren't dynamically modified

@@ -246,44 +246,16 @@ enum image_type_t : uint8_t
     IMAGE_TYPE_COUNT
 };
 
-typedef struct vkBufferHandle_s 
-{
-    VkBufferUsageFlags      usage;
-    VkPipelineStageFlags2   stage;
-    VkAccessFlags2          access;
-    VkBuffer                buffer;
-    operator VkBuffer( void ) const { return buffer; }
-} vkBufferHandle_t;
-
-// Helper to manage texture 
-typedef struct vkImageHandle_s
-{
-    VkImageLayout           layout      = VK_IMAGE_LAYOUT_UNDEFINED;
-    VkPipelineStageFlags2   stage       = VK_PIPELINE_STAGE_NONE;
-    VkAccessFlags2          access      = VK_ACCESS_NONE;
-    VkImage                 image       = nullptr;
-    VkImageView             view        = nullptr;
-
-    operator VkImage( void ) const { return image; }
-    operator VkImageView( void ) const { return view; }
-} vkImageHandle_t;
-
-extern void VkImageStateTransition( vkImageHandle_t* in_image,
-                                const VkCommandBuffer in_commandBuffer, 
-                                const VkImageLayout in_newLayout, 
-                                const VkPipelineStageFlags2 in_stageMask,
-                                const VkAccessFlags2 in_accessMask );
-
 #include "sys/sys_vulkan.hpp"
-#include "Format.hpp"
 #include "Utils.hpp"
 #include "Syncs.hpp"
 #include "Commandbuffer.hpp"
-#include "Swapchain.hpp"
 #include "Resource.hpp"
 #include "Memory.hpp"
+#include "Format.hpp"
 #include "Buffer.hpp"
 #include "Texture.hpp"
+#include "Swapchain.hpp"
 #include "Program.hpp"
 #include "Pipeline.hpp"
 #include "Queries.hpp"

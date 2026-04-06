@@ -22,10 +22,10 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __VK_TEXTURE_HPP__
-#define __VK_TEXTURE_HPP__
+#ifndef __TEXTURE_HPP__
+#define __TEXTURE_HPP__
 
-class vkTexture : public vkResourceState
+class crTexture
 {
 public:
     struct dimensions_t
@@ -37,19 +37,38 @@ public:
         uint32_t    depth = 0;
     };
     
-    vkTexture( void );
-    ~vkTexture( void );
+    struct state_t 
+    {
+        uint32_t                family;
+        VkImageLayout           layout;
+        VkPipelineStageFlags2   stage;
+        VkAccessFlags2          access;
+
+        bool operator==( const state_t & r ) const
+        {
+            return ( family == r.family ) && ( layout == r.layout ) && ( stage == r.stage ) && ( access == r.access );
+        }
+
+        bool operator==( const state_t & r )
+        {
+            return ( family == r.family ) && ( layout == r.layout ) && ( stage == r.stage ) && ( access == r.access );
+        }
+    };
+
+    crTexture( void );
+    ~crTexture( void );
     
-    bool                Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
-    void                Create( const VkImage in_image, const crInternalFormat in_format, const VkImageViewType in_viewType );
-    void                Destroy( void );
-    void                State( const VkCommandBuffer in_commandBuffer, const VkImageLayout in_newLayout, const VkPipelineStageFlags2 in_stageMask, const VkAccessFlags2 in_accessMask );
+    bool                        Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
+    bool                        Create( const VkImage in_image, const crInternalFormat in_format, const VkImageViewType in_viewType );
+    bool                        Storage( crMemoryPool* in_bufferPool );
+    void                        Destroy( void );
+    void                        SetState( const vkCommandbufferp in_commandBuffer, const state_t in_state );
     dimensions_t                Dimensions( void ) const { return m_dimensions; }
     const VkImage               Image( void ) const { return m_image; }
     const VkImageView           View( void ) const { return m_view; }
-    const VkImageLayout         Layout( void ) const { return m_layout; }
-    const VkPipelineStageFlags2 Stage( void ) const { return m_stage; }
-    const VkAccessFlags2        Access( void ) const {return m_access; }
+    const VkImageLayout         Layout( void ) const { return m_state.layout; }
+    const VkPipelineStageFlags2 Stage( void ) const { return m_state.stage; }
+    const VkAccessFlags2        Access( void ) const {return m_state.access; }
     const VkImageAspectFlags    Aspect( void ) const { return m_aspect; }
     const image_type_t          GetType( void ) const { return m_type; }
     const crInternalFormat      GetFormat( void ) const { return m_format; }
@@ -59,16 +78,14 @@ public:
 
 protected:
     image_type_t            m_type;
-    VkPipelineStageFlags2   m_stage;
     VkImageAspectFlags      m_aspect;
-    VkImageLayout           m_layout;
-    VkAccessFlags2          m_access;
-    VkImageAspectFlags      m_aspectMask;
     crInternalFormat        m_format;
+    state_t                 m_state;
     dimensions_t            m_dimensions;
+    VkMemoryRequirements    m_memoryRequirements;
     VkImage                 m_image;
     VkImageView             m_view;
-    VkDeviceMemory          m_memory;
+    crMemoryPage*           m_page;
 };
 
 class vkSampler

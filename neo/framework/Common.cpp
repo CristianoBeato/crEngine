@@ -1647,7 +1647,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		{
 			for( int i = 0; i < splashScreen->GetNumStages(); i++ )
 			{
-				idImage* image = splashScreen->GetStage( i )->texture.image;
+				idImage* image = splashScreen->GetStage( i )->Texture().image;
 				if( image != nullptr )
 					image->PurgeImage();
 				

@@ -337,9 +337,10 @@ void idMarkerWindow::Activate(bool activate, idStr &act) {
 				y2 = 63 * ((float)loggedStats[i+1].combat / COMBAT_MAX);
 				Line(x1, y1, x2, y2, imageBuff, 0xff00ffff);
 			}
-			const shaderStage_t *stage = background->GetStage(0);
+
+			auto stage = background->GetStage(0);
 			if (stage) {
-				stage->texture.image->UploadScratch((byte*)imageBuff, 512, 64);			
+				stage->Texture().image->UploadScratch((byte*)imageBuff, 512, 64);			
 			}
 			Mem_Free(imageBuff);
 		}

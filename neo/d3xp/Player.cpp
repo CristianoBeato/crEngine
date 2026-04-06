@@ -5402,10 +5402,10 @@ void idPlayer::PlayVideoDisk( const idDeclVideo* decl )
 		int c = pdaVideoMat->GetNumStages();
 		for( int i = 0; i < c; i++ )
 		{
-			const shaderStage_t* stage = pdaVideoMat->GetStage( i );
-			if( stage != nullptr && stage->texture.cinematic )
+			auto stage = pdaVideoMat->GetStage( i );
+			if( stage != nullptr && stage->Texture().cinematic )
 			{
-				stage->texture.cinematic->ResetTime( Sys_Milliseconds() );
+				stage->Texture().cinematic->ResetTime( Sys_Milliseconds() );
 			}
 		}
 		if( decl->GetWave() != nullptr )

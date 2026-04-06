@@ -77,6 +77,7 @@ set( RENDERER_IMAGES_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/images/BTFTextureFile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/BTFTextureFile.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_files.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/images/Image.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image.h
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_intrinsic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/images/Image_load.cpp

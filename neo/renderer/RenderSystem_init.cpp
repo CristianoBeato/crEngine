@@ -39,8 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "RenderSystemLocal.h"
 #endif
 
-idCVar vk_deviceID( "vk_deviceID", "-1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, " -1 select the device with the highest score, +0 select the device by index" );
-
 static bool r_initialized = false;
 
 // DeviceContext bypasses RenderSystem to work directly with this
@@ -60,7 +58,7 @@ idCVar r_displayRefresh( "r_displayRefresh", "0", CVAR_RENDERER | CVAR_INTEGER |
 // BEATO Begin:
 idCVar r_fullscreen( "r_fullscreen", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "-1 = bordeless window; 0 window mode; 1 dedicated fullscreen; 2 = bordeless full screen" );
 idCVar r_display( "r_display", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "Select the display index" );
-idCvar vk_deviceID( "vk_deviceID", "-1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "Select the vulkan display by index ( -1 choose the best )" );
+idCVar vk_deviceID( "vk_deviceID", "-1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "Select the vulkan display by index ( -1 choose the best )" );
 // BEATO End
 
 idCVar r_customWidth( "r_customWidth", "1280", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_INTEGER, "custom screen width. set r_vidMode to -1 to activate" );
@@ -352,7 +350,8 @@ idRenderSystemLocal::EndFrame
 void idRenderSystemLocal::EndFrame( void )
 {
 	/// Prepare image to presente
-	VkImageStateTransition( m_swapchain->Image(), *tr.GraphicCommandBuffer(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_NONE );
+	m_swapchain->Image()->SetState( tr.GraphicCommandBuffer(), {} );
+	//VkImageStateTransition( m_swapchain->Image(), *tr.GraphicCommandBuffer(), VK_IMAGE_LAYOUT_PRESENT_SRC_KHR, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, VK_PIPELINE_STAGE_NONE );
 
 	/// Register the timestap of the current frame
 	m_timerQuery->EndRegister(  m_graphicCommandBuffer );
@@ -364,10 +363,10 @@ void idRenderSystemLocal::EndFrame( void )
 
 /*
 =============================
-R_IsInitialized
+idRenderSystemLocal::IsInitialized
 =============================
 */
-bool R_IsInitialized( void )
+bool idRenderSystem::IsInitialized( void )
 {
 	return r_initialized;
 }
@@ -1686,7 +1685,7 @@ R_VidRestart_f
 void R_VidRestart_f( const idCmdArgs& args )
 {
 	// if OpenGL isn't started, do nothing
-	if( !R_IsInitialized() )
+	if( !tr.IsInitialized() )
 		return;
 	
 	auto globalImages = idImageManager::Get();
@@ -2220,7 +2219,7 @@ void idRenderSystemLocal::Shutdown( void )
 
 	fonts.DeleteContents();
 	
-	if( R_IsInitialized() )
+	if( tr.IsInitialized() )
 	{
 		globalFramebuffers->PurgeAllFramebuffers(); // foresthale 2014-02-18: framebuffer objects
 		globalImages->PurgeAllImages();
@@ -2383,7 +2382,7 @@ idRenderSystemLocal::InitOpenGL
 void idRenderSystemLocal::InitRenderAPI( void )
 {
 	// if Vulkan isn't started, start it now
-	if( !R_IsInitialized() )
+	if( !IsInitialized() )
 	{
 		common->Printf( "----- InitVulkan -----\n" );
 			
@@ -2436,12 +2435,10 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		if( glConfig.maxTextureSize <= 0 )
 			glConfig.maxTextureSize = 256;
 		
-		r_initialized = true;
-		
 		// recheck all the extensions
 		CheckPortableExtensions();
 		
-		r_initialized = true;
+		
 		
 		///
 		///
@@ -2449,15 +2446,17 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		m_graphicCommandBuffer = new vkCommandbuffer();
 		if( !m_graphicCommandBuffer->Create() )
 		{
+			r_initialized = false;
 			/// TODO: trow exceptions
 		}
 
 		///
 		///
 		/// Create the swapchain
-		m_swapchain = new vkSwapchain();
+		m_swapchain = new crSwapchain();
 		if( !m_swapchain->Create( glConfig.nativeScreenWidth, glConfig.nativeScreenHeight, false ) )
 		{
+			r_initialized = false;
 			/// TODO: 
 		}
 
@@ -2475,7 +2474,9 @@ void idRenderSystemLocal::InitRenderAPI( void )
 
 		/// Create time query
 		m_timerQuery = new vkTimeQueries();
-		m_timerQuery->Create();
+		m_timerQuery->Create( r_bufferCount.GetInteger() );
+
+		r_initialized = true;
 
 		// allocate the vertex array range or vertex objects
 		vertexCache.Init();
@@ -2559,7 +2560,6 @@ void idRenderSystemLocal::InitDevice(void)
 	m_deviceHeap = new crMemoryHeap();
 	if( !m_deviceHeap->Create() )
 		throw idException( "FAILED TO INITIALIZE DEVICE HEAP!\n" );
-	
 }
 
 /*
@@ -2648,7 +2648,7 @@ idRenderSystemLocal::IsOpenGLRunning
 */
 bool idRenderSystemLocal::IsRenderAPIRunning( void ) const
 {
-	return R_IsInitialized();
+	return IsInitialized();
 }
 
 /*

@@ -26,6 +26,9 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #define __MEMORY_HPP__
 
 /// @brief Suballocate from the pool
+class crBuffer;
+class crTexture;
+class crMemoryPool;
 class crMemoryPage
 {
 public:
@@ -54,6 +57,10 @@ public:
     ID_INLINE size_t            Size( void ) const { return m_size; }
     ID_INLINE VkDeviceMemory    Memory( void ) const { return m_memory; }
 
+protected:
+    friend class crMemoryPool;
+    crMemoryPage( const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, VkDeviceMemory in_memory, VkDevice in_device );
+
 private:
     size_t          m_alignment;
     size_t          m_size;
@@ -69,8 +76,16 @@ protected:
 class crMemoryPool
 {
 public:
+    struct memoryBlock_t 
+    {
+        VkDeviceSize offset;
+        VkDeviceSize size;
+    };
+
     crMemoryPool( void );
     ~crMemoryPool( void );
+    crMemoryPage*   AllocPage( const size_t in_size, const uintptr_t in_offset );
+    void            DeallocPage( crMemoryPage* in_page );
     ID_INLINE size_t  Size( void ) const { return m_size; }
     crMemoryPage*   Alloc( const size_t in_size, const size_t in_alignment );
     void            Free( crMemoryPage* in_page );

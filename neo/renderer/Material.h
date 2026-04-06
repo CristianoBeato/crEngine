@@ -265,14 +265,13 @@ public:
 
 protected:
 	friend class idMaterial;
-	int		ParseExpression( idLexer& src );
-	bool	MatchToken( idLexer& src, const char* match );
-	bool	ParseStage( idLexer& src, idMaterial &mtr );
-	void	ParseBlend( idLexer& in_src, idMaterial &mtr );
-	bool	ParseVertexParm( idLexer& src, idMaterial &mtr );
-	bool	ParseVertexParm2( idLexer& src, idMaterial &mtr );
-	bool	ParseFragmentMap( idLexer& src, idMaterial &mtr );
-	bool	InitPipeline( idMaterial &mtr );
+	bool	MatchToken( idLexer& in_src, const char* match );
+	bool	ParseStage( idLexer& in_src, idMaterial &in_mtr );
+	void	ParseBlend( idLexer& in_src, idMaterial &in_mtr );
+	bool	ParseVertexParm( idLexer& in_src, idMaterial &in_mtr );
+	bool	ParseVertexParm2( idLexer& in_src, idMaterial &in_mtr );
+	bool	ParseFragmentMap( idLexer& in_src, idMaterial &in_mtr );
+	bool	InitPipeline( idMaterial &in_mtr );
 
 private:
 	// BEATO Begin:

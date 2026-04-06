@@ -64,6 +64,8 @@ public:
     /// @return true on sucess 
     virtual bool    Create( const type_t in_type, const access_t in_acess, const size_t in_size );
         
+    virtual bool    Storage( crMemoryPool* in_bufferPool );
+
     /// @brief Destroy the buffer releasing the map and the memory 
     virtual void    Destroy( void );
 
@@ -82,13 +84,13 @@ public:
     /// @param in_data pointer to data to be uploaded.
     /// @param in_offset offset in buffer to be copied.
     /// @param in_size size of the data to be copied;
-    virtual void    Upload( const void* in_data, const uintptr_t in_offset, const size_t in_size ) const = 0;
+    virtual void    Upload( const void* in_data, const uintptr_t in_offset, const size_t in_size ) const {};
  
     /// @brief Retrieve the data from the buffer 
     /// @param in_data pointer to destination to be copied 
     /// @param in_offset offset in buffer to be copied.
     /// @param in_size size of the data to be copied;
-    virtual void    Download( void* in_data, const uintptr_t in_offset, const size_t in_size ) const = 0;
+    virtual void    Download( void* in_data, const uintptr_t in_offset, const size_t in_size ) const {};
 
     /// @brief buffer allocated size. 
     ID_INLINE size_t    Size( void ) { return m_page->Size(); }
@@ -102,55 +104,14 @@ public:
     ID_INLINE  operator VkBuffer( void ) const { return m_buffer; }
     
 private:
-    access_t                m_access;   // buffer access
     type_t                  m_type;     // Buffer type
     VkBufferUsageFlags      m_usage;      // current vulkan buffer usage
     VkPipelineStageFlags2   m_stage;      // current vulkan buffer stage
     VkAccessFlags2          m_access;     // current vulkan buffer access 
     uint32_t                m_queueFamily;
     VkBuffer                m_buffer;   // buffer host side handler 
+    VkMemoryRequirements    m_memoryRequirements;
     crMemoryPage*           m_page;
-};
-
-/// crBuffer
-/// @brief base class abstraction for common graphic buffer storage
-///
-class vkBuffer : public vkResourceState
-{
-public:
-    vkBuffer( void );
-    ~vkBuffer( void );
-
-    /// @brief create a fixed size buffer storage, data will remain maped till buffer are Destroyeds
-    /// @param in_type  the buffer storage usage type 
-    /// @param in_acess buffer acess for read or write 
-    /// @param in_size buffer size
-    /// @return true on sucess 
-    bool    Create( const type_t in_type, const access_t in_acess, const size_t in_size );
-            
-    
-    
-    virtual void    StateTransition( const state_t in_state ) override;
-    
-    
-    type_t      Type( void ) const { return m_type; }
-    size_t      Size( void ) const { return m_size; }
-    void*       Map( void ) const { return m_data; }
-    operator    VkBuffer( void ) const { return m_bufferHost; }
-protected:
-    uint32_t                m_family;       // buffer current queue
-    type_t                  m_type;         // type of buffer data storage
-    access_t                m_access;       // buffer access type
-    size_t                  m_size;         // bufer whole size
-    bufferState_t           m_bestate;      //
-    VkMemoryPropertyFlags   m_property;     // memory properties 
-    VkCommandBuffer         m_copyCmd;      // auxiliar command buffer, to store state transitins and copy commands 
-    VkBuffer                m_bufferClient; // buffer client side handler 
-    VkDeviceMemory          m_memoryHost;   // host side memory storage
-    VkDeviceMemory          m_memoryClient; // client side memory storage
-    void*                   m_data;         // pointer from buffer mapped data
-    void    SetState( const bufferState_t &in_state );
-    
 };
 
 #endif //!__VK_BUFFER_HPP__

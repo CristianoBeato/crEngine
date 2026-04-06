@@ -31,12 +31,12 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __IMAGE_MANAGER_HPP__
 #define __IMAGE_MANAGER_HPP__
 
-class vkBuffer;
+class crBuffer;
 struct pixelBuffer_t
 {
 	idSysInterlockedInteger	head;
 	idSysInterlockedInteger	tail;
-	vkBuffer*				buffer;
+	crBuffer*				buffer;
 };
 
 #include "Image.h"
@@ -166,8 +166,8 @@ public:
 	bool				preloadingMapImages;		// unless this is set
 
 // BEATO Begin:
-	virtual vkBuffer*	GetPixelUnpackBuffer( void ) const override { return m_pixelUnpack.buffer; };
-	virtual vkBuffer*	GetPixelPackBuffer( void ) const override { return m_pixelPack.buffer; }
+	virtual crBuffer*	GetPixelUnpackBuffer( void ) const override { return m_pixelUnpack.buffer; };
+	virtual crBuffer*	GetPixelPackBuffer( void ) const override { return m_pixelPack.buffer; }
 	
 	// z is 0 for 2D textures, 0 - 5 for cube maps, and 0 - uploadDepth for 3D textures. Only
 	// one plane at a time of 3D textures can be uploaded. The data is assumed to be correct for

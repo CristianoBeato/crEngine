@@ -526,7 +526,7 @@ static void R_AddSingleLight( viewLight_t* vLight )
 		shadowDrawSurf->numIndexes = 0;
 		shadowDrawSurf->space = &viewDef->worldSpace;
 		shadowDrawSurf->material = nullptr;
-		shadowDrawSurf->extraGLState = 0;
+		//shadowDrawSurf->extraGLState = 0;
 		shadowDrawSurf->shaderRegisters = nullptr;
 		shadowDrawSurf->scissorRect = vLight->scissorRect;		// default to the light scissor and light depth bounds
 		shadowDrawSurf->shadowVolumeState = SHADOWVOLUME_DONE;	// assume the shadow volume is done in case r_skipPrelightShadows is set

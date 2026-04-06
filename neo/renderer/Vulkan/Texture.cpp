@@ -51,7 +51,7 @@ static inline VkImageAspectFlags GetAspect( const VkFormat fmt )
     }
 }
 
-bool vkTexture::Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format )
+bool crTexture::Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format )
 {    
     idList<uint32_t>    queues;
     VkResult result = VK_SUCCESS;
@@ -95,27 +95,9 @@ bool vkTexture::Create( const image_type_t in_type, const dimensions_t in_dimens
     };
 
     // get the image memory requirements
-    vkGetImageMemoryRequirements( *device, m_image, &req );
+    vkGetImageMemoryRequirements( *device, m_image, &m_memoryRequirements );
     
-    memoryAllocateInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    memoryAllocateInfo.pNext = nullptr;
-    memoryAllocateInfo.allocationSize = req.size;
-    memoryAllocateInfo.memoryTypeIndex = device->FindMemoryType( req.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
-    
-    result = vkAllocateMemory( *device, &memoryAllocateInfo, k_allocationCallbacks, &m_memory );
-    if ( result != VK_SUCCESS )
-    {
-        idLib::Error( "vkAllocateMemory error %s\n", VulkanErrorString( result ) );
-        return false;
-    };
-
-    result = vkBindImageMemory( *device, m_image, m_memory, 0 );
-    if ( result != VK_SUCCESS )
-    {
-        idLib::Error( "vkBindImageMemory error %s\n", VulkanErrorString( result ) );
-        return false;
-    };
-
+    /// Create image view
     imageSubresource.levelCount = in_dimensions.levels;
     imageSubresource.layerCount = in_dimensions.layers;
     imageSubresource.baseMipLevel = 0;
@@ -161,7 +143,19 @@ bool vkTexture::Create( const image_type_t in_type, const dimensions_t in_dimens
     return true;
 }
 
-void vkTexture::Destroy(void)
+bool crTexture::Create(const VkImage in_image, const crInternalFormat in_format, const VkImageViewType in_viewType)
+{
+    return false;
+}
+
+bool crTexture::Storage( crMemoryPool *in_bufferPool )
+{
+    m_page = in_bufferPool->AllocPage( m_memoryRequirements.size, m_memoryRequirements.alignment );
+    m_page->Bind( this );
+    return true;
+}
+
+void crTexture::Destroy(void)
 {
     auto device = tr.GetRenderDevice();
     
@@ -171,17 +165,63 @@ void vkTexture::Destroy(void)
         m_view = nullptr;
     }
 
+#if 0
     if( m_memory != nullptr )
     {
         vkFreeMemory( *device, m_memory, k_allocationCallbacks );
         m_memory = nullptr;
     }
+#endif
 
     if( m_image != nullptr )
     {
         vkDestroyImage( *device, m_image, k_allocationCallbacks );
         m_image = nullptr;
     }
+}
+
+void crTexture::SetState( const vkCommandbufferp in_commandBuffer, const state_t in_state )
+{
+    /// no changes available
+    if ( in_state == m_state )
+        return;
+
+    /// update whole image
+    VkImageSubresourceRange subresourceRange{};
+    subresourceRange.aspectMask = m_aspect;
+    subresourceRange.baseMipLevel = 0;
+    subresourceRange.levelCount = m_dimensions.levels;
+    subresourceRange.baseArrayLayer = 0;
+    subresourceRange.layerCount = m_dimensions.layers;
+
+    VkImageMemoryBarrier2 imageMemoryBarriers{};
+    imageMemoryBarriers.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER_2;
+    imageMemoryBarriers.pNext = nullptr;
+    imageMemoryBarriers.srcStageMask = m_state.stage;
+    imageMemoryBarriers.srcAccessMask = m_state.access;
+    imageMemoryBarriers.dstStageMask = in_state.stage;
+    imageMemoryBarriers.dstAccessMask = in_state.access;
+    imageMemoryBarriers.oldLayout = m_state.layout;
+    imageMemoryBarriers.newLayout = in_state.layout;
+    imageMemoryBarriers.srcQueueFamilyIndex = m_state.family;
+    imageMemoryBarriers.dstQueueFamilyIndex = in_state.family;
+    imageMemoryBarriers.image = m_image;
+    imageMemoryBarriers.subresourceRange = subresourceRange;
+
+    // insert a state transition to destination
+    VkDependencyInfo dependencyInfo{};
+    dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    dependencyInfo.pNext = nullptr;
+    dependencyInfo.dependencyFlags = 0;
+    dependencyInfo.memoryBarrierCount = 0;
+    dependencyInfo.pMemoryBarriers = nullptr;
+    dependencyInfo.bufferMemoryBarrierCount = 0;
+    dependencyInfo.pBufferMemoryBarriers = nullptr;
+    dependencyInfo.imageMemoryBarrierCount = 1;
+    dependencyInfo.pImageMemoryBarriers = &imageMemoryBarriers;
+    vkCmdPipelineBarrier2( *in_commandBuffer, &dependencyInfo );
+
+    m_state = in_state;
 }
 
 vkSampler::vkSampler( void ) : m_sampler( nullptr )
