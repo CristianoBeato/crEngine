@@ -736,7 +736,6 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				baseDrawSurf->frontEndGeo = tri;
 				baseDrawSurf->space = vEntity;
 				baseDrawSurf->scissorRect = vEntity->scissorRect;
-				baseDrawSurf->extraGLState = 0;
 				baseDrawSurf->renderZFail = 0;
 
 				R_SetupDrawSurfShader( baseDrawSurf, shader, renderEntity );
@@ -923,7 +922,6 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						lightDrawSurf->frontEndGeo = tri;
 						lightDrawSurf->space = vEntity;
 						lightDrawSurf->material = shader;
-						lightDrawSurf->extraGLState = 0;
 						lightDrawSurf->scissorRect = vLight->scissorRect; // interactionScissor;
 						lightDrawSurf->sort = 0.0f;
 						lightDrawSurf->renderZFail = 0;
@@ -1060,7 +1058,6 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						shadowDrawSurf->frontEndGeo = tri;
 						shadowDrawSurf->space = vEntity;
 						shadowDrawSurf->material = shader;
-						shadowDrawSurf->extraGLState = 0;
 						shadowDrawSurf->scissorRect = vLight->scissorRect; // interactionScissor;
 						shadowDrawSurf->sort = 0.0f;
 						shadowDrawSurf->renderZFail = 0;
@@ -1234,7 +1231,6 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			shadowDrawSurf->frontEndGeo = nullptr;
 			shadowDrawSurf->space = vEntity;
 			shadowDrawSurf->material = nullptr;
-			shadowDrawSurf->extraGLState = 0;
 			shadowDrawSurf->sort = 0.0f;
 			shadowDrawSurf->shaderRegisters = nullptr;
 			

@@ -31,6 +31,15 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __RENDERER_LOCAL_H__
 #define __RENDERER_LOCAL_H__
 
+// this just bypass to visual studio that can't 
+// see the definition in the CMake
+// Remove on release
+#ifndef __RENDERER_LIB__
+# define __RENDERER_LIB__
+#endif //!__RENDERER_LIB__
+
+#include "Vulkan/Core.hpp"
+
 /// @brief Most renderer globals are defined here.
 /// backend functions should never modify any of these fields,
 /// but may read fields that aren't dynamically modified
@@ -112,7 +121,8 @@ public:
 
 	/// get current vulkan device
 	crVulkanRenderDevicep	GetRenderDevice( void ) { return dynamic_cast<crVulkanRenderDevicep>( m_renderDevice ); }
-	vkSwapchainp 			Swapchain( void ) const { return m_swapchain; }
+	crMemoryHeap*			GetDeviceHeap( void ) { return m_deviceHeap; }
+	crSwapchainp 			Swapchain( void ) const { return m_swapchain; }
 	vkCommandbufferp 		GraphicCommandBuffer( void ) const { return m_graphicCommandBuffer; }
 
 public:
@@ -168,7 +178,7 @@ public:
 	idList<crRenderDevicep>			m_renderDeviceList;
 	crRenderDevicep					m_renderDevice;
 	crMemoryHeap*					m_deviceHeap;
-	vkSwapchain*					m_swapchain;
+	crSwapchain*					m_swapchain;
 	vkCommandbuffer*				m_graphicCommandBuffer;
 	crFence*						m_frameFence;
 	crSemaphoreRoundRobin*			m_frameSubmit;

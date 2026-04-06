@@ -205,14 +205,13 @@ void idImage::GenerateCubeImage( const byte* pic[6], int size, textureUsage_t us
 }
 
 // RB begin
-void idImage::GenerateShadowArray( int width, int height, textureFilter_t filterParm, textureRepeat_t repeatParm, textureUsage_t usageParm )
+void idImage::GenerateShadowArray(uint32_t width, uint32_t height, textureUsage_t usage)
 {
 	PurgeImage();
 	
-	usage = usageParm;
 	cubeFiles = CF_2D_ARRAY;
 	
-	opts.textureType = TT_2D_ARRAY;
+	opts.textureType = IMAGE_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;

@@ -332,11 +332,11 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 
 		if( !token.Icmp( "uncompressedCubeMap" ) ) 
 		{			
-			if( r_useHightQualitySky.GetBool() ) 
+//			if( r_useHightQualitySky.GetBool() ) 
 				td = TD_HIGHQUALITY_CUBE;	// motorsep 05-17-2015; token to mark cumebap/skybox to be uncompressed texture									
 
-			if( !r_useHightQualitySky.GetBool() ) 
-				td = TD_LOWQUALITY_CUBE;
+///			if( !r_useHightQualitySky.GetBool() ) 
+//				td = TD_LOWQUALITY_CUBE;
 			
 			continue;
 		}	
@@ -389,9 +389,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 			else if( !token.Icmp( "wobbleSky" ) )
 			{
 				m_texture.texgen = TG_WOBBLESKY_CUBE;
-				mtr.texGenRegisters[0] = ParseExpression( src );
-				mtr.texGenRegisters[1] = ParseExpression( src );
-				mtr.texGenRegisters[2] = ParseExpression( src );
+				mtr.texGenRegisters[0] = mtr.ParseExpression( src );
+				mtr.texGenRegisters[1] = mtr.ParseExpression( src );
+				mtr.texGenRegisters[2] = mtr.ParseExpression( src );
 			}
 			else if ( !token.Icmp( "scriptsky" ) )
 			{
@@ -407,9 +407,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 
 		if( !token.Icmp( "scroll" ) || !token.Icmp( "translate" ) )
 		{
-			a = ParseExpression( src );
+			a = mtr.ParseExpression( src );
 			MatchToken( src, "," );
-			b = ParseExpression( src );
+			b = mtr.ParseExpression( src );
 			matrix[0][0] = mtr.GetExpressionConstant( 1 );
 			matrix[0][1] = mtr.GetExpressionConstant( 0 );
 			matrix[0][2] = a;
@@ -422,9 +422,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		}
 		if( !token.Icmp( "scale" ) )
 		{
-			a = ParseExpression( src );
+			a = mtr.ParseExpression( src );
 			MatchToken( src, "," );
-			b = ParseExpression( src );
+			b = mtr.ParseExpression( src );
 			// this just scales without a centering
 			matrix[0][0] = a;
 			matrix[0][1] = mtr.GetExpressionConstant( 0 );
@@ -438,9 +438,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		}
 		if( !token.Icmp( "centerScale" ) )
 		{
-			a = ParseExpression( src );
+			a = mtr.ParseExpression( src );
 			MatchToken( src, "," );
-			b = ParseExpression( src );
+			b = mtr.ParseExpression( src );
 			// this subtracts 0.5, then scales, then adds 0.5
 			matrix[0][0] = a;
 			matrix[0][1] = mtr.GetExpressionConstant( 0 );
@@ -454,9 +454,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		}
 		if( !token.Icmp( "shear" ) )
 		{
-			a = ParseExpression( src );
+			a = mtr.ParseExpression( src );
 			MatchToken( src, "," );
-			b = ParseExpression( src );
+			b = mtr.ParseExpression( src );
 			// this subtracts 0.5, then shears, then adds 0.5
 			matrix[0][0] = mtr.GetExpressionConstant( 1 );
 			matrix[0][1] = a;
@@ -474,7 +474,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 			int		sinReg, cosReg;
 			
 			// in cycles
-			a = ParseExpression( src );
+			a = mtr.ParseExpression( src );
 			
 			table = static_cast<const idDeclTable*>( declManager->FindType( DECL_TABLE, "sinTable", false ) );
 			if( !table )
@@ -552,7 +552,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		if( !token.Icmp( "alphaTest" ) )
 		{
 			m_alphaTestRegister = true;
-			m_alphaTestRegister = ParseExpression( src );
+			m_alphaTestRegister = mtr.ParseExpression( src );
 			mtr.coverage = MC_PERFORATED;
 			continue;
 		}
@@ -570,49 +570,49 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		
 		if( !token.Icmp( "color" ) )
 		{
-			m_color.registers[0] = ParseExpression( src );
+			m_color.registers[0] = mtr.ParseExpression( src );
 			MatchToken( src, "," );
-			m_color.registers[1] = ParseExpression( src );
+			m_color.registers[1] = mtr.ParseExpression( src );
 			MatchToken( src, "," );
-			m_color.registers[2] = ParseExpression( src );
+			m_color.registers[2] = mtr.ParseExpression( src );
 			MatchToken( src, "," );
-			m_color.registers[3] = ParseExpression( src );
+			m_color.registers[3] = mtr.ParseExpression( src );
 			continue;
 		}
 
 		if( !token.Icmp( "red" ) )
 		{
-			m_color.registers[0] = ParseExpression( src );
+			m_color.registers[0] = mtr.ParseExpression( src );
 			continue;
 		}
 
 		if( !token.Icmp( "green" ) )
 		{
-			m_color.registers[1] = ParseExpression( src );
+			m_color.registers[1] = mtr.ParseExpression( src );
 			continue;
 		}
 
 		if( !token.Icmp( "blue" ) )
 		{
-			m_color.registers[2] = ParseExpression( src );
+			m_color.registers[2] = mtr.ParseExpression( src );
 			continue;
 		}
 
 		if( !token.Icmp( "alpha" ) )
 		{
-			m_color.registers[3] = ParseExpression( src );
+			m_color.registers[3] = mtr.ParseExpression( src );
 			continue;
 		}
 
 		if( !token.Icmp( "rgb" ) )
 		{
-			m_color.registers[0] = m_color.registers[1] = m_color.registers[2] = ParseExpression( src );
+			m_color.registers[0] = m_color.registers[1] = m_color.registers[2] = mtr.ParseExpression( src );
 			continue;
 		}
 
 		if( !token.Icmp( "rgba" ) )
 		{
-			m_color.registers[0] = m_color.registers[1] = m_color.registers[2] = m_color.registers[3] = ParseExpression( src );
+			m_color.registers[0] = m_color.registers[1] = m_color.registers[2] = m_color.registers[3] = mtr.ParseExpression( src );
 			continue;
 		}
 
@@ -626,7 +626,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		
 		if( !token.Icmp( "if" ) )
 		{
-			m_conditionRegister = ParseExpression( src );
+			m_conditionRegister = mtr.ParseExpression( src );
 			continue;
 		}
 
@@ -856,11 +856,11 @@ If there are two values, 3 = 0.0, 4 = 1.0
 if there are three values, 4 = 1.0
 ================
 */
-bool crShaderStage::ParseVertexParm( idLexer& src, idMaterial &mtr )
+bool crShaderStage::ParseVertexParm( idLexer &in_src, idMaterial &in_mtr )
 {
 	idToken				token;
 	
-	src.ReadTokenOnLine( &token );
+	in_src.ReadTokenOnLine( &token );
 	int	parm = token.GetIntValue();
 	if( !token.IsNumeric() || parm < 0 || parm >= MAX_VERTEX_PARMS )
 	{
@@ -871,35 +871,35 @@ bool crShaderStage::ParseVertexParm( idLexer& src, idMaterial &mtr )
 	if( parm >= m_numVertexParms )
 		m_numVertexParms = parm + 1;
 	
-	m_vertexParms[parm][0] = ParseExpression( src );
+	m_vertexParms[parm][0] = in_mtr.ParseExpression( in_src );
 	
-	src.ReadTokenOnLine( &token );
+	in_src.ReadTokenOnLine( &token );
 	if( !token[0] || token.Icmp( "," ) )
 	{
 		m_vertexParms[parm][1] = m_vertexParms[parm][2] = m_vertexParms[parm][3] = m_vertexParms[parm][0];
 		return true;
 	}
 	
-	m_vertexParms[parm][1] = ParseExpression( src );
+	m_vertexParms[parm][1] = in_mtr.ParseExpression( in_src );
 	
-	src.ReadTokenOnLine( &token );
+	in_src.ReadTokenOnLine( &token );
 	if( !token[0] || token.Icmp( "," ) )
 	{
-		m_vertexParms[parm][2] = mtr.GetExpressionConstant( 0 );
-		m_vertexParms[parm][3] = mtr.GetExpressionConstant( 1 );
+		m_vertexParms[parm][2] = in_mtr.GetExpressionConstant( 0 );
+		m_vertexParms[parm][3] = in_mtr.GetExpressionConstant( 1 );
 		return true;
 	}
 	
-	m_vertexParms[parm][2] = ParseExpression( src );
+	m_vertexParms[parm][2] = in_mtr.ParseExpression( in_src );
 	
-	src.ReadTokenOnLine( &token );
+	in_src.ReadTokenOnLine( &token );
 	if( !token[0] || token.Icmp( "," ) )
 	{
-		m_vertexParms[parm][3] = mtr.GetExpressionConstant( 1 );
+		m_vertexParms[parm][3] = in_mtr.GetExpressionConstant( 1 );
 		return true;
 	}
 	
-	m_vertexParms[parm][3] = ParseExpression( src );
+	m_vertexParms[parm][3] = in_mtr.ParseExpression( in_src );
 	return true;
 }
 
@@ -908,10 +908,10 @@ bool crShaderStage::ParseVertexParm( idLexer& src, idMaterial &mtr )
 crShaderStage::ParseVertexParm2
 ================
 */
-bool crShaderStage::ParseVertexParm2( idLexer& src, idMaterial &mtr )
+bool crShaderStage::ParseVertexParm2( idLexer& in_src, idMaterial &in_mtr )
 {
 	idToken	token;
-	src.ReadTokenOnLine( &token );
+	in_src.ReadTokenOnLine( &token );
 	int	parm = token.GetIntValue();
 	if( !token.IsNumeric() || parm < 0 || parm >= MAX_VERTEX_PARMS )
 	{
@@ -922,13 +922,13 @@ bool crShaderStage::ParseVertexParm2( idLexer& src, idMaterial &mtr )
 	if( parm >= m_numVertexParms )
 		m_numVertexParms = parm + 1;
 	
-	m_vertexParms[parm][0] = ParseExpression( src );
-	MatchToken( src, "," );
-	m_vertexParms[parm][1] = ParseExpression( src );
-	MatchToken( src, "," );
-	m_vertexParms[parm][2] = ParseExpression( src );
-	MatchToken( src, "," );
-	m_vertexParms[parm][3] = ParseExpression( src );
+	m_vertexParms[parm][0] = in_mtr.ParseExpression( in_src );
+	MatchToken( in_src, "," );
+	m_vertexParms[parm][1] = in_mtr.ParseExpression( in_src );
+	MatchToken( in_src, "," );
+	m_vertexParms[parm][2] = in_mtr.ParseExpression( in_src );
+	MatchToken( in_src, "," );
+	m_vertexParms[parm][3] = in_mtr.ParseExpression( in_src );
 
 	return true;
 }

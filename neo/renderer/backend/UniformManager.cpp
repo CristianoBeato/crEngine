@@ -111,10 +111,8 @@ void crUniformManager::ShutDown(void)
 
     for ( uint32_t i = 0; i < MAX_BINDINGS; i++)
     {
-        m_shaderStorageBuffers[i]->Destroy();   
         delete m_shaderStorageBuffers[i];
     }
-    
 }
 
 void crUniformManager::SetFrame( const uint32_t in_frameID, const vkCommandbuffer * in_commandBuffer )
@@ -210,10 +208,37 @@ void crUniformManager::SubmitOffsets( const vkCommandbuffer* in_commandBuffer )
 
 void crUniformManager::CreateStorageBuffers(void)
 {
+    VkDeviceSize currentOffset = 0;
+    uint32_t memoryTypeBits = 0xFFFFFFFF;
+    auto device = tr.GetRenderDevice();
+    auto devHeap = tr.GetDeviceHeap();
+    auto devProperties = device->Properties();
+
+    for ( uint32_t i = 0; i < MAX_BINDINGS; i++)
+    {    
+        VkMemoryRequirements memReq;
+        m_shaderStorageBuffers[i] = new crBuffer();
+        if( !m_shaderStorageBuffers[i]->Create( crBuffer::BUFFER_TYPE_SHADER, crBuffer::BUFFER_ACCESS_WRITE, k_BUFFERS_SIZES[i] ) )
+            idLib::FatalError( "Failed to create shader storage buffer\n");
+
+        // Aligns the current offset according to the buffer requirement.
+        currentOffset = __align( currentOffset, memReq.alignment );
+    
+        // Add the buffer size to the offset for the next
+        currentOffset += memReq.size;
+
+        // Combines the supported memory type bits (bit-by-bit AND).
+        memoryTypeBits &= memReq.memoryTypeBits;
+    }
+
+    // alloc a shared shader storage memory pool
+    m_buffersMemPool = devHeap->Alloc( currentOffset, devProperties.shaderStorageAlignment, memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT );
+    if( m_buffersMemPool )
+        idLib::FatalError( "Shader storage buffers memory pool allocation failed, no suitable memory four or no available memory size\n" );
+
     for ( uint32_t i = 0; i < MAX_BINDINGS; i++)
     {
-        m_shaderStorageBuffers[i] = new vkBuffer();
-        m_shaderStorageBuffers[i]->Create( vkBuffer::BUFFER_TYPE_SHADER, vkBuffer::BUFFER_ACCESS_WRITE, k_BUFFERS_SIZES[i] );
+        m_shaderStorageBuffers[i]->Storage( m_buffersMemPool );
     }
 }
 

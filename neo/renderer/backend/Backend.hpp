@@ -41,14 +41,14 @@ struct beState_t
 	vertexLayoutType_t	vertexLayout;
 	
 	// RB: 64 bit fixes, changed unsigned int to uintptr_t
-	vkBufferHandle_t*	currentVertexBuffer;
-	vkBufferHandle_t*	currentIndexBuffer;
+	crBuffer*	currentVertexBuffer;
+	crBuffer*	currentIndexBuffer;
 	// RB end
 	
-	float				polyOfsScale;
-	float				polyOfsBias;
+	float		polyOfsScale;
+	float		polyOfsBias;
 	
-	uint64_t				glStateBits;
+	uint64_t	glStateBits;
 };
 
 struct backEndCounters_t
@@ -158,6 +158,8 @@ public:
 	drawSurf_t			testImageSurface;
 
 private:
+	uint32_t			m_numBuffers;
+
 	const viewDef_t*	viewDef;
 	backEndCounters_t	pc;
 	
@@ -171,15 +173,11 @@ private:
 	idRenderMatrix		prevMVP[2];				// world MVP from previous frame for motion blur, per-eye
 	idRenderMatrix		shadowV[6];				// shadow depth view matrix
 	idRenderMatrix		shadowP[6];				// shadow depth projection matrix
-	
-	
-	/// @brief  frame control
-    idList<vkImageHandle_t, TAG_VULKAN>		m_presentImages;
 
 	uint32_t			m_frameID;		/// current frame buffers parity
 	uint64_t			m_frame;		/// current rendering frame number
 	VkClearValue 		m_clearValues;
-	vkFramebuffer*		m_defaultFB;		
+	crFramebuffer*		m_defaultFB;		
 
 	void	DrawFlickerBox( void );
 	void	SetBuffer( const void* data );
@@ -209,12 +207,6 @@ private:
 	void	Clear( bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a );
 	void	Scissor( const int x /* left*/, const int y /* bottom */, const int w, const int h );
 	void	Viewport( const int x /* left */, const int y /* bottom */, const int w, const int h );
-	
-	
-	
-	// wait for the GPU to reach the last end frame marker
-	void	WaitForEndFrame( void );
-
 	ID_INLINE void	Scissor( const idScreenRect& rect );
 	ID_INLINE void	Viewport( const idScreenRect& rect );
 	ID_INLINE void	ViewportAndScissor( const int x, const int y, const int w, const int h );
@@ -224,30 +216,12 @@ private:
 
 ID_INLINE void crBackend::Scissor( const idScreenRect& in_rect )
 {
-	VkRect2D rect{};
-	auto cmd = m_graphicCommandBuffer->CommandBuffer();
-    rect.offset.x = in_rect.x1;
-    rect.offset.y = in_rect.y1;
-    rect.extent.width = in_rect.GetWidth();
-    rect.extent.height = in_rect.GetHeight();
-    vkCmdSetScissor( cmd, 0, 1, &rect );		
+	Scissor( in_rect.x1, in_rect.y1, in_rect.GetWidth(), in_rect.GetHeight() );
 }
 
-ID_INLINE void crBackend::Viewport( const idScreenRect& rect )
+ID_INLINE void crBackend::Viewport( const idScreenRect& in_rect )
 {
-	VkViewport viewport{};
-	auto cmd = m_graphicCommandBuffer->CommandBuffer();
-	float x = static_cast<float>( rect.x1 );
-	float y = static_cast<float>( rect.y1 );
-	float w = static_cast<float>( rect.GetWidth() );
-	float h = static_cast<float>( rect.GetHeight() );
-    viewport.x = x;
-    viewport.y = y + h;
-    viewport.width = w;
-    viewport.height = -std::abs(h);;
-    viewport.minDepth = 0.0f;
-    viewport.maxDepth = 1.0f;
-    vkCmdSetViewport( cmd, 0, 1, &viewport );
+	Scissor( in_rect.x1, in_rect.y1, in_rect.GetWidth(), in_rect.GetHeight() );
 }
 
 ID_INLINE void crBackend::ViewportAndScissor( int x, int y, int w, int h )

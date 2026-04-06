@@ -247,12 +247,12 @@ enum image_type_t : uint8_t
 };
 
 #include "sys/sys_vulkan.hpp"
-#include "Format.hpp"
 #include "Utils.hpp"
 #include "Syncs.hpp"
 #include "Commandbuffer.hpp"
 #include "Resource.hpp"
 #include "Memory.hpp"
+#include "Format.hpp"
 #include "Buffer.hpp"
 #include "Texture.hpp"
 #include "Swapchain.hpp"

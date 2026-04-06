@@ -80,28 +80,22 @@ idSWF::Render
 void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 {
 	if( !IsLoaded() )
-	{
 		return;
-	}
+
 	if( !IsActive() )
-	{
 		return;
-	}
+
 	if( swf_stopat.GetInteger() > 0 )
 	{
 		if( mainspriteInstance->currentFrame == swf_stopat.GetInteger() )
-		{
 			swf_timescale.SetFloat( 0.0f );
-		}
 	}
 	
 	int currentTime = Sys_Milliseconds();
 	int framesToRun = 0;
 	
 	if( paused )
-	{
 		lastRenderTime = currentTime;
-	}
 	
 	if( swf_timescale.GetFloat() > 0.0f )
 	{
@@ -167,7 +161,7 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 	
 	if( isMouseInClientArea && ( mouseEnabled && useMouse ) && ( InhibitControl() || ( !InhibitControl() && !useInhibtControl ) ) )
 	{
-		gui->SetGLState( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
+		//gui->SetGLState( GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA );
 		gui->SetColor( idVec4( 1.0f, 1.0f, 1.0f, 1.0f ) );
 		idVec2 mouse = renderState.matrix.Transform( idVec2( mouseX - 1, mouseY - 2 ) );
 		//idSWFScriptObject * hitObject = HitTest( mainspriteInstance, swfRenderState_t(), mouseX, mouseY, nullptr );
@@ -183,7 +177,7 @@ void idSWF::Render( idRenderSystem* gui, int time, bool isSplitscreen )
 	}
 	
 	// restore the GL State
-	gui->SetGLState( 0 );
+	// gui->SetGLState( 0 );
 }
 
 /*
@@ -590,7 +584,7 @@ void idSWF::RenderMorphShape( idRenderSystem* gui, const idSWFShape* shape, cons
 		
 		swfMatrix_t invMatrix = styleMatrix.Inverse();
 		
-		gui->SetGLState( GLStateForRenderState( renderState ) );
+		//gui->SetGLState( GLStateForRenderState( renderState ) );
 		
 		idDrawVert* verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );
 		if( verts == nullptr )
@@ -705,7 +699,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		}
 		idVec2 oneOverSize( 1.0f / size.x, 1.0f / size.y );
 		
-		gui->SetGLState( GLStateForRenderState( renderState ) );
+		//gui->SetGLState( GLStateForRenderState( renderState ) );
 		
 		idDrawVert* verts = gui->AllocTris( fill.startVerts.Num(), fill.indices.Ptr(), fill.indices.Num(), material, renderState.stereoDepth );
 		if( verts == nullptr )
@@ -777,7 +771,7 @@ void idSWF::RenderShape( idRenderSystem* gui, const idSWFShape* shape, const swf
 		uint32_t packedColorM = LittleLong( PackColor( color.mul ) );
 		uint32_t packedColorA = LittleLong( PackColor( ( color.add * 0.5f ) + idVec4( 0.5f ) ) ); // Compress from -1..1 to 0..1
 		
-		gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
+		//gui->SetGLState( GLStateForRenderState( renderState ) | GLS_POLYMODE_LINE );
 		
 		idDrawVert* verts = gui->AllocTris( line.startVerts.Num(), line.indices.Ptr(), line.indices.Num(), white, renderState.stereoDepth );
 		if( verts == nullptr )
@@ -972,7 +966,7 @@ void idSWF::RenderEditText( idRenderSystem* gui, idSWFTextInstance* textInstance
 	selColor.w *= 0.5f;
 	
 	gui->SetColor( defaultColor );
-	gui->SetGLState( GLStateForRenderState( renderState ) );
+	//gui->SetGLState( GLStateForRenderState( renderState ) );
 	
 	swfRect_t bounds;
 	bounds.tl.x = xScale * ( shape->bounds.tl.x + SWFTWIP( shape->leftMargin ) );

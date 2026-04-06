@@ -39,7 +39,7 @@ inline constexpr int 		FOG_ENTER_SIZE	= 64;
 inline constexpr float 		FOG_ENTER		= ( FOG_ENTER_SIZE + 1.0f ) / ( FOG_ENTER_SIZE * 2 );
 
 #include "GLState.h"
-#include "Vulkan/Core.hpp"
+
 #include "ScreenRect.h"
 #include "images/Image.h"
 #include "images/Image_files.hpp"

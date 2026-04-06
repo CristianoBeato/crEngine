@@ -617,7 +617,7 @@ void idSWFSpriteInstance::SetMaterial( const idMaterial* material, int width, in
 	if( materialOverride != nullptr )
 	{
 		// Converting this to a short should be safe since we don't support images larger than 8k anyway
-		if( materialOverride->GetStage( 0 ) != nullptr && materialOverride->GetStage( 0 )->texture.cinematic != nullptr )
+		if( materialOverride->GetStage( 0 ) != nullptr && materialOverride->GetStage( 0 )->Texture().cinematic != nullptr )
 		{
 			materialWidth = 256;
 			materialHeight = 256;

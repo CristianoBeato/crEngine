@@ -89,9 +89,11 @@ private:
 	VkDescriptorPool							m_bindlessPool;
 	VkDescriptorPool							m_storagePool;
 	VkDescriptorSet								m_bindlessSet;
+	crMemoryPool*								m_buffersMemPool;
 	idArray<VkDescriptorSet, SMP_FRAMES>		m_storageSet;
 	idArray<uint32_t, MAX_BINDINGS>				m_dynamicOffsets;
-	idArray<vkBuffer*, MAX_BINDINGS>			m_shaderStorageBuffers;
+	idArray<crBuffer*, MAX_BINDINGS>			m_shaderStorageBuffers;
+	idArray<crMemoryPage*, MAX_BINDINGS>		m_buffersMemPages;
 	idList<VkDescriptorImageInfo>				m_combinedSamplersLocations;
 
 	void	CreateStorageBuffers( void );

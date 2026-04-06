@@ -44,6 +44,10 @@ idCVar stereoRender_warpParmZ( "stereoRender_warpParmZ", "0", CVAR_RENDERER | CV
 idCVar stereoRender_warpParmW( "stereoRender_warpParmW", "0", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "development parm" );
 idCVar stereoRender_warpTargetFraction( "stereoRender_warpTargetFraction", "1.0", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "fraction of half-width the through-lens view covers" );
 
+idCVar r_motionBlur( "r_motionBlur", "0", CVAR_RENDERER | CVAR_INTEGER | CVAR_ARCHIVE, "1 - 5, log2 of the number of motion blur samples" );
+idCVar r_glowEnable( "r_glowEnable", "0", CVAR_RENDERER | CVAR_BOOL | CVAR_ARCHIVE, "enables Bloom effect for materials that use a glow pass" );
+idCVar r_useHightQualitySky( "r_useHightQualitySky", "0", CVAR_BOOL | CVAR_ARCHIVE, "Use high quality skyboxes" );
+
 static const idVec4 zero = idVec4( 0.0f, 0.0f, 0.0f, 0.0f );
 static const idVec4 one = idVec4( 1.0f, 1.0f, 1.0f, 1.0f );
 static const idVec4 negOne = idVec4( -1.0f, -1.0f, -1.0f, -1.0f );
@@ -72,8 +76,10 @@ crBackend *crBackend::Get(void)
 
 bool crBackend::StartUp( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth )
 {	
-	m_defaultFB = new vkFramebuffer();
-	m_defaultFB->Create( { in_width, in_heigth, 0, VK_FORMAT_R8G8B8A8_SRGB, VK_FORMAT_D24_UNORM_S8_UINT } );
+	m_numBuffers = std::min( static_cast<uint32_t>( r_bufferCount.GetInteger() ), MAX_SMP_FRAMES );
+
+	m_defaultFB = new crFramebuffer();
+	m_defaultFB->Create( { in_width, in_heigth, 0, VK_FORMAT_R8G8B8A8_SRGB, VK_FORMAT_D24_UNORM_S8_UINT }, m_numBuffers );
 
 	return true;
 }
@@ -133,7 +139,7 @@ void crBackend::SetBuffer( const void* data )
 	/// It waits for the resources of the previous paired frame to be released,
 	/// acquires and prepares the presentation image state, clears the command buffer, 
 	/// and initializes command recording for the frame.
-	tr.Swapchain()->AcquireImage( bufferID );
+	//tr.Swapchain()->AcquireImage( bufferID );
 	
 #if 0 // TODO: We gona bind the present image at end of rendering chain
 	auto presentImage = m_swapchain->Image();
@@ -563,7 +569,7 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 	// If we have a stereo pixel format, this will draw to both
 	// the back left and back right buffers, which will have a
 	// performance penalty.
-	for( ; cmds != nullptr; cmds = static_cast<const emptyCommand_t*>( cmds->next ) )
+	for( ; cmds != nullptr; cmds = reinterpret_cast<const emptyCommand_t*>( cmds->next ) )
 	{
 		switch( cmds->commandId )
 		{
@@ -674,7 +680,7 @@ void crBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 	{
 		VkDeviceSize offset = indexOffset;
 		VkDeviceSize size = VK_WHOLE_SIZE;
-		vkBufferHandle_t* indexBufferHandle = indexBuffer->GetAPIObject();
+		auto indexBufferHandle = indexBuffer->GetAPIObject();
 		vkCmdBindIndexBuffer( *tr.GraphicCommandBuffer(), *indexBufferHandle, offset, VK_INDEX_TYPE_UINT16 );
 		trState.currentIndexBuffer = indexBufferHandle;
 	}
@@ -684,8 +690,9 @@ void crBackend::DrawElementsWithCounters( const drawSurf_t* surf )
 		VkDeviceSize offset = vertOffset;
 		VkDeviceSize size = VK_WHOLE_SIZE;
 		VkDeviceSize stride = sizeof( idDrawVert );
-		vkBufferHandle_t* vertexBufferHandle = vertexBuffer->GetAPIObject();
-		vkCmdBindVertexBuffers2( *tr.GraphicCommandBuffer(), 0, 1, &vertexBufferHandle->buffer, &offset, &size, &stride );
+		auto vertexBufferHandle = vertexBuffer->GetAPIObject();
+		auto vHandle = vertexBufferHandle->Handle();
+		vkCmdBindVertexBuffers2( *tr.GraphicCommandBuffer(), 0, 1, &vHandle, &offset, &size, &stride );
 		trState.currentVertexBuffer = vertexBufferHandle;		
 		trState.vertexLayout = LAYOUT_DRAW_VERT;
 	}
@@ -837,8 +844,8 @@ crBackend::DepthBoundsTest
 void crBackend::DepthBoundsTest( const float zmin, const float zmax )
 {   
 	/// Check if the hardware supports it.
-	if( !glConfig.depthBoundsTestAvailable )
-		return;
+	//if( !glConfig.depthBoundsTestAvailable )
+	//	return;
 
 	// get current frame, command buffer from swapchain     
 	auto cmd = tr.GraphicCommandBuffer();
@@ -878,6 +885,7 @@ void crBackend::Viewport( const int x /* left */, const int y /* bottom */, cons
     vkCmdSetViewport( *tr.GraphicCommandBuffer(), 0, 1, &viewport );
 }
 
+/*
 void crBackend::SwapBuffers(void)
 {
 	///
@@ -886,10 +894,8 @@ void crBackend::SwapBuffers(void)
 	/// Waits for the presentation image to become available and prepares for presentation,
 	/// sends the recorded commands throughout the frame, and sends it to the window.
 	m_defaultFB->BlitColorAttachament( { 0, 0, 0, 0, 0, 0, tr.GetWidth(), tr.GetHeight(), 1, tr.GetWidth(), tr.GetHeight() } );
-
-	
-
 }
+*/
 
 void crBackend::Clear(bool color, bool depth, bool stencil, byte stencilValue, float r, float g, float b, float a)
 {
@@ -929,5 +935,6 @@ void crBackend::Clear(bool color, bool depth, bool stencil, byte stencilValue, f
 		attachaments++;
 	}
 
-	vkCmdClearAttachments( m_graphicCommandBuffer->CommandBuffer(), attachaments, clearAttachment, 1, &clearRect );
+	auto cmd = tr.GraphicCommandBuffer();
+	vkCmdClearAttachments( *cmd, attachaments, clearAttachment, 1, &clearRect );
 }

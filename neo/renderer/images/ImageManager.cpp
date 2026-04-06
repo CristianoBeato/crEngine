@@ -939,10 +939,10 @@ void idImageManagerLocal::Init()
 	cmdSystem->AddCommand( "combineCubeImages", R_CombineCubeImages_f, CMD_FL_RENDERER, "combines six images for roq compression" );
 	
 // BEATO Begin:
-	m_pixelPack.buffer = new vkBuffer();
-	m_pixelUnpack.buffer = new vkBuffer();
-	m_pixelPack.buffer->Create( vkBuffer::BUFFER_TYPE_PIXEL, vkBuffer::BUFFER_ACCESS_WRITE, MAX_TEXTURE_TRANSFER_BUFFER );
-	m_pixelUnpack.buffer->Create( vkBuffer::BUFFER_TYPE_PIXEL, vkBuffer::BUFFER_ACCESS_READ, MAX_TEXTURE_ACESS_BUFFER );
+	m_pixelPack.buffer = new crBuffer();
+	m_pixelUnpack.buffer = new crBuffer();
+	m_pixelPack.buffer->Create( crBuffer::BUFFER_TYPE_DESTINATION, crBuffer::BUFFER_ACCESS_WRITE, MAX_TEXTURE_TRANSFER_BUFFER );
+	m_pixelUnpack.buffer->Create( crBuffer::BUFFER_TYPE_SOURCE, crBuffer::BUFFER_ACCESS_READ, MAX_TEXTURE_ACESS_BUFFER );
 // BEATO End
 
 	// should forceLoadImages be here?

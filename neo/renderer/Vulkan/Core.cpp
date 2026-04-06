@@ -295,7 +295,7 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBit
             break;
     }
 
-    #if 0
+#if 0
     std::cerr << color << "[VULKAN][" << severityStr << "][" << typeStr << "] " << in_callbackData->pMessage << "\033[0m" << std::endl;
 
     if ( in_callbackData->objectCount > 0) 
@@ -311,52 +311,6 @@ VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBit
 #endif
     return VK_FALSE;
 }
-
-void VkImageStateTransition( vkImageHandle_t* in_image,
-                                const VkCommandBuffer in_commandBuffer, 
-                                const VkImageLayout in_newLayout, 
-                                const VkPipelineStageFlags2 in_stageMask,
-                                const VkAccessFlags2 in_accessMask )
-{
-    assert( in_image != nullptr );
-
-    VkImageMemoryBarrier2 destinationBarrier{};
-    destinationBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER_2;
-    destinationBarrier.pNext = nullptr;
-    destinationBarrier.srcStageMask = in_image->stage;
-    destinationBarrier.srcAccessMask = in_image->access;
-    destinationBarrier.dstStageMask = in_stageMask;
-    destinationBarrier.dstAccessMask = in_accessMask;
-    destinationBarrier.oldLayout = in_image->layout;
-    destinationBarrier.newLayout = in_newLayout;
-    destinationBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; //m_graphicQueue->Family();
-    destinationBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED; //m_presentQueue->Family();
-    destinationBarrier.image = in_image->image;
-    destinationBarrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-    destinationBarrier.subresourceRange.baseMipLevel = 0;
-    destinationBarrier.subresourceRange.levelCount = 1;
-    destinationBarrier.subresourceRange.baseArrayLayer = 0;
-    destinationBarrier.subresourceRange.layerCount = 1;
-        
-    /// perform a state transition to destination
-    VkDependencyInfo dependencyInfo{};
-    dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
-    dependencyInfo.pNext = nullptr;
-    dependencyInfo.dependencyFlags = 0;
-    dependencyInfo.memoryBarrierCount = 0;
-    dependencyInfo.pMemoryBarriers = nullptr;
-    dependencyInfo.bufferMemoryBarrierCount = 0;
-    dependencyInfo.pBufferMemoryBarriers = nullptr;
-    dependencyInfo.imageMemoryBarrierCount = 1;
-    dependencyInfo.pImageMemoryBarriers = &destinationBarrier;
-    vkCmdPipelineBarrier2( in_commandBuffer, &dependencyInfo );
-
-    /// keep track of texture state
-    in_image->layout = in_newLayout;
-    in_image->stage = in_stageMask;
-    in_image->access = in_accessMask;
-}
-
 
 /*
 ==============================================

@@ -32,10 +32,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "renderer_common.h"
 #include "RenderSystemLocal.h"
 
-idCVar r_showSwapBuffers( "r_swapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
+idCVar r_swapBuffers( "r_swapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
 idCVar r_showSwapBuffers( "r_showSwapBuffers", "0", CVAR_BOOL, "Show timings from GL_BlockingSwapBuffers" );
 idCVar r_syncEveryFrame( "r_syncEveryFrame", "1", CVAR_BOOL, "Don't let the GPU buffer execution past swapbuffers" );
-idCvar r_bufferCount( "r_bufferCount", "3", CVAR_BOOL | CVAR_INTEGER | CVAR_RENDERER, "Define the number of buffers used for rendering:\
+idCVar r_bufferCount( "r_bufferCount", "3", CVAR_BOOL | CVAR_INTEGER | CVAR_RENDERER, "Define the number of buffers used for rendering:\
 	 1(Immediate): Instant presentation,\
 	 2(Double Buffering): Balances performance and latency,\
 	 3(Triple Buffering): Prioritizes FPS fluidity and stability." );
