@@ -111,9 +111,8 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 {
 	idToken					token;
 	const char*				str = nullptr;
-	vkSampler::filter_t		tf  = vkSampler::FILTER_TRILINEAR;
-	vkSampler::wrapping_t	trp = vkSampler::WRAP_REPEAT;
-	textureUsage_t			td = TD_DEFAULT;
+	crSampler::filter_t		tf  = crSampler::FILTER_TRILINEAR;
+	crSampler::wrapping_t	trp = crSampler::WRAP_REPEAT;
 	cubeFiles_t				cubeMap;
 	char					imageName[MAX_IMAGE_NAME];
 	int						a, b;
@@ -278,62 +277,62 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 
 		if( !token.Icmp( "nearest" ) )
 		{
-			tf = vkSampler::FILTER_NEAREST;
+			tf = crSampler::FILTER_NEAREST;
 			continue;
 		}
 
 		if( !token.Icmp( "linear" ) )
 		{
-			tf = vkSampler::FILTER_LINEAR;
+			tf = crSampler::FILTER_LINEAR;
 			continue;
 		}
 
 		if( !token.Icmp( "clamp" ) )
 		{
-			trp = vkSampler::WRAP_BORDER;
+			trp = crSampler::WRAP_BORDER;
 			continue;
 		}
 
 		if( !token.Icmp( "noclamp" ) )
 		{
-			trp = vkSampler::WRAP_REPEAT;
+			trp = crSampler::WRAP_REPEAT;
 			continue;
 		}
 
 		if( !token.Icmp( "zeroclamp" ) )
 		{
-			trp = vkSampler::WRAP_BORDER;
+			trp = crSampler::WRAP_BORDER;
 			continue;
 		}
 
 		if( !token.Icmp( "alphazeroclamp" ) )
 		{
-			trp = vkSampler::WRAP_BORDER;
+			trp = crSampler::WRAP_BORDER;
 			continue;
 		}
 
 		if( !token.Icmp( "forceHighQuality" ) )
 		{
-			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
+			// td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
 
 		if( !token.Icmp( "highquality" ) )
 		{
-			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
+			// td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
 
 		if( !token.Icmp( "uncompressed" ) )
 		{
-			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
+			// td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
 
 		if( !token.Icmp( "uncompressedCubeMap" ) ) 
 		{			
 //			if( r_useHightQualitySky.GetBool() ) 
-				td = TD_HIGHQUALITY_CUBE;	// motorsep 05-17-2015; token to mark cumebap/skybox to be uncompressed texture									
+				//td = TD_HIGHQUALITY_CUBE;	// motorsep 05-17-2015; token to mark cumebap/skybox to be uncompressed texture									
 
 ///			if( !r_useHightQualitySky.GetBool() ) 
 //				td = TD_LOWQUALITY_CUBE;
@@ -685,29 +684,30 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 	mtr.pd->numStages++;
 
 	// select a compressed depth based on what the stage is
-	if( td == TD_DEFAULT )
-	{
-		switch( m_lighting )
-		{
-			case SL_BUMP:
-				td = TD_BUMP;
-				break;
-			case SL_DIFFUSE:
-				td = TD_DIFFUSE;
-				break;
-			case SL_SPECULAR:
-				td = TD_SPECULAR;
-				break;
-			case SL_GLOSS:
-				td = TD_GLOSS;
-				break;
-			default:
-				break;
-		}
-	}
+
+//	if( td == TD_DEFAULT )
+//	{
+//		switch( m_lighting )
+//		{
+//			case SL_BUMP:
+//				td = TD_BUMP;
+//				break;
+//			case SL_DIFFUSE:
+//				td = TD_DIFFUSE;
+//				break;
+//			case SL_SPECULAR:
+//				td = TD_SPECULAR;
+//				break;
+//			case SL_GLOSS:
+//				td = TD_GLOSS;
+//				break;
+//			default:
+//				break;
+//		}
+//	}
 	
 	// create a new coverage stage on the fly - copy all data from the current stage
-	if( ( td == TD_DIFFUSE ) && m_hasAlphaTest )
+	if( /*( td == TD_DIFFUSE ) &&*/ m_hasAlphaTest )
 	{
 		// create new coverage stage
 		crShaderStage* newCoverageStage = &mtr.pd->parseStages[mtr.pd->numStages];
@@ -726,11 +726,11 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		if( imageName[0] )
 		{
 			// foresthale 2014-05-17: don't binarize when in the editors - we just run uncompressed from the source assets
-			coverageTS->image = idImageManager::Get()->ImageFromFile( imageName, CheckEditorUsage( TD_COVERAGE ), cubeMap );
+			coverageTS->image = idImageManager::Get()->ImageFromFile( imageName, cubeMap );
 			if( !coverageTS->image )
 			{
 				coverageTS->image = idImageManager::Get()->DefaultImage();
-				coverageTS->sample = crPipelineManager::Get()->GetSampler( vkSampler::FILTER_NEAREST, vkSampler::WRAP_REPEAT );
+				coverageTS->sample = crPipelineManager::Get()->GetSampler( crSampler::FILTER_NEAREST, crSampler::WRAP_REPEAT );
 			}
 			else
 			{
@@ -741,21 +741,21 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		{
 			common->Warning( "material '%s' had stage with no image", mtr.GetName() );
 			coverageTS->image = idImageManager::Get()->DefaultImage();
-			m_texture.sample = crPipelineManager::Get()->GetSampler( vkSampler::FILTER_NEAREST, vkSampler::WRAP_REPEAT );
+			m_texture.sample = crPipelineManager::Get()->GetSampler( crSampler::FILTER_NEAREST, crSampler::WRAP_REPEAT );
 		}
 	}
 
 	// foresthale 2014-05-17: don't binarize when in the editors - we just run uncompressed from the source assets
-	td = CheckEditorUsage( td );
+	// td = CheckEditorUsage( td );
 		
 	// now load the image with all the parms we parsed
 	if( imageName[0] )
 	{
-		m_texture.image = idImageManager::Get()->ImageFromFile( imageName, td, cubeMap );
+		m_texture.image = idImageManager::Get()->ImageFromFile( imageName, cubeMap );
 		if( !m_texture.image )
 		{
 			m_texture.image = idImageManager::Get()->DefaultImage();
-			m_texture.sample = crPipelineManager::Get()->GetSampler( vkSampler::FILTER_NEAREST, vkSampler::WRAP_REPEAT );
+			m_texture.sample = crPipelineManager::Get()->GetSampler( crSampler::FILTER_NEAREST, crSampler::WRAP_REPEAT );
 		}
 		else
 		{
@@ -766,7 +766,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 	{
 		common->Warning( "material '%s' had stage with no image", mtr.GetName() );
 		m_texture.image = idImageManager::Get()->DefaultImage();
-		m_texture.sample = crPipelineManager::Get()->GetSampler( vkSampler::FILTER_NEAREST, vkSampler::WRAP_REPEAT );
+		m_texture.sample = crPipelineManager::Get()->GetSampler( crSampler::FILTER_NEAREST, crSampler::WRAP_REPEAT );
 	}
 
 	return true;
@@ -942,15 +942,13 @@ crShaderStage::ParseFragmentMap
 bool crShaderStage::ParseFragmentMap( idLexer& src, idMaterial &in_mtr )
 {
 	const char*			str;
-	textureUsage_t		td;
 	cubeFiles_t			cubeMap;
 	idToken				token;
 	
 // BEATO Begin:
-	vkSampler::filter_t sf = vkSampler::FILTER_NEAREST;
-	vkSampler::wrapping_t sr = vkSampler::WRAP_REPEAT;
+	crSampler::filter_t sf = crSampler::FILTER_NEAREST;
+	crSampler::wrapping_t sr = crSampler::WRAP_REPEAT;
 // BEATO End
-	td = TD_DEFAULT;
 	cubeMap = CF_2D;
 	
 	src.ReadTokenOnLine( &token );
@@ -979,7 +977,7 @@ bool crShaderStage::ParseFragmentMap( idLexer& src, idMaterial &in_mtr )
 		
 		if( !token.Icmp( "normalMap" ))
 		{
-			td = TD_BUMP;
+			// td = TD_BUMP;
 			continue;
 		}
 
@@ -1003,55 +1001,55 @@ bool crShaderStage::ParseFragmentMap( idLexer& src, idMaterial &in_mtr )
 
 		if( !token.Icmp( "nearest" ) )
 		{
-			sf = vkSampler::FILTER_NEAREST;
+			sf = crSampler::FILTER_NEAREST;
 			continue;
 		}
 
 		if( !token.Icmp( "linear" ) )
 		{
-			sf = vkSampler::FILTER_LINEAR;
+			sf = crSampler::FILTER_LINEAR;
 			continue;
 		}
 
 		if( !token.Icmp( "clamp" ) )
 		{
-			sr = vkSampler::WRAP_BORDER;
+			sr = crSampler::WRAP_BORDER;
 			continue;
 		}
 
 		if( !token.Icmp( "noclamp" ) )
 		{
-			sr = vkSampler::WRAP_REPEAT;
+			sr = crSampler::WRAP_REPEAT;
 			continue;
 		}
 
 		if( !token.Icmp( "zeroclamp" ) )
 		{
-			sr = vkSampler::WRAP_EDGE;
+			sr = crSampler::WRAP_EDGE;
 			continue;
 		}
 
 		if( !token.Icmp( "alphazeroclamp" ) )
 		{
-			sr = vkSampler::WRAP_BORDER;
+			sr = crSampler::WRAP_BORDER;
 			continue;
 		}
 
 		if( !token.Icmp( "forceHighQuality" ) )
 		{
-			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
+			// td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
 
 		if( !token.Icmp( "highquality" ) )
 		{
-			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
+			// td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
 
 		if( !token.Icmp( "uncompressed" ) )
 		{
-			td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
+			// td = TD_HIGHQUALITY;	// sikk - Added - High Quality Texture Depth (full RGBA)
 			continue;
 		}
 
@@ -1066,10 +1064,10 @@ bool crShaderStage::ParseFragmentMap( idLexer& src, idMaterial &in_mtr )
 	str = R_ParsePastImageProgram( src );
 
 	// foresthale 2014-05-17: don't binarize when in the editors - we just run uncompressed from the source assets
-	td = CheckEditorUsage( td );
+	// td = CheckEditorUsage( td );
 	
 	auto globalImages = idRenderSystem::GetGlobalImages();
-	m_fragmentProgramImages[unit] = globalImages->ImageFromFile( str, td, cubeMap );
+	m_fragmentProgramImages[unit] = globalImages->ImageFromFile( str, cubeMap );
 	if( !m_fragmentProgramImages[unit] )
 		m_fragmentProgramImages[unit] = globalImages->DefaultImage();
 	
@@ -1292,7 +1290,7 @@ idImage* idMaterial::GetEditorImage( void ) const
 	else
 	{
 		// look for an explicit one
-		editorImage = globalImages->ImageFromFile( editorImageName, TD_EDITOR_DEFAULT );
+		editorImage = globalImages->ImageFromFile( editorImageName );
 	}
 	
 	if( !editorImage )
@@ -2335,8 +2333,8 @@ void idMaterial::ParseMaterial( idLexer& src )
 	char		buffer[1024];
 	idToken		token;
 	idLexer		newSrc;
-	vkSampler::filter_t sampFilter = vkSampler::FILTER_NEAREST;
-	vkSampler::wrapping_t sampWraping = vkSampler::WRAP_BORDER;
+	crSampler::filter_t sampFilter = crSampler::FILTER_NEAREST;
+	crSampler::wrapping_t sampWraping = crSampler::WRAP_BORDER;
 	
 	numOps = 0;
 	numRegisters = EXP_REG_NUM_PREDEFINED;	// leave space for the parms to be copied in
@@ -2453,7 +2451,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 		{
 // BEATO Begin:
 			//trpDefault = TR_CLAMP_TO_ZERO;
-			sampWraping = vkSampler::WRAP_BORDER; // TODO: create a black border in texture
+			sampWraping = crSampler::WRAP_BORDER; // TODO: create a black border in texture
 // BEATO End
 			continue;
 		}
@@ -2461,7 +2459,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 		else if( !token.Icmp( "clamp" ) )
 		{
 // BEATO Begin
-			sampWraping = vkSampler::WRAP_BORDER; // trpDefault = TR_CLAMP;
+			sampWraping = crSampler::WRAP_BORDER; // trpDefault = TR_CLAMP;
 // BEATO End
 			continue;
 		}
@@ -2469,7 +2467,7 @@ void idMaterial::ParseMaterial( idLexer& src )
 		else if( !token.Icmp( "alphazeroclamp" ) )
 		{
 // BEATO Begin:
-			sampWraping = vkSampler::WRAP_BORDER; // trpDefault = TR_CLAMP_TO_ZERO;
+			sampWraping = crSampler::WRAP_BORDER; // trpDefault = TR_CLAMP_TO_ZERO;
 // BEATO End
 			continue;
 		}
@@ -2548,8 +2546,8 @@ void idMaterial::ParseMaterial( idLexer& src )
 			copy = str;	// so other things don't step on it
 
 			// TODO: Manage sampler to prevent 
-			lightFalloffSampler = crPipelineManager::Get()->GetSampler(  vkSampler::FILTER_LINEAR, vkSampler::WRAP_BORDER );
-			lightFalloffImage = idRenderSystem::GetGlobalImages()->ImageFromFile( copy, TD_LIGHT );	// sikk - changed to TD_LIGHT (no compression), was TD_DEFAULT
+			lightFalloffSampler = crPipelineManager::Get()->GetSampler(  crSampler::FILTER_LINEAR, crSampler::WRAP_BORDER );
+			lightFalloffImage = idRenderSystem::GetGlobalImages()->ImageFromFile( copy );	// sikk - changed to TD_LIGHT (no compression), was TD_DEFAULT
 			continue;
 		}
 		// guisurf <guifile> | guisurf entity

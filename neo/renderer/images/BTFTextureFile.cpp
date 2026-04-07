@@ -88,13 +88,17 @@ static inline crInternalFormat ToInternalFormat( const BTF::format_t in_format, 
 	crBTFTextureFile: Beato Texture File Format 
 ================================================================================================
 */
+crBTFTextureFile::crBTFTextureFile(void)
+{
+}
 
 /*
 ========================
 crBTFTextureFile::crBTFTextureFile
 ========================
 */
-crBTFTextureFile::crBTFTextureFile( const idStr &in_name ) : m_name( in_name )
+
+crBTFTextureFile::crBTFTextureFile(const idStr &in_name) : m_name(in_name)
 {
 }
 

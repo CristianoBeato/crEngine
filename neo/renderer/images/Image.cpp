@@ -44,7 +44,6 @@ idImage::idImage( const idStr &name ) : imgName( name )
 	texnum = nullptr;
 	generatorFunction = nullptr;
 
-	usage = TD_DEFAULT;
 	cubeFiles = CF_2D;
 	
 	referencedOutsideLevelLoad = false;
@@ -73,6 +72,8 @@ void idImage::Bind( void )
 		ActuallyLoadImage( true );
 	}
 	
+#if 0
+
 	const int texUnit = backEnd.trState.currenttmu;
 	
 	tmu_t* tmu = &backEnd.trState.tmu[texUnit];
@@ -85,7 +86,7 @@ void idImage::Bind( void )
 			glBindTextureUnit( texUnit, texnum );
 		}
 	}
-	else if( opts.textureType == TT_CUBIC )
+	else if( opts.textureType == IMAGE_CUBEMAP )
 	{
 		if( tmu->currentCubeMap != texnum )
 		{
@@ -104,6 +105,7 @@ void idImage::Bind( void )
 			glBindTextureUnit( texUnit, texnum );
 		}
 	}
+#endif
 }
 
 /*
@@ -111,14 +113,13 @@ void idImage::Bind( void )
 GenerateImage
 ================
 */
-void idImage::GenerateImage( const byte* pic, const uint32_t width, const uint32_t height, textureUsage_t usageParm )
+void idImage::GenerateImage( const byte* pic, const uint32_t width, const uint32_t height )
 {
 	PurgeImage();
 	
-	usage = usageParm;
 	cubeFiles = CF_2D;
 	
-	opts.textureType = crTexture::TEXTURE_2D;
+	opts.textureType = IMAGE_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
@@ -131,6 +132,7 @@ void idImage::GenerateImage( const byte* pic, const uint32_t width, const uint32
 	if( !idRenderSystem::IsInitialized() )
 		return;
 	
+#if 0
 	const bool toolUsage = IsToolUsage( usageParm );
 
 	idBinaryImage im( GetName() );
@@ -152,6 +154,7 @@ void idImage::GenerateImage( const byte* pic, const uint32_t width, const uint32
 		const byte* data = im.GetImageData( i );
 		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
 	}
+#endif
 }
 
 /*
@@ -161,18 +164,17 @@ GenerateCubeImage
 Non-square cube sides are not allowed
 ====================
 */
-void idImage::GenerateCubeImage( const byte* pic[6], int size, textureUsage_t usageParm )
+void idImage::GenerateCubeImage( const byte* pic[6], int size )
 {
 	PurgeImage();
 	
-	usage = usageParm;
 	cubeFiles = CF_NATIVE;
 	
-	opts.textureType = TT_CUBIC;
+	opts.textureType = IMAGE_CUBEMAP;
 	opts.width = size;
 	opts.height = size;
 	opts.numLevels = 0;
-	opts.format = FMT_DXT5;
+	opts.format = crInternalFormat::BC3_RGBA;
 	DeriveOpts();
 	
 	// if we don't have a rendering context, just return after we
@@ -182,8 +184,9 @@ void idImage::GenerateCubeImage( const byte* pic[6], int size, textureUsage_t us
 	if( !idRenderSystem::IsInitialized() )
 		return;
 
+		
+#if 0
 	const bool toolUsage = IsToolUsage( usageParm );
-
 	idBinaryImage im( GetName() );
 	// foresthale 2014-05-30: give a nice progress display when binarizing
 	commonLocal.LoadPacifierBinarizeFilename( GetName(), "generated cube image" );
@@ -202,10 +205,11 @@ void idImage::GenerateCubeImage( const byte* pic[6], int size, textureUsage_t us
 		const byte* data = im.GetImageData( i );
 		SubImageUpload( img.level, 0, 0, img.destZ, img.width, img.height, data );
 	}
+#endif
 }
 
 // RB begin
-void idImage::GenerateShadowArray(uint32_t width, uint32_t height, textureUsage_t usage)
+void idImage::GenerateShadowArray( uint32_t width, uint32_t height )
 {
 	PurgeImage();
 	
@@ -258,7 +262,7 @@ void idImage::CopyFramebuffer( int32_t x, int32_t y, uint32_t imageWidth, uint32
 		AllocImage();
 	}
 
-	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
+	glBindTexture( ( opts.textureType == IMAGE_CUBEMAP ) ? GL_TEXTURE_CUBE_MAP : GL_IMAGE_2D, texnum );
 
 	// foresthale 2014-02-20: HDR view rendering - this seems to not be changed anywhere and conflicts with FBO rendering
 	//glReadBuffer( GL_BACK );
@@ -266,18 +270,18 @@ void idImage::CopyFramebuffer( int32_t x, int32_t y, uint32_t imageWidth, uint32
 	opts.width = imageWidth;
 	opts.height = imageHeight;
 	// foresthale 2014-02-20: HDR view rendering
-	glCopyTexImage2D( GL_TEXTURE_2D, 0, opts.format == FMT_RGBA16F ? GL_RGBA16F : GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
+	glCopyTexImage2D( GL_IMAGE_2D, 0, opts.format == FMT_RGBA16F ? GL_RGBA16F : GL_RGBA8, x, y, imageWidth, imageHeight, 0 );
 	
 	// these shouldn't be necessary if the image was initialized properly
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
-	glTexParameterf( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+	glTexParameterf( GL_IMAGE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
+	glTexParameterf( GL_IMAGE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
 	
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
-	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	glTexParameteri( GL_IMAGE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE );
+	glTexParameteri( GL_IMAGE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE );
+	backEnd.pc.c_copyFrameBuffer++;
 #else
 #endif
 
-	backEnd.pc.c_copyFrameBuffer++;
 }
 
 /*
@@ -288,13 +292,13 @@ CopyDepthbuffer
 void idImage::CopyDepthbuffer( int32_t x, int32_t y, uint32_t imageWidth, uint32_t imageHeight )
 {
 #if 0
-	glBindTexture( ( opts.textureType == TT_CUBIC ) ? GL_TEXTURE_CUBE_MAP : GL_TEXTURE_2D, texnum );
+	glBindTexture( ( opts.textureType == IMAGE_CUBEMAP ) ? GL_TEXTURE_CUBE_MAP : GL_IMAGE_2D, texnum );
 	
 	opts.width = imageWidth;
 	opts.height = imageHeight;
-	glCopyTexImage2D( GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
-#endif
+	glCopyTexImage2D( GL_IMAGE_2D, 0, GL_DEPTH_COMPONENT, x, y, imageWidth, imageHeight, 0 );
 	backEnd.pc.c_copyFrameBuffer++;
+#endif
 }
 
 /*
@@ -306,6 +310,7 @@ if rows = cols * 6, assume it is a cube map animation
 */
 void idImage::UploadScratch( const byte* data, int cols, int rows )
 {
+#if 0
 	// if rows = cols * 6, assume it is a cube map animation
 	if( rows == cols * 6 )
 	{
@@ -316,7 +321,7 @@ void idImage::UploadScratch( const byte* data, int cols, int rows )
 			pic[i] = data + cols * rows * 4 * i;
 		}
 		
-		if( opts.textureType != TT_CUBIC || usage != TD_LOOKUP_TABLE_RGBA )
+		if( opts.textureType != IMAGE_CUBEMAP || usage != TD_LOOKUP_TABLE_RGBA )
 		{
 			GenerateCubeImage( pic, cols, TF_LINEAR, TD_LOOKUP_TABLE_RGBA );
 			return;
@@ -354,6 +359,8 @@ void idImage::UploadScratch( const byte* data, int cols, int rows )
 		SetSamplerState( TF_LINEAR, TR_REPEAT );
 		SubImageUpload( 0, 0, 0, 0, opts.width, opts.height, data );
 	}
+#else
+#endif
 }
 
 /*
@@ -394,10 +401,10 @@ void idImage::Print( void ) const
 	
 	switch( opts.textureType )
 	{
-		case crTexture::TEXTURE_2D:
+		case IMAGE_2D:
 			common->Printf( " " );
 			break;
-		case crTexture::TEXTURE_CUBEMAP:
+		case IMAGE_CUBEMAP:
 			common->Printf( "C" );
 			break;
 		default:
@@ -461,7 +468,7 @@ void idImage::Reload( const bool force )
 	if( generatorFunction )
 	{
 		common->DPrintf( "regenerating %s.\n", GetName() );
-		if ( opts.textureType != TT_2D_ARRAY && cubeFiles != CF_2D_ARRAY ) // motorsep 12-18-2014; we don't need to regenerate shadowmaps (maybe even none of the functional images) since they aren't being modified
+		if ( cubeFiles != CF_2D_ARRAY ) // motorsep 12-18-2014; we don't need to regenerate shadowmaps (maybe even none of the functional images) since they aren't being modified
 			generatorFunction( this ); 
 		return;
 	}
@@ -557,7 +564,7 @@ void idImage::MakeDefault( void )
 		}
 	}
 	
-	GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEFAULT );
+	GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 				   
 	defaulted = true;
 }
@@ -589,30 +596,27 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	{
 		sourceFileTime = FILE_NOT_FOUND_TIMESTAMP;
 		if( cubeFiles != CF_2D )
-			opts.textureType = crTexture::TEXTURE_CUBEMAP; //TT_CUBIC;
+			opts.textureType = IMAGE_CUBEMAP; //IMAGE_CUBEMAP;
 	}
 	else
 	{
 		// RB begin
 		if( cubeFiles == CF_2D_ARRAY )
-			opts.textureType = crTexture::TEXTURE_2D; //TT_2D_ARRAY;
+			opts.textureType = IMAGE_2D; //TT_2D_ARRAY;
 			
 		// RB end
 		else if( cubeFiles != CF_2D )
 		{
-			opts.textureType = crTexture::TEXTURE_CUBEMAP; // TT_CUBIC;
+			opts.textureType = IMAGE_CUBEMAP; // IMAGE_CUBEMAP;
 			R_LoadCubeImages( GetName(), cubeFiles, nullptr, nullptr, &sourceFileTime );
 		}
 		else
 		{
-			opts.textureType = TT_2D;
-			R_LoadImageProgram( GetName(), nullptr, nullptr, nullptr, &sourceFileTime, &usage );
+			opts.textureType = IMAGE_2D;
+			R_LoadImageProgram( GetName(), nullptr, nullptr, nullptr, &sourceFileTime );
 		}
 	}
-	
-	const bool toolUsage = IsToolUsage( usage );
-
-	
+		
 	/// BEATO Begin: We update old idBinaryImage to our offline baked texture format
 	/// similar to what valve do on Source engine whit .VTF textures
 
@@ -632,7 +636,7 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	if( cvarSystem->GetCVarBool( "fs_buildresources" ) )
 	{
 		// for resource gathering write this image to the preload file for this map
-		fileSystem->AddImagePreload( GetName(), usage, cubeFiles );
+		fileSystem->AddImagePreload( GetName(), 0, cubeFiles );
 	}
 
 	/// alloc backend image
@@ -664,14 +668,7 @@ idImage::PurgeImage
 ========================
 */
 void idImage::PurgeImage( void )
-{    
-	// clear all the current binding caches, so the next bind will do a real one
-	for( int i = 0 ; i < MAX_MULTITEXTURE_UNITS ; i++ )
-	{
-		backEnd.trState.tmu[i].current2DMap = 0;
-		backEnd.trState.tmu[i].current2DArray = 0;
-		backEnd.trState.tmu[i].currentCubeMap = 0;
-	}
+{   
 }
 
 /*
@@ -681,7 +678,7 @@ idImage::SetPixel
 */
 void idImage::SetPixel( int mipLevel, int x, int y, const void* data, int dataSize )
 {
-	SubImageUpload( mipLevel, x, y, 0, 1, 1, data );
+	//SubImageUpload( mipLevel, x, y, 0, 1, 1, data );
 }
 
 /*
@@ -706,18 +703,19 @@ idImage::SetTexParameters
 */
 void idImage::SetTexParameters( void )
 {
-	int target = GL_TEXTURE_2D;
+#if 0
+	int target = GL_IMAGE_2D;
 	switch( opts.textureType )
 	{
 		case TT_2D:
-			target = GL_TEXTURE_2D;
+			target = GL_IMAGE_2D;
 			break;
-		case TT_CUBIC:
+		case IMAGE_CUBEMAP:
 			target = GL_TEXTURE_CUBE_MAP;
 			break;
 			// RB begin
 		case TT_2D_ARRAY:
-			target = GL_TEXTURE_2D_ARRAY;
+			target = GL_IMAGE_2D_ARRAY;
 			break;
 			// RB end
 		default:
@@ -786,6 +784,7 @@ void idImage::SetTexParameters( void )
 		glTexParameteri( target, GL_TEXTURE_SWIZZLE_A, GL_RED );
 	}
 #endif
+#endif
 }
 
 /*
@@ -798,7 +797,7 @@ void idImage::BindAttachmentOnFBO(int attachmentType, int layer)
 #if 0
 	if (layer == -1)
 	{
-		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_TEXTURE_2D, texnum, 0);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType, GL_IMAGE_2D, texnum, 0);
 	}
 	else
 	{
@@ -834,11 +833,7 @@ void idImage::AllocImage( void )
 		return;
 	
 	// generate the texture number
-	if ( glConfig.backend == BACKEND_VULKAN )
-		texnum = new( TAG_RENDER ) vkTexture(); 
-	else if( glConfig.backend == BACKEND_OPENGL )
-		texnum = new( TAG_RENDER ) glTexture();
-	
+	texnum = new( TAG_RENDER ) crTexture(); 
 	assert( texnum != nullptr );
 
 	dimensions.width = opts.width;
@@ -846,8 +841,10 @@ void idImage::AllocImage( void )
 	dimensions.depth = opts.depth;
 	dimensions.levels = opts.numLevels;
 	dimensions.layers = opts.numSides;
-	texnum->Create( opts.textureType, dimensions, opts.format );
+	texnum->Create( opts.textureType, dimensions, opts.format  );
 	
+	/// TODO: alloc image memory here
+
 	SetTexParameters();
 	
 	GL_CheckErrors();
@@ -861,141 +858,6 @@ idImage::DeriveOpts
 */
 ID_INLINE void idImage::DeriveOpts( void )
 {	
-	if( cubeFiles != CF_2D && usage != TD_SHADOW_ARRAY ) // foresthale 2014-10-05: we want to hit the TD_SHADOW_ARRAY case below
-	{		
-		// motorsep 05-17-2015; setting parameters for cubemap / skybox images
-
-		if( usage == TD_HIGHQUALITY_CUBE ) 
-		{		
-			opts.format = crInternalFormat::RGBA8U; /// FMT_RGBA8;
-			skyboxRGBswap = true;
-		} 
-		// motorsep 05-23-2015; due to necessity of having alpha channel in the skyboxes, I decided to drop YCoCg color space and YCoCg compressing altogether;
-		// This means compresses skyboxes will be of lower quality than they could have been using YCoCgDXT5 comression. However, they will support alpha channel and will allow to have same effects as
-		// HQ RGBA skyboxes. Since we have option to turn on HQ skyboxes, people can always use that to get true high quality vs half-HQ with YCoCgDXT5.
-		if( usage == TD_LOWQUALITY_CUBE ) 
-		{
-			//opts.colorFormat = CFM_DEFAULT; // CFM_YCOCG_DXT5;
-			opts.format = crInternalFormat::BC3_RGBA;/// FMT_DXT5;			
-			skyboxRGBswap = false;
-		}
-	}
-
-		switch( usage )
-		{
-			case TD_COVERAGE:
-				opts.format = FMT_DXT1;
-				opts.colorFormat = CFM_GREEN_ALPHA;
-				break;
-			case TD_DEPTH:
-				opts.format = FMT_DEPTH;
-				break;
-				
-			case TD_SHADOW_ARRAY:
-				opts.format = FMT_SHADOW_ARRAY;
-				break;
-				
-			case TD_DIFFUSE:
-				// TD_DIFFUSE gets only set to when its a diffuse texture for an interaction
-				opts.gammaMips = true;
-				opts.format = FMT_DXT5;
-				opts.colorFormat = CFM_YCOCG_DXT5;				
-				break;
-			case TD_SPECULAR:
-				opts.gammaMips = true;
-				opts.sRGB = true; // foresthale 2014-02-20: fixed r_useSRGB texture handling
-				opts.format = FMT_DXT5;
-				opts.colorFormat = CFM_DEFAULT;
-				/*opts.gammaMips = true;
-				opts.sRGB = true; // foresthale 2014-02-20: fixed r_useSRGB texture handling
-				opts.format = FMT_RGBA8;
-				opts.colorFormat = CFM_DEFAULT;*/
-				break;
-			case TD_GLOSS:
-				// we want a one-channel image with very precise gradations, so use FMT_INT8 rather than FMT_DXT1				
-				opts.format = FMT_INT8;
-				break;
-			case TD_DEFAULT:
-				opts.gammaMips = true;
-				opts.sRGB = true; // foresthale 2014-02-20: fixed r_useSRGB texture handling
-				opts.format = FMT_DXT5;
-				opts.colorFormat = CFM_DEFAULT;
-				break;
-			case TD_BUMP:
-				opts.format = FMT_DXT5;
-				opts.colorFormat = CFM_NORMAL_DXT5;
-				break;
-			case TD_FONT:
-				opts.format = FMT_DXT1;
-				opts.colorFormat = CFM_GREEN_ALPHA;
-				opts.numLevels = 4; // We only support 4 levels because we align to 16 in the exporter
-				opts.gammaMips = true;
-				break;
-			case TD_LIGHT:
-				//opts.format = FMT_RGB565;
-				//opts.gammaMips = true;
-				opts.format = FMT_RGBA8;
-				opts.gammaMips = false;				
-				break;
-			case TD_LOOKUP_TABLE_MONO:
-				opts.format = FMT_INT8;
-				break;
-			case TD_LOOKUP_TABLE_ALPHA:
-				opts.format = FMT_ALPHA;
-				break;
-			case TD_LOOKUP_TABLE_RGB1:
-			case TD_LOOKUP_TABLE_RGBA:
-				opts.format = FMT_RGBA8;
-				break;
-			// foresthale 2014-05-17: added TD_EDITOR* image types (uncompressed variants of TD_DEFAULT and such, which always read .tga, and do not write .bimage)
-			case TD_EDITOR_DEFAULT:
-				opts.colorFormat = CFM_DEFAULT;
-				opts.format = FMT_DXT5;
-				opts.gammaMips = true;			
-				break;
-			case TD_EDITOR_DIFFUSE:
-				opts.colorFormat = CFM_YCOCG_DXT5;
-				opts.format = FMT_DXT5;
-				opts.gammaMips = true;
-				break;
-			case TD_EDITOR_BUMP:
-				opts.colorFormat = CFM_NORMAL_DXT5;
-				opts.format = FMT_DXT5;
-				opts.gammaMips = true;
-				break;
-			case TD_EDITOR_COVERAGE:
-				opts.colorFormat = CFM_GREEN_ALPHA;
-				opts.format = FMT_DXT5;
-				break;
-// ---> sikk - Added - High Quality Texture Depth (full RGBA)
-			case TD_HIGHQUALITY:
-				opts.colorFormat = CFM_DEFAULT;
-				opts.format = FMT_RGBA8;
-				opts.gammaMips = true;				
-				break;
-// <--- sikk - Added - High Quality Texture Depth (full RGBA)
-			// motorsep 05-17-2015; added this for uncompressed cubemap/skybox textures
-			case TD_HIGHQUALITY_CUBE:
-				opts.colorFormat = CFM_DEFAULT;
-				opts.format = FMT_RGBA8;
-				opts.gammaMips = true;				
-				break;
-			case TD_LOWQUALITY_CUBE:
-				opts.colorFormat = CFM_DEFAULT; // CFM_YCOCG_DXT5;
-				opts.format = FMT_DXT5;
-				opts.gammaMips = true;
-				break;
-			// foresthale 2014-02-19: added TD_RGBA16F and TD_DEPTHSTENCIL for HDR view rendering
-			case TD_RGBA16F:
-				opts.format = FMT_RGBA16F;
-				break;
-			case TD_DEPTHSTENCIL:
-				opts.format = FMT_DEPTHSTENCIL;
-				break;			
-			default:
-				assert( false );
-				opts.format = FMT_RGBA8;				
-		}
 }
 
 /*
@@ -1005,6 +867,7 @@ idImage::DoUpload
 */
 void idImage::DoUpload( void )
 {
+#if 0
 	crBuffer* 					buffer = nullptr;
 	crTransferCommandBuffer*	transfer = nullptr;
 	// no subimage chain to upload, image is a generated, or framebuffer attachament
@@ -1015,6 +878,7 @@ void idImage::DoUpload( void )
 	transfer = backEnd.GetTransferCMD();
 
 	transfer->CopyBufferToTexture( buffer, texnum, subimages );
+#endif
 }
 
 /*
@@ -1024,6 +888,7 @@ idImage::DoDownload
 */
 void idImage::DoDownload(void)
 {
+#if 0
 	crBuffer* 					buffer = nullptr;
 	crTransferCommandBuffer*	transfer = nullptr;
 
@@ -1035,4 +900,5 @@ void idImage::DoDownload(void)
 	transfer = backEnd.GetTransferCMD();
 
 	transfer->CopyTextureToBuffer( buffer, texnum, subimages );	
+#endif
 }

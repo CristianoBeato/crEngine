@@ -51,7 +51,7 @@ public:
     void        StartUp( void );
     void        ShutDown( void );
     void        ReloadShaders( void );
-    vkProgram*  GetShader( const uint32_t in_ID );
+    crProgram*  GetShader( const uint32_t in_ID );
 
 private:
     idStaticList<vkProgram*, MAX_SHADER_COUNT>   m_shaders;

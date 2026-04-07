@@ -71,28 +71,13 @@ vkProgram *crShaderManager::GetShader(const uint32_t in_ID)
 bool crShaderManager::LoadShader(const uint32_t in_ID, const idStr in_sourcePath, const vkProgram::type_t in_type )
 {
     size_t buffLen = 0;
-    uint32_t *spirVbuff = nullptr;
-	ID_TIME_T timeStamp = 0;
+    ID_TIME_T timeStamp = 0;
     idStr	fullPath = idStr( "renderprogs/vk/" );
 
     // get full source path 
     fullPath += in_sourcePath;
 
-    //Read shade file     
-	buffLen = fileSystem->ReadFile( fullPath.c_str(), reinterpret_cast<void**>( &spirVbuff ), &timeStamp );
-    if ( buffLen == 0 )
-    {
-        common->Warning( "crShaderManager::LoadShader::Error( can't open shader binary file %s)\n", fullPath.c_str() );
-        return false;
-    }
-
-    /// Try Create shader    
-    m_shaders[in_ID] = new( TAG_RENDER ) vkProgram();
-    if( !m_shaders[in_ID]->Create( in_type, spirVbuff, buffLen ) )
-    {
-        delete m_shaders[in_ID];
-        return true;
-    }
+    
 
     return true;
 }

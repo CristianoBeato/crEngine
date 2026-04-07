@@ -52,36 +52,6 @@ inline constexpr int MAX_TEXGEN_REGISTERS		= 4;
 inline constexpr int MAX_ENTITY_SHADER_PARMS	= 16;
 inline constexpr int MAX_GLOBAL_SHADER_PARMS	= 12;	// ? this looks like it should only be 8
 
-// How is this texture used?  Determines the storage and color format
-typedef enum
-{
-	TD_SPECULAR,			// may be compressed, and always zeros the alpha channel
-	TD_DIFFUSE,				// may be compressed
-	TD_DEFAULT,				// generic RGBA texture (particles, etc...)
-	TD_BUMP,				// may be compressed with 8 bit lookup
-	TD_FONT,				// Font image
-	TD_LIGHT,				// Light image
-	TD_LOOKUP_TABLE_MONO,	// Mono lookup table (including alpha)
-	TD_LOOKUP_TABLE_ALPHA,	// Alpha lookup table with a white color channel
-	TD_LOOKUP_TABLE_RGB1,	// RGB lookup table with a solid white alpha
-	TD_LOOKUP_TABLE_RGBA,	// RGBA lookup table
-	TD_COVERAGE,			// coverage map for fill depth pass when YCoCG is used
-	TD_DEPTH,				// depth buffer copy for motion blur
-	TD_HIGHQUALITY,			// sikk - Added - High Quality Texture Depth (full RGBA)
-	TD_HIGHQUALITY_CUBE,	// motorsep - Uncompressed cubemap texture (RGB colorspace)
-	TD_LOWQUALITY_CUBE,		// motorsep - Compressed cubemap texture (YCoCg colorspace DXT5)
-	TD_RGBA16F,				// foresthale 2014-02-19: generic RGBA16F texture (for HDR view rendering)
-	TD_DEPTHSTENCIL,		// foresthale 2014-02-19: generic DEPTHSTENCIL texture (for HDR view rendering)
-	TD_EDITOR_DEFAULT,		// foresthale 2014-05-17: uncompressed editor version of TD_DEFAULT (always loads tga, does not write bimage)
-	TD_EDITOR_DIFFUSE,		// foresthale 2014-05-17: uncompressed editor version of TD_DIFFUSE (always loads tga, does not write bimage)
-	TD_EDITOR_BUMP,			// foresthale 2014-05-17: uncompressed editor version of TD_BUMP (always loads tga, does not write bimage)
-	TD_EDITOR_COVERAGE,		// foresthale 2014-05-17: uncompressed editor version of TD_COVERAGE (always loads tga, does not write bimage)
-	TD_GLOSS,				// gloss map image, grayscale (FMT_INT8) internally
-	// RB begin
-	TD_SHADOW_ARRAY,		// 2D depth buffer array for shadow mapping
-	// RB end
-} textureUsage_t;
-
 typedef struct
 {
 	int		stayTime;		// msec for no change
@@ -197,7 +167,7 @@ typedef enum
 	TG_GLASSWARP
 } texgen_t;
 
-class vkSampler;
+class crSampler;
 typedef struct
 {
 	bool				hasMatrix;
@@ -208,7 +178,7 @@ typedef struct
 	dynamicidImage_t	dynamic;
 	texgen_t			texgen;
 	idCinematic* 		cinematic;
-	vkSampler*			sample;
+	crSampler*			sample;
 	idImage* 			image;
 	
 	void	CloseCinematic( void )
@@ -441,7 +411,7 @@ typedef enum
 								  // won't collect light from any angle
 } surfaceFlags_t;
 
-class vkSampler;
+class crSampler;
 class idSoundEmitter;
 class idMaterial : public idDecl
 {
@@ -921,7 +891,7 @@ private:
 	idStr				desc;				// description
 
 // BEATO Begin:
-	vkSampler*			lightFalloffSampler;
+	crSampler*			lightFalloffSampler;
 // BEATO End
 
 	idImage*			lightFalloffImage;	// only for light shaders
@@ -932,7 +902,7 @@ private:
 	idImage* 			fastPathGlossImage;
 
 	// BEATO Begin:
-	vkSampler*			fastPathSampler;	// use the same filtering and repeat to fast path texture
+	crSampler*			fastPathSampler;	// use the same filtering and repeat to fast path texture
 	// BEATO End
 	
 	int					entityGui;			// draw a gui with the idUserInterface from the renderEntity_t

@@ -26,15 +26,15 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Program.hpp"
 #include "Core.hpp"
 
-vkProgram::vkProgram( void )
+crProgram::crProgram( void )
 {
 }
 
-vkProgram::~vkProgram( void )
+crProgram::~crProgram( void )
 {
 }
 
-bool vkProgram::Create( const type_t in_type, const void* in_source, const size_t in_size )
+bool crProgram::Create( const type_t in_type, const void* in_source, const size_t in_size )
 {
     VkResult result = VK_SUCCESS; 
     auto device = tr.GetRenderDevice();
@@ -47,7 +47,7 @@ bool vkProgram::Create( const type_t in_type, const void* in_source, const size_
     result = vkCreateShaderModule( *device, &shaderModuleCI, k_allocationCallbacks, &m_shaderModule);
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkProgram::Create failed to create shader\n" );
+        idLib::Error( "crProgram::Create failed to create shader\n" );
         return false;
     }
 
@@ -81,7 +81,7 @@ bool vkProgram::Create( const type_t in_type, const void* in_source, const size_
     return true;
 }
 
-void vkProgram::Destroy( void )
+void crProgram::Destroy( void )
 {
     if ( m_shaderModule == nullptr )
     {

@@ -50,7 +50,7 @@ static void R_WhiteImage( idImage* image )
 	
 	// solid white texture
 	std::memset( data, 255, sizeof( data ) );
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEFAULT );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 }
 
 static void R_BlackImage( idImage* image )
@@ -59,7 +59,7 @@ static void R_BlackImage( idImage* image )
 	
 	// solid black texture
 	std::memset( data, 0, sizeof( data ) );
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEFAULT );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 }
 
 static void R_GlossImage( idImage* image )
@@ -69,7 +69,7 @@ static void R_GlossImage( idImage* image )
 	// default 120 specular power texture (this gets multiplied by 32.0, so this is roughly pow(n,15) exponent)
 	// TD_GLOSS uses FMT_INT8 so we don't care about the green, blue or alpha bytes, just red
 	std::memset( data, 120, sizeof( data ) );
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_GLOSS );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 }
 
 static void R_RGBA8Image( idImage* image )
@@ -82,7 +82,7 @@ static void R_RGBA8Image( idImage* image )
 	data[0][0][2] = 48;
 	data[0][0][3] = 96;
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 }
 
 // foresthale 2014-02-20: renamed from R_DepthImage to R_DepthImageNearest to imply TF_NEAREST
@@ -96,7 +96,7 @@ static void R_DepthImageNearest( idImage* image )
 	data[0][0][2] = 48;
 	data[0][0][3] = 96;
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEPTH );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 }
 
 // foresthale 2014-02-20: modified version of R_RGBA8Image that uses TF_LINEAR for view renders
@@ -110,7 +110,7 @@ static void R_RGBA8ImageLinear( idImage* image )
 	data[0][0][2] = 48;
 	data[0][0][3] = 96;
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 }
 
 // foresthale 2014-02-19: added TD_RGBA16F for HDR view rendering
@@ -120,7 +120,7 @@ static void R_RGBA16FImageLinear( idImage* image )
 	
 	std::memset( data, 0, sizeof( data ) );
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_RGBA16F );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 }
 
 // foresthale 2014-02-19: added TD_DEPTHSTENCIL
@@ -134,7 +134,7 @@ static void R_DepthStencilImageNearest( idImage* image )
 	data[0][0][2] = 0;
 	data[0][0][3] = 0;
 	
-	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE, TD_DEPTHSTENCIL );
+	image->GenerateImage( ( byte* )data, DEFAULT_SIZE, DEFAULT_SIZE );
 }
 
 static void R_AlphaNotchImage( idImage* image )
@@ -148,7 +148,7 @@ static void R_AlphaNotchImage( idImage* image )
 	data[1][0] = data[1][1] = data[1][2] = 255;
 	data[1][3] = 255;
 	
-	image->GenerateImage( ( byte* )data, 2, 1, TD_LOOKUP_TABLE_ALPHA );
+	image->GenerateImage( ( byte* )data, 2, 1 );
 }
 
 static void R_FlatNormalImage( idImage* image )
@@ -163,7 +163,7 @@ static void R_FlatNormalImage( idImage* image )
 		data[0][i][2] = 255;
 		data[0][i][3] = 255;
 	}
-	image->GenerateImage( ( byte* )data, 2, 2, TD_BUMP );
+	image->GenerateImage( ( byte* )data, 2, 2 );
 }
 
 /*
@@ -189,7 +189,7 @@ static void R_CreateNoFalloffImage( idImage* image )
 			data[y][x][3] = 255;
 		}
 	}
-	image->GenerateImage( ( byte* )data, FALLOFF_TEXTURE_SIZE, 16, TD_LOOKUP_TABLE_MONO );
+	image->GenerateImage( ( byte* )data, FALLOFF_TEXTURE_SIZE, 16 );
 }
 
 /*
@@ -248,7 +248,7 @@ void R_FogImage( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, FOG_SIZE, FOG_SIZE, TD_LOOKUP_TABLE_ALPHA );
+	image->GenerateImage( ( byte* )data, FOG_SIZE, FOG_SIZE );
 }
 
 
@@ -376,7 +376,7 @@ void R_FogEnterImage( idImage* image )
 	}
 	
 	// if mipmapped, acutely viewed surfaces fade wrong
-	image->GenerateImage( ( byte* )data, FOG_ENTER_SIZE, FOG_ENTER_SIZE, TD_LOOKUP_TABLE_ALPHA );
+	image->GenerateImage( ( byte* )data, FOG_ENTER_SIZE, FOG_ENTER_SIZE );
 }
 
 
@@ -426,38 +426,38 @@ void R_QuadraticImage( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, QUADRATIC_WIDTH, QUADRATIC_HEIGHT, TD_LOOKUP_TABLE_RGB1 );
+	image->GenerateImage( ( byte* )data, QUADRATIC_WIDTH, QUADRATIC_HEIGHT );
 }
 
 // RB begin
 static void R_CreateShadowMapImage_Res0( idImage* image )
 {
 	int size = shadowMapResolutions[0];
-	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size );
 }
 
 static void R_CreateShadowMapImage_Res1( idImage* image )
 {
 	int size = shadowMapResolutions[1];
-	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size );
 }
 
 static void R_CreateShadowMapImage_Res2( idImage* image )
 {
 	int size = shadowMapResolutions[2];
-	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size );
 }
 
 static void R_CreateShadowMapImage_Res3( idImage* image )
 {
 	int size = shadowMapResolutions[3];
-	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size );
 }
 
 static void R_CreateShadowMapImage_Res4( idImage* image )
 {
 	int size = shadowMapResolutions[4];
-	image->GenerateShadowArray( size, size, TD_SHADOW_ARRAY );
+	image->GenerateShadowArray( size, size );
 }
 
 const static int JITTER_SIZE = 128;
@@ -482,7 +482,7 @@ static void R_CreateJitterImage16( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, JITTER_SIZE * 16, JITTER_SIZE, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, JITTER_SIZE * 16, JITTER_SIZE );
 }
 
 static void R_CreateJitterImage4( idImage* image )
@@ -506,7 +506,7 @@ static void R_CreateJitterImage4( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, JITTER_SIZE * 4, JITTER_SIZE, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, JITTER_SIZE * 4, JITTER_SIZE );
 }
 
 static void R_CreateJitterImage1( idImage* image )
@@ -524,7 +524,7 @@ static void R_CreateJitterImage1( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, JITTER_SIZE, JITTER_SIZE, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, JITTER_SIZE, JITTER_SIZE );
 }
 
 static void R_CreateRandom256Image( idImage* image )
@@ -542,7 +542,7 @@ static void R_CreateRandom256Image( idImage* image )
 		}
 	}
 	
-	image->GenerateImage( ( byte* )data, 256, 256, TD_LOOKUP_TABLE_RGBA );
+	image->GenerateImage( ( byte* )data, 256, 256 );
 }
 // RB end
 
@@ -599,7 +599,7 @@ void idImageManagerLocal::CreateIntrinsicImages( void )
 	viewFramebufferDepthImage = ImageFromFunction( "_currentFramebufferDepth", R_DepthStencilImageNearest );
 	currentRenderImage = ImageFromFunction( "_currentRender", R_RGBA8ImageLinear );
 	currentDepthImage = ImageFromFunction( "_currentDepth", R_DepthImageNearest );
-	ditherImage = ImageFromFile( "textures/dither4x4.tga", TD_HIGHQUALITY );
+	ditherImage = ImageFromFile( "textures/dither4x4.tga" );
 	cameraImage = ImageFromFunction( "_camera", R_RGBA8ImageLinear );
 	// foresthale 2014-04-08: r_glow
 	glowFramebufferImage8[0] = ImageFromFunction( "_glowFramebuffer0", R_RGBA8ImageLinear );
@@ -617,8 +617,8 @@ void idImageManagerLocal::CreateIntrinsicImages( void )
 	
 	//loadingIconImage = ImageFromFile( "textures/loadingicon2", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
 	//hellLoadingIconImage = ImageFromFile( "textures/loadingicon3", TF_DEFAULT, TR_CLAMP, TD_DEFAULT, CF_2D );
-	loadingIconImage = ImageFromFile("textures/da_kat", TD_HIGHQUALITY, CF_2D );
-	hellLoadingIconImage = ImageFromFile("textures/da_kat", TD_HIGHQUALITY, CF_2D );
+	loadingIconImage = ImageFromFile("textures/da_kat", CF_2D );
+	hellLoadingIconImage = ImageFromFile("textures/da_kat", CF_2D );
 	
 	release_assert( loadingIconImage->referencedOutsideLevelLoad );
 	release_assert( hellLoadingIconImage->referencedOutsideLevelLoad );

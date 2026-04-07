@@ -109,6 +109,7 @@ namespace BTF
 class crBTFTextureFile
 {	
 public:
+	crBTFTextureFile( void );
 	crBTFTextureFile( const idStr &in_name );
 	~crBTFTextureFile( void );
 
