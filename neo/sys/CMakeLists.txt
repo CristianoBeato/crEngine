@@ -83,18 +83,12 @@ set( SYSTEM_LINUX_SOURCES
     )
 
 set( SYSTEM_WIN_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_cpu.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_glimp.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_input.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_input.h
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_local.h
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_nanoafx.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_gl.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_shared.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_snd.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_syscon.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_taskkeyhook.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_wndproc.cpp
     )
 
@@ -156,7 +150,7 @@ else( )
 endif( )
 
 # link external libraries
-target_link_libraries( crEngine PUBLIC ZLIB::ZLIB PNG::PNG JPEG::JPEG OpenGL::OpenGL OpenAL::OpenAL SDL3 ${OGG_LIBRARY} ${VORBISFILE_LIBRARY} )
+target_link_libraries( crEngine PUBLIC ZLIB::ZLIB PNG::PNG JPEG::JPEG SDL3 ${OGG_LIBRARY} ${VORBISFILE_LIBRARY} )
 
 #set the idLib root dir as include
 target_include_directories( crEngine PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 

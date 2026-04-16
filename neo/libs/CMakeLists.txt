@@ -1,3 +1,5 @@
+## External Libraries 
+
 #these are contrib software
 set( CONTRIB_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/minizip/zip.h
@@ -16,6 +18,10 @@ set( CONTRIB_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/minizip/ioapi.c
     ${CMAKE_CURRENT_SOURCE_DIR}/minizip/crypt.h
     )
+
+## JPeg6 lib 
+## In future i want to remove the dependencies
+## instead of roc video use the open format Ogg Theora 
 
 ## library
 ##################################################################

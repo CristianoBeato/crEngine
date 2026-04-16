@@ -21,21 +21,20 @@ option( OPENAL "Use OpenAL as sound backend" OFF)
 
 ## find Libraries
 ##################################################################
-#TODO: configure windows platform
-#find_package(DirectX REQUIRED)
-#include_directories(${DirectX_INCLUDE_DIR})
+include_directories( ${CMAKE_SOURCE_DIR} ) # source root path
+include_directories( ${CMAKE_SOURCE_DIR}/libs ) #third party libraries
 
+## find SDL3 and the SDL3 C++ wrapper
 find_package( SDL3 REQUIRED CONFIG )
 include_directories( SDL3::Headers )
 include_directories( ${CMAKE_SOURCE_DIR}/libs/SDL3PP )
 
+## find zip library ( and minizip on unix)
 find_package( ZLIB REQUIRED )
 find_package( PNG REQUIRED )
 find_package( JPEG REQUIRED )
-find_package( OpenGL REQUIRED )
-find_package( OpenAL REQUIRED )
-find_package( ogg )
-find_package( vorbis )
+#find_package( ogg ) #TODO: fix on windows
+#find_package( vorbis ) #TODO: fix on windows
 
 ## Toolchain configuration
 ##################################################################
