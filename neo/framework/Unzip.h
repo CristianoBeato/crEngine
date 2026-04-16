@@ -34,8 +34,16 @@ If you have questions concerning this license or the applicable additional terms
 #include <zlib.h>
 
 // Use the included minizip header.
+#if SDL_PLATFORM_LINUX || SDL_PLATFORM_UNIX
+// On Linux and Unix, we use the system's minizip, which is usually
 #include <minizip/zip.h>
 #include <minizip/unzip.h>
+#elif SDL_PLATFORM_WINDOWS
+// On Windows, we use the included minizip,
+// which is located in the "minizip" subdirectory of the project.
+#include "minizip/zip.h"
+#include "minizip/unzip.h"
+#endif // SDL_PLATFORM_WINDOWS
 
 //
 // DG: all unzip code has been moved to minizip/
