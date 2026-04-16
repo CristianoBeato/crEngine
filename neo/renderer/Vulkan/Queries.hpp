@@ -25,11 +25,11 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __QUERIES_HPP__
 #define __QUERIES_HPP__
 
-class vkTimeQueries
+class crTimeQueries
 {
 public:
-    vkTimeQueries( void );
-    ~vkTimeQueries( void );
+    crTimeQueries( void );
+    ~crTimeQueries( void );
     void            Create( const uint16_t in_frameCount );
     void            Destroy( void );
     void            BeginRegister( const vkCommandbuffer* in_cmd );

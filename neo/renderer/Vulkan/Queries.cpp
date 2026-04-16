@@ -27,18 +27,18 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Core.hpp"
 #include "Queries.hpp"
 
-vkTimeQueries::vkTimeQueries( void ) : 
+crTimeQueries::crTimeQueries( void ) : 
     m_frameID( 0 ),
     m_frameCount( 0 ),
     m_timestampPeriod( 0.0f )
 {
 }
 
-vkTimeQueries::~vkTimeQueries( void )
+crTimeQueries::~crTimeQueries( void )
 {
 }
 
-void vkTimeQueries::Create( const uint16_t in_frameCount )
+void crTimeQueries::Create( const uint16_t in_frameCount )
 {
     crVulkanRenderDevicep device = tr.GetRenderDevice();
     m_timestampPeriod = device->Properties().timestampPeriod;
@@ -58,7 +58,7 @@ void vkTimeQueries::Create( const uint16_t in_frameCount )
     }
 }
 
-void vkTimeQueries::Destroy(void)
+void crTimeQueries::Destroy(void)
 {
     crVulkanRenderDevicep device = tr.GetRenderDevice();
     for ( uint32_t i = 0; i < m_frameCount; i++)
@@ -68,17 +68,17 @@ void vkTimeQueries::Destroy(void)
     }
 }
 
-void vkTimeQueries::BeginRegister( const vkCommandbuffer* in_cmd )
+void crTimeQueries::BeginRegister( const vkCommandbuffer* in_cmd )
 {
     vkCmdWriteTimestamp( *in_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, m_pools[m_frameID], 0 );
 }
 
-void vkTimeQueries::EndRegister( const vkCommandbuffer* in_cmd )
+void crTimeQueries::EndRegister( const vkCommandbuffer* in_cmd )
 {
     vkCmdWriteTimestamp( *in_cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, m_pools[m_frameID], 1 ); 
 }
 
-uint64_t vkTimeQueries::Retrieve( void )
+uint64_t crTimeQueries::Retrieve( void )
 {
     uint64_t results[2] { 0, 0 };
     crVulkanRenderDevicep device = tr.GetRenderDevice();
