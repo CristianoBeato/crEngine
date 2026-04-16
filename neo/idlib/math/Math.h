@@ -550,7 +550,7 @@ idMath::InvSqrt
 ID_INLINE float idMath::InvSqrt( float x )
 {
 
-	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? sqrtf( 1.0f / x ) : INFINITY;
+	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? std::sqrt( 1.0f / x ) : INFINITY;
 	
 }
 
@@ -562,7 +562,7 @@ idMath::InvSqrt16
 ID_INLINE float idMath::InvSqrt16( float x )
 {
 
-	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? sqrtf( 1.0f / x ) : INFINITY;
+	return ( x > FLT_SMALLEST_NON_DENORMAL ) ? std::sqrt( 1.0f / x ) : INFINITY;
 	
 }
 
@@ -593,7 +593,7 @@ idMath::Frac
 */
 ID_INLINE float idMath::Frac( float f )
 {
-	return f - floorf( f );
+	return f - std::floor( f );
 }
 
 /*
@@ -603,7 +603,7 @@ idMath::Sin
 */
 ID_INLINE float idMath::Sin( float a )
 {
-	return sinf( a );
+	return std::sin( a );
 }
 
 /*
@@ -617,7 +617,7 @@ ID_INLINE float idMath::Sin16( float a )
 	
 	if( ( a < 0.0f ) || ( a >= TWO_PI ) )
 	{
-		a -= floorf( a * ONEOVER_TWOPI ) * TWO_PI;
+		a -= std::floor( a * ONEOVER_TWOPI ) * TWO_PI;
 	}
 #if 1
 	if( a < PI )
@@ -656,7 +656,7 @@ idMath::Cos
 */
 ID_INLINE float idMath::Cos( float a )
 {
-	return cosf( a );
+	return std::cos( a );
 }
 
 /*
@@ -670,7 +670,7 @@ ID_INLINE float idMath::Cos16( float a )
 	
 	if( ( a < 0.0f ) || ( a >= TWO_PI ) )
 	{
-		a -= floorf( a * ONEOVER_TWOPI ) * TWO_PI;
+		a -= std::floor( a * ONEOVER_TWOPI ) * TWO_PI;
 	}
 #if 1
 	if( a < PI )
@@ -733,8 +733,8 @@ ID_INLINE void idMath::SinCos( float a, float& s, float& c )
 	}
 #else
 	// DG: non-MSVC version
-	s = sinf( a );
-	c = cosf( a );
+	s = std::sin( a );
+	c = std::cos( a );
 	// DG end
 #endif
 }
@@ -750,7 +750,7 @@ ID_INLINE void idMath::SinCos16( float a, float& s, float& c )
 	
 	if( ( a < 0.0f ) || ( a >= TWO_PI ) )
 	{
-		a -= floorf( a * ONEOVER_TWOPI ) * TWO_PI;
+		a -= std::floor( a * ONEOVER_TWOPI ) * TWO_PI;
 	}
 #if 1
 	if( a < PI )
@@ -802,7 +802,7 @@ idMath::Tan
 */
 ID_INLINE float idMath::Tan( float a )
 {
-	return tanf( a );
+	return std::tan( a );
 }
 
 /*
@@ -817,7 +817,7 @@ ID_INLINE float idMath::Tan16( float a )
 	
 	if( ( a < 0.0f ) || ( a >= PI ) )
 	{
-		a -= floorf( a * ONEOVER_PI ) * PI;
+		a -= std::floor( a * ONEOVER_PI ) * PI;
 	}
 #if 1
 	if( a < HALF_PI )
@@ -860,13 +860,9 @@ ID_INLINE float idMath::Tan16( float a )
 	s = a * a;
 	s = a * ( ( ( ( ( ( 9.5168091e-03f * s + 2.900525e-03f ) * s + 2.45650893e-02f ) * s + 5.33740603e-02f ) * s + 1.333923995e-01f ) * s + 3.333314036e-01f ) * s + 1.0f );
 	if( reciprocal )
-	{
 		return 1.0f / s;
-	}
 	else
-	{
 		return s;
-	}
 }
 
 /*
@@ -877,14 +873,12 @@ idMath::ASin
 ID_INLINE float idMath::ASin( float a )
 {
 	if( a <= -1.0f )
-	{
 		return -HALF_PI;
-	}
+	
 	if( a >= 1.0f )
-	{
 		return HALF_PI;
-	}
-	return asinf( a );
+	
+	return std::asin( a );
 }
 
 /*
@@ -900,7 +894,7 @@ ID_INLINE float idMath::ASin16( float a )
 		{
 			return -HALF_PI;
 		}
-		a = fabsf( a );
+		a = std::fabs( a );
 		return ( ( ( -0.0187293f * a + 0.0742610f ) * a - 0.2121144f ) * a + 1.5707288f ) * idMath::Sqrt( 1.0f - a ) - HALF_PI;
 	}
 	else
@@ -921,14 +915,12 @@ idMath::ACos
 ID_INLINE float idMath::ACos( float a )
 {
 	if( a <= -1.0f )
-	{
 		return PI;
-	}
+
 	if( a >= 1.0f )
-	{
 		return 0.0f;
-	}
-	return acosf( a );
+	
+	return std::acos( a );
 }
 
 /*
@@ -940,19 +932,14 @@ ID_INLINE float idMath::ACos16( float a )
 {
 	if( a < 0.0f )
 	{
-		if( a <= -1.0f )
-		{
-			return PI;
-		}
-		a = fabsf( a );
+		if( a <= -1.0f ) return PI;
+
+		a = std::fabs( a );
 		return PI - ( ( ( -0.0187293f * a + 0.0742610f ) * a - 0.2121144f ) * a + 1.5707288f ) * idMath::Sqrt( 1.0f - a );
 	}
 	else
 	{
-		if( a >= 1.0f )
-		{
-			return 0.0f;
-		}
+		if( a >= 1.0f ) return 0.0f;
 		return ( ( ( -0.0187293f * a + 0.0742610f ) * a - 0.2121144f ) * a + 1.5707288f ) * idMath::Sqrt( 1.0f - a );
 	}
 }
@@ -964,7 +951,7 @@ idMath::ATan
 */
 ID_INLINE float idMath::ATan( float a )
 {
-	return atanf( a );
+	return std::atan( a );
 }
 
 /*
@@ -975,20 +962,17 @@ idMath::ATan16
 ID_INLINE float idMath::ATan16( float a )
 {
 	float s;
-	if( fabsf( a ) > 1.0f )
+	if( std::fabs( a ) > 1.0f )
 	{
 		a = 1.0f / a;
 		s = a * a;
 		s = - ( ( ( ( ( ( ( ( ( 0.0028662257f * s - 0.0161657367f ) * s + 0.0429096138f ) * s - 0.0752896400f )
 						  * s + 0.1065626393f ) * s - 0.1420889944f ) * s + 0.1999355085f ) * s - 0.3333314528f ) * s ) + 1.0f ) * a;
 		if( a < 0.0f )
-		{
 			return s - HALF_PI;
-		}
 		else
-		{
 			return s + HALF_PI;
-		}
+		
 	}
 	else
 	{
@@ -1005,7 +989,7 @@ idMath::ATan
 */
 ID_INLINE float idMath::ATan( float y, float x )
 {
-	assert( fabs( y ) > idMath::FLT_SMALLEST_NON_DENORMAL || fabs( x ) > idMath::FLT_SMALLEST_NON_DENORMAL );
+	assert( std::fabs( y ) > idMath::FLT_SMALLEST_NON_DENORMAL || fabs( x ) > idMath::FLT_SMALLEST_NON_DENORMAL );
 	return atan2f( y, x );
 }
 
@@ -1016,10 +1000,10 @@ idMath::ATan16
 */
 ID_INLINE float idMath::ATan16( float y, float x )
 {
-	assert( fabs( y ) > idMath::FLT_SMALLEST_NON_DENORMAL || fabs( x ) > idMath::FLT_SMALLEST_NON_DENORMAL );
+	assert( std::fabs( y ) > idMath::FLT_SMALLEST_NON_DENORMAL || std::fabs( x ) > idMath::FLT_SMALLEST_NON_DENORMAL );
 	
 	float a, s;
-	if( fabsf( y ) > fabsf( x ) )
+	if( std::fabs( y ) > std::fabs( x ) )
 	{
 		a = x / y;
 		s = a * a;
@@ -1050,7 +1034,7 @@ idMath::Pow
 */
 ID_INLINE float idMath::Pow( float x, float y )
 {
-	return powf( x, y );
+	return std::pow( x, y );
 }
 
 /*
@@ -1070,7 +1054,7 @@ idMath::Exp
 */
 ID_INLINE float idMath::Exp( float f )
 {
-	return expf( f );
+	return std::exp( f );
 }
 
 /*
@@ -1116,7 +1100,7 @@ idMath::Log
 */
 ID_INLINE float idMath::Log( float f )
 {
-	return logf( f );
+	return std::log( f );
 }
 
 /*
@@ -1292,7 +1276,7 @@ idMath::Abs
 ID_INLINE int idMath::Abs( int x )
 {
 #if 1
-	return abs( x );
+	return std::abs( x );
 #else
 	int y = x >> INT32_SIGN_BIT;
 	return ( ( x ^ y ) - y );
@@ -1307,7 +1291,7 @@ idMath::Fabs
 ID_INLINE float idMath::Fabs( float f )
 {
 #if 1
-	return fabsf( f );
+	return std::fabs( f );
 #else
 	int tmp = *reinterpret_cast<int*>( &f );
 	tmp &= 0x7FFFFFFF;
@@ -1322,7 +1306,7 @@ idMath::Floor
 */
 ID_INLINE float idMath::Floor( float f )
 {
-	return floorf( f );
+	return std::floor( f );
 }
 
 /*
@@ -1332,7 +1316,7 @@ idMath::Ceil
 */
 ID_INLINE float idMath::Ceil( float f )
 {
-	return ceilf( f );
+	return std::ceil( f );
 }
 
 /*
@@ -1342,7 +1326,7 @@ idMath::Rint
 */
 ID_INLINE float idMath::Rint( float f )
 {
-	return floorf( f + 0.5f );
+	return std::floor( f + 0.5f );
 }
 
 
@@ -1397,15 +1381,8 @@ ID_INLINE unsigned short idMath::Ftoui16( float f )
 	
 	// The converted result is clamped to the range [-32768,32767].
 	int i = C_FLOAT_TO_INT( f );
-	if( i < 0 )
-	{
-		return 0;
-	}
-	else if( i > 65535 )
-	{
-		return 65535;
-	}
-	return static_cast<unsigned short>( i );
+	
+	return ( i > 0 ) ? ( ( i < UINT16_MAX ) ? static_cast<unsigned short>( i ) : UINT16_MAX ) : 0;
 }
 
 /*
@@ -1430,15 +1407,7 @@ idMath::ClampChar
 */
 ID_INLINE signed char idMath::ClampChar( int i )
 {
-	if( i < -128 )
-	{
-		return -128;
-	}
-	if( i > 127 )
-	{
-		return 127;
-	}
-	return static_cast<signed char>( i );
+	return ( i > INT8_MIN ) ? ( ( i < INT8_MAX ) ? static_cast<signed char>( i ) : INT8_MAX ): INT8_MIN;
 }
 
 /*
@@ -1448,15 +1417,7 @@ idMath::ClampShort
 */
 ID_INLINE signed short idMath::ClampShort( int i )
 {
-	if( i < -32768 )
-	{
-		return -32768;
-	}
-	if( i > 32767 )
-	{
-		return 32767;
-	}
-	return static_cast<signed short>( i );
+	return ( i > INT16_MIN ) ? ( ( i < INT16_MAX ) ? static_cast<int16_t>( i ) : INT16_MAX ): INT16_MIN;
 }
 
 /*
@@ -1466,15 +1427,7 @@ idMath::ClampInt
 */
 ID_INLINE int idMath::ClampInt( int min, int max, int value )
 {
-	if( value < min )
-	{
-		return min;
-	}
-	if( value > max )
-	{
-		return max;
-	}
-	return value;
+	return ( value > min ) ? ( ( value < max ) ? value : max ): min;
 }
 
 /*
@@ -1484,7 +1437,7 @@ idMath::ClampFloat
 */
 ID_INLINE float idMath::ClampFloat( float min, float max, float value )
 {
-	return Max( min, Min( max, value ) );
+	return ( value > min ) ? ( ( value < max ) ? value : max ): min;
 }
 
 /*
@@ -1495,9 +1448,8 @@ idMath::AngleNormalize360
 ID_INLINE float idMath::AngleNormalize360( float angle )
 {
 	if( ( angle >= 360.0f ) || ( angle < 0.0f ) )
-	{
-		angle -= floorf( angle * ( 1.0f / 360.0f ) ) * 360.0f;
-	}
+		angle -= std::floor( angle * ( 1.0f / 360.0f ) ) * 360.0f;
+	
 	return angle;
 }
 

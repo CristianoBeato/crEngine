@@ -33,6 +33,24 @@ If you have questions concerning this license or the applicable additional terms
 
 // Include the various platform specific header files (windows.h, etc)
 
+// BEATO Begin: Update C references from C++
+#include <utility> // for std::move, on windows with MinGW, <utility> is needed for std::move, missing it causes some weird errors with the STL, so we only include it on windows for now
+#include <cmath> // std::sqrt, std::floor, std::sin, std::tan, std::cos,std::asin, std::acos, std::atan, std::fabs, std::log, std::exp, std::pow
+#include <cstdio>
+#include <cstdint> // RB: added <stdint.h> for missing uintptr_t with MinGW
+#include <cstdlib>
+#include <cstdarg>
+#include <cstddef> // Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
+#include <cstring>
+#include <cassert>
+#include <ctime>
+#include <cerrno>
+#include <cstring> // std::memset, std::memcpy
+#include <climits>
+#include <cctype>
+#include <typeinfo>
+#include <memory>
+
 /*
 ================================================================================================
 
@@ -43,6 +61,12 @@ If you have questions concerning this license or the applicable additional terms
 
 // RB: windows specific stuff should only be set on Windows
 #if defined(_WIN32)
+#ifndef WIN32_LEAN_AND_MEAN
+        #define WIN32_LEAN_AND_MEAN
+#endif
+#ifndef NOMINMAX
+	#define NOMINMAX
+#endif
 
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
 
@@ -52,9 +76,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <winsock2.h>
 #include <mmsystem.h>
 #include <mmreg.h>
-
-#define DIRECTINPUT_VERSION  0x0800			// was 0x0700 with the old mssdk
-#define DIRECTSOUND_VERSION  0x0800
 
 #ifdef _MSC_VER
 #pragma warning( disable: 4005 )  /* macro redefinition */
@@ -82,10 +103,6 @@ If you have questions concerning this license or the applicable additional terms
 // RB end
 
 #endif
-
-
-
-#include <dinput.h>
 
 #ifdef _MSC_VER 
 #pragma warning( default: 4005 )  /* macro redefinition */
@@ -123,7 +140,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <stdlib.h>							// no malloc.h on mac or unix
 #undef FindText								// fix namespace pollution
 
-
 /*
 ================================================================================================
 
@@ -137,22 +153,10 @@ If you have questions concerning this license or the applicable additional terms
 #define NDEBUG
 #endif
 
-// BEATO Begin: Update C references from C++
-#include <cstdio>
-#include <cstdint> // RB: added <stdint.h> for missing uintptr_t with MinGW
-#include <cstdlib>
-#include <cstdarg>
-#include <cstddef> // Yamagi: <stddef.h> for ptrdiff_t on FreeBSD
-//#include <cstring>
-#include <cassert>
-#include <ctime>
-#include <cerrno>
-#include <cmath>
-#include <cstring>
-#include <cctype>
-#include <typeinfo>
-#include <limits>
-#include <memory>
+
+#undef min
+#undef max
+//#include <algorithm>	// for min / max / swap
 
 //-----------------------------------------------------
 

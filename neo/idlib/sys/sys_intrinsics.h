@@ -64,7 +64,7 @@ ID_INLINE_EXTERN float __fdivs( float x, float y )
 }
 ID_INLINE_EXTERN float __frsqrts( float x )
 {
-	return ( 1.0f / sqrtf( x ) );
+	return ( 1.0f / std::sqrt( x ) );
 }
 ID_INLINE_EXTERN float __frcps16( float x )
 {
@@ -76,7 +76,7 @@ ID_INLINE_EXTERN float __fdivs16( float x, float y )
 }
 ID_INLINE_EXTERN float __frsqrts16( float x )
 {
-	return ( 1.0f / sqrtf( x ) );
+	return ( 1.0f / std::sqrt( x ) );
 }
 ID_INLINE_EXTERN float __frndz( float x )
 {
