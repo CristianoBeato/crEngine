@@ -6,6 +6,8 @@
 #include "SDLSoundSample.h"
 #include "SDLSoundVoice.h"
 
+inline constexpr uint32_t k_MAX_HARDWARE_VOICES = 128;
+
 class idSoundHardwareSDL3
 {
 public:
@@ -24,9 +26,9 @@ private:
     SDL_AudioSpec       					m_specs;
     SDL::Audio::Device  					m_device;
     SDL::Audio::Stream  					m_stream;
-	idList<idSoundVoiceSDL3, TAG_AUDIO>		m_voices;
-	idList<idSoundVoiceSDL3*, TAG_AUDIO>	m_usedVoices;
-	idList<idSoundVoiceSDL3*, TAG_AUDIO>	m_freeVoices;
+	idStaticList<idSoundVoiceSDL3, k_MAX_HARDWARE_VOICES>	m_voices; // available voices
+	idStaticList<idSoundVoiceSDL3*, k_MAX_HARDWARE_VOICES>	m_usedVoices;
+	idStaticList<idSoundVoiceSDL3*, k_MAX_HARDWARE_VOICES>	m_freeVoices;
 };
 
 class idSoundHardware : public idSoundHardwareSDL3

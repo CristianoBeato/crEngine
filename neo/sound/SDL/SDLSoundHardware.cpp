@@ -11,11 +11,20 @@ constexpr int MAX_OUT_CHANNELS = 6;
 constexpr int SYSTEM_SAMPLE_RATE = 44100;
 constexpr float ONE_OVER_SYSTEM_SAMPLE_RATE = 1.0f / SYSTEM_SAMPLE_RATE;
 
-
 idCVar s_device( "s_device", "-1", CVAR_INTEGER | CVAR_ARCHIVE, "Which audio device to use (listDevices to list, -1 for default)" );
 idCVar s_channels( "s_channels", "2", CVAR_INTEGER | CVAR_ARCHIVE, "audio channels output 1 Mono; 2 Estéreo; 4 for 4.0 Quadrifonic or 6 surround 5.1" );
+idCVar s_voices( "s_voices", "64", CVAR_INTEGER | CVAR_ARCHIVE, "audio simultaneous streaming voices" );
 
-constexpr uint32_t k_MAX_HARDWARE_VOICES = 96;
+static struct sampling_t
+{
+    uint32_t hz;
+    uint32_t sp;
+} samples[2]
+{
+ { 48000, 512 },
+ { 48000, 1024 },
+ { 48000, 2048 }
+}
 
 idSoundHardwareSDL3::idSoundHardwareSDL3(void)
 {
@@ -27,12 +36,13 @@ idSoundHardwareSDL3::~idSoundHardwareSDL3(void)
 
 void idSoundHardwareSDL3::Init( void )
 {
+    uint32_t voices = 0;
     int availableDevice = 0;
     int numDevices = 0;
     SDL_AudioDeviceID   openDevice = 0;
     SDL_AudioDeviceID*  availableDevices = nullptr;
 
-    if ( !SDL_InitSubSystem(SDL_INIT_AUDIO) ) 
+    if ( !SDL_InitSubSystem( SDL_INIT_AUDIO ) ) 
     {
         common->FatalError("SDL audio init failed: %s\n", SDL_GetError());
         return;
@@ -67,11 +77,14 @@ void idSoundHardwareSDL3::Init( void )
         }
     }
 
-    m_voices.SetNum( k_MAX_HARDWARE_VOICES );
-    m_freeVoices.SetNum( k_MAX_HARDWARE_VOICES );
-    m_usedVoices.SetNum( k_MAX_HARDWARE_VOICES );
+    /// limit to 128 voices
+    voices = std::min<uint32_t>( s_voices.GetInteger(), k_MAX_HARDWARE_VOICES );
+
+    m_voices.SetNum( voices );
+    m_freeVoices.SetNum( voices );
+    m_usedVoices.SetNum( voices );
     // set all voices free
-    for ( uint32_t i = 0; i < k_MAX_HARDWARE_VOICES; i++)
+    for ( uint32_t i = 0; i < voices; i++)
     {
         m_freeVoices[i] = &m_voices[i];
     }
@@ -123,21 +136,21 @@ idSoundHardwareSDL3::AllocateVoice
 */
 idSoundVoice *idSoundHardwareSDL3::AllocateVoice(const idSoundSample *leadinSample, const idSoundSample *loopingSample)
 {
+    idSoundVoice* voice = nullptr;
 	if( leadinSample == nullptr )
 		return nullptr;
 	
-	//if( loopingSample != nullptr )
-	//{
+	if( loopingSample != nullptr )
+	{
 	//	if( ( leadinSample->format.basic.formatTag != loopingSample->format.basic.formatTag ) || ( leadinSample->format.basic.numChannels != loopingSample->format.basic.numChannels ) )
 	//	{
 	//		idLib::Warning( "Leadin/looping format mismatch: %s & %s", leadinSample->GetName(), loopingSample->GetName() );
 	//		loopingSample = nullptr;
 	//	}
-	//}
+	}
 	
 	// Try to find a free voice that matches the format
 	// But fallback to the last free voice if none match the format
-	idSoundVoice* voice = nullptr;
 	for( int i = 0; i < m_freeVoices.Num(); i++ )
 	{
 		if( m_freeVoices[i]->IsPlaying() )
