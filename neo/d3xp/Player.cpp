@@ -10677,7 +10677,7 @@ void idPlayer::StartFxFov( float duration )
 idPlayer::Event_EnableWeapon
 ==================
 */
-void idPlayer::Event_EnableWeapon()
+void idPlayer::Event_EnableWeapon( void )
 {
 	hiddenWeapon = gameLocal.world->spawnArgs.GetBool( "no_Weapons" );
 	weaponEnabled = true;

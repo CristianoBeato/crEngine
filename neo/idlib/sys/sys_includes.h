@@ -51,6 +51,12 @@ If you have questions concerning this license or the applicable additional terms
 #include <typeinfo>
 #include <memory>
 
+#include <algorithm>
+
+/// SDL3
+#include <SDL3/SDL_stdinc.h>
+#include <SDL3/SDL_assert.h>
+
 /*
 ================================================================================================
 

@@ -36,6 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "Lib.h"
 #endif
 
+#include <SDL3/SDL_endian.h>
+
 /*
 ===============================================================================
 
@@ -670,10 +672,9 @@ void Swap_Init()
 Swap_IsBigEndian
 ==========
 */
-bool Swap_IsBigEndian()
+bool Swap_IsBigEndian( void )
 {
-	byte	swaptest[2] = {1, 0};
-	return *( short* )swaptest != 1;
+	return SDL_BYTEORDER == SDL_BIG_ENDIAN;
 }
 
 

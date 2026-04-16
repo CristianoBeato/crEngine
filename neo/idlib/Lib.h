@@ -29,8 +29,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __LIB_H__
 #define __LIB_H__
 
-#include <SDL3/SDL_stdinc.h>
-
 /*
 ===============================================================================
 
@@ -138,18 +136,18 @@ dword	PackColor( const idVec4& color );
 void	UnpackColor( const dword color, idVec4& unpackedColor );
 
 // little/big endian conversion
-short	BigShort( short l );
-short	LittleShort( short l );
-int		BigLong( int l );
-int		LittleLong( int l );
-float	BigFloat( float l );
-float	LittleFloat( float l );
-void	BigRevBytes( void* bp, int elsize, int elcount );
-void	LittleRevBytes( void* bp, int elsize, int elcount );
-void	LittleBitField( void* bp, int elsize );
-void	Swap_Init();
+extern short	BigShort( short l );
+extern short	LittleShort( short l );
+extern int		BigLong( int l );
+extern int		LittleLong( int l );
+extern float	BigFloat( float l );
+extern float	LittleFloat( float l );
+extern void		BigRevBytes( void* bp, int elsize, int elcount );
+extern void		LittleRevBytes( void* bp, int elsize, int elcount );
+extern void		LittleBitField( void* bp, int elsize );
+extern void		Swap_Init( void );
 
-bool	Swap_IsBigEndian();
+extern bool	Swap_IsBigEndian( void );
 
 // for base64
 void	SixtetsForInt( byte* out, int src );
