@@ -108,7 +108,7 @@ private:
     VkDeviceMemory                      m_memory;
     VkDevice                            m_device;
     idList<crMemoryPage*, TAG_VULKAN>   m_freepages;
-    idList<crMemoryPage*, TAG_VULKAN>   m_usedpages
+    idList<crMemoryPage*, TAG_VULKAN>   m_usedpages;
 };
 class crMemoryPool* crMemoryPoolp;
 

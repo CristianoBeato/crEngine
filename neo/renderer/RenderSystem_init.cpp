@@ -2328,7 +2328,7 @@ void idRenderSystemLocal::BeginAutomaticBackgroundSwaps( autoRenderIconType_t ic
 idRenderSystemLocal::EndAutomaticBackgroundSwaps
 ========================
 */
-void idRenderSystemLocal::EndAutomaticBackgroundSwaps()
+void idRenderSystemLocal::EndAutomaticBackgroundSwaps( void )
 {
 }
 
@@ -2473,7 +2473,7 @@ void idRenderSystemLocal::InitRenderAPI( void )
 			throw idException( "ERROR!" );
 
 		/// Create time query
-		m_timerQuery = new vkTimeQueries();
+		m_timerQuery = new crTimeQueries();
 		m_timerQuery->Create( r_bufferCount.GetInteger() );
 
 		r_initialized = true;

@@ -211,7 +211,7 @@ void crUniformManager::CreateStorageBuffers(void)
     VkDeviceSize currentOffset = 0;
     uint32_t memoryTypeBits = 0xFFFFFFFF;
     auto device = tr.GetRenderDevice();
-    auto devHeap = tr.GetDeviceHeap();
+    auto devHeap = tr.GetHeap();
     auto devProperties = device->Properties();
 
     for ( uint32_t i = 0; i < MAX_BINDINGS; i++)

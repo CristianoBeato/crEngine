@@ -122,7 +122,7 @@ public:
 	/// get current vulkan device
 	crVulkanRenderDevicep	GetRenderDevice( void ) { return dynamic_cast<crVulkanRenderDevicep>( m_renderDevice ); }
 	crMemoryHeapp			GetHeap( void ) { return m_deviceHeap; }
-	vkSwapchainp 			Swapchain( void ) const { return m_swapchain; }
+	crSwapchainp 			Swapchain( void ) const { return m_swapchain; }
 	vkCommandbufferp 		GraphicCommandBuffer( void ) const { return m_graphicCommandBuffer; }
 
 public:
@@ -178,12 +178,12 @@ public:
 	idList<crRenderDevicep>			m_renderDeviceList;
 	crRenderDevicep					m_renderDevice;
 	crMemoryHeapp					m_deviceHeap;
-	vkSwapchain*					m_swapchain;
+	crSwapchain*					m_swapchain;
 	vkCommandbuffer*				m_graphicCommandBuffer;
 	crFence*						m_frameFence;
 	crSemaphoreRoundRobin*			m_frameSubmit;
 	crSemaphoreRoundRobin*			m_imageReady;
-	vkTimeQueries*					m_timerQuery;
+	crTimeQueries*					m_timerQuery;
 // BEATO End
 
 	idRenderWorldLocal* 	primaryWorld;
