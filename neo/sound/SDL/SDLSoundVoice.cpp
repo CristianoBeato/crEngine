@@ -105,22 +105,25 @@ void idSoundVoiceSDL3::Stop( void )
     m_playing = false;
     m_paused = false;
     m_cursor = 0;
+
+    // clear remaing stream content
+    m_stream.Clear();
     
     // release stream from logic devie
     m_stream.Unbind();
 }
 
-void idSoundVoiceSDL3::Pause(void)
+void idSoundVoiceSDL3::Pause( void )
 {
     m_paused = true;
 }
 
-void idSoundVoiceSDL3::UnPause(void)
+void idSoundVoiceSDL3::UnPause( void )
 {
     m_paused = false;
 }
 
-bool idSoundVoiceSDL3::Update(void)
+bool idSoundVoiceSDL3::Update( void )
 {
     if( m_stream == nullptr || m_leadinSample == nullptr )
 		return false;
@@ -133,8 +136,6 @@ bool idSoundVoiceSDL3::Update(void)
 //	if( s_skipHardwareSets.GetBool() )
 //		return true;
 	
-	///assert( idMath::Fabs( gain ) <= XAUDIO2_MAX_VOLUME_LEVEL );
-	///pSourceVoice->SetVolume( gain, OPERATION_SET );
     m_stream.SetGain( gain );
 
 	SetSampleRate( m_sampleRate, 1 );
@@ -144,7 +145,7 @@ bool idSoundVoiceSDL3::Update(void)
 	return true;
 }
 
-float idSoundVoiceSDL3::GetAmplitude(void)
+float idSoundVoiceSDL3::GetAmplitude( void )
 {
     if (!m_playing || m_paused)
         return 0.0f;
@@ -182,7 +183,7 @@ bool idSoundVoiceSDL3::CompatibleFormat( idSoundSample *s )
     return false;
 }
 
-int idSoundVoiceSDL3::RestartAt(int offsetSamples)
+int idSoundVoiceSDL3::RestartAt( int offsetSamples )
 {
     offsetSamples &= ~127;
 	
@@ -210,7 +211,7 @@ int idSoundVoiceSDL3::RestartAt(int offsetSamples)
     return 0;
 }
 
-int idSoundVoiceSDL3::SubmitBuffer(idSoundSampleSDL3 * sample, int bufferNumber, int offset)
+int idSoundVoiceSDL3::SubmitBuffer( idSoundSampleSDL3 * sample, int bufferNumber, int offset )
 {
 	if( sample == nullptr || ( bufferNumber < 0 ) || ( bufferNumber >= sample->NumBuffers() ) )
 		return 0;
@@ -228,31 +229,7 @@ int idSoundVoiceSDL3::SubmitBuffer(idSoundSampleSDL3 * sample, int bufferNumber,
 
     m_stream.PutData( sample->Buffers()[bufferNumber].Ptr(), sample->Buffers()[bufferNumber].Size() );
 
-    /*
-	XAUDIO2_BUFFER buffer = { 0 };
-	if( offset > 0 )
-	{
-		int previousNumSamples = 0;
-		if( bufferNumber > 0 )
-		{
-			previousNumSamples = sample->buffers[bufferNumber - 1].numSamples;
-		}
-		buffer.PlayBegin = offset;
-		buffer.PlayLength = sample->buffers[bufferNumber].numSamples - previousNumSamples - offset;
-	}
-	buffer.AudioBytes = sample->buffers[bufferNumber].bufferSize;
-	buffer.pAudioData = ( BYTE* )sample->buffers[bufferNumber].buffer;
-	buffer.pContext = bufferContext;
-	if( ( loopingSample == nullptr ) && ( bufferNumber == sample->buffers.Num() - 1 ) )
-	{
-		buffer.Flags = XAUDIO2_END_OF_STREAM;
-	}
-	pSourceVoice->SubmitSourceBuffer( &buffer );
-	
-	return buffer.AudioBytes;
-    */
-
-    return 0;
+    return 1;
 }
 
 bool idSoundVoiceSDL3::IsPlaying( void ) const

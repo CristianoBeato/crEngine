@@ -12,6 +12,7 @@ public:
 	void Free( void );
 	void Copy( void* data, const size_t len );
 
+	uint32_t	NumChannels( void ) const { return m_numChannels; }
 	uint32_t	NumSamples( void ) const { return m_numSamples; }
 	size_t		Size( void ) const { return m_size; };
 	void*		Ptr( void ) const { return m_buffer; }
@@ -19,6 +20,7 @@ public:
 private:
 	idStr		m_name;
 	uint32_t	m_numSamples;
+	uint32_t	m_numChannels;
 	size_t		m_size;
 	void*		m_buffer;
 };

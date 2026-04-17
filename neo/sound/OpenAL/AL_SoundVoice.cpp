@@ -169,13 +169,9 @@ void idSoundVoice_OpenAL::Create( const idSoundSample* leadinSample_, const idSo
 		if( s_debugHardware.GetBool() )
 		{
 			if( loopingSample == nullptr || loopingSample == leadinSample )
-			{
 				idLib::Printf( "%dms: %i created for %s\n", Sys_Milliseconds(), openalSource, leadinSample ? leadinSample->GetName() : "<null>" );
-			}
 			else
-			{
 				idLib::Printf( "%dms: %i created for %s and %s\n", Sys_Milliseconds(), openalSource, leadinSample ? leadinSample->GetName() : "<null>", loopingSample ? loopingSample->GetName() : "<null>" );
-			}
 		}
 	}
 	

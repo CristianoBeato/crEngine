@@ -12,18 +12,25 @@ public:
 	~idSoundVoiceSDL3( void );
 
 	void		Create( const idSoundSample* leadinSample, const idSoundSample* loopingSample );
+
 	/// @brief Start playing at a particular point in the buffer.  Does an Update() too
 	void		Start( int offsetMS, int ssFlags );	
+
 	/// @brief Stop playing.
 	void		Stop( void ); 
+
 	/// @brief Stop consuming buffers
-	void		Pause( void ); 
+	void		Pause( void );
+
 	/// @brief Start consuming buffers again
 	void		UnPause( void ); 
+
 	/// @brief Sends new position/volume/pitch information to the hardware
 	bool		Update( void ); 
+
 	/// @brief returns the RMS levels of the most recently processed block of audio, SSF_FLICKER must have been passed to Start
-	float		GetAmplitude( void ); 
+	float		GetAmplitude( void );
+	
 	/// @brief returns true if we can re-use this voice
 	bool		CompatibleFormat( idSoundSample* s ); 
 	

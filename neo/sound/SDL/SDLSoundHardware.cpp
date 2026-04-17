@@ -15,16 +15,15 @@ idCVar s_device( "s_device", "-1", CVAR_INTEGER | CVAR_ARCHIVE, "Which audio dev
 idCVar s_channels( "s_channels", "2", CVAR_INTEGER | CVAR_ARCHIVE, "audio channels output 1 Mono; 2 Estéreo; 4 for 4.0 Quadrifonic or 6 surround 5.1" );
 idCVar s_voices( "s_voices", "64", CVAR_INTEGER | CVAR_ARCHIVE, "audio simultaneous streaming voices" );
 
-static struct sampling_t
+static uint32_t bufferSizes[] =
 {
-    uint32_t hz;
-    uint32_t sp;
-} samples[2]
-{
- { 48000, 512 },
- { 48000, 1024 },
- { 48000, 2048 }
-}
+    64,         // Ultra-Low Latency / High Risk of CPU Interrupt
+    128,
+    256,
+    512,
+    1024,
+    2048
+};
 
 idSoundHardwareSDL3::idSoundHardwareSDL3(void)
 {
@@ -51,7 +50,7 @@ void idSoundHardwareSDL3::Init( void )
     // list the available output devices
     availableDevices = SDL_GetAudioPlaybackDevices( &numDevices );
 
-    m_specs.freq = 48000;
+    m_specs.freq = k_MAX_HARDWARE_FREQUENCY;
     m_specs.format = SDL_AUDIO_F32;
     m_specs.channels = Min( s_channels.GetInteger(), MAX_OUT_CHANNELS );
 
@@ -108,7 +107,7 @@ void idSoundHardwareSDL3::Shutdown(void)
         m_device.Close();   
 }
 
-void idSoundHardwareSDL3::Update(void)
+void idSoundHardwareSDL3::Update( void )
 {
     if( idSoundSystem::Get()->IsMuted() )
         m_device.SetGain( 0.0f );

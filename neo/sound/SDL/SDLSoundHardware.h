@@ -6,7 +6,9 @@
 #include "SDLSoundSample.h"
 #include "SDLSoundVoice.h"
 
-inline constexpr uint32_t k_MAX_HARDWARE_VOICES = 128;
+inline constexpr uint32_t k_MAX_HARDWARE_CHANNELS = 8;
+inline constexpr uint32_t k_MAX_HARDWARE_VOICES = 128u;
+inline constexpr uint32_t k_MAX_HARDWARE_FREQUENCY = 48000u; // 48kHz 
 
 class idSoundHardwareSDL3
 {
