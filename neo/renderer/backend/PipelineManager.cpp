@@ -96,7 +96,7 @@ vkPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, cons
         }
         
         /// get vertex program
-        vkProgramp vertex = GetProgram( in_vertexShader );
+        crProgramp vertex = GetProgram( in_vertexShader );
         if( vertex == nullptr )
         {
             idLib::Error( "Vertex program Index %u not found!\n", in_vertexShader );
@@ -104,7 +104,7 @@ vkPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, cons
         }
         
         /// get fragment program
-        vkProgramp fragment = GetProgram( in_fragmentShader );
+        crProgramp fragment = GetProgram( in_fragmentShader );
         if( vertex == nullptr )
         {
             idLib::Error( "Fragment program Index %u not found!\n", in_fragmentShader );
@@ -126,9 +126,9 @@ vkPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, cons
     return pipeline;
 }
 
-vkSamplerp crPipelineManager::GetSampler(const vkSampler::filter_t in_filter, const vkSampler::wrapping_t in_repeat)
+crSamplerp crPipelineManager::GetSampler(const crSampler::filter_t in_filter, const crSampler::wrapping_t in_repeat)
 {
-    vkSamplerp sampler;
+    crSamplerp sampler;
 
     /// try find a match sampler
     for ( uint32_t i = 0; i < m_samplers.Num(); i++)
@@ -141,7 +141,7 @@ vkSamplerp crPipelineManager::GetSampler(const vkSampler::filter_t in_filter, co
     /// no match found, create a new sampler
     if( sampler == nullptr )
     {
-        sampler = new vkSampler();
+        sampler = new crSampler();
         if( !sampler->Create( in_filter, in_repeat, in_repeat, in_repeat ) )
             idLib::FatalError( "Failed to create sampler!!!\n" );
             
@@ -149,4 +149,42 @@ vkSamplerp crPipelineManager::GetSampler(const vkSampler::filter_t in_filter, co
     }
 
     return sampler;
+}
+
+uint32_t crPipelineManager::FindShader(const idStr &in_program, const shader_type_e in_type)
+{
+    idStr path = idStr( "renderprogs/spirv/" );
+    path += in_program;
+	
+    switch ( in_type )
+    {
+        case ST_VERTEX:
+        path += "_vert.spv";
+        break;
+        case ST_FRAGMENT:
+        path += "_frag.spv";
+        break;
+    };
+    
+    //Read shade file     
+    uint32_t *spirVbuff = nullptr;
+	auto buffLen = fileSystem->ReadFile( path.c_str(), reinterpret_cast<void**>( &spirVbuff ), &timeStamp );
+    if ( buffLen == 0 )
+    {
+        common->Warning( "crShaderManager::LoadShader::Error( can't open shader binary file %s)\n", fullPath.c_str() );
+        return false;
+    }
+    
+    /// Try Create shader    
+    crProgramp newProgram = new( TAG_RENDER ) crProgram();
+    if( !newProgram->Create( in_type, spirVbuff, buffLen ) )
+    {
+        delete newProgram;
+        return -1;
+    }
+
+    int index = m_programs.Append( newProgram );
+    int hash = path.FileNameHash();
+    m_programIndex.Add( hash, index );
+    return index;
 }

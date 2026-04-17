@@ -104,25 +104,28 @@ struct imagePreload_s
 {
 	imagePreload_s( void )
 	{
-		usage = 0;
+		//usage = 0;
 		cubeMap = 0;
 	}
+
 	void Write( idFile* f )
 	{
-		f->WriteBig( usage );
+		//f->WriteBig( usage );
 		f->WriteBig( cubeMap );
 	}
+
 	void Read( idFile* f )
 	{
-		f->ReadBig( usage );
+		//f->ReadBig( usage );
 		f->ReadBig( cubeMap );
 	}
+
 	bool operator==( const imagePreload_s& b ) const
 	{
-		return ( usage == b.usage && cubeMap == b.cubeMap );
+		return ( /*usage == b.usage &&*/ cubeMap == b.cubeMap );
 	}
 	
-	int usage;
+	//int usage;
 	int cubeMap;
 };
 
@@ -274,12 +277,13 @@ public:
 		pe.resourceName = _resourceName;
 		entries.Append( pe );
 	}
-	void AddImage( const char* _resourceName, int _usage, int _cube )
+
+	void AddImage( const char* _resourceName, /* int _usage,*/ int _cube )
 	{
 		static preloadEntry_s pe;
 		pe.resType = PRELOAD_IMAGE;
 		pe.resourceName = _resourceName;
-		pe.imgData.usage = _usage;
+		//pe.imgData.usage = _usage;
 		pe.imgData.cubeMap = _cube;
 		entries.Append( pe );
 	}

@@ -61,20 +61,20 @@ public:
 	// If the load fails for any reason, the image will be filled in with the default
 	// grid pattern.
 	// Will automatically execute image programs if needed.
-	idImage* 			ImageFromFile( const idStr &name, const textureUsage_t usage, const cubeFiles_t cubeMap = CF_2D );
+	idImage* 			ImageFromFile( const idStr &name, const cubeFiles_t cubeMap = CF_2D );
 									   
 	// look for a loaded image, whatever the parameters
 	idImage* 			GetImage( const idStr &name ) const;
 	
 	// look for a loaded image, whatever the parameters
-	idImage* 			GetImageWithParameters( const idStr &name, const textureUsage_t usage, const cubeFiles_t cubeMap ) const;
+	idImage* 			GetImageWithParameters( const idStr &name, const cubeFiles_t cubeMap ) const;
 	
 	// The callback will be issued immediately, and later if images are reloaded or vid_restart
 	// The callback function should call one of the idImage::Generate* functions to fill in the data
 	idImage* 			ImageFromFunction( const idStr &name, void ( *generatorFunction )( idImage* image ) );
 	
 	// scratch images are for internal renderer use.  ScratchImage names should always begin with an underscore
-	idImage* 			ScratchImage( const idStr &name, const idImageOpts* imgOpts, const textureUsage_t usage );
+	idImage* 			ScratchImage( const idStr &name, const idImageOpts* imgOpts );
 	
 	// purges all the images before a vid_restart
 	void				PurgeAllImages( void );
@@ -84,7 +84,7 @@ public:
 	
 	/// @brief bind image and sampler to texture location buffer
 	/// @return the index of the sampler in sampler buffer
-	uint32_t			BindSampler( const idImage* in_image, const vkSampler* in_sampler );
+	uint32_t			BindSampler( const idImage* in_image, const crSampler* in_sampler );
 
 	// unbind all textures from all texture units
 	void				UnbindAll( void );
@@ -240,7 +240,7 @@ IMAGEPROGRAM
 ====================================================================
 */
 
-void R_LoadImageProgram( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp, textureUsage_t* usage = nullptr );
+void R_LoadImageProgram( const char* name, byte** pic, int* width, int* height, ID_TIME_T* timestamp );
 const char* R_ParsePastImageProgram( idLexer& src );
 
 #endif //!__IMAGE_MANAGER_HPP__

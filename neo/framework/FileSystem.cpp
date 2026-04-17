@@ -202,7 +202,7 @@ public:
 
 	virtual void			AddImagePreload( const char* resName, int _usage, int _cube )
 	{
-		preloadList.AddImage( resName,_usage, _cube );
+		preloadList.AddImage( resName,/*usage,*/ _cube );
 	}
 	
 	virtual void			AddSamplePreload( const char* resName )

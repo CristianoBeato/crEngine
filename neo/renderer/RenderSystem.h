@@ -379,13 +379,13 @@ public:
 	static idImageManager*	Get( void );
 	virtual void		Init( void ) = 0;
 	virtual void		Shutdown( void ) = 0;
-	virtual idImage*	ImageFromFile( const idStr &name, const textureUsage_t usage, const cubeFiles_t cubeMap = CF_2D ) = 0;
+	virtual idImage*	ImageFromFile( const idStr &name, const cubeFiles_t cubeMap = CF_2D ) = 0;
 	
 	/// @brief look for a loaded image, whatever the parameters
 	virtual idImage*	GetImage( const idStr &name ) const;
 	
 	/// @brief look for a loaded image, whatever the parameters
-	virtual idImage*	GetImageWithParameters( const idStr &name, const textureUsage_t usage, const cubeFiles_t cubeMap ) const;
+	virtual idImage*	GetImageWithParameters( const idStr &name, const cubeFiles_t cubeMap ) const;
 		
 	/// @brief reloads all apropriate images after a vid_restart
 	virtual void	ReloadImages( const bool all ) = 0;

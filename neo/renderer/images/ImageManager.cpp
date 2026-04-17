@@ -364,7 +364,7 @@ idImage* idImageManagerLocal::ImageFromFunction( const idStr &_name, void ( *gen
 GetImageWithParameters
 ==============
 */
-idImage*	idImageManagerLocal::GetImageWithParameters( const idStr &_name, textureUsage_t usage, cubeFiles_t cubeMap ) const
+idImage*	idImageManagerLocal::GetImageWithParameters( const idStr &_name, cubeFiles_t cubeMap ) const
 {
 	auto imageManager = idImageManagerLocal::Get();
 	if( !_name || !_name[0] || idStr::Icmp( _name, "default" ) == 0 || idStr::Icmp( _name, "_default" ) == 0 )
@@ -373,16 +373,16 @@ idImage*	idImageManagerLocal::GetImageWithParameters( const idStr &_name, textur
 		return imageManager->DefaultImage();
 	}
 
-	if( idStr::Icmpn( _name, "fonts", 5 ) == 0 || idStr::Icmpn( _name, "newfonts", 8 ) == 0 )
-		usage = TD_FONT;
+	//if( idStr::Icmpn( _name, "fonts", 5 ) == 0 || idStr::Icmpn( _name, "newfonts", 8 ) == 0 )
+	//	usage = TD_FONT;
 
-	if( idStr::Icmpn( _name, "lights", 6 ) == 0 )
-		usage = TD_LIGHT;
+	//if( idStr::Icmpn( _name, "lights", 6 ) == 0 )
+	//	usage = TD_LIGHT;
 		// filter = TF_LINEAR;	 // sikk - Added - no mipmaps for light textures
 	
 
-	if( idStr::Icmpn( _name, "savegame", 8 ) == 0 )
-		usage = TD_HIGHQUALITY;
+	//if( idStr::Icmpn( _name, "savegame", 8 ) == 0 )
+	//	usage = TD_HIGHQUALITY;
 		// filter = TF_LINEAR;	 // no mipmaps for Savegame previews textures
 
 	// strip any .tga file extensions from anywhere in the _name, including image program parameters
@@ -402,8 +402,8 @@ idImage*	idImageManagerLocal::GetImageWithParameters( const idStr &_name, textur
 			if( image->cubeFiles != cubeMap )
 				common->Error( "Image '%s' has been referenced with conflicting cube map states", _name );
 			
-			if( image->usage != usage )
-				continue; // If an image is used differently then we need 2 copies of it because usage affects the way it's compressed and swizzled
+			// if( image->usage != usage )
+			// 	continue; // If an image is used differently then we need 2 copies of it because usage affects the way it's compressed and swizzled
 			
 			return image;
 		}
@@ -418,10 +418,9 @@ Finds or loads the given image, always returning a valid image pointer.
 Loading of the image may be deferred for dynamic loading.
 ==============
 */
-idImage*	idImageManagerLocal::ImageFromFile( const idStr &_name, const textureUsage_t _usage, const cubeFiles_t cubeMap )
+idImage*	idImageManagerLocal::ImageFromFile( const idStr &_name, const cubeFiles_t cubeMap )
 {
 	crBTFTextureFile	imageFile = crBTFTextureFile( _name );
-	textureUsage_t usage = _usage;
 
 	if( !_name || !_name[0] || idStr::Icmp( _name, "default" ) == 0 || idStr::Icmp( _name, "_default" ) == 0 )
 	{
@@ -429,15 +428,15 @@ idImage*	idImageManagerLocal::ImageFromFile( const idStr &_name, const textureUs
 		return defaultImage;
 	}
 
-	if( idStr::Icmpn( _name, "fonts", 5 ) == 0 || idStr::Icmpn( _name, "newfonts", 8 ) == 0 )
-		usage = TD_FONT;
+	//if( idStr::Icmpn( _name, "fonts", 5 ) == 0 || idStr::Icmpn( _name, "newfonts", 8 ) == 0 )
+	//	usage = TD_FONT;
 
-	if( idStr::Icmpn( _name, "lights", 6 ) == 0 )
-		usage = TD_LIGHT;
+	// if( idStr::Icmpn( _name, "lights", 6 ) == 0 )
+	// 	usage = TD_LIGHT;
 		// filter = TF_LINEAR;	 // sikk - Added - no mipmaps for light textures
 
-	if( idStr::Icmpn( _name, "savegame", 8 ) == 0 )
-		usage = TD_HIGHQUALITY;
+	// if( idStr::Icmpn( _name, "savegame", 8 ) == 0 )
+	// 	usage = TD_HIGHQUALITY;
 		// filter = TF_LINEAR;	 // no mipmaps for Savegame previews textures
 		
 	// strip any .tga file extensions from anywhere in the _name, including image program parameters
@@ -462,11 +461,11 @@ idImage*	idImageManagerLocal::ImageFromFile( const idStr &_name, const textureUs
 			if( image->cubeFiles != cubeMap )
 				common->Error( "Image '%s' has been referenced with conflicting cube map states", _name );
 	
-			if( image->usage != usage )
+			//if( image->usage != usage )
 				// If an image is used differently then we need 2 copies of it because usage affects the way it's compressed and swizzled
-				continue;
+				//continue;
 			
-			image->usage = usage;
+			//image->usage = usage;
 			image->levelLoadReferenced = true;
 			
 			if( ( !insideLevelLoad  || preloadingMapImages ) && !image->IsLoaded() )
@@ -484,7 +483,6 @@ idImage*	idImageManagerLocal::ImageFromFile( const idStr &_name, const textureUs
 	//
 	idImage* image = AllocImage( name );
 	image->cubeFiles = cubeMap;
-	image->usage = usage;
 	image->levelLoadReferenced = true;
 	
 	// load it if we aren't in a level preload
@@ -509,7 +507,7 @@ idImage*	idImageManagerLocal::ImageFromFile( const idStr &_name, const textureUs
 idImageManagerLocal::ScratchImage
 ========================
 */
-idImage* idImageManagerLocal::ScratchImage( const idStr &_name, const idImageOpts* imgOpts, const textureUsage_t usage )
+idImage* idImageManagerLocal::ScratchImage( const idStr &_name, const idImageOpts* imgOpts )
 {
 	if( !_name || !_name[0] )
 		idLib::FatalError( "idImageManagerLocal::ScratchImage called with empty name" );
@@ -533,11 +531,10 @@ idImage* idImageManagerLocal::ScratchImage( const idStr &_name, const idImageOpt
 			if( name[0] == '_' )
 				return image;
 			
-			if( image->usage != usage )
+			//if( image->usage != usage )
 				// If an image is used differently then we need 2 copies of it because usage affects the way it's compressed and swizzled
-				continue;
+				//continue;
 			
-			image->usage = usage;
 			image->levelLoadReferenced = true;
 			image->referencedOutsideLevelLoad = true;
 			return image;
@@ -1054,7 +1051,7 @@ void idImageManagerLocal::Preload( const idPreloadManifest& manifest, const bool
 			const preloadEntry_s& p = manifest.GetPreloadByIndex( i );
 			if( p.resType == PRELOAD_IMAGE && !ExcludePreloadImage( p.resourceName ) )
 			{
-				ImageFromFile( p.resourceName, ( textureUsage_t )p.imgData.usage, ( cubeFiles_t )p.imgData.cubeMap );
+				ImageFromFile( p.resourceName, /*( textureUsage_t )p.imgData.usage,*/ ( cubeFiles_t )p.imgData.cubeMap );
 				numLoaded++;
 			}
 		}

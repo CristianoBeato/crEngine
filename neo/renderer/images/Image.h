@@ -47,15 +47,15 @@ No texture is ever used that does not have a corresponding idImage.
 inline constexpr int MAX_TEXTURE_LEVELS = 14;
 inline constexpr int DEFAULT_SIZE = 16;
 
-inline bool IsToolUsage( textureUsage_t usage )
-{
-	return usage == TD_EDITOR_DEFAULT || 
-		usage == TD_EDITOR_DIFFUSE || 
-		usage == TD_EDITOR_BUMP || 
-		usage == TD_EDITOR_COVERAGE;
-}
+//inline bool IsToolUsage( textureUsage_t usage )
+//{
+//	return usage == TD_EDITOR_DEFAULT || 
+//		usage == TD_EDITOR_DIFFUSE || 
+//		usage == TD_EDITOR_BUMP || 
+//		usage == TD_EDITOR_COVERAGE;
+//}
 
-textureUsage_t CheckEditorUsage( textureUsage_t usage );
+//textureUsage_t CheckEditorUsage( textureUsage_t usage );
 
 struct sub_image_t
 {
@@ -112,7 +112,7 @@ public:
 
 #define	MAX_IMAGE_NAME	256
 
-class vkTexture;
+class crTexture;
 class idImage
 {
 public:
@@ -132,11 +132,11 @@ public:
 	/// data goes from the bottom to the top line of the image, as OpenGL expects it
 	/// These perform an implicit Bind() on the current texture unit
 	/// FIXME: should we implement cinematics this way, instead of with explicit calls?
-	void		GenerateImage( const byte* pic, const uint32_t width, const uint32_t height, textureUsage_t usage );
-	void		GenerateCubeImage( const byte* pic[6], int size, textureUsage_t usage );
+	void		GenerateImage( const byte* pic, const uint32_t width, const uint32_t height );
+	void		GenerateCubeImage( const byte* pic[6], int size );
 								   
 	// RB begin
-	void		GenerateShadowArray( uint32_t width, uint32_t height, textureUsage_t usage );
+	void		GenerateShadowArray( uint32_t width, uint32_t height );
 	// RB end
 	
 	void		CopyFramebuffer( int32_t x, int32_t y, uint32_t width, uint32_t height );
@@ -209,7 +209,7 @@ public:
 		return opts.height;
 	}
 
-	ID_INLINE vkTexture* GetTexnum( void ) const
+	ID_INLINE crTexture* GetTexnum( void ) const
 	{
 		return texnum;
 	}
@@ -245,15 +245,13 @@ private:
 	
 	// If this is a cube map, and if so, what kind
 	cubeFiles_t						cubeFiles;				
-	// Used to determine the type of compression to use
-	textureUsage_t					usage;					
 	
 	// Parameters that determine the storage method
 	idImageOpts						opts;					
 
 	// game path, including extension (except for cube maps), may be an image program
 	idStr							imgName;
-	vkTexture*						texnum;
+	crTexture*						texnum;
 	idList<sub_image_t>				subimages;
 	
 	// nullptr for files

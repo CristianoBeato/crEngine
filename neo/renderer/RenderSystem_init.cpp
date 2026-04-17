@@ -598,7 +598,7 @@ void R_TestImage_f( const idCmdArgs& args )
 	}
 	else
 	{
-		tr.testImage = globalImages->ImageFromFile( args.Argv( 1 ), TD_DEFAULT );
+		tr.testImage = globalImages->ImageFromFile( args.Argv( 1 ) );
 	}
 }
 
@@ -626,7 +626,7 @@ void R_TestVideo_f( const idCmdArgs& args )
 		return;
 	}
 	
-	tr.testImage = globalImages->ImageFromFile( "_scratch", TD_DEFAULT );
+	tr.testImage = globalImages->ImageFromFile( "_scratch" );
 	tr.testVideo = idCinematic::Alloc();
 	tr.testVideo->InitFromFile( args.Argv( 1 ), true );
 	

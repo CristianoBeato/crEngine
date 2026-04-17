@@ -224,16 +224,16 @@ void crTexture::SetState( const vkCommandbufferp in_commandBuffer, const state_t
     m_state = in_state;
 }
 
-vkSampler::vkSampler( void ) : m_sampler( nullptr )
+crSampler::crSampler( void ) : m_sampler( nullptr )
 {
 }
 
-vkSampler::~vkSampler( void )
+crSampler::~crSampler( void )
 {
     Destroy();
 }
 
-bool vkSampler::Create( const filter_t in_filtering, const wrapping_t in_Swrap, const wrapping_t in_Twrap, const wrapping_t in_Rwrap )
+bool crSampler::Create( const filter_t in_filtering, const wrapping_t in_Swrap, const wrapping_t in_Twrap, const wrapping_t in_Rwrap )
 {
     VkResult result = VK_SUCCESS;
     VkSamplerCreateInfo samplerCI{};
@@ -371,14 +371,14 @@ bool vkSampler::Create( const filter_t in_filtering, const wrapping_t in_Swrap, 
     result = vkCreateSampler( *device, &samplerCI, k_allocationCallbacks, &m_sampler );
     if( result != VK_SUCCESS )
     {
-        idLib::Error( "vkSampler::Create::vkCreateSampler failed" );
+        idLib::Error( "crSampler::Create::vkCreateSampler failed" );
         return false;
     }
 
     return true;
 }
 
-void vkSampler::Destroy(void)
+void crSampler::Destroy(void)
 {
     if( m_sampler != nullptr )
     {

@@ -22,10 +22,10 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __VK_PROGRAM_HPP__
-#define __VK_PROGRAM_HPP__
+#ifndef __PROGRAM_HPP__
+#define __PROGRAM_HPP__
 
-class vkProgram
+class crProgram
 {
 public:
     enum type_t
@@ -36,8 +36,8 @@ public:
         PROG_COMPUTE
     };
     
-    vkProgram( void );
-    ~vkProgram( void );
+    crProgram( void );
+    ~crProgram( void );
 
     virtual bool    Create( const type_t in_type, const void* in_source, const size_t in_size );
     virtual void    Destroy( void );
@@ -52,6 +52,6 @@ private:
     VkPipelineShaderStageCreateInfo m_shaderStage;
 };
 
-typedef vkProgram* vkProgramp;
+typedef crProgram* crProgramp;
 
 #endif //!__PROGRAM_HPP__

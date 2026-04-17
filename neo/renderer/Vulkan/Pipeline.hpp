@@ -163,7 +163,7 @@ public:
 
     vkPipeline( void );
     ~vkPipeline( void );
-    bool    Create( const uint64_t m_flags, const vkProgramp in_vertexProgram, const vkProgramp in_fragmentProgram, const vkPipeline* in_reference );
+    bool    Create( const uint64_t m_flags, const crProgramp in_vertexProgram, const crProgramp in_fragmentProgram, const vkPipeline* in_reference );
     void    Destroy( void );
     
     void    Bind( void );
@@ -178,8 +178,8 @@ public:
 private:
     uint64_t    m_flags;
     VkPipeline  m_pipeline;
-    vkProgramp  m_vProgram;
-    vkProgramp  m_fProgram;
+    crProgramp  m_vProgram;
+    crProgramp  m_fProgram;
 };
 
 typedef vkPipeline* vkPipelinep;

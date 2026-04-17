@@ -88,11 +88,11 @@ protected:
     crMemoryPage*           m_page;
 };
 
-class vkSampler
+class crSampler
 {
 public:
-    vkSampler( void );
-    ~vkSampler( void );
+    crSampler( void );
+    ~crSampler( void );
 
     enum filter_t
     {
@@ -130,6 +130,6 @@ private:
     VkSampler   m_sampler;
 };
 
-typedef vkSampler* vkSamplerp;
+typedef crSampler* crSamplerp;
 
 #endif //!__VK_TEXTURE_HPP__

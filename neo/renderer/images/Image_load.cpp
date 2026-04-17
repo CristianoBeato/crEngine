@@ -42,7 +42,7 @@ extern idCVar r_useHightQualitySky;
 
 idCVar r_cacheToolImages( "r_cacheToolImages", "1", CVAR_BOOL, "Enable binarization and caching of editor formatted images. Disable will not load from generated or save to generated." );
 
-
+/*
 // certain tools force any loaded materials to be put into low quality editor modes
 textureUsage_t CheckEditorUsage( textureUsage_t usage )
 {
@@ -67,6 +67,7 @@ textureUsage_t CheckEditorUsage( textureUsage_t usage )
 	}
 	return usage;
 }
+*/
 
 /*
 ================
