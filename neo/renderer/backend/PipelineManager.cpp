@@ -3,7 +3,13 @@
 #include "Vulkan/Core.hpp"
 #include "PipelineManager.hpp"
 
-crPipelineManager::crPipelineManager( void )
+crPipelineManager *crPipelineManager::Get(void)
+{
+    static crPipelineManager gPipelineManager = crPipelineManager();
+    return &gPipelineManager;
+}
+
+crPipelineManager::crPipelineManager(void)
 {
 }
 
@@ -44,11 +50,11 @@ size_t generateKey(uint32_t vs, uint32_t fs, uint64_t flags)
     return seed;
 }
 
-vkPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, const uint32_t in_fragmentShader, const uint64_t in_flags )
+crPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, const uint32_t in_fragmentShader, const uint64_t in_flags )
 {
     int index = 0;
     int key = 0;
-    vkPipelinep pipeline = nullptr;
+    crPipelinep pipeline = nullptr;
 
 #if 1
     /// try find the same pipeline in the list
@@ -78,7 +84,7 @@ vkPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, cons
     if( pipeline == nullptr )
     {
         /// look for a reference pipeline
-        vkPipelinep reference = nullptr;
+        crPipelinep reference = nullptr;
 
         for ( uint32_t i = 0; i < m_pipelinesList.Num(); i++)
         {
@@ -111,7 +117,7 @@ vkPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, cons
             return nullptr;
         }
 
-        pipeline = new vkPipeline();
+        pipeline = new crPipeline();
         if( !pipeline->Create( in_flags, vertex, fragment, reference ) )
         {
             delete pipeline;
@@ -151,19 +157,26 @@ crSamplerp crPipelineManager::GetSampler(const crSampler::filter_t in_filter, co
     return sampler;
 }
 
-uint32_t crPipelineManager::FindShader(const idStr &in_program, const shader_type_e in_type)
+uint32_t crPipelineManager::FindShader(const idStr &in_program, const crProgram::type_t in_type)
 {
+    ID_TIME_T timeStamp = 0;
     idStr path = idStr( "renderprogs/spirv/" );
     path += in_program;
 	
     switch ( in_type )
     {
-        case ST_VERTEX:
-        path += "_vert.spv";
-        break;
-        case ST_FRAGMENT:
-        path += "_frag.spv";
-        break;
+        case crProgram::PROG_VERTEX:
+            path += "_vert.spv";
+            break;
+        case crProgram::PROG_GEOMETRY:
+            path += "_geom.spv";
+            break;
+        case crProgram::PROG_FRAGMENT:
+            path += "_frag.spv";
+            break;
+        case crProgram::PROG_COMPUTE:
+            path += "_comp.spv";
+            break;
     };
     
     //Read shade file     
@@ -171,7 +184,7 @@ uint32_t crPipelineManager::FindShader(const idStr &in_program, const shader_typ
 	auto buffLen = fileSystem->ReadFile( path.c_str(), reinterpret_cast<void**>( &spirVbuff ), &timeStamp );
     if ( buffLen == 0 )
     {
-        common->Warning( "crShaderManager::LoadShader::Error( can't open shader binary file %s)\n", fullPath.c_str() );
+        common->Warning( "crShaderManager::LoadShader::Error( can't open shader binary file %s)\n", path.c_str() );
         return false;
     }
     

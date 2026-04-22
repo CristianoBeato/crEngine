@@ -22,8 +22,8 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __VK_PIPELINE_HPP__
-#define __VK_PIPELINE_HPP__
+#ifndef __PIPELINE_HPP__
+#define __PIPELINE_HPP__
 
 inline constexpr uint32_t VERTEX_BINDING = 0;
 inline constexpr uint32_t VERTEX_ATTRIBUTE_POS = 0; // float32 XYZ 
@@ -33,7 +33,7 @@ inline constexpr uint32_t VERTEX_ATTRIBUTE_TAN = 3; // unorm8 TA TB TC TD
 inline constexpr uint32_t VERTEX_ATTRIBUTE_JOI = 4; // uint 8 J0 J1 J2 J3
 inline constexpr uint32_t VERTEX_ATTRIBUTE_WEI = 5; // unorm8 W0 W1 W2 W3
 
-class vkPipeline
+class crPipeline
 {
 public:
     /// @brief pipeline creation state flags
@@ -161,14 +161,14 @@ public:
         PLS_OVERRIDE						= 1ull << 63		// override the render prog state
     };
 
-    vkPipeline( void );
-    ~vkPipeline( void );
-    bool    Create( const uint64_t m_flags, const crProgramp in_vertexProgram, const crProgramp in_fragmentProgram, const vkPipeline* in_reference );
+    crPipeline( void );
+    ~crPipeline( void );
+    bool    Create( const uint64_t in_flags, const crProgramp in_vertexProgram, const crProgramp in_fragmentProgram, const crPipeline* in_reference );
     void    Destroy( void );
     
     void    Bind( void );
 
-    bool operator==( const vkPipeline &p );
+    bool operator==( const crPipeline &p );
     const uint64_t Flags( void ) const { return m_flags; }
     const uint32_t VertexProgramID( void ) const { return m_vProgram != nullptr ? m_vProgram->ID() : UINT32_MAX; }
     const uint32_t FragmentProgramID( void ) const { return m_fProgram != nullptr ? m_fProgram->ID() : UINT32_MAX; }
@@ -182,6 +182,6 @@ private:
     crProgramp  m_fProgram;
 };
 
-typedef vkPipeline* vkPipelinep;
+typedef crPipeline* crPipelinep;
 
 #endif //!__VK_PIPELINE_HPP__

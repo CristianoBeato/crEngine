@@ -514,37 +514,37 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		// color mask options
 		if( !token.Icmp( "maskRed" ) )
 		{
-			m_drawStateBits |= vkPipeline::PLS_REDMASK;
+			m_drawStateBits |= crPipeline::PLS_REDMASK;
 			continue;
 		}
 
 		if( !token.Icmp( "maskGreen" ) )
 		{
-			m_drawStateBits |= vkPipeline::PLS_GREENMASK;
+			m_drawStateBits |= crPipeline::PLS_GREENMASK;
 			continue;
 		}
 
 		if( !token.Icmp( "maskBlue" ) )
 		{
-			m_drawStateBits |= vkPipeline::PLS_BLUEMASK;
+			m_drawStateBits |= crPipeline::PLS_BLUEMASK;
 			continue;
 		}
 
 		if( !token.Icmp( "maskAlpha" ) )
 		{
-			m_drawStateBits |= vkPipeline::PLS_ALPHAMASK;
+			m_drawStateBits |= crPipeline::PLS_ALPHAMASK;
 			continue;
 		}
 		
 		if( !token.Icmp( "maskColor" ) )
 		{
-			m_drawStateBits |= vkPipeline::PLS_COLORMASK;
+			m_drawStateBits |= crPipeline::PLS_COLORMASK;
 			continue;
 		}
 		
 		if( !token.Icmp( "maskDepth" ) )
 		{
-			m_drawStateBits |= vkPipeline::PLS_DEPTHMASK;
+			m_drawStateBits |= crPipeline::PLS_DEPTHMASK;
 			continue;
 		}
 
@@ -634,8 +634,8 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		{
 			if( src.ReadTokenOnLine( &token ) )
 			{
-				m_vertexProgram = pipelineManager->FindShader( token, crPipelineManager::ST_VERTEX ); 
-				m_fragmentProgram = pipelineManager->FindShader( token, crPipelineManager::ST_FRAGMENT);
+				m_vertexProgram = pipelineManager->FindShader( token, crProgram::PROG_VERTEX ); 
+				m_fragmentProgram = pipelineManager->FindShader( token, crProgram::PROG_FRAGMENT);
 			}
 			continue;
 		}
@@ -643,7 +643,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		if( !token.Icmp( "fragmentProgram" ) )
 		{
 			if( src.ReadTokenOnLine( &token ) )
-				m_fragmentProgram = pipelineManager->FindShader( token, crPipelineManager::ST_FRAGMENT );
+				m_fragmentProgram = pipelineManager->FindShader( token, crProgram::PROG_FRAGMENT );
 			
 			continue;
 		}
@@ -651,7 +651,7 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		if( !token.Icmp( "vertexProgram" ) )
 		{
 			if( src.ReadTokenOnLine( &token ) )
-				m_vertexProgram = pipelineManager->FindShader( token, crPipelineManager::ST_VERTEX );
+				m_vertexProgram = pipelineManager->FindShader( token, crProgram::PROG_VERTEX );
 
 			continue;
 		}
@@ -788,26 +788,26 @@ void crShaderStage::ParseBlend( idLexer& in_src, idMaterial &mtr )
 	// blending combinations
 	if( !token.Icmp( "blend" ) )
 	{
-		m_drawStateBits = vkPipeline::PLS_SRCBLEND_SRC_ALPHA | vkPipeline::PLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+		m_drawStateBits = crPipeline::PLS_SRCBLEND_SRC_ALPHA | crPipeline::PLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
 		return;
 	}
 
 	if( !token.Icmp( "add" ) )
 	{
-		m_drawStateBits = vkPipeline::PLS_SRCBLEND_ONE | vkPipeline::PLS_DSTBLEND_ONE;
+		m_drawStateBits = crPipeline::PLS_SRCBLEND_ONE | crPipeline::PLS_DSTBLEND_ONE;
 		return;
 	}
 
 	if( !token.Icmp( "filter" ) || !token.Icmp( "modulate" ) )
 	{
-		m_drawStateBits = vkPipeline::PLS_SRCBLEND_DST_COLOR | vkPipeline::PLS_DSTBLEND_ZERO;
+		m_drawStateBits = crPipeline::PLS_SRCBLEND_DST_COLOR | crPipeline::PLS_DSTBLEND_ZERO;
 		return;
 	}
 
 	if( !token.Icmp( "none" ) )
 	{
 		// none is used when defining an alpha mask that doesn't draw
-		m_drawStateBits = vkPipeline::PLS_SRCBLEND_ZERO | vkPipeline::PLS_DSTBLEND_ONE;
+		m_drawStateBits = crPipeline::PLS_SRCBLEND_ZERO | crPipeline::PLS_DSTBLEND_ONE;
 		return;
 	}
 
@@ -1950,46 +1950,46 @@ int idMaterial::NameToSrcBlendMode( const idStr& name )
 {
 	if( !name.Icmp( "GL_ONE" ) )
 	{
-		return vkPipeline::PLS_SRCBLEND_ONE;
+		return crPipeline::PLS_SRCBLEND_ONE;
 	}
 	else if( !name.Icmp( "GL_ZERO" ) )
 	{
-		return vkPipeline::PLS_SRCBLEND_ZERO;
+		return crPipeline::PLS_SRCBLEND_ZERO;
 	}
 	else if( !name.Icmp( "GL_DST_COLOR" ) )
 	{
-		return vkPipeline::PLS_SRCBLEND_DST_COLOR;
+		return crPipeline::PLS_SRCBLEND_DST_COLOR;
 	}
 	else if( !name.Icmp( "GL_ONE_MINUS_DST_COLOR" ) )
 	{
-		return vkPipeline::PLS_SRCBLEND_ONE_MINUS_DST_COLOR;
+		return crPipeline::PLS_SRCBLEND_ONE_MINUS_DST_COLOR;
 	}
 	else if( !name.Icmp( "GL_SRC_ALPHA" ) )
 	{
-		return vkPipeline::PLS_SRCBLEND_SRC_ALPHA;
+		return crPipeline::PLS_SRCBLEND_SRC_ALPHA;
 	}
 	else if( !name.Icmp( "GL_ONE_MINUS_SRC_ALPHA" ) )
 	{
-		return vkPipeline::PLS_SRCBLEND_ONE_MINUS_SRC_ALPHA;
+		return crPipeline::PLS_SRCBLEND_ONE_MINUS_SRC_ALPHA;
 	}
 	else if( !name.Icmp( "GL_DST_ALPHA" ) )
 	{
-		return vkPipeline::PLS_SRCBLEND_DST_ALPHA;
+		return crPipeline::PLS_SRCBLEND_DST_ALPHA;
 	}
 	else if( !name.Icmp( "GL_ONE_MINUS_DST_ALPHA" ) )
 	{
-		return vkPipeline::PLS_SRCBLEND_ONE_MINUS_DST_ALPHA;
+		return crPipeline::PLS_SRCBLEND_ONE_MINUS_DST_ALPHA;
 	}
 	else if( !name.Icmp( "GL_SRC_ALPHA_SATURATE" ) )
 	{
 		assert( 0 ); // FIX ME
-		return vkPipeline::PLS_SRCBLEND_SRC_ALPHA;
+		return crPipeline::PLS_SRCBLEND_SRC_ALPHA;
 	}
 	
 	common->Warning( "unknown blend mode '%s' in material '%s'", name.c_str(), GetName() );
 	SetMaterialFlag( MF_DEFAULTED );
 	
-	return vkPipeline::PLS_SRCBLEND_ONE;
+	return crPipeline::PLS_SRCBLEND_ONE;
 }
 
 /*
@@ -2001,41 +2001,41 @@ int idMaterial::NameToDstBlendMode( const idStr& name )
 {
 	if( !name.Icmp( "GL_ONE" ) )
 	{
-		return vkPipeline::PLS_DSTBLEND_ONE;
+		return crPipeline::PLS_DSTBLEND_ONE;
 	}
 	else if( !name.Icmp( "GL_ZERO" ) )
 	{
-		return vkPipeline::PLS_DSTBLEND_ZERO;
+		return crPipeline::PLS_DSTBLEND_ZERO;
 	}
 	else if( !name.Icmp( "GL_SRC_ALPHA" ) )
 	{
-		return vkPipeline::PLS_DSTBLEND_SRC_ALPHA;
+		return crPipeline::PLS_DSTBLEND_SRC_ALPHA;
 	}
 	else if( !name.Icmp( "GL_ONE_MINUS_SRC_ALPHA" ) )
 	{
-		return vkPipeline::PLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
+		return crPipeline::PLS_DSTBLEND_ONE_MINUS_SRC_ALPHA;
 	}
 	else if( !name.Icmp( "GL_DST_ALPHA" ) )
 	{
-		return vkPipeline::PLS_DSTBLEND_DST_ALPHA;
+		return crPipeline::PLS_DSTBLEND_DST_ALPHA;
 	}
 	else if( !name.Icmp( "GL_ONE_MINUS_DST_ALPHA" ) )
 	{
-		return vkPipeline::PLS_DSTBLEND_ONE_MINUS_DST_ALPHA;
+		return crPipeline::PLS_DSTBLEND_ONE_MINUS_DST_ALPHA;
 	}
 	else if( !name.Icmp( "GL_SRC_COLOR" ) )
 	{
-		return vkPipeline::PLS_DSTBLEND_SRC_COLOR;
+		return crPipeline::PLS_DSTBLEND_SRC_COLOR;
 	}
 	else if( !name.Icmp( "GL_ONE_MINUS_SRC_COLOR" ) )
 	{
-		return vkPipeline::PLS_DSTBLEND_ONE_MINUS_SRC_COLOR;
+		return crPipeline::PLS_DSTBLEND_ONE_MINUS_SRC_COLOR;
 	}
 	
 	common->Warning( "unknown blend mode '%s' in material '%s'", name.c_str(), GetName() );
 	SetMaterialFlag( MF_DEFAULTED );
 	
-	return vkPipeline::PLS_DSTBLEND_ONE;
+	return crPipeline::PLS_DSTBLEND_ONE;
 }
 
 /*
@@ -2754,11 +2754,11 @@ void idMaterial::ParseMaterial( idLexer& src )
 		uint64_t flags = 0;
 		/// set stages face culling
 		if( cullType == CT_TWO_SIDED )
-		 	flags = vkPipeline::PLS_CULLFACE_TWO;
+		 	flags = crPipeline::PLS_CULLFACE_TWO;
 		else if( cullType == CT_BACK_SIDED )
-			flags = vkPipeline::PLS_CULLFACE_FRONT;
+			flags = crPipeline::PLS_CULLFACE_FRONT;
 		else if( cullType == CT_FRONT_SIDED )
-			flags = vkPipeline::PLS_CULLFACE_BACK;
+			flags = crPipeline::PLS_CULLFACE_BACK;
 
 		pd->parseStages[i].SetDrawStateBits( flags );
 
@@ -2859,11 +2859,11 @@ bool idMaterial::Parse( const char* text, const int textLength, bool allowBinary
 			// we have an interaction draw
 			coverage = MC_OPAQUE;
 		else if(
-			( pd->parseStages[0].DrawStateBits() & vkPipeline::PLS_DSTBLEND_BITS ) != vkPipeline::PLS_DSTBLEND_ZERO ||
-			( pd->parseStages[0].DrawStateBits() & vkPipeline::PLS_SRCBLEND_BITS ) == vkPipeline::PLS_SRCBLEND_DST_COLOR ||
-			( pd->parseStages[0].DrawStateBits() & vkPipeline::PLS_SRCBLEND_BITS ) == vkPipeline::PLS_SRCBLEND_ONE_MINUS_DST_COLOR ||
-			( pd->parseStages[0].DrawStateBits() & vkPipeline::PLS_SRCBLEND_BITS ) == vkPipeline::PLS_SRCBLEND_DST_ALPHA ||
-			( pd->parseStages[0].DrawStateBits() & vkPipeline::PLS_SRCBLEND_BITS ) == vkPipeline::PLS_SRCBLEND_ONE_MINUS_DST_ALPHA
+			( pd->parseStages[0].DrawStateBits() & crPipeline::PLS_DSTBLEND_BITS ) != crPipeline::PLS_DSTBLEND_ZERO ||
+			( pd->parseStages[0].DrawStateBits() & crPipeline::PLS_SRCBLEND_BITS ) == crPipeline::PLS_SRCBLEND_DST_COLOR ||
+			( pd->parseStages[0].DrawStateBits() & crPipeline::PLS_SRCBLEND_BITS ) == crPipeline::PLS_SRCBLEND_ONE_MINUS_DST_COLOR ||
+			( pd->parseStages[0].DrawStateBits() & crPipeline::PLS_SRCBLEND_BITS ) == crPipeline::PLS_SRCBLEND_DST_ALPHA ||
+			( pd->parseStages[0].DrawStateBits() & crPipeline::PLS_SRCBLEND_BITS ) == crPipeline::PLS_SRCBLEND_ONE_MINUS_DST_ALPHA
 		)
 			// blended with the destination
 			coverage = MC_TRANSLUCENT;
@@ -2934,14 +2934,14 @@ bool idMaterial::Parse( const char* text, const int textLength, bool allowBinary
 		if( sort == SS_POST_PROCESS )
 			// post-process effects fill the depth buffer as they draw, so only the
 			// topmost post-process effect is rendered
-			pStage->SetDrawStateBits( vkPipeline::PLS_DEPTHFUNC_LESS ); // GLS_DEPTHFUNC_LESS;
+			pStage->SetDrawStateBits( crPipeline::PLS_DEPTHFUNC_LESS ); // GLS_DEPTHFUNC_LESS;
 		else if( coverage == MC_TRANSLUCENT || pStage->IgnoreAlphaTest() )
 			// translucent surfaces can extend past the exactly marked depth buffer
-			pStage->SetDrawStateBits( vkPipeline::PLS_DEPTHFUNC_LESS | vkPipeline::PLS_DEPTHMASK ); // GLS_DEPTHFUNC_LESS | GLS_DEPTHMASK;
+			pStage->SetDrawStateBits( crPipeline::PLS_DEPTHFUNC_LESS | crPipeline::PLS_DEPTHMASK ); // GLS_DEPTHFUNC_LESS | GLS_DEPTHMASK;
 		else
 			// opaque and perforated surfaces must exactly match the depth buffer,
 			// which gets alpha test correct
-			pStage->SetDrawStateBits( vkPipeline::PLS_DEPTHFUNC_EQUAL | vkPipeline::PLS_DEPTHMASK ); // GLS_DEPTHFUNC_EQUAL | GLS_DEPTHMASK;
+			pStage->SetDrawStateBits( crPipeline::PLS_DEPTHFUNC_EQUAL | crPipeline::PLS_DEPTHMASK ); // GLS_DEPTHFUNC_EQUAL | GLS_DEPTHMASK;
 	}
 	
 	// determine if this surface will accept overlays / decals

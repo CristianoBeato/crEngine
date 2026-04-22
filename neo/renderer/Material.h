@@ -210,7 +210,7 @@ typedef enum
 	SVC_INVERSE_MODULATE
 } stageVertexColor_t;
 
-class vkPipeline;
+class crPipeline;
 class crShaderStage
 {
 public:
@@ -272,7 +272,7 @@ private:
 	idImage* 			m_fragmentProgramImages[MAX_FRAGMENT_IMAGES];
 
 	/// @brief shader stage pipeline configuration
-	vkPipeline*			m_pipeline;
+	crPipeline*			m_pipeline;
 };
 
 typedef enum

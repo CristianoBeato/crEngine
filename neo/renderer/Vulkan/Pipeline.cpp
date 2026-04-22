@@ -27,18 +27,18 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Pipeline.hpp"
 #include "Core.hpp"
 
-vkPipeline::vkPipeline( void )
-{
-}
-
-vkPipeline::~vkPipeline( void )
-{
-}
-
 constexpr uint32_t NUM_DYNAMIC_STATE = 6;
 constexpr uint32_t NUM_ATTRIBS_DESCR = 7;
 
-bool vkPipeline::Create( const uint64_t in_flags, const vkProgramp in_vertexProgram, const vkProgramp in_fragmentProgram, const vkPipeline* in_reference )
+crPipeline::crPipeline( void )
+{
+}
+
+crPipeline::~crPipeline( void )
+{
+}
+
+bool crPipeline::Create(const uint64_t in_flags, const crProgramp in_vertexProgram, const crProgramp in_fragmentProgram, const crPipeline *in_reference)
 {
     uint32_t attachmentCount = 0;
     m_flags = in_flags;
@@ -462,7 +462,7 @@ bool vkPipeline::Create( const uint64_t in_flags, const vkProgramp in_vertexProg
     return true;
 }
 
-bool vkPipeline::operator==(const vkPipeline &p)
+bool crPipeline::operator==(const crPipeline &p)
 {
     if ( m_flags != p.m_flags )
         return false;
