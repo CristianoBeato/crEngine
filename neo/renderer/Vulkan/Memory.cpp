@@ -94,26 +94,26 @@ void*   crMemoryPage::Map(void) const
 crMemoryPage::Flush
 ==============
 */
-void crMemoryPage::Flush( void ) const
-{
+void crMemoryPage::Flush( const uintptr_t in_offset, const size_t in_size ) const
+{   
     VkMappedMemoryRange memoryRange{};
     memoryRange.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
     memoryRange.pNext = nullptr;
     memoryRange.memory = m_memory;
-    memoryRange.offset = static_cast<VkDeviceSize>( m_offset );
-    memoryRange.size = static_cast<VkDeviceSize>( m_size );
+    memoryRange.offset = static_cast<VkDeviceSize>( std::min( m_size, in_size ) );
+    memoryRange.size = static_cast<VkDeviceSize>( std::max( m_offset, in_offset ) );
     VkResult result = vkFlushMappedMemoryRanges( m_device, 1, &memoryRange );
     if( result != VK_SUCCESS )
         idLib::Error("crMemoryPage::Flush vkFlushMappedMemoryRanges failed %s\n", VulkanErrorString( result ) );
 }
 
-crMemoryPage::crMemoryPage( const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, const VkDeviceMemory in_memory )
+crMemoryPage::crMemoryPage( const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, const VkDeviceMemory in_memory ) :
     m_size( in_size ),
     m_alignment( in_alignment ),
     m_offset( in_offset ),
     m_memory( in_memory )
 {
-    m_device = *tr.GetRenderDevice()
+    m_device = *tr.GetRenderDevice();
 }
 
 /*
@@ -121,12 +121,14 @@ crMemoryPage::crMemoryPage( const size_t in_size, const size_t in_alignment, con
 crMemoryPool::crMemoryPool
 ==============
 */
-crMemoryPool::crMemoryPool( void ) : 
-    m_offsets( 0 ),
+crMemoryPool::crMemoryPool( void ) :
     m_index( UINT32_MAX ),
     m_type( 0 ),
     m_size( 0 ),
     m_alignment( 0 ),
+    m_offsets( 0 ),
+    m_memory( nullptr ),
+    m_device( nullptr )
 {
 }
 
@@ -280,64 +282,6 @@ void crMemoryPool::Destroy(void)
         vkFreeMemory( m_device, m_memory, k_allocationCallbacks );
         m_memory = nullptr;
     }
-}
-
-/*
-==============
-crMemoryPool::SetProperties
-==============
-*/
-void crMemoryPool::SetProperties(const uint32_t in_index, const uint32_t in_type)
-{
-    m_index = in_index;
-    m_type = in_type;
-}
-
-/*
-==============
-crMemoryPool::Alloc
-==============
-*/
-crMemoryPage *crMemoryPool::Alloc( const size_t in_size, const size_t in_alignment )
-{
-    size_t minAlignment = m_alignment < in_alignment ? in_alignment : m_alignment;
-    size_t alignedSize = ( in_size + ( minAlignment - 1)) & ~( minAlignment - 1 );
-    
-    /// try re use a best fit first
-    if( !m_freepages.Empty() )
-    {
-        uint32_t bestFit = 0;
-        for ( uint32_t i = 0; i < m_freepages.Num(); i++)
-        {
-            /// lesser, don't fit
-            if( m_freepages[i]->Size() < alignedSize )
-                continue;
-
-            if( m_freepages[i]->Size() < m_freepages[bestFit]->Size() )
-                bestFit = i;
-        }
-
-        return m_freepages[bestFit];
-    }
-
-    /// no space left 
-    if( ( m_size - m_offsets ) < alignedSize )
-        return nullptr;
-
-    // alloc a new page
-    crMemoryPage* page = new crMemoryPage( alignedSize, minAlignment, m_offsets, m_memory );
-    m_usedpages.Append( page );
-    m_offsets += alignedSize;
-    return page;
-}
-
-/*
-==============
-crMemoryPool::Free
-==============
-*/
-void crMemoryPool::Free( crMemoryPage *in_page )
-{
 }
 
 /*

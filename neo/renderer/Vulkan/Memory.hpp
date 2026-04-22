@@ -50,7 +50,7 @@ public:
 
     /// @brief Flush memory page operations ( for non VK_MEMORY_PROPERTY_HOST_COHERENT_BIT )
     /// guarantees that host writes to the memory are made available to the host memory domain.
-    void                        Flush( void ) const;
+    void                        Flush( const uintptr_t in_offset, const size_t in_size ) const;
 
     ID_INLINE size_t            Alignment( void ) const { return m_alignment; }
     ID_INLINE uintptr_t         Offset( void ) const { return m_offset; }
@@ -72,34 +72,41 @@ protected:
     crMemoryPage( const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, const VkDeviceMemory  in_memory );
 };
 
+typedef crMemoryPage* crMemoryPagep;
+
 /// @brief Allocate a Device memory pool ( to use whit multiples images or buffer)
 class crMemoryPool
 {
 public:
+    crMemoryPool( void );
+    ~crMemoryPool( void );
+    crMemoryPagep   AllocPage( const size_t in_size, const uintptr_t in_alignment );
+    void            DeallocPage( crMemoryPagep in_page );
+    ID_INLINE size_t  Size( void ) const { return m_size; }
+
+protected:
+    friend class crMemoryHeap;
+    bool                Create( const size_t in_size, const size_t in_alignment, const uint32_t in_filter );
+    void                Destroy( void );
+    ID_INLINE void      SetProperties( const uint32_t in_index, const uint32_t in_type ) { m_index = in_index; m_type = in_type; }
+    ID_INLINE uint32_t  GetIndex( void ) const { return m_index; }
+    ID_INLINE uint32_t  GetType( void ) const { return m_type; }
+
+private:
+    struct block_t
+    {
+        block_t*        left;   // block at left 
+        block_t*        right;  // block at right
+        VkDeviceSize    begin;  // memory block begin offset
+        VkDeviceSize    end;    // memory block end offset
+    };
+
     struct memoryBlock_t 
     {
         VkDeviceSize offset;
         VkDeviceSize size;
     };
 
-    crMemoryPool( void );
-    ~crMemoryPool( void );
-    crMemoryPage*   AllocPage( const size_t in_size, const uintptr_t in_offset );
-    void            DeallocPage( crMemoryPage* in_page );
-    ID_INLINE size_t  Size( void ) const { return m_size; }
-    crMemoryPage*   Alloc( const size_t in_size, const size_t in_alignment );
-    void            Free( crMemoryPage* in_page );
-
-protected:
-    friend class crMemoryHeap;
-    bool            Create( const size_t in_size, const size_t in_alignment, const uint32_t in_filter );
-    void            Destroy( void );
-    void            SetProperties( const uint32_t in_index, const uint32_t in_type );
-    
-    uint32_t        GetIndex( void ) const { return m_index; }
-    uint32_t        GetType( void ) const { return m_type; }
-
-private:
     uint32_t                            m_index;
     uint32_t                            m_type;
     size_t                              m_size;
@@ -107,10 +114,12 @@ private:
     uintptr_t                           m_offsets;
     VkDeviceMemory                      m_memory;
     VkDevice                            m_device;
-    idList<crMemoryPage*, TAG_VULKAN>   m_freepages;
-    idList<crMemoryPage*, TAG_VULKAN>   m_usedpages;
+    idList<memoryBlock_t, TAG_VULKAN>   m_freeBlocks;
+    idList<memoryBlock_t, TAG_VULKAN>   m_usedBlocks;
+    idList<crMemoryPagep, TAG_VULKAN>   m_pages;
 };
-class crMemoryPool* crMemoryPoolp;
+
+typedef crMemoryPool* crMemoryPoolp;
 
 class crMemoryHeap
 {
@@ -128,7 +137,7 @@ public:
         uint32_t                            typeIndex = 0;
         uint32_t                            heapIndex = 0;
         VkMemoryPropertyFlags               propertyFlags = 0;
-        idList<crMemoryPool*, TAG_VULKAN>   pools;
+        idList<crMemoryPoolp, TAG_VULKAN>   pools;
     };
 
     crMemoryHeap( void );
@@ -136,9 +145,9 @@ public:
     bool            Create( void );
     void            Destroy( void );
     /// @brief Allocate a memory page to be used by structures with the same configuration.
-    crMemoryPool*   Alloc( const size_t in_size, const size_t in_alignament, const uint32_t in_filter, const VkMemoryPropertyFlags in_properties );
+    crMemoryPoolp   Alloc( const size_t in_size, const size_t in_alignament, const uint32_t in_filter, const VkMemoryPropertyFlags in_properties );
     /// @brief Releasse a memory block
-    void            Free( crMemoryPool* in_pool );
+    void            Free( crMemoryPoolp in_pool );
     void            Defrag( void );
 
 private:

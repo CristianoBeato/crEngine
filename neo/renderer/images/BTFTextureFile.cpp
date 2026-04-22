@@ -172,28 +172,28 @@ idImageOpts crBTFTextureFile::GetImageParameters(void) const
     
     if ( m_header.imageFlags & BTF::IMAGE1D )
     {
-        opts.textureType = IMAGE_1D;
+        opts.textureType = crTexture::IMAGE_1D;
         opts.width = m_images[0].width;
         opts.height = 0;
         opts.depth = 0;
     }
     else if ( m_header.imageFlags & BTF::IMAGE2D )
     {
-        opts.textureType = IMAGE_2D;
+        opts.textureType = crTexture::IMAGE_2D;
         opts.width = m_images[0].width;
         opts.height = m_images[0].height;
         opts.depth = 0;
     }
     else if ( m_header.imageFlags & BTF::IMAGE3D )
     {
-        opts.textureType = IMAGE_3D;
+        opts.textureType = crTexture::IMAGE_3D;
         opts.width = m_images[0].width;
         opts.height = m_images[0].height;
         opts.depth = m_images[0].depth;
     }
     else if ( m_header.imageFlags & BTF::CUBEMAP )
     {
-        opts.textureType = IMAGE_CUBEMAP;
+        opts.textureType = crTexture::IMAGE_CUBEMAP;
         opts.width = m_images[0].width;
         opts.height = m_images[0].width;
     }

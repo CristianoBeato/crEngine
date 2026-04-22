@@ -83,7 +83,7 @@ public:
 		depth( 0 ),
 		numSides( 0 ),
 		numLevels( 0 ),
-		textureType( IMAGE_2D ),
+		textureType( crTexture::IMAGE_2D ),
 		gammaMips( false ),
 		readback( false ),
 		sRGB( false ) // foresthale 2014-02-20: fixed r_useSRGB texture handling
@@ -101,7 +101,7 @@ public:
 	bool				gammaMips;		// if true, mips will be generated with gamma correction
 	bool				readback;		// 360 specific - cpu reads back from this texture, so allocate with cached memory
 	bool				sRGB; 			// foresthale 2014-02-20: fixed r_useSRGB texture handling
-	image_type_t		textureType;
+	crTexture::type_t	textureType;
 	crInternalFormat	format;
 	int16_t				numSides; 		// 6 cubemap / n shadow array
 	int16_t				numLevels;		// if 0, will be 1 for NEAREST / LINEAR filters, otherwise based on size

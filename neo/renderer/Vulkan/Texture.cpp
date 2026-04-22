@@ -25,7 +25,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Texture.hpp"
 #include "Core.hpp"
 
-static VkImageType k_IMAGE_TYPE_TABLE[IMAGE_TYPE_COUNT] = 
+static VkImageType k_IMAGE_TYPE_TABLE[crTexture::IMAGE_TYPE_COUNT] = 
 {
     VK_IMAGE_TYPE_MAX_ENUM, // IMAGE_NONE ( VK_IMAGE_TYPE_MAX_ENUM Will cause a error )
     VK_IMAGE_TYPE_1D,       // IMAGE_1D
@@ -51,7 +51,19 @@ static inline VkImageAspectFlags GetAspect( const VkFormat fmt )
     }
 }
 
-bool crTexture::Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format )
+crTexture::crTexture( void ) :
+    m_type( )
+{
+
+}
+
+crTexture::~crTexture(void)
+{
+    // Make surre that we released texture resource
+    Destroy();
+}
+
+bool crTexture::Create( const type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format )
 {    
     idList<uint32_t>    queues;
     VkResult result = VK_SUCCESS;
@@ -151,7 +163,7 @@ bool crTexture::Create(const VkImage in_image, const crInternalFormat in_format,
 bool crTexture::Storage( crMemoryPool *in_bufferPool )
 {
     m_page = in_bufferPool->AllocPage( m_memoryRequirements.size, m_memoryRequirements.alignment );
-    m_page->Bind( this );
+    m_page->Bind( m_image );
     return true;
 }
 

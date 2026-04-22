@@ -119,7 +119,7 @@ void idImage::GenerateImage( const byte* pic, const uint32_t width, const uint32
 	
 	cubeFiles = CF_2D;
 	
-	opts.textureType = IMAGE_2D;
+	opts.textureType = crTexture::IMAGE_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
@@ -170,7 +170,7 @@ void idImage::GenerateCubeImage( const byte* pic[6], int size )
 	
 	cubeFiles = CF_NATIVE;
 	
-	opts.textureType = IMAGE_CUBEMAP;
+	opts.textureType = crTexture::IMAGE_CUBEMAP;
 	opts.width = size;
 	opts.height = size;
 	opts.numLevels = 0;
@@ -215,7 +215,7 @@ void idImage::GenerateShadowArray( uint32_t width, uint32_t height )
 	
 	cubeFiles = CF_2D_ARRAY;
 	
-	opts.textureType = IMAGE_2D;
+	opts.textureType = crTexture::IMAGE_2D;
 	opts.width = width;
 	opts.height = height;
 	opts.numLevels = 0;
@@ -401,10 +401,10 @@ void idImage::Print( void ) const
 	
 	switch( opts.textureType )
 	{
-		case IMAGE_2D:
+		case crTexture::IMAGE_2D:
 			common->Printf( " " );
 			break;
-		case IMAGE_CUBEMAP:
+		case crTexture::IMAGE_CUBEMAP:
 			common->Printf( "C" );
 			break;
 		default:
@@ -596,23 +596,23 @@ void idImage::ActuallyLoadImage( bool fromBackEnd )
 	{
 		sourceFileTime = FILE_NOT_FOUND_TIMESTAMP;
 		if( cubeFiles != CF_2D )
-			opts.textureType = IMAGE_CUBEMAP; //IMAGE_CUBEMAP;
+			opts.textureType = crTexture::IMAGE_CUBEMAP; //IMAGE_CUBEMAP;
 	}
 	else
 	{
 		// RB begin
 		if( cubeFiles == CF_2D_ARRAY )
-			opts.textureType = IMAGE_2D; //TT_2D_ARRAY;
+			opts.textureType = crTexture::IMAGE_2D; //TT_2D_ARRAY;
 			
 		// RB end
 		else if( cubeFiles != CF_2D )
 		{
-			opts.textureType = IMAGE_CUBEMAP; // IMAGE_CUBEMAP;
+			opts.textureType = crTexture::IMAGE_CUBEMAP; // IMAGE_CUBEMAP;
 			R_LoadCubeImages( GetName(), cubeFiles, nullptr, nullptr, &sourceFileTime );
 		}
 		else
 		{
-			opts.textureType = IMAGE_2D;
+			opts.textureType = crTexture::IMAGE_2D;
 			R_LoadImageProgram( GetName(), nullptr, nullptr, nullptr, &sourceFileTime );
 		}
 	}
@@ -822,7 +822,6 @@ void idImage::AllocImage( void )
 {
 	crTexture::dimensions_t dimensions{}; 
 
-	GL_CheckErrors();
 	PurgeImage();
 		
 	// if we don't have a rendering context, just return after we
@@ -845,9 +844,7 @@ void idImage::AllocImage( void )
 	
 	/// TODO: alloc image memory here
 
-	SetTexParameters();
-	
-	GL_CheckErrors();
+	SetTexParameters();	
 }
 
 

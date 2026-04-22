@@ -28,6 +28,16 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 class crTexture
 {
 public:
+    enum type_t : uint8_t
+    {
+	    IMAGE_NONE,
+        IMAGE_1D,
+        IMAGE_2D,
+        IMAGE_3D,
+        IMAGE_CUBEMAP,
+        IMAGE_TYPE_COUNT
+    };
+
     struct dimensions_t
     {
         uint16_t    levels = 0;
@@ -58,7 +68,7 @@ public:
     crTexture( void );
     ~crTexture( void );
     
-    bool                        Create( const image_type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
+    bool                        Create( const type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
     bool                        Create( const VkImage in_image, const crInternalFormat in_format, const VkImageViewType in_viewType );
     bool                        Storage( crMemoryPool* in_bufferPool );
     void                        Destroy( void );
@@ -70,14 +80,14 @@ public:
     const VkPipelineStageFlags2 Stage( void ) const { return m_state.stage; }
     const VkAccessFlags2        Access( void ) const {return m_state.access; }
     const VkImageAspectFlags    Aspect( void ) const { return m_aspect; }
-    const image_type_t          GetType( void ) const { return m_type; }
+    const type_t                GetType( void ) const { return m_type; }
     const crInternalFormat      GetFormat( void ) const { return m_format; }
 
     operator VkImage( void ) const { return m_image; }
     operator VkImageView( void ) const { return m_view; }
 
 protected:
-    image_type_t            m_type;
+    type_t                  m_type;
     VkImageAspectFlags      m_aspect;
     crInternalFormat        m_format;
     state_t                 m_state;

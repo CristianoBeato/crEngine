@@ -89,7 +89,7 @@ bool crBuffer::Create( const type_t in_type, const access_t in_acess, const size
 bool crBuffer::Storage( crMemoryPool *in_bufferPool )
 {
     m_page = in_bufferPool->AllocPage( m_memoryRequirements.size, m_memoryRequirements.alignment );
-    m_page->Bind( this );
+    m_page->Bind( m_buffer );
     return true;
 }
 
@@ -141,7 +141,7 @@ void crBuffer::SetState(const vkCommandbufferp in_commandBuffer, const state_t i
     m_queueFamily = in_newState.queueFamily;
 }
 
-void crBuffer::Flush(const uintptr_t in_offset, const size_t in_size) const
+void crBuffer::Flush( const uintptr_t in_offset, const size_t in_size ) const
 {
     idassert( m_page != nullptr );
     m_page->Flush( in_offset, in_size );
