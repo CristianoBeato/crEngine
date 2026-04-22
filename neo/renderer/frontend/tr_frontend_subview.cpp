@@ -356,15 +356,11 @@ static void R_RemoteRender( const drawSurf_t* surf, textureStage_t* stage )
 
 	// remote views can be reused in a single frame
 	if( stage->dynamicFrameCount == tr.frameCount )
-	{
 		return;
-	}
 	
 	// if the entity doesn't have a remoteRenderView, do nothing
 	if( !surf->space->entityDef->parms.remoteRenderView )
-	{
 		return;
-	}
 	
 	int stageWidth = stage->width;
 	int stageHeight = stage->height;
@@ -398,9 +394,7 @@ static void R_RemoteRender( const drawSurf_t* surf, textureStage_t* stage )
 	// copy this rendering to the image
 	stage->dynamicFrameCount = tr.frameCount;
 	if( stage->image == nullptr )
-	{
 		stage->image = globalImages->scratchImage;
-	}
 	
 	tr.CaptureRenderToImage( stage->image->GetName(), true );
 	tr.UnCrop();
@@ -417,16 +411,12 @@ void R_MirrorRender( const drawSurf_t* surf, textureStage_t* stage, idScreenRect
 
 	// remote views can be reused in a single frame
 	if( stage->dynamicFrameCount == tr.frameCount )
-	{
 		return;
-	}
 	
 	// issue a new view command
 	viewDef_t* parms = R_MirrorViewBySurface( surf );
 	if( parms == nullptr )
-	{
 		return;
-	}
 	
 	tr.CropRenderSize( stage->width, stage->height );
 	
@@ -510,15 +500,11 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 {
 	// for testing the performance hit
 	if( r_skipSubviews.GetBool() )
-	{
 		return false;
-	}
 	
 	idBounds ndcBounds;
 	if( R_PreciseCullSurface( drawSurf, ndcBounds ) )
-	{
 		return false;
-	}
 	
 	const idMaterial* shader = drawSurf->material;
 	
@@ -534,10 +520,9 @@ bool R_GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 			break;
 		}
 	}
+	
 	if( parms )
-	{
 		return false;
-	}
 	
 	// crop the scissor bounds based on the precise cull
 	assert( tr.viewDef != nullptr );

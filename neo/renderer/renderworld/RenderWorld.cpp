@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-
+#include "DebugDraw.hpp"
 #include "renderer_common.h"
 
 /*
@@ -178,7 +178,7 @@ idRenderWorldLocal::idRenderWorldLocal()
 idRenderWorldLocal::~idRenderWorldLocal
 ===================
 */
-idRenderWorldLocal::~idRenderWorldLocal()
+idRenderWorldLocal::~idRenderWorldLocal( void )
 {
 	// free all the entityDefs, lightDefs, portals, etc
 	FreeWorld();
@@ -194,9 +194,9 @@ idRenderWorldLocal::~idRenderWorldLocal()
 	}
 	
 	// free up the debug lines, polys, and text
-	// RB_ClearDebugPolygons( 0 );
-	// RB_ClearDebugLines( 0 );
-	// RB_ClearDebugText( 0 );
+	crDebugDraw::ClearDebugPolygons( 0 );
+	crDebugDraw::ClearDebugLines( 0 );
+	crDebugDraw::ClearDebugText( 0 );
 }
 
 /*
@@ -555,14 +555,10 @@ void idRenderWorldLocal::UpdateLightDef( qhandle_t lightHandle, const renderLigh
 	// new for BFG edition: force noShadows on spectrum lights so teleport spawns
 	// don't cause such a slowdown.  Hell writing shouldn't be shadowed anyway...
 	if( light->parms.shader && light->parms.shader->Spectrum() )
-	{
 		light->parms.noShadows = true;
-	}
 	
 	if( light->lightHasMoved )
-	{
 		light->parms.prelightModel = nullptr;
-	}
 	
 	if( !justUpdate )
 	{
@@ -2168,13 +2164,9 @@ idRenderWorldLocal::DebugReset
 */
 void idRenderWorldLocal::DebugReset( void )
 {
-	extern int rb_debugLineTime;
-	extern int rb_nextDebugLineTime;
-	rb_nextDebugLineTime = 0;
-	rb_debugLineTime = 0;
-	// backEnd.ClearDebugLines( 0 );
-	// backEnd.ClearDebugText( 0 );
-	// backEnd.ClearDebugPolygons( 0 );
+	crDebugDraw::ClearDebugLines( 0 );
+	crDebugDraw::ClearDebugText( 0 );
+	crDebugDraw::ClearDebugPolygons( 0 );
 }
 
 /*
@@ -2184,8 +2176,8 @@ idRenderWorldLocal::DebugClearLines
 */
 void idRenderWorldLocal::DebugClearLines( int time )
 {
-	// backEnd.ClearDebugLines( time );
-	// backEnd.ClearDebugText( time );
+	crDebugDraw::ClearDebugLines( time );
+	crDebugDraw::ClearDebugText( time );
 }
 
 /*
@@ -2195,7 +2187,7 @@ idRenderWorldLocal::DebugLine
 */
 void idRenderWorldLocal::DebugLine( const idVec4& color, const idVec3& start, const idVec3& end, const int lifetime, const bool depthTest )
 {
-	//backEnd.AddDebugLine( color, start, end, lifetime, depthTest );
+	crDebugDraw::AddDebugLine( color, start, end, lifetime, depthTest );
 }
 
 /*
@@ -2470,7 +2462,7 @@ idRenderWorldLocal::DebugClearPolygons
 */
 void idRenderWorldLocal::DebugClearPolygons( int time )
 {
-	/// backEnd.ClearDebugPolygons( time );
+	crDebugDraw::ClearDebugPolygons( time );
 }
 
 /*
@@ -2480,7 +2472,7 @@ idRenderWorldLocal::DebugPolygon
 */
 void idRenderWorldLocal::DebugPolygon( const idVec4& color, const idWinding& winding, const int lifeTime, const bool depthTest )
 {
-	// backEnd.AddDebugPolygon( color, winding, lifeTime, depthTest );
+	crDebugDraw::AddDebugPolygon( color, winding, lifeTime, depthTest );
 }
 
 /*
@@ -2530,8 +2522,7 @@ idRenderWorldLocal::DrawTextLength
 */
 float idRenderWorldLocal::DrawTextLength( const char* text, float scale, int len )
 {
-	// return backEnd.DrawTextLength( text, scale, len );
-	return 0.0f;
+	return crDebugDraw::DrawTextLength( text, scale, len );
 }
 
 /*
@@ -2544,7 +2535,7 @@ idRenderWorldLocal::DrawText
 */
 void idRenderWorldLocal::DrawText( const char* text, const idVec3& origin, float scale, const idVec4& color, const idMat3& viewAxis, const int align, const int lifetime, const bool depthTest )
 {
-	// backEnd.AddDebugText( text, origin, scale, color, viewAxis, align, lifetime, depthTest );
+	crDebugDraw::AddDebugText( text, origin, scale, color, viewAxis, align, lifetime, depthTest );
 }
 
 /*
@@ -2592,31 +2583,24 @@ const idMaterial* R_RemapShaderBySkin( const idMaterial* shader, const idDeclSki
 {
 
 	if( !shader )
-	{
 		return nullptr;
-	}
 	
 	// never remap surfaces that were originally nodraw, like collision hulls
 	if( !shader->IsDrawn() )
-	{
 		return shader;
-	}
 	
 	if( customShader )
 	{
 		// this is sort of a hack, but cause deformed surfaces to map to empty surfaces,
 		// so the item highlight overlay doesn't highlight the autosprite surface
 		if( shader->Deform() )
-		{
 			return nullptr;
-		}
+
 		return const_cast<idMaterial*>( customShader );
 	}
 	
 	if( !skin )
-	{
 		return const_cast<idMaterial*>( shader );
-	}
 	
 	return skin->RemapShaderBySkin( shader );
 }

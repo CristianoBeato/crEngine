@@ -68,7 +68,7 @@ vkProgram *crShaderManager::GetShader(const uint32_t in_ID)
     return m_shaders[in_ID];
 }
 
-bool crShaderManager::LoadShader(const uint32_t in_ID, const idStr in_sourcePath, const vkProgram::type_t in_type )
+bool crShaderManager::LoadShader(const uint32_t in_ID, const idStr in_sourcePath, const crProgram::type_t in_type )
 {
     size_t buffLen = 0;
     ID_TIME_T timeStamp = 0;
