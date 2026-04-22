@@ -164,19 +164,24 @@ PFN_vkGetPipelineCacheData                      vkGetPipelineCacheData = nullptr
 PFN_vkMergePipelineCaches                       vkMergePipelineCaches = nullptr;
 
 //
-PFN_vkCmdBindPipeline                            vkCmdBindPipeline = nullptr;
-PFN_vkCmdSetViewport                             vkCmdSetViewport = nullptr;
-PFN_vkCmdSetScissor                              vkCmdSetScissor = nullptr;
-PFN_vkCmdSetLineWidth                            vkCmdSetLineWidth = nullptr;
-PFN_vkCmdSetDepthBias                            vkCmdSetDepthBias = nullptr;
-PFN_vkCmdSetBlendConstants                       vkCmdSetBlendConstants = nullptr;
-PFN_vkCmdSetDepthBoundsTestEnable                vkCmdSetDepthBoundsTestEnable = nullptr;
-PFN_vkCmdSetDepthBounds                          vkCmdSetDepthBounds = nullptr;
-PFN_vkCmdSetCullMode                             vkCmdSetCullMode = nullptr;
-PFN_vkCmdSetStencilCompareMask                   vkCmdSetStencilCompareMask = nullptr;
-PFN_vkCmdSetStencilWriteMask                     vkCmdSetStencilWriteMask = nullptr;
-PFN_vkCmdSetStencilReference                     vkCmdSetStencilReference = nullptr;
-PFN_vkCmdPushConstants                           vkCmdPushConstants = nullptr;
+PFN_vkCmdBindPipeline                           vkCmdBindPipeline = nullptr;
+PFN_vkCmdSetViewport                            vkCmdSetViewport = nullptr;
+PFN_vkCmdSetScissor                             vkCmdSetScissor = nullptr;
+PFN_vkCmdSetLineWidth                           vkCmdSetLineWidth = nullptr;
+PFN_vkCmdSetPrimitiveTopology                   vkCmdSetPrimitiveTopology = nullptr;
+PFN_vkCmdSetBlendConstants                      vkCmdSetBlendConstants = nullptr;
+PFN_vkCmdSetDepthBoundsTestEnable               vkCmdSetDepthBoundsTestEnable = nullptr;
+PFN_vkCmdSetDepthBounds                         vkCmdSetDepthBounds = nullptr;
+PFN_vkCmdSetCullMode                            vkCmdSetCullMode = nullptr;
+PFN_vkCmdSetStencilCompareMask                  vkCmdSetStencilCompareMask = nullptr;
+PFN_vkCmdSetStencilWriteMask                    vkCmdSetStencilWriteMask = nullptr;
+PFN_vkCmdSetStencilReference                    vkCmdSetStencilReference = nullptr;
+PFN_vkCmdPushConstants                          vkCmdPushConstants = nullptr;
+
+PFN_vkCmdSetDepthTestEnable                     vkCmdSetDepthTestEnable = nullptr;
+
+PFN_vkCmdSetDepthBiasEnable                     vkCmdSetDepthBiasEnable = nullptr;
+PFN_vkCmdSetDepthBias                           vkCmdSetDepthBias = nullptr;
 
 //
 PFN_vkCreateDescriptorSetLayout                  vkCreateDescriptorSetLayout = nullptr;

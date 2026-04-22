@@ -31,6 +31,8 @@ Source Code.
 #include "renderer_common.h"
 #include "DebugDraw.hpp"
 
+#include "simplex.h"
+
 constexpr uint32_t k_VERTEX_POSITION_ATTRIB = 0;
 constexpr uint32_t k_VERTEX_TEXTCOORD_ATTRIB = 0;
 constexpr uint32_t k_VERTEX_COLOR_ATTRIB = 0;
@@ -53,13 +55,30 @@ constexpr size_t k_UNIFORMS_BUFFER_TEXTURE_SIZE = k_VEC4F_SIZE * 4;
 
 constexpr size_t k_UNIFORMS_BUFFER_SIZE = k_UNIFORMS_BUFFER_TEXTURE_LOCATION * k_UNIFORMS_BUFFER_TEXTURE_SIZE;
 
+extern idCVar r_debugLineDepthTest;
+
 //
 uint32_t                    crDebugDraw::m_first = 0;
 uint32_t                    crDebugDraw::m_count = 0;
+uint32_t                    crDebugDraw::m_lineWidth = 1;
+uint32_t                    crDebugDraw::m_numDebugLines = 0;
+uint32_t                    crDebugDraw::m_debugLineTime = 0;
+uint32_t			        crDebugDraw::m_numDebugText = 0;
+uint32_t                    crDebugDraw::m_debugTextTime = 0;
+uint32_t                    crDebugDraw::m_numDebugPolygons = 0;
+uint32_t                    crDebugDraw::m_debugPolygonTime = 0;
 crDebugDraw::drawMode_t     crDebugDraw::m_mode = crDebugDraw::DRAW_MODE_NONE;
 crDebugDraw::matrixMode_t   crDebugDraw::m_matrixMode = crDebugDraw::MATRIX_TEXTURE;
 crDebugDraw::fixedVertex_t  crDebugDraw::m_vertex{};
 crDebugDraw::fixedVertex_t* crDebugDraw::m_vertexes;
+
+crDebugDraw::debugLine_s    crDebugDraw::m_debugLines[ k_MAX_DEBUG_LINES ]{};
+crDebugDraw::debugPolygon_s crDebugDraw::m_debugPolygons[ k_MAX_DEBUG_POLYGONS ]{};
+crDebugDraw::debugText_s    crDebugDraw::m_debugText[ k_MAX_DEBUG_TEXT ]{};
+
+VkCommandBuffer             crDebugDraw::m_debugCommandBuffer = nullptr;
+VkPipeline                  crDebugDraw::m_debugPipeline = nullptr;
+VkBuffer                    crDebugDraw::m_debugVertexBuffer = nullptr; // VK_BUFFER_USAGE_SHADER_DEVICE_ADDRESS_BIT
 
 void crDebugDraw::StartUp( void )
 {
@@ -101,7 +120,25 @@ void crDebugDraw::ShutDown( void )
 
 void crDebugDraw::Begin( const drawMode_t mode )
 {
+    VkPrimitiveTopology topo = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
     m_mode = mode;
+
+    switch ( m_mode )
+    {
+        case DRAW_MODE_POINTS:          topo = VK_PRIMITIVE_TOPOLOGY_POINT_LIST; break;
+        case DRAW_MODE_LINES:           topo = VK_PRIMITIVE_TOPOLOGY_LINE_LIST; break;
+        case DRAW_MODE_LINE_LOOP:       topo = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP; break;
+        case DRAW_MODE_TRIANGLES:       topo = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST; break;
+        case DRAW_MODE_TRIANGLE_FAN:    topo = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN; break;
+    
+    default:
+        // todo: call a error
+        break;
+    }
+
+    //vkCmdBindVertexBuffers( m_debugCommandBuffer, 0, 1, &debugBuffer, &currentFrameOffset );
+    vkCmdSetPrimitiveTopology( m_debugCommandBuffer, topo );
+
 }
 
 void crDebugDraw::End(void)
@@ -119,12 +156,37 @@ void crDebugDraw::End(void)
     glBindVertexArray( m_vertexArray );
     glDrawArrays( m_mode, m_first, m_count );
 
-    m_first += m_count;
-    m_count = 0;
-
     glUseProgram( 0 );
     glBindVertexArray( 0 );
     */
+
+    vkCmdDraw( m_debugCommandBuffer, m_count, 1, m_first, 0 );
+
+    m_first += m_count;
+    m_count = 0;
+}
+
+void crDebugDraw::DefaultState(void)
+{
+    m_lineWidth = 1;
+
+    /// reset line to 1 pixel
+    vkCmdSetLineWidth( m_debugCommandBuffer, 1.0f );
+
+    /// Disable depth test
+    vkCmdSetDepthTestEnable( m_debugCommandBuffer, VK_FALSE );
+
+    /// Disable Depth Bias
+    vkCmdSetDepthBiasEnable( m_debugCommandBuffer, VK_FALSE );
+}
+
+void crDebugDraw::LineWidth( const uint32_t width )
+{
+    if( m_lineWidth == width )
+        return;
+
+    vkCmdSetLineWidth( m_debugCommandBuffer, static_cast<float>( width ) );
+    m_lineWidth = width;
 }
 
 void crDebugDraw::Vertex2f( const float x, const float y )
@@ -316,11 +378,11 @@ void crDebugDraw::MatrixMode( const uint32_t mode )
     //m_matrixMode = mode;
 }
 
-void crDebugDraw::PopMatrix(void)
+void crDebugDraw::PopMatrix( void )
 {
 }
 
-void crDebugDraw::PushMatrix(void)
+void crDebugDraw::PushMatrix( void )
 {
 }
 
@@ -389,5 +451,532 @@ void crDebugDraw::Ortho(const float left, const float right, const float bottom,
     m[13] = -(top + bottom) / tb;
     m[14] = -(zFar + zNear) / fn;
     m[15] =  1.0f;
+}
 
+/*
+================
+crDebugDraw::AddDebugLine
+================
+*/
+void crDebugDraw::AddDebugLine( const idVec4 &color, const idVec3 &start, const idVec3 &end, const int lifeTime, const bool depthTest ) 
+{
+	debugLine_s *line = nullptr;
+
+	if ( m_numDebugLines < k_MAX_DEBUG_LINES ) 
+    {
+		line = &m_debugLines[ m_numDebugLines++ ];
+		line->rgb		= color;
+		line->start		= start;
+		line->end		= end;
+		line->depthTest = depthTest;
+		line->lifeTime	= m_debugLineTime + lifeTime;
+	}
+}
+
+/*
+================
+crDebugDraw::SimpleWorldSetup
+================
+*/
+void crDebugDraw::SimpleWorldSetup( void ) 
+{
+	//backEnd.currentSpace = &backEnd.viewDef->worldSpace;
+
+    // TODO: set model view matrix
+    //qglLoadMatrixf( backEnd.viewDef->worldSpace.modelViewMatrix );
+
+	//GL_Scissor( backEnd.viewDef->viewport.x1 + backEnd.viewDef->scissor.x1,
+	//			backEnd.viewDef->viewport.y1 + backEnd.viewDef->scissor.y1,
+	//			backEnd.viewDef->scissor.x2 + 1 - backEnd.viewDef->scissor.x1,
+	//			backEnd.viewDef->scissor.y2 + 1 - backEnd.viewDef->scissor.y1 );
+	//backEnd.currentScissor = backEnd.viewDef->scissor;
+
+    /// TODO:
+    VkRect2D scissor{};
+    vkCmdSetScissor( m_debugCommandBuffer, 0, 1, &scissor );
+}
+
+/*
+================
+crDebugDraw::ShowDebugLines
+================
+*/
+void crDebugDraw::ShowDebugLines( void ) 
+{
+    int			i = 0;
+	int			width = 0;
+	debugLine_s	*line = nullptr;
+    
+	if ( !m_numDebugLines ) 
+    return;
+    
+	// all lines are expressed in world coordinates
+	SimpleWorldSetup();
+
+    auto globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
+	globalImages->BindNull();
+
+
+	width = r_debugLineWidth.GetInteger();
+	if ( width < 1 )
+		width = 1;
+    else if ( width > 10 ) 
+		width = 10;
+
+	// draw lines
+	LineWidth( width );
+
+	//if ( !r_debugLineDepthTest.GetBool() ) 
+    //{
+	//	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHFUNC_ALWAYS );
+	//} 
+    //else 
+    //{
+	//	GL_State( GLS_POLYMODE_LINE );
+	//}
+
+	Begin( DRAW_MODE_LINES );
+
+	line = m_debugLines;
+	for ( i = 0; i < m_numDebugLines; i++, line++ ) 
+    {
+		if ( !line->depthTest ) 
+        {
+			Color3fv( line->rgb.ToFloatPtr() );
+			Vertex3fv( line->start.ToFloatPtr() );
+			Vertex3fv( line->end.ToFloatPtr() );
+		}
+	}
+	End();
+
+//	if ( !r_debugLineDepthTest.GetBool() ) 
+//    {
+//		GL_State( GLS_POLYMODE_LINE );
+//	}
+
+	Begin( DRAW_MODE_LINES );
+
+	line = m_debugLines;
+	for ( i = 0; i < m_numDebugLines; i++, line++ ) 
+    {
+		if ( line->depthTest ) 
+        {
+			Color4fv( line->rgb.ToFloatPtr() );
+			Vertex3fv( line->start.ToFloatPtr() );
+			Vertex3fv( line->end.ToFloatPtr() );
+		}
+	}
+
+	End();
+
+    DefaultState();
+}
+
+/*
+================
+crDebugDraw::ClearDebugLines
+================
+*/
+void crDebugDraw::ClearDebugLines( const uint32_t time ) 
+{
+	int			i;
+	int			num;
+	debugLine_s	*line;
+
+	m_debugLineTime = time;
+
+	if ( !time ) 
+    {
+		m_numDebugLines = 0;
+		return;
+	}
+
+	// copy any lines that still need to be drawn
+	num	= 0;
+	line = m_debugLines;
+	for ( i = 0; i < m_numDebugLines; i++, line++ ) 
+    {
+		if ( line->lifeTime > time ) 
+        {
+			if ( num != i ) 
+            {
+				m_debugLines[ num ] = *line;
+			}
+			num++;
+		}
+	}
+	m_numDebugLines = num;
+}
+
+
+/*
+================
+crDebugDraw::AddDebugPolygon
+================
+*/
+void crDebugDraw::AddDebugPolygon( const idVec4 &color, const idWinding &winding, const int lifeTime, const bool depthTest ) 
+{
+	debugPolygon_s *poly = nullptr;
+
+	if ( m_numDebugPolygons < k_MAX_DEBUG_POLYGONS ) {
+		poly = &m_debugPolygons[ m_numDebugPolygons++ ];
+		poly->rgb		= color;
+		poly->winding	= winding;
+		poly->depthTest = depthTest;
+		poly->lifeTime	= m_debugPolygonTime + lifeTime;
+	}
+}
+
+/*
+================
+crDebugDraw::ShowDebugPolygons
+================
+*/
+void crDebugDraw::ShowDebugPolygons( void ) 
+{
+	int				i = 0, j = 0;
+	debugPolygon_s	*poly = nullptr;
+
+	if ( !m_numDebugPolygons ) 
+		return;
+
+	// all lines are expressed in world coordinates
+	SimpleWorldSetup();
+
+    auto globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
+	globalImages->BindNull();
+
+	if ( r_debugPolygonFilled.GetBool() ) 
+    {
+		// GL_State( GLS_POLYGON_OFFSET | GLS_SRCBLEND_SRC_ALPHA | GLS_DSTBLEND_ONE_MINUS_SRC_ALPHA | GLS_DEPTHMASK );
+		// glPolygonOffset( -1, -2 );
+        vkCmdSetDepthBiasEnable( m_debugCommandBuffer, VK_TRUE );
+        vkCmdSetDepthBias( m_debugCommandBuffer, -2, 0.0f, -1 );
+	} 
+    else 
+    {
+		// GL_State( GLS_POLYGON_OFFSET | GLS_POLYMODE_LINE );
+    	// glPolygonOffset( -1, -2 );
+        vkCmdSetDepthBiasEnable( m_debugCommandBuffer, VK_TRUE );
+        vkCmdSetDepthBias( m_debugCommandBuffer, -2, 0.0f, -1 );
+
+	}
+
+	poly = m_debugPolygons;
+	for ( i = 0; i < m_numDebugPolygons; i++, poly++ ) 
+    {
+//		if ( !poly->depthTest ) {
+
+			Color4fv( poly->rgb.ToFloatPtr() );
+
+			Begin( DRAW_MODE_TRIANGLE_FAN );
+
+			for ( j = 0; j < poly->winding.GetNumPoints(); j++) 
+            {
+				Vertex3fv( poly->winding[j].ToFloatPtr() );
+			}
+
+			End();
+//		}
+	}
+
+	DefaultState();
+}
+
+/*
+================
+crDebugDraw::ClearDebugPolygons
+================
+*/
+void crDebugDraw::ClearDebugPolygons( const uint32_t time ) 
+{
+	int				i = 0;
+	int				num = 0;
+	debugPolygon_s	*poly = nullptr;
+
+	m_debugPolygonTime = time;
+
+	if ( !time ) 
+    {
+		m_numDebugPolygons = 0;
+		return;
+	}
+
+	// copy any polygons that still need to be drawn
+	num	= 0;
+
+	poly = m_debugPolygons;
+	for ( i = 0; i < m_numDebugPolygons; i++, poly++ ) 
+    {
+		if ( poly->lifeTime > time ) 
+        {
+			if ( num != i ) 
+            {
+				m_debugPolygons[ num ] = *poly;
+			}
+			num++;
+		}
+	}
+
+	m_numDebugPolygons = num;
+}
+
+/*
+================
+crDebugDraw::DrawTextLength
+returns the length of the given text
+================
+*/
+float crDebugDraw::DrawTextLength( const char *text, float scale, int len ) 
+{
+	int i, num, index, charIndex;
+	float spacing, textLen = 0.0f;
+
+	if ( text && *text ) 
+    {
+		if ( !len ) 
+        {
+			len = strlen(text);
+		}
+		for ( i = 0; i < len; i++ ) 
+        {
+			charIndex = text[i] - 32;
+			if ( charIndex < 0 || charIndex > NUM_SIMPLEX_CHARS ) 
+				continue;
+			
+			num = simplex[charIndex][0] * 2;
+			spacing = simplex[charIndex][1];
+			index = 2;
+
+			while( index - 2 < num ) 
+            {
+				if ( simplex[charIndex][index] < 0) 
+                {
+					index++;
+					continue; 
+				}
+
+				index += 2;
+				if ( simplex[charIndex][index] < 0) 
+                {  
+					index++;
+					continue; 
+				} 
+			}
+			textLen += spacing * scale;  
+		}
+	}
+	return textLen;
+}
+
+/*
+================
+crDebugDraw::AddDebugText
+================
+*/
+void crDebugDraw::AddDebugText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align, const int lifetime, const bool depthTest ) 
+{
+	debugText_s *debugText = nullptr;
+
+	if ( m_numDebugText < k_MAX_DEBUG_TEXT ) 
+    {
+		debugText = &m_debugText[ m_numDebugText++ ];
+		debugText->text			= text;
+		debugText->origin		= origin;
+		debugText->scale		= scale;
+		debugText->color		= color;
+		debugText->viewAxis		= viewAxis;
+		debugText->align		= align;
+		debugText->lifeTime		= m_debugTextTime + lifetime;
+		debugText->depthTest	= depthTest;
+	}
+}
+
+/*
+================
+crDebugDraw::DrawText
+
+  oriented on the viewaxis
+  align can be 0-left, 1-center (default), 2-right
+================
+*/
+void crDebugDraw::DrawText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align ) 
+{
+	int i, j, len, num, index, charIndex, line;
+	float textLen = 1.0f, spacing = 1.0f;
+	idVec3 org, p1, p2;
+
+	if ( text && *text ) 
+    {
+		Begin( DRAW_MODE_LINES );
+		Color3fv( color.ToFloatPtr() );
+
+		if ( text[0] == '\n' ) 
+			line = 1;
+        else 
+			line = 0;
+
+		len = strlen( text );
+		for ( i = 0; i < len; i++ ) 
+        {
+			if ( i == 0 || text[i] == '\n' ) 
+            {
+				org = origin - viewAxis[2] * ( line * 36.0f * scale );
+				if ( align != 0 ) {
+					for ( j = 1; i+j <= len; j++ ) 
+                    {
+						if ( i+j == len || text[i+j] == '\n' ) 
+                        {
+							textLen = DrawTextLength( text+i, scale, j );
+							break;
+						}
+					}
+
+					if ( align == 2 ) 
+                    {
+						// right
+						org += viewAxis[1] * textLen;
+					} 
+                    else 
+                    {
+						// center
+						org += viewAxis[1] * ( textLen * 0.5f );
+					}
+				}
+				line++;
+			}
+
+			charIndex = text[i] - 32;
+			if ( charIndex < 0 || charIndex > NUM_SIMPLEX_CHARS ) 
+				continue;
+
+			num = simplex[charIndex][0] * 2;
+			spacing = simplex[charIndex][1];
+			index = 2;
+
+			while( index - 2 < num ) 
+            {
+				if ( simplex[charIndex][index] < 0) 
+                {  
+					index++;
+					continue; 
+				}
+
+				p1 = org + scale * simplex[charIndex][index] * -viewAxis[1] + scale * simplex[charIndex][index+1] * viewAxis[2];
+				index += 2;
+				if ( simplex[charIndex][index] < 0) 
+                {
+					index++;
+					continue;
+				}
+				p2 = org + scale * simplex[charIndex][index] * -viewAxis[1] + scale * simplex[charIndex][index+1] * viewAxis[2];
+
+				Vertex3fv( p1.ToFloatPtr() );
+				Vertex3fv( p2.ToFloatPtr() );
+			}
+			org -= viewAxis[1] * ( spacing * scale );
+		}
+
+		End();
+	}
+}
+
+/*
+================
+crDebugDraw::ShowDebugText
+================
+*/
+void crDebugDraw::ShowDebugText( void ) 
+{
+	int			i = 0;
+	int			width = 0;
+	debugText_s	*text = nullptr;
+
+    
+	if ( !m_numDebugText ) 
+    return;
+    
+	// all lines are expressed in world coordinates
+	SimpleWorldSetup();
+    
+    auto globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
+	globalImages->BindNull();
+
+	width = r_debugLineWidth.GetInteger();
+	if ( width < 1 ) 
+		width = 1;
+	else if ( width > 10 ) 
+		width = 10;
+
+	// draw lines
+	LineWidth( width );
+
+    // TODO:
+	//if ( !r_debugLineDepthTest.GetBool() )
+	//	GL_State( GLS_POLYMODE_LINE | GLS_DEPTHFUNC_ALWAYS );
+    //else 
+	//	GL_State( GLS_POLYMODE_LINE );
+
+	text = m_debugText;
+	for ( i = 0; i < m_numDebugText; i++, text++ ) 
+    {
+		if ( !text->depthTest ) 
+			DrawText( text->text, text->origin, text->scale, text->color, text->viewAxis, text->align );
+	}
+
+    //if ( !r_debugLineDepthTest.GetBool() ) 
+    //{
+	//	GL_State( GLS_POLYMODE_LINE );
+	//}
+
+	text = m_debugText;
+	for ( i = 0; i < m_numDebugText; i++, text++ ) 
+    {
+		if ( text->depthTest )
+			DrawText( text->text, text->origin, text->scale, text->color, text->viewAxis, text->align );
+	}
+
+	LineWidth( 1 );
+}
+
+/*
+================
+crDebugDraw::ClearDebugText
+================
+*/
+void crDebugDraw::ClearDebugText( const uint32_t time ) 
+{
+	int			i;
+	int			num;
+	debugText_s	*text;
+
+	m_debugTextTime = time;
+
+	if ( !time ) 
+    {
+		// free up our strings
+		text = m_debugText;
+		for ( i = 0; i < k_MAX_DEBUG_TEXT; i++, text++ ) 
+        {
+			text->text.Clear();
+		}
+
+		m_numDebugText = 0;
+		return;
+	}
+
+	// copy any text that still needs to be drawn
+	num	= 0;
+	text = m_debugText;
+	for ( i = 0; i < m_numDebugText; i++, text++ ) 
+    {
+		if ( text->lifeTime > time ) 
+        {
+			if ( num != i )
+				m_debugText[ num ] = *text;
+			
+			num++;
+		}
+	}
+	m_numDebugText = num;
 }

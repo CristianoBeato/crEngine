@@ -79,7 +79,8 @@ public:
 
     /// @brief check for extension if available in the device 
     /// @return 
-    const bool      ExtensionAvailable( const idStr &in_ext ) const;
+    virtual const bool      ExtensionAvailable( const char* in_ext ) const;
+
     const bool      SupportedPresentMode( const VkPresentModeKHR in_mode ) const;
     const bool      SupportedFormat( const VkSurfaceFormatKHR in_format ) const;
     const bool      FormatIsFilterable(const VkFormat in_format, const VkImageTiling tiling) const;

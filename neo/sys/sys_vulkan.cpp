@@ -636,16 +636,20 @@ const int32_t crVulkanRenderDevice::Score( void ) const
 crVulkanRenderDevice::ExtensionAvailable
 ==============
 */
-const bool crVulkanRenderDevice::ExtensionAvailable(const idStr &in_ext) const
+const bool crVulkanRenderDevice::ExtensionAvailable( const char* in_ext ) const
 {
     for ( uint32_t i = 0; i < m_deviceExtensions.Num(); i++)
     {
-        idStr ext = m_deviceExtensions[i].extensionName;
-        if( ext == in_ext )
+        auto ext = m_deviceExtensions[i].extensionName;
+#if 0
+        if( strncmp( ext, in_ext, strlen( ext ) ) == 0 )
+#else
+        if( SDL_strncmp( ext, in_ext, strlen( ext ) ) == 0 )
+#endif
             return true;
     }
     
-    idLib::Warning( "%s not found!\n", in_ext.c_str() );
+    idLib::Warning( "%s not found!\n", in_ext );
     return false;
 }
 
@@ -1323,6 +1327,8 @@ uint32_t crVulkanAPI::GetDevices( crRenderDevice **in_deviceArray )
          auto device = in_deviceArray[i];
          device = new crVulkanRenderDevice( i, m_availablePhysicalDevices[i], m_surface );
     }
+
+    return m_availablePhysicalDevices.Num();
 }
 
 /*
@@ -1367,9 +1373,8 @@ bool crVulkanAPI::InitInstance(const idList<const char *> in_requestedInstanceLa
                                const VkDebugUtilsMessengerCreateInfoEXT *in_debugUtilsMessengerCI)
 {
     VkResult    result = VK_SUCCESS;
+    
     /// Application Info
-    ///
-    ///
     VkApplicationInfo       application{};
     application.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
     application.pApplicationName = GAME_NAME;
@@ -1496,7 +1501,7 @@ bool crVulkanAPI::IsExtensionAvailable(const idStr &in_ext) const
             return true;
     }
     
-    printf( "%s not found!\n", in_ext.c_str() );
+    idLib::Printf( "%s not found!\n", in_ext.c_str() );
     return false;
 }
 
@@ -1512,12 +1517,12 @@ bool crVulkanAPI::IsLayersAvailable(const idStr &in_layer) const
         idStr layer = m_supportedInstanceLayers[i].layerName;
         if( layer == in_layer )
         {
-            printf( "%s found\n", in_layer.c_str() );
+            idLib::Printf( "%s found\n", in_layer.c_str() );
             return true;
         }
     }
     
-    printf( "%s not found\n", in_layer.c_str() );
+    idLib::Printf( "%s not found\n", in_layer.c_str() );
     return false;
 }
 
@@ -1661,7 +1666,7 @@ void crVulkanAPI::LoadVulkanProcs( void )
     GET_VK_PROC( vkCmdSetViewport, m_instance );
     GET_VK_PROC( vkCmdSetScissor, m_instance );
     GET_VK_PROC( vkCmdSetLineWidth, m_instance );
-    GET_VK_PROC( vkCmdSetDepthBias, m_instance );
+    GET_VK_PROC( vkCmdSetPrimitiveTopology, m_instance );
     GET_VK_PROC( vkCmdSetBlendConstants, m_instance );
     GET_VK_PROC( vkCmdSetDepthBoundsTestEnable, m_instance );
     GET_VK_PROC( vkCmdSetDepthBounds, m_instance );
@@ -1670,7 +1675,12 @@ void crVulkanAPI::LoadVulkanProcs( void )
     GET_VK_PROC( vkCmdSetStencilWriteMask, m_instance );
     GET_VK_PROC( vkCmdSetStencilReference, m_instance );
     GET_VK_PROC( vkCmdPushConstants, m_instance );
+    
+    GET_VK_PROC( vkCmdSetDepthTestEnable, m_instance );
 
+    GET_VK_PROC( vkCmdSetDepthBiasEnable, m_instance );
+    GET_VK_PROC( vkCmdSetDepthBias, m_instance );
+    
     //
     GET_VK_PROC( vkCreateDescriptorSetLayout, m_instance );
     GET_VK_PROC( vkDestroyDescriptorSetLayout, m_instance );

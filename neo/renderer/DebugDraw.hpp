@@ -30,6 +30,10 @@ Source Code.
 #ifndef __DEBUG_DRAW_HPP__
 #define __DEBUG_DRAW_HPP__
 
+inline constexpr uint32_t k_MAX_DEBUG_LINES = 16384;
+inline constexpr uint32_t k_MAX_DEBUG_POLYGONS = 8192;
+inline constexpr uint32_t k_MAX_DEBUG_TEXT = 512;
+
 /// @brief Fixed Pipeline WorkArround
 class crDebugDraw
 {
@@ -41,6 +45,7 @@ public:
         DRAW_MODE_LINES,
         DRAW_MODE_LINE_LOOP,
         DRAW_MODE_TRIANGLES,
+        DRAW_MODE_TRIANGLE_FAN
     };
 
     enum matrixMode_t
@@ -82,15 +87,45 @@ public:
     {
         float   m[16];
     };
-    
 
+    struct debugLine_s 
+    {
+        idVec4		rgb;
+        idVec3		start;
+        idVec3		end;
+        bool		depthTest;
+        int			lifeTime;
+    };
+
+    struct debugPolygon_s 
+    {
+	    idVec4		rgb;
+	    idWinding	winding;
+	    bool		depthTest;
+	    int			lifeTime;
+    };
+
+    struct debugText_s 
+    {
+	    idStr		text;
+	    idVec3		origin;
+	    float		scale;
+	    idVec4		color;
+	    idMat3		viewAxis;
+	    int			align;
+	    int			lifeTime;
+	    bool		depthTest;
+    };
+    
     static void StartUp( void );
     static void ShutDown( void );
 
     static void Begin( const drawMode_t mode );
-
     static void End( void );
+    static void DefaultState( void );
 
+    static void LineWidth( const uint32_t width );
+    
     // position
     static void Vertex2f( const float x, const float y );
     static void Vertex2fv( const float *v );
@@ -140,14 +175,51 @@ public:
     static void LoadMatrixf( const float *m );
     static void Ortho( const float left, const float right, const float bottom, const float top, const float zNear, const float zFar );
 
+    /// Manage debug lines
+    static void AddDebugLine( const idVec4 &color, const idVec3 &start, const idVec3 &end, const int lifeTime, const bool depthTest );
+    static void ShowDebugLines( void );
+    static void ClearDebugLines( const uint32_t time );
+
+    /// Manage debug poligons
+    static void AddDebugPolygon( const idVec4 &color, const idWinding &winding, const int lifeTime, const bool depthTest );
+    static void ShowDebugPolygons( void );
+    static void ClearDebugPolygons( const uint32_t time ); 
+
+    /// Manage debug texts
+    static float DrawTextLength( const char *text, float scale, int len );
+    static void AddDebugText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align, const int lifetime, const bool depthTest ); 
+    static void DrawText( const char *text, const idVec3 &origin, float scale, const idVec4 &color, const idMat3 &viewAxis, const int align );
+    static void ShowDebugText( void );
+    static void ClearDebugText( const uint32_t time );
+
 private:
     static uint32_t         m_first;        // first vertex of the current draw   
     static uint32_t         m_count;        // num vertex to draw
+    static uint32_t         m_lineWidth;    // 
+    static uint32_t         m_numDebugLines;
+    static uint32_t         m_debugLineTime;
+    static uint32_t			m_numDebugText;
+    static uint32_t         m_debugTextTime;
+    static uint32_t         m_numDebugPolygons;
+    static uint32_t         m_debugPolygonTime;
     static drawMode_t       m_mode;         // draw mode
     static matrixMode_t     m_matrixMode;   //  
 //    static GLenum           m_vertexType;
     static fixedVertex_t    m_vertex;
     static fixedVertex_t*   m_vertexes;
+
+    static debugLine_s		m_debugLines[ k_MAX_DEBUG_LINES ];
+    static debugPolygon_s	m_debugPolygons[ k_MAX_DEBUG_POLYGONS ];
+    static debugText_s		m_debugText[ k_MAX_DEBUG_TEXT ];
+
+    ///
+    /// Vulkan Specific
+    ///
+    static VkCommandBuffer      m_debugCommandBuffer;
+    static VkPipeline           m_debugPipeline;
+    static VkBuffer             m_debugVertexBuffer;
+
+    static void SimpleWorldSetup( void );
 };
 
 #endif //!__DEBUG_DRAW_HPP__

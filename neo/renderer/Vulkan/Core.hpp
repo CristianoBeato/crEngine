@@ -177,7 +177,7 @@ extern PFN_vkCmdBindPipeline                            vkCmdBindPipeline;
 extern PFN_vkCmdSetViewport                             vkCmdSetViewport;
 extern PFN_vkCmdSetScissor                              vkCmdSetScissor;
 extern PFN_vkCmdSetLineWidth                            vkCmdSetLineWidth;
-extern PFN_vkCmdSetDepthBias                            vkCmdSetDepthBias;
+extern PFN_vkCmdSetPrimitiveTopology                    vkCmdSetPrimitiveTopology;
 extern PFN_vkCmdSetBlendConstants                       vkCmdSetBlendConstants;
 extern PFN_vkCmdSetDepthBoundsTestEnable                vkCmdSetDepthBoundsTestEnable;
 extern PFN_vkCmdSetDepthBounds                          vkCmdSetDepthBounds;
@@ -187,6 +187,10 @@ extern PFN_vkCmdSetStencilWriteMask                     vkCmdSetStencilWriteMask
 extern PFN_vkCmdSetStencilReference                     vkCmdSetStencilReference;
 extern PFN_vkCmdPushConstants                           vkCmdPushConstants;
 
+extern PFN_vkCmdSetDepthTestEnable                      vkCmdSetDepthTestEnable;
+
+extern PFN_vkCmdSetDepthBiasEnable                      vkCmdSetDepthBiasEnable;
+extern PFN_vkCmdSetDepthBias                            vkCmdSetDepthBias;
 //
 extern PFN_vkCreateDescriptorSetLayout                  vkCreateDescriptorSetLayout;
 extern PFN_vkDestroyDescriptorSetLayout                 vkDestroyDescriptorSetLayout;
@@ -235,17 +239,7 @@ extern PFN_vkDestroyDebugUtilsMessengerEXT              vkDestroyDebugUtilsMesse
 
 extern VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBitsEXT in_severity, VkDebugUtilsMessageTypeFlagsEXT in_types, const VkDebugUtilsMessengerCallbackDataEXT* in_data, void *in_user );
 
-/// 
-enum image_type_t : uint8_t
-{
-	IMAGE_NONE,
-    IMAGE_1D,
-    IMAGE_2D,
-    IMAGE_3D,
-    IMAGE_CUBEMAP,
-    IMAGE_TYPE_COUNT
-};
-
+///
 #include "sys/sys_vulkan.hpp"
 #include "Utils.hpp"
 #include "Syncs.hpp"
