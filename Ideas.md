@@ -48,6 +48,16 @@
     - Pixel Transfer.
     - Current Render Copy.
 
+# Future.
+# Checkerboard Rendering.
+Implementation of temporal checkerboard rendering as a basic upscaling technique, 
+as exemplified by Pezcode in their mosaiikki implementation (https://github.com/pezcode/mosaiikki).
+
+# Future.
+# Variable Shading Rate.
+To save GPU cycles in screen regions where high pixel density is imperceptible, 
+such as peripheral areas or uniform textures, freeing up resources for heavier post-processing effects.
+
 # May Be 
 # Precache on map load
 Precache material configurations and set bindless textures and samples locations on map load,
