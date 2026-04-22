@@ -53,12 +53,12 @@ public:
 	// Called the first time it's asked to load
 	void				Init( idLocalUser* user );
 	
-	void 				Pump();
-	idPlayerProfile* 	GetProfile();
+	void 				Pump( void );
+	idPlayerProfile* 	GetProfile( void );
 	
 private:
-	void				LoadSettingsAsync();
-	void				SaveSettingsAsync();
+	void				LoadSettingsAsync( void );
+	void				SaveSettingsAsync( void );
 	
 	void				OnLoadSettingsCompleted( idSaveLoadParms* parms );
 	void				OnSaveSettingsCompleted( idSaveLoadParms* parms );

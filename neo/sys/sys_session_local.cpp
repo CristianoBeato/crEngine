@@ -123,12 +123,17 @@ unsigned int NetGetVersionChecksum()
 idSessionLocal::idSessionLocal
 ========================
 */
-idSessionLocal::idSessionLocal() :
-	processorSaveFiles( new( TAG_SAVEGAMES ) idSaveGameProcessorSaveFiles ),
-	processorLoadFiles( new( TAG_SAVEGAMES ) idSaveGameProcessorLoadFiles ),
-	processorDelete(	new( TAG_SAVEGAMES ) idSaveGameProcessorDelete ),
-	processorEnumerate( new( TAG_SAVEGAMES ) idSaveGameProcessorEnumerateGames )
+idSessionLocal::idSessionLocal( void ) //:
+	// processorSaveFiles( new( TAG_SAVEGAMES ) idSaveGameProcessorSaveFiles ),
+	// processorLoadFiles( new( TAG_SAVEGAMES ) idSaveGameProcessorLoadFiles ),
+	// processorDelete(	new( TAG_SAVEGAMES ) idSaveGameProcessorDelete ),
+	// processorEnumerate( new( TAG_SAVEGAMES ) idSaveGameProcessorEnumerateGames )
 {
+	processorSaveFiles = idSaveGameProcessorSaveFilesAutoPtr::New();
+	processorLoadFiles = idSaveGameProcessorLoadFilesAutoPtr::New();
+	processorDelete = idSaveGameProcessorDeleteAutoPtr::New();
+	processorEnumerate = idSaveGameProcessorEnumerateGamesAutoPtr();
+
 	InitBaseState();
 }
 
@@ -137,28 +142,32 @@ idSessionLocal::idSessionLocal() :
 idSessionLocal::idSessionLocal
 ========================
 */
-idSessionLocal::~idSessionLocal()
+idSessionLocal::~idSessionLocal( void )
 {
 	// foresthale 2014-06-08: check before deleting these, the deletes were likely done in Shutdown already
 	if (processorSaveFiles)
 	{
-		delete processorSaveFiles;
-		processorSaveFiles = nullptr;
+		// delete processorSaveFiles;
+		// processorSaveFiles = nullptr;
+		processorSaveFiles = idSaveGameProcessorSaveFilesAutoPtr(); 
 	}
 	if (processorLoadFiles)
 	{
-		delete processorLoadFiles;
-		processorLoadFiles = nullptr;
+		// delete processorLoadFiles;
+		// processorLoadFiles = nullptr;
+		processorLoadFiles = idSaveGameProcessorLoadFilesAutoPtr(); 
 	}
 	if (processorDelete)
 	{
-		delete processorDelete;
-		processorDelete = nullptr;
+		// delete processorDelete;
+		// processorDelete = nullptr;
+		processorDelete = idSaveGameProcessorDeleteAutoPtr();
 	}
 	if (processorEnumerate)
 	{
-		delete processorEnumerate;
-		processorEnumerate = nullptr;
+		// delete processorEnumerate;
+		// processorEnumerate = nullptr;
+		processorEnumerate = idSaveGameProcessorEnumerateGamesAutoPtr(); 
 	}
 	if (sessionCallbacks)
 	{
@@ -1604,7 +1613,7 @@ bool idSessionLocal::State_Game_State_Lobby_Peer()
 idSessionLocal::~idSession
 ========================
 */
-idSession::~idSession()
+idSession::~idSession( void )
 {
 	if (signInManager)
 		delete signInManager;
@@ -1648,33 +1657,40 @@ void idSessionLocal::Shutdown()
 	if (signInManager)
 		delete signInManager;
 	signInManager = nullptr;
+	
 	if (saveGameManager)
 		delete saveGameManager;
 	saveGameManager = nullptr;
+	
 	if (dedicatedServerSearch)
 		delete dedicatedServerSearch;
 	dedicatedServerSearch = nullptr;
+	
 	// foresthale 2014-06-08: delete these before we get to the dtor to prevent doexit crashes
 	if (processorSaveFiles)
 	{
-		delete processorSaveFiles;
-		processorSaveFiles = nullptr;
+		///delete processorSaveFiles;
+		processorSaveFiles = idSaveGameProcessorSaveFilesAutoPtr(); //nullptr;
 	}
+
 	if (processorLoadFiles)
 	{
-		delete processorLoadFiles;
-		processorLoadFiles = nullptr;
+		/// delete processorLoadFiles;
+		processorLoadFiles = idSaveGameProcessorLoadFilesAutoPtr(); //= nullptr;
 	}
+
 	if (processorDelete)
 	{
-		delete processorDelete;
-		processorDelete = nullptr;
+		//delete processorDelete;
+		processorDelete = idSaveGameProcessorDeleteAutoPtr(); //= nullptr;
 	}
+
 	if (processorEnumerate)
 	{
-		delete processorEnumerate;
-		processorEnumerate = nullptr;
+		// delete processorEnumerate;
+		processorEnumerate = idSaveGameProcessorEnumerateGamesAutoPtr();// nullptr;
 	}
+
 	if (sessionCallbacks)
 	{
 		delete sessionCallbacks;

@@ -109,12 +109,22 @@ public:
         return m_data == in_pointer;
     }
 
+    ID_INLINE const bool        operator==( const crPointer &in_pointer ) const
+    {
+        return m_data == in_pointer.m_data;
+    }
+
     /// @brief Diference compare operator 
     /// @param in_pointer pointer to compare
     /// @return 
     ID_INLINE const bool        operator!=( const pointer in_pointer ) const
     {
         return m_data != in_pointer;
+    }
+
+    ID_INLINE const bool        operator!=( const crPointer in_pointer ) const
+    {
+        return m_data != in_pointer.m_data;
     }
 
     /// @brief 
@@ -129,7 +139,7 @@ public:
     
     /// @brief 
     /// @param  
-    ID_INLINE operator const __type__*( void ) const { return m_data; }
+    ///ID_INLINE operator const __type__*( void ) const { return m_data; }
 
     /// @brief 
     /// @param  
@@ -207,14 +217,38 @@ private:
 /// @brief Reference countin pointer
 /// @tparam __type__ the pointer holding type
 /// @tparam __tag__ Memory tag definition
-template< typename __type__, memTag_t __tag__ >
+template< typename __type__, memTag_t __tag__ = TAG_NEW >
 class crAutoPointer : public crPointer< __type__, __tag__ >
 {
 public:
+    // "Friendship" required to access private members of other crAutoPointer instances.
+    template<typename U, memTag_t T>
+    friend class crAutoPointer;
+    
+    
     typedef __type__*       pointer;
     typedef const __type__* const_pointer; 
     typedef __type__&       reference;
     typedef const __type__& const_reference;
+
+    template <typename U>
+    crAutoPointer( const crAutoPointer<U, __tag__>& in_other )
+    {
+        // if the pointer are in use, release the old reference
+        if ( this->m_data != nullptr )
+        {
+            // decrease reference
+		    if ( DecRefCount( this->m_data ) < 1 )
+			    Delete( *this );
+        }
+
+        // copy pointer endress
+	    this->m_data = dynamic_cast<pointer>( in_other.m_data );
+
+        // incrase pointer reference
+	    if( this->m_data != nullptr )
+		    IncRefCount( this->m_data );
+    }
 
     crAutoPointer( void ) : crPointer< __type__, __tag__ >()
     {
@@ -322,13 +356,31 @@ public:
             reinterpret_cast<pointer>( in_ref.m_data )->~__type__();
 
             // get whole pointer
-            void* ptr = reinterpret_cast<void*>( reinterpret_cast<uintptr_t>( in_ref.m_data ) + sizeof( uint32_t ) );
+            void* ptr = reinterpret_cast<void*>( reinterpret_cast<uintptr_t>( in_ref.m_data ) - sizeof( uint32_t ) );
 
             // release memory 
             Mem_Free16( ptr );
             in_ref.m_data = nullptr;
         }   
     }
+
+#if 0
+    template <typename To, typename From, memTag_t Tag>
+    static crAutoPointer<To, Tag> cr_dynamic_pointer_cast(const crAutoPointer<From, Tag>& in_ref) 
+    {
+        // Tenta converter o ponteiro bruto
+        To* p = dynamic_cast<To*>(in_ref.m_data);
+    
+        if (p) 
+        {
+            // Se funcionar, precisamos de um construtor que apenas copie os dados 
+            // e incremente a referência, sem tentar dar cast no endereço do contador.
+            return crAutoPointer<To, Tag>(in_ref, p);
+        }
+
+        return crAutoPointer<To, Tag>();
+    }
+#endif
 
 private:
     uint32_t IncRefCount( pointer in_ptr )

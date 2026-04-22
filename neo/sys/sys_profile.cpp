@@ -46,11 +46,13 @@ idProfileMgr
 ========================
 */
 idProfileMgr::idProfileMgr() :
-	profileSaveProcessor( new( TAG_SAVEGAMES ) idSaveGameProcessorSaveProfile ),
-	profileLoadProcessor( new( TAG_SAVEGAMES ) idSaveGameProcessorLoadProfile ),
+//	profileSaveProcessor( new( TAG_SAVEGAMES ) idSaveGameProcessorSaveProfile ),
+//	profileLoadProcessor( new( TAG_SAVEGAMES ) idSaveGameProcessorLoadProfile ),
 	profile( nullptr ),
 	handle( 0 )
 {
+	profileSaveProcessor = crAutoPointer< idSaveGameProcessorSaveProfile, TAG_SYSTEM >::New();
+	profileLoadProcessor = crAutoPointer< idSaveGameProcessorLoadProfile, TAG_SYSTEM >::New();
 }
 
 
@@ -147,7 +149,7 @@ void idProfileMgr::Pump()
 idProfileMgr::GetProfile
 ========================
 */
-idPlayerProfile* idProfileMgr::GetProfile()
+idPlayerProfile* idProfileMgr::GetProfile( void )
 {
 	assert( user != nullptr );
 	if( profile == nullptr )
@@ -175,7 +177,7 @@ idPlayerProfile* idProfileMgr::GetProfile()
 idProfileMgr::SaveSettingsAsync
 ========================
 */
-void idProfileMgr::SaveSettingsAsync()
+void idProfileMgr::SaveSettingsAsync( void )
 {
 	if( !saveGame_enable.GetBool() )
 	{
@@ -190,7 +192,7 @@ void idProfileMgr::SaveSettingsAsync()
 		
 		
 			profileSaveProcessor->AddCompletedCallback( MakeCallback( this, &idProfileMgr::OnSaveSettingsCompleted, &profileSaveProcessor->GetParmsNonConst() ) );
-			handle = session->GetSaveGameManager().ExecuteProcessor( profileSaveProcessor.get() );
+			handle = session->GetSaveGameManager().ExecuteProcessor( profileSaveProcessor );
 			profile->SetState( idPlayerProfile::SAVING );
 			
 		}
@@ -206,7 +208,7 @@ void idProfileMgr::SaveSettingsAsync()
 idProfileMgr::LoadSettingsAsync
 ========================
 */
-void idProfileMgr::LoadSettingsAsync()
+void idProfileMgr::LoadSettingsAsync( void )
 {
 	if( profile != nullptr && saveGame_enable.GetBool() )
 	{
@@ -216,7 +218,7 @@ void idProfileMgr::LoadSettingsAsync()
 			profileLoadProcessor->SetSkipSystemErrorDialogMask( SAVEGAME_E_FOLDER_NOT_FOUND | SAVEGAME_E_FILE_NOT_FOUND );
 			
 			profileLoadProcessor->AddCompletedCallback( MakeCallback( this, &idProfileMgr::OnLoadSettingsCompleted, &profileLoadProcessor->GetParmsNonConst() ) );
-			handle = session->GetSaveGameManager().ExecuteProcessor( profileLoadProcessor.get() );
+			handle = session->GetSaveGameManager().ExecuteProcessor( profileLoadProcessor );
 			profile->SetState( idPlayerProfile::LOADING );
 			
 			
@@ -226,13 +228,10 @@ void idProfileMgr::LoadSettingsAsync()
 	{
 		// If not able to save the profile, just change the state and leave
 		if( profile == nullptr )
-		{
 			idLib::Warning( "Not loading profile, profile is nullptr." );
-		}
+		
 		if( !saveGame_enable.GetBool() )
-		{
 			idLib::Warning( "Skipping profile load because saveGame_enable = 0" );
-		}
 	}
 }
 
@@ -243,16 +242,9 @@ idProfileMgr::OnLoadSettingsCompleted
 */
 void idProfileMgr::OnLoadSettingsCompleted( idSaveLoadParms* parms )
 {
-
-
-
-
-
 	// Don't process if error already detected
 	if( parms->errorCode != SAVEGAME_E_NONE )
-	{
 		return;
-	}
 	
 	// Serialize the loaded profile
 	idFile_SaveGame** profileFileContainer = FindFromGenericPtr( parms->files, SAVEGAME_PROFILE_FILENAME );

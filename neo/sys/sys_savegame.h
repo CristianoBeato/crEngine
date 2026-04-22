@@ -434,7 +434,7 @@ public:
 	}
 	
 	// Returns the processor's save/load parms
-	idSaveLoadParms& 		GetParmsNonConst()
+	idSaveLoadParms& 		GetParmsNonConst( void )
 	{
 		return parms;
 	}
@@ -481,6 +481,8 @@ private:
 	
 	idStaticList< idCallback*, MAX_COMPLETED_CALLBACKS >	completedCallbacks;
 };
+
+typedef crAutoPointer<idSaveGameProcessor, TAG_SYSTEM> idSaveGameProcessorAutoPtr; 
 
 /*
 ================================================
@@ -530,10 +532,10 @@ public:
 	// Assign a processor to the manager.  The processor should belong in game-side code
 	// This queues up processors and executes them serially
 	// Returns whether or not the processor is immediately executed
-	saveGameHandle_t		ExecuteProcessor( idSaveGameProcessor* processor );
+	saveGameHandle_t		ExecuteProcessor( crAutoPointer<idSaveGameProcessor, TAG_SYSTEM> processor );
 	
 	// Synchronous version, CompletedCallback is NOT called.
-	saveGameHandle_t		ExecuteProcessorAndWait( idSaveGameProcessor* processor );
+	saveGameHandle_t		ExecuteProcessorAndWait( crAutoPointer<idSaveGameProcessor, TAG_SYSTEM> processor );
 	
 	// Lets the currently processing queue finish, but clears the processor queue
 	void					Clear();
@@ -578,15 +580,15 @@ public:
 private:
 	// These are to make sure that all processors start and finish in the same way without a lot of code duplication.
 	// We need to make sure that we adhere to PS3 system combination initialization issues.
-	void					StartNextProcessor();
-	void					FinishProcessor( idSaveGameProcessor* processor );
+	void					StartNextProcessor( void );
+	void					FinishProcessor( idSaveGameProcessorAutoPtr &processor );
 	
 	// Calls start on the processor after it's been assigned
 	void					Start();
 	
 private:
-	idSaveGameProcessor* 						processor;
-	idStaticList< idSaveGameProcessor*, 4 >	processorQueue;
+	idSaveGameProcessorAutoPtr 						processor;
+	idStaticList<idSaveGameProcessorAutoPtr, 4 >	processorQueue;
 	bool										cancel;
 	idSaveGameThread							saveThread;
 	int											startTime;

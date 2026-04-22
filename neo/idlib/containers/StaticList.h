@@ -488,9 +488,7 @@ ID_INLINE int idStaticList<type, size>::FindIndex( type const& obj ) const
 	for( int i = 0; i < num; i++ )
 	{
 		if( list[ i ] == obj )
-		{
 			return i;
-		}
 	}
 	
 	// Not found

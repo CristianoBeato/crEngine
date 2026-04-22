@@ -470,7 +470,6 @@ idSaveGameManager::idSaveGameManager
 ========================
 */
 idSaveGameManager::idSaveGameManager() :
-	processor( nullptr ),
 	cancel( false ),
 	startTime( 0 ),
 	continueProcessing( false ),
@@ -480,6 +479,7 @@ idSaveGameManager::idSaveGameManager() :
 	storageAvailable( true ),
 	retryFolder( nullptr )
 {
+	processor = idSaveGameProcessorAutoPtr();
 }
 
 /*
@@ -487,9 +487,9 @@ idSaveGameManager::idSaveGameManager() :
 idSaveGameManager::~idSaveGameManager
 ========================
 */
-idSaveGameManager::~idSaveGameManager()
+idSaveGameManager::~idSaveGameManager( void )
 {
-	processor = nullptr;
+	processor = idSaveGameProcessorAutoPtr();///= nullptr;
 	enumeratedSaveGames.Clear();
 }
 
@@ -498,7 +498,7 @@ idSaveGameManager::~idSaveGameManager()
 idSaveGameManager::ExecuteProcessor
 ========================
 */
-saveGameHandle_t idSaveGameManager::ExecuteProcessor( idSaveGameProcessor* processor )
+saveGameHandle_t idSaveGameManager::ExecuteProcessor( idSaveGameProcessorAutoPtr processor )
 {
 	idLib::PrintfIf( saveGame_verbose.GetBool(), "[%s] : %s\n", __FUNCTION__, processor->Name() );
 	
@@ -509,14 +509,14 @@ saveGameHandle_t idSaveGameManager::ExecuteProcessor( idSaveGameProcessor* proce
 	
 	if( this->processor != nullptr )
 	{
-		if( !verify( this->processor != processor ) )
+		if( !verify( (this->processor != processor) ) )
 		{
 			idLib::Warning( "[idSaveGameManager::ExecuteProcessor]:1 Someone is trying to execute this processor twice, this is really bad, learn patience padawan!" );
 			return processor->GetHandle();
 		}
 		else
 		{
-			idSaveGameProcessor** localProcessor = processorQueue.Find( processor );
+			idSaveGameProcessorAutoPtr* localProcessor = processorQueue.Find( processor );
 			if( !verify( localProcessor == nullptr ) )
 			{
 				idLib::Warning( "[idSaveGameManager::ExecuteProcessor]:2 Someone is trying to execute this processor twice, this is really bad, learn patience padawan!" );
@@ -542,13 +542,11 @@ saveGameHandle_t idSaveGameManager::ExecuteProcessor( idSaveGameProcessor* proce
 idSaveGameManager::ExecuteProcessorAndWait
 ========================
 */
-saveGameHandle_t idSaveGameManager::ExecuteProcessorAndWait( idSaveGameProcessor* processor )
+saveGameHandle_t idSaveGameManager::ExecuteProcessorAndWait( idSaveGameProcessorAutoPtr processor )
 {
 	saveGameHandle_t handle = ExecuteProcessor( processor );
 	if( handle == 0 )
-	{
 		return 0;
-	}
 	
 	while( !IsSaveGameCompletedFromHandle( handle ) )
 	{
@@ -789,14 +787,12 @@ idSaveGameManager::StartNextProcessor
 Get the next not-reset-capable processor.  If there aren't any left, just get what's next.
 ========================
 */
-void idSaveGameManager::StartNextProcessor()
+void idSaveGameManager::StartNextProcessor( void )
 {
 	if( cancel )
-	{
 		return;
-	}
 	
-	idSaveGameProcessor* nextProcessor = nullptr;
+	idSaveGameProcessorAutoPtr nextProcessor; // = nullptr;
 	int index = 0;
 	
 	// pick off the first simple processor
@@ -828,7 +824,7 @@ void idSaveGameManager::StartNextProcessor()
 idSaveGameManager::FinishProcessor
 ========================
 */
-void idSaveGameManager::FinishProcessor( idSaveGameProcessor* localProcessor )
+void idSaveGameManager::FinishProcessor( idSaveGameProcessorAutoPtr &localProcessor )
 {
 
 	assert( localProcessor != nullptr );
@@ -846,7 +842,7 @@ void idSaveGameManager::FinishProcessor( idSaveGameProcessor* localProcessor )
 	}
 	
 	localProcessor->init = false;
-	localProcessor = nullptr;
+	localProcessor = idSaveGameProcessorAutoPtr();
 }
 
 /*
@@ -876,11 +872,8 @@ idSaveGameManager::Pump
 Important sections called out with -- EXTRA LARGE -- comments!
 ========================
 */
-void idSaveGameManager::Pump()
+void idSaveGameManager::Pump( void )
 {
-
-
-
 	// After a processor is done, the next is pulled off the queue so the only way the manager isn't working is if
 	// there isn't something executing or in the queue.
 	if( !IsWorking() )
@@ -892,9 +885,7 @@ void idSaveGameManager::Pump()
 		StartNextProcessor();
 		
 		if( !IsWorking() )
-		{
 			return;
-		}
 		
 		continueProcessing = true;
 	}
@@ -964,8 +955,8 @@ void idSaveGameManager::Pump()
 			// The most common case of this is executing a map change (which we no longer do).
 			// We flush the heap and wait for all background processes to finish.  After all this is called, we will
 			// cleanup the old processor within FinishProcessor()
-			idSaveGameProcessor* localProcessor = processor;
-			processor = nullptr;
+			idSaveGameProcessorAutoPtr localProcessor = processor;
+			processor = idSaveGameProcessorAutoPtr();
 			
 			// ------------------------------------
 			// COMPLETEDCALLBACK
@@ -990,14 +981,14 @@ void idSaveGameManager::Pump()
 		// Hack for the PS3 threading hang
 		idLib::PrintfIf( saveGame_verbose.GetBool(), "----- PROCESSOR TIMEOUT ----- (%s)\n", processor->Name() );
 		
-		idSaveGameProcessor* tempProcessor = processor;
+		idSaveGameProcessorAutoPtr tempProcessor = processor;
 		
 		CancelAllProcessors( true );
 		
 		class idSWFScriptFunction_TryAgain : public idSWFScriptFunction_RefCounted
 		{
 		public:
-			idSWFScriptFunction_TryAgain( idSaveGameManager* manager, idSaveGameProcessor* processor )
+			idSWFScriptFunction_TryAgain( idSaveGameManager* manager, idSaveGameProcessorAutoPtr processor )
 			{
 				this->manager = manager;
 				this->processor = processor;
@@ -1009,8 +1000,8 @@ void idSaveGameManager::Pump()
 				return idSWFScriptVar();
 			}
 		private:
-			idSaveGameManager* manager;
-			idSaveGameProcessor* processor;
+			idSaveGameManager*			manager;
+			idSaveGameProcessorAutoPtr	processor;
 		};
 		
 		idStaticList< idSWFScriptFunction*, 4 > callbacks;

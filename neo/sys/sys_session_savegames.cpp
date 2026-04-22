@@ -838,14 +838,14 @@ CONSOLE_COMMAND( testSavegameDelete, "deletes a savegames without confirmation",
 	}
 	
 	idStr folder = args.Argv( 1 );
-	idSaveGameProcessorDelete testDeleteSaveGamesProc;
-	if( testDeleteSaveGamesProc.InitDelete( folder ) )
+	crAutoPointer<idSaveGameProcessorDelete, TAG_SYSTEM> testDeleteSaveGamesProc = crAutoPointer<idSaveGameProcessorDelete, TAG_SYSTEM>::New();
+	if( testDeleteSaveGamesProc->InitDelete( folder ) )
 	{
-		session->GetSaveGameManager().ExecuteProcessorAndWait( &testDeleteSaveGamesProc );
+		session->GetSaveGameManager().ExecuteProcessorAndWait( testDeleteSaveGamesProc );
 	}
 	
 	idLib::Printf( "Completed process.\n" );
-	idLib::Printf( "Error = 0x%08X, %s\n", testDeleteSaveGamesProc.GetParms().GetError(), GetSaveGameErrorString( testDeleteSaveGamesProc.GetParms().GetError() ).c_str() );
+	idLib::Printf( "Error = 0x%08X, %s\n", testDeleteSaveGamesProc->GetParms().GetError(), GetSaveGameErrorString( testDeleteSaveGamesProc->GetParms().GetError() ).c_str() );
 }
 
 CONSOLE_COMMAND( testSavegameEnumerateFiles, "enumerates all the files in a folder (blank for 'current slot' folder, use 'autosave' for the autosave slot)", 0 )

@@ -46,6 +46,8 @@ public:
 	virtual bool	Process();
 };
 
+typedef crAutoPointer<idSaveGameProcessorLoadFiles, TAG_SYSTEM> idSaveGameProcessorLoadFilesAutoPtr;
+
 /*
 ================================================win_sav
 idSaveGameProcessorDelete
@@ -57,8 +59,10 @@ public:
 	DEFINE_CLASS( idSaveGameProcessorDelete );
 	
 	bool			InitDelete( const char* folder, idSaveGameManager::packageType_t type = idSaveGameManager::PACKAGE_GAME );
-	virtual bool	Process();
+	virtual bool	Process( void );
 };
+
+typedef crAutoPointer<idSaveGameProcessorDelete, TAG_SYSTEM> idSaveGameProcessorDeleteAutoPtr;
 
 /*
 ================================================
@@ -78,6 +82,8 @@ public:
 	virtual bool	Process();
 };
 
+typedef crAutoPointer<idSaveGameProcessorSaveFiles, TAG_SYSTEM> idSaveGameProcessorSaveFilesAutoPtr;
+
 /*
 ================================================
 idSaveGameProcessorEnumerateGames
@@ -90,5 +96,7 @@ public:
 	
 	virtual bool	Process();
 };
+
+typedef crAutoPointer<idSaveGameProcessorEnumerateGames, TAG_SYSTEM> idSaveGameProcessorEnumerateGamesAutoPtr;
 
 #endif

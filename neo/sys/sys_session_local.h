@@ -731,10 +731,10 @@ protected:
 	
 	bool					inviteInfoRequested;
 	
-	idSaveGameProcessorSaveFiles* processorSaveFiles;
-	idSaveGameProcessorLoadFiles* processorLoadFiles;
-	idSaveGameProcessorDelete* processorDelete;
-	idSaveGameProcessorEnumerateGames* processorEnumerate;
+	idSaveGameProcessorSaveFilesAutoPtr 		processorSaveFiles;
+	idSaveGameProcessorLoadFilesAutoPtr 		processorLoadFiles;
+	idSaveGameProcessorDeleteAutoPtr			processorDelete;
+	idSaveGameProcessorEnumerateGamesAutoPtr	processorEnumerate;
 	
 	idStr							currentSaveSlot;
 	saveGameHandle_t				enumerationHandle;
