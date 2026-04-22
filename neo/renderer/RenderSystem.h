@@ -372,7 +372,6 @@ public:
 ///
 ///
 class crBuffer;
-typedef class idImageManager* idImageManagerp;
 class idImageManager
 {
 public:
@@ -409,6 +408,8 @@ public:
 	virtual crBuffer*	GetPixelPackBuffer( void ) const = 0;
 	// BEATO End
 };
+
+typedef idImageManager* idImageManagerp;
 
 class idRenderWorld;
 class idRenderSystem

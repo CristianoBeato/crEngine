@@ -731,10 +731,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	R_PerformanceCounters();
 	
 	// check for dynamic changes that require some initialization
-	R_CheckCvars();
-	
-	// check for errors
-	GL_CheckErrors();
+	R_CheckCvars();	
 }
 
 /*

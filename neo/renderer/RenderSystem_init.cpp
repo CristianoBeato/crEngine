@@ -238,6 +238,11 @@ idCVar r_shadowMapCascadeScale( "r_shadowMapCascadeScale", "0.1", CVAR_RENDERER 
 idCVar r_shadowMapStaticShadowsDistance( "r_shadowMapStaticShadowsDistance", "100000000", CVAR_RENDERER | CVAR_FLOAT | CVAR_ARCHIVE, "static objects past this distance won't cast shadows" );
 // RB end
 
+// BEATO Begin:
+idCVar r_useFragmentShadingRate( "r_useFragmentShadingRate", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable VK_KHR_fragment_shading_rate" );
+idCVar r_useOcclusionQueries( "r_useOcclusionQueries", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable " );
+// BEATO End
+
 
 idCVar r_screenshot_png( "screenshot_png", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "Save Screenshots as PNG files." );
 
@@ -2503,17 +2508,27 @@ idRenderSystemLocal::InitDevice
 */
 void idRenderSystemLocal::InitDevice(void)
 {
-	static const char* usedExtensions[]
-	{
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME,
-		VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME,
-		VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME,	// Not needed vulkan 1.3
-	};
+	idList<const char*> usedExtensions;
+
+	/// Required extensions
+	usedExtensions.Append( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
+	usedExtensions.Append( VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME );
+	usedExtensions.Append( VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME ); 	// Not needed vulkan 1.3
 
 	if( vk_deviceID.GetInteger() > -1 )
 	{
 		uint32_t deviceID = std::min<uint32_t>( vk_deviceID.GetInteger(), m_renderDeviceList.Num() - 1 );
-		if( !m_renderDeviceList[deviceID]->Create( nullptr, 0, usedExtensions, 3  ) )
+
+		/// Try Enable Fragment Shading Rate
+		if( r_useFragmentShadingRate.GetBool() )
+		{
+			/// if hardware suport shading rate
+			if( m_renderDeviceList[deviceID]->ExtensionAvailable( VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME ) )
+				usedExtensions.Append( VK_KHR_FRAGMENT_SHADING_RATE_EXTENSION_NAME );
+		}
+
+
+		if( !m_renderDeviceList[deviceID]->Create( nullptr, 0, usedExtensions.Ptr(), usedExtensions.Num() ) )
 		{
 			idLib::Error( "Failed to initialize device %s!\ntrying to initialize, the next suitable device\n",
 					 m_renderDeviceList[deviceID]->Name() );
@@ -2544,7 +2559,7 @@ void idRenderSystemLocal::InitDevice(void)
 			}
 		}
 
-		if( m_renderDeviceList[bestIndex]->Create( nullptr, 0, usedExtensions, 3  ) )
+		if( m_renderDeviceList[bestIndex]->Create( nullptr, 0, usedExtensions.Ptr(), usedExtensions.Num() ) )
 		{
 			/// make default device
 			vk_deviceID.SetInteger( bestIndex );
