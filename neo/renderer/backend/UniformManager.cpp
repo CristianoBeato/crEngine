@@ -206,6 +206,26 @@ void crUniformManager::SubmitOffsets( const vkCommandbuffer* in_commandBuffer )
     vkCmdBindDescriptorSets( in_commandBuffer->CommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, &m_storageSet[m_frameID], MAX_BINDINGS, m_dynamicOffsets.Ptr() );
 }
 
+uMesh_t *crUniformManager::GetMeshUniforms(void)
+{
+    return nullptr;
+}
+
+uMaterial_t *crUniformManager::GetMaterialUniforms(void)
+{
+    return nullptr;
+}
+
+uLight_t *crUniformManager::GetLightUniforms(void)
+{
+    return nullptr;
+}
+
+uJointMatrix_t *crUniformManager::GetJointArray(void)
+{
+    return nullptr;
+}
+
 void crUniformManager::CreateStorageBuffers(void)
 {
     VkDeviceSize currentOffset = 0;

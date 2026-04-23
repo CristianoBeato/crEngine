@@ -575,6 +575,7 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 		{
 			case RC_NOP:
 				break;
+				
 			case RC_DRAW_VIEW_3D:
 			case RC_DRAW_VIEW_GUI:
 				DrawView( cmds, 0 );
@@ -583,17 +584,21 @@ void crBackend::ExecuteBackEndCommands( const emptyCommand_t* cmds )
 				else
 					c_draw2d++;
 				break;
+
 			case RC_SET_BUFFER:
 				SetBuffer( cmds );
 				c_setBuffers++;
 				break;
+
 			case RC_COPY_RENDER:
 				CopyRender( cmds );
 				c_copyRenders++;
 				break;
+
 			case RC_POST_PROCESS:
 				PostProcess( cmds );
 				break;
+
 			default:
 				common->Error( "RB_ExecuteBackEndCommands: bad commandId" );
 				break;

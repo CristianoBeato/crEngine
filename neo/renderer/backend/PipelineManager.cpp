@@ -102,7 +102,7 @@ crPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, cons
         }
         
         /// get vertex program
-        crProgramp vertex = GetProgram( in_vertexShader );
+        crProgramp vertex = this->GetProgram( in_vertexShader );
         if( vertex == nullptr )
         {
             idLib::Error( "Vertex program Index %u not found!\n", in_vertexShader );
@@ -110,7 +110,7 @@ crPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, cons
         }
         
         /// get fragment program
-        crProgramp fragment = GetProgram( in_fragmentShader );
+        crProgramp fragment = this->GetProgram( in_fragmentShader );
         if( vertex == nullptr )
         {
             idLib::Error( "Fragment program Index %u not found!\n", in_fragmentShader );
@@ -130,6 +130,19 @@ crPipelinep crPipelineManager::GetPipeline( const uint32_t in_vertexShader, cons
     }
 
     return pipeline;
+}
+
+crProgramp crPipelineManager::GetProgram( const uint32_t in_programID )
+{
+    if( in_programID >= m_programs.Num() )
+    {
+        idLib::Warning( "Invalid program ID %u\n", in_programID );
+        return nullptr;
+    }
+
+    crProgramp prog = nullptr;
+    prog = m_programs[in_programID];
+    return prog;
 }
 
 crSamplerp crPipelineManager::GetSampler(const crSampler::filter_t in_filter, const crSampler::wrapping_t in_repeat)

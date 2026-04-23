@@ -56,10 +56,11 @@ set( RENDERER_MAIN_SOURCES
 set( RENDERER_BACKEND_SOURCES 
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/Backend.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/Backend.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/backend/Backend_Draw.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/PipelineManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/PipelineManager.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend/ShaderManager.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/backend/ShaderManager.hpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/backend/ShaderManager.cpp
+#    ${CMAKE_CURRENT_SOURCE_DIR}/backend/ShaderManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/UniformManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/UniformManager.hpp
     )
