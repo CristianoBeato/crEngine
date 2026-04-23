@@ -48,20 +48,16 @@ idSysSignal::idSysSignal
 ========================
 */
 idSysSignal::idSysSignal( const bool in_manualReset ) :
-	signaled( false ),
-	manualReset( in_manualReset ),
+	signaled( false ), 	// the inital state is always "not signaled"
+	manualReset( in_manualReset ), 
 	waiting( 0 ),
 	cond( nullptr ),
 	mutex( nullptr )
 {
-	manualReset = manualReset;
 	// if this is true, the signal is only set to nonsignaled when Clear() is called,
 	// else it's "auto-reset" and the state is set to !signaled after a single waiting
 	// thread has been released
 	
-	// the inital state is always "not signaled"
-	signaled = false;
-	waiting = 0;
 
 	cond = SDL_CreateCondition();
 	if ( !cond )

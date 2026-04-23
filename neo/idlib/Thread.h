@@ -50,7 +50,7 @@ public:
 	idSysMutex( void ) : m_handle( nullptr )
 	{
 		m_handle = SDL_CreateMutex();
-		assert( !m_handle );
+		assert( m_handle != nullptr );
 	}
 
 	/// @brief free the mutex objec structure

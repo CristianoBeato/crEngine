@@ -352,7 +352,7 @@ R_RemoteRender
 */
 static void R_RemoteRender( const drawSurf_t* surf, textureStage_t* stage )
 {
-	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idImageManager::Get() );
 
 	// remote views can be reused in a single frame
 	if( stage->dynamicFrameCount == tr.frameCount )

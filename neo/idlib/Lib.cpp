@@ -234,7 +234,7 @@ void idLib::Warning( const char* fmt, ... )
 	char		text[MAX_STRING_CHARS];
 	
 	va_start( argptr, fmt );
-	idStr::vsnPrintf( text, sizeof( text ), fmt, argptr );
+	idStr::vsnPrintf( text, MAX_STRING_CHARS, fmt, argptr );
 	va_end( argptr );
 	
 	common->Warning( "%s", text );
