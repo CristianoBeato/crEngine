@@ -973,6 +973,16 @@ void idRenderSystemLocal::PerformResolutionScaling( int& newWidth, int& newHeigh
 	newHeight = idMath::Ftoi( GetHeight() * yScale );
 }
 
+
+/*
+================
+idRenderSystemLocal::OnFrame
+================
+*/
+void idRenderSystemLocal::OnFrame( void )
+{
+}
+
 /*
 ================
 idRenderSystemLocal::CropRenderSize
@@ -1208,7 +1218,7 @@ void idRenderSystemLocal::Editor_SetupState()
 	// make sure we're using fixed function rendering (program = 0)
 	//renderProgManager.Unbind();
 	// make sure we're drawing to the system framebuffer (fbo = 0)
-	globalFramebuffers->BindSystemFramebuffer();
+//	globalFramebuffers->BindSystemFramebuffer();
 }
 
 void idRenderSystemLocal::Editor_BeginView(int width, int height, int &restoreWidth, int &restoreHeight)
@@ -1237,7 +1247,7 @@ void idRenderSystemLocal::Editor_EndView(int restoreWidth, int restoreHeight)
 	SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr ); // this is needed for the nativeScreenWidth/Height to take hold
 
 	// now restore state for fixed function editor rendering
-	globalFramebuffers->BindSystemFramebuffer();
+//	globalFramebuffers->BindSystemFramebuffer();
 //	glDisable(GL_SCISSOR_TEST);
 //	glDisable(GL_DEPTH_TEST);
 //	glDisable(GL_BLEND);

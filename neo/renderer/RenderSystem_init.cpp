@@ -1735,7 +1735,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 	{
 		// free all of our texture numbers
 		//Sys_ShutdownInput();
-		globalFramebuffers->PurgeAllFramebuffers();
+		///globalFramebuffers->PurgeAllFramebuffers();
 		globalImages->PurgeAllImages();
 		
 		/// release uniforms buffers and shaders
@@ -2170,7 +2170,7 @@ void idRenderSystemLocal::Init( void )
 	
 	auto globalImages = idImageManager::Get();
 	globalImages->Init();
-	globalFramebuffers->Init(); // foresthale 2014-02-18: framebuffer objects
+	// globalFramebuffers->Init(); // foresthale 2014-02-18: framebuffer objects
 	
 	idCinematic::InitCinematic( );
 	
@@ -2226,7 +2226,7 @@ void idRenderSystemLocal::Shutdown( void )
 	
 	if( tr.IsInitialized() )
 	{
-		globalFramebuffers->PurgeAllFramebuffers(); // foresthale 2014-02-18: framebuffer objects
+		// globalFramebuffers->PurgeAllFramebuffers(); // foresthale 2014-02-18: framebuffer objects
 		globalImages->PurgeAllImages();
 	}
 	
@@ -2234,7 +2234,7 @@ void idRenderSystemLocal::Shutdown( void )
 	
 	idCinematic::ShutdownCinematic();
 	
-	globalFramebuffers->Shutdown(); // foresthale 2014-02-18: framebuffer objects
+	//globalFramebuffers->Shutdown(); // foresthale 2014-02-18: framebuffer objects
 	globalImages->Shutdown();
 	
 	// free frame memory
