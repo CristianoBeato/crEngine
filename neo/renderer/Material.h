@@ -318,7 +318,6 @@ typedef enum
 	CT_TWO_SIDED
 } cullType_t;
 
-
 // material flags
 typedef enum
 {
@@ -341,16 +340,16 @@ typedef enum
 // contents flags, NOTE: make sure to keep the defines in doom_defs.script up to date with these!
 typedef enum
 {
-	CONTENTS_SOLID				= BIT( 0 ),	// an eye is never valid in a solid
-	CONTENTS_OPAQUE				= BIT( 1 ),	// blocks visibility (for ai)
-	CONTENTS_WATER				= BIT( 2 ),	// used for water
-	CONTENTS_PLAYERCLIP			= BIT( 3 ),	// solid to players
-	CONTENTS_MONSTERCLIP		= BIT( 4 ),	// solid to monsters
-	CONTENTS_MOVEABLECLIP		= BIT( 5 ),	// solid to moveable entities
-	CONTENTS_IKCLIP				= BIT( 6 ),	// solid to IK
-	CONTENTS_BLOOD				= BIT( 7 ),	// used to detect blood decals
-	CONTENTS_BODY				= BIT( 8 ),	// used for actors
-	CONTENTS_PROJECTILE			= BIT( 9 ),	// used for projectiles
+	CONTENTS_SOLID				= BIT( 0 ),		// an eye is never valid in a solid
+	CONTENTS_OPAQUE				= BIT( 1 ),		// blocks visibility (for ai)
+	CONTENTS_WATER				= BIT( 2 ),		// used for water
+	CONTENTS_PLAYERCLIP			= BIT( 3 ),		// solid to players
+	CONTENTS_MONSTERCLIP		= BIT( 4 ),		// solid to monsters
+	CONTENTS_MOVEABLECLIP		= BIT( 5 ),		// solid to moveable entities
+	CONTENTS_IKCLIP				= BIT( 6 ),		// solid to IK
+	CONTENTS_BLOOD				= BIT( 7 ),		// used to detect blood decals
+	CONTENTS_BODY				= BIT( 8 ),		// used for actors
+	CONTENTS_PROJECTILE			= BIT( 9 ),		// used for projectiles
 	CONTENTS_CORPSE				= BIT( 10 ),	// used for dead bodies
 	CONTENTS_RENDERMODEL		= BIT( 11 ),	// used for render models for collision detection
 	CONTENTS_TRIGGER			= BIT( 12 ),	// used for triggers
@@ -445,22 +444,22 @@ public:
 	// if the material is simple, all that needs to be known are
 	// the images for drawing.
 	// These will either all return valid images, or all return nullptr
-	idImage* 			GetFastPathBumpImage() const
+	idImage* 			GetFastPathBumpImage( void ) const
 	{
 		return fastPathBumpImage;
 	};
 
-	idImage* 			GetFastPathDiffuseImage() const
+	idImage* 			GetFastPathDiffuseImage( void ) const
 	{
 		return fastPathDiffuseImage;
 	};
 
-	idImage* 			GetFastPathSpecularImage() const
+	idImage* 			GetFastPathSpecularImage( void ) const
 	{
 		return fastPathSpecularImage;
 	};
 
-	idImage* 			GetFastPathGlossImage() const
+	idImage* 			GetFastPathGlossImage( void ) const
 	{
 		return fastPathGlossImage;
 	};
@@ -480,40 +479,40 @@ public:
 	// etc, will not have anything to draw.  A not drawn surface can still castShadow,
 	// which can be used to make a simplified shadow hull for a complex object set
 	// as noShadow
-	bool				IsDrawn() const
+	bool				IsDrawn( void ) const
 	{
 		return ( stages.Num() > 0 || entityGui != 0 || gui != nullptr );
 	}
 	
 	// returns true if the material will draw any non light interaction stages
-	bool				HasAmbient() const
+	bool				HasAmbient( void ) const
 	{
 		return ( numAmbientStages > 0 );
 	}
 	
 	// returns true if material has a gui
-	bool				HasGui() const
+	bool				HasGui( void ) const
 	{
 		return ( entityGui != 0 || gui != nullptr );
 	}
 	
 	// returns true if the material will generate another view, either as
 	// a mirror or dynamic rendered image
-	bool				HasSubview() const
+	bool				HasSubview( void ) const
 	{
 		return hasSubview;
 	}
 	
 	// returns true if the material will generate shadows, not making a
 	// distinction between global and no-self shadows
-	bool				SurfaceCastsShadow() const
+	bool				SurfaceCastsShadow( void ) const
 	{
 		return TestMaterialFlag( MF_FORCESHADOWS ) || !TestMaterialFlag( MF_NOSHADOWS );
 	}
 	
 	// returns true if the material will generate interactions with fog/blend lights
 	// All non-translucent surfaces receive fog unless they are explicitly noFog
-	bool				ReceivesFog() const
+	bool				ReceivesFog( void ) const
 	{
 		return ( IsDrawn() && !noFog && coverage != MC_TRANSLUCENT );
 	}
@@ -521,14 +520,14 @@ public:
 	// returns true if the material will generate interactions with normal lights
 	// Many special effect surfaces don't have any bump/diffuse/specular
 	// stages, and don't interact with lights at all
-	bool				ReceivesLighting() const
+	bool				ReceivesLighting( void ) const
 	{
 		return numAmbientStages != stages.Num();
 	}
 	
 	// returns true if the material should generate interactions on sides facing away
 	// from light centers, as with noshadow and noselfshadow options
-	bool				ReceivesLightingOnBackSides() const
+	bool				ReceivesLightingOnBackSides( void ) const
 	{
 		return ( materialFlags & ( MF_NOSELFSHADOW | MF_NOSHADOWS ) ) != 0;
 	}
@@ -538,7 +537,7 @@ public:
 	// sided lighting is desired. typically for alpha tested surfaces, this is
 	// addressed by having CleanupModelSurfaces() create duplicates of all the triangles
 	// with apropriate order reversal.
-	bool				ShouldCreateBackSides() const
+	bool				ShouldCreateBackSides( void ) const
 	{
 		return shouldCreateBackSides;
 	}
@@ -546,7 +545,7 @@ public:
 	// characters and models that are created by a complete renderbump can use a faster
 	// method of tangent and normal vector generation than surfaces which have a flat
 	// renderbump wrapped over them.
-	bool				UseUnsmoothedTangents() const
+	bool				UseUnsmoothedTangents( void ) const
 	{
 		return unsmoothedTangents;
 	}
@@ -554,7 +553,7 @@ public:
 	// by default, monsters can have blood overlays placed on them, but this can
 	// be overrided on a per-material basis with the "noOverlays" material command.
 	// This will always return false for translucent surfaces
-	bool				AllowOverlays() const
+	bool				AllowOverlays( void ) const
 	{
 		return allowOverlays;
 	}
@@ -563,7 +562,7 @@ public:
 	// dmap flood filling
 	// The depth buffer will not be filled for MC_TRANSLUCENT surfaces
 	// FIXME: what do nodraw surfaces return?
-	materialCoverage_t	Coverage() const
+	materialCoverage_t	Coverage( void ) const
 	{
 		return coverage;
 	}
@@ -576,7 +575,7 @@ public:
 	}
 	
 	// returns a idUserInterface if it has a global gui, or nullptr if no gui
-	idUserInterface*		GlobalGui() const
+	idUserInterface*		GlobalGui( void ) const
 	{
 		return gui;
 	}
@@ -585,7 +584,7 @@ public:
 	// necessary to prevent mutliple gui surfaces, mirrors, autosprites, and some other
 	// special effects from being combined into a single surface
 	// guis, merging sprites or other effects, mirrors and remote views are always discrete
-	bool				IsDiscrete() const
+	bool				IsDiscrete( void ) const
 	{
 		return ( entityGui || gui || deform != DFRM_NONE || sort == SS_SUBVIEW ||
 				 ( surfaceFlags & SURF_DISCRETE ) != 0 );
@@ -599,7 +598,7 @@ public:
 	// of not automatically fixing up interpenetrations, so when this is used, you
 	// should manually make the edges of your sky box exactly meet, instead of poking
 	// into each other.
-	bool				NoFragment() const
+	bool				NoFragment( void ) const
 	{
 		return ( surfaceFlags & SURF_NOFRAGMENT ) != 0;
 	}
@@ -608,7 +607,7 @@ public:
 	// light shader specific functions, only called for light entities
 	
 	// lightshader option to fill with fog from viewer instead of light from center
-	bool				IsFogLight() const
+	bool				IsFogLight( void ) const
 	{
 		return fogLight;
 	}

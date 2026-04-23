@@ -93,6 +93,21 @@ void crShaderStage::SetDrawStateBits( const uint64_t in_flags )
 }
 
 /*
+===============
+crShaderStage::MatchToken
+
+Sets defaultShader and returns false if the next token doesn't match
+===============
+*/
+bool crShaderStage::MatchToken( idLexer& src, const char* match )
+{
+	if( !src.ExpectTokenString( match ) )
+		return false;
+
+	return true;
+}
+
+/*
 =================
 idMaterial::ParseStage
 
@@ -407,7 +422,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		if( !token.Icmp( "scroll" ) || !token.Icmp( "translate" ) )
 		{
 			a = mtr.ParseExpression( src );
-			MatchToken( src, "," );
+			if( !MatchToken( src, "," ) )
+				return false;
+
 			b = mtr.ParseExpression( src );
 			matrix[0][0] = mtr.GetExpressionConstant( 1 );
 			matrix[0][1] = mtr.GetExpressionConstant( 0 );
@@ -422,7 +439,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		if( !token.Icmp( "scale" ) )
 		{
 			a = mtr.ParseExpression( src );
-			MatchToken( src, "," );
+			if( !MatchToken( src, "," ) )
+				return false;
+
 			b = mtr.ParseExpression( src );
 			// this just scales without a centering
 			matrix[0][0] = a;
@@ -438,7 +457,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		if( !token.Icmp( "centerScale" ) )
 		{
 			a = mtr.ParseExpression( src );
-			MatchToken( src, "," );
+			if( !MatchToken( src, "," ) )
+				return false;
+
 			b = mtr.ParseExpression( src );
 			// this subtracts 0.5, then scales, then adds 0.5
 			matrix[0][0] = a;
@@ -454,7 +475,9 @@ bool crShaderStage::ParseStage( idLexer& src, idMaterial &mtr )
 		if( !token.Icmp( "shear" ) )
 		{
 			a = mtr.ParseExpression( src );
-			MatchToken( src, "," );
+			if( !MatchToken( src, "," ) )
+				return false;
+
 			b = mtr.ParseExpression( src );
 			// this subtracts 0.5, then shears, then adds 0.5
 			matrix[0][0] = mtr.GetExpressionConstant( 1 );
@@ -837,7 +860,9 @@ void crShaderStage::ParseBlend( idLexer& in_src, idMaterial &mtr )
 	
 	srcBlend = mtr.NameToSrcBlendMode( token );
 	
-	MatchToken( in_src, "," );
+	if( !MatchToken( in_src, "," ) )
+		return;
+	
 	if( !in_src.ReadToken( &token ) )
 		return;
 	
@@ -923,11 +948,17 @@ bool crShaderStage::ParseVertexParm2( idLexer& in_src, idMaterial &in_mtr )
 		m_numVertexParms = parm + 1;
 	
 	m_vertexParms[parm][0] = in_mtr.ParseExpression( in_src );
-	MatchToken( in_src, "," );
+	if( !MatchToken( in_src, "," ) )
+		return false;
+
 	m_vertexParms[parm][1] = in_mtr.ParseExpression( in_src );
-	MatchToken( in_src, "," );
+	if( !MatchToken( in_src, "," ) )
+		return false;
+
 	m_vertexParms[parm][2] = in_mtr.ParseExpression( in_src );
-	MatchToken( in_src, "," );
+	if( !MatchToken( in_src, "," ) )
+		return false;
+
 	m_vertexParms[parm][3] = in_mtr.ParseExpression( in_src );
 
 	return true;
@@ -1255,7 +1286,7 @@ idMaterial::GetEditorImage
 */
 idImage* idMaterial::GetEditorImage( void ) const
 {
-	idImageManagerLocal* globalImages = dynamic_cast<idImageManagerLocal*>( idRenderSystem::GetGlobalImages() );
+	idImageManagerLocal* globalImages = static_cast<idImageManagerLocal*>( idImageManager::Get() );
 
 	if( editorImage )
 		return editorImage;
