@@ -27,6 +27,11 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Core.hpp"
 #include "Syncs.hpp"
 
+/*
+================
+crFence::crFence
+================
+*/
 crFence::crFence( void ) : 
     m_frameID( 0 ),
     m_frameCount( 0 ),
@@ -34,11 +39,21 @@ crFence::crFence( void ) :
 {
 }
 
+/*
+================
+crFence::~crFence
+================
+*/
 crFence::~crFence( void )
 {
     Destroy();
 }
 
+/*
+================
+crFence::Create
+================
+*/
 bool crFence::Create( const uint16_t in_frameCount, const bool in_signaled )
 {
     auto device = tr.GetRenderDevice();
@@ -55,7 +70,7 @@ bool crFence::Create( const uint16_t in_frameCount, const bool in_signaled )
         auto result = vkCreateFence( m_device, &fenceCI, k_allocationCallbacks, &m_fences[i] );
         if( result != VK_SUCCESS )
         {
-            idLib::Error( "crFence::Create::vkCreateFence Failed %s\n", VulkanErrorString( result ) );
+            idLib::Error( "crFence::Create::vkCreateFence Failed %s\n", VulkanErrorString( result ).c_str() );
             return false;
         }
     }
@@ -63,32 +78,38 @@ bool crFence::Create( const uint16_t in_frameCount, const bool in_signaled )
     return true;
 }
 
+/*
+================
+crFence::Destroy
+================
+*/
 void crFence::Destroy(void)
 {
-    if ( m_fences != nullptr )
+    vkResetFences( m_device, m_frameCount, m_fences );
+    for ( uint32_t i = 0; i < m_frameCount; i++)
     {
-        ///
-        vkResetFences( m_device, m_frameCount, m_fences );
-        for ( uint32_t i = 0; i < m_frameCount; i++)
-        {
-            if ( m_fences[i] == nullptr )
-                continue; 
+        if ( m_fences[i] == nullptr )
+            continue; 
 
-            vkDestroyFence( m_device, m_fences[i], k_allocationCallbacks );
-            m_fences[i] = nullptr;
-        }        
-    }
+        vkDestroyFence( m_device, m_fences[i], k_allocationCallbacks );
+        m_fences[i] = nullptr;
+    }        
     
     m_frameCount = 0;
     m_frameID = 0;
     m_device = nullptr;
 }
 
+/*
+================
+crFence::Reset
+================
+*/
 void crFence::Reset( void ) const
 {
     VkResult result = vkResetFences( m_device, 1, &m_fences[m_frameID] );
     if ( result != VK_SUCCESS )
-        idLib::Warning( "crFence::Reset Failed! %s\n", VulkanErrorString( result ) );
+        idLib::Warning( "crFence::Reset Failed! %s\n", VulkanErrorString( result ).c_str() );
 }
 
 VkResult crFence::Wait( const uint64_t in_timeout ) const
@@ -134,7 +155,7 @@ bool crSemaphoreRoundRobin::Create( const uint16_t in_frameCount )
         auto result = vkCreateSemaphore( m_device, &semaphoreCI, k_allocationCallbacks, &m_semaphores[i] );
         if ( result != VK_SUCCESS )
         {
-            idLib::Warning( "crFence::Reset Failed! %s\n", VulkanErrorString( result ) );
+            idLib::Warning( "crFence::Reset Failed! %s\n", VulkanErrorString( result ).c_str() );
             return false;
         }
     }
@@ -144,15 +165,16 @@ bool crSemaphoreRoundRobin::Create( const uint16_t in_frameCount )
 
 void crSemaphoreRoundRobin::Destroy(void)
 {
-    if( m_semaphores != nullptr )
+    for ( uint32_t i = 0; i < m_frameCount; i++)
     {
-        for ( uint32_t i = 0; i < m_frameCount; i++)
-        {
-            vkDestroySemaphore( m_device, m_semaphores[i], k_allocationCallbacks );
-            m_semaphores[i] = nullptr;
-        }
+        /// ignore if null
+        if( m_semaphores[i] == nullptr )
+            continue;
+            
+        vkDestroySemaphore( m_device, m_semaphores[i], k_allocationCallbacks );
+        m_semaphores[i] = nullptr;
     }
-
+    
     m_frameID = 0;
     m_frameCount = 0;
     m_device = 0;
@@ -167,7 +189,7 @@ void crSemaphoreRoundRobin::Signal(void) const
     semaphoreSignal.value = 0;
     auto result = vkSignalSemaphore( m_device, &semaphoreSignal );
     if ( result != VK_SUCCESS )
-        idLib::Warning( "crSemaphoreRoundRobin::Signal Failed! %s\n", VulkanErrorString( result ) );
+        idLib::Warning( "crSemaphoreRoundRobin::Signal Failed! %s\n", VulkanErrorString( result ).c_str() );
 }
 
 VkResult crSemaphoreRoundRobin::Wait( const uint64_t in_timeout ) const
@@ -237,7 +259,7 @@ bool crSemaphoreTimeline::Create(void)
     auto result = vkCreateSemaphore( m_device, &semaphoreCI, k_allocationCallbacks, &m_semaphore );
     if ( result != VK_SUCCESS )
     {
-        idLib::Warning( "crFence::Reset Failed! %s\n", VulkanErrorString( result ) );
+        idLib::Warning( "crFence::Reset Failed! %s\n", VulkanErrorString( result ).c_str() );
         return false;
     }
 
@@ -265,7 +287,7 @@ void crSemaphoreTimeline::Signal(const uint64_t in_value) const
     semaphoreSignal.value = in_value;
     auto result = vkSignalSemaphore( m_device, &semaphoreSignal );
     if ( result != VK_SUCCESS )
-        idLib::Warning( "crSemaphoreRoundRobin::Signal Failed! %s\n", VulkanErrorString( result ) );
+        idLib::Warning( "crSemaphoreRoundRobin::Signal Failed! %s\n", VulkanErrorString( result ).c_str() );
 }
 
 VkResult crSemaphoreTimeline::Wait(const uint64_t in_value, const uint64_t in_timeout) const

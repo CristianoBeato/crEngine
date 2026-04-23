@@ -103,7 +103,7 @@ public:
     virtual VkSemaphore*            Pointer( void ) const override { return const_cast<VkSemaphore*>( &m_semaphore ); }
     virtual VkSemaphoreSubmitInfo   SubmitInfo( void ) override;
     virtual VkSemaphore             Semaphore( void ) const override { return m_semaphore; }
-    virtual operator                VkSemaphoreSubmitInfo( void ) const;
+    virtual operator                VkSemaphoreSubmitInfo( void ) const override;
     virtual operator                VkSemaphore( void ) const override { return m_semaphore; }
 
 private:
