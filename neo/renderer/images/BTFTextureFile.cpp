@@ -117,26 +117,26 @@ bool crBTFTextureFile::Open(void)
     idFileLocal bFile = fileSystem->OpenFileRead( m_name );
     if( bFile == nullptr )
     {
-        common->Warning( "Can't load texture file: %s\n", m_name );
+        common->Warning( "Can't load texture file: %s\n", m_name.c_str() );
         return false;
     }
 
     /// Read texture file header
     if( bFile->Read( &m_header, BTF::HEADER_SIZE ) <= 0 )
     {
-        common->Warning( "Invalid texture file %s ( file size is < than %i bytes, BTF header size )\n", m_name, BTF::HEADER_SIZE );
+        common->Warning( "Invalid texture file %s ( file size is < than %i bytes, BTF header size )\n", m_name.c_str(), BTF::HEADER_SIZE );
         return false;
     }
 
     if ( m_header.magic != BTF::MAGIC )
     {
-        common->Warning( "Inavlid texture file %s ( invalid header magic %i got %i )", m_name, BTF::MAGIC, m_header.magic );
+        common->Warning( "Inavlid texture file %s ( invalid header magic %i got %i )", m_name.c_str(), BTF::MAGIC, m_header.magic );
         return false;
     }
     
     if ( m_header.version < BTF::VERSION || m_header.magic > BTF::VERSION )
     {
-        common->Warning( "Invalid texture version: texture %s got %i suported %i\n", m_name, m_header.version, BTF::VERSION );
+        common->Warning( "Invalid texture version: texture %s got %i suported %i\n", m_name.c_str(), m_header.version, BTF::VERSION );
         return false;
     }
     
@@ -154,7 +154,7 @@ bool crBTFTextureFile::Open(void)
     if( bFile->Read( m_texels, m_header.pixelBufferSize ) < m_header.pixelBufferSize )
     {
         SDL_aligned_free( m_texels );
-        common->Warning( "Invalid texture file data: %s file pixel buffer size\n", m_name );
+        common->Warning( "Invalid texture file data: %s file pixel buffer size\n", m_name.c_str() );
     }
 
     // TODO: check file CRC    

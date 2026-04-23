@@ -376,6 +376,8 @@ class idImageManager
 {
 public:
 	static idImageManager*	Get( void );
+	idImageManager( void ) {}
+	~idImageManager( void ) { }
 	virtual void		Init( void ) = 0;
 	virtual void		Shutdown( void ) = 0;
 	virtual idImage*	ImageFromFile( const idStr &name, const cubeFiles_t cubeMap = CF_2D ) = 0;

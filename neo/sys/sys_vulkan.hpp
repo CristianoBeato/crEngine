@@ -75,11 +75,11 @@ public:
 	virtual void				Destroy( void ) override;
 	virtual const char*         Name( void ) const override;
 	virtual const properties_t	Properties( void ) const override;
-    virtual const int32_t       Score( void ) const;
+    virtual const int32_t       Score( void ) const override;
 
     /// @brief check for extension if available in the device 
     /// @return 
-    virtual const bool      ExtensionAvailable( const char* in_ext ) const;
+    virtual const bool      ExtensionAvailable( const char* in_ext ) const override;
 
     const bool      SupportedPresentMode( const VkPresentModeKHR in_mode ) const;
     const bool      SupportedFormat( const VkSurfaceFormatKHR in_format ) const;

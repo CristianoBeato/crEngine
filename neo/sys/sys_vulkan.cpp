@@ -152,7 +152,7 @@ bool vkDeviceQueue::Init( const VkDevice in_device )
     auto result = vkCreateCommandPool( m_device, &commandPoolCI, k_allocationCallbacks, &m_commandPool );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkCreateCommandPool failed! %s\n", VulkanErrorString( result) );
+        idLib::Error( "vkCreateCommandPool failed! %s\n", VulkanErrorString( result).c_str() );
         return false;
     }
     
@@ -276,7 +276,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     result = vkEnumerateDeviceExtensionProperties( m_physical, nullptr, &deviceExtensionCount, nullptr );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkEnumerateDeviceExtensionProperties failed!", VulkanErrorString( result ) );
+        idLib::Error( "vkEnumerateDeviceExtensionProperties failed!", VulkanErrorString( result ).c_str() );
         // TODO: exit ? fatal error ? throw a execption
     }
     
@@ -284,7 +284,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
 	result = vkEnumerateDeviceExtensionProperties( m_physical, nullptr, &deviceExtensionCount, m_deviceExtensions.Ptr() );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkEnumerateDeviceExtensionProperties failed!", VulkanErrorString( result ) );
+        idLib::Error( "vkEnumerateDeviceExtensionProperties failed!", VulkanErrorString( result ).c_str() );
         // TODO: exit ? fatal error ? throw a execption
     }
     
@@ -292,7 +292,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     result = vkGetPhysicalDeviceSurfaceFormats2KHR( m_physical, &deviceSurfaceInfo, &formatCount, nullptr );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkGetPhysicalDeviceSurfaceFormats2KHR failed!", VulkanErrorString( result ) );
+        idLib::Error( "vkGetPhysicalDeviceSurfaceFormats2KHR failed!", VulkanErrorString( result ).c_str() );
         // TODO: exit ? fatal error ? throw a execption
     }
     
@@ -306,7 +306,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     result = vkGetPhysicalDeviceSurfaceFormats2KHR( m_physical, &deviceSurfaceInfo, &formatCount, m_surfaceFormats.Ptr() );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkGetPhysicalDeviceSurfaceFormats2KHR failed!", VulkanErrorString( result ) );
+        idLib::Error( "vkGetPhysicalDeviceSurfaceFormats2KHR failed!", VulkanErrorString( result ).c_str() );
         // TODO: exit ? fatal error ? throw a execption
     }
  
@@ -314,7 +314,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     result = vkGetPhysicalDeviceSurfacePresentModesKHR( m_physical, in_surface, &presentModeCount, nullptr );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkGetPhysicalDeviceSurfacePresentModesKHR failed!", VulkanErrorString( result ) );
+        idLib::Error( "vkGetPhysicalDeviceSurfacePresentModesKHR failed!", VulkanErrorString( result ).c_str() );
         // TODO: exit ? fatal error ? throw a execption
     }
 
@@ -322,7 +322,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     result = vkGetPhysicalDeviceSurfacePresentModesKHR( m_physical, in_surface, &presentModeCount, m_presentModes.Ptr() );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkGetPhysicalDeviceSurfacePresentModesKHR failed!", VulkanErrorString( result ) );
+        idLib::Error( "vkGetPhysicalDeviceSurfacePresentModesKHR failed!", VulkanErrorString( result ).c_str() );
         // TODO: exit ? fatal error ? throw a execption
     }
 
@@ -332,7 +332,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     result = vkGetPhysicalDeviceSurfaceCapabilities2KHR( m_physical, &deviceSurfaceInfo, &m_surfaceCapabilities ); 
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkGetPhysicalDeviceSurfaceCapabilities2KHR failed!", VulkanErrorString( result ) );
+        idLib::Error( "vkGetPhysicalDeviceSurfaceCapabilities2KHR failed!", VulkanErrorString( result ).c_str() );
         // TODO: exit ? fatal error ? throw a execption
     }
 
@@ -1345,22 +1345,22 @@ void crVulkanAPI::ListExtensionsAndLayers(void)
     /// enumerate instance extensions
     result = vkEnumerateInstanceExtensionProperties( nullptr, &extensionCount, nullptr);
     if ( result != VK_SUCCESS )
-        idLib::Error( "vkEnumerateInstanceExtensionProperties failed! %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkEnumerateInstanceExtensionProperties failed! %s\n", VulkanErrorString( result ).c_str() );
 
     m_availableInstanceExtensions.Resize( extensionCount );
 	result = vkEnumerateInstanceExtensionProperties( nullptr, &extensionCount, m_availableInstanceExtensions.Ptr() );
     if ( result != VK_SUCCESS )
-        idLib::Error( "vkEnumerateInstanceExtensionProperties failed! %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkEnumerateInstanceExtensionProperties failed! %s\n", VulkanErrorString( result ).c_str() );
 
     /// instance enumerate layers 
     result = vkEnumerateInstanceLayerProperties( &layerCount, nullptr );
     if ( result != VK_SUCCESS )
-        idLib::Error( "vkEnumerateInstanceLayerProperties failed! %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkEnumerateInstanceLayerProperties failed! %s\n", VulkanErrorString( result ).c_str() );
 
     m_supportedInstanceLayers.Resize( layerCount );
     result = vkEnumerateInstanceLayerProperties( &layerCount, m_supportedInstanceLayers.Ptr());
     if ( result != VK_SUCCESS )
-        idLib::Error( "vkEnumerateInstanceLayerProperties failed! %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkEnumerateInstanceLayerProperties failed! %s\n", VulkanErrorString( result ).c_str() );
 }
 
 /*
@@ -1399,7 +1399,7 @@ bool crVulkanAPI::InitInstance(const idList<const char *> in_requestedInstanceLa
 	result = vkCreateInstance( &instance, k_allocationCallbacks, &m_instance );
     if ( !result != VK_SUCCESS )
     {
-        common->Error( "vkCreateInstance failed: %s\n", VulkanErrorString( result ) );
+        common->Error( "vkCreateInstance failed: %s\n", VulkanErrorString( result ).c_str() );
         return false;
     }
 
@@ -1465,7 +1465,7 @@ bool crVulkanAPI::InitDebugUtilsMessenger( const VkDebugUtilsMessengerCreateInfo
     result = vkCreateDebugUtilsMessengerEXT( m_instance, in_debugUtilsMessengerCI, k_allocationCallbacks, &m_debugUtilsMessenger );
     if( result != VK_SUCCESS )
     {
-        idLib::Error( "vkCreateDebugUtilsMessengerEXT failed! %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkCreateDebugUtilsMessengerEXT failed! %s\n", VulkanErrorString( result ).c_str() );
         m_hasDebugUtils = false;
         return false;
     }

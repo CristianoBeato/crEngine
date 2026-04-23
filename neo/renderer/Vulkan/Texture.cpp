@@ -102,7 +102,7 @@ bool crTexture::Create( const type_t in_type, const dimensions_t in_dimensions, 
     result = vkCreateImage( *device, &imageCI, k_allocationCallbacks, &m_image );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkCreateImage error %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkCreateImage error %s\n", VulkanErrorString( result ).c_str() );
         return false;
     };
 
@@ -147,7 +147,7 @@ bool crTexture::Create( const type_t in_type, const dimensions_t in_dimensions, 
     result = vkCreateImageView( *device, &imageViewCI, k_allocationCallbacks, &m_view );
     if ( result != VK_SUCCESS )
     {
-        idLib::Error( "vkCreateImageView error %s\n", VulkanErrorString( result ) );
+        idLib::Error( "vkCreateImageView error %s\n", VulkanErrorString( result ).c_str() );
         return false;
     };
 

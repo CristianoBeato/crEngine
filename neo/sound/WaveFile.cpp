@@ -89,7 +89,7 @@ bool idWaveFile::Open( const idStr filename )
 	if( header.id != 'RIFF' || header.format != 'WAVE' || header.size < 4 )
 	{
 		Close();
-		idLib::Warning( "Header is not RIFF WAVE in %s", filename );
+		idLib::Warning( "Header is not RIFF WAVE in %s", filename.c_str() );
 		return false;
 	}
 	
@@ -117,7 +117,7 @@ bool idWaveFile::Open( const idStr filename )
 		if( chunks.Num() >= chunks.Max() )
 		{
 			Close();
-			idLib::Warning( "More than %d chunks in %s", chunks.Max(), filename );
+			idLib::Warning( "More than %d chunks in %s", chunks.Max(), filename.c_str() );
 			return false;
 		}
 		

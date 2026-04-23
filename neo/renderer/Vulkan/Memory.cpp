@@ -57,7 +57,7 @@ void crMemoryPage::Bind( const VkBuffer in_buffer )
 {
     auto result = vkBindBufferMemory( m_device, in_buffer, m_memory, static_cast<VkDeviceSize>( m_offset ) );
     if( result != VK_SUCCESS )
-        idLib::FatalError("crMemoryPage::Bind vkBindBufferMemory failed %s\n", VulkanErrorString( result ) );
+        idLib::FatalError("crMemoryPage::Bind vkBindBufferMemory failed %s\n", VulkanErrorString( result ).c_str() );
 }
 
 /*
@@ -69,7 +69,7 @@ void crMemoryPage::Bind( const VkImage in_image )
 {
     auto result = vkBindImageMemory( m_device, in_image, m_memory, static_cast<VkDeviceSize>( m_offset ) );
     if( result != VK_SUCCESS )
-        idLib::FatalError("crMemoryPage::Bind vkBindImageMemory failed %s\n", VulkanErrorString( result ) );
+        idLib::FatalError("crMemoryPage::Bind vkBindImageMemory failed %s\n", VulkanErrorString( result ).c_str() );
 }
 
 /*
@@ -84,7 +84,7 @@ void*   crMemoryPage::Map(void) const
     /// just get memory pointer
     auto result = vkMapMemory( m_device, m_memory,  static_cast<VkDeviceSize>( m_offset ),  static_cast<VkDeviceSize>( m_size ), 0, &pointer );
     if( result != VK_SUCCESS )
-        idLib::FatalError("crMemoryPage::Map vkMapMemory failed %s\n", VulkanErrorString( result ) );
+        idLib::FatalError("crMemoryPage::Map vkMapMemory failed %s\n", VulkanErrorString( result ).c_str() );
 
     return pointer;
 }
@@ -104,14 +104,15 @@ void crMemoryPage::Flush( const uintptr_t in_offset, const size_t in_size ) cons
     memoryRange.size = static_cast<VkDeviceSize>( std::max( m_offset, in_offset ) );
     VkResult result = vkFlushMappedMemoryRanges( m_device, 1, &memoryRange );
     if( result != VK_SUCCESS )
-        idLib::Error("crMemoryPage::Flush vkFlushMappedMemoryRanges failed %s\n", VulkanErrorString( result ) );
+        idLib::Error("crMemoryPage::Flush vkFlushMappedMemoryRanges failed %s\n", VulkanErrorString( result ).c_str() );
 }
 
-crMemoryPage::crMemoryPage( const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, const VkDeviceMemory in_memory ) :
+crMemoryPage::crMemoryPage(const size_t in_size, const size_t in_alignment, const uintptr_t in_offset, VkDeviceMemory in_memory, VkDevice in_device) :
     m_size( in_size ),
     m_alignment( in_alignment ),
     m_offset( in_offset ),
-    m_memory( in_memory )
+    m_memory( in_memory ),
+    m_device( in_device )
 {
     m_device = *tr.GetRenderDevice();
 }
@@ -258,7 +259,7 @@ bool crMemoryPool::Create( const size_t in_size, const size_t in_alignment, cons
     auto result = vkAllocateMemory( m_device, &allocateInfo, k_allocationCallbacks, &m_memory );
     if( result != VK_SUCCESS )
     {
-        idLib::Error("crMemoryPool::Create vkAllocateMemory failed %s\n", VulkanErrorString( result ) );
+        idLib::Error("crMemoryPool::Create vkAllocateMemory failed %s\n", VulkanErrorString( result ).c_str() );
         return false;
     }
 
@@ -359,6 +360,24 @@ bool crMemoryHeap::Create( void )
     }
     
     return true;
+}
+
+
+/*
+==============
+crMemoryHeap::Destroy
+==============
+*/
+void crMemoryHeap::Destroy(void)
+{
+    for ( uint32_t i = 0; i < m_types.Num(); i++)
+    {
+        auto type = m_types[i];
+        for ( uint32_t j = 0; j < type.pools.Num(); j++)
+        {
+            Free( type.pools[j] );
+        }   
+    }
 }
 
 /*
