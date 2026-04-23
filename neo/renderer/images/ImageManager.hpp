@@ -45,11 +45,8 @@ class idImageManagerLocal : public idImageManager
 {
 public:
 
-	idImageManagerLocal( void )
-	{
-		insideLevelLoad = false;
-		preloadingMapImages = false;
-	}
+	idImageManagerLocal( void );
+	~idImageManagerLocal( void );
 	
 	virtual void				Init( void );
 	virtual void				Shutdown( void );

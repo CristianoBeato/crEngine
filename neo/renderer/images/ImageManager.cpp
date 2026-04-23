@@ -276,6 +276,27 @@ void R_ListImages_f( const idCmdArgs& args )
 	common->Printf( " %5.1f total megabytes of images\n\n\n", totalSize / ( 1024 * 1024.0 ) );
 }
 
+
+/*
+==============
+AllocImage::idImageManagerLocal
+==============
+*/
+idImageManagerLocal::idImageManagerLocal( void ) :
+	insideLevelLoad( false ),
+	preloadingMapImages( false )
+{
+}
+
+/*
+==============
+AllocImage::~idImageManagerLocal
+==============
+*/
+idImageManagerLocal::~idImageManagerLocal( void )
+{
+}
+
 /*
 ==============
 AllocImage
@@ -287,7 +308,7 @@ copies the name, and adds it to the hash chain.
 idImage* idImageManagerLocal::AllocImage( const idStr &name )
 {
 	if( strlen( name ) >= MAX_IMAGE_NAME )
-		common->Error( "idImageManagerLocal::AllocImage: \"%s\" is too long\n", name );
+		common->Error( "idImageManagerLocal::AllocImage: \"%s\" is too long\n", name.c_str() );
 	
 	int hash = idStr( name ).FileNameHash();
 	
@@ -309,7 +330,7 @@ Allocates an idImage,does not add it to the list or hash chain
 idImage* idImageManagerLocal::AllocStandaloneImage( const idStr &name )
 {
 	if( strlen( name ) >= MAX_IMAGE_NAME )
-		common->Error( "idImageManagerLocal::AllocImage: \"%s\" is too long\n", name );
+		common->Error( "idImageManagerLocal::AllocImage: \"%s\" is too long\n", name.c_str() );
 	
 	idImage* image = new( TAG_IMAGE ) idImage( name );
 
@@ -400,7 +421,7 @@ idImage*	idImageManagerLocal::GetImageWithParameters( const idStr &_name, cubeFi
 				return image;
 			
 			if( image->cubeFiles != cubeMap )
-				common->Error( "Image '%s' has been referenced with conflicting cube map states", _name );
+				common->Error( "Image '%s' has been referenced with conflicting cube map states", _name.c_str() );
 			
 			// if( image->usage != usage )
 			// 	continue; // If an image is used differently then we need 2 copies of it because usage affects the way it's compressed and swizzled
@@ -459,7 +480,7 @@ idImage*	idImageManagerLocal::ImageFromFile( const idStr &_name, const cubeFiles
 				return image;
 			
 			if( image->cubeFiles != cubeMap )
-				common->Error( "Image '%s' has been referenced with conflicting cube map states", _name );
+				common->Error( "Image '%s' has been referenced with conflicting cube map states", _name.c_str() );
 	
 			//if( image->usage != usage )
 				// If an image is used differently then we need 2 copies of it because usage affects the way it's compressed and swizzled

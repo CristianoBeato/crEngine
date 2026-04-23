@@ -194,6 +194,7 @@ crInternalFormat::crInternalFormat( const VkFormat &in_format )
 crInternalFormat crInternalFormat::operator=( const VkFormat in_format )
 {
     format = FromVulkan( in_format );
+    return *this;
 }
 
 VkFormat crInternalFormat::VKInternal(void) const

@@ -77,11 +77,7 @@ struct decalProjectionParms_t
 };
 
 // RB begin
-#if defined(_WIN32)
-ALIGNTYPE16 struct decal_t
-#else
-struct decal_t
-#endif
+struct alignas( 16 ) decal_t
 {
 	ALIGNTYPE16 idDrawVert	verts[MAX_DECAL_VERTS];
 	ALIGNTYPE16 triIndex_t	indexes[MAX_DECAL_INDEXES];
@@ -92,9 +88,6 @@ struct decal_t
 	const idMaterial* 		material;
 	mutable bool			writtenToDemo;
 }
-#if !defined(_WIN32)
-ALIGNTYPE16
-#endif
 // RB end
 ;
 
