@@ -77,7 +77,7 @@ public:
 	virtual const char*         Name( void ) const override;
 	virtual const properties_t	Properties( void ) const override;
     virtual const int32_t       Score( void ) const override;
-    virtual bool				ReloadCache( void ) const;
+    virtual bool				ReloadCache( void ) override;
 
     /// @brief Allocate a memory page to be used by structures with the same configuration.
     crMemoryPoolp               Alloc( const size_t in_size, const size_t in_alignament, const uint32_t in_filter, const VkMemoryPropertyFlags in_properties );
@@ -101,17 +101,16 @@ public:
     /// Device ID Mask
     ID_INLINE uint32_t          Mask( void ) const { return m_id + 1; }
 
-    ID_INLINE vkDeviceQueuep    PresentQueue( void ) const { return m_present; }
-    ID_INLINE vkDeviceQueuep    GraphicQueue( void ) const { return m_graphic; }
+    ID_INLINE vkDeviceQueuep    PresentQueue( void ) const { assert( m_present != nullptr ); return m_present; }
+    ID_INLINE vkDeviceQueuep    GraphicQueue( void ) const { assert( m_graphic != nullptr ); return m_graphic; }
     ID_INLINE vkDeviceQueuep    ComputeQueue( void ) const { return ( m_compute != nullptr ) ? m_compute : m_graphic; }
     ID_INLINE vkDeviceQueuep    TransferQueue( void ) const { return ( m_transfer != nullptr ) ? m_transfer : m_graphic; }
-
-    ID_INLINE VkPipelineCache   PipelineCache( void ) const { return m_pipelineCache; }
-    ID_INLINE VkPhysicalDevice  PhysicDevice( void ) const { return m_phisicDevice; }
-    ID_INLINE VkDevice          LogicDevice( void ) const { return m_logicDevce; }
-    ID_INLINE operator VkPipelineCache( void ) const { return m_pipelineCache; }
-    ID_INLINE operator VkPhysicalDevice( void ) const { return m_phisicDevice; }
-    ID_INLINE operator VkDevice( void ) const { return m_logicDevce; }
+    ID_INLINE VkPipelineCache   PipelineCache( void ) const { assert( m_pipelineCache != nullptr ); return m_pipelineCache; }
+    ID_INLINE VkPhysicalDevice  PhysicDevice( void ) const { assert( m_physic != nullptr ); return m_physic; }
+    ID_INLINE VkDevice          LogicDevice( void ) const { assert( m_logic != nullptr ); return m_logic; }
+    ID_INLINE operator VkPipelineCache( void ) const { assert( m_pipelineCache != nullptr ); return m_pipelineCache; }
+    ID_INLINE operator VkPhysicalDevice( void ) const { assert( m_physic != nullptr ); return m_physic; }
+    ID_INLINE operator VkDevice( void ) const { assert( m_logic != nullptr ); return m_logic; }
     
 private:
     struct memoryHeapInfo_t
@@ -155,13 +154,11 @@ private:
     vkDeviceQueuep                                  m_graphic;
     vkDeviceQueuep                                  m_compute;
     vkDeviceQueuep                                  m_transfer;
-    VkPhysicalDevice                                m_phisicDevice;
-    VkDevice                                        m_logicDevce;
     VkPipelineCache                                 m_pipelineCache;
 
     // device memory info
     VkPhysicalDeviceMemoryProperties2               m_memoryProperties;
-    VkPhysicalDevice                                m_physical; // Physical Device handler 
+    VkPhysicalDevice                                m_physic;   // Physical Device handler 
     VkDevice                                        m_logic;    // Logic Device handler
     
     idList<VkQueueFamilyProperties2, TAG_VULKAN>    m_queueFamilyPropertiesList;
@@ -187,8 +184,8 @@ public:
 	virtual bool				StartUp( void ) override;
 	virtual void				ShutDown( void ) override;
 	virtual uint32_t			GetDevices( crRenderDevicep* in_deviceArray ) override;
-    inline VkInstance           Instance( void ) const { return m_instance; }
-    inline VkSurfaceKHR         Surface( void )  const { return m_surface; }
+    inline VkInstance           Instance( void ) const { assert( m_instance != nullptr ); return m_instance; }
+    inline VkSurfaceKHR         Surface( void )  const { assert( m_surface != nullptr ); return m_surface; }
 
 private:
     bool                                        m_hasDebugUtils;    // Enable debug layer

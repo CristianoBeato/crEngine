@@ -172,7 +172,7 @@ crVulkanRenderDevice::crVulkanRenderDevice
 ==============
 */
 crVulkanRenderDevice::crVulkanRenderDevice( void ) : 
-    m_physical( nullptr ),
+    m_physic( nullptr ),
     m_logic( nullptr ),
     m_present( nullptr ),
     m_graphic( nullptr ),
@@ -187,7 +187,7 @@ crVulkanRenderDevice::crVulkanRenderDevice
 ==============
 */
 crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysicalDevice in_device, const VkSurfaceKHR in_surface ) :
-    m_physical( nullptr ),
+    m_physic( nullptr ),
     m_logic( nullptr ),
     m_present( nullptr ),
     m_graphic( nullptr ),
@@ -207,7 +207,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     m_surfaceFormats = idList<VkSurfaceFormat2KHR>();
     m_presentModes = idList<VkPresentModeKHR>();
     m_queues = idList<queueInfo_t>();
-    m_physical = in_device;
+    m_physic = in_device;
     
     VkPhysicalDeviceSurfaceInfo2KHR deviceSurfaceInfo{}; 
     deviceSurfaceInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
@@ -235,7 +235,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     m_propertiesv10.pNext = &m_propertiesv11;
 
     // retrieve device properties
-    vkGetPhysicalDeviceProperties2( m_physical, &m_propertiesv10 );
+    vkGetPhysicalDeviceProperties2( m_physic, &m_propertiesv10 );
 
     ///
     /// concatenate device features
@@ -262,25 +262,25 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     m_featuresv10.pNext = &m_featuresv11;
     
     /// query features
-	vkGetPhysicalDeviceFeatures2( m_physical, &m_featuresv10 );
+	vkGetPhysicalDeviceFeatures2( m_physic, &m_featuresv10 );
 
     // query device memory properties
     m_memoryProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_MEMORY_PROPERTIES_2;
     m_memoryProperties.pNext = nullptr;
-    vkGetPhysicalDeviceMemoryProperties2( m_physical, &m_memoryProperties );
+    vkGetPhysicalDeviceMemoryProperties2( m_physic, &m_memoryProperties );
 
     // Find a queue family that supports graphics and presentation
-	vkGetPhysicalDeviceQueueFamilyProperties2( m_physical, &queueFamilyCount, nullptr);
+	vkGetPhysicalDeviceQueueFamilyProperties2( m_physic, &queueFamilyCount, nullptr);
     m_queueFamilyPropertiesList.SetNum( queueFamilyCount );
     for ( i = 0; i < queueFamilyCount; ++i) 
     {
         m_queueFamilyPropertiesList[i].sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2;
         m_queueFamilyPropertiesList[i].pNext = nullptr; // Boa prática garantir que seja nulo
     }
-    vkGetPhysicalDeviceQueueFamilyProperties2( m_physical, &queueFamilyCount, m_queueFamilyPropertiesList.Ptr() );
+    vkGetPhysicalDeviceQueueFamilyProperties2( m_physic, &queueFamilyCount, m_queueFamilyPropertiesList.Ptr() );
 
     // list the device available extensions 
-    result = vkEnumerateDeviceExtensionProperties( m_physical, nullptr, &deviceExtensionCount, nullptr );
+    result = vkEnumerateDeviceExtensionProperties( m_physic, nullptr, &deviceExtensionCount, nullptr );
     if ( result != VK_SUCCESS )
     {
         idLib::Error( "vkEnumerateDeviceExtensionProperties failed!", VulkanErrorString( result ).c_str() );
@@ -288,7 +288,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     }
     
     m_deviceExtensions.SetNum( deviceExtensionCount);
-	result = vkEnumerateDeviceExtensionProperties( m_physical, nullptr, &deviceExtensionCount, m_deviceExtensions.Ptr() );
+	result = vkEnumerateDeviceExtensionProperties( m_physic, nullptr, &deviceExtensionCount, m_deviceExtensions.Ptr() );
     if ( result != VK_SUCCESS )
     {
         idLib::Error( "vkEnumerateDeviceExtensionProperties failed!", VulkanErrorString( result ).c_str() );
@@ -296,7 +296,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     }
     
     // query device suported surface formats
-    result = vkGetPhysicalDeviceSurfaceFormats2KHR( m_physical, &deviceSurfaceInfo, &formatCount, nullptr );
+    result = vkGetPhysicalDeviceSurfaceFormats2KHR( m_physic, &deviceSurfaceInfo, &formatCount, nullptr );
     if ( result != VK_SUCCESS )
     {
         idLib::Error( "vkGetPhysicalDeviceSurfaceFormats2KHR failed!", VulkanErrorString( result ).c_str() );
@@ -310,7 +310,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
         m_surfaceFormats[i].pNext = nullptr;
     }
     
-    result = vkGetPhysicalDeviceSurfaceFormats2KHR( m_physical, &deviceSurfaceInfo, &formatCount, m_surfaceFormats.Ptr() );
+    result = vkGetPhysicalDeviceSurfaceFormats2KHR( m_physic, &deviceSurfaceInfo, &formatCount, m_surfaceFormats.Ptr() );
     if ( result != VK_SUCCESS )
     {
         idLib::Error( "vkGetPhysicalDeviceSurfaceFormats2KHR failed!", VulkanErrorString( result ).c_str() );
@@ -318,7 +318,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     }
  
     // query device suported surface presenting mode
-    result = vkGetPhysicalDeviceSurfacePresentModesKHR( m_physical, in_surface, &presentModeCount, nullptr );
+    result = vkGetPhysicalDeviceSurfacePresentModesKHR( m_physic, in_surface, &presentModeCount, nullptr );
     if ( result != VK_SUCCESS )
     {
         idLib::Error( "vkGetPhysicalDeviceSurfacePresentModesKHR failed!", VulkanErrorString( result ).c_str() );
@@ -326,7 +326,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     }
 
     m_presentModes.SetNum( presentModeCount );
-    result = vkGetPhysicalDeviceSurfacePresentModesKHR( m_physical, in_surface, &presentModeCount, m_presentModes.Ptr() );
+    result = vkGetPhysicalDeviceSurfacePresentModesKHR( m_physic, in_surface, &presentModeCount, m_presentModes.Ptr() );
     if ( result != VK_SUCCESS )
     {
         idLib::Error( "vkGetPhysicalDeviceSurfacePresentModesKHR failed!", VulkanErrorString( result ).c_str() );
@@ -336,7 +336,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     // query device surface  capabilities
     m_surfaceCapabilities.sType = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
     m_surfaceCapabilities.pNext = nullptr;
-    result = vkGetPhysicalDeviceSurfaceCapabilities2KHR( m_physical, &deviceSurfaceInfo, &m_surfaceCapabilities ); 
+    result = vkGetPhysicalDeviceSurfaceCapabilities2KHR( m_physic, &deviceSurfaceInfo, &m_surfaceCapabilities ); 
     if ( result != VK_SUCCESS )
     {
         idLib::Error( "vkGetPhysicalDeviceSurfaceCapabilities2KHR failed!", VulkanErrorString( result ).c_str() );
@@ -347,7 +347,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
     {
         VkBool32 presentSupport = VK_FALSE;
         auto queueFamilyProperties = m_queueFamilyPropertiesList[family].queueFamilyProperties;
-        vkGetPhysicalDeviceSurfaceSupportKHR( m_physical, family, in_surface, &presentSupport );
+        vkGetPhysicalDeviceSurfaceSupportKHR( m_physic, family, in_surface, &presentSupport );
         queueInfo_t queue{};
         queue.family = family;
         queue.graphic = ( queueFamilyProperties.queueFlags & VK_QUEUE_GRAPHICS_BIT );
@@ -451,7 +451,7 @@ bool crVulkanRenderDevice::Create( const char** in_layers, const uint32_t in_num
     deviceCI.ppEnabledLayerNames = in_layers;
 
     // create the logic device handle
-    result = vkCreateDevice( m_physical, &deviceCI, k_allocationCallbacks, &m_logic );
+    result = vkCreateDevice( m_physic, &deviceCI, k_allocationCallbacks, &m_logic );
     if( !ResultCheck( result, "vkCreateDevice" ) )
         return false;
 
@@ -661,9 +661,15 @@ const int32_t crVulkanRenderDevice::Score( void ) const
 crVulkanRenderDevice::ReloadCache
 ==============
 */
-bool crVulkanRenderDevice::ReloadCache(void) const
+bool crVulkanRenderDevice::ReloadCache( void )
 {
-    return false;
+    if ( m_pipelineCache )
+    {
+        vkDestroyPipelineCache( m_logic, m_pipelineCache, k_allocationCallbacks );
+        m_pipelineCache = nullptr;
+    }
+    
+    return LoadCache();
 }
 
 
@@ -831,7 +837,7 @@ const bool crVulkanRenderDevice::SupportedDepthFormat( const VkFormat in_depthFo
         if ( formatList[i] != in_depthFormat )
             continue;
 
-		vkGetPhysicalDeviceFormatProperties2( m_physical, formatList[i], &formatProps );
+		vkGetPhysicalDeviceFormatProperties2( m_physic, formatList[i], &formatProps );
 		if (formatProps.formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT)
 			return true;
 	}
@@ -859,7 +865,7 @@ const bool crVulkanRenderDevice::SupportedDepthStencilFormat( const VkFormat in_
         if ( formatList[i] != in_depthStencilFormat )
             continue;
         
-        vkGetPhysicalDeviceFormatProperties2( m_physical, formatList[i], &formatProps);
+        vkGetPhysicalDeviceFormatProperties2( m_physic, formatList[i], &formatProps);
         if ( formatProps.formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_DEPTH_STENCIL_ATTACHMENT_BIT )
             return true;
     }
@@ -875,7 +881,7 @@ crVulkanRenderDevice::FormatIsFilterable
 const bool crVulkanRenderDevice::FormatIsFilterable(const VkFormat in_format, const VkImageTiling tiling) const
 {
     VkFormatProperties2 formatProps;
-    vkGetPhysicalDeviceFormatProperties2( m_physical, in_format, &formatProps);
+    vkGetPhysicalDeviceFormatProperties2( m_physic, in_format, &formatProps);
 
 	if (tiling == VK_IMAGE_TILING_OPTIMAL)
 		return formatProps.formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
