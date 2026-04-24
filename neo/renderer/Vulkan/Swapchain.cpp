@@ -79,16 +79,16 @@ bool crSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     VkPresentModeKHR    presentMode;
     VkSwapchainKHR old = m_swapchain;
     VkResult result = VK_SUCCESS;
-    uint32_t queueFamilyIndices[2] { m_presentQueue->Family(), m_graphicQueue->Family() };
-    
+
     auto context = dynamic_cast<crVulkanAPIp>( crRenderAPI::Get() );
-    auto device = tr.GetRenderDevice();
+    m_device = tr.GetRenderDevice();
     m_width = in_width;
     m_height = in_height;
 
     // Get queues 
-    m_presentQueue = device->PresentQueue();
-    m_graphicQueue = device->GraphicQueue();
+    m_presentQueue = m_device->PresentQueue();
+    m_graphicQueue = m_device->GraphicQueue();
+    uint32_t queueFamilyIndices[2] { m_presentQueue->Family(), m_graphicQueue->Family() };
 
     if ( m_presentQueue == nullptr )
     {
@@ -104,7 +104,7 @@ bool crSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     
     /// Get present mode
     auto selected = modes[0]; 
-    if( device->SupportedPresentMode( modes[vk_swapchainPresent.GetInteger()].present ) )
+    if( m_device->SupportedPresentMode( modes[vk_swapchainPresent.GetInteger()].present ) )
         selected = modes[vk_swapchainPresent.GetInteger()]; 
 
     printf( "Using Present Mode: %s\n", selected.mode );
@@ -121,7 +121,7 @@ bool crSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     swapchainCI.pNext = nullptr;
     swapchainCI.flags = 0;
     swapchainCI.surface = context->Surface();
-    swapchainCI.minImageCount = std::min( SMP_FRAMES, 3u ); //TODO: check max device suported frames
+    swapchainCI.minImageCount = std::min( SMP_FRAMES, 3u ); //TODO: check max m_device suported frames
     swapchainCI.imageFormat = format.format;
     swapchainCI.imageColorSpace = format.colorSpace;
     swapchainCI.imageExtent.width = m_width;
@@ -139,7 +139,7 @@ bool crSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
     swapchainCI.clipped = VK_TRUE;
     swapchainCI.oldSwapchain = old;
 
-    result = vkCreateSwapchainKHR( *device, &swapchainCI, k_allocationCallbacks, &m_swapchain );
+    result = vkCreateSwapchainKHR( *m_device, &swapchainCI, k_allocationCallbacks, &m_swapchain );
     if ( result != VK_SUCCESS )
     { 
         common->FatalError( "vkCreateSwapchainKHR FAILED! %s\n", VulkanErrorString( result ).c_str() );
@@ -148,14 +148,14 @@ bool crSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
 
     // we are updating, recreating a new
     if ( old != nullptr )
-        vkDestroySwapchainKHR( *device, old, k_allocationCallbacks );
+        vkDestroySwapchainKHR( *m_device, old, k_allocationCallbacks );
     
     // Get the available image count 
     vkGetSwapchainImagesKHR( *m_device, m_swapchain, &numImages, nullptr );
     
     // prepare the arrays
-    m_imagesArray.Resize( numImages );
-    m_presentImages.Resize( numImages );
+    m_imagesArray.SetNum( numImages );
+    m_presentImages.SetNum( numImages );
     
     // Get the image array 
     vkGetSwapchainImagesKHR( *m_device, m_swapchain, &numImages, m_imagesArray.Ptr() );
@@ -178,17 +178,17 @@ bool crSwapchain::Create( const uint32_t in_width, const uint32_t in_height, con
 void crSwapchain::Destroy(void)
 {
     uint32_t i = 0;
-    auto device = tr.GetRenderDevice();
+    auto m_device = tr.GetRenderDevice();
     
     for ( i = 0; i < m_presentImages.Num(); i++ )
     {
         // release color image view 
-        vkDestroyImageView( *device, m_presentImages[i].View(), k_allocationCallbacks );
+        vkDestroyImageView( *m_device, m_presentImages[i].View(), k_allocationCallbacks );
     }
     
     if ( m_swapchain != nullptr )
     {
-        vkDestroySwapchainKHR( *device, m_swapchain, k_allocationCallbacks );
+        vkDestroySwapchainKHR( *m_device, m_swapchain, k_allocationCallbacks );
         m_swapchain = nullptr;
     }
     
@@ -204,7 +204,7 @@ void crSwapchain::Destroy(void)
 void crSwapchain::AcquireImage( const crSemaphore* in_imageAvailable )
 {
     VkResult result = VK_SUCCESS;
-    auto device = tr.GetRenderDevice();
+    auto m_device = tr.GetRenderDevice();
 
     //
     // Aquire the current frame image idex
@@ -215,8 +215,8 @@ void crSwapchain::AcquireImage( const crSemaphore* in_imageAvailable )
     acquireNextImageInfo.timeout = UINT64_MAX;
     acquireNextImageInfo.semaphore = *in_imageAvailable;
     acquireNextImageInfo.fence = nullptr;
-    acquireNextImageInfo.deviceMask = device->Mask();
-    result = vkAcquireNextImage2KHR( *device, &acquireNextImageInfo, &m_currentImage );
+    acquireNextImageInfo.deviceMask = m_device->Mask();
+    result = vkAcquireNextImage2KHR( *m_device, &acquireNextImageInfo, &m_currentImage );
     if ( result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR )
         idLib::Error( "crSwapchain::AcquireImage::vkAcquireNextImage2KHR %s\n", VulkanErrorString( result ).c_str() );
 }
@@ -240,12 +240,12 @@ void crSwapchain::Present( const crSemaphore* in_renderDone )
 
 VkSurfaceFormatKHR crSwapchain::GetPresentFormat( uint32_t in_format )
 {
-    auto device = static_cast<crVulkanRenderDevicep>( tr.GetRenderDevice() );
+    auto m_device = static_cast<crVulkanRenderDevicep>( tr.GetRenderDevice() );
     VkSurfaceFormatKHR format = formats[in_format].format;
     while ( in_format > 0 )
     {
         // suported
-        if( device->SupportedFormat( format ) )
+        if( m_device->SupportedFormat( format ) )
             break;
             
         /// fall back
