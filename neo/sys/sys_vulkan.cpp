@@ -30,6 +30,8 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #define NO_SDL_VULKAN_TYPEDEFS
 #include <SDL3/SDL_vulkan.h>
 
+#define DEBUG_GET_PROCESS 0
+
 constexpr uint32_t k_PIPELINE_CACHE_FILE_MAGIC = 0x43462F30; // PCF/0;
 constexpr uint32_t k_PIPELINE_CACHE_FILE_VERSION = 10; // 1.0
 constexpr uint32_t k_PIPELINE_CAHCE_FILE_SEED = 0x1337;
@@ -38,8 +40,10 @@ static const float k_PRIORITY = 1.0f;
 /// the cache will be stored in the user space path
 static const char* k_CACHE_FILE = { "_pipeline_cache.pcf" };
 
+idCVar vk_enableDebugLayer( "vk_enableDebugLayer", "1", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan debug output layer" );
 idCVar vk_useComputQueues( "vk_useComputQueue", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan find a compute queue, or 0 to use compute queue" );
 idCVar vk_useTransferQueue( "vk_useTransferQueue", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan transfer queues, or 0 to use just graphic queue" );
+
 
 #pragma pack( push, 1 )
 struct cache_header_t
@@ -71,6 +75,9 @@ template< typename _type_ >
 inline static void GetVkProc( _type_ &in_proc, const char* in_pName, VkInstance in_instance )
 {
     in_proc = reinterpret_cast<_type_>( vkGetInstanceProcAddr( in_instance, in_pName ) );
+#if DEBUG_GET_PROCESS
+    assert( in_proc != nullptr && in_pName != nullptr && "Can't load extension" );
+#endif //DEBUG_GET_PROCESS
 }
 
 #define GET_VK_PROC( P, I ) GetVkProc( P, #P, I )
@@ -264,7 +271,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
 
     // Find a queue family that supports graphics and presentation
 	vkGetPhysicalDeviceQueueFamilyProperties2( m_physical, &queueFamilyCount, nullptr);
-    m_queueFamilyPropertiesList.Resize( queueFamilyCount );
+    m_queueFamilyPropertiesList.SetNum( queueFamilyCount );
     for ( i = 0; i < queueFamilyCount; ++i) 
     {
         m_queueFamilyPropertiesList[i].sType = VK_STRUCTURE_TYPE_QUEUE_FAMILY_PROPERTIES_2;
@@ -280,7 +287,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
         // TODO: exit ? fatal error ? throw a execption
     }
     
-    m_deviceExtensions.Resize( deviceExtensionCount);
+    m_deviceExtensions.SetNum( deviceExtensionCount);
 	result = vkEnumerateDeviceExtensionProperties( m_physical, nullptr, &deviceExtensionCount, m_deviceExtensions.Ptr() );
     if ( result != VK_SUCCESS )
     {
@@ -296,7 +303,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
         // TODO: exit ? fatal error ? throw a execption
     }
     
-    m_surfaceFormats.Resize( formatCount );
+    m_surfaceFormats.SetNum( formatCount );
     for ( i = 0; i < formatCount; i++)
     {
         m_surfaceFormats[i].sType = VK_STRUCTURE_TYPE_SURFACE_FORMAT_2_KHR;
@@ -318,7 +325,7 @@ crVulkanRenderDevice::crVulkanRenderDevice(  const uint32_t in_ID, const VkPhysi
         // TODO: exit ? fatal error ? throw a execption
     }
 
-    m_presentModes.Resize( presentModeCount );
+    m_presentModes.SetNum( presentModeCount );
     result = vkGetPhysicalDeviceSurfacePresentModesKHR( m_physical, in_surface, &presentModeCount, m_presentModes.Ptr() );
     if ( result != VK_SUCCESS )
     {
@@ -452,10 +459,8 @@ bool crVulkanRenderDevice::Create( const char** in_layers, const uint32_t in_num
     // this are required queues
     if ( !m_present || !m_graphic )
     {
-        if( !m_present )
-            idLib::Error( "Missing Present Queue\n" );
-        if( !m_graphic )
-            idLib::Error( "Missing Present Queue\n" );
+        if( !m_present ) idLib::Error( "Missing Present Queue\n" );
+        if( !m_graphic ) idLib::Error( "Missing Graphic Queue\n" );
         return false;
     }
     
@@ -479,7 +484,11 @@ bool crVulkanRenderDevice::Create( const char** in_layers, const uint32_t in_num
     if( !LoadCache() )
         idLib::Printf( "failed to load cache\n" );
 
-    idLib::Printf( " -> succes\n" );
+    if( !InitDeviceHeap() )
+    {
+        idLib::Error( "FAILED TO INITIALIZE DEVICE HEAP!\n" );
+        return false;
+    }
 
     return true;
 }
@@ -494,6 +503,27 @@ void crVulkanRenderDevice::Destroy(void)
     ///
     if( !SaveCache() )
         idLib::Error( "Failed to load cache\n" );
+
+    /// Release cache 
+    if( m_pipelineCache != nullptr )
+    {
+        vkDestroyPipelineCache( m_logic, m_pipelineCache, k_allocationCallbacks );
+        m_pipelineCache = nullptr;
+        m_cacheLoaded = false;
+    }
+
+    /// release memory 
+    for ( uint32_t i = 0; i < m_types.Num(); i++)
+    {
+        auto type = m_types[i];
+        for ( uint32_t j = 0; j < type.pools.Num(); j++)
+        {
+            /// Well this is actually an error, if memory
+            /// are not released at current point, we have a
+            /// leack
+            Free( type.pools[j] );
+        }   
+    }
 
     if( m_transfer != nullptr )
     {
@@ -517,11 +547,6 @@ void crVulkanRenderDevice::Destroy(void)
     {
         delete m_present;
         m_present = nullptr;
-    }
-
-    if( m_pipelineCache != nullptr )
-    {
-        
     }
 
     if ( m_logic != nullptr )
@@ -629,6 +654,101 @@ const int32_t crVulkanRenderDevice::Score( void ) const
     };
 
     return score;
+}
+
+/*
+==============
+crVulkanRenderDevice::ReloadCache
+==============
+*/
+bool crVulkanRenderDevice::ReloadCache(void) const
+{
+    return false;
+}
+
+
+/*
+==============
+crMemoryHeap::Alloc
+==============
+*/
+crMemoryPool* crVulkanRenderDevice::Alloc( const size_t in_size, const size_t in_alignment, const uint32_t in_filter, const VkMemoryPropertyFlags in_properties )
+{
+    memoryTypeInfo_t*   type = nullptr; 
+    size_t alignedSize = ( in_size + ( in_alignment - 1)) & ~( in_alignment - 1 );
+
+    /// Find the suitabe memory type
+    for ( uint32_t i = 0; i < m_types.Num(); i++)
+    {
+        memoryTypeInfo_t memoryType = m_types[i];    
+		if ( in_filter & ( 1 << i ) && ( memoryType.propertyFlags & in_properties ) == in_properties )
+				type = &m_types[i];
+    }
+
+    /// no suitable found
+    if( type == nullptr )
+    {
+        idLib::Error( "Failed to find a suitabe memory type to alloc a device Memory Heap\n" );
+        return nullptr;
+    }
+
+    /// check for available heap memory
+    // TODO: But perhaps that's not the total amount of contiguous memory available. Something to think about in the future.
+    if( m_heaps[type->heapIndex].free < alignedSize ) 
+    {
+        idLib::Error( "Failed to find a suitabe memory type to alloc a device Memory Heap\n" );
+        return nullptr;
+    }
+
+    /// Alloc the memory
+    crMemoryPool* memoryPage = new crMemoryPool();
+    if( !memoryPage->Create( alignedSize, in_alignment, in_properties ) )
+    {
+        delete memoryPage;
+        return nullptr;
+    }
+
+    /// update heap info
+    m_heaps[type->heapIndex].free -= in_size;
+    m_heaps[type->heapIndex].allocated += in_size;
+
+    /// store the page structure for future management ( defragment )
+    memoryPage->SetProperties( type->pools.Append( memoryPage ), type->typeIndex );
+    return memoryPage;
+}
+
+/*
+==============
+crMemoryHeap::Free
+==============
+*/
+void crVulkanRenderDevice::Free( crMemoryPool* in_pool )
+{
+    idassert( in_pool != nullptr );
+    uint32_t index = in_pool->GetIndex();
+    uint32_t type = in_pool->GetType();
+    
+    /// Remove from the list of used pools
+    m_types[type].pools.RemoveIndex( index );
+
+    /// "relase" memory sizes  
+    m_heaps[m_types[type].heapIndex].allocated -= in_pool->Size();
+    m_heaps[m_types[type].heapIndex].free += in_pool->Size();
+
+    /// release Vulkan device Memory
+    in_pool->Destroy();
+    delete in_pool;
+}
+
+/*
+==============
+crMemoryHeap::Defrag
+==============
+*/
+void crVulkanRenderDevice::Defrag( void )
+{
+    /// TODO :P 
+    // TODO: Create a separathed thread to move memory, and write to a sub command buffer, and then send at frame beging
 }
 
 /*
@@ -1014,6 +1134,60 @@ void crVulkanRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &
     }
 }
 
+
+/*
+==============
+crVulkanRenderDevice::InitDeviceHeap
+==============
+*/
+bool crVulkanRenderDevice::InitDeviceHeap( void )
+{
+    uint32_t i = 0;
+
+    auto props = m_memoryProperties.memoryProperties;
+    if( props.memoryHeapCount < 1 || props.memoryTypeCount < 1 )
+        return false;
+    
+    /// In the Vulkan ecosystem, the term "heap" refers to large, 
+    /// contiguous blocks of physical memory available in the hardware 
+    /// (such as the video card's VRAM or system RAM) that the 
+    /// API manages to store resource data such as buffers and images.
+    /// Memory Heaps (Device Memory)
+    /// These represent the actual physical memory installed in 
+    /// the computer or mobile device. When you query the device 
+    /// memory properties (VkPhysicalDeviceMemoryProperties), 
+    /// Vulkan returns a list of available heaps:
+
+    /// VK_DEVICE_LOCAL_BIT: Indicates memory that is physically located on the GPU. 
+    /// It is the fastest memory for graphics processing, 
+    /// but is generally not directly accessible by the CPU.
+
+    /// VK_HOST_VISIBLE_BIT: Usually associated with system RAM 
+    /// or a portion of VRAM that the CPU can "see" and write to directly.
+    
+    /// get memory heap
+    m_heaps.SetNum( props.memoryHeapCount );
+    for ( i = 0; i < props.memoryHeapCount; i++)
+    {
+        /// aquire heap size
+        m_heaps[i].total = props.memoryHeaps[i].size;
+        m_heaps[i].free = m_heaps[i].total;
+        m_heaps[i].propertyFlags = props.memoryHeaps[i].flags;
+    }
+    
+    /// get types
+    m_types.SetNum( props.memoryTypeCount );
+    for ( i = 0; i < props.memoryTypeCount; i++)
+    {
+        m_types[i].typeIndex = i;
+        m_types[i].heapIndex = props.memoryTypes[i].heapIndex;
+        m_types[i].propertyFlags = props.memoryTypes[i].propertyFlags;
+    }
+    
+    return true;
+}
+
+
 /*
 ==============
 crVulkanRenderDevice::LoadCache
@@ -1230,7 +1404,6 @@ bool crVulkanAPI::StartUp(void)
     Uint32                              SDL3ExtensionCount = 0;
     const char* const*                  SDL3Extensions = nullptr;
 	idList<const char*, TAG_VULKAN>     requiredInstanceExtensions;
-    idList<const char*, TAG_VULKAN>     requiredDeviceExtensions;
     idList<const char*, TAG_VULKAN>     requestedInstanceLayers;
 
     requiredInstanceExtensions.Append( VK_KHR_SURFACE_EXTENSION_NAME );
@@ -1262,7 +1435,7 @@ bool crVulkanAPI::StartUp(void)
     for ( uint32_t i = 0; i < SDL3ExtensionCount; i++)
     {
         requiredInstanceExtensions.Append( SDL3Extensions[i] );
-       idLib::Printf( " - %s\n", SDL3Extensions[i] );
+        idLib::Printf( " - %s\n", SDL3Extensions[i] );
     }
 
     /// apend layers 
@@ -1279,12 +1452,33 @@ bool crVulkanAPI::StartUp(void)
     debugUtilsMessengerCI.pUserData = this;
     
     /// Try initialize Vulkan instance
-    if ( !InitInstance( requestedInstanceLayers, requiredDeviceExtensions, &debugUtilsMessengerCI  ) )
+    if ( !InitInstance( requestedInstanceLayers, requiredInstanceExtensions, debugUtilsMessengerCI  ) )
         return false;
 
-    if( m_hasDebugUtils && !InitDebugUtilsMessenger( &debugUtilsMessengerCI ) )
-        idLib::Error( "InitDebugUtilsMessenger failed!\n" );
+    /// Load vulkan lib functions 
+    LoadVulkanProcs();
+
+    /// Create Window surface
+    InitSurface();
+
+    /// if available and enabled, initialize debug output
+    if( m_hasDebugUtils && vk_enableDebugLayer.GetBool() )
+    {
+        if( !InitDebugUtilsMessenger( debugUtilsMessengerCI ) )
+            idLib::Error( "InitDebugUtilsMessenger failed!\n" );
+
+        idLib::Printf( "Vulkan Debug Layer Available and active\n" );
+    }
+    else
+    {
+        if( m_hasDebugUtils )
+            idLib::Printf( "Vulkan Debug Layer Available but not active\n" );
+        else
+            idLib::Printf( "Vulkan Debug Layer Not Available\n" );
+    }
+
     
+
     result = vkEnumeratePhysicalDevices( m_instance, &physicalDeviceCount, nullptr);
     if( result != VK_SUCCESS )
     {
@@ -1298,7 +1492,7 @@ bool crVulkanAPI::StartUp(void)
         return false;
     }
     
-    m_availablePhysicalDevices.Resize( physicalDeviceCount );
+    m_availablePhysicalDevices.SetNum( physicalDeviceCount );
     result = vkEnumeratePhysicalDevices( m_instance, &physicalDeviceCount, m_availablePhysicalDevices.Ptr() );    
     if( result != VK_SUCCESS )
     {
@@ -1324,8 +1518,7 @@ uint32_t crVulkanAPI::GetDevices( crRenderDevice **in_deviceArray )
 
     for ( uint32_t i = 0; i < m_availablePhysicalDevices.Num(); i++)
     {
-         auto device = in_deviceArray[i];
-         device = new crVulkanRenderDevice( i, m_availablePhysicalDevices[i], m_surface );
+         in_deviceArray[i] = new crVulkanRenderDevice( i, m_availablePhysicalDevices[i], m_surface );
     }
 
     return m_availablePhysicalDevices.Num();
@@ -1347,7 +1540,7 @@ void crVulkanAPI::ListExtensionsAndLayers(void)
     if ( result != VK_SUCCESS )
         idLib::Error( "vkEnumerateInstanceExtensionProperties failed! %s\n", VulkanErrorString( result ).c_str() );
 
-    m_availableInstanceExtensions.Resize( extensionCount );
+    m_availableInstanceExtensions.SetNum( extensionCount );
 	result = vkEnumerateInstanceExtensionProperties( nullptr, &extensionCount, m_availableInstanceExtensions.Ptr() );
     if ( result != VK_SUCCESS )
         idLib::Error( "vkEnumerateInstanceExtensionProperties failed! %s\n", VulkanErrorString( result ).c_str() );
@@ -1357,7 +1550,7 @@ void crVulkanAPI::ListExtensionsAndLayers(void)
     if ( result != VK_SUCCESS )
         idLib::Error( "vkEnumerateInstanceLayerProperties failed! %s\n", VulkanErrorString( result ).c_str() );
 
-    m_supportedInstanceLayers.Resize( layerCount );
+    m_supportedInstanceLayers.SetNum( layerCount );
     result = vkEnumerateInstanceLayerProperties( &layerCount, m_supportedInstanceLayers.Ptr());
     if ( result != VK_SUCCESS )
         idLib::Error( "vkEnumerateInstanceLayerProperties failed! %s\n", VulkanErrorString( result ).c_str() );
@@ -1368,9 +1561,9 @@ void crVulkanAPI::ListExtensionsAndLayers(void)
 crVulkanAPI::InitInstance
 ==============
 */
-bool crVulkanAPI::InitInstance(const idList<const char *> in_requestedInstanceLayers,
+bool crVulkanAPI::InitInstance(const idList<const char *> &in_requestedInstanceLayers,
                                const idList<const char *> &in_requiredInstanceExtensions,
-                               const VkDebugUtilsMessengerCreateInfoEXT *in_debugUtilsMessengerCI)
+                               const VkDebugUtilsMessengerCreateInfoEXT &in_debugUtilsMessengerCI)
 {
     VkResult    result = VK_SUCCESS;
     
@@ -1385,10 +1578,14 @@ bool crVulkanAPI::InitInstance(const idList<const char *> in_requestedInstanceLa
 	VkInstanceCreateInfo    instance{};
     instance.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
     instance.flags = 0;
-    instance.pNext = in_debugUtilsMessengerCI;
+    instance.pNext = &in_debugUtilsMessengerCI;
 	instance.pApplicationInfo = &application;
-	instance.enabledLayerCount = in_requestedInstanceLayers.Num();
+	
+    /// Enabled layers
+    instance.enabledLayerCount = in_requestedInstanceLayers.Num();
 	instance.ppEnabledLayerNames = in_requestedInstanceLayers.Ptr();
+
+    /// Enabled extensions
 	instance.enabledExtensionCount = in_requiredInstanceExtensions.Num();
 	instance.ppEnabledExtensionNames = in_requiredInstanceExtensions.Ptr();
 
@@ -1397,7 +1594,7 @@ bool crVulkanAPI::InitInstance(const idList<const char *> in_requestedInstanceLa
         instance.flags |= VK_INSTANCE_CREATE_ENUMERATE_PORTABILITY_BIT_KHR;
 
 	result = vkCreateInstance( &instance, k_allocationCallbacks, &m_instance );
-    if ( !result != VK_SUCCESS )
+    if ( result != VK_SUCCESS )
     {
         common->Error( "vkCreateInstance failed: %s\n", VulkanErrorString( result ).c_str() );
         return false;
@@ -1456,13 +1653,13 @@ void crVulkanAPI::ReleaseSurface(void)
 crVulkanAPI::InitDebugUtilsMessenger
 ==============
 */
-bool crVulkanAPI::InitDebugUtilsMessenger( const VkDebugUtilsMessengerCreateInfoEXT *in_debugUtilsMessengerCI )
+bool crVulkanAPI::InitDebugUtilsMessenger( const VkDebugUtilsMessengerCreateInfoEXT &in_debugUtilsMessengerCI )
 {
     VkResult    result = VK_SUCCESS;
     if ( !m_hasDebugUtils )
         return false;
 
-    result = vkCreateDebugUtilsMessengerEXT( m_instance, in_debugUtilsMessengerCI, k_allocationCallbacks, &m_debugUtilsMessenger );
+    result = vkCreateDebugUtilsMessengerEXT( m_instance, &in_debugUtilsMessengerCI, k_allocationCallbacks, &m_debugUtilsMessenger );
     if( result != VK_SUCCESS )
     {
         idLib::Error( "vkCreateDebugUtilsMessengerEXT failed! %s\n", VulkanErrorString( result ).c_str() );
@@ -1555,8 +1752,12 @@ crVulkanAPI::LoadVulkanProcs
 */
 void crVulkanAPI::LoadVulkanProcs( void )
 {
-    GET_VK_PROC( vkCreateDebugUtilsMessengerEXT, m_instance );
-    GET_VK_PROC( vkDestroyDebugUtilsMessengerEXT, m_instance );
+    /// Debug output available
+    if( m_hasDebugUtils )
+    {
+        GET_VK_PROC( vkCreateDebugUtilsMessengerEXT, m_instance );
+        GET_VK_PROC( vkDestroyDebugUtilsMessengerEXT, m_instance );
+    }
 
     GET_VK_PROC( vkGetInstanceProcAddr, m_instance );
     GET_VK_PROC( vkEnumerateInstanceLayerProperties, m_instance );

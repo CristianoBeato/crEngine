@@ -58,6 +58,7 @@ private:
     VkDevice                m_device;       // parent device
 } * vkDeviceQueuep;
 
+typedef class crMemoryPool* crMemoryPoolp;
 typedef class crVulkanRenderDevice : public crRenderDevice
 {
 public:
@@ -76,16 +77,26 @@ public:
 	virtual const char*         Name( void ) const override;
 	virtual const properties_t	Properties( void ) const override;
     virtual const int32_t       Score( void ) const override;
+    virtual bool				ReloadCache( void ) const;
+
+    /// @brief Allocate a memory page to be used by structures with the same configuration.
+    crMemoryPoolp               Alloc( const size_t in_size, const size_t in_alignament, const uint32_t in_filter, const VkMemoryPropertyFlags in_properties );
+    
+    /// @brief Releasse a memory block
+    void                        Free( crMemoryPoolp in_pool );
+    
+    /// @brief Defragment device memory (TODO: future)
+    void                        Defrag( void );
 
     /// @brief check for extension if available in the device 
     /// @return 
-    virtual const bool      ExtensionAvailable( const char* in_ext ) const override;
+    virtual const bool          ExtensionAvailable( const char* in_ext ) const override;
 
-    const bool      SupportedPresentMode( const VkPresentModeKHR in_mode ) const;
-    const bool      SupportedFormat( const VkSurfaceFormatKHR in_format ) const;
-    const bool      FormatIsFilterable(const VkFormat in_format, const VkImageTiling tiling) const;
-    const bool      SupportedDepthFormat( const VkFormat in_depthFormat ) const;
-    const bool      SupportedDepthStencilFormat( const VkFormat in_depthStencilFormat ) const;
+    const bool                  SupportedPresentMode( const VkPresentModeKHR in_mode ) const;
+    const bool                  SupportedFormat( const VkSurfaceFormatKHR in_format ) const;
+    const bool                  FormatIsFilterable(const VkFormat in_format, const VkImageTiling tiling) const;
+    const bool                  SupportedDepthFormat( const VkFormat in_depthFormat ) const;
+    const bool                  SupportedDepthStencilFormat( const VkFormat in_depthStencilFormat ) const;
 
     /// Device ID Mask
     ID_INLINE uint32_t          Mask( void ) const { return m_id + 1; }
@@ -102,7 +113,23 @@ public:
     ID_INLINE operator VkPhysicalDevice( void ) const { return m_phisicDevice; }
     ID_INLINE operator VkDevice( void ) const { return m_logicDevce; }
     
-private: 
+private:
+    struct memoryHeapInfo_t
+    {
+        size_t                  total = 0;  // total available heap
+        size_t                  allocated = 0; // total used
+        size_t                  free = 0;
+        VkMemoryPropertyFlags   propertyFlags = 0;
+    };
+
+    struct memoryTypeInfo_t
+    {
+        uint32_t                            typeIndex = 0;
+        uint32_t                            heapIndex = 0;
+        VkMemoryPropertyFlags               propertyFlags = 0;
+        idList<crMemoryPoolp, TAG_VULKAN>   pools;
+    };
+
     bool                                            m_cacheLoaded;   // if cache is loaded, we don't save it again
     unsigned int                                    m_id;
     idStr                                           m_name;
@@ -142,8 +169,11 @@ private:
     idList<VkSurfaceFormat2KHR, TAG_VULKAN>         m_surfaceFormats;
     idList<VkPresentModeKHR, TAG_VULKAN>            m_presentModes;
     idList<queueInfo_t, TAG_VULKAN>                 m_queues;
+    idList<memoryHeapInfo_t, TAG_VULKAN>            m_heaps;
+    idList<memoryTypeInfo_t, TAG_VULKAN>            m_types;
 
     void SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &in_queueList );
+    bool InitDeviceHeap( void );
     bool LoadCache( void );
     bool SaveCache( void );
 } * crVulkanRenderDevicep;
@@ -172,11 +202,11 @@ private:
     idList<VkPhysicalDevice, TAG_VULKAN>        m_availablePhysicalDevices; // list of vulkan compatible devices
 
     void    ListExtensionsAndLayers( void );
-    bool    InitInstance( const idList<const char*> in_requestedInstanceLayers, const idList<const char*> &in_requiredInstanceExtensions, const VkDebugUtilsMessengerCreateInfoEXT* in_debugUtilsMessengerCI );
+    bool    InitInstance( const idList<const char*> &in_requestedInstanceLayers, const idList<const char*> &in_requiredInstanceExtensions, const VkDebugUtilsMessengerCreateInfoEXT &in_debugUtilsMessengerCI );
     void    ReleaseInstance( void );
     bool    InitSurface( void );
     void    ReleaseSurface( void );
-    bool    InitDebugUtilsMessenger( const VkDebugUtilsMessengerCreateInfoEXT *in_debugUtilsMessengerCI );
+    bool    InitDebugUtilsMessenger( const VkDebugUtilsMessengerCreateInfoEXT &in_debugUtilsMessengerCI );
     void    ReleaseDebugUtilsMessenger( void );
     bool    IsExtensionAvailable( const idStr &in_ext ) const;
     bool    IsLayersAvailable( const idStr &in_layer ) const;

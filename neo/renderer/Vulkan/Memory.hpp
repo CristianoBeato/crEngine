@@ -85,7 +85,7 @@ public:
     ID_INLINE size_t  Size( void ) const { return m_size; }
 
 protected:
-    friend class crMemoryHeap;
+    friend class crVulkanRenderDevice;
     bool                Create( const size_t in_size, const size_t in_alignment, const uint32_t in_filter );
     void                Destroy( void );
     ID_INLINE void      SetProperties( const uint32_t in_index, const uint32_t in_type ) { m_index = in_index; m_type = in_type; }
@@ -120,40 +120,6 @@ private:
 };
 
 typedef crMemoryPool* crMemoryPoolp;
-
-class crMemoryHeap
-{
-public:
-    struct memoryHeapInfo_t
-    {
-        size_t                  total = 0;  // total available heap
-        size_t                  allocated = 0; // total used
-        size_t                  free = 0;
-        VkMemoryPropertyFlags   propertyFlags = 0;
-    };
-
-    struct memoryTypeInfo_t
-    {
-        uint32_t                            typeIndex = 0;
-        uint32_t                            heapIndex = 0;
-        VkMemoryPropertyFlags               propertyFlags = 0;
-        idList<crMemoryPoolp, TAG_VULKAN>   pools;
-    };
-
-    crMemoryHeap( void );
-    ~crMemoryHeap( void );
-    bool            Create( void );
-    void            Destroy( void );
-    /// @brief Allocate a memory page to be used by structures with the same configuration.
-    crMemoryPoolp   Alloc( const size_t in_size, const size_t in_alignament, const uint32_t in_filter, const VkMemoryPropertyFlags in_properties );
-    /// @brief Releasse a memory block
-    void            Free( crMemoryPoolp in_pool );
-    void            Defrag( void );
-
-private:
-    idList<memoryHeapInfo_t, TAG_VULKAN>    m_heaps;
-    idList<memoryTypeInfo_t, TAG_VULKAN>    m_types;
-};
-typedef crMemoryHeap* crMemoryHeapp;
+typedef class crVulkanRenderDevice* crVulkanRenderDevicep;
 
 #endif //!__MEMORY_HPP__

@@ -923,6 +923,7 @@ public:
 	virtual const char*			Name( void ) const = 0;
 	virtual const properties_t	Properties( void ) const = 0;
 	virtual const int32_t		Score( void ) const = 0;
+	virtual bool				ReloadCache( void ) const = 0;
 	virtual const bool      	ExtensionAvailable( const char* in_ext ) const = 0;
 };
 
