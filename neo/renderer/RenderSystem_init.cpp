@@ -2433,13 +2433,11 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		// recheck all the extensions
 		CheckPortableExtensions();
 		
-		
-		
 		///
 		///
 		///
-		m_graphicCommandBuffer = new vkCommandbuffer();
-		if( !m_graphicCommandBuffer->Create() )
+		m_graphicCommandBuffer = new crCommandbuffer();
+		if( !m_graphicCommandBuffer->Create( static_cast<uint32_t>( r_bufferCount.GetInteger() ) ) )
 		{
 			r_initialized = false;
 			/// TODO: trow exceptions
@@ -2456,21 +2454,22 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		}
 
 		m_frameFence = new crFence();
-		if( m_frameFence->Create( SMP_FRAMES, true ) )
+		if( !m_frameFence->Create( SMP_FRAMES, true ) )
 			throw idException( "ERROR!" );
 
 		m_frameSubmit = new crSemaphoreRoundRobin();
-		if( m_frameSubmit->Create( SMP_FRAMES ) )
+		if( !m_frameSubmit->Create( SMP_FRAMES ) )
 			throw idException( "ERROR!" );
 
 		m_imageReady = new crSemaphoreRoundRobin();
-		if( m_imageReady->Create( SMP_FRAMES ) )
+		if( !m_imageReady->Create( SMP_FRAMES ) )
 			throw idException( "ERROR!" );
 
 		/// Create time query
 		m_timerQuery = new crTimeQueries();
-		m_timerQuery->Create( r_bufferCount.GetInteger() );
-
+		if( !m_timerQuery->Create( r_bufferCount.GetInteger() ) )
+			throw idException( "ERROR!" );
+			
 		r_initialized = true;
 
 		// allocate the vertex array range or vertex objects

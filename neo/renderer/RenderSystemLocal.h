@@ -122,7 +122,7 @@ public:
 	/// get current vulkan device
 	crVulkanRenderDevicep	GetRenderDevice( void ) { return dynamic_cast<crVulkanRenderDevicep>( m_renderDevice ); }
 	crSwapchainp 			Swapchain( void ) const { return m_swapchain; }
-	vkCommandbufferp 		GraphicCommandBuffer( void ) const { return m_graphicCommandBuffer; }
+	crCommandbufferp 		GraphicCommandBuffer( void ) const { return m_graphicCommandBuffer; }
 
 public:
 	// internal functions
@@ -177,7 +177,7 @@ public:
 	idList<crRenderDevicep>			m_renderDeviceList;
 	crRenderDevicep					m_renderDevice;
 	crSwapchain*					m_swapchain;
-	vkCommandbuffer*				m_graphicCommandBuffer;
+	crCommandbuffer*				m_graphicCommandBuffer;
 	crFence*						m_frameFence;
 	crSemaphoreRoundRobin*			m_frameSubmit;
 	crSemaphoreRoundRobin*			m_imageReady;
