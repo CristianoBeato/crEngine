@@ -121,7 +121,6 @@ public:
 
 	/// get current vulkan device
 	crVulkanRenderDevicep	GetRenderDevice( void ) { return dynamic_cast<crVulkanRenderDevicep>( m_renderDevice ); }
-	crMemoryHeapp			GetHeap( void ) { return m_deviceHeap; }
 	crSwapchainp 			Swapchain( void ) const { return m_swapchain; }
 	vkCommandbufferp 		GraphicCommandBuffer( void ) const { return m_graphicCommandBuffer; }
 
@@ -177,7 +176,6 @@ public:
 	// list that store render devices list
 	idList<crRenderDevicep>			m_renderDeviceList;
 	crRenderDevicep					m_renderDevice;
-	crMemoryHeapp					m_deviceHeap;
 	crSwapchain*					m_swapchain;
 	vkCommandbuffer*				m_graphicCommandBuffer;
 	crFence*						m_frameFence;

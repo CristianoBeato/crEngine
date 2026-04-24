@@ -2391,20 +2391,10 @@ void idRenderSystemLocal::InitRenderAPI( void )
 	{
 		common->Printf( "----- InitVulkan -----\n" );
 			
-		crRenderAPI* renderAPI =  crRenderAPI::Get();
-
 		R_SetNewMode( true );
-			
-		// input and sound systems need to be tied to the new window
-		Sys_InitInput();
-		
+				
 		/// Initialize Vulkan
-		renderAPI->StartUp();
-
-		// Get vulkan devices
-		uint32_t deviceCount = renderAPI->GetDevices( nullptr );
-		m_renderDeviceList.Resize( deviceCount );
-		renderAPI->GetDevices( m_renderDeviceList.Ptr() );
+		crRenderAPI::Get()->StartUp();
 
 		InitDevice();
 
@@ -2506,12 +2496,16 @@ void idRenderSystemLocal::InitRenderAPI( void )
 idRenderSystemLocal::InitDevice
 ========================
 */
-void idRenderSystemLocal::InitDevice(void)
+void idRenderSystemLocal::InitDevice( void )
 {
-	idList<const char*> usedExtensions;
-
+	/// Get vulkan devices list
+	uint32_t deviceCount = crRenderAPI::Get()->GetDevices( nullptr );
+	m_renderDeviceList.SetNum( deviceCount );
+	crRenderAPI::Get()->GetDevices( m_renderDeviceList.Ptr() );
+		
 	/// Required extensions
-	usedExtensions.Append( VK_KHR_SWAPCHAIN_EXTENSION_NAME );
+	idList<const char*> usedExtensions;
+	usedExtensions.Append( VK_KHR_SWAPCHAIN_EXTENSION_NAME ); /// Device need swapchain suport
 	usedExtensions.Append( VK_KHR_DEDICATED_ALLOCATION_EXTENSION_NAME );
 	usedExtensions.Append( VK_KHR_DYNAMIC_RENDERING_EXTENSION_NAME ); 	// Not needed vulkan 1.3
 
@@ -2546,9 +2540,8 @@ void idRenderSystemLocal::InitDevice(void)
 
 		for ( i = 0; i < m_renderDeviceList.Num(); i++)
 		{
-			int32_t score = m_renderDeviceList[i]->Score();
-				
 			// The device does not meet the minimum requirements.
+			int32_t score = m_renderDeviceList[i]->Score();
 			if( score < 0 )
 				continue;
 
@@ -2571,10 +2564,6 @@ void idRenderSystemLocal::InitDevice(void)
 			throw idException( "FAILED TO INITIALIZE BEST RENDER DEVICE\n" );
 		}
 	}
-
-	m_deviceHeap = new crMemoryHeap();
-	if( !m_deviceHeap->Create() )
-		throw idException( "FAILED TO INITIALIZE DEVICE HEAP!\n" );
 }
 
 /*
@@ -2636,15 +2625,6 @@ void idRenderSystemLocal::ShutdownRenderAPI( void )
 		m_graphicCommandBuffer->Destroy();
 		delete m_graphicCommandBuffer;
 		m_graphicCommandBuffer = nullptr;
-	}
-
-	///
-	///
-	/// Release used device memory 
-	if( m_deviceHeap != nullptr )
-	{
-		m_deviceHeap->Destroy();
-		delete m_deviceHeap;
 	}
 
 	///

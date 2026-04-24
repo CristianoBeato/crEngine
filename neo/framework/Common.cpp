@@ -1487,6 +1487,9 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		soundSystem->Init();
 		
 /// BEATO Begin: initialize video and Vulkan system
+		// input and sound systems need to be tied to the new window
+		Sys_InitInput();
+		
 		video->StartUp( 0 );
 /// BEATO End
 

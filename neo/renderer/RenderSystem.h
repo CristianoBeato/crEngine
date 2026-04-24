@@ -377,27 +377,27 @@ class idImageManager
 public:
 	static idImageManager*	Get( void );
 	idImageManager( void ) {}
-	~idImageManager( void ) { }
+	~idImageManager( void ) {}
 	virtual void		Init( void ) = 0;
 	virtual void		Shutdown( void ) = 0;
 	virtual idImage*	ImageFromFile( const idStr &name, const cubeFiles_t cubeMap = CF_2D ) = 0;
 	
 	/// @brief look for a loaded image, whatever the parameters
-	virtual idImage*	GetImage( const idStr &name ) const;
+	virtual idImage*	GetImage( const idStr &name ) const = 0;
 	
 	/// @brief look for a loaded image, whatever the parameters
-	virtual idImage*	GetImageWithParameters( const idStr &name, const cubeFiles_t cubeMap ) const;
+	virtual idImage*	GetImageWithParameters( const idStr &name, const cubeFiles_t cubeMap ) const = 0;
 		
 	/// @brief reloads all apropriate images after a vid_restart
-	virtual void	ReloadImages( const bool all ) = 0;
+	virtual void		ReloadImages( const bool all ) = 0;
 
 	/// @brief purges all the images before a vid_restart
-	virtual void	PurgeAllImages( void ) = 0;
+	virtual void		PurgeAllImages( void ) = 0;
 	
 	/// @brief used to clear and then write the dds conversion batch file
-	virtual void	StartBuild( void ) = 0;
-	virtual void	FinishBuild( const bool removeDups = false ) = 0;
-	virtual void	PrintMemInfo( MemInfo_t* mi ) = 0;
+	virtual void		StartBuild( void ) = 0;
+	virtual void		FinishBuild( const bool removeDups = false ) = 0;
+	virtual void		PrintMemInfo( MemInfo_t* mi ) = 0;
 
 	// BEATO Begin:
 	virtual void		BeginLevelLoad( void ) = 0;
