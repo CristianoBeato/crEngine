@@ -115,7 +115,7 @@ void crUniformManager::ShutDown(void)
     }
 }
 
-void crUniformManager::SetFrame( const uint32_t in_frameID, const vkCommandbuffer * in_commandBuffer )
+void crUniformManager::SetFrame( const uint32_t in_frameID, const crCommandbuffer * in_commandBuffer )
 {
     auto device = tr.GetRenderDevice();
     idTempArray<VkDescriptorBufferInfo> bufferDescriptors = idTempArray<VkDescriptorBufferInfo>( MAX_BINDINGS ); 
@@ -201,7 +201,7 @@ void crUniformManager::SetFrame( const uint32_t in_frameID, const vkCommandbuffe
     vkUpdateDescriptorSets( *device, 5, writeDescriptors.Ptr(), 0, nullptr );
 }
 
-void crUniformManager::SubmitOffsets( const vkCommandbuffer* in_commandBuffer )
+void crUniformManager::SubmitOffsets( const crCommandbuffer* in_commandBuffer )
 {
     vkCmdBindDescriptorSets( in_commandBuffer->CommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, &m_storageSet[m_frameID], MAX_BINDINGS, m_dynamicOffsets.Ptr() );
 }
@@ -231,7 +231,6 @@ void crUniformManager::CreateStorageBuffers(void)
     VkDeviceSize currentOffset = 0;
     uint32_t memoryTypeBits = 0xFFFFFFFF;
     auto device = tr.GetRenderDevice();
-    auto devHeap = tr.GetHeap();
     auto devProperties = device->Properties();
 
     for ( uint32_t i = 0; i < MAX_BINDINGS; i++)
@@ -252,7 +251,7 @@ void crUniformManager::CreateStorageBuffers(void)
     }
 
     // alloc a shared shader storage memory pool
-    m_buffersMemPool = devHeap->Alloc( currentOffset, devProperties.shaderStorageAlignment, memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT );
+    m_buffersMemPool = device->Alloc( currentOffset, devProperties.shaderStorageAlignment, memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT );
     if( m_buffersMemPool )
         idLib::FatalError( "Shader storage buffers memory pool allocation failed, no suitable memory four or no available memory size\n" );
 

@@ -22,16 +22,16 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __VK_COMMAND_BUFFER_HPP__
-#define __VK_COMMAND_BUFFER_HPP__
+#ifndef __COMMAND_BUFFER_HPP__
+#define __COMMAND_BUFFER_HPP__
 
 typedef class vkDeviceQueue* vkDeviceQueuep;
-class vkCommandbuffer
+class crCommandbuffer
 {
 public:
-    vkCommandbuffer( void );
-    ~vkCommandbuffer( void );
-    bool    Create( void );
+    crCommandbuffer( void );
+    ~crCommandbuffer( void );
+    bool    Create( const uint32_t in_frameCount );
     void    Destroy( void );
     void                        Begin( void );
     void                        Submit( const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence );
@@ -40,12 +40,12 @@ public:
     ID_INLINE operator VkCommandBuffer( void ) const { return m_commandBuffers[m_frameID]; }
 
 private:
-    uint16_t        m_frameID;
-    uint16_t        m_frameCount;
-    vkDeviceQueuep  m_graphicQueue;
-    VkCommandBuffer m_commandBuffers[MAX_SMP_FRAMES];
+    uint16_t                                        m_frameID;
+    uint16_t                                        m_frameCount;
+    vkDeviceQueuep                                  m_graphicQueue;
+    idStaticList<VkCommandBuffer, MAX_SMP_FRAMES>   m_commandBuffers;
 };
 
-typedef vkCommandbuffer* vkCommandbufferp;
+typedef crCommandbuffer* crCommandbufferp;
 
 #endif //!__VK_COMMAND_BUFFER_HPP__

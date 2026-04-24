@@ -72,8 +72,8 @@ public:
     ~crUniformManager( void );
 	void	StartUp( void );
 	void	ShutDown( void );
-	void	SetFrame( const uint32_t in_frameID, const vkCommandbuffer* in_commandBuffer );
-	void	SubmitOffsets( const vkCommandbuffer * in_commandBuffer );
+	void	SetFrame( const uint32_t in_frameID, const crCommandbuffer* in_commandBuffer );
+	void	SubmitOffsets( const crCommandbuffer * in_commandBuffer );
 	VkPipelineLayout Layout( void ) const { return m_layout; }
 	
 	uMesh_t*		GetMeshUniforms( void );

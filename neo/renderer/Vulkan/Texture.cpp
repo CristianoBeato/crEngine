@@ -160,7 +160,7 @@ bool crTexture::Create(const VkImage in_image, const crInternalFormat in_format,
     return false;
 }
 
-bool crTexture::Storage( crMemoryPool *in_bufferPool )
+bool crTexture::Storage( crMemoryPoolp in_bufferPool )
 {
     m_page = in_bufferPool->AllocPage( m_memoryRequirements.size, m_memoryRequirements.alignment );
     m_page->Bind( m_image );
@@ -192,7 +192,7 @@ void crTexture::Destroy(void)
     }
 }
 
-void crTexture::SetState( const vkCommandbufferp in_commandBuffer, const state_t in_state )
+void crTexture::SetState( const crCommandbufferp in_commandBuffer, const state_t in_state )
 {
     /// no changes available
     if ( in_state == m_state )
@@ -383,7 +383,7 @@ bool crSampler::Create( const filter_t in_filtering, const wrapping_t in_Swrap, 
     result = vkCreateSampler( *device, &samplerCI, k_allocationCallbacks, &m_sampler );
     if( result != VK_SUCCESS )
     {
-        idLib::Error( "crSampler::Create::vkCreateSampler failed" );
+        idLib::Error( "crSampler::Create::vkCreateSampler failed %s\n", VulkanErrorString( result ).c_str() );
         return false;
     }
 

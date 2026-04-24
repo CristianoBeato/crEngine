@@ -105,7 +105,7 @@ void crBuffer::Destroy( void )
     }
 }
 
-void crBuffer::SetState(const vkCommandbufferp in_commandBuffer, const state_t in_newState)
+void crBuffer::SetState( const crCommandbufferp in_commandBuffer, const state_t in_newState )
 {
     // 
     VkBufferMemoryBarrier2 destinationBarrier{};

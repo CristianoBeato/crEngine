@@ -226,8 +226,8 @@ PFN_vkCmdEndRendering                           vkCmdEndRendering = nullptr;
 PFN_vkCmdClearAttachments                       vkCmdClearAttachments = nullptr;
 
 // VK_EXT_debug_utils
-PFN_vkCreateDebugUtilsMessengerEXT               vkCreateDebugUtilsMessengerEXT = nullptr;
-PFN_vkDestroyDebugUtilsMessengerEXT              vkDestroyDebugUtilsMessengerEXT = nullptr;
+PFN_vkCreateDebugUtilsMessengerEXT              vkCreateDebugUtilsMessengerEXT = nullptr;
+PFN_vkDestroyDebugUtilsMessengerEXT             vkDestroyDebugUtilsMessengerEXT = nullptr;
 
 static VKAPI_ATTR void* VKAPI_CALL vkAllocation( void* pUserData, size_t size, size_t alignment, VkSystemAllocationScope allocationScope );
 static VKAPI_ATTR void* VKAPI_CALL vkReallocation( void* pUserData, void* pOriginal, size_t size, size_t alignment, VkSystemAllocationScope allocationScope);

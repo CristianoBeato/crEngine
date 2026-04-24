@@ -70,9 +70,9 @@ public:
     
     bool                        Create( const type_t in_type, const dimensions_t in_dimensions, const crInternalFormat in_format );
     bool                        Create( const VkImage in_image, const crInternalFormat in_format, const VkImageViewType in_viewType );
-    bool                        Storage( crMemoryPool* in_bufferPool );
+    bool                        Storage( crMemoryPoolp in_bufferPool );
     void                        Destroy( void );
-    void                        SetState( const vkCommandbufferp in_commandBuffer, const state_t in_state );
+    void                        SetState( const crCommandbufferp in_commandBuffer, const state_t in_state );
     dimensions_t                Dimensions( void ) const { return m_dimensions; }
     const VkImage               Image( void ) const { return m_image; }
     const VkImageView           View( void ) const { return m_view; }

@@ -27,22 +27,26 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Core.hpp"
 #include "Commandbuffer.hpp"
 
-vkCommandbuffer::vkCommandbuffer( void ) :
+crCommandbuffer::crCommandbuffer( void ) :
     m_frameID( 0 ),
     m_frameCount( 0 ),
     m_graphicQueue( nullptr )
 {
 }
 
-vkCommandbuffer::~vkCommandbuffer( void )
+crCommandbuffer::~crCommandbuffer( void )
 {
 }
 
-bool vkCommandbuffer::Create( void )
+bool crCommandbuffer::Create( const uint32_t in_frameCount )
 {
-    VkResult result = VK_SUCCESS;
     crVulkanRenderDevicep device = tr.GetRenderDevice();
+    assert( device != nullptr );
+    
     m_graphicQueue = device->GraphicQueue();
+    m_frameCount = in_frameCount;
+    
+    m_commandBuffers.SetNum( m_frameCount );
 
     // allocate command buffers
     VkCommandBufferAllocateInfo commandBufferAllocateCI{};
@@ -50,18 +54,18 @@ bool vkCommandbuffer::Create( void )
     commandBufferAllocateCI.pNext = nullptr;
     commandBufferAllocateCI.commandPool = m_graphicQueue->CommandPool();
     commandBufferAllocateCI.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    commandBufferAllocateCI.commandBufferCount = SMP_FRAMES;
-    result = vkAllocateCommandBuffers( *device, &commandBufferAllocateCI, m_commandBuffers );
+    commandBufferAllocateCI.commandBufferCount = m_frameCount;
+    VkResult result = vkAllocateCommandBuffers( *device, &commandBufferAllocateCI, m_commandBuffers );
     if( result != VK_SUCCESS )
     {
-        common->Error( "vkCommandbuffer::Create::vkAllocateCommandBuffers:%s\n", VulkanErrorString( result ).c_str() );
+        idLib::Error( "crCommandbuffer::Create::vkAllocateCommandBuffers:%s\n", VulkanErrorString( result ).c_str() );
         return false;
     }
 
     return true;
 }
 
-void vkCommandbuffer::Destroy(void)
+void crCommandbuffer::Destroy(void)
 {
     uint32_t i = 0;
     crVulkanRenderDevicep device = tr.GetRenderDevice();
@@ -71,7 +75,7 @@ void vkCommandbuffer::Destroy(void)
 }
 
 
-void vkCommandbuffer::Begin( void )
+void crCommandbuffer::Begin( void )
 {
     VkResult result = VK_SUCCESS;
     crVulkanRenderDevicep device = tr.GetRenderDevice();
@@ -80,7 +84,7 @@ void vkCommandbuffer::Begin( void )
     /// Reset the main render command buffer
     result = vkResetCommandBuffer( m_commandBuffers[m_frameID], 0 );
     if( result != VK_SUCCESS )
-        common->Warning( "vkCommandbuffer::Begin::vkResetCommandBuffer::FAILED!\n" );
+        common->Warning( "crCommandbuffer::Begin::vkResetCommandBuffer::FAILED!\n" );
 
     ///
     /// Begin register commands in curren buffer
@@ -89,10 +93,10 @@ void vkCommandbuffer::Begin( void )
     beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT /*VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT*/; // we only submit one time per frame 
     result = vkBeginCommandBuffer( m_commandBuffers[m_frameID], &beginInfo );
     if( result != VK_SUCCESS )
-        common->Warning( "vkCommandbuffer::Begin::vkBeginCommandBuffer FAILED to begin!\n" );
+        common->Warning( "crCommandbuffer::Begin::vkBeginCommandBuffer FAILED to begin!\n" );
 }
 
-void vkCommandbuffer::Submit(  const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence )
+void crCommandbuffer::Submit(  const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence )
 {
     VkResult result = VK_SUCCESS;
 
@@ -132,5 +136,5 @@ void vkCommandbuffer::Submit(  const crSemaphore* in_imageAvailable, const crSem
     submitInfo.pSignalSemaphoreInfos = &signal;
     result = vkQueueSubmit2( m_graphicQueue->Queue(), 1, &submitInfo, *in_frameFence );
     if( result != VK_SUCCESS )
-        idLib::Error( "vkCommandbuffer::Submit::vkQueueSubmit2 FAILED!\n" );
+        idLib::Error( "crCommandbuffer::Submit::vkQueueSubmit2 FAILED!\n" );
 }

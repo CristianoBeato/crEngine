@@ -73,7 +73,7 @@ public:
     /// queue family owership.   
     /// @param in_commandBuffer command buffer  
     /// @param in_newState 
-    void            SetState( const vkCommandbufferp in_commandBuffer, const state_t in_newState );
+    void            SetState( const crCommandbufferp in_commandBuffer, const state_t in_newState );
 
     /// @brief Flush buffer data ( Make visible to device/CPU, or copy source to destination device )
     /// @param in_offset begin offset to be flushed 

@@ -38,8 +38,9 @@ crTimeQueries::~crTimeQueries( void )
 {
 }
 
-void crTimeQueries::Create( const uint16_t in_frameCount )
+bool crTimeQueries::Create( const uint16_t in_frameCount )
 {
+    VkResult result = VK_SUCCESS;
     crVulkanRenderDevicep device = tr.GetRenderDevice();
     m_timestampPeriod = device->Properties().timestampPeriod;
     m_frameCount = in_frameCount;
@@ -53,9 +54,16 @@ void crTimeQueries::Create( const uint16_t in_frameCount )
     queryPoolCI.pipelineStatistics = 0;
     for ( uint32_t i = 0; i < m_frameCount; ++i)
     {
-        vkCreateQueryPool( *device, &queryPoolCI, k_allocationCallbacks, &m_pools[i] );
+        result = vkCreateQueryPool( *device, &queryPoolCI, k_allocationCallbacks, &m_pools[i] );
+        if( result != VK_SUCCESS )
+        {
+            return false;
+        }
+        
         vkResetQueryPool( *device, m_pools[i], 0, 2 );      // Reset all queries
     }
+
+    return true;
 }
 
 void crTimeQueries::Destroy(void)
@@ -68,12 +76,12 @@ void crTimeQueries::Destroy(void)
     }
 }
 
-void crTimeQueries::BeginRegister( const vkCommandbuffer* in_cmd )
+void crTimeQueries::BeginRegister( const crCommandbuffer* in_cmd )
 {
     vkCmdWriteTimestamp( *in_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, m_pools[m_frameID], 0 );
 }
 
-void crTimeQueries::EndRegister( const vkCommandbuffer* in_cmd )
+void crTimeQueries::EndRegister( const crCommandbuffer* in_cmd )
 {
     vkCmdWriteTimestamp( *in_cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, m_pools[m_frameID], 1 ); 
 }
