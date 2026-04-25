@@ -112,4 +112,8 @@ private:
     VkDevice    m_device;
 };
 
+typedef crSemaphore* crSemaphorep;
+typedef crSemaphoreRoundRobin* crSemaphoreRoundRobinp;
+typedef crSemaphoreTimeline* crSemaphoreTimelinep;
+
 #endif //!__SYNCS_HPP__
