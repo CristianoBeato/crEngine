@@ -2433,15 +2433,35 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		// recheck all the extensions
 		CheckPortableExtensions();
 		
+		auto graphic_queue = static_cast<crVulkanRenderDevicep>( m_renderDevice )->GraphicQueue();
 		///
 		///
 		///
-		m_graphicCommandBuffer = new crCommandbuffer();
-		if( !m_graphicCommandBuffer->Create( static_cast<uint32_t>( r_bufferCount.GetInteger() ) ) )
+		m_graphicCommandBuffer = new crCommandBuffer();
+		if( !m_graphicCommandBuffer->Create( static_cast<uint32_t>( r_bufferCount.GetInteger() ), graphic_queue ) )
 		{
 			r_initialized = false;
 			/// TODO: trow exceptions
 		}
+
+		auto transfer_queue = static_cast<crVulkanRenderDevicep>( m_renderDevice )->TransferQueue();
+		if ( transfer_queue )
+		{
+			glConfig.isTransferQueueAvailable = false;
+			m_transferCommandBuffer = new crCommandBuffer();
+			if( m_transferCommandBuffer->Create( static_cast<uint32_t>( r_bufferCount.GetInteger() ), transfer_queue ) )
+			{
+				glConfig.isTransferQueueAvailable = true;
+			}
+			else
+			{
+				glConfig.isTransferQueueAvailable = false;
+				idLib::Warning( "Failed to initialize transfer command buffer\n" );
+			}
+		}
+		else
+			glConfig.isTransferQueueAvailable = false;
+		
 
 		///
 		///

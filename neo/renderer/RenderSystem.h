@@ -136,7 +136,8 @@ struct glconfig_t
 	
 	float				pixelAspect;
 	
-	uint32_t			global_vao;
+	bool				isTransferQueueAvailable;
+
 };
 
 struct emptyCommand_t;
