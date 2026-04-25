@@ -239,6 +239,21 @@ extern PFN_vkDestroyDebugUtilsMessengerEXT              vkDestroyDebugUtilsMesse
 
 extern VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverityFlagBitsEXT in_severity, VkDebugUtilsMessageTypeFlagsEXT in_types, const VkDebugUtilsMessengerCallbackDataEXT* in_data, void *in_user );
 
+#define VK_SAFE_DELETE( X ) \
+    if( X != nullptr )      \
+    {                       \
+        delete X;           \
+        X = nullptr;        \
+    }                       \
+
+#define VK_SAFE_DESTROY( X )\
+    if( X != nullptr )      \
+    {                       \
+        X->Destroy();       \
+        delete X;           \
+        X = nullptr;        \
+    }                       \
+
 ///
 #include "sys/sys_vulkan.hpp"
 #include "Utils.hpp"
