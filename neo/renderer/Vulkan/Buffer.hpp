@@ -22,11 +22,11 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 ===========================================================================
 */
 
-#ifndef __VK_BUFFER_HPP__
-#define __VK_BUFFER_HPP__
+#ifndef __BUFFER_HPP__
+#define __BUFFER_HPP__
 
 /// @brief Base buffer class
-class crBuffer
+typedef class crBuffer
 {
 public:
     enum access_t : uint8_t
@@ -52,6 +52,11 @@ public:
         uint32_t                queueFamily = 0;
         VkPipelineStageFlags2   stage = 0;
         VkAccessFlags2          access = 0;
+
+        inline bool operator == ( const state_t & in_state )
+        {
+            return ( in_state.queueFamily == queueFamily ) && ( in_state.stage == stage ) && ( in_state.access == access );
+        }
     };
 
     crBuffer( void );
@@ -73,7 +78,7 @@ public:
     /// queue family owership.   
     /// @param in_commandBuffer command buffer  
     /// @param in_newState 
-    void            SetState( const crCommandbufferp in_commandBuffer, const state_t in_newState );
+    void            SetState( const crCommandBufferp in_commandBuffer, const state_t in_newState );
 
     /// @brief Flush buffer data ( Make visible to device/CPU, or copy source to destination device )
     /// @param in_offset begin offset to be flushed 
@@ -106,12 +111,10 @@ public:
 private:
     type_t                  m_type;     // Buffer type
     VkBufferUsageFlags      m_usage;      // current vulkan buffer usage
-    VkPipelineStageFlags2   m_stage;      // current vulkan buffer stage
-    VkAccessFlags2          m_access;     // current vulkan buffer access 
-    uint32_t                m_queueFamily;
+    state_t                 m_state;
     VkBuffer                m_buffer;   // buffer host side handler 
     VkMemoryRequirements    m_memoryRequirements;
     crMemoryPage*           m_page;
-};
+}* crBufferp;
 
 #endif //!__VK_BUFFER_HPP__

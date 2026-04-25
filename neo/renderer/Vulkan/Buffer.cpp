@@ -105,17 +105,21 @@ void crBuffer::Destroy( void )
     }
 }
 
-void crBuffer::SetState( const crCommandbufferp in_commandBuffer, const state_t in_newState )
+void crBuffer::SetState( const crCommandBufferp in_commandBuffer, const state_t in_newState )
 {
+    /// nothing to update
+    if ( m_state == in_newState )
+        return;
+
     // 
     VkBufferMemoryBarrier2 destinationBarrier{};
     destinationBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
     destinationBarrier.pNext = nullptr;
-    destinationBarrier.srcStageMask = m_stage;
-    destinationBarrier.srcAccessMask = m_access;
+    destinationBarrier.srcStageMask = m_state.stage;
+    destinationBarrier.srcAccessMask = m_state.access;
     destinationBarrier.dstStageMask = in_newState.stage;
     destinationBarrier.dstAccessMask = in_newState.access;
-    destinationBarrier.srcQueueFamilyIndex = m_queueFamily;
+    destinationBarrier.srcQueueFamilyIndex = m_state.queueFamily;
     destinationBarrier.dstQueueFamilyIndex = in_newState.queueFamily;
     destinationBarrier.buffer = m_buffer;
 
@@ -136,9 +140,7 @@ void crBuffer::SetState( const crCommandbufferp in_commandBuffer, const state_t 
     dependencyInfo.pImageMemoryBarriers = nullptr;
     vkCmdPipelineBarrier2( *in_commandBuffer, &dependencyInfo );
     
-    m_stage = in_newState.stage; 
-    m_access = in_newState.access;
-    m_queueFamily = in_newState.queueFamily;
+    m_state = in_newState;
 }
 
 void crBuffer::Flush( const uintptr_t in_offset, const size_t in_size ) const
