@@ -44,6 +44,7 @@ public:
     vkDeviceQueue( const uint32_t in_family, const uint32_t in_index );
     ~vkDeviceQueue( void );
     bool            Init( const VkDevice in_device );
+    void            ResetPool( void ) const;
     uint32_t        Index( void ) const { return m_index; }
     uint32_t        Family( void ) const { return m_index; }
     VkQueue         Queue( void ) const { return m_queue; }

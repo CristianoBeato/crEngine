@@ -154,7 +154,7 @@ bool vkDeviceQueue::Init( const VkDevice in_device )
     VkCommandPoolCreateInfo commandPoolCI{};
     commandPoolCI.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
     commandPoolCI.pNext = nullptr;
-    commandPoolCI.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    commandPoolCI.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //
     commandPoolCI.queueFamilyIndex = m_family;
     auto result = vkCreateCommandPool( m_device, &commandPoolCI, k_allocationCallbacks, &m_commandPool );
     if ( result != VK_SUCCESS )
@@ -164,6 +164,18 @@ bool vkDeviceQueue::Init( const VkDevice in_device )
     }
     
     return true;    
+}
+
+/*
+==============
+vkDeviceQueue::ResetPool
+==============
+*/
+void vkDeviceQueue::ResetPool(void) const
+{
+    auto result = vkResetCommandPool( m_device, m_commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT );
+    if( result != VK_SUCCESS )
+        idLib::Error( VulkanErrorString( result ).c_str() );
 }
 
 /*
@@ -1800,6 +1812,7 @@ void crVulkanAPI::LoadVulkanProcs( void )
     GET_VK_PROC( vkQueueWaitIdle, m_instance );
     GET_VK_PROC( vkCreateCommandPool, m_instance );
     GET_VK_PROC( vkDestroyCommandPool, m_instance );
+    GET_VK_PROC( vkResetCommandPool, m_instance );
 
     // VkFence
     GET_VK_PROC( vkCreateFence, m_instance );
@@ -1920,6 +1933,7 @@ void crVulkanAPI::LoadVulkanProcs( void )
     GET_VK_PROC( vkEndCommandBuffer, m_instance );
     GET_VK_PROC( vkCmdExecuteCommands, m_instance );
     GET_VK_PROC( vkCmdBindIndexBuffer, m_instance );
+    GET_VK_PROC( vkCmdBindVertexBuffers, m_instance );
     GET_VK_PROC( vkCmdBindVertexBuffers2, m_instance );
     GET_VK_PROC( vkCmdDraw, m_instance );
     GET_VK_PROC( vkCmdDrawIndexed, m_instance );
