@@ -142,7 +142,6 @@ public:
     ~crBackend( void );
 	static crBackend* Get( void );
 	const uint32_t		FrameID( void ) const { return m_frameID; }
-
     bool    			StartUp( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth );
 	bool				SetScreenParms( const uint8_t in_samples, const uint32_t in_width, const uint32_t in_heigth );
     void    			ShutDown( void );
@@ -157,6 +156,7 @@ public:
 	drawSurf_t			zeroOneCubeSurface;
 	drawSurf_t			testImageSurface;
 
+	beState_t			trState;				// for OpenGL state deltas
 private:
 	uint32_t			m_numBuffers;
 
@@ -165,7 +165,6 @@ private:
 	
 	const viewEntity_t* currentSpace;			// for detecting when a matrix must change
 	idScreenRect		currentScissor;			// for scissor clipping, local inside renderView viewport
-	beState_t			trState;				// for OpenGL state deltas
 	
 	bool				currentRenderCopied;	// true if any material has already referenced _currentRender
 	bool				glowRenderCopied;		// foresthale 2014-04-21: true if the glow buffer has been updated this frame, used instead of r_glowEnable checks because that may be on for a 2D scene where the last glow update was in the past
