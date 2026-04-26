@@ -76,12 +76,12 @@ void crTimeQueries::Destroy(void)
     }
 }
 
-void crTimeQueries::BeginRegister( const crCommandbuffer* in_cmd )
+void crTimeQueries::BeginRegister( const crCommandBufferp in_cmd )
 {
     vkCmdWriteTimestamp( *in_cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, m_pools[m_frameID], 0 );
 }
 
-void crTimeQueries::EndRegister( const crCommandbuffer* in_cmd )
+void crTimeQueries::EndRegister( const crCommandBufferp in_cmd )
 {
     vkCmdWriteTimestamp( *in_cmd, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, m_pools[m_frameID], 1 ); 
 }

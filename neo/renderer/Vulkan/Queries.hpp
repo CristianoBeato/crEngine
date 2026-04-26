@@ -32,8 +32,8 @@ public:
     ~crTimeQueries( void );
     bool            Create( const uint16_t in_frameCount );
     void            Destroy( void );
-    void            BeginRegister( const crCommandbuffer* in_cmd );
-    void            EndRegister( const crCommandbuffer* in_cmd );
+    void            BeginRegister( const crCommandBufferp in_cmd );
+    void            EndRegister( const crCommandBufferp in_cmd );
     uint64_t        Retrieve( void );
     ID_INLINE void  SwapFrame( void ) { m_frameID = ( m_frameID + 1 ) % m_frameCount; }
 

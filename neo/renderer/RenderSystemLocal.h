@@ -123,7 +123,7 @@ public:
 	crVulkanRenderDevicep	GetRenderDevice( void ) { return dynamic_cast<crVulkanRenderDevicep>( m_renderDevice ); }
 	crSwapchainp 			Swapchain( void ) const { return m_swapchain; }
 	crCommandBufferp 		GraphicCommandBuffer( void ) const { return m_graphicCommandBuffer; }
-	crCommandBufferp		TransferCommandBuffer( void )
+	crCommandBufferp		TransferCommandBuffer( void ) const { return m_transferCommandBuffer; }
 
 public:
 	// internal functions

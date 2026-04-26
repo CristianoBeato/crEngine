@@ -2493,7 +2493,7 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		r_initialized = true;
 
 		// allocate the vertex array range or vertex objects
-		vertexCache.Init();
+		vertexCache.Init( r_bufferCount.GetInteger() );
 		
 		// allocate the frame data, which may be more if smp is enabled
 		R_InitFrameData();

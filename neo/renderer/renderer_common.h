@@ -38,6 +38,7 @@ inline constexpr float		DEFAULT_FOG_DISTANCE = 500.0f;
 inline constexpr int 		FOG_ENTER_SIZE	= 64;
 inline constexpr float 		FOG_ENTER		= ( FOG_ENTER_SIZE + 1.0f ) / ( FOG_ENTER_SIZE * 2 );
 
+#include "Vulkan/Core.hpp"
 #include "GLState.h"
 
 #include "ScreenRect.h"
@@ -104,7 +105,7 @@ class crDrawGeometry;
 struct drawSurf_t
 {
 	const crDrawGeometry* 	frontEndGeo;		// don't use on the back end, it may be updated by the front end!
-	int						numIndexes;
+	uint32_t				numIndexes;
 	vertCacheHandle_t		indexCache;			// triIndex_t
 	vertCacheHandle_t		ambientCache;		// idDrawVert
 	vertCacheHandle_t		shadowCache;		// idShadowVert / idShadowVertSkinned

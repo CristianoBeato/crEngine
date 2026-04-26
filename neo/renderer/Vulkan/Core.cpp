@@ -66,6 +66,7 @@ PFN_vkQueueSubmit2                               vkQueueSubmit2 = nullptr;
 PFN_vkQueueWaitIdle                              vkQueueWaitIdle = nullptr;
 PFN_vkCreateCommandPool                          vkCreateCommandPool = nullptr;
 PFN_vkDestroyCommandPool                         vkDestroyCommandPool = nullptr;
+PFN_vkResetCommandPool                           vkResetCommandPool = nullptr;
 
 // VkFence
 PFN_vkCreateFence                                vkCreateFence = nullptr;
@@ -141,21 +142,22 @@ PFN_vkCreateFramebuffer                          vkCreateFramebuffer = nullptr;
 PFN_vkDestroyFramebuffer                         vkDestroyFramebuffer = nullptr;
 
 // VkCommandBuffer
-PFN_vkAllocateCommandBuffers                     vkAllocateCommandBuffers = nullptr;
-PFN_vkFreeCommandBuffers                         vkFreeCommandBuffers = nullptr;
-PFN_vkResetCommandBuffer                         vkResetCommandBuffer = nullptr;
-PFN_vkBeginCommandBuffer                         vkBeginCommandBuffer = nullptr;
-PFN_vkEndCommandBuffer                           vkEndCommandBuffer = nullptr;
-PFN_vkCmdExecuteCommands                         vkCmdExecuteCommands = nullptr;
-PFN_vkCmdBindIndexBuffer                         vkCmdBindIndexBuffer = nullptr;
-PFN_vkCmdBindVertexBuffers2                      vkCmdBindVertexBuffers2 = nullptr;
-PFN_vkCmdDraw                                    vkCmdDraw = nullptr;
-PFN_vkCmdDrawIndexed                             vkCmdDrawIndexed = nullptr;
-PFN_vkCmdDrawIndirect                            vkCmdDrawIndirect = nullptr;
-PFN_vkCmdDrawIndexedIndirect                     vkCmdDrawIndexedIndirect = nullptr;
-PFN_vkCmdDispatch                                vkCmdDispatch = nullptr;
-PFN_vkCmdDispatchIndirect                        vkCmdDispatchIndirect = nullptr;
-PFN_vkCmdPipelineBarrier2                        vkCmdPipelineBarrier2 = nullptr;
+PFN_vkAllocateCommandBuffers                    vkAllocateCommandBuffers = nullptr;
+PFN_vkFreeCommandBuffers                        vkFreeCommandBuffers = nullptr;
+PFN_vkResetCommandBuffer                        vkResetCommandBuffer = nullptr;
+PFN_vkBeginCommandBuffer                        vkBeginCommandBuffer = nullptr;
+PFN_vkEndCommandBuffer                          vkEndCommandBuffer = nullptr;
+PFN_vkCmdExecuteCommands                        vkCmdExecuteCommands = nullptr;
+PFN_vkCmdBindIndexBuffer                        vkCmdBindIndexBuffer = nullptr;
+PFN_vkCmdBindVertexBuffers                      vkCmdBindVertexBuffers = nullptr;
+PFN_vkCmdBindVertexBuffers2                     vkCmdBindVertexBuffers2 = nullptr;
+PFN_vkCmdDraw                                   vkCmdDraw = nullptr;
+PFN_vkCmdDrawIndexed                            vkCmdDrawIndexed = nullptr;
+PFN_vkCmdDrawIndirect                           vkCmdDrawIndirect = nullptr;
+PFN_vkCmdDrawIndexedIndirect                    vkCmdDrawIndexedIndirect = nullptr;
+PFN_vkCmdDispatch                               vkCmdDispatch = nullptr;
+PFN_vkCmdDispatchIndirect                       vkCmdDispatchIndirect = nullptr;
+PFN_vkCmdPipelineBarrier2                       vkCmdPipelineBarrier2 = nullptr;
 
 // pipeline cache
 PFN_vkCreatePipelineCache                       vkCreatePipelineCache = nullptr;

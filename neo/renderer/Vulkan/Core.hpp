@@ -75,6 +75,7 @@ extern PFN_vkQueueSubmit2                               vkQueueSubmit2;
 extern PFN_vkQueueWaitIdle                              vkQueueWaitIdle;
 extern PFN_vkCreateCommandPool                          vkCreateCommandPool;
 extern PFN_vkDestroyCommandPool                         vkDestroyCommandPool;
+extern PFN_vkResetCommandPool                           vkResetCommandPool;
 
 // VkFence
 extern PFN_vkCreateFence                                vkCreateFence;
@@ -157,6 +158,7 @@ extern PFN_vkBeginCommandBuffer                         vkBeginCommandBuffer;
 extern PFN_vkEndCommandBuffer                           vkEndCommandBuffer;
 extern PFN_vkCmdExecuteCommands                         vkCmdExecuteCommands;
 extern PFN_vkCmdBindIndexBuffer                         vkCmdBindIndexBuffer;
+extern PFN_vkCmdBindVertexBuffers                       vkCmdBindVertexBuffers;
 extern PFN_vkCmdBindVertexBuffers2                      vkCmdBindVertexBuffers2;
 extern PFN_vkCmdDraw                                    vkCmdDraw;
 extern PFN_vkCmdDrawIndexed                             vkCmdDrawIndexed;

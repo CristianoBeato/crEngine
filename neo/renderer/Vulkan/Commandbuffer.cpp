@@ -27,6 +27,11 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Core.hpp"
 #include "Commandbuffer.hpp"
 
+/*
+==============
+crCommandBuffer::crCommandBuffer
+==============
+*/
 crCommandBuffer::crCommandBuffer( void ) :
     m_frameID( 0 ),
     m_frameCount( 0 ),
@@ -34,10 +39,20 @@ crCommandBuffer::crCommandBuffer( void ) :
 {
 }
 
+/*
+==============
+crCommandBuffer::~crCommandBuffer
+==============
+*/
 crCommandBuffer::~crCommandBuffer( void )
 {
 }
 
+/*
+==============
+crCommandBuffer::Create
+==============
+*/
 bool crCommandBuffer::Create( const uint32_t in_frameCount, const vkDeviceQueuep in_queue, const bool in_primary )
 {
     crVulkanRenderDevicep device = tr.GetRenderDevice();
@@ -65,7 +80,12 @@ bool crCommandBuffer::Create( const uint32_t in_frameCount, const vkDeviceQueuep
     return true;
 }
 
-void crCommandBuffer::Destroy(void)
+/*
+==============
+crCommandBuffer::Destroy
+==============
+*/
+void crCommandBuffer::Destroy( void )
 {
     uint32_t i = 0;
     crVulkanRenderDevicep device = tr.GetRenderDevice();
@@ -74,7 +94,43 @@ void crCommandBuffer::Destroy(void)
         vkFreeCommandBuffers( *device, m_queue->CommandPool(), SMP_FRAMES, m_commandBuffers );
 }
 
+/*
+==============
+crCommandBuffer::Begin
+==============
+*/
+void crCommandBuffer::BeginSubCommand( void )
+{
+    VkResult result = VK_SUCCESS;
+    crVulkanRenderDevicep device = tr.GetRenderDevice();
 
+    VkCommandBufferInheritanceInfo inheritanceInfo{};
+    inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
+    inheritanceInfo.pNext = nullptr;
+    inheritanceInfo.renderPass = nullptr;
+    inheritanceInfo.subpass = 0;
+    inheritanceInfo.framebuffer = nullptr;
+    inheritanceInfo.occlusionQueryEnable = VK_FALSE;
+    inheritanceInfo.queryFlags = 0;
+    inheritanceInfo.pipelineStatistics = 0;
+
+    ///
+    /// Begin register commands in curren buffer
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.pNext = &inheritanceInfo;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT /*VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT*/; // we only submit one time per frame 
+    result = vkBeginCommandBuffer( m_commandBuffers[m_frameID], &beginInfo );
+    if( result != VK_SUCCESS )
+        common->Warning( "crCommandBuffer::Begin::vkBeginCommandBuffer FAILED to begin!\n" );
+
+}
+
+/*
+==============
+crCommandBuffer::Begin
+==============
+*/
 void crCommandBuffer::Begin( void )
 {
     VkResult result = VK_SUCCESS;
@@ -96,12 +152,22 @@ void crCommandBuffer::Begin( void )
         common->Warning( "crCommandBuffer::Begin::vkBeginCommandBuffer FAILED to begin!\n" );
 }
 
+/*
+==============
+crCommandBuffer::Execute
+==============
+*/
 void crCommandBuffer::Execute(const crCommandBuffer *in_commandBuffer)
 {
     auto subcmd = in_commandBuffer->CommandBuffer();
     vkCmdExecuteCommands( CommandBuffer(), 1, &subcmd );
 }
 
+/*
+==============
+crCommandBuffer::Submit
+==============
+*/
 void crCommandBuffer::Submit(  const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence )
 {
     VkResult result = VK_SUCCESS;
