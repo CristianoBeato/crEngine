@@ -59,7 +59,7 @@ bool crBuffer::Create( const type_t in_type, const access_t in_acess, const size
     auto graphic = device->GraphicQueue();
     graphicFamily = graphic->Family(); 
 
-    m_access = bufferAccess[in_acess];
+    //m_access = bufferAccess[in_acess];
     m_usage = bufferUsageFlags[in_acess];
 
     ///

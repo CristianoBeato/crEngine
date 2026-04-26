@@ -115,7 +115,7 @@ void crUniformManager::ShutDown(void)
     }
 }
 
-void crUniformManager::SetFrame( const uint32_t in_frameID, const crCommandbuffer * in_commandBuffer )
+void crUniformManager::SetFrame( const uint32_t in_frameID, const crCommandBufferp in_commandBuffer )
 {
     auto device = tr.GetRenderDevice();
     idTempArray<VkDescriptorBufferInfo> bufferDescriptors = idTempArray<VkDescriptorBufferInfo>( MAX_BINDINGS ); 
@@ -201,7 +201,7 @@ void crUniformManager::SetFrame( const uint32_t in_frameID, const crCommandbuffe
     vkUpdateDescriptorSets( *device, 5, writeDescriptors.Ptr(), 0, nullptr );
 }
 
-void crUniformManager::SubmitOffsets( const crCommandbuffer* in_commandBuffer )
+void crUniformManager::SubmitOffsets( const crCommandBufferp in_commandBuffer )
 {
     vkCmdBindDescriptorSets( in_commandBuffer->CommandBuffer(), VK_PIPELINE_BIND_POINT_GRAPHICS, m_layout, 0, 1, &m_storageSet[m_frameID], MAX_BINDINGS, m_dynamicOffsets.Ptr() );
 }
@@ -235,10 +235,11 @@ void crUniformManager::CreateStorageBuffers(void)
 
     for ( uint32_t i = 0; i < MAX_BINDINGS; i++)
     {    
-        VkMemoryRequirements memReq;
         m_shaderStorageBuffers[i] = new crBuffer();
         if( !m_shaderStorageBuffers[i]->Create( crBuffer::BUFFER_TYPE_SHADER, crBuffer::BUFFER_ACCESS_WRITE, k_BUFFERS_SIZES[i] ) )
-            idLib::FatalError( "Failed to create shader storage buffer\n");
+        idLib::FatalError( "Failed to create shader storage buffer\n");
+        
+        VkMemoryRequirements memReq = m_shaderStorageBuffers[i]->MemoryRequirements();
 
         // Aligns the current offset according to the buffer requirement.
         currentOffset = __align( currentOffset, memReq.alignment );

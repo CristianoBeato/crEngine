@@ -100,6 +100,11 @@ public:
     /// @brief buffer allocated size. 
     ID_INLINE size_t    Size( void ) { return m_page->Size(); }
 
+    /// @brief return the memory requeriments of the buffer
+    ID_INLINE VkMemoryRequirements  MemoryRequirements( void ) const { return m_memoryRequirements; }
+
+    ID_INLINE crMemoryPagep         GetMemoryPage( void ) const { return m_page; }
+
     /// @brief access buffer handle object
     /// @return nullptr if object has destroyed or failed to created, 
     /// or the native buffer handle

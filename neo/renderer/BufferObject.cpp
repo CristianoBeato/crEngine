@@ -583,9 +583,7 @@ void idIndexBuffer::Update( const void* data, int updateSize ) const
 	assert( ( GetOffset() & 15 ) == 0 );
 	
 	if( updateSize > size )
-	{
 		idLib::FatalError( "idIndexBuffer::Update: size overrun, %i > %i\n", updateSize, GetSize() );
-	}
 	
 	int numBytes = ( updateSize + 15 ) & ~15;
 	
@@ -654,7 +652,7 @@ void* idIndexBuffer::MapBuffer( bufferMapType_t mapType ) const
 idIndexBuffer::UnmapBuffer
 ========================
 */
-void idIndexBuffer::UnmapBuffer() const
+void idIndexBuffer::UnmapBuffer( void ) const
 {
 	assert( apiObject != nullptr );
 	assert( IsMapped() );

@@ -60,9 +60,9 @@ crDrawGeometry::crDrawGeometry( void ) :
     numShadowIndexesNoFrontCaps( 0 ),
     numShadowIndexesNoCaps( 0 ),
     shadowCapPlaneBits( 0 ),
-    indexCache( 0 ),
-    ambientCache( 0 ),
-    shadowCache( 0 ),
+    indexCache(),
+    ambientCache(),
+    shadowCache(),
     verts( nullptr ),
     indexes( nullptr ),
     silIndexes( nullptr ),
@@ -322,8 +322,7 @@ void crDrawGeometry::FreeStaticTriSurfVerts( void )
 {
 	// we don't support reclaiming static geometry memory
 	// without a level change
-	ambientCache = 0;
-	
+	ambientCache = vertCacheHandle_t();
 	if( verts != nullptr )
 	{
 		// R_CreateLightTris points verts at the verts of the ambient surface
@@ -400,7 +399,7 @@ crDrawGeometry::FreeIndexCache
 */
 void crDrawGeometry::FreeIndexCache( void )
 {
-	indexCache = 0;
+	indexCache = vertCacheHandle_t(); //SetZero( indexCache );
 }
 
 /*
@@ -410,7 +409,7 @@ crDrawGeometry::FreeAmbientCache
 */
 void crDrawGeometry::FreeAmbientCache( void )
 {
-	ambientCache = 0;
+	ambientCache = vertCacheHandle_t(); //SetZero( ambientCache );
 }
 
 /*
@@ -420,7 +419,7 @@ crDrawGeometry::FreeShadowCache
 */
 void crDrawGeometry::FreeShadowCache( void )
 {
-	shadowCache = 0;
+	shadowCache = vertCacheHandle_t(); //SetZero( shadowCache );
 }
 
 /*
@@ -914,7 +913,7 @@ void crDrawGeometry::InitDrawSurfFromTri( drawSurf_t* ds )
 	// deformed surfaces will not have any vertices but the ambient cache will have already
 	// been created for them.
 	if( ( verts == nullptr ) && !referencedIndexes )
-		ambientCache = 0; // pre-generated shadow models will not have any verts, just shadowVerts
+		ambientCache = vertCacheHandle_t(); // pre-generated shadow models will not have any verts, just shadowVerts
 
 	else if( !vertexCache.CacheIsCurrent( ambientCache ) )
 		ambientCache = vertexCache.AllocVertex( verts, ALIGN( numVerts * sizeof( verts[0] ), VERTEX_CACHE_ALIGN ) );
@@ -926,7 +925,7 @@ void crDrawGeometry::InitDrawSurfFromTri( drawSurf_t* ds )
 	ds->ambientCache = ambientCache;
 	ds->indexCache = indexCache;
 	ds->shadowCache = shadowCache;
-	ds->jointCache = 0;
+	ds->jointCache = vertCacheHandle_t();// SetZero( ds->jointCache );
 }
 
 /*
@@ -939,9 +938,9 @@ time, rather than being re-created each frame in the frame temporary buffers.
 */
 void crDrawGeometry::CreateStaticBuffersForTri( void )
 {
-	indexCache = 0;
-	ambientCache = 0;
-	shadowCache = 0;
+	SetZero( indexCache );
+	SetZero( ambientCache );
+	SetZero( shadowCache );
 	
 	// index cache
 	if( indexes != nullptr )

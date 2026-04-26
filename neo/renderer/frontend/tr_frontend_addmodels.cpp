@@ -336,17 +336,18 @@ void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const crDrawGeometry* tri, con
 {
 	if( tri->StaticModelWithJoints() == nullptr || !r_useGPUSkinning.GetBool() )
 	{
-		drawSurf->jointCache = 0;
+		drawSurf->jointCache = vertCacheHandle_t();
 		return;
 	}
 	
 	idRenderModelStatic* model = const_cast<idRenderModelStatic*>( tri->StaticModelWithJoints() );
 	assert( model->jointsInverted != nullptr );
 	
+	/// TODO: Now uploaded via uniform buffers
 	if( !vertexCache.CacheIsCurrent( model->jointsInvertedBuffer ) )
 	{
 		const int alignment = glConfig.uniformBufferOffsetAlignment;
-		model->jointsInvertedBuffer = vertexCache.AllocJoint( model->jointsInverted, ALIGN( model->numInvertedJoints * sizeof( idJointMat ), alignment ) );
+		//model->jointsInvertedBuffer = vertexCache.AllocJoint( model->jointsInverted, ALIGN( model->numInvertedJoints * sizeof( idJointMat ), alignment ) );
 	}
 	drawSurf->jointCache = model->jointsInvertedBuffer;
 }
@@ -1054,7 +1055,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						}
 						
 						shadowDrawSurf->ambientCache = tri->AmbientCache();
-						shadowDrawSurf->shadowCache = 0;
+						SetZero( shadowDrawSurf->shadowCache );
 						shadowDrawSurf->frontEndGeo = tri;
 						shadowDrawSurf->space = vEntity;
 						shadowDrawSurf->material = shader;

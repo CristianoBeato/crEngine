@@ -1098,8 +1098,8 @@ static drawSurf_t* R_ParticleDeform( drawSurf_t* surf, bool useArea )
 		drawSurf->numIndexes = newTri->NumIndexes();
 		drawSurf->ambientCache = newTri->AmbientCache();
 		drawSurf->indexCache = newTri->IndexCache();
-		drawSurf->shadowCache = 0;
-		drawSurf->jointCache = 0;
+		drawSurf->shadowCache = vertCacheHandle_t();
+		drawSurf->jointCache = vertCacheHandle_t();
 		drawSurf->space = surf->space;
 		drawSurf->scissorRect = surf->scissorRect;
 		drawSurf->renderZFail = 0;
