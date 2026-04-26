@@ -31,108 +31,136 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "renderer_common.h"
+#include "VertexCache.h"
 
 idVertexCache vertexCache;
 
 idCVar r_showVertexCache( "r_showVertexCache", "0", CVAR_RENDERER | CVAR_BOOL, "Print stats about the vertex cache every frame" );
 idCVar r_showVertexCacheTimings( "r_showVertexCacheTimings", "0", CVAR_RENDERER | CVAR_BOOL, "Print stats about the vertex cache every frame" );
 
-
-/*
-==============
-ClearGeoBufferSet
-==============
-*/
-static void ClearGeoBufferSet( geoBufferSet_t& gbs )
-{
-	gbs.indexMemUsed.SetValue( 0 );
-	gbs.vertexMemUsed.SetValue( 0 );
-	gbs.jointMemUsed.SetValue( 0 );
-	gbs.allocations = 0;
-}
-
-/*
-==============
-MapGeoBufferSet
-==============
-*/
-static void MapGeoBufferSet( geoBufferSet_t& gbs )
-{
-	if( gbs.mappedVertexBase == nullptr )
-	{
-		gbs.mappedVertexBase = ( byte* )gbs.vertexBuffer.MapBuffer( BM_WRITE );
-	}
-	if( gbs.mappedIndexBase == nullptr )
-	{
-		gbs.mappedIndexBase = ( byte* )gbs.indexBuffer.MapBuffer( BM_WRITE );
-	}
-	if( gbs.mappedJointBase == nullptr && gbs.jointBuffer.GetAllocedSize() != 0 )
-	{
-		gbs.mappedJointBase = ( byte* )gbs.jointBuffer.MapBuffer( BM_WRITE );
-	}
-}
-
-/*
-==============
-UnmapGeoBufferSet
-==============
-*/
-static void UnmapGeoBufferSet( geoBufferSet_t& gbs )
-{
-	if( gbs.mappedVertexBase != nullptr )
-	{
-		gbs.vertexBuffer.UnmapBuffer();
-		gbs.mappedVertexBase = nullptr;
-	}
-	if( gbs.mappedIndexBase != nullptr )
-	{
-		gbs.indexBuffer.UnmapBuffer();
-		gbs.mappedIndexBase = nullptr;
-	}
-	if( gbs.mappedJointBase != nullptr )
-	{
-		gbs.jointBuffer.UnmapBuffer();
-		gbs.mappedJointBase = nullptr;
-	}
-}
-
-/*
-==============
-AllocGeoBufferSet
-==============
-*/
-static void AllocGeoBufferSet( geoBufferSet_t& gbs, const int vertexBytes, const int indexBytes, const int jointBytes )
-{
-	gbs.vertexBuffer.AllocBufferObject( nullptr, vertexBytes );
-	gbs.indexBuffer.AllocBufferObject( nullptr, indexBytes );
-	if( jointBytes != 0 )
-	{
-		gbs.jointBuffer.AllocBufferObject( nullptr, jointBytes / sizeof( idJointMat ) );
-	}
-	ClearGeoBufferSet( gbs );
-}
-
 /*
 ==============
 idVertexCache::Init
 ==============
 */
-void idVertexCache::Init( bool restart )
+void idVertexCache::Init( const uint32_t in_frames, const bool in_restart )
 {
+	uint32_t i = 0;
+	vkDeviceQueuep queue = nullptr;
+	auto device = tr.GetRenderDevice();
+
 	currentFrame = 0;
 	listNum = 0;
 	
 	mostUsedVertex = 0;
 	mostUsedIndex = 0;
-	mostUsedJoint = 0;
 	
-	for( int i = 0; i < VERTCACHE_NUM_FRAMES; i++ )
+/// BEATO Begin
+	if ( glConfig.isTransferQueueAvailable )
+		queue = dynamic_cast<crVulkanRenderDevicep>( tr.GetRenderDevice() )->TransferQueue();
+	else
+		queue = dynamic_cast<crVulkanRenderDevicep>( tr.GetRenderDevice() )->GraphicQueue();
+
+	///
+	/// Create Buffers
+	m_buffers.SetNum( CACHE_BUFFERS_COUNT );
+	
+	VkDeviceSize minAlign = 0;
+	VkDeviceSize currentOffset = 0;
+    uint32_t memoryTypeBits = 0xFFFFFFFF;
+	for ( i = 0; i < CACHE_BUFFERS_COUNT; i++)
 	{
-		AllocGeoBufferSet( frameData[i], VERTCACHE_VERTEX_MEMORY_PER_FRAME, VERTCACHE_INDEX_MEMORY_PER_FRAME, VERTCACHE_JOINT_MEMORY_PER_FRAME );
+		VkMemoryRequirements req{};
+		size_t size = 0;
+		crBuffer::type_t type;
+		switch ( i )
+		{
+			case CACHE_INDEX_STATIC:
+			{
+				size = STATIC_INDEX_MEMORY;
+				type = crBuffer::BUFFER_TYPE_INDEX;
+			} break;
+			case CACHE_VERTEX_STATIC:
+			{
+				size = STATIC_INDEX_MEMORY;
+				type = crBuffer::BUFFER_TYPE_VERTEX;
+			} break;
+			case CACHE_INDEX_DYNAMIC:
+			{
+				size = in_frames * VERTCACHE_INDEX_MEMORY_PER_FRAME;
+				type = crBuffer::BUFFER_TYPE_INDEX;
+			} break;
+			case CACHE_VERTEX_DYNAMIC:
+			{
+				size = in_frames * VERTCACHE_VERTEX_MEMORY_PER_FRAME;
+				type = crBuffer::BUFFER_TYPE_VERTEX;
+			} break;
+		}
+
+		m_buffers[i] = new crBuffer();
+		if( !m_buffers[i]->Create( type, crBuffer::BUFFER_ACCESS_WRITE, size ) )
+			throw idException( "Failed to create vertex cache buffers" );
+
+		req = m_buffers[i]->MemoryRequirements();
+
+		minAlign = std::max( minAlign, req.alignment );
+
+		// Aligns the current offset according to the buffer requirement.
+        currentOffset = __align( currentOffset, req.alignment );
+    
+        // Add the buffer size to the offset for the next
+        currentOffset += req.size;
+
+        // Combines the supported memory type bits (bit-by-bit AND).
+        memoryTypeBits &= req.memoryTypeBits;
 	}
-	AllocGeoBufferSet( staticData, STATIC_VERTEX_MEMORY, STATIC_INDEX_MEMORY, 0 );
+
+	/// Allocate the the memory pool for the rende buffers
+    m_renderBuffersPool = device->Alloc( currentOffset, minAlign, memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    if( m_renderBuffersPool )
+        idLib::FatalError( "Vertex Cache Buffers memory pool allocation failed, no suitable memory four or no available memory size\n" );
 	
-	MapGeoBufferSet( frameData[listNum] );
+	/// now allocate buffer memory
+	for ( i = 0; i < CACHE_BUFFERS_COUNT; i++)
+	{
+		if( !m_buffers[i]->Storage( m_renderBuffersPool ) )
+			throw idException("");
+	}
+	
+	///
+	///________________________________________________________________________
+	/// Create the staging buffer
+	///
+	m_staging = new crBuffer();
+	if( !m_staging->Create( crBuffer::BUFFER_TYPE_SOURCE, crBuffer::BUFFER_ACCESS_WRITE, VERTCACHE_STAGING_MEMORY_PER_FRAME ) );
+		throw idException( "Failed to create vertex cahce staging buffer" );
+
+	auto stagingMemoryRequirements = m_staging->MemoryRequirements();
+
+	m_stagingMemoryPool = device->Alloc( currentOffset, stagingMemoryRequirements.alignment, stagingMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT );
+    if( m_stagingMemoryPool )
+        idLib::FatalError( "Shader storage buffers memory pool allocation failed, no suitable memory four or no available memory size\n" );
+
+	if( !m_staging->Storage( m_stagingMemoryPool ) )
+		throw idException( "" );
+
+	m_stagingMap = m_staging->GetMemoryPage()->Map();	
+
+	///
+	///________________________________________________________________________
+	/// Create copy command buffer
+	///
+	m_copyCommands = new crCommandBuffer();
+	if( !m_copyCommands->Create( r_bufferCount.GetInteger(), queue, false ) )
+		throw idException( "Failed to create vertex cache copy command buffer!\n" );
+
+	///
+	///________________________________________________________________________
+	/// Create transfer semaphore
+	///
+	m_copySync = new crSemaphoreTimeline();
+	if( !m_copySync->Create() )
+		throw idException( "Failed to create vertex cahce staging buffer" );
 }
 
 /*
@@ -140,14 +168,27 @@ void idVertexCache::Init( bool restart )
 idVertexCache::Shutdown
 ==============
 */
-void idVertexCache::Shutdown()
+void idVertexCache::Shutdown( void )
 {
-	for( int i = 0; i < VERTCACHE_NUM_FRAMES; i++ )
+	auto device = tr.GetRenderDevice();
+	
+	VK_SAFE_DESTROY( m_copySync );
+	VK_SAFE_DESTROY( m_copyCommands );
+
+	/// Release staging buffer
+	VK_SAFE_DESTROY( m_staging );
+
+	/// Release staging memory
+	device->Free( m_stagingMemoryPool );
+
+	/// Release render buffers 
+	for ( uint32_t i = 0; i < CACHE_BUFFERS_COUNT; i++)
 	{
-		frameData[i].vertexBuffer.FreeBufferObject();
-		frameData[i].indexBuffer.FreeBufferObject();
-		frameData[i].jointBuffer.FreeBufferObject();
+		VK_SAFE_DESTROY( m_buffers[i] );
 	}
+
+	/// Release render buffers memory
+	device->Free( m_renderBuffersPool );
 }
 
 /*
@@ -155,7 +196,7 @@ void idVertexCache::Shutdown()
 idVertexCache::PurgeAll
 ==============
 */
-void idVertexCache::PurgeAll()
+void idVertexCache::PurgeAll( void )
 {
 	Shutdown();
 	Init( true );
@@ -163,17 +204,25 @@ void idVertexCache::PurgeAll()
 
 /*
 ==============
-idVertexCache::FreeStaticData
-
-call on loading a new map
+idVertexCache::EndMapLoad
 ==============
 */
-void idVertexCache::FreeStaticData()
+void idVertexCache::EndMapLoad(void)
 {
-	ClearGeoBufferSet( staticData );
+}
+
+/*
+ ==============
+ idVertexCache::FreeStaticData
+ call on loading a new map
+ ==============
+ */
+void idVertexCache::FreeStaticData( void )
+{
+	m_caches[CACHE_INDEX_STATIC].Clear();
+	m_caches[CACHE_VERTEX_STATIC].Clear();
 	mostUsedVertex = 0;
 	mostUsedIndex = 0;
-	mostUsedJoint = 0;
 }
 
 /*
@@ -181,12 +230,13 @@ void idVertexCache::FreeStaticData()
 idVertexCache::ActuallyAlloc
 ==============
 */
-vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void* data, int bytes, cacheType_t type )
+vertCacheHandle_t idVertexCache::ActuallyAlloc( const void* data, const size_t bytes, const cache_type_t  type )
 {
+	uintptr_t endPos = 0;
+	vertCacheHandle_t handle{};
+	
 	if( bytes == 0 )
-	{
-		return ( vertCacheHandle_t )0;
-	}
+		return vertCacheHandle_t();
 	
 	// RB: changed UINT_PTR to uintptr_t
 	assert( ( ( ( uintptr_t )( data ) ) & 15 ) == 0 );
@@ -195,132 +245,152 @@ vertCacheHandle_t idVertexCache::ActuallyAlloc( geoBufferSet_t& vcs, const void*
 	assert( ( bytes & 15 ) == 0 );
 	
 	// thread safe interlocked adds
-	byte** base = nullptr;
-	int	endPos = 0;
-	if( type == CACHE_INDEX )
+	endPos = m_caches[type].memoryUsed + bytes;
+	if( type == CACHE_VERTEX_STATIC )
 	{
-		base = &vcs.mappedIndexBase;
-		endPos = vcs.indexMemUsed.Add( bytes );
-		if( endPos > vcs.indexBuffer.GetAllocedSize() )
-		{
+		if( endPos > m_buffers[type]->Size() )
 			idLib::Error( "Out of index cache" );
-		}
-	}
-	else if( type == CACHE_VERTEX )
+	} 
+	else if( type == CACHE_INDEX_STATIC )
 	{
-		base = &vcs.mappedVertexBase;
-		endPos = vcs.vertexMemUsed.Add( bytes );
-		if( endPos > vcs.vertexBuffer.GetAllocedSize() )
-		{
+		if( endPos > m_buffers[type]->Size() )
 			idLib::Error( "Out of vertex cache" );
-		}
 	}
-	else if( type == CACHE_JOINT )
+	else if( type == CACHE_VERTEX_DYNAMIC ) 
 	{
-		base = &vcs.mappedJointBase;
-		endPos = vcs.jointMemUsed.Add( bytes );
-		if( endPos > vcs.jointBuffer.GetAllocedSize() )
-		{
-			idLib::Error( "Out of joint buffer cache" );
-		}
+		//if( ( m_caches[type].memoryUsedFrame + bytes ) > VERTCACHE_INDEX_MEMORY_PER_FRAME )
 	}
-	else
-	{
-		assert( false );
-	}
+
+	m_caches[type].allocations++;
 	
-	vcs.allocations++;
-	
-	int offset = endPos - bytes;
+	uintptr_t offset = endPos - bytes;
 	
 	// Actually perform the data transfer
 	if( data != nullptr )
 	{
-		MapGeoBufferSet( vcs );
-		CopyBuffer( *base + offset, ( const byte* )data, bytes );
+		/// copy data to staging buffer
+		uintptr_t staging = UploadStage( data, bytes );
+
+		/// Register command to copy from staging to vertex buffer
+		UploadBuffer( type, bytes, staging, offset );
 	}
 	
-	vertCacheHandle_t handle =	( ( uint64_t )( currentFrame & VERTCACHE_FRAME_MASK ) << VERTCACHE_FRAME_SHIFT ) |
-								( ( uint64_t )( offset & VERTCACHE_OFFSET_MASK ) << VERTCACHE_OFFSET_SHIFT ) |
-								( ( uint64_t )( bytes & VERTCACHE_SIZE_MASK ) << VERTCACHE_SIZE_SHIFT );
-	if( &vcs == &staticData )
-	{
-		handle |= VERTCACHE_STATIC;
-	}
+	handle.frame = currentFrame;
+	handle.offset = offset;
+	handle.size = bytes;
+
+	if( type == CACHE_INDEX_STATIC || type == CACHE_VERTEX_DYNAMIC )
+		handle.flags |= CACHE_STATIC;
+
+	if( type == CACHE_INDEX_STATIC || type == CACHE_INDEX_DYNAMIC )
+		handle.flags |= CACHE_INDEX;
+
 	return handle;
 }
 
 /*
 ==============
-idVertexCache::GetVertexBuffer
+idVertexCache::UploadBuffer
 ==============
 */
-bool idVertexCache::GetVertexBuffer( vertCacheHandle_t handle, idVertexBuffer* vb )
+void idVertexCache::UploadBuffer( const cache_type_t in_type, const size_t in_size, const uintptr_t in_srcOffset, const uintptr_t in_dstOffset )
 {
-	const int isStatic = handle & VERTCACHE_STATIC;
-	const uint64_t size = ( int )( handle >> VERTCACHE_SIZE_SHIFT ) & VERTCACHE_SIZE_MASK;
-	const uint64_t offset = ( int )( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	const uint64_t frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
-	if( isStatic )
-	{
-		vb->Reference( staticData.vertexBuffer, offset, size );
-		return true;
-	}
-	if( frameNum != ( ( currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
-	{
-		return false;
-	}
-	vb->Reference( frameData[drawListNum].vertexBuffer, offset, size );
-	return true;
+	uint32_t queueFamily = VK_QUEUE_FAMILY_IGNORED;
+	if( glConfig.isTransferQueueAvailable )
+		queueFamily = tr.GetRenderDevice()->TransferQueue()->Family();
+	else
+		queueFamily = tr.GetRenderDevice()->GraphicQueue()->Family();
+
+	///
+	/// update source buffer state
+	crBuffer::state_t sourceState{};
+	sourceState.queueFamily = queueFamily;
+	sourceState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+	sourceState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
+	m_buffers[in_type]->SetState( m_copyCommands, sourceState );
+
+	///
+	/// update staging buffer state
+	crBuffer::state_t stagingState{};
+	stagingState.queueFamily = queueFamily;
+	stagingState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+	stagingState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
+	m_staging->SetState( m_copyCommands, stagingState );
+
+	///
+	/// copy content
+	VkBufferCopy2 bufferCopy{};
+	bufferCopy.sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2;
+	bufferCopy.pNext = nullptr;
+	bufferCopy.srcOffset = static_cast<VkDeviceSize>( in_srcOffset );
+	bufferCopy.dstOffset = static_cast<VkDeviceSize>( in_dstOffset );
+	bufferCopy.size = static_cast<VkDeviceSize>( in_size );
+
+	VkCopyBufferInfo2 copyBuffer{};
+	copyBuffer.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2;
+	copyBuffer.pNext = nullptr;
+	copyBuffer.regionCount = 1;
+	copyBuffer.pRegions = &bufferCopy;
+	copyBuffer.srcBuffer = *m_staging;
+	copyBuffer.dstBuffer = *m_buffers[in_type];
+	
+	/// Upload buffer
+	vkCmdCopyBuffer2( *m_copyCommands, &copyBuffer );
 }
 
 /*
 ==============
-idVertexCache::GetIndexBuffer
+idVertexCache::UploadStage
 ==============
 */
-bool idVertexCache::GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer* ib )
+uintptr_t idVertexCache::UploadStage( const void *in_data, const size_t in_size )
 {
-	const int isStatic = handle & VERTCACHE_STATIC;
-	const uint64_t size = ( int )( handle >> VERTCACHE_SIZE_SHIFT ) & VERTCACHE_SIZE_MASK;
-	const uint64_t offset = ( int )( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	const uint64_t frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
-	if( isStatic )
-	{
-		ib->Reference( staticData.indexBuffer, offset, size );
-		return true;
-	}
-	if( frameNum != ( ( currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
-	{
-		return false;
-	}
-	ib->Reference( frameData[drawListNum].indexBuffer, offset, size );
-	return true;
+	uintptr_t offset = 0;
+	
+	if( ( m_stagingOffset + in_size ) > VERTCACHE_STAGING_MEMORY_PER_FRAME )
+		m_stagingOffset.store( 0 );
+
+	offset = m_stagingOffset.load();
+
+	/// copy to stagin buffer memory
+	std::memcpy( static_cast<byte*>( m_stagingMap ) + offset, in_data, in_size );
+
+	/// move offset
+	m_stagingOffset.fetch_add( in_size );
+    return offset;
 }
 
 /*
 ==============
-idVertexCache::GetJointBuffer
+idVertexCache::GetBuffer
 ==============
 */
-bool idVertexCache::GetJointBuffer( vertCacheHandle_t handle, idJointBuffer* jb )
+crBufferp idVertexCache::GetBuffer(const vertCacheHandle_t &in_handle) const
 {
-	const int isStatic = handle & VERTCACHE_STATIC;
-	const uint64_t numBytes = ( int )( handle >> VERTCACHE_SIZE_SHIFT ) & VERTCACHE_SIZE_MASK;
-	const uint64_t jointOffset = ( int )( handle >> VERTCACHE_OFFSET_SHIFT ) & VERTCACHE_OFFSET_MASK;
-	const uint64_t frameNum = ( int )( handle >> VERTCACHE_FRAME_SHIFT ) & VERTCACHE_FRAME_MASK;
-	const uint64_t numJoints = numBytes / sizeof( idJointMat );
-	if( isStatic )
+	crBufferp buffer = nullptr;
+	if( in_handle.flags &CACHE_STATIC )
 	{
-		jb->Reference( staticData.jointBuffer, jointOffset, numJoints );
-		return true;
+		if( in_handle.flags &CACHE_INDEX )
+			buffer = const_cast<crBufferp>( m_buffers[CACHE_INDEX_STATIC] );
+		else
+			buffer = const_cast<crBufferp>( m_buffers[CACHE_VERTEX_STATIC] );
 	}
-	if( frameNum != ( ( currentFrame - 1 ) & VERTCACHE_FRAME_MASK ) )
+	else
 	{
-		return false;
+		const uint32_t frameNum = in_handle.frame;
+		if ( frameNum != ( vertexCache.currentFrame - 1 ) ) 
+        {
+			idLib::Warning( "crBackend::DrawElementsWithCounters, vertexBuffer == NULL" );
+			return nullptr;
+		}
+	
+		if( in_handle.flags &CACHE_INDEX )
+			buffer = const_cast<crBufferp>( m_buffers[CACHE_INDEX_DYNAMIC] );
+		else
+			buffer = const_cast<crBufferp>( m_buffers[CACHE_VERTEX_DYNAMIC] );
 	}
-	jb->Reference( frameData[drawListNum].jointBuffer, jointOffset, numJoints );
-	return true;
+
+	return buffer;
 }
 
 /*
@@ -328,33 +398,38 @@ bool idVertexCache::GetJointBuffer( vertCacheHandle_t handle, idJointBuffer* jb 
 idVertexCache::BeginBackEnd
 ==============
 */
-void idVertexCache::BeginBackEnd()
+void idVertexCache::BeginBackEnd( void )
 {
-	mostUsedVertex = Max( mostUsedVertex, frameData[listNum].vertexMemUsed.GetValue() );
-	mostUsedIndex = Max( mostUsedIndex, frameData[listNum].indexMemUsed.GetValue() );
-	mostUsedJoint = Max( mostUsedJoint, frameData[listNum].jointMemUsed.GetValue() );
-	
+	uint32_t allocations = 0;
+	mostUsedVertex = std::max<uint32_t>( mostUsedVertex, m_caches[CACHE_VERTEX_DYNAMIC].memoryUsed.load() );
+	mostUsedIndex = std::max<uint32_t>( mostUsedIndex, m_caches[CACHE_INDEX_DYNAMIC].memoryUsed.load() );
+	allocations += m_caches[CACHE_VERTEX_DYNAMIC].allocations;
+	allocations += m_caches[CACHE_INDEX_DYNAMIC].allocations;
+
 	if( r_showVertexCache.GetBool() )
 	{
-		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index, %kB joint : %dkB vertex, %dkB index, %kB joint\n",
-					   currentFrame, frameData[listNum].allocations,
-					   frameData[listNum].vertexMemUsed.GetValue() / 1024,
-					   frameData[listNum].indexMemUsed.GetValue() / 1024,
-					   frameData[listNum].jointMemUsed.GetValue() / 1024,
-					   mostUsedVertex / 1024,
-					   mostUsedIndex / 1024,
-					   mostUsedJoint / 1024 );
+		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index: %dkB vertex, %dkB index, %kB joint\n",
+			currentFrame, allocations,
+			m_caches[listNum].memoryUsed.load() / 1024,
+			m_caches[listNum].memoryUsed.load() / 1024,
+			mostUsedVertex / 1024,
+			mostUsedIndex / 1024 );
 	}
-	
+
+	m_copyCommands->BeginSubCommand();
+		
+	m_caches[CACHE_INDEX_DYNAMIC].memoryUsedFrame.store( 0 );
+	m_caches[CACHE_VERTEX_DYNAMIC].memoryUsedFrame.store( 0 );
+
+#if 0
 	// unmap the current frame so the GPU can read it
 	const int startUnmap = Sys_Milliseconds();
 	UnmapGeoBufferSet( frameData[listNum] );
 	UnmapGeoBufferSet( staticData );
 	const int endUnmap = Sys_Milliseconds();
 	if( endUnmap - startUnmap > 1 )
-	{
 		idLib::PrintfIf( r_showVertexCacheTimings.GetBool(), "idVertexCache::unmap took %i msec\n", endUnmap - startUnmap );
-	}
+	
 	drawListNum = listNum;
 	
 	// prepare the next frame for writing to by the CPU
@@ -371,8 +446,6 @@ void idVertexCache::BeginBackEnd()
 	
 	ClearGeoBufferSet( frameData[listNum] );
 	
-	
-#if 0
 	const int startBind = Sys_Milliseconds();
 	glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].vertexBuffer.GetAPIObject() );
 	glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].indexBuffer.GetAPIObject() );
@@ -382,6 +455,19 @@ void idVertexCache::BeginBackEnd()
 		idLib::Printf( "idVertexCache::bind took %i msec\n", endBind - startBind );
 	}
 #endif
-	
 }
 
+void idVertexCache::EndBackEnd(void)
+{
+	/// Submit copy operations
+	if( glConfig.isTransferQueueAvailable )
+	{
+		auto transfer = tr.TransferCommandBuffer();
+		transfer->Execute( m_copyCommands );
+	}
+	else
+	{
+		auto graphic = tr.GraphicCommandBuffer();
+		graphic->Execute( m_copyCommands );
+	}
+}
