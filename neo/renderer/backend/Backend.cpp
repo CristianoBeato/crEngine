@@ -136,6 +136,9 @@ void crBackend::SetBuffer( const void* data )
 	
 	RENDERLOG_PRINTF( "---------- RB_SetBuffer ---------- to buffer # %d\n", bufferID );
 
+	/// Set buffers offsets
+	vertexCache.BeginBackEnd();
+
 	/// It waits for the resources of the previous paired frame to be released,
 	/// acquires and prepares the presentation image state, clears the command buffer, 
 	/// and initializes command recording for the frame.

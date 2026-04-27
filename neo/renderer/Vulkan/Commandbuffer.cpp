@@ -160,6 +160,13 @@ crCommandBuffer::Execute
 void crCommandBuffer::Execute(const crCommandBuffer *in_commandBuffer)
 {
     auto subcmd = in_commandBuffer->CommandBuffer();
+
+    //
+    // Finish record draw commands
+    auto result = vkEndCommandBuffer( subcmd );
+    if( result != VK_SUCCESS )
+        idLib::Error( "vkCommandBuffer::Begin FAILED!\n" );
+
     vkCmdExecuteCommands( CommandBuffer(), 1, &subcmd );
 }
 
@@ -186,7 +193,7 @@ void crCommandBuffer::Submit(  const crSemaphore* in_imageAvailable, const crSem
     ///
     /// Signal semaphores
     /// Signal that render is done
-    VkSemaphoreSubmitInfo       signal = *in_renderDone;
+    VkSemaphoreSubmitInfo signal = *in_renderDone;
     
     ///
     /// Set command buffer to be submited
@@ -211,3 +218,76 @@ void crCommandBuffer::Submit(  const crSemaphore* in_imageAvailable, const crSem
         idLib::Error( "crCommandBuffer::Submit::vkQueueSubmit2 FAILED!\n" );
 }
 
+void crCommandBuffer::Submit(void)
+{
+    VkResult result = VK_SUCCESS;
+
+    //
+    // Finish record draw commands
+    result = vkEndCommandBuffer( m_commandBuffers[m_frameID] );
+    if( result != VK_SUCCESS )
+        idLib::Error( "vkCommandBuffer::Begin FAILED!\n" );
+
+    ///
+    /// Set command buffer to be submited
+    VkCommandBufferSubmitInfo   commandBufferSubmit{};
+    commandBufferSubmit.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_SUBMIT_INFO;
+    commandBufferSubmit.pNext = nullptr;
+    commandBufferSubmit.commandBuffer = m_commandBuffers[m_frameID];
+    commandBufferSubmit.deviceMask = 0;
+
+    ///
+    /// Sumit frame command buffer to GPU
+    VkSubmitInfo2 submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO_2;
+    submitInfo.waitSemaphoreInfoCount = 0;
+    submitInfo.pWaitSemaphoreInfos = 0;
+    submitInfo.commandBufferInfoCount = 0;
+    submitInfo.pCommandBufferInfos = nullptr;
+    submitInfo.signalSemaphoreInfoCount = 0;
+    submitInfo.pSignalSemaphoreInfos = nullptr;
+    result = vkQueueSubmit2( m_queue->Queue(), 1, &submitInfo, nullptr );
+    if( result != VK_SUCCESS )
+        idLib::Error( "crCommandBuffer::Submit::vkQueueSubmit2 FAILED!\n" );
+}
+
+/*
+==============
+crCommandBuffer::BufferMemoryBarriers
+==============
+*/
+void crCommandBuffer::BufferMemoryBarriers( const VkBufferMemoryBarrier2* in_barriers, const uint32_t in_count )
+{
+    ///
+	/// insert a state transition to destination
+    VkDependencyInfo dependencyInfo{};
+    dependencyInfo.sType = VK_STRUCTURE_TYPE_DEPENDENCY_INFO;
+    dependencyInfo.pNext = nullptr;
+    dependencyInfo.dependencyFlags = 0;
+    dependencyInfo.memoryBarrierCount = 0;
+    dependencyInfo.pMemoryBarriers = nullptr;
+    dependencyInfo.bufferMemoryBarrierCount = in_count;
+    dependencyInfo.pBufferMemoryBarriers = in_barriers;
+    dependencyInfo.imageMemoryBarrierCount = 0;
+    dependencyInfo.pImageMemoryBarriers = nullptr;
+    vkCmdPipelineBarrier2( m_commandBuffers[m_frameID], &dependencyInfo );
+}
+
+/*
+==============
+crCommandBuffer::Begin
+==============
+*/
+void crCommandBuffer::BindIndexBuffer( const crBufferp in_indexBuffer )
+{
+    vkCmdBindIndexBuffer( m_commandBuffers[m_frameID], *in_indexBuffer, 0, VK_INDEX_TYPE_UINT16 );
+}
+
+void crCommandBuffer::BindVertexBuffer(const crBufferp in_vertexBuffer)
+{
+    VkDeviceSize offset = 0;
+    VkDeviceSize size = VK_WHOLE_SIZE;
+    VkDeviceSize stride = sizeof( idDrawVert );
+    VkBuffer buffer = *in_vertexBuffer;
+    vkCmdBindVertexBuffers2(m_commandBuffers[m_frameID], 0, 1, &buffer, &offset, &size, &stride );
+}

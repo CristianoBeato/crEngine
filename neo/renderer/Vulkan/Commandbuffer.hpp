@@ -41,6 +41,10 @@ public:
     void                        BeginSubCommand( void );
     void                        Execute( const crCommandBuffer* in_commandBuffer );
     void                        Submit( const crSemaphore* in_imageAvailable, const crSemaphore* in_renderDone, const crFence* in_frameFence );
+    void                        Submit( void );
+    void                        BufferMemoryBarriers( const VkBufferMemoryBarrier2* in_barriers, const uint32_t in_count );
+    void                        BindIndexBuffer( const crBufferp in_indexBuffer );
+    void                        BindVertexBuffer( const crBufferp in_vertexBuffer );
     ID_INLINE void              SwapFrame( void ) { m_frameID = ( m_frameID + 1 ) % m_frameCount; }
     ID_INLINE VkCommandBuffer   CommandBuffer( void ) const { return m_commandBuffers[m_frameID]; }
     ID_INLINE operator VkCommandBuffer( void ) const { return m_commandBuffers[m_frameID]; }

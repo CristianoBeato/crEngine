@@ -343,6 +343,12 @@ void idRenderSystemLocal::StartFrame( void )
 	/// Prepare command buffer 
 	m_graphicCommandBuffer->Begin();
 
+	/// Bind index buffer
+	m_graphicCommandBuffer->BindIndexBuffer( vertexCache.GetIndexBuffer() );
+
+	/// Bind vertex buffer 
+	m_graphicCommandBuffer->BindVertexBuffer( vertexCache.GetVertexBuffer() );
+
 	/// begin register GPU Time
 	m_timerQuery->BeginRegister( m_graphicCommandBuffer );
 }
@@ -360,6 +366,10 @@ void idRenderSystemLocal::EndFrame( void )
 
 	/// Register the timestap of the current frame
 	m_timerQuery->EndRegister(  m_graphicCommandBuffer );
+
+	/// submit copy operations
+	if( glConfig.isTransferQueueAvailable )
+		m_transferCommandBuffer->Submit();
 
 	/// check/wait if swapchain image are available and 
 	/// submit current frame command buffer to GPU.  
