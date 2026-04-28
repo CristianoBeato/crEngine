@@ -29,13 +29,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 typedef class crBuffer
 {
 public:
-    enum access_t : uint8_t
-    {
-        BUFFER_ACCESS_NONE,
-        BUFFER_ACCESS_WRITE,
-        BUFFER_ACCESS_READ
-    };
-
     enum type_t : uint8_t
     {
         BUFFER_TYPE_UNDEFINED,  // unknow buffer
@@ -67,7 +60,7 @@ public:
     /// @param in_acess buffer acess for read or write 
     /// @param in_size buffer size
     /// @return true on sucess 
-    virtual bool    Create( const type_t in_type, const access_t in_acess, const size_t in_size );
+    virtual bool    Create( const type_t in_type, const size_t in_size );
         
     virtual bool    Storage( crMemoryPool* in_bufferPool );
 

@@ -25,12 +25,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include "Buffer.hpp"
 #include "Core.hpp"
 
-VkAccessFlags2 bufferAccess[] =
-{
-    VK_ACCESS_2_TRANSFER_WRITE_BIT,
-    VK_ACCESS_2_TRANSFER_READ_BIT
-};
-
 VkBufferUsageFlags bufferUsageFlags[]
 {
     0, // BUFFER_TYPE_UNDEFINED
@@ -51,16 +45,14 @@ crBuffer::~crBuffer( void )
     Destroy();
 }
 
-bool crBuffer::Create( const type_t in_type, const access_t in_acess, const size_t in_size )
+bool crBuffer::Create( const type_t in_type, const size_t in_size )
 {
     uint32_t graphicFamily = 0;
     VkResult result = VK_SUCCESS;
     auto device = tr.GetRenderDevice();
     auto graphic = device->GraphicQueue();
     graphicFamily = graphic->Family(); 
-
-    //m_access = bufferAccess[in_acess];
-    m_usage = bufferUsageFlags[in_acess];
+    m_usage = bufferUsageFlags[in_type];
 
     ///
     ///
