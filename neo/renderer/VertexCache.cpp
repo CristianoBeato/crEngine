@@ -45,94 +45,116 @@ idVertexCache::Init
 */
 void idVertexCache::Init( const uint32_t in_frames, const bool in_restart )
 {
-	uint32_t i = 0;
+	uint32_t i = 0, j = 0;
+    uint32_t memoryTypeBits = 0xFFFFFFFF;
+	size_t indexBufferSize = 0;
+	size_t vertexBufferSize = 0;
+	VkDeviceSize minAlign = 0;
+	VkDeviceSize currentOffset = 0;
 	vkDeviceQueuep queue = nullptr;
 	auto device = tr.GetRenderDevice();
 
-	currentFrame = 0;
+	frame = 0;
 	listNum = 0;
-	
-	mostUsedVertex = 0;
-	mostUsedIndex = 0;
-	
-/// BEATO Begin
+	m_mostUsedVertex = 0;
+	m_mostUsedIndex = 0;
+
 	if ( glConfig.isTransferQueueAvailable )
 		queue = dynamic_cast<crVulkanRenderDevicep>( tr.GetRenderDevice() )->TransferQueue();
 	else
 		queue = dynamic_cast<crVulkanRenderDevicep>( tr.GetRenderDevice() )->GraphicQueue();
 
 	///
-	/// Create Buffers
-	m_buffers.SetNum( CACHE_BUFFERS_COUNT );
-	
-	VkDeviceSize minAlign = 0;
-	VkDeviceSize currentOffset = 0;
-    uint32_t memoryTypeBits = 0xFFFFFFFF;
-	for ( i = 0; i < CACHE_BUFFERS_COUNT; i++)
+	/// Configure dynamic buffer regions
+	m_drawBuffer.SetNum( CACHE_BUFFER_COUNT );
+	m_dynamicBuffers.SetNum( CACHE_BUFFER_COUNT );
+	for ( i = 0; i < CACHE_BUFFER_COUNT; i++)
 	{
-		VkMemoryRequirements req{};
-		size_t size = 0;
-		crBuffer::type_t type;
-		switch ( i )
+		m_dynamicBuffers[i].SetNum( in_frames );
+		for( j = 0; j < in_frames; j++ )
 		{
-			case CACHE_INDEX_STATIC:
+			m_dynamicBuffers[i][j].count.store( 0u );
+			m_dynamicBuffers[i][j].used.store( 0ull );
+		
+			if( i == CACHE_INDEX_BUFFER )
 			{
-				size = STATIC_INDEX_MEMORY;
-				type = crBuffer::BUFFER_TYPE_INDEX;
-			} break;
-			case CACHE_VERTEX_STATIC:
+				m_dynamicBuffers[i][j].size = VERTCACHE_INDEX_MEMORY_PER_FRAME;
+				m_dynamicBuffers[i][j].offset = indexBufferSize;
+				indexBufferSize += VERTCACHE_INDEX_MEMORY_PER_FRAME;
+			}
+			else if( i == CACHE_VERTEX_BUFFER )
 			{
-				size = STATIC_INDEX_MEMORY;
-				type = crBuffer::BUFFER_TYPE_VERTEX;
-			} break;
-			case CACHE_INDEX_DYNAMIC:
-			{
-				size = in_frames * VERTCACHE_INDEX_MEMORY_PER_FRAME;
-				type = crBuffer::BUFFER_TYPE_INDEX;
-			} break;
-			case CACHE_VERTEX_DYNAMIC:
-			{
-				size = in_frames * VERTCACHE_VERTEX_MEMORY_PER_FRAME;
-				type = crBuffer::BUFFER_TYPE_VERTEX;
-			} break;
+				m_dynamicBuffers[i][j].size = VERTCACHE_VERTEX_MEMORY_PER_FRAME;
+				m_dynamicBuffers[i][j].offset = vertexBufferSize;
+				vertexBufferSize += VERTCACHE_VERTEX_MEMORY_PER_FRAME;
+			}			
 		}
+	}
 
-		m_buffers[i] = new crBuffer();
-		if( !m_buffers[i]->Create( type, crBuffer::BUFFER_ACCESS_WRITE, size ) )
+	///
+	/// configure static buffer regions
+	m_staticBuffers.SetNum( CACHE_BUFFER_COUNT );
+	for ( i = 0; i < CACHE_BUFFER_COUNT; i++)
+	{
+		m_staticBuffers[i].count.store( 0u );
+		m_staticBuffers[i].used.store( 0ull );
+
+		if( i == CACHE_INDEX_BUFFER )
+		{
+			m_staticBuffers[i].size = STATIC_INDEX_MEMORY;
+			m_staticBuffers[i].offset = indexBufferSize;
+			indexBufferSize += STATIC_INDEX_MEMORY;
+		}
+		else if( i == CACHE_VERTEX_BUFFER )
+		{
+			m_staticBuffers[i].size = STATIC_INDEX_MEMORY;
+			m_staticBuffers[i].offset = vertexBufferSize;
+			vertexBufferSize += STATIC_INDEX_MEMORY;
+		}
+	}
+
+	///
+	/// Create the index buffer 
+	m_drawBuffer[CACHE_INDEX_BUFFER] = new crBuffer();
+	if( !m_drawBuffer[CACHE_INDEX_BUFFER]->Create( crBuffer::BUFFER_TYPE_INDEX, indexBufferSize ) )
+			throw idException( "Failed to create index cache buffers" );
+
+	// Combines the supported memory type bits (bit-by-bit AND).
+	VkMemoryRequirements iBuffReq = m_drawBuffer[CACHE_INDEX_BUFFER]->MemoryRequirements();
+	memoryTypeBits &= iBuffReq.memoryTypeBits;
+	
+	/// 
+	/// Create vertex buffer
+	m_drawBuffer[CACHE_VERTEX_BUFFER] = new crBuffer();
+	if( !m_drawBuffer[CACHE_VERTEX_BUFFER]->Create( crBuffer::BUFFER_TYPE_VERTEX, vertexBufferSize ) )
 			throw idException( "Failed to create vertex cache buffers" );
 
-		req = m_buffers[i]->MemoryRequirements();
+	// Combines the supported memory type bits (bit-by-bit AND).
+	VkMemoryRequirements vBuffReq = m_drawBuffer[CACHE_INDEX_BUFFER]->MemoryRequirements();
+	memoryTypeBits &= vBuffReq.memoryTypeBits;
 
-		minAlign = std::max( minAlign, req.alignment );
+	///
+	/// Get the minimum aligment
+	minAlign = std::max( iBuffReq.alignment, vBuffReq.alignment );
 
-		// Aligns the current offset according to the buffer requirement.
-        currentOffset = __align( currentOffset, req.alignment );
-    
-        // Add the buffer size to the offset for the next
-        currentOffset += req.size;
-
-        // Combines the supported memory type bits (bit-by-bit AND).
-        memoryTypeBits &= req.memoryTypeBits;
-	}
-
+	/// 
 	/// Allocate the the memory pool for the rende buffers
-    m_renderBuffersPool = device->Alloc( currentOffset, minAlign, memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    m_renderBuffersPool = device->Alloc( iBuffReq.size + vBuffReq.size, minAlign, memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT );
     if( m_renderBuffersPool )
-        idLib::FatalError( "Vertex Cache Buffers memory pool allocation failed, no suitable memory four or no available memory size\n" );
+        idLib::FatalError( "Vertex Cache Buffers memory pool allocation failed, no suitable memory or no available memory size\n" );
 	
 	/// now allocate buffer memory
-	for ( i = 0; i < CACHE_BUFFERS_COUNT; i++)
-	{
-		if( !m_buffers[i]->Storage( m_renderBuffersPool ) )
-			throw idException("");
-	}
-	
+	if( !m_drawBuffer[CACHE_INDEX_BUFFER]->Storage( m_renderBuffersPool ) )
+		throw idException("Failed to allocate index buffer memory!");
+
+	if( !m_drawBuffer[CACHE_VERTEX_BUFFER]->Storage( m_renderBuffersPool ) )
+		throw idException("Failed to allocate vertex buffer memory!");
+
 	///
 	///________________________________________________________________________
 	/// Create the staging buffer
-	///
 	m_staging = new crBuffer();
-	if( !m_staging->Create( crBuffer::BUFFER_TYPE_SOURCE, crBuffer::BUFFER_ACCESS_WRITE, VERTCACHE_STAGING_MEMORY_PER_FRAME ) );
+	if( !m_staging->Create( crBuffer::BUFFER_TYPE_SOURCE, VERTCACHE_STAGING_MEMORY_PER_FRAME ) );
 		throw idException( "Failed to create vertex cahce staging buffer" );
 
 	auto stagingMemoryRequirements = m_staging->MemoryRequirements();
@@ -182,11 +204,9 @@ void idVertexCache::Shutdown( void )
 	device->Free( m_stagingMemoryPool );
 
 	/// Release render buffers 
-	for ( uint32_t i = 0; i < CACHE_BUFFERS_COUNT; i++)
-	{
-		VK_SAFE_DESTROY( m_buffers[i] );
-	}
-
+	VK_SAFE_DESTROY( m_drawVertexBuffer );
+	VK_SAFE_DESTROY( m_drawIndexBuffer );
+	
 	/// Release render buffers memory
 	device->Free( m_renderBuffersPool );
 }
@@ -202,6 +222,10 @@ void idVertexCache::PurgeAll( void )
 	Init( true );
 }
 
+void idVertexCache::BeginMapLoad(void)
+{
+}
+
 /*
 ==============
 idVertexCache::EndMapLoad
@@ -209,256 +233,71 @@ idVertexCache::EndMapLoad
 */
 void idVertexCache::EndMapLoad(void)
 {
-}
+	VkBufferMemoryBarrier2 destinationBarrier{};
+	idList<VkBufferMemoryBarrier2> bariers;
+	auto gQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	auto tQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
-/*
- ==============
- idVertexCache::FreeStaticData
- call on loading a new map
- ==============
- */
-void idVertexCache::FreeStaticData( void )
-{
-	m_caches[CACHE_INDEX_STATIC].Clear();
-	m_caches[CACHE_VERTEX_STATIC].Clear();
-	mostUsedVertex = 0;
-	mostUsedIndex = 0;
-}
-
-/*
-==============
-idVertexCache::ActuallyAlloc
-==============
-*/
-vertCacheHandle_t idVertexCache::ActuallyAlloc( const void* data, const size_t bytes, const cache_type_t  type )
-{
-	uintptr_t endPos = 0;
-	vertCacheHandle_t handle{};
-	
-	if( bytes == 0 )
-		return vertCacheHandle_t();
-	
-	// RB: changed UINT_PTR to uintptr_t
-	assert( ( ( ( uintptr_t )( data ) ) & 15 ) == 0 );
-	// RB end
-	
-	assert( ( bytes & 15 ) == 0 );
-	
-	// thread safe interlocked adds
-	endPos = m_caches[type].memoryUsed + bytes;
-	if( type == CACHE_VERTEX_STATIC )
-	{
-		if( endPos > m_buffers[type]->Size() )
-			idLib::Error( "Out of index cache" );
-	} 
-	else if( type == CACHE_INDEX_STATIC )
-	{
-		if( endPos > m_buffers[type]->Size() )
-			idLib::Error( "Out of vertex cache" );
-	}
-	else if( type == CACHE_VERTEX_DYNAMIC ) 
-	{
-		//if( ( m_caches[type].memoryUsedFrame + bytes ) > VERTCACHE_INDEX_MEMORY_PER_FRAME )
-	}
-
-	m_caches[type].allocations++;
-	
-	uintptr_t offset = endPos - bytes;
-	
-	// Actually perform the data transfer
-	if( data != nullptr )
-	{
-		/// copy data to staging buffer
-		uintptr_t staging = UploadStage( data, bytes );
-
-		/// Register command to copy from staging to vertex buffer
-		UploadBuffer( type, bytes, staging, offset );
-	}
-	
-	handle.frame = currentFrame;
-	handle.offset = offset;
-	handle.size = bytes;
-
-	if( type == CACHE_INDEX_STATIC || type == CACHE_VERTEX_DYNAMIC )
-		handle.flags |= CACHE_STATIC;
-
-	if( type == CACHE_INDEX_STATIC || type == CACHE_INDEX_DYNAMIC )
-		handle.flags |= CACHE_INDEX;
-
-	return handle;
-}
-
-/*
-==============
-idVertexCache::UploadBuffer
-==============
-*/
-void idVertexCache::UploadBuffer( const cache_type_t in_type, const size_t in_size, const uintptr_t in_srcOffset, const uintptr_t in_dstOffset )
-{
-	uint32_t queueFamily = VK_QUEUE_FAMILY_IGNORED;
+	/// Get Queues
 	if( glConfig.isTransferQueueAvailable )
-		queueFamily = tr.GetRenderDevice()->TransferQueue()->Family();
-	else
-		queueFamily = tr.GetRenderDevice()->GraphicQueue()->Family();
-
-	///
-	/// update source buffer state
-	crBuffer::state_t sourceState{};
-	sourceState.queueFamily = queueFamily;
-	sourceState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-	sourceState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
-	m_buffers[in_type]->SetState( m_copyCommands, sourceState );
-
-	///
-	/// update staging buffer state
-	crBuffer::state_t stagingState{};
-	stagingState.queueFamily = queueFamily;
-	stagingState.stage = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
-	stagingState.access = VK_ACCESS_2_TRANSFER_READ_BIT;
-	m_staging->SetState( m_copyCommands, stagingState );
-
-	///
-	/// copy content
-	VkBufferCopy2 bufferCopy{};
-	bufferCopy.sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2;
-	bufferCopy.pNext = nullptr;
-	bufferCopy.srcOffset = static_cast<VkDeviceSize>( in_srcOffset );
-	bufferCopy.dstOffset = static_cast<VkDeviceSize>( in_dstOffset );
-	bufferCopy.size = static_cast<VkDeviceSize>( in_size );
-
-	VkCopyBufferInfo2 copyBuffer{};
-	copyBuffer.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2;
-	copyBuffer.pNext = nullptr;
-	copyBuffer.regionCount = 1;
-	copyBuffer.pRegions = &bufferCopy;
-	copyBuffer.srcBuffer = *m_staging;
-	copyBuffer.dstBuffer = *m_buffers[in_type];
-	
-	/// Upload buffer
-	vkCmdCopyBuffer2( *m_copyCommands, &copyBuffer );
-}
-
-/*
-==============
-idVertexCache::UploadStage
-==============
-*/
-uintptr_t idVertexCache::UploadStage( const void *in_data, const size_t in_size )
-{
-	uintptr_t offset = 0;
-	
-	if( ( m_stagingOffset + in_size ) > VERTCACHE_STAGING_MEMORY_PER_FRAME )
-		m_stagingOffset.store( 0 );
-
-	offset = m_stagingOffset.load();
-
-	/// copy to stagin buffer memory
-	std::memcpy( static_cast<byte*>( m_stagingMap ) + offset, in_data, in_size );
-
-	/// move offset
-	m_stagingOffset.fetch_add( in_size );
-    return offset;
-}
-
-/*
-==============
-idVertexCache::GetBuffer
-==============
-*/
-crBufferp idVertexCache::GetBuffer(const vertCacheHandle_t &in_handle) const
-{
-	crBufferp buffer = nullptr;
-	if( in_handle.flags &CACHE_STATIC )
 	{
-		if( in_handle.flags &CACHE_INDEX )
-			buffer = const_cast<crBufferp>( m_buffers[CACHE_INDEX_STATIC] );
-		else
-			buffer = const_cast<crBufferp>( m_buffers[CACHE_VERTEX_STATIC] );
-	}
-	else
-	{
-		const uint32_t frameNum = in_handle.frame;
-		if ( frameNum != ( vertexCache.currentFrame - 1 ) ) 
-        {
-			idLib::Warning( "crBackend::DrawElementsWithCounters, vertexBuffer == NULL" );
-			return nullptr;
-		}
-	
-		if( in_handle.flags &CACHE_INDEX )
-			buffer = const_cast<crBufferp>( m_buffers[CACHE_INDEX_DYNAMIC] );
-		else
-			buffer = const_cast<crBufferp>( m_buffers[CACHE_VERTEX_DYNAMIC] );
+		auto device = tr.GetRenderDevice();
+		gQueueFamilyIndex = device->GraphicQueue()->Family();
+		tQueueFamilyIndex = device->TransferQueue()->Family();
 	}
 
-	return buffer;
-}
-
-/*
-==============
-idVertexCache::BeginBackEnd
-==============
-*/
-void idVertexCache::BeginBackEnd( void )
-{
-	uint32_t allocations = 0;
-	mostUsedVertex = std::max<uint32_t>( mostUsedVertex, m_caches[CACHE_VERTEX_DYNAMIC].memoryUsed.load() );
-	mostUsedIndex = std::max<uint32_t>( mostUsedIndex, m_caches[CACHE_INDEX_DYNAMIC].memoryUsed.load() );
-	allocations += m_caches[CACHE_VERTEX_DYNAMIC].allocations;
-	allocations += m_caches[CACHE_INDEX_DYNAMIC].allocations;
-
-	if( r_showVertexCache.GetBool() )
+	///
+	/// Change index buffer state to render
 	{
-		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index: %dkB vertex, %dkB index, %kB joint\n",
-			currentFrame, allocations,
-			m_caches[listNum].memoryUsed.load() / 1024,
-			m_caches[listNum].memoryUsed.load() / 1024,
-			mostUsedVertex / 1024,
-			mostUsedIndex / 1024 );
-	}
+    	destinationBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+    	destinationBarrier.pNext = nullptr;
 
-	m_copyCommands->BeginSubCommand();
+		/// from copy destination
+    	destinationBarrier.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    	destinationBarrier.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    	
+		/// to index input buffer
+		destinationBarrier.dstStageMask = VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
+    	destinationBarrier.dstAccessMask = VK_ACCESS_2_INDEX_READ_BIT;
 		
-	m_caches[CACHE_INDEX_DYNAMIC].memoryUsedFrame.store( 0 );
-	m_caches[CACHE_VERTEX_DYNAMIC].memoryUsedFrame.store( 0 );
+		/// 
+    	destinationBarrier.srcQueueFamilyIndex = tQueueFamilyIndex;
+    	destinationBarrier.dstQueueFamilyIndex = gQueueFamilyIndex;
 
-#if 0
-	// unmap the current frame so the GPU can read it
-	const int startUnmap = Sys_Milliseconds();
-	UnmapGeoBufferSet( frameData[listNum] );
-	UnmapGeoBufferSet( staticData );
-	const int endUnmap = Sys_Milliseconds();
-	if( endUnmap - startUnmap > 1 )
-		idLib::PrintfIf( r_showVertexCacheTimings.GetBool(), "idVertexCache::unmap took %i msec\n", endUnmap - startUnmap );
-	
-	drawListNum = listNum;
-	
-	// prepare the next frame for writing to by the CPU
-	currentFrame++;
-	
-	listNum = currentFrame % VERTCACHE_NUM_FRAMES;
-	const int startMap = Sys_Milliseconds();
-	MapGeoBufferSet( frameData[listNum] );
-	const int endMap = Sys_Milliseconds();
-	if( endMap - startMap > 1 )
-	{
-		idLib::PrintfIf( r_showVertexCacheTimings.GetBool(), "idVertexCache::map took %i msec\n", endMap - startMap );
+		/// current frame region
+		destinationBarrier.offset = static_cast<VkDeviceSize>( m_staticBuffers[CACHE_INDEX_BUFFER].offset );
+		destinationBarrier.size = static_cast<VkDeviceSize>( m_staticBuffers[CACHE_INDEX_BUFFER].size );
+    	destinationBarrier.buffer = *m_drawBuffer[CACHE_INDEX_BUFFER];
+		bariers.Append( destinationBarrier );
 	}
-	
-	ClearGeoBufferSet( frameData[listNum] );
-	
-	const int startBind = Sys_Milliseconds();
-	glBindBufferARB( GL_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].vertexBuffer.GetAPIObject() );
-	glBindBufferARB( GL_ELEMENT_ARRAY_BUFFER_ARB, ( GLuint )frameData[drawListNum].indexBuffer.GetAPIObject() );
-	const int endBind = Sys_Milliseconds();
-	if( endBind - startBind > 1 )
-	{
-		idLib::Printf( "idVertexCache::bind took %i msec\n", endBind - startBind );
-	}
-#endif
-}
 
-void idVertexCache::EndBackEnd(void)
-{
+	///
+	/// Change vertex buffer state to render
+	{
+    	destinationBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+    	destinationBarrier.pNext = nullptr;
+
+		/// from copy destination
+    	destinationBarrier.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    	destinationBarrier.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    	
+		/// to index input buffer
+		destinationBarrier.dstStageMask = VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT;
+    	destinationBarrier.dstAccessMask = VK_ACCESS_2_UNIFORM_READ_BIT;
+		
+		/// 
+    	destinationBarrier.srcQueueFamilyIndex = tQueueFamilyIndex;
+    	destinationBarrier.dstQueueFamilyIndex = gQueueFamilyIndex;
+
+		/// current frame region
+		destinationBarrier.offset = static_cast<VkDeviceSize>( m_staticBuffers[CACHE_VERTEX_BUFFER].offset );
+		destinationBarrier.size = static_cast<VkDeviceSize>( m_staticBuffers[CACHE_VERTEX_BUFFER].size );
+    	destinationBarrier.buffer = *m_drawBuffer[CACHE_VERTEX_BUFFER];
+		bariers.Append( destinationBarrier );
+	}
+
+	m_copyCommands->BufferMemoryBarriers( bariers.Ptr(), bariers.Num() );
+
 	/// Submit copy operations
 	if( glConfig.isTransferQueueAvailable )
 	{
@@ -470,4 +309,385 @@ void idVertexCache::EndBackEnd(void)
 		auto graphic = tr.GraphicCommandBuffer();
 		graphic->Execute( m_copyCommands );
 	}
+}
+
+/*
+ ==============
+ idVertexCache::FreeStaticData
+ call on loading a new map
+ ==============
+ */
+void idVertexCache::FreeStaticData( void )
+{
+	/// reset
+	m_staticBuffers[CACHE_INDEX_BUFFER].used.store( 0 );
+	m_staticBuffers[CACHE_VERTEX_BUFFER].used.store( 0 );
+	m_mostUsedVertex = 0;
+	m_mostUsedIndex = 0;
+}
+
+/*
+==============
+idVertexCache::AllocStaticIndex
+==============
+*/
+vertCacheHandle_t idVertexCache::AllocStaticIndex( const void* in_data, const size_t in_bytes )
+{
+	vertCacheHandle_t cache{};
+	if( in_bytes == 0 )
+		return vertCacheHandle_t();
+	
+	//assert( ( bytes & 15 ) == 0 );
+
+	cache.size = __align( in_bytes, 16u );
+	cache.offset = AllocStatic( CACHE_INDEX_BUFFER, cache.size );
+	if( cache.offset == UINTPTR_MAX )
+		idLib::FatalError( "AllocStaticIndex failed, increase STATIC_INDEX_MEMORY" );
+
+	/// if we have data upload
+	if( in_data != nullptr )
+	{
+		assert( ( ( reinterpret_cast<uintptr_t>( in_data ) ) & 15 ) == 0 );
+
+		/// copy data to staging buffer
+		uintptr_t staging = UploadStage( in_data, cache.size );
+
+		/// Store the transfer coomand from the staging buffer
+		VkBufferCopy2 bufferCopy{};
+		bufferCopy.sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2;
+		bufferCopy.pNext = nullptr;
+		bufferCopy.srcOffset = static_cast<VkDeviceSize>( staging );
+		bufferCopy.dstOffset = static_cast<VkDeviceSize>( cache.offset  );
+		bufferCopy.size = static_cast<VkDeviceSize>( cache.size );
+		m_copyListIndex.Append( bufferCopy );
+	}
+
+	cache.flags |= CACHE_STATIC;
+	cache.frame = frame;
+	return cache;
+}
+
+/*
+==============
+idVertexCache::AllocStaticVertex
+==============
+*/
+vertCacheHandle_t idVertexCache::AllocStaticVertex( const void* in_data, const size_t in_bytes )
+{
+	vertCacheHandle_t cache{};
+	if( in_bytes == 0 )
+		return vertCacheHandle_t();
+
+	//assert( ( bytes & 15 ) == 0 );
+
+	cache.size = __align( in_bytes, 16u );
+	cache.offset = AllocStatic( CACHE_INDEX_BUFFER, cache.size );
+	if( cache.offset == UINTPTR_MAX )
+		idLib::FatalError( "AllocStaticVertex failed, increase STATIC_VERTEX_MEMORY" );
+
+	/// if we have data upload
+	if( in_data != nullptr )
+	{
+		assert( ( ( reinterpret_cast<uintptr_t>( in_data ) ) & 15 ) == 0 );
+
+		/// copy data to staging buffer
+		uintptr_t staging = UploadStage( in_data, cache.size );
+		
+		/// Store the transfer coomand from the staging buffer
+		VkBufferCopy2 bufferCopy{};
+		bufferCopy.sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2;
+		bufferCopy.pNext = nullptr;
+		bufferCopy.srcOffset = static_cast<VkDeviceSize>( staging );
+		bufferCopy.dstOffset = static_cast<VkDeviceSize>( cache.offset  );
+		bufferCopy.size = static_cast<VkDeviceSize>( cache.size );
+		m_copyListVertex.Append( bufferCopy );
+	}
+
+	cache.flags |= CACHE_STATIC;
+	cache.frame = frame;
+	return cache;
+}
+
+void *idVertexCache::MappedIndexBuffer(const vertCacheHandle_t handle) const
+{
+    uintptr_t offset = const_cast<idVertexCache*>( this )->AllocStaging( handle.size );
+	return static_cast<void*>( static_cast<byte*>( m_stagingMap ) + offset );
+}
+
+/*
+==============
+idVertexCache::AllocStaticVertex
+==============
+*/
+void *idVertexCache::MappedVertexBuffer(const vertCacheHandle_t handle) const
+{
+	uintptr_t offset = const_cast<idVertexCache*>( this )->AllocStaging( handle.size );
+	return static_cast<void*>( static_cast<byte*>( m_stagingMap ) + offset );
+}
+
+/*
+==============
+idVertexCache::UploadStage
+==============
+*/
+uintptr_t idVertexCache::UploadStage( const void *in_data, const size_t in_size )
+{
+	uintptr_t offset = 0;
+	
+	/// reached the buffer end, reset the pointer
+	if( ( m_stagingOffset + in_size ) > VERTCACHE_STAGING_MEMORY_PER_FRAME )
+		m_stagingOffset.store( 0 );
+
+	/// 
+	offset = m_stagingOffset.fetch_add( in_size );
+
+	/// copy to stagin buffer memory
+	std::memcpy( static_cast<byte*>( m_stagingMap ) + offset, in_data, in_size );
+
+    return offset;
+}
+
+/*
+==============
+idVertexCache::BeginBackEnd
+==============
+*/
+void idVertexCache::BeginBackEnd( void )
+{
+	uint32_t allocations = 0;
+	m_mostUsedVertex = std::max<uint32_t>( m_mostUsedVertex, m_dynamicBuffers[CACHE_INDEX_BUFFER][frame].used.load() );
+	m_mostUsedIndex = std::max<uint32_t>( m_mostUsedIndex, m_dynamicBuffers[CACHE_VERTEX_BUFFER][frame].used.load() );
+	allocations += m_dynamicBuffers[CACHE_INDEX_BUFFER][frame].count.load();
+	allocations += m_dynamicBuffers[CACHE_VERTEX_BUFFER][frame].count.load();
+
+	if( r_showVertexCache.GetBool() )
+	{
+		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index: %dkB vertex, %dkB index\n",
+			frame, allocations,
+			m_dynamicVertexOffset[frame].used.load() / 1024,
+			m_dynamicIndexOffset[frame].used.load() / 1024,
+			m_mostUsedVertex / 1024,
+			m_mostUsedIndex / 1024 );
+	}
+
+	m_copyCommands->BeginSubCommand();
+	
+	// reset the counters and offsets
+	m_dynamicVertexOffset[currentFrame].used.store( 0 );
+	m_dynamicVertexOffset[currentFrame].count.store( 0 );
+	m_dynamicIndexOffset[currentFrame].used.store( 0 );
+	m_dynamicIndexOffset[currentFrame].count.store( 0 );
+}
+
+/*
+==============
+idVertexCache::EndBackEnd
+==============
+*/
+void idVertexCache::EndBackEnd( void )
+{
+	VkBufferMemoryBarrier2 destinationBarrier{};
+	idList<VkBufferMemoryBarrier2> bariers( 4 );
+	bariers.Resize( 4 );
+	auto gQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+	auto tQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+	/// Get Queues
+	if( glConfig.isTransferQueueAvailable )
+	{
+		auto device = tr.GetRenderDevice();
+		gQueueFamilyIndex = device->GraphicQueue()->Family();
+		tQueueFamilyIndex = device->TransferQueue()->Family();
+	}
+
+	FlushTransferLists();
+
+	///
+	/// Change index buffer state to render
+	{
+    	destinationBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+    	destinationBarrier.pNext = nullptr;
+
+		/// from copy destination
+    	destinationBarrier.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    	destinationBarrier.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    	
+		/// to index input buffer
+		destinationBarrier.dstStageMask = VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
+    	destinationBarrier.dstAccessMask = VK_ACCESS_2_INDEX_READ_BIT;
+		
+		/// 
+    	destinationBarrier.srcQueueFamilyIndex = tQueueFamilyIndex;
+    	destinationBarrier.dstQueueFamilyIndex = gQueueFamilyIndex;
+
+		/// current frame region
+		destinationBarrier.offset = m_dynamicBuffers[frame][CACHE_INDEX_BUFFER].offset;
+		destinationBarrier.size = m_dynamicBuffers[frame][CACHE_INDEX_BUFFER].size;
+    	destinationBarrier.buffer = *m_drawBuffer[CACHE_INDEX_BUFFER];
+		bariers.Append( destinationBarrier );
+	}
+
+	///
+	/// Change vertex buffer state to render
+	{
+    	destinationBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+    	destinationBarrier.pNext = nullptr;
+
+		/// from copy destination
+    	destinationBarrier.srcStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    	destinationBarrier.srcAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+    	
+		/// to index input buffer
+		destinationBarrier.dstStageMask = VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT;
+    	destinationBarrier.dstAccessMask = VK_ACCESS_2_UNIFORM_READ_BIT;
+		
+		/// 
+    	destinationBarrier.srcQueueFamilyIndex = tQueueFamilyIndex;
+    	destinationBarrier.dstQueueFamilyIndex = gQueueFamilyIndex;
+
+		/// current frame region
+		destinationBarrier.offset = m_dynamicBuffers[frame][CACHE_VERTEX_BUFFER].offset;
+		destinationBarrier.size = m_dynamicBuffers[frame][CACHE_VERTEX_BUFFER].size;
+    	destinationBarrier.buffer = *m_drawBuffer[CACHE_VERTEX_BUFFER];
+		bariers.Append( destinationBarrier );
+	}
+
+	/// swap dynamic region
+	auto numFrames = r_bufferCount.GetInteger();
+	frame = ( frame + 1 ) % numFrames;
+
+	///
+	/// Change index buffer state to copy
+	{
+    	destinationBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+    	destinationBarrier.pNext = nullptr;
+
+		/// From index input buffer 
+		destinationBarrier.srcStageMask = VK_PIPELINE_STAGE_2_INDEX_INPUT_BIT;
+    	destinationBarrier.srcAccessMask = VK_ACCESS_2_INDEX_READ_BIT;
+
+		/// To copy destination
+		destinationBarrier.dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    	destinationBarrier.dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+
+		/// 
+    	destinationBarrier.srcQueueFamilyIndex = gQueueFamilyIndex;
+    	destinationBarrier.dstQueueFamilyIndex = tQueueFamilyIndex;
+
+		/// current frame region
+		destinationBarrier.offset = m_dynamicBuffers[frame][CACHE_INDEX_BUFFER].offset;
+		destinationBarrier.size = m_dynamicBuffers[frame][CACHE_INDEX_BUFFER].size;
+    	destinationBarrier.buffer = *m_drawBuffer[CACHE_INDEX_BUFFER];
+		bariers.Append( destinationBarrier );
+	}
+
+	///
+	/// Change vertex buffer state to copy
+	{
+    	destinationBarrier.sType = VK_STRUCTURE_TYPE_BUFFER_MEMORY_BARRIER_2;
+    	destinationBarrier.pNext = nullptr;
+
+		/// From index input buffer 
+		destinationBarrier.srcStageMask = VK_PIPELINE_STAGE_2_VERTEX_ATTRIBUTE_INPUT_BIT;
+    	destinationBarrier.srcAccessMask = VK_ACCESS_2_VERTEX_ATTRIBUTE_READ_BIT;
+
+		/// To copy destination
+		destinationBarrier.dstStageMask = VK_PIPELINE_STAGE_2_TRANSFER_BIT;
+    	destinationBarrier.dstAccessMask = VK_ACCESS_2_TRANSFER_WRITE_BIT;
+
+		/// 
+    	destinationBarrier.srcQueueFamilyIndex = gQueueFamilyIndex;
+    	destinationBarrier.dstQueueFamilyIndex = tQueueFamilyIndex;
+
+		/// current frame region
+		destinationBarrier.offset = m_dynamicBuffers[frame][CACHE_VERTEX_BUFFER].offset;
+		destinationBarrier.size = m_dynamicBuffers[frame][CACHE_VERTEX_BUFFER].size;
+    	destinationBarrier.buffer = *m_drawBuffer[CACHE_VERTEX_BUFFER];
+		bariers.Append( destinationBarrier );
+	}
+	
+	m_copyCommands->BufferMemoryBarriers( bariers.Ptr(), bariers.Num() );
+
+	/// Submit copy operations
+	if( glConfig.isTransferQueueAvailable )
+	{
+		auto transfer = tr.TransferCommandBuffer();
+		transfer->Execute( m_copyCommands );
+	}
+	else
+	{
+		auto graphic = tr.GraphicCommandBuffer();
+		graphic->Execute( m_copyCommands );
+	}
+}
+
+/*
+==============
+idVertexCache::AllocIndexStatic
+==============
+*/
+uintptr_t idVertexCache::AllocStatic( const cache_type_t in_buffer, const size_t in_bytes )
+{
+	if( ( m_staticBuffers[in_buffer].used + in_bytes ) > m_staticBuffers[in_buffer].size )
+	{
+		/// TODO: Change output name 
+		idLib::Error( "Out of static cache range" );
+		return UINTPTR_MAX;
+	}
+
+	m_staticBuffers[in_buffer].count.fetch_add( 1 );
+	
+	/// return the global offset in the buffer 
+	return m_staticBuffers[in_buffer].used.fetch_add( in_bytes ) + m_staticBuffers[in_buffer].offset;
+}
+
+/*
+==============
+idVertexCache::AllocDynamic
+==============
+*/
+uintptr_t idVertexCache::AllocDynamic(const cache_type_t in_buffer, const size_t in_bytes )
+{
+	if( ( m_dynamicBuffers[in_buffer][frame].used + in_bytes ) > m_dynamicBuffers[in_buffer][frame].size )
+	{
+		idLib::Error( "Out of frame index cache" );
+		return UINTPTR_MAX;
+	}
+
+	auto local_offset = m_dynamicBuffers[in_buffer][frame].used.fetch_add( in_bytes );
+    return local_offset = m_dynamicBuffers[in_buffer][frame].offset + local_offset;
+}
+
+/*
+==============
+idVertexCache::FlushTransferList
+==============
+*/
+void idVertexCache::FlushTransferLists( void )
+{
+	///
+	/// Submit index copy 
+	VkCopyBufferInfo2 copyBuffer{};
+	copyBuffer.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2;
+	copyBuffer.pNext = nullptr;
+	copyBuffer.regionCount = m_copyListIndex.Num();
+	copyBuffer.pRegions = m_copyListIndex.Ptr();
+	copyBuffer.srcBuffer = *m_staging;
+	copyBuffer.dstBuffer = *m_drawBuffer[CACHE_INDEX_BUFFER];
+	
+	/// Upload index buffer
+	vkCmdCopyBuffer2( *m_copyCommands, &copyBuffer );
+
+	///
+	/// sumit vertex copy 
+	VkCopyBufferInfo2 copyBuffer{};
+	copyBuffer.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2;
+	copyBuffer.pNext = nullptr;
+	copyBuffer.regionCount = m_copyListVertex.Num();
+	copyBuffer.pRegions = m_copyListVertex.Ptr();
+	copyBuffer.srcBuffer = *m_staging;
+	copyBuffer.dstBuffer = *m_drawBuffer[CACHE_VERTEX_BUFFER];
+	
+	/// Upload buffer
+	vkCmdCopyBuffer2( *m_copyCommands, &copyBuffer );
 }

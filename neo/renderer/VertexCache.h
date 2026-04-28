@@ -38,20 +38,20 @@ If you have questions concerning this license or the applicable additional terms
 /// 1 Timeline semaphore to control copy
 /// End Level Load submition
 
-constexpr size_t VERTCACHE_INDEX_MEMORY_PER_FRAME = 1024 * 1024 * 64; /// 64mb per frame
-constexpr size_t VERTCACHE_VERTEX_MEMORY_PER_FRAME = 1024 * 1024 * 64; /// 64mb per frame
+inline constexpr size_t VERTCACHE_INDEX_MEMORY_PER_FRAME = 1024 * 1024 * 64; /// 64mb per frame
+inline constexpr size_t VERTCACHE_VERTEX_MEMORY_PER_FRAME = 1024 * 1024 * 64; /// 64mb per frame
 
 // there are a lot more static indexes than vertexes, because interactions are just new
 // index lists that reference existing vertexes
 // Beato: But indexes are 16 bits integers only
-constexpr size_t STATIC_INDEX_MEMORY = 1024 * 1024 * 256; 	// 255 mb
-constexpr size_t STATIC_VERTEX_MEMORY = 1024 * 1024 * 512;	// 
+inline constexpr size_t STATIC_INDEX_MEMORY = 1024 * 1024 * 256; 	// 255 mb
+inline constexpr size_t STATIC_VERTEX_MEMORY = 1024 * 1024 * 512;	// 
 
-constexpr size_t VERTCACHE_STAGING_MEMORY_PER_FRAME = VERTCACHE_INDEX_MEMORY_PER_FRAME + VERTCACHE_VERTEX_MEMORY_PER_FRAME;
+inline constexpr size_t VERTCACHE_STAGING_MEMORY_PER_FRAME = VERTCACHE_INDEX_MEMORY_PER_FRAME + VERTCACHE_VERTEX_MEMORY_PER_FRAME;
 
-constexpr uint32_t VERTEX_CACHE_ALIGN	= 32;
-constexpr uint32_t INDEX_CACHE_ALIGN	= 16;
-constexpr uint32_t JOINT_CACHE_ALIGN	= 16;
+inline constexpr uint32_t VERTEX_CACHE_ALIGN	= 32;
+inline constexpr uint32_t INDEX_CACHE_ALIGN	= 16;
+inline constexpr uint32_t JOINT_CACHE_ALIGN	= 16;
 
 enum cache_flags_e : uint8_t
 {
@@ -101,42 +101,30 @@ public:
 	void			PurgeAll( void );
 	void			BeginMapLoad( void );
 	void			EndMapLoad( void );
+	void			BeginBackEnd( void );
+	void			EndBackEnd( void );
 
 	// call on loading a new map
 	void			FreeStaticData( void );
 	
 	// this data is only valid for one frame of rendering
-	ID_INLINE vertCacheHandle_t	AllocVertex( const void* data, const size_t bytes )
+	ID_INLINE vertCacheHandle_t	AllocVertex( const void* in_data, const size_t in_bytes )
 	{
 		return ActuallyAlloc( data, bytes, CACHE_VERTEX_DYNAMIC );
 	}
 
-	ID_INLINE vertCacheHandle_t	AllocIndex( const void* data, const size_t bytes )
+	ID_INLINE vertCacheHandle_t	AllocIndex( const void* const in_data, const size_t in_bytes )
 	{
 		return ActuallyAlloc( data, bytes, CACHE_INDEX_DYNAMIC );
 	}
 	
-	// this data is valid until the next map load
-	ID_INLINE  vertCacheHandle_t	AllocStaticVertex( const void* data, const size_t bytes )
-	{
-		if( m_caches[CACHE_VERTEX_STATIC].memoryUsed.load() + bytes > STATIC_VERTEX_MEMORY )
-			idLib::FatalError( "AllocStaticVertex failed, increase STATIC_VERTEX_MEMORY" );
-		
-		return ActuallyAlloc( data, bytes, CACHE_VERTEX_STATIC );
-	}
-
-	ID_INLINE vertCacheHandle_t	AllocStaticIndex( const void* data, const size_t bytes )
-	{
-		if( m_caches[CACHE_INDEX_STATIC].memoryUsed.load() + bytes > STATIC_INDEX_MEMORY )
-			idLib::FatalError( "AllocStaticIndex failed, increase STATIC_INDEX_MEMORY" );
-
-		return ActuallyAlloc( data, bytes, CACHE_INDEX_STATIC );
-	}
+	vertCacheHandle_t	AllocStaticIndex( const void* in_data, const size_t in_bytes );
 	
-	ID_INLINE void* MappedVertexBuffer( const vertCacheHandle_t handle ) const
-	{
-		return static_cast<void*>( static_cast<byte*>( m_stagingMap ) + handle.offset );
-	}
+	// this data is valid until the next map load
+	vertCacheHandle_t	AllocStaticVertex( const void* in_data, const size_t in_bytes );
+	
+	void* MappedIndexBuffer( const vertCacheHandle_t handle ) const;
+	void* MappedVertexBuffer( const vertCacheHandle_t handle ) const;
 
 	// Returns false if it's been purged
 	// This can only be called by the front end, the back end should only be looking at
@@ -146,7 +134,7 @@ public:
 		if( handle.flags & CACHE_STATIC )
 			return true;
 		
-		if( handle.frame != currentFrame )
+		if( handle.frame != frame )
 			return false;
 		
 		return true;
@@ -157,74 +145,66 @@ public:
 		return ( handle.flags & CACHE_STATIC ) != 0;
 	}
 	
-	crBufferp	GetBuffer( const vertCacheHandle_t &in_handle ) const;
+	/// retrieve index buffer object pointer
+	crBufferp	GetIndexBuffer( void ) const { return m_drawBuffer[CACHE_INDEX_BUFFER]; }
+	
+	/// retrieve vertex buffer object pointer
+	crBufferp	GetVertexBuffer( void ) const { return m_drawBuffer[CACHE_VERTEX_BUFFER]; }
 
-	// vb/ib is a temporary reference -- don't store it
-	bool			GetVertexBuffer( vertCacheHandle_t handle, idVertexBuffer* vb );
-	bool			GetIndexBuffer( vertCacheHandle_t handle, idIndexBuffer* ib );
-	void			BeginBackEnd( void );
-	void			EndBackEnd( void );
 public:
 	enum cache_type_t
 	{
-		/// static buffer
-		CACHE_INDEX_STATIC,
-		CACHE_VERTEX_STATIC,
-		/// dynamic buffers
-		CACHE_INDEX_DYNAMIC,
-		CACHE_VERTEX_DYNAMIC,
-		CACHE_BUFFERS_COUNT
+		CACHE_INDEX_BUFFER,
+		CACHE_VERTEX_BUFFER,
+		CACHE_BUFFER_COUNT
 	};
 
-	struct cache_info_t
+	struct	frame_region_t
 	{
-		uint32_t 				allocations;
-		std::atomic<uintptr_t>	memoryUsedFrame;		
-		std::atomic<uintptr_t>	memoryUsed;
-
-		inline void Clear( void )
-		{
-			allocations = 0;
-			memoryUsed.store( 0 );
-		}
+		size_t 					size;
+		uintptr_t				offset;
+		std::atomic<uintptr_t>	used;
+		std::atomic<uint32_t>	count;
 	};
 
-	uint8_t			currentFrame;	// for determining the active buffers
-	uint32_t		listNum;		// currentFrame % VERTCACHE_NUM_FRAMES
-	uint32_t		drawListNum;	// ( currentFrame - 1) % VERTCACHE_NUM_FRAMES
-	uint32_t		allocations;	// number of index and vertex allocations combined
-	
+	uint8_t											frame;			// for determining the active buffers
+	uint32_t										listNum;				// currentFrame % VERTCACHE_NUM_FRAMES
+	uint32_t										drawListNum;			// ( currentFrame - 1) % VERTCACHE_NUM_FRAMES
+	uint32_t										allocations;			// number of index and vertex allocations combined
 	// High water marks for the per-frame buffers
-	uint32_t		mostUsedVertex;
-	uint32_t		mostUsedIndex;
-	
-	// Try to make room for <bytes> bytes
-	vertCacheHandle_t	ActuallyAlloc( const void* data, const size_t bytes, const cache_type_t type );
+	uint32_t											m_mostUsedVertex;
+	uint32_t											m_mostUsedIndex;
+	idStaticList<frame_region_t, CACHE_BUFFER_COUNT>	m_staticBuffers;
+	idStaticList<idStaticList<frame_region_t, MAX_SMP_FRAMES>, CACHE_BUFFER_COUNT >	m_dynamicBuffers;
 
-	/// BEATO Begin:
+/// BEATO Begin:
 	std::atomic<uintptr_t>							m_stagingOffset;
-	crCommandBufferp								m_copyCommands;
-	crSemaphoreTimelinep							m_copySync;
+	void*											m_stagingMap;		/// 
 	crMemoryPoolp									m_renderBuffersPool;
 	crMemoryPoolp									m_stagingMemoryPool;
-	crBuffer*										m_staging;
-	void*											m_stagingMap;
-	idStaticList<cache_info_t, CACHE_BUFFERS_COUNT>	m_caches;
-	idStaticList<crBufferp, CACHE_BUFFERS_COUNT>	m_buffers;
-	
-	/// Upload from staging buffer, to render buffer
-	void		UploadBuffer( const cache_type_t in_type, const size_t in_size, const uintptr_t in_srcOffset, const uintptr_t in_dstOffset );
+	idStaticList<crBufferp, CACHE_BUFFER_COUNT>		m_drawBuffer;	/// @brief Store the global vertex array
+	crBufferp										m_staging;			/// @brief Staging buffer 
+	crSemaphoreTimelinep							m_copySync;
+	crCommandBufferp								m_copyCommands;
+	idList<VkBufferCopy2>							m_copyListIndex;
+	idList<VkBufferCopy2>							m_copyListVertex;
+
+	// Try to make room for <bytes> bytes
+	vertCacheHandle_t	ActuallyAlloc( const void* data, const size_t bytes, const cache_type_t type );
 	
 	/// Copy to staging buffer
 	uintptr_t	UploadStage( const void* in_data, const size_t in_size );
 
-	/// BEATO End
-
+	uintptr_t	AllocStaging( const size_t in_bytes );
+	uintptr_t	AllocStatic( const cache_type_t in_buffer, const size_t in_bytes );
+	uintptr_t	AllocDynamic( const cache_type_t in_buffer, const size_t in_bytes );
+	void		FlushTransferLists( void );
+/// BEATO End
 };
 
 // platform specific code to std::memcpy into vertex buffers efficiently
 // 16 byte alignment is guaranteed
-void CopyBuffer( byte* dst, const byte* src, int numBytes );
+void CopyBuffer( byte* dst, const byte* src, const size_t numBytes );
 
 extern	idVertexCache	vertexCache;
 
