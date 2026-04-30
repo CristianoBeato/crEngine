@@ -328,6 +328,27 @@ void idVertexCache::FreeStaticData( void )
 
 /*
 ==============
+idVertexCache::AllocVertex
+==============
+*/
+vertCacheHandle_t idVertexCache::AllocVertex( const void* in_data, const size_t in_bytes )
+{
+	return ActuallyAlloc( data, bytes, CACHE_VERTEX_DYNAMIC );
+}
+
+/*
+==============
+idVertexCache::AllocIndex
+==============
+*/
+vertCacheHandle_t idVertexCache::AllocIndex( const void* const in_data, const size_t in_bytes )
+{
+	return ActuallyAlloc( data, bytes, CACHE_INDEX_DYNAMIC );
+}
+
+
+/*
+==============
 idVertexCache::AllocStaticIndex
 ==============
 */
