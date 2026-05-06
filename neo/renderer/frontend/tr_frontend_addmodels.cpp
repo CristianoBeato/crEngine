@@ -27,7 +27,6 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
 
 #include "renderer_common.h"
@@ -47,7 +46,7 @@ idCVar r_forceShadowMapsOnAlphaTestedSurfaces( "r_forceShadowMapsOnAlphaTestedSu
 // foresthale 2014-11-24: cvar to control the material lod flags - this is the distance at which a mesh switches from lod1 to lod2, where lod3 will appear at this distance *2, lod4 at *4, and persistentLOD keyword will disable the max distance check (thus extending this LOD to all further distances, rather than disappearing)
 idCVar r_lodMaterialDistance( "r_lodMaterialDistance", "500", CVAR_RENDERER | CVAR_FLOAT, "surfaces further than this distance will use lower quality versions (if their material uses the lod1-4 keywords, persistentLOD disables the max distance checks)" );
 
-static const float CHECK_BOUNDS_EPSILON = 1.0f;
+constexpr float CHECK_BOUNDS_EPSILON = 1.0f;
 
 /*
 ==================
@@ -110,14 +109,14 @@ viewEntity_t* R_SortViewEntities( viewEntity_t* vEntities )
 
 /*
 ==================
-R_ClearEntityDefDynamicModel
+crFrontend::ClearEntityDefDynamicModel
 
 If we know the reference bounds stays the same, we
 only need to do this on entity update, not the full
 R_FreeEntityDefDerivedData
 ==================
 */
-void R_ClearEntityDefDynamicModel( idRenderEntityLocal* def )
+void crFrontend::ClearEntityDefDynamicModel( idRenderEntityLocal* def )
 {
 	// free all the interaction surfaces
 	for( idInteraction* inter = def->firstInteraction; inter != nullptr && !inter->IsEmpty(); inter = inter->entityNext )
@@ -127,39 +126,32 @@ void R_ClearEntityDefDynamicModel( idRenderEntityLocal* def )
 	
 	// clear the dynamic model if present
 	if( def->dynamicModel )
-	{
-		// this is copied from cachedDynamicModel, so it doesn't need to be freed
-		def->dynamicModel = nullptr;
-	}
+		def->dynamicModel = nullptr; // this is copied from cachedDynamicModel, so it doesn't need to be freed
+	
 	def->dynamicModelFrameCount = 0;
 }
 
 /*
 ==================
-R_IssueEntityDefCallback
+crFrontend::::IssueEntityDefCallback
 ==================
 */
-bool R_IssueEntityDefCallback( idRenderEntityLocal* def )
+bool crFrontend::IssueEntityDefCallback( idRenderEntityLocal* def )
 {
 	idBounds oldBounds = def->localReferenceBounds;
 	
 	def->archived = false;		// will need to be written to the demo file
 	
 	bool update;
-	if( tr.viewDef != nullptr )
-	{
-		update = def->parms.callback( &def->parms, &tr.viewDef->renderView );
-	}
+	if(  viewDef != nullptr )
+		update = def->parms.callback( &def->parms, &viewDef->renderView );
 	else
-	{
 		update = def->parms.callback( &def->parms, nullptr );
-	}
-	tr.pc.c_entityDefCallbacks++;
+
+	pc.c_entityDefCallbacks++;
 	
 	if( def->parms.hModel == nullptr )
-	{
 		common->Error( "R_IssueEntityDefCallback: dynamic entity callback didn't set model" );
-	}
 	
 	if( r_checkBounds.GetBool() )
 	{
@@ -179,7 +171,7 @@ bool R_IssueEntityDefCallback( idRenderEntityLocal* def )
 
 /*
 ===================
-R_EntityDefDynamicModel
+crFrontend::EntityDefDynamicModel
 
 This is also called by the game code for idRenderWorldLocal::ModelTrace(), and idRenderWorldLocal::Trace() which is bad for performance...
 
@@ -188,19 +180,17 @@ If the model isn't dynamic, it returns the original.
 Returns the cached dynamic model if present, otherwise creates it.
 ===================
 */
-idRenderModel* R_EntityDefDynamicModel( idRenderEntityLocal* def )
+idRenderModel* crFrontend::EntityDefDynamicModel( idRenderEntityLocal* def )
 {
 	if( def->dynamicModelFrameCount == tr.frameCount )
-	{
 		return def->dynamicModel;
-	}
 	
 	// allow deferred entities to construct themselves
 	bool callbackUpdate;
 	if( def->parms.callback != nullptr )
 	{
-		SCOPED_PROFILE_EVENT( "R_IssueEntityDefCallback" );
-		callbackUpdate = R_IssueEntityDefCallback( def );
+		SCOPED_PROFILE_EVENT( "crFrontend::EntityDefDynamicModel" );
+		callbackUpdate = IssueEntityDefCallback( def );
 	}
 	else
 	{
@@ -224,18 +214,16 @@ idRenderModel* R_EntityDefDynamicModel( idRenderEntityLocal* def )
 	
 	// continously animating models (particle systems, etc) will have their snapshot updated every single view
 	if( callbackUpdate || ( model->IsDynamicModel() == DM_CONTINUOUS && def->dynamicModelFrameCount != tr.frameCount ) )
-	{
-		R_ClearEntityDefDynamicModel( def );
-	}
+		ClearEntityDefDynamicModel( def );
+	
 	
 	// if we don't have a snapshot of the dynamic model, generate it now
 	if( def->dynamicModel == nullptr )
 	{
-	
 		SCOPED_PROFILE_EVENT( "InstantiateDynamicModel" );
 		
 		// instantiate the snapshot of the dynamic model, possibly reusing memory from the cached snapshot
-		def->cachedDynamicModel = model->InstantiateDynamicModel( &def->parms, tr.viewDef, def->cachedDynamicModel );
+		def->cachedDynamicModel = model->InstantiateDynamicModel( &def->parms, viewDef, def->cachedDynamicModel );
 		
 		if( def->cachedDynamicModel != nullptr && r_checkBounds.GetBool() )
 		{
@@ -256,11 +244,11 @@ idRenderModel* R_EntityDefDynamicModel( idRenderEntityLocal* def )
 	}
 	
 	// set model depth hack value
-	if( def->dynamicModel != nullptr && model->DepthHack() != 0.0f && tr.viewDef != nullptr )
+	if( def->dynamicModel != nullptr && model->DepthHack() != 0.0f && viewDef != nullptr )
 	{
 		idPlane eye, clip;
 		idVec3 ndc;
-		R_TransformModelToClip( def->parms.origin, tr.viewDef->worldSpace.modelViewMatrix, tr.viewDef->projectionMatrix, eye, clip );
+		R_TransformModelToClip( def->parms.origin, viewDef->worldSpace.modelViewMatrix, viewDef->projectionMatrix, eye, clip );
 		R_TransformClipToDevice( clip, ndc );
 		def->parms.modelDepthHack = model->DepthHack() * ( 1.0f - ndc.z );
 	}
@@ -274,10 +262,10 @@ idRenderModel* R_EntityDefDynamicModel( idRenderEntityLocal* def )
 
 /*
 ===================
-R_SetupDrawSurfShader
+crFrontend::SetupDrawSurfShader
 ===================
 */
-void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, const renderEntity_t* renderEntity )
+void crFrontend::SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, const renderEntity_t* renderEntity )
 {
 	drawSurf->material = shader;
 	drawSurf->sort = shader->GetSort();
@@ -304,8 +292,8 @@ void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, cons
 			// evaluate the reference shader to find our shader parms
 			float refRegs[MAX_EXPRESSION_REGISTERS];
 			renderEntity->referenceShader->EvaluateRegisters( refRegs, renderEntity->shaderParms,
-					tr.viewDef->renderView.shaderParms,
-					tr.viewDef->renderView.time[renderEntity->timeGroup] * 0.001f, renderEntity->referenceSound );
+					viewDef->renderView.shaderParms,
+					viewDef->renderView.time[renderEntity->timeGroup] * 0.001f, renderEntity->referenceSound );
 					
 			const crShaderStage* pStage = renderEntity->referenceShader->GetStage( 0 );
 			
@@ -318,43 +306,55 @@ void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, cons
 		}
 		
 		// allocate frame memory for the shader register values
-		float* regs = ( float* )R_FrameAlloc( shader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
+		float* regs = ( float* )FrameAlloc( shader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
 		drawSurf->shaderRegisters = regs;
 		
 		// process the shader expressions for conditionals / color / texcoords
-		shader->EvaluateRegisters( regs, shaderParms, tr.viewDef->renderView.shaderParms,
-								   tr.viewDef->renderView.time[renderEntity->timeGroup] * 0.001f, renderEntity->referenceSound );
+		shader->EvaluateRegisters( regs, shaderParms, viewDef->renderView.shaderParms,
+								   viewDef->renderView.time[renderEntity->timeGroup] * 0.001f, renderEntity->referenceSound );
 	}
 }
 
 /*
 ===================
-R_SetupDrawSurfJoints
+crFrontend::SetupDrawSurfJoints
 ===================
 */
-void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const crDrawGeometry* tri, const idMaterial* shader )
+void crFrontend::SetupDrawSurfJoints( drawSurf_t* drawSurf, const crDrawGeometry* tri, const idMaterial* shader )
 {
+	auto uniforms = crUniformManager::Get();
+
+	/// no joints
 	if( tri->StaticModelWithJoints() == nullptr || !r_useGPUSkinning.GetBool() )
 	{
-		drawSurf->jointCache = vertCacheHandle_t();
+		drawSurf->jointCache = joint_cache_t();
 		return;
 	}
 	
 	idRenderModelStatic* model = const_cast<idRenderModelStatic*>( tri->StaticModelWithJoints() );
 	assert( model->jointsInverted != nullptr );
 	
-	/// TODO: Now uploaded via uniform buffers
-	if( !vertexCache.CacheIsCurrent( model->jointsInvertedBuffer ) )
-	{
-		const int alignment = glConfig.uniformBufferOffsetAlignment;
-		//model->jointsInvertedBuffer = vertexCache.AllocJoint( model->jointsInverted, ALIGN( model->numInvertedJoints * sizeof( idJointMat ), alignment ) );
-	}
+	/// Update the frame joint cache
+	if( uniforms->CurrentFrame() != model->jointsInvertedBuffer.frame )
+		model->jointsInvertedBuffer = uniforms->AllocJoints( model->numInvertedJoints, model->jointsInverted );
+
 	drawSurf->jointCache = model->jointsInvertedBuffer;
 }
 
 /*
 ===================
-R_AddSingleModel
+crFrontend::AddSingleModel
+===================
+*/
+void crFrontend::R_AddSingleModel( viewEntity_t *vEntity )
+{
+	auto fe = crFrontend::Get();
+	fe->AddSingleModel( vEntity );
+}
+
+/*
+===================
+crFrontend::AddSingleModel
 
 May be run in parallel.
 
@@ -365,7 +365,7 @@ and shadows are generated, since dynamic models will typically be lit by
 two or more lights.
 ===================
 */
-void R_AddSingleModel( viewEntity_t* vEntity )
+void crFrontend::AddSingleModel( viewEntity_t* vEntity )
 {
 	// we will add all interaction surfs here, to be chained to the lights in later serial code
 	vEntity->drawSurfs = nullptr;
@@ -373,20 +373,16 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 	vEntity->dynamicShadowVolumes = nullptr;
 	
 	// globals we really should pass in...
-	const viewDef_t* viewDef = tr.viewDef;
+	const viewDef_t* viewDef = viewDef;
 	
 	idRenderEntityLocal* entityDef = vEntity->entityDef;
 	const renderEntity_t* renderEntity = &entityDef->parms;
 	const idRenderWorldLocal* world = entityDef->world;
 	
 	if( viewDef->isXraySubview && entityDef->parms.xrayIndex == 1 )
-	{
 		return;
-	}
 	else if( !viewDef->isXraySubview && entityDef->parms.xrayIndex == 2 )
-	{
 		return;
-	}
 	
 	SCOPED_PROFILE_EVENT( renderEntity->hModel == nullptr ? "Unknown Model" : renderEntity->hModel->Name() );
 	
@@ -419,9 +415,9 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 		for( viewLight_t* vLight = viewDef->viewLights; vLight != nullptr; vLight = vLight->next )
 		{
 			if( vLight->scissorRect.IsEmpty() )
-			{
 				continue;
-			}
+			
+
 			if( vLight->entityInteractionState != nullptr )
 			{
 				// new code path, everything was done in AddLight
@@ -430,24 +426,19 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 					contactedLights[numContactedLights] = vLight;
 					staticInteractions[numContactedLights] = world->interactionTable[vLight->lightDef->index * world->interactionTableWidth + entityIndex];
 					if( ++numContactedLights == MAX_CONTACTED_LIGHTS )
-					{
 						break;
-					}
 				}
+
 				continue;
 			}
 			
 			const idRenderLightLocal* lightDef = vLight->lightDef;
 			
 			if( !lightDef->globalLightBounds.IntersectsBounds( entityDef->globalReferenceBounds ) )
-			{
 				continue;
-			}
 			
 			if( R_CullModelBoundsToLight( lightDef, entityDef->localReferenceBounds, entityDef->modelRenderMatrix ) )
-			{
 				continue;
-			}
 			
 			if( !modelIsVisible )
 			{
@@ -465,48 +456,39 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 							break;
 						}
 					}
+
 					if( areasConnected == false )
-					{
-						// can't possibly be seen or shadowed
-						continue;
-					}
+						continue; // can't possibly be seen or shadowed
 				}
 				
 				// check more precisely for shadow visibility
 				idBounds shadowBounds;
-				R_ShadowBounds( entityDef->globalReferenceBounds, lightDef->globalLightBounds, lightDef->globalLightOrigin, shadowBounds );
+				ShadowBounds( entityDef->globalReferenceBounds, lightDef->globalLightBounds, lightDef->globalLightOrigin, shadowBounds );
 				
 				// this doesn't say that the shadow can't effect anything, only that it can't
 				// effect anything in the view
 				if( idRenderMatrix::CullBoundsToMVP( viewDef->worldSpace.mvp, shadowBounds ) )
-				{
-					continue;
-				}
+					continue;	
 			}
+
 			contactedLights[numContactedLights] = vLight;
 			staticInteractions[numContactedLights] = world->interactionTable[vLight->lightDef->index * world->interactionTableWidth + entityIndex];
 			if( ++numContactedLights == MAX_CONTACTED_LIGHTS )
-			{
 				break;
-			}
 		}
 	}
 	
 	// if we aren't visible and none of the shadows stretch into the view,
 	// we don't need to do anything else
 	if( !modelIsVisible && numContactedLights == 0 )
-	{
 		return;
-	}
 	
 	//---------------------------
 	// create a dynamic model if the geometry isn't static
 	//---------------------------
-	idRenderModel* model = R_EntityDefDynamicModel( entityDef );
+	idRenderModel* model = EntityDefDynamicModel( entityDef );
 	if( model == nullptr || model->NumSurfaces() <= 0 )
-	{
 		return;
-	}
 	
 	// add the lightweight blood decal surfaces if the model is directly visible
 	if( modelIsVisible )
@@ -517,8 +499,8 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 		{
 			entityDef->decals->CreateDeferredDecals( model );
 			
-			unsigned int numDrawSurfs = entityDef->decals->GetNumDecalDrawSurfs();
-			for( unsigned int i = 0; i < numDrawSurfs; i++ )
+			uint32_t numDrawSurfs = entityDef->decals->GetNumDecalDrawSurfs();
+			for( uint32_t i = 0; i < numDrawSurfs; i++ )
 			{
 				drawSurf_t* decalDrawSurf = entityDef->decals->CreateDecalDrawSurf( vEntity, i );
 				if( decalDrawSurf != nullptr )
@@ -534,8 +516,8 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 		{
 			entityDef->overlays->CreateDeferredOverlays( model );
 			
-			unsigned int numDrawSurfs = entityDef->overlays->GetNumOverlayDrawSurfs();
-			for( unsigned int i = 0; i < numDrawSurfs; i++ )
+			uint32_t numDrawSurfs = entityDef->overlays->GetNumOverlayDrawSurfs();
+			for( uint32_t i = 0; i < numDrawSurfs; i++ )
 			{
 				drawSurf_t* overlayDrawSurf = entityDef->overlays->CreateOverlayDrawSurf( vEntity, model, i );
 				if( overlayDrawSurf != nullptr )
@@ -563,13 +545,10 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 	idRenderMatrix::Transpose( *( idRenderMatrix* )vEntity->modelViewMatrix, viewMat );
 	idRenderMatrix::Multiply( viewDef->projectionRenderMatrix, viewMat, vEntity->mvp );
 	if( renderEntity->weaponDepthHack )
-	{
 		idRenderMatrix::ApplyDepthHack( vEntity->mvp );
-	}
+	
 	if( renderEntity->modelDepthHack != 0.0f )
-	{
 		idRenderMatrix::ApplyModelDepthHack( vEntity->mvp, renderEntity->modelDepthHack );
-	}
 	
 	// local light and view origins are used to determine if the view is definitely outside
 	// an extruded shadow volume, which means we can skip drawing the end caps
@@ -579,30 +558,24 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 	//---------------------------
 	// add all the model surfaces
 	//---------------------------
-	for( int surfaceNum = 0; surfaceNum < model->NumSurfaces(); surfaceNum++ )
+	for( auto surfaceNum = 0u; surfaceNum < model->NumSurfaces(); surfaceNum++ )
 	{
 		const modelSurface_t* surf = model->Surface( surfaceNum );
 		
 		// for debugging, only show a single surface at a time
 		if( r_singleSurface.GetInteger() >= 0 && surfaceNum != r_singleSurface.GetInteger() )
-		{
 			continue;
-		}
 		
 		crDrawGeometry* tri = surf->geometry;
 		if( tri == nullptr )
-		{
 			continue;
-		}
+
 		if( tri->NumIndexes() == 0 )
-		{
 			continue;		// happens for particles
-		}
+		
 		const idMaterial* shader = surf->shader;
 		if( shader == nullptr )
-		{
 			continue;
-		}
 
 		// motorsep 11-24-2014; checking for LOD surface for LOD1 iteration 
 		if( shader->IsLOD() ) 
@@ -610,10 +583,8 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			// foresthale 2014-11-24: calculate the bounds and get the distance from camera to bounds
 			idBounds &localBounds = tri->Bounds();
 			if ( tri->StaticModelWithJoints() ) 
-			{
 				// skeletal models have difficult to compute bounds for surfaces, so use the whole entity
 				localBounds = vEntity->entityDef->localReferenceBounds;
-			}
 
 			const float *bounds = localBounds.ToFloatPtr();
 			idVec3 nearestPointOnBounds = localViewOrigin;
@@ -652,44 +623,43 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			
 			// foresthale 2014-09-01: don't skip surfaces that use the "forceShadows" flag
 			if( !shader->IsDrawn() && !shader->SurfaceCastsShadow() )
-			{
 				continue;
-			}
 		}
 		
 		// optionally override with the renderView->globalMaterial
 		if( tr.primaryRenderView.globalMaterial != nullptr )
-		{
 			shader = tr.primaryRenderView.globalMaterial;
-		}
 		
 		SCOPED_PROFILE_EVENT( shader->GetName() );
 		
 		// debugging tool to make sure we have the correct pre-calculated bounds
 		if( r_checkBounds.GetBool() )
 		{
-			for( int j = 0; j < tri->NumVerts(); j++ )
+			for( auto j = 0u; j < tri->NumVerts(); j++ )
 			{
-				int k;
-				for( k = 0; k < 3; k++ )
+				auto k = 0u;
+				for( k = 0; k < 3u; k++ )
 				{
-					if( tri->Verts()[j].xyz[k] > tri->Bounds()[1][k] + CHECK_BOUNDS_EPSILON
-							|| tri->Verts()[j].xyz[k] < tri->Bounds()[0][k] - CHECK_BOUNDS_EPSILON )
+					if( 
+						tri->Verts()[j].xyz[k] > tri->Bounds()[1][k] + CHECK_BOUNDS_EPSILON ||
+						tri->Verts()[j].xyz[k] < tri->Bounds()[0][k] - CHECK_BOUNDS_EPSILON 
+						)
 					{
 						common->Printf( "bad tri->Bounds() on %s:%s\n", entityDef->parms.hModel->Name(), shader->GetName() );
 						break;
 					}
-					if( tri->Verts()[j].xyz[k] > entityDef->localReferenceBounds[1][k] + CHECK_BOUNDS_EPSILON
-							|| tri->Verts()[j].xyz[k] < entityDef->localReferenceBounds[0][k] - CHECK_BOUNDS_EPSILON )
+					if( 
+						tri->Verts()[j].xyz[k] > entityDef->localReferenceBounds[1][k] + CHECK_BOUNDS_EPSILON || 
+						tri->Verts()[j].xyz[k] < entityDef->localReferenceBounds[0][k] - CHECK_BOUNDS_EPSILON 
+						)
 					{
 						common->Printf( "bad referenceBounds on %s:%s\n", entityDef->parms.hModel->Name(), shader->GetName() );
 						break;
 					}
 				}
+
 				if( k != 3 )
-				{
 					break;
-				}
 			}
 		}
 		
@@ -711,9 +681,8 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			{
 				// make sure we have an ambient cache and all necessary normals / tangents
 				if( !vertexCache.CacheIsCurrent( tri->IndexCache() ) )
-				{
 					tri->CreateIndexCache( tri->Indexes() );
-				}
+				
 				if( !vertexCache.CacheIsCurrent( tri->AmbientCache() ) )
 				{
 					// we are going to use it for drawing, so make sure we have the tangents and normals
@@ -733,13 +702,13 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 
 				// add the surface for drawing
 				// we can re-use some of the values for light interaction surfaces
-				baseDrawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *baseDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+				baseDrawSurf = ( drawSurf_t* )FrameAlloc( sizeof( *baseDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
 				baseDrawSurf->frontEndGeo = tri;
 				baseDrawSurf->space = vEntity;
 				baseDrawSurf->scissorRect = vEntity->scissorRect;
 				baseDrawSurf->renderZFail = 0;
 
-				R_SetupDrawSurfShader( baseDrawSurf, shader, renderEntity );
+				SetupDrawSurfShader( baseDrawSurf, shader, renderEntity );
 
 				shaderRegisters = baseDrawSurf->shaderRegisters;
 
@@ -747,7 +716,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				const deform_t shaderDeform = shader->Deform();
 				if( shaderDeform != DFRM_NONE )
 				{
-					drawSurf_t* deformDrawSurf = R_DeformDrawSurf( baseDrawSurf );
+					drawSurf_t* deformDrawSurf = DeformDrawSurf( baseDrawSurf );
 					if( deformDrawSurf != nullptr )
 					{
 						// any deforms may have created multiple draw surfaces
@@ -775,12 +744,12 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						tri->CreateIndexCache( tri->Indexes() );
 						//tri->indexCache = vertexCache.AllocIndex( tri->Indexes(), ALIGN( tri->NumIndexes() * sizeof( tri->Indexes()[0] ), INDEX_CACHE_ALIGN ) );
 
-					R_SetupDrawSurfJoints( baseDrawSurf, tri, shader );
+					SetupDrawSurfJoints( baseDrawSurf, tri, shader );
 
 					baseDrawSurf->numIndexes = tri->NumIndexes();
 					baseDrawSurf->ambientCache = tri->AmbientCache();
 					baseDrawSurf->indexCache = tri->IndexCache();
-					baseDrawSurf->shadowCache = 0;
+					baseDrawSurf->shadowCache = vertCacheHandle_t();
 
 					baseDrawSurf->linkChain = nullptr;		// link to the view
 					baseDrawSurf->nextOnLight = vEntity->drawSurfs;
@@ -792,7 +761,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 		//----------------------------------------
 		// add all light interactions
 		//----------------------------------------
-		for( int contactedLight = 0; contactedLight < numContactedLights; contactedLight++ )
+		for( auto contactedLight = 0u; contactedLight < numContactedLights; contactedLight++ )
 		{
 			viewLight_t* vLight = contactedLights[contactedLight];
 			const idRenderLightLocal* lightDef = vLight->lightDef;
@@ -810,16 +779,12 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			{
 				// try to do a more precise cull of this model surface to the light
 				if( R_CullModelBoundsToLight( lightDef, tri->Bounds(), entityDef->modelRenderMatrix ) )
-				{
 					continue;
-				}
 			}
 			
 			// "invisible ink" lights and shaders (imp spawn drawing on walls, etc)
 			if( shader->Spectrum() != lightDef->lightShader->Spectrum() )
-			{
 				continue;
-			}
 			
 			// Calculate the local light origin to determine if the view is inside the shadow
 			// projection and to calculate the triangle facing for dynamic shadow volumes.
@@ -842,14 +807,14 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 					if ( shaderRegisters == nullptr )
 					{
 						drawSurf_t scratchSurf;
-						R_SetupDrawSurfShader( &scratchSurf,shader, renderEntity );
+						SetupDrawSurfShader( &scratchSurf,shader, renderEntity );
 						shaderRegisters = scratchSurf.shaderRegisters;
 					}
 
 					if ( shaderRegisters != nullptr )
 					{
 						// create a drawSurf for this interaction
-						drawSurf_t* lightDrawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *lightDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+						drawSurf_t* lightDrawSurf = ( drawSurf_t* )FrameAlloc( sizeof( *lightDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
 
 						if( surfInter != nullptr )
 						{
@@ -866,14 +831,19 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 							// optionally cull the triangles to the light volume
 							// motorsep 11-09-2014; added && shader->SurfaceCastsShadow() per Lordhavoc's recommendation; should skip shadows calculation for surfaces with noShadows material flag
 							// when using shadow volumes
-							if ( r_cullDynamicLightTriangles.GetBool() && !r_skipDynamicShadows.GetBool() && !r_useShadowMapping.GetBool() && shader->SurfaceCastsShadow() )
+							if ( 
+									r_cullDynamicLightTriangles.GetBool() && 
+									!r_skipDynamicShadows.GetBool() && 
+									!r_useShadowMapping.GetBool() && 
+									shader->SurfaceCastsShadow() 
+								)
 							{
 								vertCacheHandle_t lightIndexCache = vertexCache.AllocIndex( nullptr, ALIGN( lightDrawSurf->numIndexes * sizeof( triIndex_t ), INDEX_CACHE_ALIGN ) );
 								if( vertexCache.CacheIsCurrent( lightIndexCache ) )
 								{
 									lightDrawSurf->indexCache = lightIndexCache;
 
-									dynamicShadowParms = ( dynamicShadowVolumeParms_t* )R_FrameAlloc( sizeof( dynamicShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
+									dynamicShadowParms = ( dynamicShadowVolumeParms_t* )FrameAlloc( sizeof( dynamicShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
 
 									dynamicShadowParms->verts = tri->Verts();
 									dynamicShadowParms->numVerts = tri->NumVerts();
@@ -919,7 +889,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						}
 
 						lightDrawSurf->ambientCache = tri->AmbientCache();
-						lightDrawSurf->shadowCache = 0;
+						lightDrawSurf->shadowCache = vertCacheHandle_t();
 						lightDrawSurf->frontEndGeo = tri;
 						lightDrawSurf->space = vEntity;
 						lightDrawSurf->material = shader;
@@ -928,7 +898,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						lightDrawSurf->renderZFail = 0;
 						lightDrawSurf->shaderRegisters = shaderRegisters;
 
-						R_SetupDrawSurfJoints( lightDrawSurf, tri, shader );
+						SetupDrawSurfJoints( lightDrawSurf, tri, shader );
 
 						// Determine which linked list to add the light surface to.
 						// There will only be localSurfaces if the light casts shadows and
@@ -953,8 +923,10 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			// motorsep 11-08-2014; if r_forceShadowMapsOnAlphaTestedSurfaces is 0 when shadow mapping is on, 
 			// don't render shadows from all alphaTest surfaces.
 			// Useful as global performance booster for old GPUs to disable shadows from grass/foliage/etc.
-			if( r_useShadowMapping.GetBool() ) {
-				if ( shader->Coverage() == MC_PERFORATED ) {
+			if( r_useShadowMapping.GetBool() ) 
+			{
+				if ( shader->Coverage() == MC_PERFORATED ) 
+				{
 					if ( r_forceShadowMapsOnAlphaTestedSurfaces.GetBool() == false )
 						continue;
 				}
@@ -967,25 +939,26 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				// check if a surface IS NOT alphaTested and has "noShadows" global key;
 				// or if a surface IS alphaTested and has "noShadows" global key;
 				// if either is true, don't make surfaces cast shadow maps.
-				if(r_useShadowMapping.GetBool()) {					
-					if ( shader->Coverage() != MC_PERFORATED && shader->TestMaterialFlag( MF_NOSHADOWS ) ) {												
+				if(r_useShadowMapping.GetBool()) 
+				{					
+					if ( shader->Coverage() != MC_PERFORATED && shader->TestMaterialFlag( MF_NOSHADOWS ) ) 					
 						continue;
-					} else if ( shader->Coverage() == MC_PERFORATED && shader->TestMaterialFlag( MF_NOSHADOWS ) ) {
+					
+					else if ( shader->Coverage() == MC_PERFORATED && shader->TestMaterialFlag( MF_NOSHADOWS ) ) 
 						continue;
-					}
-				} else { 
+					
+				} 
+				else 
+				{
 					continue;
 				}			
 			}
 
 			if( !lightDef->LightCastsShadows() )
-			{
 				continue;
-			}
+			
 			if( tri->SilEdges() == nullptr )
-			{
 				continue;		// can happen for beam models (shouldn't use a shadow casting material, though...)
-			}
 			
 			// if the static shadow does not have any shadows
 			if( surfInter != nullptr && surfInter->numShadowIndexes == 0 )
@@ -996,17 +969,12 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			
 			// some entities, like view weapons, don't cast any shadows
 			if( entityDef->parms.noShadow )
-			{
 				continue;
-			}
 			
 			// No shadow if it's suppressed for this light.
 			if( entityDef->parms.suppressShadowInLightID && entityDef->parms.suppressShadowInLightID == lightDef->parms.lightId )
-			{
 				continue;
-			}
-			
-
+		
 			// RB begin
 			if( r_useShadowMapping.GetBool() )
 			{
@@ -1017,7 +985,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 					if( surfInter == nullptr || surfInter->lightTrisIndexCache > 0 )
 					{
 						// create a drawSurf for this interaction
-						drawSurf_t* shadowDrawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *shadowDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+						drawSurf_t* shadowDrawSurf = ( drawSurf_t* )FrameAlloc( sizeof( *shadowDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
 						
 						if( surfInter != nullptr )
 						{
@@ -1065,11 +1033,9 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						//shadowDrawSurf->shaderRegisters = baseDrawSurf->shaderRegisters;
 						
 						if( shader->Coverage() == MC_PERFORATED )
-						{
-							R_SetupDrawSurfShader( shadowDrawSurf, shader, renderEntity );
-						}
+							SetupDrawSurfShader( shadowDrawSurf, shader, renderEntity );
 						
-						R_SetupDrawSurfJoints( shadowDrawSurf, tri, shader );
+						SetupDrawSurfJoints( shadowDrawSurf, tri, shader );
 						
 						// determine which linked list to add the shadow surface to
 						
@@ -1083,13 +1049,16 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 					}
 				}
 				
-				
 				continue;
 			}
 			// RB end
 			
-			if( lightDef->parms.prelightModel && lightDef->lightHasMoved == false &&
-					entityDef->parms.hModel->IsStaticWorldModel() && !r_skipPrelightShadows.GetBool() )
+			if( 
+				lightDef->parms.prelightModel && 
+				lightDef->lightHasMoved == false && 
+				entityDef->parms.hModel->IsStaticWorldModel() && 
+				!r_skipPrelightShadows.GetBool() 
+				)
 			{
 				// static light / world model shadow interacitons
 				// are always captured in the prelight shadow volume
@@ -1100,8 +1069,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 			// because we may be able to see into the shadow volume even though the view is outside it.
 			// This happens for the player world weapon and possibly some animations in multiplayer.
 			const bool forceShadowCaps = !addInteractions || r_forceShadowCaps.GetBool();
-			
-			drawSurf_t* shadowDrawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *shadowDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+			drawSurf_t* shadowDrawSurf = ( drawSurf_t* )FrameAlloc( sizeof( *shadowDrawSurf ), FRAME_ALLOC_DRAW_SURFACE );
 			
 			if( surfInter != nullptr )
 			{
@@ -1113,7 +1081,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				
 				if( !r_skipStaticShadows.GetBool() && !r_useShadowMapping.GetBool() )
 				{
-					staticShadowVolumeParms_t* staticShadowParms = ( staticShadowVolumeParms_t* )R_FrameAlloc( sizeof( staticShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
+					staticShadowVolumeParms_t* staticShadowParms = ( staticShadowVolumeParms_t* )FrameAlloc( sizeof( staticShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
 					
 					staticShadowParms->verts = tri->StaticShadowVertexes();
 					staticShadowParms->numVerts = tri->NumVerts() * 2;
@@ -1142,7 +1110,6 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 					staticShadowParms->next = vEntity->staticShadowVolumes;
 					vEntity->staticShadowVolumes = staticShadowParms;
 				}
-				
 			}
 			else
 			{
@@ -1172,7 +1139,7 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 				{				
 					// if the parms were not already allocated for culling interaction triangles to the light frustum
 					if( dynamicShadowParms == nullptr )
-						dynamicShadowParms = ( dynamicShadowVolumeParms_t* )R_FrameAlloc( sizeof( dynamicShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
+						dynamicShadowParms = ( dynamicShadowVolumeParms_t* )FrameAlloc( sizeof( dynamicShadowParms[0] ), FRAME_ALLOC_SHADOW_VOLUME_PARMS );
 					else
 						// the shadow volume will be rendered first so when the interaction surface is drawn the triangles have been culled for sure
 						*dynamicShadowParms->shadowVolumeState = SHADOWVOLUME_DONE;
@@ -1221,21 +1188,21 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 						vEntity->dynamicShadowVolumes = dynamicShadowParms;
 					}
 					
-					tr.pc.c_createShadowVolumes++;
+					pc.c_createShadowVolumes++;
 				}
 			}
 			
 			assert( vertexCache.CacheIsCurrent( shadowDrawSurf->shadowCache ) );
 			assert( vertexCache.CacheIsCurrent( shadowDrawSurf->indexCache ) );
 			
-			shadowDrawSurf->ambientCache = 0;
+			shadowDrawSurf->ambientCache = vertCacheHandle_t();
 			shadowDrawSurf->frontEndGeo = nullptr;
 			shadowDrawSurf->space = vEntity;
 			shadowDrawSurf->material = nullptr;
 			shadowDrawSurf->sort = 0.0f;
 			shadowDrawSurf->shaderRegisters = nullptr;
 			
-			R_SetupDrawSurfJoints( shadowDrawSurf, tri, nullptr );
+			SetupDrawSurfJoints( shadowDrawSurf, tri, nullptr );
 			
 			// determine which linked list to add the shadow surface to
 			shadowDrawSurf->linkChain = shader->TestMaterialFlag( MF_NOSELFSHADOW ) ? &vLight->localShadows : &vLight->globalShadows;
@@ -1245,7 +1212,6 @@ void R_AddSingleModel( viewEntity_t* vEntity )
 	}
 }
 
-REGISTER_PARALLEL_JOB( R_AddSingleModel, "R_AddSingleModel" );
 
 /*
 =================
@@ -1254,7 +1220,7 @@ R_LinkDrawSurfToView
 Als called directly by GuiModel
 =================
 */
-void R_LinkDrawSurfToView( drawSurf_t* drawSurf, viewDef_t* viewDef )
+void crFrontend::LinkDrawSurfToView( drawSurf_t* drawSurf, viewDef_t* viewDef )
 {
 	// if it doesn't fit, resize the list
 	if( viewDef->numDrawSurfs == viewDef->maxDrawSurfs )
@@ -1272,7 +1238,8 @@ void R_LinkDrawSurfToView( drawSurf_t* drawSurf, viewDef_t* viewDef )
 			count = viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] );
 			viewDef->maxDrawSurfs *= 2;
 		}
-		viewDef->drawSurfs = ( drawSurf_t** )R_FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
+
+		viewDef->drawSurfs = ( drawSurf_t** )FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
 		std::memcpy( viewDef->drawSurfs, old, count );
 	}
 	
@@ -1282,38 +1249,37 @@ void R_LinkDrawSurfToView( drawSurf_t* drawSurf, viewDef_t* viewDef )
 
 /*
 ===================
-R_AddModels
+::AddModels
 
 The end result of running this is the addition of drawSurf_t to the
 tr.viewDef->drawSurfs[] array and light link chains, along with
 frameData and vertexCache allocations to support the drawSurfs.
 ===================
 */
-void R_AddModels()
+void crFrontend::AddModels( void )
 {
-	SCOPED_PROFILE_EVENT( "R_AddModels" );
+	SCOPED_PROFILE_EVENT( "crFrontend::AddModels" );
 	
-	tr.viewDef->viewEntitys = R_SortViewEntities( tr.viewDef->viewEntitys );
+	viewDef->viewEntitys = R_SortViewEntities( viewDef->viewEntitys );
 	
 	//-------------------------------------------------
 	// Go through each view entity that is either visible to the view, or to
 	// any light that intersects the view (for shadows).
 	//-------------------------------------------------
-	
 	if( r_useParallelAddModels.GetBool() )
 	{
-		for( viewEntity_t* vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next )
+		for( viewEntity_t* vEntity = viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next )
 		{
-			tr.frontEndJobList->AddJob( ( jobRun_t )R_AddSingleModel, vEntity );
+			frontEndJobList->AddJob( ( jobRun_t )R_AddSingleModel, vEntity );
 		}
-		tr.frontEndJobList->Submit();
-		tr.frontEndJobList->Wait();
+		frontEndJobList->Submit();
+		frontEndJobList->Wait();
 	}
 	else
 	{
-		for( viewEntity_t* vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next )
+		for( viewEntity_t* vEntity = viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next )
 		{
-			R_AddSingleModel( vEntity );
+			AddSingleModel( vEntity );
 		}
 	}
 	
@@ -1328,33 +1294,37 @@ void R_AddModels()
 	{
 		if (r_useParallelAddShadows.GetInteger() == 1)
 		{
-			for (viewEntity_t* vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next)
+			for (viewEntity_t* vEntity = viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next)
 			{
 				for (staticShadowVolumeParms_t* shadowParms = vEntity->staticShadowVolumes; shadowParms != nullptr; shadowParms = shadowParms->next)
 				{
-					tr.frontEndJobList->AddJob((jobRun_t)StaticShadowVolumeJob, shadowParms);
+					frontEndJobList->AddJob((jobRun_t)StaticShadowVolumeJob, shadowParms);
 				}
+
 				for (dynamicShadowVolumeParms_t* shadowParms = vEntity->dynamicShadowVolumes; shadowParms != nullptr; shadowParms = shadowParms->next)
 				{
-					tr.frontEndJobList->AddJob((jobRun_t)DynamicShadowVolumeJob, shadowParms);
+					frontEndJobList->AddJob((jobRun_t)DynamicShadowVolumeJob, shadowParms);
 				}
 				vEntity->staticShadowVolumes = nullptr;
 				vEntity->dynamicShadowVolumes = nullptr;
 			}
-			tr.frontEndJobList->Submit();
+
+			frontEndJobList->Submit();
+			
 			// wait here otherwise the shadow volume index buffer may be unmapped before all shadow volumes have been constructed
-			tr.frontEndJobList->Wait();
+			frontEndJobList->Wait();
 		}
 		else
 		{
-			int start = Sys_Microseconds();
+			auto start = Sys_Microseconds();
 
-			for (viewEntity_t* vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next)
+			for ( viewEntity_t* vEntity = viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next )
 			{
 				for (staticShadowVolumeParms_t* shadowParms = vEntity->staticShadowVolumes; shadowParms != nullptr; shadowParms = shadowParms->next)
 				{
 					StaticShadowVolumeJob(shadowParms);
 				}
+
 				for (dynamicShadowVolumeParms_t* shadowParms = vEntity->dynamicShadowVolumes; shadowParms != nullptr; shadowParms = shadowParms->next)
 				{
 					DynamicShadowVolumeJob(shadowParms);
@@ -1363,7 +1333,7 @@ void R_AddModels()
 				vEntity->dynamicShadowVolumes = nullptr;
 			}
 
-			int end = Sys_Microseconds();
+			auto end = Sys_Microseconds();
 			crBackend::Get()->PerformanceCounters().shadowMicroSec += end - start;
 			// backEnd.pc.shadowMicroSec += end - start;
 
@@ -1374,18 +1344,17 @@ void R_AddModels()
 	//-------------------------------------------------
 	// Move the draw surfs to the view.
 	//-------------------------------------------------
+	viewDef->numDrawSurfs = 0;	// clear the ambient surface list
+	viewDef->maxDrawSurfs = 0;	// will be set to INITIAL_DRAWSURFS on R_LinkDrawSurfToView
 	
-	tr.viewDef->numDrawSurfs = 0;	// clear the ambient surface list
-	tr.viewDef->maxDrawSurfs = 0;	// will be set to INITIAL_DRAWSURFS on R_LinkDrawSurfToView
-	
-	for( viewEntity_t* vEntity = tr.viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next )
+	for( viewEntity_t* vEntity = viewDef->viewEntitys; vEntity != nullptr; vEntity = vEntity->next )
 	{
 		for( drawSurf_t* ds = vEntity->drawSurfs; ds != nullptr; )
 		{
 			drawSurf_t* next = ds->nextOnLight;
 			if( ds->linkChain == nullptr )
 			{
-				R_LinkDrawSurfToView( ds, tr.viewDef );
+				LinkDrawSurfToView( ds, viewDef );
 			}
 			else
 			{
