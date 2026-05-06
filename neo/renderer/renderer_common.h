@@ -90,36 +90,6 @@ class idRenderWorldLocal;
 struct viewEntity_t;
 struct viewLight_t;
 
-// BEATO Begin:
-class crDrawGeometry;
-// BEATO End
-
-// drawSurf_t structures command the back end to render surfaces
-// a given crDrawGeometry may be used with multiple viewEntity_t,
-// as when viewed in a subview or multiple viewport render, or
-// with multiple shaders when skinned, or, possibly with multiple
-// lights, although currently each lighting interaction creates
-// unique crDrawGeometry
-// drawSurf_t are always allocated and freed every frame, they are never cached
-
-struct drawSurf_t
-{
-	const crDrawGeometry* 	frontEndGeo;		// don't use on the back end, it may be updated by the front end!
-	uint32_t				numIndexes;
-	vertCacheHandle_t		indexCache;			// triIndex_t
-	vertCacheHandle_t		ambientCache;		// idDrawVert
-	vertCacheHandle_t		shadowCache;		// idShadowVert / idShadowVertSkinned
-	vertCacheHandle_t		jointCache;			// idJointMat
-	const viewEntity_t* 	space;
-	const idMaterial* 		material;			// may be nullptr for shadow volumes
-	float					sort;				// material->sort, modified by gui / entity sort offsets
-	const float* 				shaderRegisters;	// evaluated and adjusted for referenceShaders
-	drawSurf_t* 			nextOnLight;		// viewLight chains
-	drawSurf_t** 			linkChain;			// defer linking to lights to a serial section to avoid a mutex
-	idScreenRect			scissorRect;		// for scissor clipping, local inside renderView viewport
-	int						renderZFail;
-	volatile shadowVolumeState_t shadowVolumeState;
-};
 
 // areas have references to hold all the lights and entities in them
 struct areaReference_t
@@ -355,7 +325,6 @@ struct viewDef_t
 	bool* 				connectedAreas;
 };
 
-
 // complex light / surface interactions are broken up into multiple passes of a
 // simple interaction shader
 struct drawInteraction_t
@@ -386,59 +355,6 @@ struct drawInteraction_t
 };
 
 //=======================================================================
-
-// this is the inital allocation for max number of drawsurfs
-// in a given view, but it will automatically grow if needed
-const int INITIAL_DRAWSURFS =		2048;
-
-enum frameAllocType_t
-{
-	FRAME_ALLOC_VIEW_DEF,
-	FRAME_ALLOC_VIEW_ENTITY,
-	FRAME_ALLOC_VIEW_LIGHT,
-	FRAME_ALLOC_SURFACE_TRIANGLES,
-	FRAME_ALLOC_DRAW_SURFACE,
-	FRAME_ALLOC_INTERACTION_STATE,
-	FRAME_ALLOC_SHADOW_ONLY_ENTITY,
-	FRAME_ALLOC_SHADOW_VOLUME_PARMS,
-	FRAME_ALLOC_SHADER_REGISTER,
-	FRAME_ALLOC_DRAW_SURFACE_POINTER,
-	FRAME_ALLOC_DRAW_COMMAND,
-	FRAME_ALLOC_UNKNOWN,
-	FRAME_ALLOC_MAX
-};
-
-// all of the information needed by the back end must be
-// contained in a idFrameData.  This entire structure is
-// duplicated so the front and back end can run in parallel
-// on an SMP machine.
-class idFrameData
-{
-public:
-	idSysInterlockedInteger	frameMemoryAllocated;
-	idSysInterlockedInteger	frameMemoryUsed;
-	byte* 					frameMemory;
-	
-	int						highWaterAllocated;	// max used on any frame
-	int						highWaterUsed;
-	
-	// the currently building command list commands can be inserted
-	// at the front if needed, as required for dynamically generated textures
-	emptyCommand_t* 		cmdHead;	// may be of other command type based on commandId
-	emptyCommand_t* 		cmdTail;
-};
-
-extern	idFrameData*	frameData;
-
-//=======================================================================
-
-void R_AddDrawViewCmd( viewDef_t* parms, bool guiOnly );
-void R_AddDrawPostProcess( viewDef_t* parms );
-
-void R_ReloadGuis_f( const idCmdArgs& args );
-void R_ListGuis_f( const idCmdArgs& args );
-
-void* R_GetCommandBuffer( int bytes );
 
 // this allows a global override of all materials
 bool R_GlobalShaderOverride( const idMaterial** shader );
@@ -551,92 +467,7 @@ RENDERWORLD_PORTALS
 viewEntity_t* R_SetEntityDefViewEntity( idRenderEntityLocal* def );
 viewLight_t* R_SetLightDefViewLight( idRenderLightLocal* def );
 
-/*
-====================================================================
 
-TR_FRONTEND_MAIN
-
-====================================================================
-*/
-void R_InitFrameData();
-void R_ShutdownFrameData();
-void R_ToggleSmpFrame();
-void* R_FrameAlloc( int bytes, frameAllocType_t type = FRAME_ALLOC_UNKNOWN );
-void* R_ClearedFrameAlloc( int bytes, frameAllocType_t type = FRAME_ALLOC_UNKNOWN );
-
-void* R_StaticAlloc( int bytes, const memTag_t tag = TAG_RENDER_STATIC );		// just malloc with error checking
-void* R_ClearedStaticAlloc( int bytes );	// with std::memset
-void R_StaticFree( void* data );
-
-void R_RenderView( viewDef_t* parms );
-void R_RenderPostProcess( viewDef_t* parms );
-
-// BEATO Begin:
-void R_InitMaterials( void );
-// BEATO End
-
-/*
-============================================================
-
-TR_FRONTEND_ADDLIGHTS
-
-============================================================
-*/
-
-void R_ShadowBounds( const idBounds& modelBounds, const idBounds& lightBounds, const idVec3& lightOrigin, idBounds& shadowBounds );
-
-void R_AddLights();
-void R_OptimizeViewLightsList();
-
-/*
-============================================================
-
-TR_FRONTEND_ADDMODELS
-
-============================================================
-*/
-
-bool R_IssueEntityDefCallback( idRenderEntityLocal* def );
-idRenderModel* R_EntityDefDynamicModel( idRenderEntityLocal* def );
-void R_ClearEntityDefDynamicModel( idRenderEntityLocal* def );
-
-void R_SetupDrawSurfShader( drawSurf_t* drawSurf, const idMaterial* shader, const renderEntity_t* renderEntity );
-void R_SetupDrawSurfJoints( drawSurf_t* drawSurf, const crDrawGeometry* tri, const idMaterial* shader );
-void R_LinkDrawSurfToView( drawSurf_t* drawSurf, viewDef_t* viewDef );
-
-void R_AddModels();
-
-/*
-=============================================================
-
-TR_FRONTEND_DEFORM
-
-=============================================================
-*/
-
-drawSurf_t* R_DeformDrawSurf( drawSurf_t* drawSurf );
-
-/*
-=============================================================
-
-TR_FRONTEND_GUISURF
-
-=============================================================
-*/
-
-void R_SurfaceToTextureAxis( const crDrawGeometry* tri, idVec3& origin, idVec3 axis[3] );
-void R_AddInGameGuis( const drawSurf_t* const drawSurfs[], const int numDrawSurfs );
-
-/*
-============================================================
-
-TR_FRONTEND_SUBVIEW
-
-============================================================
-*/
-
-bool R_PreciseCullSurface( const drawSurf_t* drawSurf, idBounds& ndcBounds );
-bool R_GenerateSubViews( const drawSurf_t* const drawSurfs[], const int numDrawSurfs );
 
 /*
 ============================================================
@@ -724,6 +555,7 @@ BACKEND
 #include "Geometry.h"
 
 // BEATO Begin:
+#include "frontend/Frontend.hpp"
 #include "backend/UniformManager.hpp"
 #include "backend/PipelineManager.hpp"
 #include "backend/Backend.hpp"
