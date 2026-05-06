@@ -158,6 +158,17 @@ private:
 
     void    AddSingleModel( viewEntity_t* vEntity );
 
+    // tr_frontend_deform.cpp
+    drawSurf_t* FinishDeform( drawSurf_t* surf, crDrawGeometry* newTri, const idDrawVert* newVerts, const triIndex_t* newIndexes );
+    drawSurf_t* AutospriteDeform( drawSurf_t* surf );
+    drawSurf_t* TubeDeform( drawSurf_t* surf );
+    drawSurf_t* FlareDeform( drawSurf_t* surf );
+    drawSurf_t* ExpandDeform( drawSurf_t* surf );
+    drawSurf_t* MoveDeform( drawSurf_t* surf );
+    drawSurf_t* TurbulentDeform( drawSurf_t* surf );
+    drawSurf_t* EyeballDeform( drawSurf_t* surf );
+    drawSurf_t* ParticleDeform( drawSurf_t* surf, bool useArea );
+
     static void R_AddSingleLight( viewLight_t* vLight );
     static void R_AddSingleModel( viewEntity_t* vEntity );
     static void ShadowBounds( const idBounds& modelBounds, const idBounds& lightBounds, const idVec3& lightOrigin, idBounds& shadowBounds );

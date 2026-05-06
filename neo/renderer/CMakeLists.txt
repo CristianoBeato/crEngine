@@ -66,6 +66,8 @@ set( RENDERER_BACKEND_SOURCES
     )
 
 set( RENDERER_FRONTEND_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/Frontend.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/Frontend.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/tr_frontend_addlights.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/tr_frontend_addmodels.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/tr_frontend_deform.cpp
