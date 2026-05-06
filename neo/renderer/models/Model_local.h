@@ -136,9 +136,9 @@ public:
 	int							overlaysAdded;
 	
 	// when an md5 is instantiated, the inverted joints array is stored to allow GPU skinning
-	int							numInvertedJoints;
+	uint32_t					numInvertedJoints;
 	idJointMat* 				jointsInverted;
-	vertCacheHandle_t			jointsInvertedBuffer;
+	joint_cache_t				jointsInvertedBuffer;
 	
 protected:
 	int							lastModifiedFrame;

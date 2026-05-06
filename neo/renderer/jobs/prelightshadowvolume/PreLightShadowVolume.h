@@ -70,7 +70,7 @@ struct preLightShadowVolumeParms_t
 	// temp
 	byte* 							tempCullBits;			// temp buffer in SPU local memory
 	// output
-	int* 							numShadowIndices;		// streamed out to main memory
+	uint32_t*						numShadowIndices;		// streamed out to main memory
 	int* 							renderZFail;			// streamed out to main memory
 	float* 							shadowZMin;				// streamed out to main memory
 	float* 							shadowZMax;				// streamed out to main memory

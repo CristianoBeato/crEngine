@@ -37,9 +37,7 @@ PreLightShadowVolumeJob
 void PreLightShadowVolumeJob( const preLightShadowVolumeParms_t* parms )
 {
 	if( parms->tempCullBits == nullptr )
-	{
 		*const_cast< byte** >( &parms->tempCullBits ) = ( byte* )_alloca16( TEMP_CULLBITS( parms->numVerts ) );
-	}
 	
 	// Calculate the shadow depth bounds.
 	float shadowZMin = parms->lightZMin;
