@@ -27,10 +27,26 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
-
 #include "renderer_common.h"
+#include "Frontend.hpp"
+
+crFrontend::crFrontend( void ) : 
+    frameData( nullptr )
+{
+	REGISTER_PARALLEL_JOB( R_AddSingleLight, "R_AddSingleLight" );
+	REGISTER_PARALLEL_JOB( R_AddSingleModel, "R_AddSingleModel" );
+}
+
+crFrontend::~crFrontend( void )
+{
+}
+
+crFrontend *crFrontend::Get(void)
+{
+	static crFrontend gFrontend = crFrontend();
+    return &gFrontend;
+}
 
 /*
 ==========================================================================================
@@ -40,13 +56,8 @@ FRAME MEMORY ALLOCATION
 ==========================================================================================
 */
 
-static const unsigned int NUM_FRAME_DATA = 2;
-static const unsigned int FRAME_ALLOC_ALIGNMENT = 128;
-static const unsigned int MAX_FRAME_MEMORY = 64 * 1024 * 1024;	// larger so that we can noclip on PC for dev purposes
-
-idFrameData		smpFrameData[NUM_FRAME_DATA];
-idFrameData* 	frameData;
-unsigned int	smpFrame;
+constexpr uint32_t FRAME_ALLOC_ALIGNMENT = 128u;
+constexpr uint32_t MAX_FRAME_MEMORY = 64u * 1024u * 1024u;	// larger so that we can noclip on PC for dev purposes
 
 //#define TRACK_FRAME_ALLOCS
 
@@ -57,10 +68,10 @@ int frameHighWaterTypeCount[FRAME_ALLOC_MAX];
 
 /*
 ====================
-R_ToggleSmpFrame
+crFrontend::ToggleSmpFrame
 ====================
 */
-void R_ToggleSmpFrame()
+void crFrontend::ToggleSmpFrame( void )
 {
 	// update the highwater mark
 	if( frameData->frameMemoryAllocated.GetValue() > frameData->highWaterAllocated )
@@ -96,17 +107,17 @@ void R_ToggleSmpFrame()
 #endif
 	
 	// clear the command chain and make a RC_NOP command the only thing on the list
-	frameData->cmdHead = frameData->cmdTail = ( emptyCommand_t* )R_FrameAlloc( sizeof( *frameData->cmdHead ), FRAME_ALLOC_DRAW_COMMAND );
+	frameData->cmdHead = frameData->cmdTail = ( emptyCommand_t* )FrameAlloc( sizeof( *frameData->cmdHead ), FRAME_ALLOC_DRAW_COMMAND );
 	frameData->cmdHead->commandId = RC_NOP;
 	frameData->cmdHead->next = nullptr;
 }
 
 /*
 =====================
-R_ShutdownFrameData
+crFrontend::ShutdownFrameData
 =====================
 */
-void R_ShutdownFrameData()
+void crFrontend::ShutdownFrameData( void )
 {
 	frameData = nullptr;
 	for( int i = 0; i < NUM_FRAME_DATA; i++ )
@@ -118,12 +129,12 @@ void R_ShutdownFrameData()
 
 /*
 =====================
-R_InitFrameData
+crFrontend::InitFrameData
 =====================
 */
-void R_InitFrameData()
+void crFrontend::InitFrameData( void )
 {
-	R_ShutdownFrameData();
+	ShutdownFrameData();
 	
 	for( int i = 0; i < NUM_FRAME_DATA; i++ )
 	{
@@ -133,12 +144,12 @@ void R_InitFrameData()
 	// must be set before calling R_ToggleSmpFrame()
 	frameData = &smpFrameData[ 0 ];
 	
-	R_ToggleSmpFrame();
+	ToggleSmpFrame();
 }
 
 /*
 ================
-R_FrameAlloc
+crFrontend::FrameAlloc
 
 This data will be automatically freed when the
 current frame's back end completes.
@@ -152,14 +163,14 @@ and local spaces are allocated here.
 All memory is cache-line-cleared for the best performance.
 ================
 */
-void* R_FrameAlloc( int bytes, frameAllocType_t type )
+void* crFrontend::FrameAlloc( const size_t in_bytes, frameAllocType_t type )
 {
 #if defined( TRACK_FRAME_ALLOCS )
 	frameData->frameMemoryUsed.Add( bytes );
 	frameAllocTypeCount[type].Add( bytes );
 #endif
 	
-	bytes = ( bytes + FRAME_ALLOC_ALIGNMENT - 1 ) & ~( FRAME_ALLOC_ALIGNMENT - 1 );
+	size_t bytes = ( in_bytes + FRAME_ALLOC_ALIGNMENT - 1 ) & ~( FRAME_ALLOC_ALIGNMENT - 1 );
 	
 	// thread safe add
 	int	end = frameData->frameMemoryAllocated.Add( bytes );
@@ -181,13 +192,13 @@ void* R_FrameAlloc( int bytes, frameAllocType_t type )
 
 /*
 ==================
-R_ClearedFrameAlloc
+crFrontend::ClearedFrameAlloc
 ==================
 */
-void* R_ClearedFrameAlloc( int bytes, frameAllocType_t type )
+void* crFrontend::ClearedFrameAlloc( const size_t bytes, frameAllocType_t type )
 {
 	// NOTE: every allocation is cache line cleared
-	return R_FrameAlloc( bytes, type );
+	return FrameAlloc( bytes, type );
 }
 
 /*
@@ -200,12 +211,12 @@ FONT-END STATIC MEMORY ALLOCATION
 
 /*
 =================
-R_StaticAlloc
+crFrontend::StaticAlloc
 =================
 */
-void* R_StaticAlloc( int bytes, const memTag_t tag )
+void* crFrontend::StaticAlloc( const size_t bytes, const memTag_t tag )
 {
-	tr.pc.c_alloc++;
+	pc.c_alloc++;
 	
 	void* buf = Mem_Alloc( bytes, tag );
 	
@@ -218,12 +229,12 @@ void* R_StaticAlloc( int bytes, const memTag_t tag )
 
 /*
 =================
-R_ClearedStaticAlloc
+crFrontend::ClearedStaticAlloc
 =================
 */
-void* R_ClearedStaticAlloc( int bytes )
+void* crFrontend::ClearedStaticAlloc( const size_t bytes )
 {
-	tr.pc.c_alloc++;
+	pc.c_alloc++;
 	
 	void* buf = Mem_ClearedAlloc( bytes, TAG_RENDER );
 	
@@ -236,29 +247,97 @@ void* R_ClearedStaticAlloc( int bytes )
 
 /*
 =================
-R_StaticFree
+crFrontend::StaticFree
 =================
 */
-void R_StaticFree( void* data )
+void crFrontend::StaticFree( void* data )
 {
-	tr.pc.c_free++;
+	pc.c_free++;
 	Mem_Free( data );
 }
 
 /*
 ==========================================================================================
-
 FONT-END RENDERING
-
 ==========================================================================================
 */
 
 /*
 =================
-R_SortDrawSurfs
+crFrontend::ViewStatistics
 =================
 */
-static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
+void crFrontend::ViewStatistics( viewDef_t* parms )
+{
+	// report statistics about this view
+	if( !r_showSurfaces.GetBool() )
+		return;
+	
+	common->Printf( "view:%p surfs:%i\n", parms, parms->numDrawSurfs );
+}
+
+/*
+============
+crFrontend::GetCommandBuffer
+
+Returns memory for a command buffer (stretchPicCommand_t,
+drawSurfsCommand_t, etc) and links it to the end of the
+current command chain.
+============
+*/
+void* crFrontend::GetCommandBuffer( const size_t bytes )
+{
+	emptyCommand_t*	cmd = nullptr;
+	cmd = ( emptyCommand_t* )FrameAlloc( bytes, FRAME_ALLOC_DRAW_COMMAND );
+	cmd->next = nullptr;
+	frameData->cmdTail->next = &cmd->commandId;
+	frameData->cmdTail = cmd;
+	return ( void* )cmd;
+}
+
+/*
+=============
+crFrontend::AddDrawViewCmd
+
+This is the main 3D rendering command.  A single scene may
+have multiple views if a mirror, portal, or dynamic texture is present.
+=============
+*/
+void crFrontend::AddDrawViewCmd( viewDef_t* parms, const bool guiOnly )
+{
+	drawSurfsCommand_t*	cmd = nullptr;
+	
+	cmd = ( drawSurfsCommand_t* )GetCommandBuffer( sizeof( *cmd ) );
+	cmd->commandId = ( guiOnly ) ? RC_DRAW_VIEW_GUI : RC_DRAW_VIEW_3D;
+	
+	cmd->viewDef = parms;
+	
+	pc.c_numViews++;
+	
+	ViewStatistics( parms );
+}
+
+/*
+=============
+crFrontend::AddPostProcess
+
+This issues the command to do a post process after all the views have
+been rendered.
+=============
+*/
+void crFrontend::AddDrawPostProcess( viewDef_t* parms )
+{
+	postProcessCommand_t* cmd = ( postProcessCommand_t* )GetCommandBuffer( sizeof( *cmd ) );
+	cmd->commandId = RC_POST_PROCESS;
+	cmd->viewDef = parms;
+}
+
+/*
+=================
+idFrameData::SortDrawSurfs
+=================
+*/
+void crFrontend::SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 {
 #if 1
 
@@ -391,7 +470,7 @@ static void R_SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs )
 }
 
 // RB begin
-static void R_SetupSplitFrustums( viewDef_t* viewDef )
+void crFrontend::SetupSplitFrustums( viewDef_t* viewDef )
 {
 	idVec3			planeOrigin;
 	
@@ -406,7 +485,7 @@ static void R_SetupSplitFrustums( viewDef_t* viewDef )
 	
 	for( int i = 0; i < 6; i++ )
 	{
-		tr.viewDef->frustumSplitDistances[i] = idMath::INFINITY;
+		viewDef->frustumSplitDistances[i] = idMath::INFINITY;
 	}
 	
 	for( int i = 1; i <= ( r_shadowMapSplits.GetInteger() + 1 ) && i < MAX_FRUSTUMS; i++ )
@@ -414,48 +493,42 @@ static void R_SetupSplitFrustums( viewDef_t* viewDef )
 		float si = i / ( float )( r_shadowMapSplits.GetInteger() + 1 );
 		
 		if( i > FRUSTUM_CASCADE1 )
-		{
 			zNear = zFar - ( zFar * 0.005f );
-		}
 		
 		zFar = 1.005f * lambda * ( zNearStart * powf( ratio, si ) ) + ( 1 - lambda ) * ( zNearStart + ( zFarEnd - zNearStart ) * si );
 		
 		if( i <= r_shadowMapSplits.GetInteger() )
-		{
-			tr.viewDef->frustumSplitDistances[i - 1] = zFar;
-		}
+			viewDef->frustumSplitDistances[i - 1] = zFar;
 		
 		float projectionMatrix[16];
-		R_SetupProjectionMatrix2( tr.viewDef, zNear, zFar, projectionMatrix );
+		R_SetupProjectionMatrix2( viewDef, zNear, zFar, projectionMatrix );
 		
 		// setup render matrices for faster culling
 		idRenderMatrix projectionRenderMatrix;
 		idRenderMatrix::Transpose( *( idRenderMatrix* )projectionMatrix, projectionRenderMatrix );
 		idRenderMatrix viewRenderMatrix;
-		idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
-		idRenderMatrix::Multiply( projectionRenderMatrix, viewRenderMatrix, tr.viewDef->frustumMVPs[i] );
+		idRenderMatrix::Transpose( *( idRenderMatrix* )viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
+		idRenderMatrix::Multiply( projectionRenderMatrix, viewRenderMatrix, viewDef->frustumMVPs[i] );
 		
 		// the planes of the view frustum are needed for portal visibility culling
-		idRenderMatrix::GetFrustumPlanes( tr.viewDef->frustums[i], tr.viewDef->frustumMVPs[i], false, true );
+		idRenderMatrix::GetFrustumPlanes( viewDef->frustums[i], viewDef->frustumMVPs[i], false, true );
 		
 		// the DOOM 3 frustum planes point outside the frustum
 		for( int j = 0; j < 6; j++ )
 		{
-			tr.viewDef->frustums[i][j] = - tr.viewDef->frustums[i][j];
+			viewDef->frustums[i][j] = - viewDef->frustums[i][j];
 		}
 		
 		// remove the Z-near to avoid portals from being near clipped
 		if( i == FRUSTUM_CASCADE1 )
-		{
-			tr.viewDef->frustums[i][4][3] -= r_znear.GetFloat();
-		}
+			viewDef->frustums[i][4][3] -= r_znear.GetFloat();
 	}
 }
 // RB end
 
 /*
 ================
-R_RenderView
+crFrontend::RenderView
 
 A view may be either the actual camera view,
 a mirror / remote location, or a 3D view on a gui surface.
@@ -463,41 +536,41 @@ a mirror / remote location, or a 3D view on a gui surface.
 Parms will typically be allocated with R_FrameAlloc
 ================
 */
-void R_RenderView( viewDef_t* parms )
+void crFrontend::RenderView( viewDef_t* parms )
 {
 	// save view in case we are a subview
-	viewDef_t* oldView = tr.viewDef;
+	viewDef_t* oldView = viewDef;
 	
-	tr.viewDef = parms;
+	viewDef = parms;
 	
 	// we need to set the projection matrix before doing
 	// portal-to-screen scissor calculations
 	if (!parms->isObliqueProjection)
 	{
 		// setup the matrix for world space to eye space
-		R_SetupViewMatrix(tr.viewDef);
-		R_SetupProjectionMatrix(tr.viewDef);
+		R_SetupViewMatrix(viewDef);
+		R_SetupProjectionMatrix(viewDef);
 	}
 	
 	// setup render matrices for faster culling
-	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->projectionMatrix, tr.viewDef->projectionRenderMatrix );
+	idRenderMatrix::Transpose( *( idRenderMatrix* )viewDef->projectionMatrix, viewDef->projectionRenderMatrix );
 	idRenderMatrix viewRenderMatrix;
-	idRenderMatrix::Transpose( *( idRenderMatrix* )tr.viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
-	idRenderMatrix::Multiply( tr.viewDef->projectionRenderMatrix, viewRenderMatrix, tr.viewDef->worldSpace.mvp );
+	idRenderMatrix::Transpose( *( idRenderMatrix* )viewDef->worldSpace.modelViewMatrix, viewRenderMatrix );
+	idRenderMatrix::Multiply( viewDef->projectionRenderMatrix, viewRenderMatrix, viewDef->worldSpace.mvp );
 	
 	// the planes of the view frustum are needed for portal visibility culling
-	idRenderMatrix::GetFrustumPlanes( tr.viewDef->frustums[FRUSTUM_PRIMARY], tr.viewDef->worldSpace.mvp, false, true );
+	idRenderMatrix::GetFrustumPlanes( viewDef->frustums[FRUSTUM_PRIMARY], viewDef->worldSpace.mvp, false, true );
 	
 	// the DOOM 3 frustum planes point outside the frustum
 	for( int i = 0; i < 6; i++ )
 	{
-		tr.viewDef->frustums[FRUSTUM_PRIMARY][i] = - tr.viewDef->frustums[FRUSTUM_PRIMARY][i];
+		viewDef->frustums[FRUSTUM_PRIMARY][i] = - viewDef->frustums[FRUSTUM_PRIMARY][i];
 	}
 	// remove the Z-near to avoid portals from being near clipped
-	tr.viewDef->frustums[FRUSTUM_PRIMARY][4][3] -= r_znear.GetFloat();
+	viewDef->frustums[FRUSTUM_PRIMARY][4][3] -= r_znear.GetFloat();
 	
 	// RB begin
-	R_SetupSplitFrustums( tr.viewDef );
+	SetupSplitFrustums( viewDef );
 	// RB end
 	
 	// identify all the visible portal areas, and create view lights and view entities
@@ -509,56 +582,69 @@ void R_RenderView( viewDef_t* parms )
 	
 	// make sure that interactions exist for all light / entity combinations that are visible
 	// add any pre-generated light shadows, and calculate the light shader values
-	R_AddLights();
+	AddLights();
 	
 	// adds ambient surfaces and create any necessary interaction surfaces to add to the light lists
-	R_AddModels();
+	AddModels();
 	
 	// build up the GUIs on world surfaces
-	R_AddInGameGuis( tr.viewDef->drawSurfs, tr.viewDef->numDrawSurfs );
+	AddInGameGuis( viewDef->drawSurfs, viewDef->numDrawSurfs );
 	
 	// any viewLight that didn't have visible surfaces can have it's shadows removed
-	R_OptimizeViewLightsList();
+	OptimizeViewLightsList();
 	
 	// sort all the ambient surfaces for translucency ordering
-	R_SortDrawSurfs( tr.viewDef->drawSurfs, tr.viewDef->numDrawSurfs );
+	SortDrawSurfs( viewDef->drawSurfs, viewDef->numDrawSurfs );
 	
 	// generate any subviews (mirrors, cameras, etc) before adding this view
-	if( R_GenerateSubViews( tr.viewDef->drawSurfs, tr.viewDef->numDrawSurfs ) )
+	if( GenerateSubViews( viewDef->drawSurfs, viewDef->numDrawSurfs ) )
 	{
 		// if we are debugging subviews, allow the skipping of the main view draw
 		if( r_subviewOnly.GetBool() )
-		{
 			return;
-		}
 	}
 	
 	// write everything needed to the demo file
 	if( common->WriteDemo() )
-	{
-		static_cast<idRenderWorldLocal*>( parms->renderWorld )->WriteVisibleDefs( tr.viewDef );
-	}
+		static_cast<idRenderWorldLocal*>( parms->renderWorld )->WriteVisibleDefs( viewDef );
 	
 	// add the rendering commands for this viewDef
-	R_AddDrawViewCmd( parms, false );
+	AddDrawViewCmd( parms, false );
 	
 	// restore view in case we are a subview
-	tr.viewDef = oldView;
+	viewDef = oldView;
 }
 
 /*
 ================
-R_RenderPostProcess
+crFrontend::RenderPostProcess
 
 Because R_RenderView may be called by subviews we have to make sure the post process
 pass happens after the active view and its subviews is done rendering.
 ================
 */
-void R_RenderPostProcess( viewDef_t* parms )
+void crFrontend::RenderPostProcess( viewDef_t* parms )
 {
-	viewDef_t* oldView = tr.viewDef;
+	viewDef_t* oldView = viewDef;
 	
-	R_AddDrawPostProcess( parms );
+	AddDrawPostProcess( parms );
 	
-	tr.viewDef = oldView;
+	viewDef = oldView;
+}
+
+/*
+=================
+crFrontend::InitMaterials
+=================
+*/
+void crFrontend::InitMaterials( void )
+{
+	tr.defaultMaterial = declManager->FindMaterial( "_default", false );
+	if( !tr.defaultMaterial )
+		common->FatalError( "_default material not found" );
+	
+	tr.defaultPointLight = declManager->FindMaterial( "lights/defaultPointLight" );
+	tr.defaultProjectedLight = declManager->FindMaterial( "lights/defaultProjectedLight" );
+	tr.whiteMaterial = declManager->FindMaterial( "_white" );
+	tr.charSetMaterial = declManager->FindMaterial( "textures/bigchars" );
 }
