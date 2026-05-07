@@ -40,12 +40,48 @@ crFrontend::crFrontend( void ) :
 
 crFrontend::~crFrontend( void )
 {
+
 }
 
 crFrontend *crFrontend::Get(void)
 {
 	static crFrontend gFrontend = crFrontend();
     return &gFrontend;
+}
+
+/*
+=================
+crFrontend::Init
+=================
+*/
+void crFrontend::Init(void)
+{
+// foresthale 2014-05-28: due to increased MAX_INTERACTIONS_PER_LIGHT the job limit also has to be increased
+#ifdef ID_ALLOW_TOOLS
+	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 16384, 0, nullptr );	
+#else
+	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, nullptr );
+#endif
+}
+
+/*
+=================
+crFrontend::Clear
+=================
+*/
+void crFrontend::Clear(void)
+{
+	///
+	ShutdownFrameData();
+
+	viewDef = nullptr;
+
+	/// Clear performance counters
+	std::memset( &pc, 0, sizeof( pc ) );
+
+	/// Clear front end job list
+	parallelJobManager->FreeJobList( frontEndJobList );
+	frontEndJobList = nullptr;
 }
 
 /*
@@ -578,7 +614,7 @@ void crFrontend::RenderView( viewDef_t* parms )
 	static_cast<idRenderWorldLocal*>( parms->renderWorld )->FindViewLightsAndEntities();
 	
 	// wait for any shadow volume jobs from the previous frame to finish
-	tr.frontEndJobList->Wait();
+	frontEndJobList->Wait();
 	
 	// make sure that interactions exist for all light / entity combinations that are visible
 	// add any pre-generated light shadows, and calculate the light shader values
@@ -630,21 +666,4 @@ void crFrontend::RenderPostProcess( viewDef_t* parms )
 	AddDrawPostProcess( parms );
 	
 	viewDef = oldView;
-}
-
-/*
-=================
-crFrontend::InitMaterials
-=================
-*/
-void crFrontend::InitMaterials( void )
-{
-	tr.defaultMaterial = declManager->FindMaterial( "_default", false );
-	if( !tr.defaultMaterial )
-		common->FatalError( "_default material not found" );
-	
-	tr.defaultPointLight = declManager->FindMaterial( "lights/defaultPointLight" );
-	tr.defaultProjectedLight = declManager->FindMaterial( "lights/defaultProjectedLight" );
-	tr.whiteMaterial = declManager->FindMaterial( "_white" );
-	tr.charSetMaterial = declManager->FindMaterial( "textures/bigchars" );
 }

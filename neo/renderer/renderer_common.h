@@ -365,35 +365,6 @@ const idMaterial* R_RemapShaderBySkin( const idMaterial* shader, const idDeclSki
 
 //====================================================
 
-//
-// performanceCounters_t
-//
-struct performanceCounters_t
-{
-	int		c_box_cull_in;
-	int		c_box_cull_out;
-	int		c_createInteractions;	// number of calls to idInteraction::CreateInteraction
-	int		c_createShadowVolumes;
-	int		c_generateMd5;
-	int		c_entityDefCallbacks;
-	int		c_alloc;			// counts for R_StaticAllc/R_StaticFree
-	int		c_free;
-	int		c_visibleViewEntities;
-	int		c_shadowViewEntities;
-	int		c_viewLights;
-	int		c_numViews;			// number of total views rendered
-	int		c_deformedSurfaces;	// idMD5Mesh::GenerateSurface
-	int		c_deformedVerts;	// idMD5Mesh::GenerateSurface
-	int		c_deformedIndexes;	// idMD5Mesh::GenerateSurface
-	int		c_tangentIndexes;	// R_DeriveTangents()
-	int		c_entityUpdates;
-	int		c_lightUpdates;
-	int		c_entityReferences;
-	int		c_lightReferences;
-	int		c_guiSurfs;
-	int		frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
-};
-
 class idParallelJobList;
 
 const int MAX_GUI_SURFACES	= 1024;		// default size of the drawSurfs list for guis, will

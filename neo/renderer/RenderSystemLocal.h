@@ -131,9 +131,8 @@ public:
 	~idRenderSystemLocal( void );
 	void					InitDevice( void );
 	void					CheckPortableExtensions( void );
-	
+	void 					PerformanceCounters( void );
 	void					BlockingSwapBuffers( void );
-
 	void					SwapFrame( void );
 
 	/// Present render to screen
@@ -147,7 +146,9 @@ public:
 	// inserts a timing mark for the end of the GPU frame
 	void					EndFrame( void );
 
+	void					InitMaterials( void );
 	void					Clear( void );
+	void 					SetNewMode( const bool fullInit );
 	void					GetCroppedViewport( idScreenRect* viewport );
 	void					PerformResolutionScaling( int& newWidth, int& newHeight );
 	int						GetFrameCount() const
@@ -202,10 +203,6 @@ public:
 
 	idImage* 				ambientCubeImage;	// hack for testing dependent ambient lighting
 	
-	viewDef_t* 				viewDef;
-	
-	performanceCounters_t	pc;					// performance counters
-	
 	viewEntity_t			identitySpace;		// can use if we don't know viewDef->worldSpace is valid
 	
 	idScreenRect			renderCrops[MAX_RENDER_CROPS];
@@ -231,8 +228,6 @@ public:
 	drawSurf_t				zeroOneCubeSurface_;
 	drawSurf_t				testImageSurface_;
 	
-	idParallelJobList* 		frontEndJobList;
-
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()
 	int						screenshotOverrideWidth;
 	int						screenshotOverrideHeight;

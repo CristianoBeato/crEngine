@@ -173,7 +173,8 @@ typedef struct
 	bool				hasMatrix;
 	int					matrix[2][3];	// we only allow a subset of the full projection matrix
 	// dynamic image variables
-	int					width, height;
+	uint32_t			width;
+	uint32_t			height;
 	int					dynamicFrameCount;
 	dynamicidImage_t	dynamic;
 	texgen_t			texgen;

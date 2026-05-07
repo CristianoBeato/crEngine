@@ -66,7 +66,7 @@ void crFrontend::ShadowBounds( const idBounds& modelBounds, const idBounds& ligh
 
 /*
 ============================
-idRenderEntityLocal::IsDirectlyVisible()
+idRenderEntityLocal::IsDirectlyVisible( void )
 ============================
 */
 bool idRenderEntityLocal::IsDirectlyVisible( void ) const

@@ -75,6 +75,36 @@ struct drawSurf_t
 	volatile shadowVolumeState_t shadowVolumeState;
 };
 
+
+//
+// frontEndCounters_t
+//
+struct frontEndCounters_t
+{
+	int		c_box_cull_in;
+	int		c_box_cull_out;
+	int		c_createInteractions;	// number of calls to idInteraction::CreateInteraction
+	int		c_createShadowVolumes;
+	int		c_generateMd5;
+	int		c_entityDefCallbacks;
+	int		c_alloc;			// counts for R_StaticAllc/R_StaticFree
+	int		c_free;
+	int		c_visibleViewEntities;
+	int		c_shadowViewEntities;
+	int		c_viewLights;
+	int		c_numViews;			// number of total views rendered
+	int		c_deformedSurfaces;	// idMD5Mesh::GenerateSurface
+	int		c_deformedVerts;	// idMD5Mesh::GenerateSurface
+	int		c_deformedIndexes;	// idMD5Mesh::GenerateSurface
+	int		c_tangentIndexes;	// R_DeriveTangents()
+	int		c_entityUpdates;
+	int		c_lightUpdates;
+	int		c_entityReferences;
+	int		c_lightReferences;
+	int		c_guiSurfs;
+	int		frontEndMicroSec;	// sum of time in all RE_RenderScene's in a frame
+};
+
 constexpr uint32_t NUM_FRAME_DATA = MAX_SMP_FRAMES;
 
 class crFrontend
@@ -83,10 +113,18 @@ public:
     crFrontend( void );
     ~crFrontend( void );
     static crFrontend* Get( void );
+    void        Init( void );
+    void        Clear( void );
+    viewDef_t*  GetViewDef( void ) const { return viewDef; }
+    void        AddDrawViewCmd( viewDef_t* parms, const bool guiOnly );
+    void        AddDrawPostProcess( viewDef_t* parms );
+    void*       GetCommandBuffer( const size_t bytes );
 
-    void    AddDrawViewCmd( viewDef_t* parms, const bool guiOnly );
-    void    AddDrawPostProcess( viewDef_t* parms );
-    void*   GetCommandBuffer( const size_t bytes );
+    ID_INLINE   bool                    HasCommand( void ) const { return frameData->cmdHead->next != nullptr; }
+    ID_INLINE   size_t                  FrameMemoryAllocated( void ) const { return frameData->frameMemoryAllocated.GetValue(); }
+    ID_INLINE   void                    ZeroPerformanceCounters( void ) { std::memset( &pc, 0, sizeof( frontEndCounters_t ) ); }
+    ID_INLINE   frontEndCounters_t      PerformanceCounters( void ) const { return pc; }
+    ID_INLINE   const emptyCommand_t*   CommandBufferHead( void ) const { return frameData->cmdHead; }
 
     // ====================================================================
     // TR_FRONTEND_MAIN
@@ -103,8 +141,6 @@ public:
 
     void    RenderView( viewDef_t* parms );
     void    RenderPostProcess( viewDef_t* parms );
-
-    void    InitMaterials( void );
 
     // ============================================================
     // TR_FRONTEND_ADDLIGHTS
@@ -147,33 +183,42 @@ private:
     idFrameData*            frameData;
     viewDef_t* 				viewDef;
     idParallelJobList* 		frontEndJobList;
-    performanceCounters_t   pc;					// frontend performance counters
+    frontEndCounters_t      pc;					// frontend performance counters
 	
-    void    ViewStatistics( viewDef_t* parms );
-    void    ToggleSmpFrame( void );
-    void    SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs );
+    // tr_frontend_main.cpp
+    void            ViewStatistics( viewDef_t* parms );
+    void            SortDrawSurfs( drawSurf_t** drawSurfs, const int numDrawSurfs );
 
-    void    SetupSplitFrustums( viewDef_t* viewDef );
-    void    AddSingleLight( viewLight_t* vLight );
+    // tr_frontend_addlights.cpp
+    void            SetupSplitFrustums( viewDef_t* viewDef );
+    void            AddSingleLight( viewLight_t* vLight );
+    static void     R_AddSingleLight( viewLight_t* vLight );
+    static void     ShadowBounds( const idBounds& modelBounds, const idBounds& lightBounds, const idVec3& lightOrigin, idBounds& shadowBounds );
 
-    void    AddSingleModel( viewEntity_t* vEntity );
+
+    // tr_frontend_addmodels.cpp
+    viewEntity_t*   SortViewEntities( viewEntity_t* vEntities );
+    void            AddSingleModel( viewEntity_t* vEntity );
+    static void     R_AddSingleModel( viewEntity_t* vEntity );
 
     // tr_frontend_deform.cpp
-    drawSurf_t* FinishDeform( drawSurf_t* surf, crDrawGeometry* newTri, const idDrawVert* newVerts, const triIndex_t* newIndexes );
-    drawSurf_t* AutospriteDeform( drawSurf_t* surf );
-    drawSurf_t* TubeDeform( drawSurf_t* surf );
-    drawSurf_t* FlareDeform( drawSurf_t* surf );
-    drawSurf_t* ExpandDeform( drawSurf_t* surf );
-    drawSurf_t* MoveDeform( drawSurf_t* surf );
-    drawSurf_t* TurbulentDeform( drawSurf_t* surf );
-    drawSurf_t* EyeballDeform( drawSurf_t* surf );
-    drawSurf_t* ParticleDeform( drawSurf_t* surf, bool useArea );
+    drawSurf_t*     FinishDeform( drawSurf_t* surf, crDrawGeometry* newTri, const idDrawVert* newVerts, const triIndex_t* newIndexes );
+    drawSurf_t*     AutospriteDeform( drawSurf_t* surf );
+    drawSurf_t*     TubeDeform( drawSurf_t* surf );
+    drawSurf_t*     FlareDeform( drawSurf_t* surf );
+    drawSurf_t*     ExpandDeform( drawSurf_t* surf );
+    drawSurf_t*     MoveDeform( drawSurf_t* surf );
+    drawSurf_t*     TurbulentDeform( drawSurf_t* surf );
+    drawSurf_t*     EyeballDeform( drawSurf_t* surf );
+    drawSurf_t*     ParticleDeform( drawSurf_t* surf, bool useArea );
 
-    static void R_AddSingleLight( viewLight_t* vLight );
-    static void R_AddSingleModel( viewEntity_t* vEntity );
-    static void ShadowBounds( const idBounds& modelBounds, const idBounds& lightBounds, const idVec3& lightOrigin, idBounds& shadowBounds );
+    // tr_frontend_subview.cpp
+    viewDef_t*      MirrorViewBySurface( const drawSurf_t* drawSurf );
+    viewDef_t*      XrayViewBySurface( const drawSurf_t* drawSurf );
+    void            MirrorRender( const drawSurf_t* surf, textureStage_t* stage, idScreenRect scissor );
+    void            XrayRender( const drawSurf_t* surf, textureStage_t* stage, idScreenRect scissor );
+    void            RemoteRender( const drawSurf_t* surf, textureStage_t* stage );
+    bool            GenerateSurfaceSubview( const drawSurf_t* drawSurf );
 };
-
-
 
 #endif //!__FRONTEND_HPP__

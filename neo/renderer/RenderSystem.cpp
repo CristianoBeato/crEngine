@@ -54,62 +54,66 @@ idRenderSystem *idRenderSystem::Get(void)
 
 /*
 =====================
-R_PerformanceCounters
+idRenderSystemLocal::PerformanceCounters
 
 This prints both front and back end counters, so it should
 only be called when the back end thread is idle.
 =====================
 */
-static void R_PerformanceCounters()
+void idRenderSystemLocal::PerformanceCounters( void )
 {
-	auto backEnd = crBackend::Get();
+	auto fpc = crFrontend::Get()->PerformanceCounters();
+	auto bpc = crBackend::Get()->PerformanceCounters();
+
 	if( r_showPrimitives.GetInteger() != 0 )
 	{
 		common->Printf( "views:%i draws:%i tris:%i (shdw:%i)\n",
-						tr.pc.c_numViews,
-						backEnd->PerformanceCounters().c_drawElements + backEnd->PerformanceCounters().c_shadowElements,
-						( backEnd->PerformanceCounters().c_drawIndexes + backEnd->PerformanceCounters().c_shadowIndexes ) / 3,
-						backEnd->PerformanceCounters().c_shadowIndexes / 3
+						fpc.c_numViews,
+						bpc.c_drawElements + bpc.c_shadowElements,
+						( bpc.c_drawIndexes + bpc.c_shadowIndexes ) / 3,
+						bpc.c_shadowIndexes / 3
 					  );
 	}
 	
 	if( r_showDynamic.GetBool() )
 	{
 		common->Printf( "callback:%i md5:%i dfrmVerts:%i dfrmTris:%i tangTris:%i guis:%i\n",
-						tr.pc.c_entityDefCallbacks,
-						tr.pc.c_generateMd5,
-						tr.pc.c_deformedVerts,
-						tr.pc.c_deformedIndexes / 3,
-						tr.pc.c_tangentIndexes / 3,
-						tr.pc.c_guiSurfs
+						fpc.c_entityDefCallbacks,
+						fpc.c_generateMd5,
+						fpc.c_deformedVerts,
+						fpc.c_deformedIndexes / 3,
+						fpc.c_tangentIndexes / 3,
+						fpc.c_guiSurfs
 					  );
 	}
 	
 	if( r_showCull.GetBool() )
 	{
 		common->Printf( "%i box in %i box out\n",
-						tr.pc.c_box_cull_in, tr.pc.c_box_cull_out );
+						fpc.c_box_cull_in, fpc.c_box_cull_out );
 	}
 	
 	if( r_showAddModel.GetBool() )
 	{
 		common->Printf( "callback:%i createInteractions:%i createShadowVolumes:%i\n",
-						tr.pc.c_entityDefCallbacks, tr.pc.c_createInteractions, tr.pc.c_createShadowVolumes );
-		common->Printf( "viewEntities:%i  shadowEntities:%i  viewLights:%i\n", tr.pc.c_visibleViewEntities,
-						tr.pc.c_shadowViewEntities, tr.pc.c_viewLights );
+						fpc.c_entityDefCallbacks, fpc.c_createInteractions, fpc.c_createShadowVolumes );
+		common->Printf( "viewEntities:%i  shadowEntities:%i  viewLights:%i\n", fpc.c_visibleViewEntities,
+						fpc.c_shadowViewEntities, fpc.c_viewLights );
 	}
 	if( r_showUpdates.GetBool() )
 	{
 		common->Printf( "entityUpdates:%i  entityRefs:%i  lightUpdates:%i  lightRefs:%i\n",
-						tr.pc.c_entityUpdates, tr.pc.c_entityReferences,
-						tr.pc.c_lightUpdates, tr.pc.c_lightReferences );
+						fpc.c_entityUpdates, fpc.c_entityReferences,
+						fpc.c_lightUpdates, fpc.c_lightReferences );
 	}
 	if( r_showMemory.GetBool() )
 	{
-		common->Printf( "frameData: %i (%i)\n", frameData->frameMemoryAllocated.GetValue(), frameData->highWaterAllocated );
+		// TODO: FIx 
+		//common->Printf( "frameData: %i (%i)\n", FrameMemoryAllocated(), frameData->highWaterAllocated );
 	}
 	
-	std::memset( &tr.pc, 0, sizeof( tr.pc ) );
+	/// Clear the performance counters from backend and frontend
+	crFrontend::Get()->ZeroPerformanceCounters();
 	crBackend::Get()->ZeroPerformanceCounters();
 }
 
@@ -154,77 +158,6 @@ void idRenderSystemLocal::RenderCommandBuffers( const emptyCommand_t* const cmdH
 	
 	// pass in null for now - we may need to do some map specific hackery in the future
 	resolutionScale.InitForMap( nullptr );
-}
-
-/*
-============
-R_GetCommandBuffer
-
-Returns memory for a command buffer (stretchPicCommand_t,
-drawSurfsCommand_t, etc) and links it to the end of the
-current command chain.
-============
-*/
-void* R_GetCommandBuffer( int bytes )
-{
-	emptyCommand_t*	cmd;
-	cmd = ( emptyCommand_t* )R_FrameAlloc( bytes, FRAME_ALLOC_DRAW_COMMAND );
-	cmd->next = nullptr;
-	frameData->cmdTail->next = &cmd->commandId;
-	frameData->cmdTail = cmd;
-	
-	return ( void* )cmd;
-}
-
-/*
-=================
-R_ViewStatistics
-=================
-*/
-static void R_ViewStatistics( viewDef_t* parms )
-{
-	// report statistics about this view
-	if( !r_showSurfaces.GetBool() )
-		return;
-	
-	common->Printf( "view:%p surfs:%i\n", parms, parms->numDrawSurfs );
-}
-
-/*
-=============
-R_AddDrawViewCmd
-
-This is the main 3D rendering command.  A single scene may
-have multiple views if a mirror, portal, or dynamic texture is present.
-=============
-*/
-void	R_AddDrawViewCmd( viewDef_t* parms, bool guiOnly )
-{
-	drawSurfsCommand_t*	cmd;
-	
-	cmd = ( drawSurfsCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
-	cmd->commandId = ( guiOnly ) ? RC_DRAW_VIEW_GUI : RC_DRAW_VIEW_3D;
-	
-	cmd->viewDef = parms;
-	
-	tr.pc.c_numViews++;
-	
-	R_ViewStatistics( parms );
-}
-
-/*
-=============
-R_AddPostProcess
-
-This issues the command to do a post process after all the views have
-been rendered.
-=============
-*/
-void	R_AddDrawPostProcess( viewDef_t* parms )
-{
-	postProcessCommand_t* cmd = ( postProcessCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
-	cmd->commandId = RC_POST_PROCESS;
-	cmd->viewDef = parms;
 }
 
 
@@ -325,7 +258,7 @@ idRenderSystemLocal::idRenderSystemLocal() :
 idRenderSystemLocal::~idRenderSystemLocal
 =============
 */
-idRenderSystemLocal::~idRenderSystemLocal()
+idRenderSystemLocal::~idRenderSystemLocal( void )
 {
 }
 
@@ -689,6 +622,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	SCOPED_PROFILE_EVENT( "SwapCommandBuffers" );
 	
 	auto backEnd = crBackend::Get();
+	auto frontEnd = crFrontend::Get();
 
 	if( gpuMicroSec != nullptr )
 		*gpuMicroSec = 0;		// until shown otherwise
@@ -697,7 +631,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		return;
 	
 	// After coming back from an autoswap, we won't have anything to render
-	if( frameData->cmdHead->next != nullptr )
+	if( frontEnd->HasCommand() )
 	{
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
@@ -705,21 +639,19 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	}
 	
 	// read back the start and end timer queries from the previous frame
-	//if( glConfig.timerQueryAvailable )
-	{
-		uint64_t drawingTimeNanoseconds = 0;
-		if( tr.m_timerQuery != nullptr )
-			drawingTimeNanoseconds = m_timerQuery->Retrieve();
+	uint64_t drawingTimeNanoseconds = 0;
+	if( tr.m_timerQuery != nullptr )
+		drawingTimeNanoseconds = m_timerQuery->Retrieve();
 
-		if( gpuMicroSec != nullptr )
-			*gpuMicroSec = drawingTimeNanoseconds / 1000;
-	}
+	if( gpuMicroSec != nullptr )
+		*gpuMicroSec = drawingTimeNanoseconds / 1000;
+	
 	
 	//------------------------------
 	
 	// save out timing information
 	if( frontEndMicroSec != nullptr )
-		*frontEndMicroSec = pc.frontEndMicroSec;
+		*frontEndMicroSec = frontEnd->PerformanceCounters().frontEndMicroSec;
 	
 	if( backEndMicroSec != nullptr )
 		*backEndMicroSec = backEnd->PerformanceCounters().totalMicroSec;
@@ -728,7 +660,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		*shadowMicroSec = backEnd->PerformanceCounters().shadowMicroSec;
 	
 	// print any other statistics and clear all of them
-	R_PerformanceCounters();
+	PerformanceCounters();
 	
 	// check for dynamic changes that require some initialization
 	R_CheckCvars();	
@@ -754,7 +686,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	vertexCache.BeginBackEnd();
 	
 	// save off this command buffer
-	const emptyCommand_t* commandBufferHead = frameData->cmdHead;
+	const emptyCommand_t* commandBufferHead = crFrontend::Get()->CommandBufferHead();
 	
 	// copy the code-used drawsurfs that were
 	// allocated at the start of the buffer memory to the backEnd referenced locations
@@ -764,7 +696,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	
 	// use the other buffers next frame, because another CPU
 	// may still be rendering into the current buffers
-	R_ToggleSmpFrame();
+	crFrontend::Get()->ToggleSmpFrame();
 	
 	// possibly change the stereo3D mode
 	// PC
@@ -797,12 +729,13 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	currentRenderCrop = 0;
 
 	// foresthale 2014-05-23: this hack is fairly horrible, but there was no easier way after much research
-	if( ( com_editors & EDITOR_GUI ) && tr.viewDef )
+	auto viewDef = crFrontend::Get()->GetViewDef();
+	if( ( com_editors & EDITOR_GUI ) && viewDef )
 	{
-		renderCrops[0].x1 = tr.viewDef->renderView.x;
-		renderCrops[0].y1 = tr.viewDef->renderView.y;
-		renderCrops[0].x2 = tr.viewDef->renderView.x + tr.viewDef->renderView.width;
-		renderCrops[0].y2 = tr.viewDef->renderView.y + tr.viewDef->renderView.height;
+		renderCrops[0].x1 = viewDef->renderView.x;
+		renderCrops[0].y1 = viewDef->renderView.y;
+		renderCrops[0].x2 = viewDef->renderView.x + viewDef->renderView.width;
+		renderCrops[0].y2 = viewDef->renderView.y + viewDef->renderView.height;
 	}
 	
 	// this is the ONLY place this is modified
@@ -820,7 +753,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// set the time for shader effects in 2D rendering
 	frameShaderTime = Sys_Milliseconds() * 0.001;
 	
-	setBufferCommand_t* cmd2 = ( setBufferCommand_t* )R_GetCommandBuffer( sizeof( *cmd2 ) );
+	setBufferCommand_t* cmd2 = ( setBufferCommand_t* )crFrontend::Get()->GetCommandBuffer( sizeof( *cmd2 ) );
 	cmd2->commandId = RC_SET_BUFFER;
 	uint32_t bufferCount = r_bufferCount.GetInteger();
 	cmd2->frameID = frameCount % bufferCount;

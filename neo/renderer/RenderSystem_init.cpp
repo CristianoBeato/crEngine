@@ -306,7 +306,6 @@ idRenderSystemLocal::CheckPortableExtensions
 void idRenderSystemLocal::CheckPortableExtensions( void )
 {
 	auto properties = m_renderDevice->Properties();
-	
 	switch ( properties.vendorID )
 	{
 		case k_VID_AMD: glConfig.vendor = VENDOR_AMD; break;
@@ -388,7 +387,7 @@ bool idRenderSystem::IsInitialized( void )
 
 /*
 =============================
-R_SetNewMode
+void idRenderSystemLocal::SetNewMode
 
 r_fullScreen -1		borderless window at exact desktop coordinates
 r_fullScreen 0		bordered window at exact desktop coordinates
@@ -405,7 +404,7 @@ r_displayRefresh 0	don't specify refresh
 r_displayRefresh 70	specify 70 hz, etc
 =============================
 */
-void R_SetNewMode( const bool fullInit )
+void idRenderSystemLocal::SetNewMode( const bool fullInit )
 {
 	uint32_t numDisplay = 0;
 	crDisplay* const* displays = nullptr;
@@ -761,15 +760,18 @@ If ref isn't specified, the full session UpdateScreen will be done.
 */
 void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref = nullptr )
 {
+	auto frontEnd = crFrontend::Get();
+
 	// include extra space for OpenGL padding to word boundaries
 	int sysWidth = tr.GetWidth();
 	int sysHeight = tr.GetHeight();
-	byte* temp = ( byte* )R_StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
+	byte* temp = ( byte* )frontEnd->StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
 
 	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	if (sysWidth > width)
 		sysWidth = width;
+
 	if (sysHeight > height)
 		sysHeight = height;
 	// make sure the game / draw thread has completed
@@ -881,7 +883,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	
 	r_useScissor.SetBool( true );
 	
-	R_StaticFree( temp );
+	frontEnd->StaticFree( temp );
 }
 
 
@@ -899,12 +901,12 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 {
 	byte*		buffer;
 	int			i, j, c, temp;
-
+	auto frontEnd = crFrontend::Get();
 	takingScreenshot = true;
 	const int pix = width * height;
 	const int bufferSize = pix * 3 + 18;
 	
-	buffer = ( byte* )R_StaticAlloc( bufferSize );
+	buffer = ( byte* )frontEnd->StaticAlloc( bufferSize );
 	std::memset( buffer, 0, bufferSize );
 	
 	if( blends <= 1 )
@@ -913,7 +915,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	}
 	else
 	{
-		unsigned short* shortBuffer = ( unsigned short* )R_StaticAlloc( pix * 2 * 3 );
+		unsigned short* shortBuffer = ( unsigned short* )frontEnd->StaticAlloc( pix * 2 * 3 );
 		std::memset( shortBuffer, 0, pix * 2 * 3 );
 		
 		// enable anti-aliasing jitter
@@ -935,7 +937,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 			buffer[18 + i] = shortBuffer[i] / blends;
 		}
 		
-		R_StaticFree( shortBuffer );
+		frontEnd->StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
 	if(	r_screenshot_png.GetBool()) {
@@ -960,7 +962,8 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	
 		fileSystem->WriteFile( fileName, buffer, c );
 	}
-	R_StaticFree( buffer );
+	
+	frontEnd->StaticFree( buffer );
 	
 	takingScreenshot = false;
 }
@@ -970,12 +973,13 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 	byte*		buffer;
 	int			i, j, c, temp;
 	
+	auto frontEnd = crFrontend::Get();
 	takingScreenshot = true;
 	
 	const int pix = width * height;
 	const int bufferSize = pix * 3 + 18;
 	
-	buffer = ( byte* )R_StaticAlloc( bufferSize );
+	buffer = ( byte* )frontEnd->StaticAlloc( bufferSize );
 	std::memset( buffer, 0, bufferSize );
 	
 	if( blends <= 1 )
@@ -984,7 +988,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 	}
 	else
 	{
-		unsigned short* shortBuffer = ( unsigned short* )R_StaticAlloc( pix * 2 * 3 );
+		unsigned short* shortBuffer = ( unsigned short* )frontEnd->StaticAlloc( pix * 2 * 3 );
 		std::memset( shortBuffer, 0, pix * 2 * 3 );
 		
 		// enable anti-aliasing jitter
@@ -1006,7 +1010,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 			buffer[18 + i] = shortBuffer[i] / blends;
 		}
 		
-		R_StaticFree( shortBuffer );
+		frontEnd->StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
 	
@@ -1030,12 +1034,10 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 	//fileSystem->WriteFile( fileName, buffer, c );
     outFile->Write(buffer, c);
 	outFile->ForceFlush();
-	R_StaticFree( buffer );
+	frontEnd->StaticFree( buffer );
 	
 	takingScreenshot = false;
 }
-
-
 
 /*
 ==================
@@ -1488,15 +1490,13 @@ void R_MakeAmbientMap_f( const idCmdArgs& args )
 							{
 								test[j] = -1 + 2 * ( rand() & 0x7fff ) / ( float )0x7fff;
 							}
+
 							if( test.Length() > 1.0 )
-							{
 								continue;
-							}
+							
 							test.Normalize();
 							if( test * dir > limit )  	// don't do a complete hemisphere
-							{
 								break;
-							}
 						}
 						byte	result[4];
 						//test = dir;
@@ -1705,9 +1705,10 @@ void R_VidRestart_f( const idCmdArgs& args )
 	
 	auto globalImages = idImageManager::Get();
 	auto backend = crBackend::Get();
+	auto frontend = crFrontend::Get();
 
 	// set the mode without re-initializing the context
-	R_SetNewMode( false );
+	tr.SetNewMode( false );
 	
 	bool full = true;
 	bool forceWindow = false;
@@ -1735,8 +1736,8 @@ void R_VidRestart_f( const idCmdArgs& args )
 	R_FreeDerivedData();
 	
 	// make sure the defered frees are actually freed
-	R_ToggleSmpFrame();
-	R_ToggleSmpFrame();
+	frontend->ToggleSmpFrame();
+	frontend->ToggleSmpFrame();
 	
 	// free the vertex caches so they will be regenerated again
 	vertexCache.PurgeAll();
@@ -1780,24 +1781,6 @@ void R_VidRestart_f( const idCmdArgs& args )
 	// make sure the regeneration doesn't use anything no longer valid
 	tr.viewCount++;
 	tr.viewDef = nullptr;
-}
-
-/*
-=================
-R_InitMaterials
-=================
-*/
-void R_InitMaterials( void )
-{
-	tr.defaultMaterial = declManager->FindMaterial( "_default", false );
-	if( !tr.defaultMaterial )
-	{
-		common->FatalError( "_default material not found" );
-	}
-	tr.defaultPointLight = declManager->FindMaterial( "lights/defaultPointLight" );
-	tr.defaultProjectedLight = declManager->FindMaterial( "lights/defaultProjectedLight" );
-	tr.whiteMaterial = declManager->FindMaterial( "_white" );
-	tr.charSetMaterial = declManager->FindMaterial( "textures/bigchars" );
 }
 
 /*
@@ -1893,13 +1876,29 @@ void R_InitCommands()
 	cmdSystem->AddCommand( "reloadSurface", R_ReloadSurface_f, CMD_FL_RENDERER, "reloads the decl and images for selected surface" );
 }
 
+/*
+=================
+idRenderSystemLocal::InitMaterials
+=================
+*/
+void idRenderSystemLocal::InitMaterials( void )
+{
+	tr.defaultMaterial = declManager->FindMaterial( "_default", false );
+	if( !tr.defaultMaterial )
+		common->FatalError( "_default material not found" );
+	
+	tr.defaultPointLight = declManager->FindMaterial( "lights/defaultPointLight" );
+	tr.defaultProjectedLight = declManager->FindMaterial( "lights/defaultProjectedLight" );
+	tr.whiteMaterial = declManager->FindMaterial( "_white" );
+	tr.charSetMaterial = declManager->FindMaterial( "textures/bigchars" );
+}
 
 /*
 ===============
 idRenderSystemLocal::Clear
 ===============
 */
-void idRenderSystemLocal::Clear()
+void idRenderSystemLocal::Clear( void )
 {
 	registered = false;
 	frameCount = 0;
@@ -1913,8 +1912,6 @@ void idRenderSystemLocal::Clear()
 	defaultMaterial = nullptr;
 	testImage = nullptr;
 	ambientCubeImage = nullptr;
-	viewDef = nullptr;
-	std::memset( &pc, 0, sizeof( pc ) );
 	std::memset( &identitySpace, 0, sizeof( identitySpace ) );
 	std::memset( renderCrops, 0, sizeof( renderCrops ) );
 	currentRenderCrop = 0;
@@ -1942,7 +1939,8 @@ void idRenderSystemLocal::Clear()
 		testImageTriangles = nullptr;
 	}
 	
-	frontEndJobList = nullptr;
+	crFrontend::Get()->Clear();
+	
 
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
 	// foresthale 2014-03-01: screenshots need to override the results of GetWidth() and GetHeight()
@@ -2178,8 +2176,7 @@ void idRenderSystemLocal::Init( void )
 	guiModel->Clear();
 	tr_guiModel = guiModel;	// for DeviceContext fast path
 	
-	auto globalImages = idImageManager::Get();
-	globalImages->Init();
+	idImageManager::Get()->Init();
 	// globalFramebuffers->Init(); // foresthale 2014-02-18: framebuffer objects
 	
 	idCinematic::InitCinematic( );
@@ -2187,7 +2184,7 @@ void idRenderSystemLocal::Init( void )
 	// build brightness translation tables
 	R_SetColorMappings();
 	
-	R_InitMaterials();
+	InitMaterials();
 	
 	renderModelManager->Init();
 	
@@ -2207,14 +2204,7 @@ void idRenderSystemLocal::Init( void )
 	// make sure the tr.testImageTriangles data is current in the vertex / index cache
 	if( testImageTriangles == nullptr )
 		testImageTriangles = R_MakeTestImageTriangles();
-	
-	// foresthale 2014-05-28: due to increased MAX_INTERACTIONS_PER_LIGHT the job limit also has to be increased
-#ifdef ID_ALLOW_TOOLS
-	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 16384, 0, nullptr );	
-#else
-	frontEndJobList = parallelJobManager->AllocJobList( JOBLIST_RENDERER_FRONTEND, JOBLIST_PRIORITY_MEDIUM, 2048, 0, nullptr );
-#endif
-	
+		
 	// make sure the command buffers are ready to accept the first screen update
 	SwapCommandBuffers( nullptr, nullptr, nullptr, nullptr );
 	
@@ -2248,8 +2238,8 @@ void idRenderSystemLocal::Shutdown( void )
 	globalImages->Shutdown();
 	
 	// free frame memory
-	R_ShutdownFrameData();
-	
+	crFrontend::Get()->ShutdownFrameData();
+
 	UnbindBufferObjects();
 	
 	// free the vertex cache, which should have nothing allocated now
@@ -2258,9 +2248,6 @@ void idRenderSystemLocal::Shutdown( void )
 	// RB_ShutdownDebugTools();
 	
 	delete guiModel;
-	
-	parallelJobManager->FreeJobList( frontEndJobList );
-	
 	Clear();
 	
 	ShutdownRenderAPI();
@@ -2291,7 +2278,7 @@ void idRenderSystemLocal::BeginLevelLoad( void )
 	renderModelManager->BeginLevelLoad();
 	
 	// Re-Initialize the Default Materials if needed.
-	R_InitMaterials();
+	InitMaterials();
 }
 
 /*
@@ -2401,7 +2388,7 @@ void idRenderSystemLocal::InitRenderAPI( void )
 	{
 		common->Printf( "----- InitVulkan -----\n" );
 			
-		R_SetNewMode( true );
+		SetNewMode( true );
 				
 		/// Initialize Vulkan
 		crRenderAPI::Get()->StartUp();
@@ -2506,7 +2493,7 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		vertexCache.Init( r_bufferCount.GetInteger() );
 		
 		// allocate the frame data, which may be more if smp is enabled
-		R_InitFrameData();
+		crFrontend::Get()->InitFrameData();
 		
 		// Reset our gamma
 		R_SetColorMappings();
@@ -2603,7 +2590,7 @@ idRenderSystemLocal::ShutdownOpenGL
 void idRenderSystemLocal::ShutdownRenderAPI( void )
 {
 	// free the context and close the window
-	R_ShutdownFrameData();
+	crFrontend::Get()->ShutdownFrameData();
 
 	crBackend::Get()->ShutDown();
 
@@ -2817,9 +2804,8 @@ idCVar	r_forceScreenWidthCentimeters( "r_forceScreenWidthCentimeters", "0", CVAR
 float idRenderSystemLocal::GetPhysicalScreenWidthInCentimeters() const
 {
 	if( r_forceScreenWidthCentimeters.GetFloat() > 0 )
-	{
 		return r_forceScreenWidthCentimeters.GetFloat();
-	}
+	
 	return glConfig.physicalScreenWidthInCentimeters;
 }
 

@@ -50,12 +50,12 @@ constexpr float CHECK_BOUNDS_EPSILON = 1.0f;
 
 /*
 ==================
-R_SortViewEntities
+crFrontend::SortViewEntities
 ==================
 */
-viewEntity_t* R_SortViewEntities( viewEntity_t* vEntities )
+viewEntity_t* crFrontend::SortViewEntities( viewEntity_t* vEntities )
 {
-	SCOPED_PROFILE_EVENT( "R_SortViewEntities" );
+	SCOPED_PROFILE_EVENT( "crFrontend::SortViewEntities" );
 	
 	// We want to avoid having a single AddModel for something complex be
 	// the last thing processed and hurt the parallel occupancy, so
@@ -416,7 +416,6 @@ void crFrontend::AddSingleModel( viewEntity_t* vEntity )
 		{
 			if( vLight->scissorRect.IsEmpty() )
 				continue;
-			
 
 			if( vLight->entityInteractionState != nullptr )
 			{
@@ -945,9 +944,8 @@ void crFrontend::AddSingleModel( viewEntity_t* vEntity )
 						continue;
 					
 					else if ( shader->Coverage() == MC_PERFORATED && shader->TestMaterialFlag( MF_NOSHADOWS ) ) 
-						continue;
-					
-				} 
+						continue;	
+				}
 				else 
 				{
 					continue;
@@ -1260,7 +1258,7 @@ void crFrontend::AddModels( void )
 {
 	SCOPED_PROFILE_EVENT( "crFrontend::AddModels" );
 	
-	viewDef->viewEntitys = R_SortViewEntities( viewDef->viewEntitys );
+	viewDef->viewEntitys = SortViewEntities( viewDef->viewEntitys );
 	
 	//-------------------------------------------------
 	// Go through each view entity that is either visible to the view, or to
