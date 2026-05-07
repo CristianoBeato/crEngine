@@ -27,9 +27,8 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
-#include "precompiled.h"
 
+#include "precompiled.h"
 #include "renderer_common.h"
 #include "VertexCache.h"
 
@@ -333,7 +332,36 @@ idVertexCache::AllocVertex
 */
 vertCacheHandle_t idVertexCache::AllocVertex( const void* in_data, const size_t in_bytes )
 {
-	return ActuallyAlloc( data, bytes, CACHE_VERTEX_DYNAMIC );
+	vertCacheHandle_t cache{};
+	if( in_bytes == 0 )
+		return vertCacheHandle_t();
+
+	cache.size = __align( in_bytes, 16u );
+	cache.offset = AllocDynamic( CACHE_VERTEX_BUFFER, cache.size );
+	if( cache.offset == UINTPTR_MAX )
+		idLib::FatalError( "AllocStaticIndex failed, increase VERTCACHE_VERTEX_MEMORY_PER_FRAME" );
+
+	/// if we have data upload
+	if( in_data != nullptr )
+	{
+		assert( ( ( reinterpret_cast<uintptr_t>( in_data ) ) & 15 ) == 0 );
+
+		/// copy data to staging buffer
+		uintptr_t staging = UploadStage( in_data, cache.size );
+
+		/// Store the transfer coomand from the staging buffer
+		VkBufferCopy2 bufferCopy{};
+		bufferCopy.sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2;
+		bufferCopy.pNext = nullptr;
+		bufferCopy.srcOffset = static_cast<VkDeviceSize>( staging );
+		bufferCopy.dstOffset = static_cast<VkDeviceSize>( cache.offset  );
+		bufferCopy.size = static_cast<VkDeviceSize>( cache.size );
+		m_copyListIndex.Append( bufferCopy );
+	}
+
+	cache.flags = 0;
+	cache.frame = frame;
+	return cache;
 }
 
 /*
@@ -343,9 +371,37 @@ idVertexCache::AllocIndex
 */
 vertCacheHandle_t idVertexCache::AllocIndex( const void* const in_data, const size_t in_bytes )
 {
-	return ActuallyAlloc( data, bytes, CACHE_INDEX_DYNAMIC );
-}
+	vertCacheHandle_t cache{};
+	if( in_bytes == 0 )
+		return vertCacheHandle_t();
 
+	cache.size = __align( in_bytes, 16u );
+	cache.offset = AllocDynamic( CACHE_INDEX_BUFFER, cache.size );
+	if( cache.offset == UINTPTR_MAX )
+		idLib::FatalError( "AllocStaticIndex failed, increase VERTCACHE_INDEX_MEMORY_PER_FRAME" );
+
+	/// if we have data upload
+	if( in_data != nullptr )
+	{
+		assert( ( ( reinterpret_cast<uintptr_t>( in_data ) ) & 15 ) == 0 );
+
+		/// copy data to staging buffer
+		uintptr_t staging = UploadStage( in_data, cache.size );
+
+		/// Store the transfer coomand from the staging buffer
+		VkBufferCopy2 bufferCopy{};
+		bufferCopy.sType = VK_STRUCTURE_TYPE_BUFFER_COPY_2;
+		bufferCopy.pNext = nullptr;
+		bufferCopy.srcOffset = static_cast<VkDeviceSize>( staging );
+		bufferCopy.dstOffset = static_cast<VkDeviceSize>( cache.offset  );
+		bufferCopy.size = static_cast<VkDeviceSize>( cache.size );
+		m_copyListIndex.Append( bufferCopy );
+	}
+
+	cache.flags = CACHE_INDEX;
+	cache.frame = frame;
+	return cache;
+}
 
 /*
 ==============
@@ -383,7 +439,7 @@ vertCacheHandle_t idVertexCache::AllocStaticIndex( const void* in_data, const si
 		m_copyListIndex.Append( bufferCopy );
 	}
 
-	cache.flags |= CACHE_STATIC;
+	cache.flags = CACHE_STATIC | CACHE_INDEX;
 	cache.frame = frame;
 	return cache;
 }
@@ -424,7 +480,7 @@ vertCacheHandle_t idVertexCache::AllocStaticVertex( const void* in_data, const s
 		m_copyListVertex.Append( bufferCopy );
 	}
 
-	cache.flags |= CACHE_STATIC;
+	cache.flags = CACHE_STATIC;
 	cache.frame = frame;
 	return cache;
 }
@@ -485,8 +541,8 @@ void idVertexCache::BeginBackEnd( void )
 	{
 		idLib::Printf( "%08d: %d allocations, %dkB vertex, %dkB index: %dkB vertex, %dkB index\n",
 			frame, allocations,
-			m_dynamicVertexOffset[frame].used.load() / 1024,
-			m_dynamicIndexOffset[frame].used.load() / 1024,
+			m_dynamicBuffers[CACHE_VERTEX_BUFFER][frame].used.load() / 1024,
+			m_dynamicBuffers[CACHE_INDEX_BUFFER][frame].used.load() / 1024,
 			m_mostUsedVertex / 1024,
 			m_mostUsedIndex / 1024 );
 	}
@@ -494,10 +550,11 @@ void idVertexCache::BeginBackEnd( void )
 	m_copyCommands->BeginSubCommand();
 	
 	// reset the counters and offsets
-	m_dynamicVertexOffset[currentFrame].used.store( 0 );
-	m_dynamicVertexOffset[currentFrame].count.store( 0 );
-	m_dynamicIndexOffset[currentFrame].used.store( 0 );
-	m_dynamicIndexOffset[currentFrame].count.store( 0 );
+	for ( auto i = 0; i < CACHE_BUFFER_COUNT; i++)
+	{
+		m_dynamicBuffers[i][frame].used.store( 0 );
+		m_dynamicBuffers[i][frame].count.store( 0 );
+	}
 }
 
 /*

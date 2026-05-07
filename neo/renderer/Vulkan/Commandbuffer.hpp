@@ -25,6 +25,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __COMMAND_BUFFER_HPP__
 #define __COMMAND_BUFFER_HPP__
 
+typedef class crBuffer* crBufferp;
 typedef class vkDeviceQueue* vkDeviceQueuep;
 typedef class crCommandBuffer
 {

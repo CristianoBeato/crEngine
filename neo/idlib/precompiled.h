@@ -113,11 +113,14 @@ If you have questions concerning this license or the applicable additional terms
 const int MAX_EXPRESSION_OPS = 4096;
 const int MAX_EXPRESSION_REGISTERS = 4096;
 
+// everything that is needed by the backend needs
+// to be triple buffered to allow it to run in
+// parallel on a dual cpu machine ( CPU -> DRIVER -> GPU )
+inline constexpr uint32_t   MAX_SMP_FRAMES = 3;
+
 // renderer
 #include "renderer/Cinematic.h"
 #include "renderer/Material.h"
-#include "renderer/BufferObject.h"
-#include "renderer/VertexCache.h"
 #include "renderer/models/Model.h"
 #include "renderer/models/ModelManager.h"
 #include "renderer/renderworld/RenderWorld.h"

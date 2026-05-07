@@ -57,7 +57,7 @@ struct alignas( 16 ) uLight_t
 inline constexpr size_t k_MESH_UNIFORM_SIZE = sizeof( uMesh_t );
 inline constexpr size_t k_MATERIAL_UNIFORM_SIZE = sizeof( uMaterial_t );
 inline constexpr size_t k_LIGTH_UNIFORM_SIZE = sizeof( uLight_t );
-inline constexpr size_t k_JOINT_UNIFORM_SIZE = sizeof( uJointMatrix_t );
+inline constexpr size_t k_JOINT_UNIFORM_SIZE = sizeof( idJointMat );
 
 typedef struct 
 {

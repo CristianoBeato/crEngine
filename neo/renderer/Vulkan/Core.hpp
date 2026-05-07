@@ -28,12 +28,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #define VK_NO_PROTOTYPES
 #include <vulkan/vulkan.h>
 
-// everything that is needed by the backend needs
-// to be triple buffered to allow it to run in
-// parallel on a dual cpu machine ( CPU -> DRIVER -> GPU )
-inline constexpr uint32_t	SMP_FRAMES = 3;
-inline constexpr uint32_t   MAX_SMP_FRAMES = 3;
-
 /// 
 extern const VkAllocationCallbacks* k_allocationCallbacks;
 
@@ -259,6 +253,7 @@ extern VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverity
 ///
 #include "sys/sys_vulkan.hpp"
 #include "Utils.hpp"
+#include "DeviceQueue.hpp"
 #include "Syncs.hpp"
 #include "Commandbuffer.hpp"
 #include "Resource.hpp"

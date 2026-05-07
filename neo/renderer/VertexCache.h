@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #define __VERTEX_CACHE_H__
 
 #include <atomic>
+#include <vulkan/vulkan.h> // TODO: fix this reference
 
 /// TODO:
 /// Two transfer buffers ( vertex ad indexes ) 
@@ -59,35 +60,6 @@ enum cache_flags_e : uint8_t
 	CACHE_INDEX 	= 1 << 1, // 0000 0010
 };
 
-typedef struct vertCacheHandle_s
-{
-	vertCacheHandle_s( void ) : 
-		flags( 0 ),
-		frame( 0 ),
-		size( 0 ),
-		offset( 0 )
-	{
-	}
-
-	vertCacheHandle_s( const vertCacheHandle_s& r ) : 
-		flags( r.flags ),
-		frame( r.frame ),
-		size( r.size ),
-		offset( r.offset )
-	{
-	}
-
-	uint8_t		flags;	//
-	uint8_t 	frame;	//
-	size_t 		size;	//
-	uintptr_t	offset;	//
-
-	inline bool operator ==( const vertCacheHandle_s& r ) const { return ( offset == r.offset ) && ( size == r.size ); }
-	inline operator bool( void ) const { return ( size != 0 ); }
-
-} vertCacheHandle_t;
-
-static size_t chs = sizeof( vertCacheHandle_t );
 
 typedef class crBuffer* crBufferp;
 typedef class crMemoryPool* crMemoryPoolp;
@@ -108,16 +80,10 @@ public:
 	void			FreeStaticData( void );
 	
 	// this data is only valid for one frame of rendering
-	ID_INLINE vertCacheHandle_t	AllocVertex( const void* in_data, const size_t in_bytes )
-	{
-		return ActuallyAlloc( data, bytes, CACHE_VERTEX_DYNAMIC );
-	}
-
-	ID_INLINE vertCacheHandle_t	AllocIndex( const void* const in_data, const size_t in_bytes )
-	{
-		return ActuallyAlloc( data, bytes, CACHE_INDEX_DYNAMIC );
-	}
+	vertCacheHandle_t	AllocVertex( const void* in_data, const size_t in_bytes );
 	
+	vertCacheHandle_t	AllocIndex( const void* const in_data, const size_t in_bytes );
+
 	vertCacheHandle_t	AllocStaticIndex( const void* in_data, const size_t in_bytes );
 	
 	// this data is valid until the next map load
@@ -188,9 +154,6 @@ public:
 	crCommandBufferp								m_copyCommands;
 	idList<VkBufferCopy2>							m_copyListIndex;
 	idList<VkBufferCopy2>							m_copyListVertex;
-
-	// Try to make room for <bytes> bytes
-	vertCacheHandle_t	ActuallyAlloc( const void* data, const size_t bytes, const cache_type_t type );
 	
 	/// Copy to staging buffer
 	uintptr_t	UploadStage( const void* in_data, const size_t in_size );

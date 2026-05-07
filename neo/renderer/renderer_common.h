@@ -38,6 +38,8 @@ inline constexpr float		DEFAULT_FOG_DISTANCE = 500.0f;
 inline constexpr int 		FOG_ENTER_SIZE	= 64;
 inline constexpr float 		FOG_ENTER		= ( FOG_ENTER_SIZE + 1.0f ) / ( FOG_ENTER_SIZE * 2 );
 
+inline constexpr uint32_t	SMP_FRAMES = 3;
+
 #include "Vulkan/Core.hpp"
 #include "GLState.h"
 
@@ -254,6 +256,35 @@ enum
 
 typedef idPlane frustum_t[FRUSTUM_PLANES];
 // RB end
+
+
+typedef struct vertCacheHandle_s
+{
+	vertCacheHandle_s( void ) : 
+		flags( 0 ),
+		frame( 0 ),
+		size( 0 ),
+		offset( 0 )
+	{
+	}
+
+	vertCacheHandle_s( const vertCacheHandle_s& r ) : 
+		flags( r.flags ),
+		frame( r.frame ),
+		size( r.size ),
+		offset( r.offset )
+	{
+	}
+
+	uint16_t	flags;	//
+	uint16_t 	frame;	//
+	size_t 		size;	//
+	uintptr_t	offset;	//
+
+	inline bool operator ==( const vertCacheHandle_s& r ) const { return ( offset == r.offset ) && ( size == r.size ); }
+	inline operator bool( void ) const { return ( size != 0 ); }
+
+} vertCacheHandle_t;
 
 // viewDefs are allocated on the frame temporary stack memory
 struct viewDef_t
