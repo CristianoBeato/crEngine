@@ -99,11 +99,11 @@ struct dynamicShadowVolumeParms_t
 	// output
 	triIndex_t* 					indexBuffer;			// output buffer in SPU local memory
 	triIndex_t* 					shadowIndices;			// streamed out to main memory
-	int								maxShadowIndices;
-	int* 							numShadowIndices;		// streamed out to main memory
+	uint32_t						maxShadowIndices;
+	uint32_t*						numShadowIndices;		// streamed out to main memory
 	triIndex_t* 					lightIndices;			// streamed out to main memory
-	int								maxLightIndices;
-	int* 							numLightIndices;		// streamed out to main memory
+	uint32_t						maxLightIndices;
+	uint32_t*						numLightIndices;		// streamed out to main memory
 	int* 							renderZFail;			// streamed out to main memory
 	float* 							shadowZMin;				// streamed out to main memory
 	float* 							shadowZMax;				// streamed out to main memory
