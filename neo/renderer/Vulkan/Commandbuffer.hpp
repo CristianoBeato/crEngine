@@ -26,7 +26,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #define __COMMAND_BUFFER_HPP__
 
 typedef class crBuffer* crBufferp;
-typedef class vkDeviceQueue* vkDeviceQueuep;
+typedef class crQueue* crQueuep;
 typedef class crCommandBuffer
 {
 public:
@@ -36,7 +36,7 @@ public:
     /// @brief Create a new command buffer
     /// @param in_frameCount number of
     /// @return true on success
-    bool                        Create( const uint32_t in_frameCount, const vkDeviceQueuep in_queue, const bool in_primary = true );
+    bool                        Create( const uint32_t in_frameCount, const crQueuep in_queue, const bool in_primary = true );
     void                        Destroy( void );
     void                        Begin( void );
     void                        BeginSubCommand( void );
@@ -53,7 +53,7 @@ public:
 private:
     uint16_t                                        m_frameID;
     uint16_t                                        m_frameCount;
-    vkDeviceQueuep                                  m_queue;
+    crQueuep                                  m_queue;
     idStaticList<VkCommandBuffer, MAX_SMP_FRAMES>   m_commandBuffers;
 }* crCommandBufferp;
 

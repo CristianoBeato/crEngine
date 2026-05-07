@@ -25,7 +25,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef __SWAPCHAIN_HPP__
 #define __SWAPCHAIN_HPP__
 
-typedef class vkDeviceQueue* vkDeviceQueuep;
+typedef class crQueue* crQueuep;
 typedef class crVulkanRenderDevice* crVulkanRenderDevicep;
 
 class crSwapchain
@@ -44,8 +44,8 @@ private:
     uint32_t                                        m_width;
     uint32_t                                        m_height;
     uint32_t                                        m_currentImage;
-    vkDeviceQueuep                                  m_presentQueue;
-    vkDeviceQueuep                                  m_graphicQueue;
+    crQueuep                                  m_presentQueue;
+    crQueuep                                  m_graphicQueue;
     crVulkanRenderDevicep                           m_device;
     VkSwapchainKHR                                  m_swapchain;
     idList<VkRenderingAttachmentInfo, TAG_VULKAN>   m_colorAttachments;

@@ -60,7 +60,6 @@ enum cache_flags_e : uint8_t
 	CACHE_INDEX 	= 1 << 1, // 0000 0010
 };
 
-
 typedef class crBuffer* crBufferp;
 typedef class crMemoryPool* crMemoryPoolp;
 typedef class crCommandBuffer* crCommandBufferp;

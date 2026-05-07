@@ -53,7 +53,7 @@ crCommandBuffer::~crCommandBuffer( void )
 crCommandBuffer::Create
 ==============
 */
-bool crCommandBuffer::Create( const uint32_t in_frameCount, const vkDeviceQueuep in_queue, const bool in_primary )
+bool crCommandBuffer::Create( const uint32_t in_frameCount, const crQueuep in_queue, const bool in_primary )
 {
     crVulkanRenderDevicep device = tr.GetRenderDevice();
     assert( device != nullptr );

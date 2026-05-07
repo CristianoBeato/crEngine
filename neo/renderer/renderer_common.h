@@ -86,12 +86,40 @@ SURFACES
 */
 #include "models/ModelDecal.h"
 #include "models/ModelOverlay.h"
-#include "Interaction.h"
 
 class idRenderWorldLocal;
 struct viewEntity_t;
 struct viewLight_t;
 
+typedef struct vertCacheHandle_s
+{
+	vertCacheHandle_s( void ) : 
+		flags( 0 ),
+		frame( 0 ),
+		size( 0 ),
+		offset( 0 )
+	{
+	}
+
+	vertCacheHandle_s( const vertCacheHandle_s& r ) : 
+		flags( r.flags ),
+		frame( r.frame ),
+		size( r.size ),
+		offset( r.offset )
+	{
+	}
+
+	uint16_t	flags;	//
+	uint16_t 	frame;	//
+	size_t 		size;	//
+	uintptr_t	offset;	//
+
+	inline bool operator ==( const vertCacheHandle_s& r ) const { return ( offset == r.offset ) && ( size == r.size ); }
+	inline operator bool( void ) const { return ( size != 0 ); }
+
+} vertCacheHandle_t;
+
+#include "Interaction.h"
 
 // areas have references to hold all the lights and entities in them
 struct areaReference_t
@@ -256,35 +284,6 @@ enum
 
 typedef idPlane frustum_t[FRUSTUM_PLANES];
 // RB end
-
-
-typedef struct vertCacheHandle_s
-{
-	vertCacheHandle_s( void ) : 
-		flags( 0 ),
-		frame( 0 ),
-		size( 0 ),
-		offset( 0 )
-	{
-	}
-
-	vertCacheHandle_s( const vertCacheHandle_s& r ) : 
-		flags( r.flags ),
-		frame( r.frame ),
-		size( r.size ),
-		offset( r.offset )
-	{
-	}
-
-	uint16_t	flags;	//
-	uint16_t 	frame;	//
-	size_t 		size;	//
-	uintptr_t	offset;	//
-
-	inline bool operator ==( const vertCacheHandle_s& r ) const { return ( offset == r.offset ) && ( size == r.size ); }
-	inline operator bool( void ) const { return ( size != 0 ); }
-
-} vertCacheHandle_t;
 
 // viewDefs are allocated on the frame temporary stack memory
 struct viewDef_t

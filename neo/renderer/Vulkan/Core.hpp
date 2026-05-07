@@ -251,9 +251,7 @@ extern VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverity
     }                       \
 
 ///
-#include "sys/sys_vulkan.hpp"
 #include "Utils.hpp"
-#include "DeviceQueue.hpp"
 #include "Syncs.hpp"
 #include "Commandbuffer.hpp"
 #include "Resource.hpp"
@@ -266,5 +264,8 @@ extern VKAPI_ATTR VkBool32 VKAPI_CALL DebugCallback( VkDebugUtilsMessageSeverity
 #include "Pipeline.hpp"
 #include "Queries.hpp"
 #include "Framebuffer.hpp"
+#include "Queue.hpp"
+#include "Device.hpp"
+#include "sys/sys_vulkan.hpp"
 
 #endif //!__VULKAN_MAIN_HPP__

@@ -178,7 +178,7 @@ public:
 	/// @brief some scratch images are dynamically resized based on the display window size.  This
 	/// simply purges the image and recreates it if the sizes are different, so it should not be
 	/// done under any normal circumstances, and probably not at all on consoles.
-	void		Resize( const uint32_t width, const u_int32_t height );
+	void		Resize( const uint32_t width, const uint32_t height );
 
 	void		SetTexParameters( void );	// update aniso and trilinear
 

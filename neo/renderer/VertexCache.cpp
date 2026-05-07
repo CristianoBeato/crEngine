@@ -50,7 +50,7 @@ void idVertexCache::Init( const uint32_t in_frames, const bool in_restart )
 	size_t vertexBufferSize = 0;
 	VkDeviceSize minAlign = 0;
 	VkDeviceSize currentOffset = 0;
-	vkDeviceQueuep queue = nullptr;
+	crQueuep queue = nullptr;
 	auto device = tr.GetRenderDevice();
 
 	frame = 0;

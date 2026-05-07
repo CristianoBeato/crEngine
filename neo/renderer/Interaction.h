@@ -64,7 +64,6 @@ struct srfCullInfo_t
 	idPlane					localClipPlanes[6];
 };
 
-
 // Pre-generated shadow volumes from dmap are not present in surfaceInteraction_t,
 // they are added separately.
 struct surfaceInteraction_t

@@ -149,8 +149,10 @@ set( RENDERER_VULKAN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Commandbuffer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Core.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/DeviceQueue.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/DeviceQueue.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Queue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Queue.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Device.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Device.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Format.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Format.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Framebuffer.cpp
