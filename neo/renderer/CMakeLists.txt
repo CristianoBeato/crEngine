@@ -59,8 +59,6 @@ set( RENDERER_BACKEND_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/Backend_Draw.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/PipelineManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/PipelineManager.hpp
-#    ${CMAKE_CURRENT_SOURCE_DIR}/backend/ShaderManager.cpp
-#    ${CMAKE_CURRENT_SOURCE_DIR}/backend/ShaderManager.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/UniformManager.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/backend/UniformManager.hpp
     )
@@ -72,7 +70,6 @@ set( RENDERER_FRONTEND_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/tr_frontend_addmodels.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/tr_frontend_deform.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/tr_frontend_guisurf.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/frontend/tr_frontend_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/frontend/tr_frontend_subview.cpp
     )
 
@@ -152,6 +149,8 @@ set( RENDERER_VULKAN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Commandbuffer.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Core.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Core.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/DeviceQueue.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/DeviceQueue.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Format.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Format.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Framebuffer.cpp
@@ -164,10 +163,10 @@ set( RENDERER_VULKAN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Program.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Queries.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Queries.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Resource.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Resource.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Swapchain.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Syncs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Syncs.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Vulkan/Texture.cpp

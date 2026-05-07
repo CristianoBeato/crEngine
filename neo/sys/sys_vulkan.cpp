@@ -44,7 +44,6 @@ idCVar vk_enableDebugLayer( "vk_enableDebugLayer", "1", CVAR_RENDERER | CVAR_ARC
 idCVar vk_useComputQueues( "vk_useComputQueue", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan find a compute queue, or 0 to use compute queue" );
 idCVar vk_useTransferQueue( "vk_useTransferQueue", "0", CVAR_RENDERER | CVAR_ARCHIVE | CVAR_BOOL, "1 Enable vulkan transfer queues, or 0 to use just graphic queue" );
 
-
 #pragma pack( push, 1 )
 struct cache_header_t
 {
@@ -86,96 +85,6 @@ crRenderAPI *crRenderAPI::Get(void)
 {
     static crVulkanAPI gVulkanAPI = crVulkanAPI();
     return &gVulkanAPI;
-}
-
-
-/*
-==============
-vkDeviceQueue::vkDeviceQueue
-==============
-*/
-vkDeviceQueue::vkDeviceQueue( const uint32_t in_family, const uint32_t in_index ) : 
-    m_index( in_index ),
-    m_family( in_family ),
-    m_queue( nullptr ),
-    m_commandPool( nullptr ),
-    m_device( nullptr )
-{
-}
-
-/*
-==============
-vkDeviceQueue::~vkDeviceQueue
-==============
-*/
-vkDeviceQueue::~vkDeviceQueue( void )
-{
-    if ( m_semaphore )
-    {
-        vkDestroySemaphore( m_device, m_semaphore, k_allocationCallbacks );
-        m_semaphore = nullptr;
-    }
-
-    if ( m_commandPool != nullptr )
-    {
-        vkDestroyCommandPool( m_device, m_commandPool, k_allocationCallbacks );
-        m_commandPool = nullptr;
-    }
-
-    m_queue = nullptr;
-    m_device = nullptr;
-    m_family = 0;
-    m_index = 0;
-}
-
-/*
-==============
-vkDeviceQueue::Init
-==============
-*/
-bool vkDeviceQueue::Init( const VkDevice in_device )
-{
-    m_device = in_device;
-
-    ///
-    ///
-    /// get device queue
-    VkDeviceQueueInfo2 queueInfo{};
-    queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
-    queueInfo.pNext = nullptr;
-    queueInfo.flags = 0;
-    queueInfo.queueFamilyIndex = m_family;
-    queueInfo.queueIndex = m_index;
-    vkGetDeviceQueue2( m_device, &queueInfo, &m_queue );
-
-    ///
-    ///
-    /// Create queue command pool
-    VkCommandPoolCreateInfo commandPoolCI{};
-    commandPoolCI.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-    commandPoolCI.pNext = nullptr;
-    commandPoolCI.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; //
-    commandPoolCI.queueFamilyIndex = m_family;
-    auto result = vkCreateCommandPool( m_device, &commandPoolCI, k_allocationCallbacks, &m_commandPool );
-    if ( result != VK_SUCCESS )
-    {
-        idLib::Error( "vkCreateCommandPool failed! %s\n", VulkanErrorString( result).c_str() );
-        return false;
-    }
-    
-    return true;    
-}
-
-/*
-==============
-vkDeviceQueue::ResetPool
-==============
-*/
-void vkDeviceQueue::ResetPool(void) const
-{
-    auto result = vkResetCommandPool( m_device, m_commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT );
-    if( result != VK_SUCCESS )
-        idLib::Error( VulkanErrorString( result ).c_str() );
 }
 
 /*

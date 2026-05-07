@@ -28,37 +28,6 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 #include <atomic>
 #include "renderer/Vulkan/Core.hpp"
 
-struct queueInfo_t
-{
-    bool        present = false;    // is a present queue
-    bool        graphic = false;    // is a graphic queue
-    bool        transfer = false;   // is a transfer queue
-    bool        compute = false;    // compute queue 
-    uint32_t    index = 0;          // queue index 
-    uint32_t    family = 0;         // quque family
-};
-
-typedef class vkDeviceQueue
-{
-public:
-    vkDeviceQueue( const uint32_t in_family, const uint32_t in_index );
-    ~vkDeviceQueue( void );
-    bool            Init( const VkDevice in_device );
-    void            ResetPool( void ) const;
-    uint32_t        Index( void ) const { return m_index; }
-    uint32_t        Family( void ) const { return m_index; }
-    VkQueue         Queue( void ) const { return m_queue; }
-    VkCommandPool   CommandPool( void ) const { return m_commandPool; }
-
-private:
-    uint32_t                m_index;        // index in the family 
-    uint32_t                m_family;       // the family index
-    VkQueue                 m_queue;        // queue hanlde
-    VkCommandPool           m_commandPool;  // queue command pool
-    VkSemaphore             m_semaphore;    // queue semaphore
-    VkDevice                m_device;       // parent device
-} * vkDeviceQueuep;
-
 typedef class crMemoryPool* crMemoryPoolp;
 typedef class crVulkanRenderDevice : public crRenderDevice
 {
