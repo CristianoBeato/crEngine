@@ -54,15 +54,17 @@ struct alignas( 16 ) uLight_t
 	idVec4 position;
 };
 
-struct alignas( 16 ) uJointMatrix_t
-{
-	float joint[16];
-};
-
 inline constexpr size_t k_MESH_UNIFORM_SIZE = sizeof( uMesh_t );
 inline constexpr size_t k_MATERIAL_UNIFORM_SIZE = sizeof( uMaterial_t );
 inline constexpr size_t k_LIGTH_UNIFORM_SIZE = sizeof( uLight_t );
 inline constexpr size_t k_JOINT_UNIFORM_SIZE = sizeof( uJointMatrix_t );
+
+typedef struct 
+{
+	uint16_t	frame;
+	uint16_t	count;	// joint number 
+	uint32_t	first;	// first joint
+} joint_cache_t;
 
 class crUniformManager
 {
@@ -70,16 +72,17 @@ public:
 	static crUniformManager* Get( void );
     crUniformManager( void );
     ~crUniformManager( void );
-	void	StartUp( void );
-	void	ShutDown( void );
-	void	SetFrame( const uint32_t in_frameID, const crCommandBufferp in_commandBuffer );
-	void	SubmitOffsets( const crCommandBufferp in_commandBuffer );
-	VkPipelineLayout Layout( void ) const { return m_layout; }
-	
+	void				StartUp( void );
+	void				ShutDown( void );
+	void				SetFrame( const uint32_t in_frameID, const crCommandBufferp in_commandBuffer );
+	void				SubmitOffsets( const crCommandBufferp in_commandBuffer );
+	const uint32_t		CurrentFrame( void ) const { return m_frameID; }
+	VkPipelineLayout	ayout( void ) const { return m_layout; }
 	uMesh_t*		GetMeshUniforms( void );
 	uMaterial_t*	GetMaterialUniforms( void );
 	uLight_t*		GetLightUniforms( void );
-	uJointMatrix_t*	GetJointArray( void );
+
+	joint_cache_t	AllocJoints( const uint32_t in_count, const idJointMat* in_joints );
 
 private:
 	uint32_t									m_frameID;

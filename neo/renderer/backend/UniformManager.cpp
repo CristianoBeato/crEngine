@@ -8,7 +8,7 @@ static uint32_t k_BUFFERS_SIZES[MAX_BINDINGS] =
     sizeof( uMesh_t ) * 4086 * SMP_FRAMES,
     sizeof( uMaterial_t ) * 4086 * SMP_FRAMES,
     sizeof( uLight_t ) * 4086,
-    sizeof( uJointMatrix_t ) * 256 * ( 4086 * SMP_FRAMES ), //neet to review this size
+    sizeof( idJointMat ) * 256 * ( 4086 * SMP_FRAMES ), //neet to review this size
 };
 
 /*
@@ -221,9 +221,9 @@ uLight_t *crUniformManager::GetLightUniforms(void)
     return nullptr;
 }
 
-uJointMatrix_t *crUniformManager::GetJointArray(void)
+joint_cache_t crUniformManager::AllocJoints(const uint32_t in_count, const idJointMat *in_joints)
 {
-    return nullptr;
+    return joint_cache_t();
 }
 
 void crUniformManager::CreateStorageBuffers(void)
@@ -236,7 +236,7 @@ void crUniformManager::CreateStorageBuffers(void)
     for ( uint32_t i = 0; i < MAX_BINDINGS; i++)
     {    
         m_shaderStorageBuffers[i] = new crBuffer();
-        if( !m_shaderStorageBuffers[i]->Create( crBuffer::BUFFER_TYPE_SHADER, crBuffer::BUFFER_ACCESS_WRITE, k_BUFFERS_SIZES[i] ) )
+        if( !m_shaderStorageBuffers[i]->Create( crBuffer::BUFFER_TYPE_SHADER, k_BUFFERS_SIZES[i] ) )
         idLib::FatalError( "Failed to create shader storage buffer\n");
         
         VkMemoryRequirements memReq = m_shaderStorageBuffers[i]->MemoryRequirements();
