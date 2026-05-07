@@ -28,10 +28,10 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 
 /*
 ==============
-vkDeviceQueue::vkDeviceQueue
+crQueue::crQueue
 ==============
 */
-vkDeviceQueue::vkDeviceQueue( const uint32_t in_family, const uint32_t in_index ) : 
+crQueue::crQueue( const uint32_t in_family, const uint32_t in_index ) : 
     m_index( in_index ),
     m_family( in_family ),
     m_queue( nullptr ),
@@ -42,10 +42,10 @@ vkDeviceQueue::vkDeviceQueue( const uint32_t in_family, const uint32_t in_index 
 
 /*
 ==============
-vkDeviceQueue::~vkDeviceQueue
+crQueue::~crQueue
 ==============
 */
-vkDeviceQueue::~vkDeviceQueue( void )
+crQueue::~crQueue( void )
 {
     if ( m_semaphore )
     {
@@ -67,17 +67,17 @@ vkDeviceQueue::~vkDeviceQueue( void )
 
 /*
 ==============
-vkDeviceQueue::Init
+crQueue::Init
 ==============
 */
-bool vkDeviceQueue::Init( const VkDevice in_device )
+bool crQueue::Init( const VkDevice in_device )
 {
     m_device = in_device;
 
     ///
     ///
     /// get device queue
-    VkDeviceQueueInfo2 queueInfo{};
+    crQueueInfo2 queueInfo{};
     queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
     queueInfo.pNext = nullptr;
     queueInfo.flags = 0;
@@ -105,10 +105,10 @@ bool vkDeviceQueue::Init( const VkDevice in_device )
 
 /*
 ==============
-vkDeviceQueue::ResetPool
+crQueue::ResetPool
 ==============
 */
-void vkDeviceQueue::ResetPool(void) const
+void crQueue::ResetPool(void) const
 {
     auto result = vkResetCommandPool( m_device, m_commandPool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT );
     if( result != VK_SUCCESS )

@@ -34,12 +34,11 @@ struct queueInfo_t
     uint32_t    family = 0;         // quque family
 };
 
-// TODO: Rename
-typedef class vkDeviceQueue
+typedef class crQueue
 {
 public:
-    vkDeviceQueue( const uint32_t in_family, const uint32_t in_index );
-    ~vkDeviceQueue( void );
+    crQueue( const uint32_t in_family, const uint32_t in_index );
+    ~crQueue( void );
     bool            Init( const VkDevice in_device );
     void            ResetPool( void ) const;
     uint32_t        Index( void ) const { return m_index; }
@@ -54,7 +53,7 @@ private:
     VkCommandPool           m_commandPool;  // queue command pool
     VkSemaphore             m_semaphore;    // queue semaphore
     VkDevice                m_device;       // parent device
-} * vkDeviceQueuep;
+} * crQueuep;
 
 
 #endif //!__DEVICE_QUEUE_HPP__
