@@ -30,7 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-#define JPEG_INTERNALS
+//#define JPEG_INTERNALS
 extern "C" 
 {
 	#include <jpeglib.h>
