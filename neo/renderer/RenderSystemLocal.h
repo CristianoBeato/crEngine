@@ -135,10 +135,10 @@ public:
 	void					BlockingSwapBuffers( void );
 	void					SwapFrame( void );
 
-	/// Present render to screen
+	///@brief Present render to screen
 	void					Present( void );
 
-	/// Begin register frame commands
+	///@brief Begin register frame commands
 	// inserts a timing mark for the start of the GPU frame
 	void					StartFrame( void ); 
 
@@ -151,10 +151,9 @@ public:
 	void 					SetNewMode( const bool fullInit );
 	void					GetCroppedViewport( idScreenRect* viewport );
 	void					PerformResolutionScaling( int& newWidth, int& newHeight );
-	int						GetFrameCount() const
-	{
-		return frameCount;
-	};
+	int						GetFrameCount( void ) const { return frameCount; };
+	void					InitCvars( void );
+	void					InitCommands( void );
 
 	void OnFrame();
 	
@@ -189,7 +188,7 @@ public:
 
 	idRenderWorldLocal* 	primaryWorld;
 	renderView_t			primaryRenderView;
-	viewDef_t* 				primaryView;
+	viewDef_t* 				primaryView;	// TODO: Move to frontend ?
 
 	// many console commands need to know which world they should operate on
 	const idMaterial* 		whiteMaterial;

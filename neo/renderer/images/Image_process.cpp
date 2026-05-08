@@ -58,15 +58,12 @@ byte* R_ResampleTexture( const byte* in, int inwidth, int inheight,
 	byte*		out, *out_p;
 	
 	if( outwidth > MAX_DIMENSION )
-	{
 		outwidth = MAX_DIMENSION;
-	}
+
 	if( outheight > MAX_DIMENSION )
-	{
 		outheight = MAX_DIMENSION;
-	}
 	
-	out = ( byte* )R_StaticAlloc( outwidth * outheight * 4, TAG_IMAGE );
+	out = ( byte* )crFrontend::Get()->StaticAlloc( outwidth * outheight * 4, TAG_IMAGE );
 	out_p = out;
 	
 	fracstep = inwidth * 0x10000 / outwidth;
@@ -121,7 +118,7 @@ byte* R_Dropsample( const byte* in, int inwidth, int inheight,
 	const byte*	pix1;
 	byte*		out, *out_p;
 	
-	out = ( byte* )R_StaticAlloc( outwidth * outheight * 4, TAG_IMAGE );
+	out = ( byte* )crFrontend::Get()->StaticAlloc( outwidth * outheight * 4, TAG_IMAGE );
 	out_p = out;
 	
 	for( i = 0 ; i < outheight ; i++, out_p += outwidth * 4 )
@@ -262,7 +259,7 @@ byte* R_MipMapWithAlphaSpecularity( const byte* in, int width, int height )
 	{
 		newHeight = 1;
 	}
-	out = ( byte* )R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
+	out = ( byte* )crFrontend::Get()->StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
 	out_p = out;
 	
 	in_p = in;
@@ -367,7 +364,7 @@ byte* R_MipMapWithGamma( const byte* in, int width, int height )
 	{
 		newHeight = 1;
 	}
-	out = ( byte* )R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
+	out = ( byte* )crFrontend::Get()->StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
 	out_p = out;
 	
 	row_p = in_p = in;
@@ -438,7 +435,7 @@ byte* R_MipMap( const byte* in, int width, int height )
 	{
 		newHeight = 1;
 	}
-	out = ( byte* )R_StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
+	out = ( byte* )crFrontend::Get()->StaticAlloc( newWidth * newHeight * 4, TAG_IMAGE );
 	out_p = out;
 	
 	row_p = in_p = in;
@@ -544,7 +541,7 @@ void R_RotatePic( byte* data, int width )
 	int		i, j;
 	int*		temp;
 	
-	temp = ( int* )R_StaticAlloc( width * width * 4, TAG_IMAGE );
+	temp = ( int* )crFrontend::Get()->StaticAlloc( width * width * 4, TAG_IMAGE );
 	
 	for( i = 0 ; i < width ; i++ )
 	{
@@ -557,7 +554,7 @@ void R_RotatePic( byte* data, int width )
 	
 	std::memcpy( data, temp, width * width * 4 );
 	
-	R_StaticFree( temp );
+	crFrontend::Get()->StaticFree( temp );
 }
 
 // transforms in both ways, the images from a cube map,

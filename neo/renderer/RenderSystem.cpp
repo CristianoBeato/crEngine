@@ -1028,7 +1028,7 @@ void idRenderSystemLocal::CaptureRenderToImage( const char* imageName, bool clea
 	
 	idScreenRect& rc = renderCrops[currentRenderCrop];
 	
-	copyRenderCommand_t* cmd = ( copyRenderCommand_t* )R_GetCommandBuffer( sizeof( *cmd ) );
+	copyRenderCommand_t* cmd = ( copyRenderCommand_t* )crFrontend::Get()->GetCommandBuffer( sizeof( *cmd ) );
 	cmd->commandId = RC_COPY_RENDER;
 	cmd->x = rc.x1;
 	cmd->y = rc.y1;
@@ -1054,18 +1054,18 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	
 	guiModel->EmitFullScreen();
 	guiModel->Clear();
-	RenderCommandBuffers( frameData->cmdHead );
+	RenderCommandBuffers( crFrontend::Get()->CommandBufferHead() );
 	
 	// foresthale 2014-02-20: HDR view rendering - this seems to not be changed anywhere and conflicts with FBO rendering
 	//glReadBuffer( GL_BACK );
 	
 	// include extra space for OpenGL padding to word boundaries
 	int	c = ( rc.GetWidth() + 3 ) * rc.GetHeight();
-	byte* data = ( byte* )R_StaticAlloc( c * 3 );
+	byte* data = ( byte* )crFrontend::Get()->StaticAlloc( c * 3 );
 	
 	//glReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data );
 	
-	byte* data2 = ( byte* )R_StaticAlloc( c * 4 );
+	byte* data2 = ( byte* )crFrontend::Get()->StaticAlloc( c * 4 );
 	
 	for( int i = 0 ; i < c ; i++ )
 	{
@@ -1077,8 +1077,8 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	
 	R_WriteTGA( fileName, data2, rc.GetWidth(), rc.GetHeight(), true );
 	
-	R_StaticFree( data );
-	R_StaticFree( data2 );
+	crFrontend::Get()->StaticFree( data );
+	crFrontend::Get()->StaticFree( data2 );
 }
 
 
@@ -1103,9 +1103,8 @@ idRenderSystemLocal::FreeRenderWorld
 void idRenderSystemLocal::FreeRenderWorld( idRenderWorld* rw )
 {
 	if( primaryWorld == rw )
-	{
 		primaryWorld = nullptr;
-	}
+	
 	worlds.Remove( static_cast<idRenderWorldLocal*>( rw ) );
 	delete rw;
 }

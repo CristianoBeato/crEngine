@@ -159,7 +159,7 @@ deformInfo_t* R_BuildDeformInfo( int numVerts, const idDrawVert* verts, int numI
 		
 	tri.DeriveTangents(); // R_DeriveTangents( &tri );
 	
-	deformInfo_t* deform = ( deformInfo_t* )R_ClearedStaticAlloc( sizeof( *deform ) );
+	deformInfo_t* deform = ( deformInfo_t* )crFrontend::Get()->ClearedStaticAlloc( sizeof( *deform ) );
 	
 	deform->numSourceVerts = numVerts;
 	deform->numOutputVerts = tri.NumVerts();
@@ -236,7 +236,7 @@ void R_FreeDeformInfo( deformInfo_t* deformInfo )
 		deformInfo->dupVerts = nullptr;
 	}
 
-	R_StaticFree( deformInfo );
+	crFrontend::Get()->StaticFree( deformInfo );
 }
 
 /*

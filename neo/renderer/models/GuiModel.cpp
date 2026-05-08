@@ -109,18 +109,18 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 							   bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity )
 {
 
-	viewEntity_t* guiSpace = ( viewEntity_t* )R_ClearedFrameAlloc( sizeof( *guiSpace ), FRAME_ALLOC_VIEW_ENTITY );
+	auto viewDef = crFrontend::Get()->GetViewDef();
+	viewEntity_t* guiSpace = ( viewEntity_t* )crFrontend::Get()->ClearedFrameAlloc( sizeof( *guiSpace ), FRAME_ALLOC_VIEW_ENTITY );
 	std::memcpy( guiSpace->modelMatrix, modelMatrix, sizeof( guiSpace->modelMatrix ) );
 	std::memcpy( guiSpace->modelViewMatrix, modelViewMatrix, sizeof( guiSpace->modelViewMatrix ) );
 	guiSpace->weaponDepthHack = depthHack;
 	guiSpace->isGuiSurface = true;
-	
 	// If this is an in-game gui, we need to be able to find the matrix again for head mounted
 	// display bypass matrix fixup.
 	if( linkAsEntity )
 	{
-		guiSpace->next = tr.viewDef->viewEntitys;
-		tr.viewDef->viewEntitys = guiSpace;
+		guiSpace->next = viewDef->viewEntitys;
+		viewDef->viewEntitys = guiSpace;
 	}
 	
 	//---------------------------
@@ -128,11 +128,9 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 	//---------------------------
 	idRenderMatrix viewMat;
 	idRenderMatrix::Transpose( *( idRenderMatrix* )modelViewMatrix, viewMat );
-	idRenderMatrix::Multiply( tr.viewDef->projectionRenderMatrix, viewMat, guiSpace->mvp );
+	idRenderMatrix::Multiply( viewDef->projectionRenderMatrix, viewMat, guiSpace->mvp );
 	if( depthHack )
-	{
 		idRenderMatrix::ApplyDepthHack( guiSpace->mvp );
-	}
 	
 	// to allow 3D-TV effects in the menu system, we define surface flags to set
 	// depth fractions between 0=screen and 1=infinity, which directly modulate the
@@ -146,23 +144,22 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 	{
 		const guiModelSurface_t& guiSurf = surfaces[i];
 		if( guiSurf.numIndexes == 0 )
-		{
 			continue;
-		}
 		
 		const idMaterial* shader = guiSurf.material;
-		drawSurf_t* drawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+		drawSurf_t* drawSurf = ( drawSurf_t* )crFrontend::Get()->FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
 		
 		drawSurf->numIndexes = guiSurf.numIndexes;
 		drawSurf->ambientCache = vertexBlock;
 		// build a vertCacheHandle_t that points inside the allocated block
-		drawSurf->indexCache = indexBlock + ( ( int64_t )( guiSurf.firstIndex * sizeof( triIndex_t ) ) << VERTCACHE_OFFSET_SHIFT );
-		drawSurf->shadowCache = 0;
-		drawSurf->jointCache = 0;
+		drawSurf->indexCache = indexBlock;
+		drawSurf->indexCache.offset = indexBlock.offset + reinterpret_cast<uintptr_t>( guiSurf.firstIndex * sizeof( triIndex_t ) );
+		drawSurf->shadowCache = vertCacheHandle_t();
+		drawSurf->jointCache = joint_cache_t();
 		drawSurf->frontEndGeo = nullptr;
 		drawSurf->space = guiSpace;
 		drawSurf->material = shader;
-		drawSurf->scissorRect = tr.viewDef->scissor;
+		drawSurf->scissorRect = viewDef->scissor;
 		drawSurf->sort = shader->GetSort();
 		drawSurf->renderZFail = 0;
 		// process the shader expressions for conditionals / color / texcoords
@@ -174,11 +171,12 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 		}
 		else
 		{
-			float* regs = ( float* )R_FrameAlloc( shader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
+			float* regs = ( float* )crFrontend::Get()->FrameAlloc( shader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
 			drawSurf->shaderRegisters = regs;
-			shader->EvaluateRegisters( regs, shaderParms, tr.viewDef->renderView.shaderParms, tr.viewDef->renderView.time[1] * 0.001f, nullptr );
+			shader->EvaluateRegisters( regs, shaderParms, viewDef->renderView.shaderParms, viewDef->renderView.time[1] * 0.001f, nullptr );
 		}
-		R_LinkDrawSurfToView( drawSurf, tr.viewDef );
+
+		crFrontend::Get()->LinkDrawSurfToView( drawSurf, viewDef );
 		if( allowFullScreenStereoDepth )
 		{
 			// override sort with the stereoDepth
@@ -213,7 +211,8 @@ void idGuiModel::EmitToCurrentView( float modelMatrix[16], bool depthHack )
 {
 	float	modelViewMatrix[16];
 	
-	R_MatrixMultiply( modelMatrix, tr.viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
+	auto viewDef = crFrontend::Get()->GetViewDef();
+	R_MatrixMultiply( modelMatrix, viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
 	
 	EmitSurfaces( modelMatrix, modelViewMatrix, depthHack, false /* stereoDepthSort */, true /* link as entity */ );
 }
@@ -235,13 +234,11 @@ void idGuiModel::EmitFullScreen()
 {
 
 	if( surfaces[0].numIndexes == 0 )
-	{
 		return;
-	}
 	
 	SCOPED_PROFILE_EVENT( "Gui::EmitFullScreen" );
 	
-	viewDef_t* viewDef = ( viewDef_t* )R_ClearedFrameAlloc( sizeof( *viewDef ), FRAME_ALLOC_VIEW_DEF );
+	viewDef_t* viewDef = ( viewDef_t* )crFrontend::Get()->ClearedFrameAlloc( sizeof( *viewDef ), FRAME_ALLOC_VIEW_DEF );
 	viewDef->is2Dgui = true;
 	tr.GetCroppedViewport( &viewDef->viewport );
 	
@@ -300,7 +297,7 @@ void idGuiModel::EmitFullScreen()
 	viewDef->worldSpace.modelViewMatrix[3 * 4 + 3] = 1.0f;
 	
 	viewDef->maxDrawSurfs = surfaces.Num();
-	viewDef->drawSurfs = ( drawSurf_t** )R_FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
+	viewDef->drawSurfs = ( drawSurf_t** )crFrontend::Get()->FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
 	viewDef->numDrawSurfs = 0;
 	
 #if 1
@@ -320,7 +317,7 @@ void idGuiModel::EmitFullScreen()
 	tr.viewDef = oldViewDef;
 	
 	// add the command to draw this view
-	R_AddDrawViewCmd( viewDef, true );
+	AddDrawViewCmd( viewDef, true );
 }
 
 /*
@@ -328,7 +325,7 @@ void idGuiModel::EmitFullScreen()
 AdvanceSurf
 =============
 */
-void idGuiModel::AdvanceSurf()
+void idGuiModel::AdvanceSurf( void )
 {
 	guiModelSurface_t	s;
 	

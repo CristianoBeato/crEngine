@@ -1843,17 +1843,20 @@ void R_TouchGui_f( const idCmdArgs& args )
 R_InitCvars
 =================
 */
-void R_InitCvars()
+void idRenderSystemLocal::InitCvars( void )
 {
 	// update latched cvars here
 }
 
+extern void R_ListGuis_f( const idCmdArgs& args );
+extern void R_ReloadGuis_f( const idCmdArgs& args );
+
 /*
 =================
-R_InitCommands
+idRenderSystemLocal::::InitCommands
 =================
 */
-void R_InitCommands()
+void idRenderSystemLocal::InitCommands( void )
 {
 	cmdSystem->AddCommand( "sizeUp", R_SizeUp_f, CMD_FL_RENDERER, "makes the rendered view larger" );
 	cmdSystem->AddCommand( "sizeDown", R_SizeDown_f, CMD_FL_RENDERER, "makes the rendered view smaller" );
@@ -2168,9 +2171,9 @@ void idRenderSystemLocal::Init( void )
 	ambientLightVector[2] = 0.8925f;
 	ambientLightVector[3] = 1.0f;
 	
-	R_InitCvars();
+	InitCvars();
 	
-	R_InitCommands();
+	InitCommands();
 	
 	guiModel = new( TAG_RENDER ) idGuiModel;
 	guiModel->Clear();

@@ -959,8 +959,8 @@ void idImageManagerLocal::Init()
 // BEATO Begin:
 	m_pixelPack.buffer = new crBuffer();
 	m_pixelUnpack.buffer = new crBuffer();
-	m_pixelPack.buffer->Create( crBuffer::BUFFER_TYPE_DESTINATION, crBuffer::BUFFER_ACCESS_WRITE, MAX_TEXTURE_TRANSFER_BUFFER );
-	m_pixelUnpack.buffer->Create( crBuffer::BUFFER_TYPE_SOURCE, crBuffer::BUFFER_ACCESS_READ, MAX_TEXTURE_ACESS_BUFFER );
+	m_pixelPack.buffer->Create( crBuffer::BUFFER_TYPE_DESTINATION, MAX_TEXTURE_TRANSFER_BUFFER );
+	m_pixelUnpack.buffer->Create( crBuffer::BUFFER_TYPE_SOURCE, MAX_TEXTURE_ACESS_BUFFER );
 // BEATO End
 
 	// should forceLoadImages be here?

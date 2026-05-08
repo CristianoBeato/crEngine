@@ -59,13 +59,6 @@ inline constexpr size_t k_MATERIAL_UNIFORM_SIZE = sizeof( uMaterial_t );
 inline constexpr size_t k_LIGTH_UNIFORM_SIZE = sizeof( uLight_t );
 inline constexpr size_t k_JOINT_UNIFORM_SIZE = sizeof( idJointMat );
 
-typedef struct 
-{
-	uint16_t	frame;
-	uint16_t	count;	// joint number 
-	uint32_t	first;	// first joint
-} joint_cache_t;
-
 class crUniformManager
 {
 public:

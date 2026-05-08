@@ -1264,17 +1264,17 @@ void idMaterial::FreeData( void )
 
 	if( expressionRegisters != nullptr )
 	{
-		R_StaticFree( expressionRegisters );
+		crFrontend::Get()->StaticFree( expressionRegisters );
 		expressionRegisters = nullptr;
 	}
 	if( constantRegisters != nullptr )
 	{
-		R_StaticFree( constantRegisters );
+		crFrontend::Get()->StaticFree( constantRegisters );
 		constantRegisters = nullptr;
 	}
 	if( ops != nullptr )
 	{
-		R_StaticFree( ops );
+		crFrontend::Get()->StaticFree( ops );
 		ops = nullptr;
 	}
 }
@@ -3019,13 +3019,13 @@ bool idMaterial::Parse( const char* text, const int textLength, bool allowBinary
 	
 	if( numOps )
 	{
-		ops = ( expOp_t* )R_StaticAlloc( numOps * sizeof( ops[0] ), TAG_MATERIAL );
+		ops = ( expOp_t* )crFrontend::Get()->StaticAlloc( numOps * sizeof( ops[0] ), TAG_MATERIAL );
 		std::memcpy( ops, pd->shaderOps, numOps * sizeof( ops[0] ) );
 	}
 	
 	if( numRegisters )
 	{
-		expressionRegisters = ( float* )R_StaticAlloc( numRegisters * sizeof( expressionRegisters[0] ), TAG_MATERIAL );
+		expressionRegisters = ( float* )crFrontend::Get()->StaticAlloc( numRegisters * sizeof( expressionRegisters[0] ), TAG_MATERIAL );
 		std::memcpy( expressionRegisters, pd->shaderRegisters, numRegisters * sizeof( expressionRegisters[0] ) );
 	}
 	
@@ -3372,7 +3372,7 @@ void idMaterial::CheckForConstantRegisters()
 		return;
 	
 	// evaluate the registers once, and save them
-	constantRegisters = ( float* )R_ClearedStaticAlloc( GetNumRegisters() * sizeof( float ) );
+	constantRegisters = ( float* )crFrontend::Get()->ClearedStaticAlloc( GetNumRegisters() * sizeof( float ) );
 	
 	float shaderParms[MAX_ENTITY_SHADER_PARMS];
 	std::memset( shaderParms, 0, sizeof( shaderParms ) );

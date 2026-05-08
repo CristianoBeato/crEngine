@@ -70,66 +70,6 @@ struct backEndCounters_t
 	int		shadowMicroSec;
 };
 
-/*
-=============================================================
-
-RENDERER BACK END COMMAND QUEUE
-
-TR_CMDS
-
-=============================================================
-*/
-enum renderCommand_t
-{
-	RC_NOP,
-	RC_DRAW_VIEW_3D,	// may be at a reduced resolution, will be upsampled before 2D GUIs
-	RC_DRAW_VIEW_GUI,	// not resolution scaled
-	RC_SET_BUFFER,
-	RC_COPY_RENDER,
-	RC_POST_PROCESS,
-};
-
-struct emptyCommand_t
-{
-	renderCommand_t		commandId;
-	renderCommand_t* 	next;
-};
-
-struct setBufferCommand_t
-{
-	renderCommand_t		commandId;
-	uint32_t			frameID;
-	renderCommand_t* 	next;
-//	GLenum	buffer;
-};
-
-struct drawSurfsCommand_t
-{
-	renderCommand_t		commandId;
-	renderCommand_t* 	next;
-	viewDef_t* 			viewDef;
-};
-
-struct copyRenderCommand_t
-{
-	renderCommand_t		commandId;
-	renderCommand_t* 	next;
-	int					x;
-	int					y;
-	int					imageWidth;
-	int					imageHeight;
-	idImage*				image;
-	int					cubeFace;					// when copying to a cubeMap
-	bool				clearColorAfterCopy;	
-};
-
-struct postProcessCommand_t
-{
-	renderCommand_t		commandId;
-	renderCommand_t* 	next;
-	viewDef_t* 			viewDef;
-};
-
 // all state modified by the back end is separated
 // from the front end state
 class crSwapchain;

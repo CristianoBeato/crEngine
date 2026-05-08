@@ -119,7 +119,41 @@ typedef struct vertCacheHandle_s
 
 } vertCacheHandle_t;
 
+typedef struct 
+{
+	uint16_t	frame;
+	uint16_t	count;	// joint number 
+	uint32_t	first;	// first joint
+} joint_cache_t;
+
 #include "Interaction.h"
+
+// drawSurf_t structures command the back end to render surfaces
+// a given crDrawGeometry may be used with multiple viewEntity_t,
+// as when viewed in a subview or multiple viewport render, or
+// with multiple shaders when skinned, or, possibly with multiple
+// lights, although currently each lighting interaction creates
+// unique crDrawGeometry
+// drawSurf_t are always allocated and freed every frame, they are never cached
+
+struct drawSurf_t
+{
+	const crDrawGeometry* 	frontEndGeo;		// don't use on the back end, it may be updated by the front end!
+	uint32_t				numIndexes;
+	vertCacheHandle_t		indexCache;			// triIndex_t
+	vertCacheHandle_t		ambientCache;		// idDrawVert
+	vertCacheHandle_t		shadowCache;		// idShadowVert / idShadowVertSkinned
+	joint_cache_t           jointCache;			// idJointMat
+	const viewEntity_t* 	space;
+	const idMaterial* 		material;			// may be nullptr for shadow volumes
+	float					sort;				// material->sort, modified by gui / entity sort offsets
+	const float*            shaderRegisters;	// evaluated and adjusted for referenceShaders
+	drawSurf_t* 			nextOnLight;		// viewLight chains
+	drawSurf_t** 			linkChain;			// defer linking to lights to a serial section to avoid a mutex
+	idScreenRect			scissorRect;		// for scissor clipping, local inside renderView viewport
+	int						renderZFail;
+	volatile shadowVolumeState_t shadowVolumeState;
+};
 
 // areas have references to hold all the lights and entities in them
 struct areaReference_t

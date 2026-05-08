@@ -548,7 +548,7 @@ void crDrawGeometry::CreateSilIndexes( void )
 		silIndexes[i] = remap[indexes[i]];
 	}
 	
-	R_StaticFree( remap );
+	crFrontend::Get()->StaticFree( remap );
 }
 
 /*
@@ -600,7 +600,7 @@ void crDrawGeometry::RemoveUnusedVerts( void )
 	int		used = 0;
 	int*	mark = nullptr;
 	
-	mark = static_cast<int*>( R_ClearedStaticAlloc( numVerts * sizeof( int ) ) );
+	mark = static_cast<int*>( crFrontend::Get()->ClearedStaticAlloc( numVerts * sizeof( int ) ) );
 	
 	for( i = 0; i < numIndexes; i++ )
 	{
@@ -653,7 +653,7 @@ void crDrawGeometry::RemoveUnusedVerts( void )
 		// this doesn't realloc the arrays to save the memory used by the unused verts
 	}
 	
-	R_StaticFree( mark );
+	crFrontend::Get()->StaticFree( mark );
 }
 
 /*
@@ -925,7 +925,7 @@ void crDrawGeometry::InitDrawSurfFromTri( drawSurf_t* ds )
 	ds->ambientCache = ambientCache;
 	ds->indexCache = indexCache;
 	ds->shadowCache = shadowCache;
-	ds->jointCache = vertCacheHandle_t();// SetZero( ds->jointCache );
+	ds->jointCache = joint_cache_t();// SetZero( ds->jointCache );
 }
 
 /*
@@ -1143,7 +1143,7 @@ int* crDrawGeometry::CreateSilRemap( void )
 	int* remap = nullptr;
 	const idDrawVert *v1 = nullptr, *v2 = nullptr;
 	
-	remap = static_cast<int*>( R_ClearedStaticAlloc( numVerts * sizeof( int ) ) );
+	remap = static_cast<int*>( crFrontend::Get()->ClearedStaticAlloc( numVerts * sizeof( int ) ) );
 	
 	if( !r_useSilRemap.GetBool() )
 	{
@@ -1611,7 +1611,7 @@ void crDrawGeometry::BuildDominantTris( void )
 	int i = 0, j = 0;
 	const int numIndexes = numIndexes;
 	dominantTri_t* dt = nullptr;
-	indexSort_t* ind = static_cast<indexSort_t*>( R_StaticAlloc( numIndexes * sizeof( indexSort_t ) ) );
+	indexSort_t* ind = static_cast<indexSort_t*>( crFrontend::Get()->StaticAlloc( numIndexes * sizeof( indexSort_t ) ) );
 	if( ind == nullptr )
 	{
 		idLib::Error( "Couldn't allocate index sort array" );
@@ -1673,9 +1673,8 @@ void crDrawGeometry::BuildDominantTris( void )
 			
 			// if this is smaller than what we already have, skip it
 			if( area < maxArea )
-			{
 				continue;
-			}
+			
 			maxArea = area;
 			
 			if( i1 == vertNum )
@@ -1729,7 +1728,7 @@ void crDrawGeometry::BuildDominantTris( void )
 		}
 	}
 	
-	R_StaticFree( ind );
+	crFrontend::Get()->StaticFree( ind );
 }
 
 
@@ -1748,7 +1747,7 @@ void crDrawGeometry::DeriveTangents( void )
 		return;
 	
 	// TODO: lock or atomic increment for this
-	tr.pc.c_tangentIndexes += numIndexes;
+	//tr.pc.c_tangentIndexes += numIndexes;
 	
 	if( dominantTris != nullptr )
 		DeriveUnsmoothedNormalsAndTangents();

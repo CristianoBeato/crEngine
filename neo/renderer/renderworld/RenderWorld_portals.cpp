@@ -435,7 +435,7 @@ idScreenRect idRenderWorldLocal::ScreenRectFromWinding( const idWinding* w, cons
 		idVec3 v;
 		idVec3 ndc;
 		R_LocalPointToGlobal( space->modelMatrix, ( *w )[i].ToVec3(), v );
-		R_GlobalToNormalizedDeviceCoordinates( v, ndc );
+		GlobalToNormalizedDeviceCoordinates( v, ndc );
 		
 		float windowX = ( ndc[0] * 0.5f + 0.5f ) * viewWidth;
 		float windowY = ( ndc[1] * 0.5f + 0.5f ) * viewHeight;

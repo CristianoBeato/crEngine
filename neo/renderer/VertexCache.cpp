@@ -203,8 +203,8 @@ void idVertexCache::Shutdown( void )
 	device->Free( m_stagingMemoryPool );
 
 	/// Release render buffers 
-	VK_SAFE_DESTROY( m_drawVertexBuffer );
-	VK_SAFE_DESTROY( m_drawIndexBuffer );
+	//VK_SAFE_DESTROY( m_drawVertexBuffer );
+	//VK_SAFE_DESTROY( m_drawIndexBuffer );
 	
 	/// Release render buffers memory
 	device->Free( m_renderBuffersPool );
@@ -743,9 +743,10 @@ idVertexCache::FlushTransferList
 */
 void idVertexCache::FlushTransferLists( void )
 {
+	VkCopyBufferInfo2 copyBuffer{};
+	
 	///
 	/// Submit index copy 
-	VkCopyBufferInfo2 copyBuffer{};
 	copyBuffer.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2;
 	copyBuffer.pNext = nullptr;
 	copyBuffer.regionCount = m_copyListIndex.Num();
@@ -757,8 +758,7 @@ void idVertexCache::FlushTransferLists( void )
 	vkCmdCopyBuffer2( *m_copyCommands, &copyBuffer );
 
 	///
-	/// sumit vertex copy 
-	VkCopyBufferInfo2 copyBuffer{};
+	/// sumit vertex copy
 	copyBuffer.sType = VK_STRUCTURE_TYPE_COPY_BUFFER_INFO_2;
 	copyBuffer.pNext = nullptr;
 	copyBuffer.regionCount = m_copyListVertex.Num();

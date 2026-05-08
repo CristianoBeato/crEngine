@@ -80,6 +80,4 @@ public:
 	bool		Equals( const idScreenRect& rect ) const;
 };
 
-void R_ShowColoredScreenRect( const idScreenRect& rect, int colorIndex );
-
 #endif /* !__SCREENRECT_H__ */
