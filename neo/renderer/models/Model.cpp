@@ -69,7 +69,7 @@ idRenderModelStatic::idRenderModelStatic()
 	timeStamp = 0;
 	numInvertedJoints = 0;
 	jointsInverted = nullptr;
-	jointsInvertedBuffer = 0;
+	jointsInvertedBuffer = joint_cache_t();
 }
 
 /*
@@ -1299,7 +1299,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 		// before doing this operation, because we can miss a slop combination
 		// if they are in different surfaces
 		
-		vRemap = ( int* )R_StaticAlloc( mesh->numVertexes * sizeof( vRemap[0] ), TAG_MODEL );
+		vRemap = ( int* )crFrontend::Get()->StaticAlloc( mesh->numVertexes * sizeof( vRemap[0] ), TAG_MODEL );
 		
 		if( fastLoad )
 		{
@@ -1325,7 +1325,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 			}
 		}
 		
-		tvRemap = ( int* )R_StaticAlloc( mesh->numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
+		tvRemap = ( int* )crFrontend::Get()->StaticAlloc( mesh->numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
 		
 		if( fastLoad )
 		{
@@ -1355,10 +1355,10 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 		// there are, because ASE tracks them separately but we need them unified
 		
 		// the maximum possible number of combined vertexes is the number of indexes
-		mvTable = ( matchVert_t* )R_ClearedStaticAlloc( mesh->numFaces * 3 * sizeof( mvTable[0] ) );
+		mvTable = ( matchVert_t* )crFrontend::Get()->ClearedStaticAlloc( mesh->numFaces * 3 * sizeof( mvTable[0] ) );
 		
 		// we will have a hash chain based on the xyz values
-		mvHash = ( matchVert_t** )R_ClearedStaticAlloc( mesh->numVertexes * sizeof( mvHash[0] ) );
+		mvHash = ( matchVert_t** )crFrontend::Get()->ClearedStaticAlloc( mesh->numVertexes * sizeof( mvHash[0] ) );
 		
 		// allocate triangle surface
 		tri = new crDrawGeometry();
@@ -1504,10 +1504,11 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 			}
 		}
 		
-		R_StaticFree( mvTable );
-		R_StaticFree( mvHash );
-		R_StaticFree( tvRemap );
-		R_StaticFree( vRemap );
+		auto fe = crFrontend::Get();
+		fe->StaticFree( mvTable );
+		fe->StaticFree( mvHash );
+		fe->StaticFree( tvRemap );
+		fe->StaticFree( vRemap );
 		
 		// see if we need to merge with a previous surface of the same material
 		modelSurf = &this->surfaces[mergeTo[ objectNum ]];
@@ -1554,13 +1555,10 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 	modelSurface_t	surf, *modelSurf;
 	
 	if( !lwo )
-	{
 		return false;
-	}
+	
 	if( lwo->surf == nullptr )
-	{
 		return false;
-	}
 	
 	timeStamp = lwo->timeStamp;
 	
@@ -2470,10 +2468,12 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces( const struct maModel_s* ma )
 			}
 		}
 		
-		R_StaticFree( mvTable );
-		R_StaticFree( mvHash );
-		R_StaticFree( tvRemap );
-		R_StaticFree( vRemap );
+		auto fe = crFrontend::Get();
+
+		fe->StaticFree( mvTable );
+		fe->StaticFree( mvHash );
+		fe->StaticFree( tvRemap );
+		fe->StaticFree( vRemap );
 		
 		// see if we need to merge with a previous surface of the same material
 		modelSurf = &this->surfaces[mergeTo[ objectNum ]];
