@@ -821,7 +821,7 @@ crVulkanRenderDevice::SelectDeviceQueues
 @CristianoBeato: holly cow hard coded as fuck, need found a new algoritm, or easy way to do this 
 ==============
 */
-void crVulkanRenderDevice::SelectDeviceQueues( idList<crQueueCreateInfo> &in_queueList )
+void crVulkanRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &in_queueList )
 {
     std::optional<queueInfo_t> graphic;
     std::optional<queueInfo_t> present;

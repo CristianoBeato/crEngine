@@ -135,7 +135,7 @@ private:
     idList<memoryHeapInfo_t, TAG_VULKAN>            m_heaps;
     idList<memoryTypeInfo_t, TAG_VULKAN>            m_types;
 
-    void SelectDeviceQueues( idList<crQueueCreateInfo> &in_queueList );
+    void SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &in_queueList );
     bool InitDeviceHeap( void );
     bool LoadCache( void );
     bool SaveCache( void );
