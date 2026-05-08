@@ -11,6 +11,67 @@ struct viewEntity_t;
 // in a given view, but it will automatically grow if needed
 const int INITIAL_DRAWSURFS =		2048;
 
+
+/*
+=============================================================
+
+RENDERER BACK END COMMAND QUEUE
+
+TR_CMDS
+
+=============================================================
+*/
+enum renderCommand_t
+{
+	RC_NOP,
+	RC_DRAW_VIEW_3D,	// may be at a reduced resolution, will be upsampled before 2D GUIs
+	RC_DRAW_VIEW_GUI,	// not resolution scaled
+	RC_SET_BUFFER,
+	RC_COPY_RENDER,
+	RC_POST_PROCESS,
+};
+
+struct emptyCommand_t
+{
+	renderCommand_t		commandId;
+	renderCommand_t* 	next;
+};
+
+struct setBufferCommand_t
+{
+	renderCommand_t		commandId;
+	uint32_t			frameID;
+	renderCommand_t* 	next;
+//	GLenum	buffer;
+};
+
+struct drawSurfsCommand_t
+{
+	renderCommand_t		commandId;
+	renderCommand_t* 	next;
+	viewDef_t* 			viewDef;
+};
+
+struct copyRenderCommand_t
+{
+	renderCommand_t		commandId;
+	renderCommand_t* 	next;
+	int					x;
+	int					y;
+	int					imageWidth;
+	int					imageHeight;
+	idImage*				image;
+	int					cubeFace;					// when copying to a cubeMap
+	bool				clearColorAfterCopy;	
+};
+
+struct postProcessCommand_t
+{
+	renderCommand_t		commandId;
+	renderCommand_t* 	next;
+	viewDef_t* 			viewDef;
+};
+
 enum frameAllocType_t
 {
 	FRAME_ALLOC_VIEW_DEF,
@@ -47,34 +108,6 @@ public:
 	emptyCommand_t* 		cmdHead;	// may be of other command type based on commandId
 	emptyCommand_t* 		cmdTail;
 };
-
-// drawSurf_t structures command the back end to render surfaces
-// a given crDrawGeometry may be used with multiple viewEntity_t,
-// as when viewed in a subview or multiple viewport render, or
-// with multiple shaders when skinned, or, possibly with multiple
-// lights, although currently each lighting interaction creates
-// unique crDrawGeometry
-// drawSurf_t are always allocated and freed every frame, they are never cached
-
-struct drawSurf_t
-{
-	const crDrawGeometry* 	frontEndGeo;		// don't use on the back end, it may be updated by the front end!
-	uint32_t				numIndexes;
-	vertCacheHandle_t		indexCache;			// triIndex_t
-	vertCacheHandle_t		ambientCache;		// idDrawVert
-	vertCacheHandle_t		shadowCache;		// idShadowVert / idShadowVertSkinned
-	joint_cache_t           jointCache;			// idJointMat
-	const viewEntity_t* 	space;
-	const idMaterial* 		material;			// may be nullptr for shadow volumes
-	float					sort;				// material->sort, modified by gui / entity sort offsets
-	const float*            shaderRegisters;	// evaluated and adjusted for referenceShaders
-	drawSurf_t* 			nextOnLight;		// viewLight chains
-	drawSurf_t** 			linkChain;			// defer linking to lights to a serial section to avoid a mutex
-	idScreenRect			scissorRect;		// for scissor clipping, local inside renderView viewport
-	int						renderZFail;
-	volatile shadowVolumeState_t shadowVolumeState;
-};
-
 
 //
 // frontEndCounters_t
@@ -138,14 +171,15 @@ public:
     void*   StaticAlloc( const size_t bytes, const memTag_t tag = TAG_RENDER_STATIC );		// just malloc with error checking
     void*   ClearedStaticAlloc( const size_t bytes );	// with std::memset
     void    StaticFree( void* data );
-
+    void    ShowColoredScreenRect( const idScreenRect& rect, int colorIndex );
+    void    GlobalToNormalizedDeviceCoordinates( const idVec3& global, idVec3& ndc );
+    void    
     void    RenderView( viewDef_t* parms );
     void    RenderPostProcess( viewDef_t* parms );
 
     // ============================================================
     // TR_FRONTEND_ADDLIGHTS
     // ============================================================
-    void    ShadowBounds( const idBounds& modelBounds, const idBounds& lightBounds, const idVec3& lightOrigin, idBounds& shadowBounds );
     void    AddLights( void );
     void    OptimizeViewLightsList( void );
 
@@ -169,7 +203,7 @@ public:
     // TR_FRONTEND_GUISURF
     // =============================================================
     void SurfaceToTextureAxis( const crDrawGeometry* tri, idVec3& origin, idVec3 axis[3] );
-    void AddInGameGuis( const drawSurf_t* const drawSurfs[], const int numDrawSurfs );
+    void AddInGameGuis( const drawSurf_t* const drawSurfs[], const uint32_t numDrawSurfs );
 
     // ============================================================
     // TR_FRONTEND_SUBVIEW
@@ -219,6 +253,9 @@ private:
     void            XrayRender( const drawSurf_t* surf, textureStage_t* stage, idScreenRect scissor );
     void            RemoteRender( const drawSurf_t* surf, textureStage_t* stage );
     bool            GenerateSurfaceSubview( const drawSurf_t* drawSurf );
+
+    // tr_frontend_guisurf.cpp
+    void            RenderGuiSurf( idUserInterface* gui, const drawSurf_t* drawSurf );
 };
 
 #endif //!__FRONTEND_HPP__

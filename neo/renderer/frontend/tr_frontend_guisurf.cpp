@@ -27,9 +27,7 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#pragma hdrstop
 #include "precompiled.h"
-
 #include "renderer_common.h"
 #include "models/Model_local.h"
 
@@ -43,13 +41,13 @@ GUI SURFACES
 
 /*
 ================
-R_SurfaceToTextureAxis
+crFrontend::SurfaceToTextureAxis
 
 Calculates two axis for the surface such that a point dotted against
 the axis will give a 0.0 to 1.0 range in S and T when inside the gui surface
 ================
 */
-void R_SurfaceToTextureAxis( const crDrawGeometry* tri, idVec3& origin, idVec3 axis[3] )
+void crFrontend::SurfaceToTextureAxis( const crDrawGeometry* tri, idVec3& origin, idVec3 axis[3] )
 {
 	// find the bounds of the texture
 	idVec2 boundsMin( 999999.0f, 999999.0f );
@@ -118,8 +116,14 @@ void R_SurfaceToTextureAxis( const crDrawGeometry* tri, idVec3& origin, idVec3 a
 	axis[2][2] = plane[2];
 	
 	// take point 0 and project the vectors to the texture origin
+#if 0
+	origin[0] = ( aXYZ[0] + axis[0][0] ) * boundsOrg.x - aST.x;
+	origin[1] = ( aXYZ[1] + axis[0][1] ) * boundsOrg.x - aST.x;
+	origin[2] = ( aXYZ[2] + axis[0][2] ) * boundsOrg.x - aST.x
+#else
 	VectorMA( aXYZ, boundsOrg.x - aST.x, axis[0], origin );
 	VectorMA( origin, boundsOrg.y - aST.y, axis[1], origin );
+#endif
 }
 
 /*
@@ -130,27 +134,23 @@ Create a texture space on the given surface and
 call the GUI generator to create quads for it.
 =================
 */
-static void R_RenderGuiSurf( idUserInterface* gui, const drawSurf_t* drawSurf )
+void crFrontend::RenderGuiSurf( idUserInterface* gui, const drawSurf_t* drawSurf )
 {
 	SCOPED_PROFILE_EVENT( "R_RenderGuiSurf" );
 	
 	// for testing the performance hit
 	if( r_skipGuiShaders.GetInteger() == 1 )
-	{
 		return;
-	}
 	
 	// don't allow an infinite recursion loop
 	if( tr.guiRecursionLevel == 4 )
-	{
 		return;
-	}
 	
-	tr.pc.c_guiSurfs++;
+	pc.c_guiSurfs++;
 	
 	// create the new matrix to draw on this surface
 	idVec3 origin, axis[3];
-	R_SurfaceToTextureAxis( drawSurf->frontEndGeo, origin, axis );
+	SurfaceToTextureAxis( drawSurf->frontEndGeo, origin, axis );
 	
 	float guiModelMatrix[16];
 	float modelMatrix[16];
@@ -181,7 +181,7 @@ static void R_RenderGuiSurf( idUserInterface* gui, const drawSurf_t* drawSurf )
 	
 	// call the gui, which will call the 2D drawing functions
 	tr.guiModel->Clear();
-	gui->Redraw( tr.viewDef->renderView.time[0] );
+	gui->Redraw( viewDef->renderView.time[0] );
 	tr.guiModel->EmitToCurrentView( modelMatrix, drawSurf->space->weaponDepthHack );
 	tr.guiModel->Clear();
 	
@@ -190,15 +190,15 @@ static void R_RenderGuiSurf( idUserInterface* gui, const drawSurf_t* drawSurf )
 
 /*
 ================
-R_AddInGameGuis
+crFrontend::AddInGameGuis
 ================
 */
-void R_AddInGameGuis( const drawSurf_t* const drawSurfs[], const int numDrawSurfs )
+void crFrontend::AddInGameGuis( const drawSurf_t* const drawSurfs[], const uint32_t numDrawSurfs )
 {
-	SCOPED_PROFILE_EVENT( "R_AddInGameGuis" );
+	SCOPED_PROFILE_EVENT( "crFrontend::AddInGameGuis" );
 	
 	// check for gui surfaces
-	for( int i = 0; i < numDrawSurfs; i++ )
+	for( uint32_t i = 0; i < numDrawSurfs; i++ )
 	{
 		const drawSurf_t* drawSurf = drawSurfs[i];
 		
@@ -208,22 +208,18 @@ void R_AddInGameGuis( const drawSurf_t* const drawSurfs[], const int numDrawSurf
 		if( guiNum >= 0 && guiNum < MAX_RENDERENTITY_GUI )
 		{
 			if( drawSurf->space->entityDef != nullptr )
-			{
 				gui = drawSurf->space->entityDef->parms.gui[ guiNum ];
-			}
 		}
 		
 		if( gui == nullptr )
-		{
 			continue;
-		}
 		
 		idBounds ndcBounds;
-		if( !R_PreciseCullSurface( drawSurf, ndcBounds ) )
+		if( !PreciseCullSurface( drawSurf, ndcBounds ) )
 		{
 			// did we ever use this to forward an entity color to a gui that didn't set color?
 			//	std::memcpy( tr.guiShaderParms, shaderParms, sizeof( tr.guiShaderParms ) );
-			R_RenderGuiSurf( gui, drawSurf );
+			RenderGuiSurf( gui, drawSurf );
 		}
 	}
 }

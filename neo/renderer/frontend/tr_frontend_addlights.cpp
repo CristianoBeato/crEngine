@@ -492,7 +492,7 @@ void crFrontend::AddSingleLight( viewLight_t* vLight )
 		shadowDrawSurf->ambientCache = vertCacheHandle_t();
 		shadowDrawSurf->indexCache = tri->IndexCache();
 		shadowDrawSurf->shadowCache = tri->ShadowCache();
-		shadowDrawSurf->jointCache = vertCacheHandle_t();
+		shadowDrawSurf->jointCache = joint_cache_t();
 		shadowDrawSurf->numIndexes = 0;
 		shadowDrawSurf->space = &viewDef->worldSpace;
 		shadowDrawSurf->material = nullptr;
@@ -606,9 +606,7 @@ void crFrontend::AddLights( void )
 		}
 		
 		if( r_showLightScissors.GetBool() )
-		{
-			R_ShowColoredScreenRect( vLight->scissorRect, vLight->lightDef->index );
-		}
+			ShowColoredScreenRect( vLight->scissorRect, vLight->lightDef->index );
 	}
 	
 	//-------------------------------------------------

@@ -192,7 +192,7 @@ bool crFrontend::PreciseCullSurface( const drawSurf_t* drawSurf, idBounds& ndcBo
 		{
 			idVec3 screen;
 			
-			R_GlobalToNormalizedDeviceCoordinates( w[j].ToVec3(), screen );
+			GlobalToNormalizedDeviceCoordinates( w[j].ToVec3(), screen );
 			ndcBounds.AddPoint( screen );
 		}
 	}
@@ -489,7 +489,7 @@ bool crFrontend::GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 		return false;
 	
 	idBounds ndcBounds;
-	if( R_PreciseCullSurface( drawSurf, ndcBounds ) )
+	if( PreciseCullSurface( drawSurf, ndcBounds ) )
 		return false;
 	
 	const idMaterial* shader = drawSurf->material;
@@ -556,7 +556,7 @@ bool crFrontend::GenerateSurfaceSubview( const drawSurf_t* drawSurf )
 	}
 	
 	// issue a new view command
-	parms = R_MirrorViewBySurface( drawSurf );
+	parms = MirrorViewBySurface( drawSurf );
 	if( parms == nullptr )
 		return false;
 	
