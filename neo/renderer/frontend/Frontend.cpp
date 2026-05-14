@@ -43,10 +43,10 @@ crFrontend::~crFrontend( void )
 
 }
 
-crFrontend *crFrontend::Get(void)
+crFrontend &crFrontend::Get(void)
 {
 	static crFrontend gFrontend = crFrontend();
-    return &gFrontend;
+    return gFrontend;
 }
 
 /*
@@ -258,7 +258,7 @@ void* crFrontend::StaticAlloc( const size_t bytes, const memTag_t tag )
 	
 	// don't exit on failure on zero length allocations since the old code didn't
 	if( buf == nullptr && bytes != 0 )
-		common->FatalError( "R_StaticAlloc failed on %i bytes", bytes );
+		common->FatalError( "crFrontend::StaticAlloc failed on %i bytes", bytes );
 
 	return buf;
 }
@@ -276,7 +276,7 @@ void* crFrontend::ClearedStaticAlloc( const size_t bytes )
 	
 	// don't exit on failure on zero length allocations since the old code didn't
 	if( buf == nullptr && bytes != 0 )
-		common->FatalError( "R_StaticAlloc failed on %i bytes", bytes );
+		common->FatalError( "crFrontend::ClearedStaticAlloc failed on %i bytes", bytes );
 		
 	return buf;
 }

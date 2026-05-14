@@ -120,7 +120,7 @@ struct frontEndCounters_t
 	int		c_createShadowVolumes;
 	int		c_generateMd5;
 	int		c_entityDefCallbacks;
-	int		c_alloc;			// counts for R_StaticAllc/R_StaticFree
+	int		c_alloc;			// counts for R_StaticAllc/crFrontend::Get().StaticFree
 	int		c_free;
 	int		c_visibleViewEntities;
 	int		c_shadowViewEntities;
@@ -145,19 +145,28 @@ class crFrontend
 public:
     crFrontend( void );
     ~crFrontend( void );
-    static crFrontend* Get( void );
+    static crFrontend& Get( void );
     void        Init( void );
     void        Clear( void );
-    viewDef_t*  GetViewDef( void ) const { return viewDef; }
     void        AddDrawViewCmd( viewDef_t* parms, const bool guiOnly );
     void        AddDrawPostProcess( viewDef_t* parms );
     void*       GetCommandBuffer( const size_t bytes );
-
+    
+    ID_INLINE   void                    SetViewDef( viewDef_t* newviewDef ) { viewDef = newviewDef; }
+    ID_INLINE   viewDef_t*              GetViewDef( void ) const { return viewDef; }
+    ID_INLINE   void                    ClearViewDef( void ) { viewDef = nullptr; }
     ID_INLINE   bool                    HasCommand( void ) const { return frameData->cmdHead->next != nullptr; }
     ID_INLINE   size_t                  FrameMemoryAllocated( void ) const { return frameData->frameMemoryAllocated.GetValue(); }
     ID_INLINE   void                    ZeroPerformanceCounters( void ) { std::memset( &pc, 0, sizeof( frontEndCounters_t ) ); }
     ID_INLINE   frontEndCounters_t      PerformanceCounters( void ) const { return pc; }
     ID_INLINE   const emptyCommand_t*   CommandBufferHead( void ) const { return frameData->cmdHead; }
+
+    ID_INLINE   void                    SetDeformedSurfacesCounters( int deformedVertsCount, int deformedIndexesCount )
+    {
+        pc.c_deformedSurfaces++;
+        pc.c_deformedVerts += deformedVertsCount;
+        pc.c_deformedIndexes += deformedIndexesCount;
+    }
 
     // ====================================================================
     // TR_FRONTEND_MAIN
@@ -173,7 +182,6 @@ public:
     void    StaticFree( void* data );
     void    ShowColoredScreenRect( const idScreenRect& rect, int colorIndex );
     void    GlobalToNormalizedDeviceCoordinates( const idVec3& global, idVec3& ndc );
-    void    
     void    RenderView( viewDef_t* parms );
     void    RenderPostProcess( viewDef_t* parms );
 
@@ -256,6 +264,10 @@ private:
 
     // tr_frontend_guisurf.cpp
     void            RenderGuiSurf( idUserInterface* gui, const drawSurf_t* drawSurf );
+
+    // Remove os operadores de cópia e atribuição
+    crFrontend( const crFrontend& ) = delete;
+    crFrontend& operator=( const crFrontend& ) = delete;
 };
 
 #endif //!__FRONTEND_HPP__
