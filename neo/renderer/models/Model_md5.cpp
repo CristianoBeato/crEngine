@@ -484,9 +484,10 @@ idMD5Mesh::UpdateSurface
 void idMD5Mesh::UpdateSurface( const struct renderEntity_s* ent, const idJointMat* entJoints,
 							   const idJointMat* entJointsInverted, modelSurface_t* surf )
 {
-	tr.pc.c_deformedSurfaces++;
-	tr.pc.c_deformedVerts += deformInfo->numOutputVerts;
-	tr.pc.c_deformedIndexes += deformInfo->numIndexes;
+	//tr.pc.c_deformedSurfaces++;
+	//tr.pc.c_deformedVerts += deformInfo->numOutputVerts;
+	//tr.pc.c_deformedIndexes += deformInfo->numIndexes;
+	crFrontend::Get().SetDeformedSurfacesCounters( deformInfo->numOutputVerts, deformInfo->numIndexes );
 	
 	surf->shader = shader;
 	
@@ -773,7 +774,7 @@ bool idRenderModelMD5::LoadBinaryModel( idFile* file, const ID_TIME_T sourceTime
 		file->ReadBigArray( meshes[i].meshJoints, meshes[i].numMeshJoints );
 		file->ReadBig( meshes[i].maxJointVertDist );
 		
-		meshes[i].deformInfo = ( deformInfo_t* )R_ClearedStaticAlloc( sizeof( deformInfo_t ) );
+		meshes[i].deformInfo = static_cast<deformInfo_t*>( crFrontend::Get().ClearedStaticAlloc( sizeof( deformInfo_t ) ) );
 		deformInfo_t& deform = *meshes[i].deformInfo;
 		
 		file->ReadBig( deform.numSourceVerts );
@@ -1366,7 +1367,7 @@ idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 		staticModel->numInvertedJoints = numInvertedJoints;
 		const int alignment = glConfig.uniformBufferOffsetAlignment;
 		staticModel->jointsInverted = ( idJointMat* )Mem_ClearedAlloc( ALIGN( numInvertedJoints * sizeof( idJointMat ), alignment ), TAG_JOINTMAT );
-		staticModel->jointsInvertedBuffer = 0;
+		staticModel->jointsInvertedBuffer = {};
 	}
 	else
 	{

@@ -1299,7 +1299,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 		// before doing this operation, because we can miss a slop combination
 		// if they are in different surfaces
 		
-		vRemap = ( int* )crFrontend::Get()->StaticAlloc( mesh->numVertexes * sizeof( vRemap[0] ), TAG_MODEL );
+		vRemap = ( int* )crFrontend::Get().StaticAlloc( mesh->numVertexes * sizeof( vRemap[0] ), TAG_MODEL );
 		
 		if( fastLoad )
 		{
@@ -1325,7 +1325,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 			}
 		}
 		
-		tvRemap = ( int* )crFrontend::Get()->StaticAlloc( mesh->numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
+		tvRemap = ( int* )crFrontend::Get().StaticAlloc( mesh->numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
 		
 		if( fastLoad )
 		{
@@ -1355,10 +1355,10 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 		// there are, because ASE tracks them separately but we need them unified
 		
 		// the maximum possible number of combined vertexes is the number of indexes
-		mvTable = ( matchVert_t* )crFrontend::Get()->ClearedStaticAlloc( mesh->numFaces * 3 * sizeof( mvTable[0] ) );
+		mvTable = ( matchVert_t* )crFrontend::Get().ClearedStaticAlloc( mesh->numFaces * 3 * sizeof( mvTable[0] ) );
 		
 		// we will have a hash chain based on the xyz values
-		mvHash = ( matchVert_t** )crFrontend::Get()->ClearedStaticAlloc( mesh->numVertexes * sizeof( mvHash[0] ) );
+		mvHash = ( matchVert_t** )crFrontend::Get().ClearedStaticAlloc( mesh->numVertexes * sizeof( mvHash[0] ) );
 		
 		// allocate triangle surface
 		tri = new crDrawGeometry();
@@ -1504,7 +1504,7 @@ bool idRenderModelStatic::ConvertASEToModelSurfaces( const struct aseModel_s* as
 			}
 		}
 		
-		auto fe = crFrontend::Get();
+		auto fe = &crFrontend::Get();
 		fe->StaticFree( mvTable );
 		fe->StaticFree( mvHash );
 		fe->StaticFree( tvRemap );
@@ -1634,7 +1634,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 		return false;
 	}
 	
-	vList = ( idVec3* )R_StaticAlloc( layer->point.count * sizeof( vList[0] ), TAG_MODEL );
+	vList = static_cast<idVec3*>( crFrontend::Get().StaticAlloc( layer->point.count * sizeof( vList[0] ), TAG_MODEL ) );
 	for( j = 0; j < layer->point.count; j++ )
 	{
 		vList[j].x = layer->point.pt[j].pos[0];
@@ -1687,7 +1687,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 	// before doing this operation, because we can miss a slop combination
 	// if they are in different surfaces
 	
-	vRemap = ( int* )R_StaticAlloc( layer->point.count * sizeof( vRemap[0] ), TAG_MODEL );
+	vRemap = static_cast<int*>( crFrontend::Get().StaticAlloc( layer->point.count * sizeof( vRemap[0] ), TAG_MODEL ) );
 	
 	if( fastLoad )
 	{
@@ -1713,7 +1713,7 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 		}
 	}
 	
-	tvRemap = ( int* )R_StaticAlloc( numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
+	tvRemap = ( int* )crFrontend::Get().StaticAlloc( numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
 	
 	if( fastLoad )
 	{
@@ -1747,10 +1747,10 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 		// we need to find out how many unique vertex / texcoord combinations there are
 		
 		// the maximum possible number of combined vertexes is the number of indexes
-		mvTable = ( matchVert_t* )R_ClearedStaticAlloc( layer->polygon.count * 3 * sizeof( mvTable[0] ) );
+		mvTable = ( matchVert_t* )crFrontend::Get().ClearedStaticAlloc( layer->polygon.count * 3 * sizeof( mvTable[0] ) );
 		
 		// we will have a hash chain based on the xyz values
-		mvHash = ( matchVert_t** )R_ClearedStaticAlloc( layer->point.count * sizeof( mvHash[0] ) );
+		mvHash = ( matchVert_t** )crFrontend::Get().ClearedStaticAlloc( layer->point.count * sizeof( mvHash[0] ) );
 		
 		// allocate triangle surface
 		tri = new crDrawGeometry();
@@ -1899,8 +1899,8 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 			*( unsigned* )tri->Verts()[j].color = *( unsigned* )mv->color;
 		}
 		
-		R_StaticFree( mvTable );
-		R_StaticFree( mvHash );
+		crFrontend::Get().StaticFree( mvTable );
+		crFrontend::Get().StaticFree( mvHash );
 		
 		// see if we need to merge with a previous surface of the same material
 		modelSurf = &this->surfaces[mergeTo[ i ]];
@@ -1917,10 +1917,10 @@ bool idRenderModelStatic::ConvertLWOToModelSurfaces( const struct st_lwObject* l
 		}
 	}
 	
-	R_StaticFree( tvRemap );
-	R_StaticFree( vRemap );
-	R_StaticFree( tvList );
-	R_StaticFree( vList );
+	crFrontend::Get().StaticFree( tvRemap );
+	crFrontend::Get().StaticFree( vRemap );
+	crFrontend::Get().StaticFree( tvList );
+	crFrontend::Get().StaticFree( vList );
 	
 	return true;
 }
@@ -2260,7 +2260,7 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces( const struct maModel_s* ma )
 		// before doing this operation, because we can miss a slop combination
 		// if they are in different surfaces
 		
-		vRemap = ( int* )R_StaticAlloc( mesh->numVertexes * sizeof( vRemap[0] ), TAG_MODEL );
+		vRemap = ( int* )crFrontend::Get().StaticAlloc( mesh->numVertexes * sizeof( vRemap[0] ), TAG_MODEL );
 		
 		if( fastLoad )
 		{
@@ -2286,7 +2286,7 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces( const struct maModel_s* ma )
 			}
 		}
 		
-		tvRemap = ( int* )R_StaticAlloc( mesh->numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
+		tvRemap = ( int* )crFrontend::Get().StaticAlloc( mesh->numTVertexes * sizeof( tvRemap[0] ), TAG_MODEL );
 		
 		if( fastLoad )
 		{
@@ -2316,10 +2316,10 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces( const struct maModel_s* ma )
 		// there are, because MA tracks them separately but we need them unified
 		
 		// the maximum possible number of combined vertexes is the number of indexes
-		mvTable = ( matchVert_t* )R_ClearedStaticAlloc( mesh->numFaces * 3 * sizeof( mvTable[0] ) );
+		mvTable = ( matchVert_t* )crFrontend::Get().ClearedStaticAlloc( mesh->numFaces * 3 * sizeof( mvTable[0] ) );
 		
 		// we will have a hash chain based on the xyz values
-		mvHash = ( matchVert_t** )R_ClearedStaticAlloc( mesh->numVertexes * sizeof( mvHash[0] ) );
+		mvHash = ( matchVert_t** )crFrontend::Get().ClearedStaticAlloc( mesh->numVertexes * sizeof( mvHash[0] ) );
 		
 		// allocate triangle surface
 		tri = new crDrawGeometry();
@@ -2468,8 +2468,7 @@ bool idRenderModelStatic::ConvertMAToModelSurfaces( const struct maModel_s* ma )
 			}
 		}
 		
-		auto fe = crFrontend::Get();
-
+		auto fe = &crFrontend::Get();
 		fe->StaticFree( mvTable );
 		fe->StaticFree( mvHash );
 		fe->StaticFree( tvRemap );
@@ -2528,9 +2527,7 @@ bool idRenderModelStatic::LoadLWO( const char* fileName )
 	
 	lwo = lwGetObject( fileName, &failID, &failPos );
 	if( lwo == nullptr )
-	{
 		return false;
-	}
 	
 	ConvertLWOToModelSurfaces( lwo );
 	

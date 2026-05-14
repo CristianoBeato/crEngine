@@ -557,8 +557,9 @@ void idRenderModelDecal::CreateDeferredDecals( const idRenderModel* model )
 {
 	for ( unsigned int i = firstDeferredDecal; i < nextDeferredDecal; i++ )
 	{
+		auto viewDef = crFrontend::Get().GetViewDef();
 		decalProjectionParms_t& parms = deferredDecals[ i & ( MAX_DEFERRED_DECALS - 1 ) ];
-		if ( parms.startTime > tr.viewDef->renderView.time[ 0 ] - DEFFERED_DECAL_TIMEOUT )
+		if ( parms.startTime > viewDef->renderView.time[ 0 ] - DEFFERED_DECAL_TIMEOUT )
 			CreateDecal( model, parms );
 	}
 	firstDeferredDecal = 0;
@@ -730,7 +731,7 @@ drawSurf_t* idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t* space, 
 	}
 
 	// create a new triangle surface in frame memory so it gets automatically disposed of
-	crDrawGeometry* newTri = (crDrawGeometry*)R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	crDrawGeometry* newTri = static_cast<crDrawGeometry*>( crFrontend::Get().ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES ) );
 	newTri->NumVerts() = maxVerts;
 	newTri->NumIndexes() = maxIndexes;
 
@@ -745,7 +746,7 @@ drawSurf_t* idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t* space, 
 
 	const decalInfo_t decalInfo = material->GetDecalInfo();
 	const int maxTime = decalInfo.stayTime + decalInfo.fadeTime;
-	const int time = tr.viewDef->renderView.time[ 0 ];
+	const int time = crFrontend::Get().GetViewDef()->renderView.time[ 0 ];
 
 	int numVerts = 0;
 	int numIndexes = 0;
@@ -771,7 +772,7 @@ drawSurf_t* idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t* space, 
 		
 		const float f = ( deltaTime > decalInfo.stayTime ) ? ( (float)fadeTime / decalInfo.fadeTime ) : 0.0f;
 
-		ALIGNTYPE16 float fadeColor[ 4 ];
+		alignas( 16 ) float fadeColor[ 4 ];
 		for ( int j = 0; j < 4; j++ )
 		{
 			fadeColor[ j ] = 255.0f * ( decalInfo.start[ j ] + ( decalInfo.end[ j ] - decalInfo.start[ j ] ) * f );
@@ -789,18 +790,18 @@ drawSurf_t* idRenderModelDecal::CreateDecalDrawSurf( const viewEntity_t* space, 
 	newTri->NumIndexes() = numIndexes;
 
 	// create the drawsurf
-	drawSurf_t* drawSurf = (drawSurf_t*)R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+	drawSurf_t* drawSurf = static_cast<drawSurf_t*>( crFrontend::Get().FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE ) );
 	drawSurf->frontEndGeo = newTri;
 	drawSurf->numIndexes = newTri->NumIndexes();
 	drawSurf->ambientCache = newTri->AmbientCache();
 	drawSurf->indexCache = newTri->IndexCache();
-	drawSurf->shadowCache = 0;
-	drawSurf->jointCache = 0;
+	drawSurf->shadowCache = {};
+	drawSurf->jointCache = {};
 	drawSurf->space = space;
 	drawSurf->scissorRect = space->scissorRect;
 	drawSurf->renderZFail = 0;
 
-	R_SetupDrawSurfShader( drawSurf, material, &space->entityDef->parms );
+	crFrontend::Get().SetupDrawSurfShader( drawSurf, material, &space->entityDef->parms );
 
 	return drawSurf;
 }

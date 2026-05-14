@@ -760,12 +760,11 @@ If ref isn't specified, the full session UpdateScreen will be done.
 */
 void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref = nullptr )
 {
-	auto frontEnd = crFrontend::Get();
 
 	// include extra space for OpenGL padding to word boundaries
 	int sysWidth = tr.GetWidth();
 	int sysHeight = tr.GetHeight();
-	byte* temp = ( byte* )frontEnd->StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 );
+	byte* temp = static_cast<byte*>(crFrontend::Get().StaticAlloc( ( sysWidth + 3 ) * sysHeight * 3 ));
 
 	// foresthale 2014-03-01: fixed custom screenshot resolution by doing a more direct render path
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
@@ -883,7 +882,7 @@ void R_ReadTiledPixels( int width, int height, byte* buffer, renderView_t* ref =
 	
 	r_useScissor.SetBool( true );
 	
-	frontEnd->StaticFree( temp );
+	crFrontend::Get().StaticFree( temp );
 }
 
 
@@ -901,12 +900,11 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 {
 	byte*		buffer;
 	int			i, j, c, temp;
-	auto frontEnd = crFrontend::Get();
 	takingScreenshot = true;
 	const int pix = width * height;
 	const int bufferSize = pix * 3 + 18;
 	
-	buffer = ( byte* )frontEnd->StaticAlloc( bufferSize );
+	buffer = static_cast<byte*>(crFrontend::Get().StaticAlloc( bufferSize ) );
 	std::memset( buffer, 0, bufferSize );
 	
 	if( blends <= 1 )
@@ -915,7 +913,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 	}
 	else
 	{
-		unsigned short* shortBuffer = ( unsigned short* )frontEnd->StaticAlloc( pix * 2 * 3 );
+		uint16_t* shortBuffer = static_cast<uint16_t*>( crFrontend::Get().StaticAlloc( pix * 2 * 3 ) );
 		std::memset( shortBuffer, 0, pix * 2 * 3 );
 		
 		// enable anti-aliasing jitter
@@ -937,7 +935,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 			buffer[18 + i] = shortBuffer[i] / blends;
 		}
 		
-		frontEnd->StaticFree( shortBuffer );
+		crFrontend::Get().StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
 	if(	r_screenshot_png.GetBool()) {
@@ -963,23 +961,21 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, const char* fil
 		fileSystem->WriteFile( fileName, buffer, c );
 	}
 	
-	frontEnd->StaticFree( buffer );
+	crFrontend::Get().StaticFree( buffer );
 	
 	takingScreenshot = false;
 }
 
 void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile, int blends, renderView_t* ref )
 {
-	byte*		buffer;
-	int			i, j, c, temp;
-	
-	auto frontEnd = crFrontend::Get();
+	byte*		buffer = nullptr;
+	int i = 0, j = 0, c = 0, temp = 0;
 	takingScreenshot = true;
 	
 	const int pix = width * height;
 	const int bufferSize = pix * 3 + 18;
 	
-	buffer = ( byte* )frontEnd->StaticAlloc( bufferSize );
+	buffer = static_cast<byte*>( crFrontend::Get().StaticAlloc( bufferSize ) );
 	std::memset( buffer, 0, bufferSize );
 	
 	if( blends <= 1 )
@@ -988,7 +984,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 	}
 	else
 	{
-		unsigned short* shortBuffer = ( unsigned short* )frontEnd->StaticAlloc( pix * 2 * 3 );
+		unsigned short* shortBuffer = static_cast<unsigned short*>( crFrontend::Get().StaticAlloc( pix * 2 * 3 ) );
 		std::memset( shortBuffer, 0, pix * 2 * 3 );
 		
 		// enable anti-aliasing jitter
@@ -1010,7 +1006,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 			buffer[18 + i] = shortBuffer[i] / blends;
 		}
 		
-		frontEnd->StaticFree( shortBuffer );
+		crFrontend::Get().StaticFree( shortBuffer );
 		r_jitter.SetBool( false );
 	}
 	
@@ -1034,7 +1030,7 @@ void idRenderSystemLocal::TakeScreenshot( int width, int height, idFile* outFile
 	//fileSystem->WriteFile( fileName, buffer, c );
     outFile->Write(buffer, c);
 	outFile->ForceFlush();
-	frontEnd->StaticFree( buffer );
+	crFrontend::Get().StaticFree( buffer );
 	
 	takingScreenshot = false;
 }
@@ -1705,7 +1701,6 @@ void R_VidRestart_f( const idCmdArgs& args )
 	
 	auto globalImages = idImageManager::Get();
 	auto backend = crBackend::Get();
-	auto frontend = crFrontend::Get();
 
 	// set the mode without re-initializing the context
 	tr.SetNewMode( false );
@@ -1736,8 +1731,8 @@ void R_VidRestart_f( const idCmdArgs& args )
 	R_FreeDerivedData();
 	
 	// make sure the defered frees are actually freed
-	frontend->ToggleSmpFrame();
-	frontend->ToggleSmpFrame();
+	crFrontend::Get().ToggleSmpFrame();
+	crFrontend::Get().ToggleSmpFrame();
 	
 	// free the vertex caches so they will be regenerated again
 	vertexCache.PurgeAll();
@@ -1780,7 +1775,8 @@ void R_VidRestart_f( const idCmdArgs& args )
 	
 	// make sure the regeneration doesn't use anything no longer valid
 	tr.viewCount++;
-	tr.viewDef = nullptr;
+	//tr.viewDef = nullptr;
+	crFrontend::Get().ClearViewDef();
 }
 
 /*
@@ -1942,7 +1938,7 @@ void idRenderSystemLocal::Clear( void )
 		testImageTriangles = nullptr;
 	}
 	
-	crFrontend::Get()->Clear();
+	crFrontend::Get().Clear();
 	
 
 #ifdef BUGFIXEDSCREENSHOTRESOLUTION
@@ -2241,7 +2237,7 @@ void idRenderSystemLocal::Shutdown( void )
 	globalImages->Shutdown();
 	
 	// free frame memory
-	crFrontend::Get()->ShutdownFrameData();
+	crFrontend::Get().ShutdownFrameData();
 
 	UnbindBufferObjects();
 	
@@ -2496,7 +2492,7 @@ void idRenderSystemLocal::InitRenderAPI( void )
 		vertexCache.Init( r_bufferCount.GetInteger() );
 		
 		// allocate the frame data, which may be more if smp is enabled
-		crFrontend::Get()->InitFrameData();
+		crFrontend::Get().InitFrameData();
 		
 		// Reset our gamma
 		R_SetColorMappings();
@@ -2593,7 +2589,7 @@ idRenderSystemLocal::ShutdownOpenGL
 void idRenderSystemLocal::ShutdownRenderAPI( void )
 {
 	// free the context and close the window
-	crFrontend::Get()->ShutdownFrameData();
+	crFrontend::Get().ShutdownFrameData();
 
 	crBackend::Get()->ShutDown();
 

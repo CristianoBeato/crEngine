@@ -437,7 +437,7 @@ void idRenderModelOverlay::CreateDeferredOverlays( const idRenderModel* model )
 	for( unsigned int i = firstDeferredOverlay; i < nextDeferredOverlay; i++ )
 	{
 		const overlayProjectionParms_t& parms = deferredOverlays[i & ( MAX_DEFERRED_OVERLAYS - 1 )];
-		if( parms.startTime > tr.viewDef->renderView.time[0] -  DEFFERED_OVERLAY_TIMEOUT )
+		if( parms.startTime > crFrontend::Get().GetViewDef()->renderView.time[0] -  DEFFERED_OVERLAY_TIMEOUT )
 		{
 			CreateOverlay( model, parms.localTextureAxis, parms.material );
 		}
@@ -581,7 +581,7 @@ drawSurf_t* idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t* spa
 	}
 	
 	// create a new triangle surface in frame memory so it gets automatically disposed of
-	crDrawGeometry* newTri = ( crDrawGeometry* )R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	crDrawGeometry* newTri = static_cast<crDrawGeometry*>R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
 	newTri->StaticModelWithJoints() = ( staticModel->jointsInverted != nullptr ) ? const_cast< idRenderModelStatic* >( staticModel ) : nullptr;	// allow GPU skinning
 	
 	//newTri->ambientCache = vertexCache.AllocVertex( nullptr, ALIGN( maxVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );

@@ -233,7 +233,7 @@ static void LoadTGA( const char* name, byte** pic, int* width, int* height, ID_T
 	if( height )
 		*height = rows;
 	
-	targa_rgba = ( byte* )crFrontend::Get()->StaticAlloc( numPixels * 4, TAG_IMAGE );
+	targa_rgba = ( byte* )crFrontend::Get().StaticAlloc( numPixels * 4, TAG_IMAGE );
 	*pic = targa_rgba;
 	
 	if( targa_header.id_length != 0 )
@@ -547,7 +547,7 @@ static void LoadJPG( const char* filename, unsigned char** pic, int* width, int*
 		common->DWarning( "JPG %s is unsupported color depth (%d)",
 						  filename, cinfo.output_components );
 	}
-	out = ( byte* )crFrontend::Get()->StaticAlloc( cinfo.output_width * cinfo.output_height * 4, TAG_IMAGE );
+	out = ( byte* )crFrontend::Get().StaticAlloc( cinfo.output_width * cinfo.output_height * 4, TAG_IMAGE );
 	
 	*pic = out;
 	*width = cinfo.output_width;
@@ -749,7 +749,7 @@ static void LoadPNG( const char* filename, unsigned char** pic, int* width, int*
 	
 	png_read_update_info( pngPtr, infoPtr );
 	
-	byte* out = ( byte* )crFrontend::Get()->StaticAlloc( pngWidth * pngHeight * 4 );
+	byte* out = ( byte* )crFrontend::Get().StaticAlloc( pngWidth * pngHeight * 4 );
 	
 	*pic = out;
 	*width = pngWidth;
@@ -757,7 +757,7 @@ static void LoadPNG( const char* filename, unsigned char** pic, int* width, int*
 	
 	png_uint_32 rowBytes = png_get_rowbytes( pngPtr, infoPtr );
 	
-	png_bytep* rowPointers = ( png_bytep* ) crFrontend::Get()->StaticAlloc( sizeof( png_bytep ) * pngHeight );
+	png_bytep* rowPointers = ( png_bytep* ) crFrontend::Get().StaticAlloc( sizeof( png_bytep ) * pngHeight );
 	for( png_uint_32 row = 0; row < pngHeight; row++ )
 	{
 		rowPointers[row] = ( png_bytep )( out + ( row * pngWidth * 4 ) );
@@ -769,7 +769,7 @@ static void LoadPNG( const char* filename, unsigned char** pic, int* width, int*
 	
 	png_destroy_read_struct( &pngPtr, &infoPtr, nullptr );
 	
-	crFrontend::Get()->StaticFree( rowPointers );
+	crFrontend::Get().StaticFree( rowPointers );
 	Mem_Free( buff.buffer );
 }
 
@@ -935,7 +935,7 @@ void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIM
 	{
 		if( pic && *pic )
 		{
-			crFrontend::Get()->StaticFree( *pic );
+			crFrontend::Get().StaticFree( *pic );
 			*pic = 0;
 		}
 	}
@@ -959,7 +959,7 @@ void R_LoadImage( const char* cname, byte** pic, int* width, int* height, ID_TIM
 	
 		if ( scaled_width != w || scaled_height != h ) {
 			resampledBuffer = R_ResampleTexture( *pic, w, h, scaled_width, scaled_height );
-			R_StaticFree( *pic );
+			crFrontend::Get().StaticFree( *pic );
 			*pic = resampledBuffer;
 			*width = scaled_width;
 			*height = scaled_height;
@@ -1114,7 +1114,7 @@ bool R_LoadCubeImages( const char* imgName, cubeFiles_t extensions, byte* pics[6
 		{
 			for( j = 0 ; j < i ; j++ )
 			{
-				R_StaticFree( pics[j] );
+				crFrontend::Get().StaticFree( pics[j] );
 			}
 		}
 		

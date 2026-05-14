@@ -62,7 +62,7 @@ only be called when the back end thread is idle.
 */
 void idRenderSystemLocal::PerformanceCounters( void )
 {
-	auto fpc = crFrontend::Get()->PerformanceCounters();
+	auto fpc = crFrontend::Get().PerformanceCounters();
 	auto bpc = crBackend::Get()->PerformanceCounters();
 
 	if( r_showPrimitives.GetInteger() != 0 )
@@ -113,7 +113,7 @@ void idRenderSystemLocal::PerformanceCounters( void )
 	}
 	
 	/// Clear the performance counters from backend and frontend
-	crFrontend::Get()->ZeroPerformanceCounters();
+	crFrontend::Get().ZeroPerformanceCounters();
 	crBackend::Get()->ZeroPerformanceCounters();
 }
 
@@ -622,7 +622,6 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	SCOPED_PROFILE_EVENT( "SwapCommandBuffers" );
 	
 	auto backEnd = crBackend::Get();
-	auto frontEnd = crFrontend::Get();
 
 	if( gpuMicroSec != nullptr )
 		*gpuMicroSec = 0;		// until shown otherwise
@@ -631,7 +630,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 		return;
 	
 	// After coming back from an autoswap, we won't have anything to render
-	if( frontEnd->HasCommand() )
+	if( crFrontend::Get().HasCommand() )
 	{
 		// wait for our fence to hit, which means the swap has actually happened
 		// We must do this before clearing any resources the GPU may be using
@@ -651,7 +650,7 @@ void idRenderSystemLocal::SwapCommandBuffers_FinishRendering(
 	
 	// save out timing information
 	if( frontEndMicroSec != nullptr )
-		*frontEndMicroSec = frontEnd->PerformanceCounters().frontEndMicroSec;
+		*frontEndMicroSec = crFrontend::Get().PerformanceCounters().frontEndMicroSec;
 	
 	if( backEndMicroSec != nullptr )
 		*backEndMicroSec = backEnd->PerformanceCounters().totalMicroSec;
@@ -686,7 +685,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	vertexCache.BeginBackEnd();
 	
 	// save off this command buffer
-	const emptyCommand_t* commandBufferHead = crFrontend::Get()->CommandBufferHead();
+	const emptyCommand_t* commandBufferHead = crFrontend::Get().CommandBufferHead();
 	
 	// copy the code-used drawsurfs that were
 	// allocated at the start of the buffer memory to the backEnd referenced locations
@@ -696,7 +695,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	
 	// use the other buffers next frame, because another CPU
 	// may still be rendering into the current buffers
-	crFrontend::Get()->ToggleSmpFrame();
+	crFrontend::Get().ToggleSmpFrame();
 	
 	// possibly change the stereo3D mode
 	// PC
@@ -729,7 +728,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	currentRenderCrop = 0;
 
 	// foresthale 2014-05-23: this hack is fairly horrible, but there was no easier way after much research
-	auto viewDef = crFrontend::Get()->GetViewDef();
+	auto viewDef = crFrontend::Get().GetViewDef();
 	if( ( com_editors & EDITOR_GUI ) && viewDef )
 	{
 		renderCrops[0].x1 = viewDef->renderView.x;
@@ -753,7 +752,7 @@ const emptyCommand_t* idRenderSystemLocal::SwapCommandBuffers_FinishCommandBuffe
 	// set the time for shader effects in 2D rendering
 	frameShaderTime = Sys_Milliseconds() * 0.001;
 	
-	setBufferCommand_t* cmd2 = ( setBufferCommand_t* )crFrontend::Get()->GetCommandBuffer( sizeof( *cmd2 ) );
+	setBufferCommand_t* cmd2 = static_cast<setBufferCommand_t*>( crFrontend::Get().GetCommandBuffer( sizeof( *cmd2 ) ) );
 	cmd2->commandId = RC_SET_BUFFER;
 	uint32_t bufferCount = r_bufferCount.GetInteger();
 	cmd2->frameID = frameCount % bufferCount;
@@ -1028,7 +1027,7 @@ void idRenderSystemLocal::CaptureRenderToImage( const char* imageName, bool clea
 	
 	idScreenRect& rc = renderCrops[currentRenderCrop];
 	
-	copyRenderCommand_t* cmd = ( copyRenderCommand_t* )crFrontend::Get()->GetCommandBuffer( sizeof( *cmd ) );
+	copyRenderCommand_t* cmd = ( copyRenderCommand_t* )crFrontend::Get().GetCommandBuffer( sizeof( *cmd ) );
 	cmd->commandId = RC_COPY_RENDER;
 	cmd->x = rc.x1;
 	cmd->y = rc.y1;
@@ -1054,18 +1053,18 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	
 	guiModel->EmitFullScreen();
 	guiModel->Clear();
-	RenderCommandBuffers( crFrontend::Get()->CommandBufferHead() );
+	RenderCommandBuffers( crFrontend::Get().CommandBufferHead() );
 	
 	// foresthale 2014-02-20: HDR view rendering - this seems to not be changed anywhere and conflicts with FBO rendering
 	//glReadBuffer( GL_BACK );
 	
 	// include extra space for OpenGL padding to word boundaries
 	int	c = ( rc.GetWidth() + 3 ) * rc.GetHeight();
-	byte* data = ( byte* )crFrontend::Get()->StaticAlloc( c * 3 );
+	byte* data = ( byte* )crFrontend::Get().StaticAlloc( c * 3 );
 	
 	//glReadPixels( rc.x1, rc.y1, rc.GetWidth(), rc.GetHeight(), GL_RGB, GL_UNSIGNED_BYTE, data );
 	
-	byte* data2 = ( byte* )crFrontend::Get()->StaticAlloc( c * 4 );
+	byte* data2 = ( byte* )crFrontend::Get().StaticAlloc( c * 4 );
 	
 	for( int i = 0 ; i < c ; i++ )
 	{
@@ -1077,8 +1076,8 @@ void idRenderSystemLocal::CaptureRenderToFile( const char* fileName, bool fixAlp
 	
 	R_WriteTGA( fileName, data2, rc.GetWidth(), rc.GetHeight(), true );
 	
-	crFrontend::Get()->StaticFree( data );
-	crFrontend::Get()->StaticFree( data2 );
+	crFrontend::Get().StaticFree( data );
+	crFrontend::Get().StaticFree( data2 );
 }
 
 

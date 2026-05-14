@@ -109,8 +109,8 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 							   bool depthHack, bool allowFullScreenStereoDepth, bool linkAsEntity )
 {
 
-	auto viewDef = crFrontend::Get()->GetViewDef();
-	viewEntity_t* guiSpace = ( viewEntity_t* )crFrontend::Get()->ClearedFrameAlloc( sizeof( *guiSpace ), FRAME_ALLOC_VIEW_ENTITY );
+	auto viewDef = crFrontend::Get().GetViewDef();
+	viewEntity_t* guiSpace = ( viewEntity_t* )crFrontend::Get().ClearedFrameAlloc( sizeof( *guiSpace ), FRAME_ALLOC_VIEW_ENTITY );
 	std::memcpy( guiSpace->modelMatrix, modelMatrix, sizeof( guiSpace->modelMatrix ) );
 	std::memcpy( guiSpace->modelViewMatrix, modelViewMatrix, sizeof( guiSpace->modelViewMatrix ) );
 	guiSpace->weaponDepthHack = depthHack;
@@ -147,7 +147,7 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 			continue;
 		
 		const idMaterial* shader = guiSurf.material;
-		drawSurf_t* drawSurf = ( drawSurf_t* )crFrontend::Get()->FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+		drawSurf_t* drawSurf = ( drawSurf_t* )crFrontend::Get().FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
 		
 		drawSurf->numIndexes = guiSurf.numIndexes;
 		drawSurf->ambientCache = vertexBlock;
@@ -171,12 +171,12 @@ void idGuiModel::EmitSurfaces( float modelMatrix[16], float modelViewMatrix[16],
 		}
 		else
 		{
-			float* regs = ( float* )crFrontend::Get()->FrameAlloc( shader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
+			float* regs = ( float* )crFrontend::Get().FrameAlloc( shader->GetNumRegisters() * sizeof( float ), FRAME_ALLOC_SHADER_REGISTER );
 			drawSurf->shaderRegisters = regs;
 			shader->EvaluateRegisters( regs, shaderParms, viewDef->renderView.shaderParms, viewDef->renderView.time[1] * 0.001f, nullptr );
 		}
 
-		crFrontend::Get()->LinkDrawSurfToView( drawSurf, viewDef );
+		crFrontend::Get().LinkDrawSurfToView( drawSurf, viewDef );
 		if( allowFullScreenStereoDepth )
 		{
 			// override sort with the stereoDepth
@@ -211,7 +211,7 @@ void idGuiModel::EmitToCurrentView( float modelMatrix[16], bool depthHack )
 {
 	float	modelViewMatrix[16];
 	
-	auto viewDef = crFrontend::Get()->GetViewDef();
+	auto viewDef = crFrontend::Get().GetViewDef();
 	R_MatrixMultiply( modelMatrix, viewDef->worldSpace.modelViewMatrix, modelViewMatrix );
 	
 	EmitSurfaces( modelMatrix, modelViewMatrix, depthHack, false /* stereoDepthSort */, true /* link as entity */ );
@@ -238,7 +238,7 @@ void idGuiModel::EmitFullScreen()
 	
 	SCOPED_PROFILE_EVENT( "Gui::EmitFullScreen" );
 	
-	viewDef_t* viewDef = ( viewDef_t* )crFrontend::Get()->ClearedFrameAlloc( sizeof( *viewDef ), FRAME_ALLOC_VIEW_DEF );
+	viewDef_t* viewDef = static_cast<viewDef_t*>( crFrontend::Get().ClearedFrameAlloc( sizeof( *viewDef ), FRAME_ALLOC_VIEW_DEF ) );
 	viewDef->is2Dgui = true;
 	tr.GetCroppedViewport( &viewDef->viewport );
 	
@@ -297,7 +297,7 @@ void idGuiModel::EmitFullScreen()
 	viewDef->worldSpace.modelViewMatrix[3 * 4 + 3] = 1.0f;
 	
 	viewDef->maxDrawSurfs = surfaces.Num();
-	viewDef->drawSurfs = ( drawSurf_t** )crFrontend::Get()->FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER );
+	viewDef->drawSurfs = static_cast<drawSurf_t**>( crFrontend::Get().FrameAlloc( viewDef->maxDrawSurfs * sizeof( viewDef->drawSurfs[0] ), FRAME_ALLOC_DRAW_SURFACE_POINTER ) );
 	viewDef->numDrawSurfs = 0;
 	
 #if 1
@@ -308,16 +308,19 @@ void idGuiModel::EmitFullScreen()
 	// RB end
 #endif
 	
-	viewDef_t* oldViewDef = tr.viewDef;
-	tr.viewDef = viewDef;
-	
+	// viewDef_t* oldViewDef = tr.viewDef;
+	viewDef_t* oldViewDef = crFrontend::Get().GetViewDef(); 
+	// tr.viewDef = viewDef;
+	crFrontend::Get().SetViewDef( viewDef );
+
 	EmitSurfaces( viewDef->worldSpace.modelMatrix, viewDef->worldSpace.modelViewMatrix,
 				  false /* depthHack */ , stereoEnabled /* stereoDepthSort */, false /* link as entity */ );
 				  
-	tr.viewDef = oldViewDef;
+	//tr.viewDef = oldViewDef;
+	crFrontend::Get().SetViewDef( oldViewDef );
 	
 	// add the command to draw this view
-	AddDrawViewCmd( viewDef, true );
+	crFrontend::Get().AddDrawViewCmd( viewDef, true );
 }
 
 /*

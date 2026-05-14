@@ -88,7 +88,7 @@ static void R_HeightmapToNormalMap( byte* data, int width, int height, float sca
 	
 	// copy and convert to grey scale
 	j = width * height;
-	depth = ( byte* )crFrontend::Get()->StaticAlloc( j, TAG_IMAGE );
+	depth = ( byte* )crFrontend::Get().StaticAlloc( j, TAG_IMAGE );
 	for( i = 0 ; i < j ; i++ )
 	{
 		depth[i] = ( data[i * 4] + data[i * 4 + 1] + data[i * 4 + 2] ) / 3;
@@ -138,7 +138,7 @@ static void R_HeightmapToNormalMap( byte* data, int width, int height, float sca
 	}
 	
 	
-	crFrontend::Get()->StaticFree( depth );
+	crFrontend::Get().StaticFree( depth );
 }
 
 
@@ -266,7 +266,7 @@ static void R_AddNormalMaps( byte* data1, int width1, int height1, byte* data2, 
 	}
 	
 	if( newMap )
-		crFrontend::Get()->StaticFree( newMap );
+		crFrontend::Get().StaticFree( newMap );
 }
 
 /*
@@ -287,7 +287,7 @@ static void R_SmoothNormalMap( byte* data, int width, int height )
 		{ 1, 1, 1 }
 	};
 	
-	orig = ( byte* )crFrontend::Get()->StaticAlloc( width * height * 4, TAG_IMAGE );
+	orig = ( byte* )crFrontend::Get().StaticAlloc( width * height * 4, TAG_IMAGE );
 	std::memcpy( orig, data, width * height * 4 );
 	
 	for( i = 0 ; i < width ; i++ )
@@ -326,7 +326,7 @@ static void R_SmoothNormalMap( byte* data, int width, int height )
 		}
 	}
 	
-	crFrontend::Get()->StaticFree( orig );
+	crFrontend::Get().StaticFree( orig );
 }
 
 
@@ -367,7 +367,7 @@ static void R_ImageAdd( byte* data1, int width1, int height1, byte* data2, int w
 	}
 	
 	if( newMap )
-		crFrontend::Get()->StaticFree( newMap );
+		crFrontend::Get().StaticFree( newMap );
 }
 
 
@@ -471,7 +471,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		{
 			if( pic )
 			{
-				R_StaticFree( *pic );
+				crFrontend::Get().StaticFree( *pic );
 				*pic = nullptr;
 			}
 			return false;
@@ -481,7 +481,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		if( pic )
 		{
 			R_AddNormalMaps( *pic, *width, *height, pic2, width2, height2 );
-			R_StaticFree( pic2 );
+			crFrontend::Get().StaticFree( pic2 );
 		}
 		
 		MatchAndAppendToken( src, ")" );
@@ -518,7 +518,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		{
 			if( pic )
 			{
-				R_StaticFree( *pic );
+				crFrontend::Get().StaticFree( *pic );
 				*pic = nullptr;
 			}
 			return false;
@@ -528,7 +528,7 @@ static bool R_ParseImageProgram_r( idLexer& src, byte** pic, int* width, int* he
 		if( pic )
 		{
 			R_ImageAdd( *pic, *width, *height, pic2, width2, height2 );
-			R_StaticFree( pic2 );
+			crFrontend::Get().StaticFree( pic2 );
 		}
 		
 		MatchAndAppendToken( src, ")" );

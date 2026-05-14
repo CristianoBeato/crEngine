@@ -543,8 +543,7 @@ void crFrontend::AddSingleLight( viewLight_t* vLight )
 
 void crFrontend::R_AddSingleLight( viewLight_t* vLight )
 {
-	auto fe = crFrontend::Get();
-	fe->AddSingleLight( vLight );
+	crFrontend::Get().AddSingleLight( vLight );
 }
 
 /*

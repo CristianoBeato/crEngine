@@ -62,7 +62,7 @@ void R_CalcInteractionFacing( const idRenderEntityLocal* ent, const crDrawGeomet
 	R_GlobalPointToLocal( ent->modelMatrix, light->globalLightOrigin, localLightOrigin );
 	
 	const int numFaces = tri->NumIndexes() / 3;
-	cullInfo.facing = ( byte* ) crFrontend::Get()->StaticAlloc( ( numFaces + 1 ) * sizeof( cullInfo.facing[0] ), TAG_RENDER_INTERACTION );
+	cullInfo.facing = ( byte* ) crFrontend::Get().StaticAlloc( ( numFaces + 1 ) * sizeof( cullInfo.facing[0] ), TAG_RENDER_INTERACTION );
 	
 	// exact geometric cull against face
 	for( int i = 0, face = 0; i < tri->NumIndexes(); i += 3, face++ )
@@ -120,7 +120,7 @@ void R_CalcInteractionCullBits( const idRenderEntityLocal* ent, const crDrawGeom
 		return;
 	}
 	
-	cullInfo.cullBits = ( byte* ) crFrontend::Get()->StaticAlloc( tri->NumVerts() * sizeof( cullInfo.cullBits[0] ), TAG_RENDER_INTERACTION );
+	cullInfo.cullBits = static_cast<byte*>(crFrontend::Get().StaticAlloc( tri->NumVerts() * sizeof( cullInfo.cullBits[0] ), TAG_RENDER_INTERACTION ) );
 	std::memset( cullInfo.cullBits, 0, tri->NumVerts() * sizeof( cullInfo.cullBits[0] ) );
 	
 	for( int i = 0; i < 6; i++ )
@@ -147,13 +147,13 @@ void R_FreeInteractionCullInfo( srfCullInfo_t& cullInfo )
 {
 	if( cullInfo.facing != nullptr )
 	{
-		crFrontend::Get()->StaticFree( cullInfo.facing );
+		crFrontend::Get().StaticFree( cullInfo.facing );
 		cullInfo.facing = nullptr;
 	}
 	if( cullInfo.cullBits != nullptr )
 	{
 		if( cullInfo.cullBits != LIGHT_CULL_ALL_FRONT )
-			crFrontend::Get()->StaticFree( cullInfo.cullBits );
+			crFrontend::Get().StaticFree( cullInfo.cullBits );
 		
 		cullInfo.cullBits = nullptr;
 	}
@@ -586,7 +586,7 @@ void idInteraction::FreeSurfaces()
 			Mem_Free( srf.shadowIndexes );
 			srf.shadowIndexes = nullptr;
 		}
-		crFrontend::Get()->StaticFree( this->surfaces );
+		crFrontend::Get().StaticFree( this->surfaces );
 		this->surfaces = nullptr;
 	}
 	this->numSurfaces = -1;
@@ -761,7 +761,7 @@ void idInteraction::CreateStaticInteraction()
 	// create slots for each of the model's surfaces
 	//
 	numSurfaces = model->NumSurfaces();
-	surfaces = ( surfaceInteraction_t* )crFrontend::Get()->ClearedStaticAlloc( sizeof( *surfaces ) * numSurfaces );
+	surfaces = ( surfaceInteraction_t* )crFrontend::Get().ClearedStaticAlloc( sizeof( *surfaces ) * numSurfaces );
 	
 	bool interactionGenerated = false;
 	

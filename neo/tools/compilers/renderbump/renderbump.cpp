@@ -1191,7 +1191,7 @@ void RenderBump_f( const idCmdArgs &args ) {
 	}
 
 	commonLocal.LoadPacifierBinarizeFilename(source.c_str(), "RenderBump");
-	renderBumps = (renderBump_t *)R_StaticAlloc( lowPoly->NumSurfaces() * sizeof( *renderBumps ) );
+	renderBumps = (renderBump_t *)crFrontend::Get().StaticAlloc( lowPoly->NumSurfaces() * sizeof( *renderBumps ) );
 	numRenderBumps = 0;
 	int lowPolySurf = lowPoly->NumSurfaces();
 	for ( i = 0 ; i < lowPolySurf; i++ ) {
@@ -1314,7 +1314,7 @@ void RenderBump_f( const idCmdArgs &args ) {
 		WriteRenderBump( &renderBumps[i], opt.outline << opt.antiAlias );
 	}
 
-	R_StaticFree( renderBumps );
+	crFrontend::Get().StaticFree( renderBumps );
 	R_ShutdownTriSurfData();
 	endTime = Sys_Milliseconds();
 	common->Printf( "%5.2f seconds for renderBump\n", ( endTime - startTime ) / 1000.0 );

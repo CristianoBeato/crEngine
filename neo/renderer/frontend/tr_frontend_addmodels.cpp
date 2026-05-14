@@ -348,8 +348,7 @@ crFrontend::AddSingleModel
 */
 void crFrontend::R_AddSingleModel( viewEntity_t *vEntity )
 {
-	auto fe = crFrontend::Get();
-	fe->AddSingleModel( vEntity );
+	crFrontend::Get().AddSingleModel( vEntity );
 }
 
 /*

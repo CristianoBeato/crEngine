@@ -2147,7 +2147,7 @@ void CalcInteractionFacing( const idRenderEntityLocal *ent, const crDrawGeometry
 		const_cast<crDrawGeometry*>(tri)->DeriveFacePlanes();
 	}
 
-	cullInfo.facing = (byte *) R_StaticAlloc( ( numFaces + 1 ) * sizeof( cullInfo.facing[0] ) );
+	cullInfo.facing = (byte *) crFrontend::Get().StaticAlloc( ( numFaces + 1 ) * sizeof( cullInfo.facing[0] ) );
 
 	// calculate back face culling
 	float *planeSide = (float *) _alloca16( numFaces * sizeof( float ) );

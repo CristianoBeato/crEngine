@@ -1250,7 +1250,7 @@ void idMaterial::FreeData( void )
 				stages[i].newStage = nullptr;
 			}
 		}
-		R_StaticFree( stages );
+		crFrontend::Get().StaticFree( stages );
 		stages = nullptr;
 	}
 #else
@@ -1264,17 +1264,17 @@ void idMaterial::FreeData( void )
 
 	if( expressionRegisters != nullptr )
 	{
-		crFrontend::Get()->StaticFree( expressionRegisters );
+		crFrontend::Get().StaticFree( expressionRegisters );
 		expressionRegisters = nullptr;
 	}
 	if( constantRegisters != nullptr )
 	{
-		crFrontend::Get()->StaticFree( constantRegisters );
+		crFrontend::Get().StaticFree( constantRegisters );
 		constantRegisters = nullptr;
 	}
 	if( ops != nullptr )
 	{
-		crFrontend::Get()->StaticFree( ops );
+		crFrontend::Get().StaticFree( ops );
 		ops = nullptr;
 	}
 }
@@ -3012,20 +3012,20 @@ bool idMaterial::Parse( const char* text, const int textLength, bool allowBinary
 	
 	if( pd->numStages )
 	{
-		//stages = ( shaderStage_t* )R_StaticAlloc( numStages * sizeof( stages[0] ), TAG_MATERIAL );
+		//stages = ( shaderStage_t* )crFrontend::Get().StaticAlloc( numStages * sizeof( stages[0] ), TAG_MATERIAL );
 		stages.Resize( pd->numStages );
 		std::memcpy( stages.Ptr(), pd->parseStages, pd->numStages * sizeof( crShaderStage ) );
 	}
 	
 	if( numOps )
 	{
-		ops = ( expOp_t* )crFrontend::Get()->StaticAlloc( numOps * sizeof( ops[0] ), TAG_MATERIAL );
+		ops = ( expOp_t* )crFrontend::Get().StaticAlloc( numOps * sizeof( ops[0] ), TAG_MATERIAL );
 		std::memcpy( ops, pd->shaderOps, numOps * sizeof( ops[0] ) );
 	}
 	
 	if( numRegisters )
 	{
-		expressionRegisters = ( float* )crFrontend::Get()->StaticAlloc( numRegisters * sizeof( expressionRegisters[0] ), TAG_MATERIAL );
+		expressionRegisters = ( float* )crFrontend::Get().StaticAlloc( numRegisters * sizeof( expressionRegisters[0] ), TAG_MATERIAL );
 		std::memcpy( expressionRegisters, pd->shaderRegisters, numRegisters * sizeof( expressionRegisters[0] ) );
 	}
 	
@@ -3372,7 +3372,7 @@ void idMaterial::CheckForConstantRegisters()
 		return;
 	
 	// evaluate the registers once, and save them
-	constantRegisters = ( float* )crFrontend::Get()->ClearedStaticAlloc( GetNumRegisters() * sizeof( float ) );
+	constantRegisters = ( float* )crFrontend::Get().ClearedStaticAlloc( GetNumRegisters() * sizeof( float ) );
 	
 	float shaderParms[MAX_ENTITY_SHADER_PARMS];
 	std::memset( shaderParms, 0, sizeof( shaderParms ) );

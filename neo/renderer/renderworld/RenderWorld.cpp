@@ -212,7 +212,7 @@ void idRenderWorldLocal::ResizeInteractionTable()
 		interactionTableWidth = entityDefs.Num() + 1000; // motorsep 11-27-2014; was 100
 		interactionTableHeight = lightDefs.Num() + 1000; // motorsep 11-27-2014; was 100
 		const int	size =  interactionTableWidth * interactionTableHeight * sizeof( *interactionTable );
-		interactionTable = ( idInteraction** )R_ClearedStaticAlloc( size );
+		interactionTable = ( idInteraction** )crFrontend::Get().ClearedStaticAlloc( size );
 		return;
 	}
 
@@ -228,7 +228,7 @@ void idRenderWorldLocal::ResizeInteractionTable()
 	interactionTableWidth = entityDefs.Num() + 1000; // motorsep 11-27-2014; was 100
 	interactionTableHeight = lightDefs.Num() + 1000; // motorsep 11-27-2014; was 100
 	const int	size =  interactionTableWidth * interactionTableHeight * sizeof( *interactionTable );
-	interactionTable = ( idInteraction** )R_ClearedStaticAlloc( size );
+	interactionTable = ( idInteraction** )crFrontend::Get().ClearedStaticAlloc( size );
 	for( int l = 0; l < oldIinteractionTableHeight; l++ )
 	{
 		for( int e = 0; e < oldInteractionTableWidth; e++ )
@@ -237,7 +237,7 @@ void idRenderWorldLocal::ResizeInteractionTable()
 		}
 	}
 	
-	R_StaticFree( oldInteractionTable );
+	crFrontend::Get().StaticFree( oldInteractionTable );
 }
 
 /*
@@ -277,22 +277,17 @@ int c_callbackUpdate;
 void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEntity_t* re )
 {
 	if( r_skipUpdates.GetBool() )
-	{
 		return;
-	}
 	
 	tr.pc.c_entityUpdates++;
 	
 	if( !re->hModel && !re->callback )
-	{
 		common->Error( "idRenderWorld::UpdateEntityDef: nullptr hModel" );
-	}
 	
 	// create new slots if needed
 	if( entityHandle < 0 || entityHandle > LUDICROUS_INDEX )
-	{
 		common->Error( "idRenderWorld::UpdateEntityDef: index = %i", entityHandle );
-	}
+	
 	while( entityHandle >= entityDefs.Num() )
 	{
 		entityDefs.Append( nullptr );
@@ -301,15 +296,12 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 	idRenderEntityLocal*	def = entityDefs[entityHandle];
 	if( def != nullptr )
 	{
-	
 		if( !re->forceUpdate )
 		{
 		
 			// check for exact match (OPTIMIZE: check through pointers more)
 			if( !re->joints && !re->callbackData && !def->dynamicModel && !memcmp( re, &def->parms, sizeof( *re ) ) )
-			{
 				return;
-			}
 			
 			// if the only thing that changed was shaderparms, we can just leave things as they are
 			// after updating parms
@@ -374,9 +366,7 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 	
 	// optionally immediately issue any callbacks
 	if( !r_useEntityCallbacks.GetBool() && def->parms.callback != nullptr )
-	{
-		R_IssueEntityDefCallback( def );
-	}
+		crFrontend::Get().IssueEntityDefCallback( def );
 	
 	// trigger entities don't need to get linked in and processed,
 	// they only exist for editor use
@@ -1328,29 +1318,22 @@ idRenderWorldLocal::ModelTrace
 */
 bool idRenderWorldLocal::ModelTrace( modelTrace_t& trace, qhandle_t entityHandle, const idVec3& start, const idVec3& end, const float radius ) const
 {
-
 	std::memset( &trace, 0, sizeof( trace ) );
 	trace.fraction = 1.0f;
 	trace.point = end;
 	
 	if( entityHandle < 0 || entityHandle >= entityDefs.Num() )
-	{
 		return false;
-	}
 	
 	idRenderEntityLocal*	def = entityDefs[entityHandle];
 	if( def == nullptr )
-	{
 		return false;
-	}
 	
 	renderEntity_t* refEnt = &def->parms;
 	
-	idRenderModel* model = R_EntityDefDynamicModel( def );
+	idRenderModel* model = crFrontend::Get().EntityDefDynamicModel( def );
 	if( model == nullptr )
-	{
 		return false;
-	}
 	
 	// transform the points into local space
 	float modelMatrix[16];
@@ -1384,9 +1367,7 @@ bool idRenderWorldLocal::ModelTrace( modelTrace_t& trace, qhandle_t entityHandle
 		const idMaterial* shader = R_RemapShaderBySkin( surf->shader, def->parms.customSkin, def->parms.customShader );
 		
 		if( surf->geometry == nullptr || shader == nullptr )
-		{
 			continue;
-		}
 		
 		if( collisionSurface )
 		{
@@ -1497,11 +1478,9 @@ bool idRenderWorldLocal::Trace( modelTrace_t& trace, const idVec3& start, const 
 				}
 #endif
 				
-				model = R_EntityDefDynamicModel( def );
+				model = crFrontend::Get().EntityDefDynamicModel( def );
 				if( !model )
-				{
 					continue;	// can happen with particle systems, which don't instantiate without a valid view
-				}
 			}
 			
 			idBounds bounds;
@@ -1538,10 +1517,9 @@ bool idRenderWorldLocal::Trace( modelTrace_t& trace, const idVec3& start, const 
 							break;
 						}
 					}
+
 					if( exclude )
-					{
 						continue;
-					}
 				}
 #endif
 				
@@ -1767,14 +1745,15 @@ void idRenderWorldLocal::GenerateAllInteractions( void )
 	
 	// let the interaction creation code know that it shouldn't
 	// try and do any view specific optimizations
-	tr.viewDef = nullptr;
-	
+	//tr.viewDef = nullptr;
+	crFrontend::Get().ClearViewDef();
+
 	// build the interaction table
 	// this will be dynamically resized if the entity / light counts grow too much
 	interactionTableWidth = entityDefs.Num() + 1000; // motorsep 11-27-2014; was 100
 	interactionTableHeight = lightDefs.Num() + 1000; // motorsep 11-27-2014; was 100
 	int	size =  interactionTableWidth * interactionTableHeight * sizeof( *interactionTable );
-	interactionTable = ( idInteraction** )R_ClearedStaticAlloc( size );
+	interactionTable = static_cast<idInteraction**>( crFrontend::Get().ClearedStaticAlloc( size ) );
 	
 	// itterate through all lights
 	int	count = 0;
@@ -1891,19 +1870,16 @@ void idRenderWorldLocal::PushFrustumIntoTree_r( idRenderEntityLocal* def, idRend
 		int areaNum = -1 - nodeNum;
 		portalArea_t* area = &portalAreas[ areaNum ];
 		if( area->viewCount == tr.viewCount )
-		{
 			return;	// already added a reference here
-		}
+		
 		area->viewCount = tr.viewCount;
 		
 		if( def != nullptr )
-		{
 			AddEntityRefToArea( def, area );
-		}
-		if( light != nullptr )
-		{
+		
+		if( light != nullptr )	
 			AddLightRefToArea( light, area );
-		}
+	
 		
 		return;
 	}
@@ -1919,9 +1895,8 @@ void idRenderWorldLocal::PushFrustumIntoTree_r( idRenderEntityLocal* def, idRend
 		// solid part, which would cause bounds slightly poked into
 		// a wall to show up in the next room
 		if( portalAreas[ node->commonChildrenArea ].viewCount == tr.viewCount )
-		{
 			return;
-		}
+		
 	}
 	
 	// exact check all the corners against the node plane
@@ -1931,9 +1906,7 @@ void idRenderWorldLocal::PushFrustumIntoTree_r( idRenderEntityLocal* def, idRend
 	{
 		nodeNum = node->children[0];
 		if( nodeNum != 0 )  	// 0 = solid
-		{
 			PushFrustumIntoTree_r( def, light, corners, nodeNum );
-		}
 	}
 	
 	if( cull != FRUSTUM_CULL_FRONT )
@@ -1954,12 +1927,10 @@ idRenderWorldLocal::PushFrustumIntoTree
 void idRenderWorldLocal::PushFrustumIntoTree( idRenderEntityLocal* def, idRenderLightLocal* light, const idRenderMatrix& frustumTransform, const idBounds& frustumBounds )
 {
 	if( areaNodes == nullptr )
-	{
 		return;
-	}
 	
 	// calculate the corners of the frustum in word space
-	ALIGNTYPE16 frustumCorners_t corners;
+	alignas( 16 ) frustumCorners_t corners;
 	idRenderMatrix::GetFrustumCorners( corners, frustumTransform, frustumBounds );
 	
 	PushFrustumIntoTree_r( def, light, corners, 0 );

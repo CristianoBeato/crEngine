@@ -81,9 +81,10 @@ modelSurface_t idRenderModelLiquid::GenerateSurface( float lerp )
 		vert->xyz.z = page1[ i ] * lerp + page2[ i ] * inv_lerp;
 	}
 	
-	tr.pc.c_deformedSurfaces++;
-	tr.pc.c_deformedVerts += deformInfo->numOutputVerts;
-	tr.pc.c_deformedIndexes += deformInfo->numIndexes;
+	//tr.pc.c_deformedSurfaces++;
+	//tr.pc.c_deformedVerts += deformInfo->numOutputVerts;
+	//tr.pc.c_deformedIndexes += deformInfo->numIndexes;
+	crFrontend::Get().SetDeformedSurfacesCounters( deformInfo->numOutputVerts, deformInfo->numIndexes );
 	
 	tri = new crDrawGeometry();
 	
