@@ -1126,7 +1126,7 @@ void idRenderWorldLocal::AddWorldModelEntities()
 		def->parms.shaderParms[2] = 1.0f;
 		def->parms.shaderParms[3] = 1.0f;
 		
-		R_DeriveEntityData( def );
+		crFrontend::Get().DeriveEntityData( def );
 		
 		AddEntityRefToArea( def, &portalAreas[i] );
 	}

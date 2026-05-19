@@ -23,7 +23,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 */
 #include "idlib/precompiled.h"
 #include "Core.hpp"
-#include "DeviceQueue.hpp"
+#include "Queue.hpp"
 
 
 /*
@@ -77,7 +77,7 @@ bool crQueue::Init( const VkDevice in_device )
     ///
     ///
     /// get device queue
-    crQueueInfo2 queueInfo{};
+    VkDeviceQueueInfo2 queueInfo{};
     queueInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_INFO_2;
     queueInfo.pNext = nullptr;
     queueInfo.flags = 0;

@@ -70,7 +70,7 @@ public:
 	void				SetFrame( const uint32_t in_frameID, const crCommandBufferp in_commandBuffer );
 	void				SubmitOffsets( const crCommandBufferp in_commandBuffer );
 	const uint32_t		CurrentFrame( void ) const { return m_frameID; }
-	VkPipelineLayout	ayout( void ) const { return m_layout; }
+	VkPipelineLayout	Layout( void ) const { return m_layout; }
 	uMesh_t*		GetMeshUniforms( void );
 	uMaterial_t*	GetMaterialUniforms( void );
 	uLight_t*		GetLightUniforms( void );

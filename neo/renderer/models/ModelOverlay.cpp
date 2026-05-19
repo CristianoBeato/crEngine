@@ -581,7 +581,7 @@ drawSurf_t* idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t* spa
 	}
 	
 	// create a new triangle surface in frame memory so it gets automatically disposed of
-	crDrawGeometry* newTri = static_cast<crDrawGeometry*>R_ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES );
+	crDrawGeometry* newTri = static_cast<crDrawGeometry*>( crFrontend::Get().ClearedFrameAlloc( sizeof( *newTri ), FRAME_ALLOC_SURFACE_TRIANGLES ) );
 	newTri->StaticModelWithJoints() = ( staticModel->jointsInverted != nullptr ) ? const_cast< idRenderModelStatic* >( staticModel ) : nullptr;	// allow GPU skinning
 	
 	//newTri->ambientCache = vertexCache.AllocVertex( nullptr, ALIGN( maxVerts * sizeof( idDrawVert ), VERTEX_CACHE_ALIGN ) );
@@ -608,9 +608,7 @@ drawSurf_t* idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t* spa
 		}
 		
 		if( overlay.material != material )
-		{
 			continue;
-		}
 		
 		// get the source model surface for this overlay surface
 		const modelSurface_t* baseSurf = ( overlay.surfaceNum < staticModel->NumSurfaces() ) ? staticModel->Surface( overlay.surfaceNum ) : nullptr;
@@ -628,9 +626,8 @@ drawSurf_t* idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t* spa
 				// the surface with this id no longer exists
 				FreeOverlay( overlay );
 				if( i == firstOverlay )
-				{
 					firstOverlay++;
-				}
+				
 				continue;
 			}
 		}
@@ -643,9 +640,8 @@ drawSurf_t* idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t* spa
 			common->Warning( "idRenderModelOverlay::CreateOverlayDrawSurf: overlay vertex out of range.  Model has probably changed since generating the overlay." );
 			FreeOverlay( overlay );
 			if( i == firstOverlay )
-			{
 				firstOverlay++;
-			}
+			
 			continue;
 		}
 		
@@ -660,18 +656,18 @@ drawSurf_t* idRenderModelOverlay::CreateOverlayDrawSurf( const viewEntity_t* spa
 	newTri->NumIndexes() = numIndexes;
 	
 	// create the drawsurf
-	drawSurf_t* drawSurf = ( drawSurf_t* )R_FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE );
+	drawSurf_t* drawSurf = static_cast<drawSurf_t*>( crFrontend::Get().FrameAlloc( sizeof( *drawSurf ), FRAME_ALLOC_DRAW_SURFACE ) );
 	drawSurf->frontEndGeo = newTri;
 	drawSurf->numIndexes = newTri->NumIndexes();
 	drawSurf->ambientCache = newTri->AmbientCache();
 	drawSurf->indexCache = newTri->IndexCache();
-	drawSurf->shadowCache = 0;
+	drawSurf->shadowCache = {};
 	drawSurf->space = space;
 	drawSurf->scissorRect = space->scissorRect;
 	drawSurf->renderZFail = 0;
 	
-	R_SetupDrawSurfShader( drawSurf, material, &space->entityDef->parms );
-	R_SetupDrawSurfJoints( drawSurf, newTri, nullptr );
+	crFrontend::Get().SetupDrawSurfShader( drawSurf, material, &space->entityDef->parms );
+	crFrontend::Get().SetupDrawSurfJoints( drawSurf, newTri, nullptr );
 	
 	return drawSurf;
 }

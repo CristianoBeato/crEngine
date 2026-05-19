@@ -279,8 +279,9 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 	if( r_skipUpdates.GetBool() )
 		return;
 	
-	tr.pc.c_entityUpdates++;
-	
+	//tr.pc.c_entityUpdates++;
+	crFrontend::Get().IncrementEntityUpdates();
+
 	if( !re->hModel && !re->callback )
 		common->Error( "idRenderWorld::UpdateEntityDef: nullptr hModel" );
 	
@@ -310,7 +311,6 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 			// then we can leave the references as they are
 			if( re->callback )
 			{
-			
 				bool axisMatch = ( re->axis == def->parms.axis );
 				bool originMatch = ( re->origin == def->parms.origin );
 				bool boundsMatch = ( re->bounds == def->localReferenceBounds );
@@ -320,7 +320,7 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 				{
 					// only clear the dynamic model and interaction surfaces if they exist
 					c_callbackUpdate++;
-					R_ClearEntityDefDynamicModel( def );
+					crFrontend::Get().ClearEntityDefDynamicModel( def );
 					def->parms = *re;
 					return;
 				}
@@ -329,13 +329,9 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 		
 		// save any decals if the model is the same, allowing marks to move with entities
 		if( def->parms.hModel == re->hModel )
-		{
-			R_FreeEntityDefDerivedData( def, true, true );
-		}
+			crFrontend::Get().FreeEntityDefDerivedData( def, true, true );
 		else
-		{
-			R_FreeEntityDefDerivedData( def, false, false );
-		}
+			crFrontend::Get().FreeEntityDefDerivedData( def, false, false );
 	}
 	else
 	{
@@ -371,13 +367,11 @@ void idRenderWorldLocal::UpdateEntityDef( qhandle_t entityHandle, const renderEn
 	// trigger entities don't need to get linked in and processed,
 	// they only exist for editor use
 	if( def->parms.hModel != nullptr && !def->parms.hModel->ModelHasDrawingSurfaces() )
-	{
 		return;
-	}
 	
 	// based on the model bounds, add references in each area
 	// that may contain the updated surface
-	R_CreateEntityRefs( def );
+	crFrontend::Get().CreateEntityRefs( def );
 }
 
 /*
@@ -405,12 +399,11 @@ void idRenderWorldLocal::FreeEntityDef( qhandle_t entityHandle )
 		return;
 	}
 	
-	R_FreeEntityDefDerivedData( def, false, false );
+	crFrontend::Get().FreeEntityDefDerivedData( def, false, false );
 	
 	if( common->WriteDemo() && def->archived )
-	{
 		WriteFreeEntity( entityHandle );
-	}
+	
 	
 	// if we are playing a demo, these will have been freed
 	// in R_FreeEntityDefDerivedData(), otherwise the gui
@@ -485,17 +478,15 @@ Does not write to the demo file, which will only be done for visible lights
 void idRenderWorldLocal::UpdateLightDef( qhandle_t lightHandle, const renderLight_t* rlight )
 {
 	if( r_skipUpdates.GetBool() )
-	{
 		return;
-	}
 	
-	tr.pc.c_lightUpdates++;
+	// tr.pc.c_lightUpdates++;
+	crFrontend::Get().IncrementLightUpdates();
 	
 	// create new slots if needed
 	if( lightHandle < 0 || lightHandle > LUDICROUS_INDEX )
-	{
 		common->Error( "idRenderWorld::UpdateLightDef: index = %i", lightHandle );
-	}
+	
 	while( lightHandle >= lightDefs.Num() )
 	{
 		lightDefs.Append( nullptr );
@@ -521,7 +512,7 @@ void idRenderWorldLocal::UpdateLightDef( qhandle_t lightHandle, const renderLigh
 		{
 			// if we are updating shadows, the prelight model is no longer valid
 			light->lightHasMoved = true;
-			R_FreeLightDefDerivedData( light );
+			crFrontend::Get().FreeLightDefDerivedData( light );
 		}
 	}
 	else
@@ -551,9 +542,7 @@ void idRenderWorldLocal::UpdateLightDef( qhandle_t lightHandle, const renderLigh
 		light->parms.prelightModel = nullptr;
 	
 	if( !justUpdate )
-	{
-		R_CreateLightRefs( light );
-	}
+		crFrontend::Get().CreateLightRefs( light );
 }
 
 /*
@@ -566,7 +555,7 @@ nullptr's out it's entry in the world list
 */
 void idRenderWorldLocal::FreeLightDef( qhandle_t lightHandle )
 {
-	idRenderLightLocal*	light;
+	idRenderLightLocal*	light = nullptr;
 	
 	if( lightHandle < 0 || lightHandle >= lightDefs.Num() )
 	{
@@ -581,12 +570,10 @@ void idRenderWorldLocal::FreeLightDef( qhandle_t lightHandle )
 		return;
 	}
 	
-	R_FreeLightDefDerivedData( light );
+	crFrontend::Get().FreeLightDefDerivedData( light );
 	
 	if( common->WriteDemo() && light->archived )
-	{
 		WriteFreeLight( lightHandle );
-	}
 	
 	delete light;
 	lightDefs[lightHandle] = nullptr;
@@ -868,12 +855,10 @@ void idRenderWorldLocal::RemoveDecals( qhandle_t entityHandle )
 	
 	idRenderEntityLocal*	def = entityDefs[ entityHandle ];
 	if( !def )
-	{
 		return;
-	}
 	
-	R_FreeEntityDefDecals( def );
-	R_FreeEntityDefOverlay( def );
+	crFrontend::Get().FreeEntityDefDecals( def );
+	crFrontend::Get().FreeEntityDefOverlay( def );
 }
 
 /*
@@ -914,24 +899,20 @@ void idRenderWorldLocal::RenderScene( const renderView_t* renderView )
 	SCOPED_PROFILE_EVENT( "RenderWorld::RenderScene" );
 	
 	if( renderView->fov_x <= 0 || renderView->fov_y <= 0 )
-	{
 		common->Error( "idRenderWorld::RenderScene: bad FOVs: %f, %f", renderView->fov_x, renderView->fov_y );
-	}
 	
 	// close any gui drawing
 	tr.guiModel->EmitFullScreen();
 	tr.guiModel->Clear();
 	
-	int startTime = Sys_Microseconds();
+	uint64_t startTime = Sys_Microseconds();
 	
 	// setup view parms for the initial view
-	viewDef_t* parms = ( viewDef_t* )R_ClearedFrameAlloc( sizeof( *parms ), FRAME_ALLOC_VIEW_DEF );
+	viewDef_t* parms = static_cast<viewDef_t*>( crFrontend::Get().ClearedFrameAlloc( sizeof( *parms ), FRAME_ALLOC_VIEW_DEF ) );
 	parms->renderView = *renderView;
 	
 	if( tr.takingScreenshot )
-	{
 		parms->renderView.forceUpdate = true;
-	}
 	
 	int windowWidth = tr.GetWidth();
 	int windowHeight = tr.GetHeight();
@@ -964,13 +945,9 @@ void idRenderWorldLocal::RenderScene( const renderView_t* renderView )
 	idVec3	cross;
 	cross = parms->renderView.viewaxis[1].Cross( parms->renderView.viewaxis[2] );
 	if( cross * parms->renderView.viewaxis[0] > 0 )
-	{
 		parms->isMirror = false;
-	}
 	else
-	{
 		parms->isMirror = true;
-	}
 	
 	// save this world for use by some console commands
 	tr.primaryWorld = this;
@@ -981,17 +958,15 @@ void idRenderWorldLocal::RenderScene( const renderView_t* renderView )
 	// for mirrors / portals / shadows / environment maps
 	// this will also cause any necessary entities and lights to be
 	// updated to the demo file
-	R_RenderView( parms );
+	crFrontend::Get().RenderView( parms );
 	
 	// render any post processing after the view and all its subviews has been draw
-	R_RenderPostProcess( parms );
+	crFrontend::Get().RenderPostProcess( parms );
 	
 	// now write delete commands for any modified-but-not-visible entities, and
 	// add the renderView command to the demo
 	if( common->WriteDemo() )
-	{
 		WriteRenderView( renderView );
-	}
 	
 #if 0
 	for( int i = 0; i < entityDefs.Num(); i++ )
@@ -1013,9 +988,10 @@ void idRenderWorldLocal::RenderScene( const renderView_t* renderView )
 	
 	tr.UnCrop();
 	
-	int endTime = Sys_Microseconds();
+	uint64_t endTime = Sys_Microseconds();
 	
-	tr.pc.frontEndMicroSec += endTime - startTime;
+	//tr.pc.frontEndMicroSec += endTime - startTime;
+	crFrontend::Get().AddFrontEndMicroSec( endTime - startTime );
 	
 	// prepare for any 2D drawing after this
 	tr.guiModel->Clear();
@@ -1293,7 +1269,7 @@ guiPoint_t idRenderWorldLocal::GuiTrace( qhandle_t entityHandle, const idVec3 st
 		{
 			idVec3 origin, axis[3];
 			
-			R_SurfaceToTextureAxis( tri, origin, axis );
+			crFrontend::Get().SurfaceToTextureAxis( tri, origin, axis );
 			const idVec3 cursor = local.point - origin;
 			
 			float axisLen[2];
@@ -1678,7 +1654,8 @@ void idRenderWorldLocal::AddEntityRefToArea( idRenderEntityLocal* def, portalAre
 	
 	ref = areaReferenceAllocator.Alloc();
 	
-	tr.pc.c_entityReferences++;
+	//tr.pc.c_entityReferences++;
+	crFrontend::Get().IncrementEntityReferences();
 	
 	ref->entity = def;
 	
@@ -1717,7 +1694,8 @@ void idRenderWorldLocal::AddLightRefToArea( idRenderLightLocal* light, portalAre
 	lref->area = area;
 	lref->ownerNext = light->references;
 	light->references = lref;
-	tr.pc.c_lightReferences++;
+	//tr.pc.c_lightReferences++;
+	crFrontend::Get().IncrementLightReferences();
 	
 	// doubly linked list so we can free them easily later
 	area->lightRefs.areaNext->areaPrev = lref;
@@ -2516,8 +2494,8 @@ idRenderWorldLocal::RegenerateWorld
 */
 void idRenderWorldLocal::RegenerateWorld( void )
 {
-	R_FreeDerivedData();
-	R_ReCreateWorldReferences();
+	crFrontend::Get().FreeDerivedData();
+	crFrontend::Get().ReCreateWorldReferences();
 }
 
 /*

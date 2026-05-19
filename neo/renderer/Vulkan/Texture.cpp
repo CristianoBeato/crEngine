@@ -192,7 +192,7 @@ void crTexture::Destroy(void)
     }
 }
 
-void crTexture::SetState( const crCommandbufferp in_commandBuffer, const state_t in_state )
+void crTexture::SetState( const crCommandBufferp in_commandBuffer, const state_t in_state )
 {
     /// no changes available
     if ( in_state == m_state )

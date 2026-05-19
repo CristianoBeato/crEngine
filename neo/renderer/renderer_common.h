@@ -466,43 +466,7 @@ IMPLEMENTATION SPECIFIC FUNCTIONS
 
 ====================================================================
 */
-
-/*
-============================================================
-
-RENDERWORLD_DEFS
-
-============================================================
-*/
-
-void R_DeriveEntityData( idRenderEntityLocal* def );
-void R_CreateEntityRefs( idRenderEntityLocal* def );
-void R_FreeEntityDefDerivedData( idRenderEntityLocal* def, bool keepDecals, bool keepCachedDynamicModel );
-void R_FreeEntityDefCachedDynamicModel( idRenderEntityLocal* def );
-void R_FreeEntityDefDecals( idRenderEntityLocal* def );
-void R_FreeEntityDefOverlay( idRenderEntityLocal* def );
-void R_FreeEntityDefFadedDecals( idRenderEntityLocal* def, int time );
-
-void R_CreateLightRefs( idRenderLightLocal* light );
-void R_FreeLightDefDerivedData( idRenderLightLocal* light );
-
-void R_FreeDerivedData();
-void R_ReCreateWorldReferences();
-void R_CheckForEntityDefsUsingModel( idRenderModel* model );
 void R_ModulateLights_f( const idCmdArgs& args );
-
-/*
-============================================================
-
-RENDERWORLD_PORTALS
-
-============================================================
-*/
-
-viewEntity_t* R_SetEntityDefViewEntity( idRenderEntityLocal* def );
-viewLight_t* R_SetLightDefViewLight( idRenderLightLocal* def );
-
-
 
 /*
 ============================================================

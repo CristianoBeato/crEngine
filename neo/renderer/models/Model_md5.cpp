@@ -1327,8 +1327,9 @@ idRenderModel* idRenderModelMD5::InstantiateDynamicModel( const struct renderEnt
 		return nullptr;
 	}
 	
-	tr.pc.c_generateMd5++;
-	
+	//tr.pc.c_generateMd5++;
+	crFrontend::Get().IncrementGenerateMd5();
+
 	idRenderModelStatic* staticModel;
 	if( cachedModel != nullptr )
 	{

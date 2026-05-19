@@ -601,7 +601,7 @@ void crFrontend::AddLights( void )
 		for( shadowOnlyEntity_t* shadEnt = vLight->shadowOnlyViewEntities; shadEnt != nullptr; shadEnt = shadEnt->next )
 		{
 			// this will add it to the viewEntities list, but with an empty scissor rect
-			R_SetEntityDefViewEntity( shadEnt->edef );
+			SetEntityDefViewEntity( shadEnt->edef );
 		}
 		
 		if( r_showLightScissors.GetBool() )

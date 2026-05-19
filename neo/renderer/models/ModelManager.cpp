@@ -457,31 +457,33 @@ idRenderModelManagerLocal::FreeModel
 void idRenderModelManagerLocal::FreeModel( idRenderModel* model )
 {
 	if( !model )
-	{
 		return;
-	}
+	
 	if( !dynamic_cast<idRenderModelStatic*>( model ) )
 	{
 		common->Error( "idRenderModelManager::FreeModel: model '%s' is not a static model", model->Name() );
 		return;
 	}
+
 	if( model == defaultModel )
 	{
 		common->Error( "idRenderModelManager::FreeModel: can't free the default model" );
 		return;
 	}
+
 	if( model == beamModel )
 	{
 		common->Error( "idRenderModelManager::FreeModel: can't free the beam model" );
 		return;
 	}
+
 	if( model == spriteModel )
 	{
 		common->Error( "idRenderModelManager::FreeModel: can't free the sprite model" );
 		return;
 	}
 	
-	R_CheckForEntityDefsUsingModel( model );
+	crFrontend::Get().CheckForEntityDefsUsingModel( model );
 	
 	delete model;
 }
@@ -549,15 +551,12 @@ idRenderModelManagerLocal::ReloadModels
 void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 {
 	if( forceAll )
-	{
 		common->Printf( "Reloading all model files...\n" );
-	}
 	else
-	{
 		common->Printf( "Checking for changed model files...\n" );
-	}
 	
-	R_FreeDerivedData();
+
+	crFrontend::Get().FreeDerivedData();
 	
 	// skip the default model at index 0
 	for( int i = 1; i < models.Num(); i++ )
@@ -566,9 +565,7 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 		
 		// we may want to allow world model reloading in the future, but we don't now
 		if( !model->IsReloadable() )
-		{
 			continue;
-		}
 		
 		if( !forceAll )
 		{
@@ -577,9 +574,8 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 			
 			fileSystem->ReadFile( model->Name(), nullptr, &current );
 			if( current <= model->Timestamp() )
-			{
 				continue;
-			}
+			
 		}
 		
 		common->DPrintf( "reloading %s.\n", model->Name() );
@@ -589,7 +585,7 @@ void idRenderModelManagerLocal::ReloadModels( bool forceAll )
 	
 	// we must force the world to regenerate, because models may
 	// have changed size, making their references invalid
-	R_ReCreateWorldReferences();
+	crFrontend::Get().ReCreateWorldReferences();
 }
 
 /*
@@ -626,7 +622,7 @@ void idRenderModelManagerLocal::BeginLevelLoad()
 		// always reload all models
 		if( model->IsReloadable() )
 		{
-			R_CheckForEntityDefsUsingModel( model );
+			crFrontend::Get().CheckForEntityDefsUsingModel( model );
 			model->PurgeModel();
 		}
 		
@@ -737,21 +733,14 @@ void idRenderModelManagerLocal::EndLevelLoad()
 		// foresthale 2014-05-28: Brian Harris suggested the editors should never purge assets, because of potential for crashes on improperly refcounted assets
 		if( !model->IsLevelLoadReferenced() && model->IsLoaded() && model->IsReloadable() && !( com_editors ) )
 		{
-		
 //			common->Printf( "purging %s\n", model->Name() );
-
 			purgeCount++;
-			
-			R_CheckForEntityDefsUsingModel( model );
-			
-			model->PurgeModel();
-			
+			crFrontend::Get().CheckForEntityDefsUsingModel( model );
+			model->PurgeModel();	
 		}
 		else
 		{
-		
 //			common->Printf( "keeping %s\n", model->Name() );
-
 			keepCount++;
 		}
 		commonLocal.UpdateLevelLoadPacifier(false,modelProgress);
@@ -796,11 +785,10 @@ void idRenderModelManagerLocal::EndLevelLoad()
 	common->Printf( "%5i models purged from previous level, ", purgeCount );
 	common->Printf( "%5i models kept.\n", keepCount );
 	if( loadCount )
-	{
 		common->Printf( "%5i new models loaded in %5.1f seconds\n", loadCount, ( end - start ) * 0.001 );
-	} else {
+	else
 		common->Printf( "Finished loading Models in %5.1f seconds\n", ( end - start ) * 0.001 );
-	}
+	
 	common->Printf( "---------------------------------------------------\n" );
 }
 

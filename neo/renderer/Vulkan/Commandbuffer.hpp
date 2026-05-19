@@ -27,7 +27,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 
 typedef class crBuffer* crBufferp;
 typedef class crQueue* crQueuep;
-typedef class crCommandBuffer
+class crCommandBuffer
 {
 public:
     crCommandBuffer( void );
@@ -55,6 +55,8 @@ private:
     uint16_t                                        m_frameCount;
     crQueuep                                  m_queue;
     idStaticList<VkCommandBuffer, MAX_SMP_FRAMES>   m_commandBuffers;
-}* crCommandBufferp;
+};
+
+typedef crCommandBuffer* crCommandBufferp;
 
 #endif //!__VK_COMMAND_BUFFER_HPP__

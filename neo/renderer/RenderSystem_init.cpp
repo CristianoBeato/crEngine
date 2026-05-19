@@ -1728,7 +1728,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 	renderModelManager->FreeModelVertexCaches();
 	
 	// free any current world interaction surfaces and vertex caches
-	R_FreeDerivedData();
+	crFrontend::Get().FreeDerivedData();
 	
 	// make sure the defered frees are actually freed
 	crFrontend::Get().ToggleSmpFrame();

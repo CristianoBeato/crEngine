@@ -65,17 +65,16 @@ If the lightDef is not already on the viewLight list, create
 a viewLight and add it to the list with an empty scissor rect.
 =============
 */
-viewLight_t* R_SetLightDefViewLight( idRenderLightLocal* light )
+viewLight_t* crFrontend::SetLightDefViewLight( idRenderLightLocal* light )
 {
 	if( light->viewCount == tr.viewCount )
-	{
 		// already set up for this frame
 		return light->viewLight;
-	}
+	
 	light->viewCount = tr.viewCount;
 	
 	// add to the view light chain
-	viewLight_t* vLight = ( viewLight_t* )R_ClearedFrameAlloc( sizeof( *vLight ), FRAME_ALLOC_VIEW_LIGHT );
+	viewLight_t* vLight = ( viewLight_t* )ClearedFrameAlloc( sizeof( *vLight ), FRAME_ALLOC_VIEW_LIGHT );
 	vLight->lightDef = light;
 	
 	// the scissorRect will be expanded as the light bounds is accepted into visible portal chains
@@ -83,8 +82,8 @@ viewLight_t* R_SetLightDefViewLight( idRenderLightLocal* light )
 	vLight->scissorRect.Clear();
 	
 	// link the view light
-	vLight->next = tr.viewDef->viewLights;
-	tr.viewDef->viewLights = vLight;
+	vLight->next = viewDef->viewLights;
+	viewDef->viewLights = vLight;
 	
 	light->viewLight = vLight;
 	
@@ -99,24 +98,22 @@ If the entityDef is not already on the viewEntity list, create
 a viewEntity and add it to the list with an empty scissor rect.
 =============
 */
-viewEntity_t* R_SetEntityDefViewEntity( idRenderEntityLocal* def )
+viewEntity_t* crFrontend::SetEntityDefViewEntity( idRenderEntityLocal* def )
 {
 	if( def->viewCount == tr.viewCount )
-	{
-		// already set up for this frame
-		return def->viewEntity;
-	}
+		return def->viewEntity; // already set up for this frame
+
 	def->viewCount = tr.viewCount;
 	
-	viewEntity_t* vModel = ( viewEntity_t* )R_ClearedFrameAlloc( sizeof( *vModel ), FRAME_ALLOC_VIEW_ENTITY );
+	viewEntity_t* vModel = ( viewEntity_t* )ClearedFrameAlloc( sizeof( *vModel ), FRAME_ALLOC_VIEW_ENTITY );
 	vModel->entityDef = def;
 	
 	// the scissorRect will be expanded as the model bounds is accepted into visible portal chains
 	// It will remain clear if the model is only needed for shadows.
 	vModel->scissorRect.Clear();
 	
-	vModel->next = tr.viewDef->viewEntitys;
-	tr.viewDef->viewEntitys = vModel;
+	vModel->next = viewDef->viewEntitys;
+	viewDef->viewEntitys = vModel;
 	
 	def->viewEntity = vModel;
 	
@@ -135,14 +132,12 @@ bool idRenderWorldLocal::CullEntityByPortals( const idRenderEntityLocal* entity,
 	if( r_useEntityPortalCulling.GetInteger() == 1 )
 	{
 	
-		ALIGNTYPE16 frustumCorners_t corners;
+		alignas( 16 ) frustumCorners_t corners;
 		idRenderMatrix::GetFrustumCorners( corners, entity->inverseBaseModelProject, bounds_unitCube );
 		for( int i = 0; i < ps->numPortalPlanes; i++ )
 		{
 			if( idRenderMatrix::CullFrustumCornersToPlane( corners, ps->portalPlanes[i] ) == FRUSTUM_CULL_FRONT )
-			{
 				return true;
-			}
 		}
 		
 	}
@@ -156,15 +151,14 @@ bool idRenderWorldLocal::CullEntityByPortals( const idRenderEntityLocal* entity,
 		idRenderMatrix::GetFrustumPlanes( frustumPlanes, baseModelProject, false, true );
 		
 		// exact clip of light faces against all planes
+		auto viewDef = crFrontend::Get().GetViewDef();
 		for( int i = 0; i < 6; i++ )
 		{
 			// the entity frustum planes face inward, so the planes that have the
 			// view origin on the positive side will be the "back" faces of the entity,
 			// which must have some fragment inside the portal stack planes to be visible
-			if( frustumPlanes[i].Distance( tr.viewDef->renderView.vieworg ) <= 0.0f )
-			{
+			if( frustumPlanes[i].Distance( viewDef->renderView.vieworg ) <= 0.0f )
 				continue;
-			}
 			
 			// calculate a winding for this frustum side
 			idFixedWinding w;
@@ -172,18 +166,14 @@ bool idRenderWorldLocal::CullEntityByPortals( const idRenderEntityLocal* entity,
 			for( int j = 0; j < 6; j++ )
 			{
 				if( j == i )
-				{
 					continue;
-				}
+				
 				if( !w.ClipInPlace( frustumPlanes[j], ON_EPSILON ) )
-				{
 					break;
-				}
 			}
+
 			if( w.GetNumPoints() <= 2 )
-			{
 				continue;
-			}
 			
 			assert( ps->numPortalPlanes <= MAX_PORTAL_PLANES );
 			assert( w.GetNumPoints() + ps->numPortalPlanes < MAX_POINTS_ON_WINDING );
@@ -193,9 +183,7 @@ bool idRenderWorldLocal::CullEntityByPortals( const idRenderEntityLocal* entity,
 			for( int j = 0; j < ps->numPortalPlanes - 1; j++ )
 			{
 				if( !w.ClipInPlace( -ps->portalPlanes[j], ON_EPSILON ) )
-				{
 					break;
-				}
 			}
 			
 			if( w.GetNumPoints() > 2 )
@@ -224,6 +212,7 @@ Any models that are visible through the current portalStack will have their scis
 void idRenderWorldLocal::AddAreaViewEntities( int areaNum, const portalStack_t* ps )
 {
 	portalArea_t* area = &portalAreas[ areaNum ];
+	auto viewDef = crFrontend::Get().GetViewDef();
 	
 	for( areaReference_t* ref = area->entityRefs.areaNext; ref != &area->entityRefs; ref = ref->areaNext )
 	{
@@ -231,37 +220,28 @@ void idRenderWorldLocal::AddAreaViewEntities( int areaNum, const portalStack_t* 
 		
 		// debug tool to allow viewing of only one entity at a time
 		if( r_singleEntity.GetInteger() >= 0 && r_singleEntity.GetInteger() != entity->index )
-		{
 			continue;
-		}
 		
 		// remove decals that are completely faded away
-		R_FreeEntityDefFadedDecals( entity, tr.viewDef->renderView.time[0] );
+		crFrontend::Get().FreeEntityDefFadedDecals( entity );
 		
 		// check for completely suppressing the model
 		if( !r_skipSuppress.GetBool() )
 		{
-			if( entity->parms.suppressSurfaceInViewID
-					&& entity->parms.suppressSurfaceInViewID == tr.viewDef->renderView.viewID )
-			{
+			if( entity->parms.suppressSurfaceInViewID && entity->parms.suppressSurfaceInViewID == viewDef->renderView.viewID )
 				continue;
-			}
-			if( entity->parms.allowSurfaceInViewID
-					&& entity->parms.allowSurfaceInViewID != tr.viewDef->renderView.viewID )
-			{
+			
+			if( entity->parms.allowSurfaceInViewID & entity->parms.allowSurfaceInViewID != viewDef->renderView.viewID )
 				continue;
-			}
 		}
 		
 		// cull reference bounds
 		if( CullEntityByPortals( entity, ps ) )
-		{
 			// we are culled out through this portal chain, but it might
 			// still be visible through others
 			continue;
-		}
 		
-		viewEntity_t* vEnt = R_SetEntityDefViewEntity( entity );
+		viewEntity_t* vEnt = crFrontend::Get().SetEntityDefViewEntity( entity );
 		
 		// possibly expand the scissor rect
 		vEnt->scissorRect.Union( ps->rect );
@@ -279,21 +259,17 @@ bool idRenderWorldLocal::CullLightByPortals( const idRenderLightLocal* light, co
 {
 	if( r_useLightPortalCulling.GetInteger() == 1 )
 	{
-	
-		ALIGNTYPE16 frustumCorners_t corners;
+		alignas( 16 ) frustumCorners_t corners;
 		idRenderMatrix::GetFrustumCorners( corners, light->inverseBaseLightProject, bounds_zeroOneCube );
 		for( int i = 0; i < ps->numPortalPlanes; i++ )
 		{
 			if( idRenderMatrix::CullFrustumCornersToPlane( corners, ps->portalPlanes[i] ) == FRUSTUM_CULL_FRONT )
-			{
 				return true;
-			}
 		}
-		
 	}
 	else if( r_useLightPortalCulling.GetInteger() >= 2 )
 	{
-	
+		auto viewDef = crFrontend::Get().GetViewDef();
 		idPlane frustumPlanes[6];
 		idRenderMatrix::GetFrustumPlanes( frustumPlanes, light->baseLightProject, true, true );
 		
@@ -303,10 +279,8 @@ bool idRenderWorldLocal::CullLightByPortals( const idRenderLightLocal* light, co
 			// the light frustum planes face inward, so the planes that have the
 			// view origin on the positive side will be the "back" faces of the light,
 			// which must have some fragment inside the the portal stack planes to be visible
-			if( frustumPlanes[i].Distance( tr.viewDef->renderView.vieworg ) <= 0.0f )
-			{
+			if( frustumPlanes[i].Distance( viewDef->renderView.vieworg ) <= 0.0f )
 				continue;
-			}
 			
 			// calculate a winding for this frustum side
 			idFixedWinding w;
@@ -314,18 +288,14 @@ bool idRenderWorldLocal::CullLightByPortals( const idRenderLightLocal* light, co
 			for( int j = 0; j < 6; j++ )
 			{
 				if( j == i )
-				{
 					continue;
-				}
+				
 				if( !w.ClipInPlace( frustumPlanes[j], ON_EPSILON ) )
-				{
-					break;
-				}
+					break;	
 			}
+
 			if( w.GetNumPoints() <= 2 )
-			{
 				continue;
-			}
 			
 			assert( ps->numPortalPlanes <= MAX_PORTAL_PLANES );
 			assert( w.GetNumPoints() + ps->numPortalPlanes < MAX_POINTS_ON_WINDING );
@@ -335,17 +305,13 @@ bool idRenderWorldLocal::CullLightByPortals( const idRenderLightLocal* light, co
 			for( int j = 0; j < ps->numPortalPlanes - 1; j++ )
 			{
 				if( !w.ClipInPlace( -ps->portalPlanes[j], ON_EPSILON ) )
-				{
 					break;
-				}
 			}
 			
 			if( w.GetNumPoints() > 2 )
-			{
 				// part of the winding is visible through the portalStack,
 				// so the light is not culled
 				return false;
-			}
 		}
 		
 		// nothing was visible
@@ -373,27 +339,21 @@ void idRenderWorldLocal::AddAreaViewLights( int areaNum, const portalStack_t* ps
 		
 		// debug tool to allow viewing of only one light at a time
 		if( r_singleLight.GetInteger() >= 0 && r_singleLight.GetInteger() != light->index )
-		{
 			continue;
-		}
 		
 		// check for being closed off behind a door
 		// a light that doesn't cast shadows will still light even if it is behind a door
-		if( r_useLightAreaCulling.GetBool() && !light->LightCastsShadows()
-				&& light->areaNum != -1 && !tr.viewDef->connectedAreas[ light->areaNum ] )
-		{
+		auto viewDef = crFrontend::Get().GetViewDef();
+		if( r_useLightAreaCulling.GetBool() && !light->LightCastsShadows() && light->areaNum != -1 && !viewDef->connectedAreas[ light->areaNum ] )
 			continue;
-		}
 		
 		// cull frustum
 		if( CullLightByPortals( light, ps ) )
-		{
 			// we are culled out through this portal chain, but it might
 			// still be visible through others
 			continue;
-		}
 		
-		viewLight_t* vLight = R_SetLightDefViewLight( light );
+		viewLight_t* vLight = crFrontend::Get().SetLightDefViewLight( light );
 		
 		// expand the scissor rect
 		vLight->scissorRect.Union( ps->rect );
@@ -458,17 +418,15 @@ bool idRenderWorldLocal::PortalIsFoggedOut( const portal_t* p )
 {
 	idRenderLightLocal* ldef = p->doublePortal->fogLight;
 	if( ldef == nullptr )
-	{
 		return false;
-	}
 	
 	// find the current density of the fog
 	const idMaterial* lightShader = ldef->lightShader;
 	const int size = lightShader->GetNumRegisters() * sizeof( float );
 	float* regs = ( float* )_alloca( size );
 	
-	lightShader->EvaluateRegisters( regs, ldef->parms.shaderParms,
-									tr.viewDef->renderView.shaderParms, tr.viewDef->renderView.time[0] * 0.001f, ldef->parms.referenceSound );
+	auto viewDef = crFrontend::Get().GetViewDef();
+	lightShader->EvaluateRegisters( regs, ldef->parms.shaderParms, viewDef->renderView.shaderParms, viewDef->renderView.time[0] * 0.001f, ldef->parms.referenceSound );
 									
 	const crShaderStage* stage = lightShader->GetStage( 0 );
 	
@@ -486,7 +444,6 @@ bool idRenderWorldLocal::PortalIsFoggedOut( const portal_t* p )
 		a = -0.5f / alpha;
 	}
 	
-	auto viewDef = crFrontend::Get().GetViewDef();
 	alignas( 16 ) idPlane forward;
 	forward[0] = a * viewDef->worldSpace.modelViewMatrix[0 * 4 + 2];
 	forward[1] = a * viewDef->worldSpace.modelViewMatrix[1 * 4 + 2];
@@ -813,7 +770,7 @@ void idRenderWorldLocal::FindViewLightsAndEntities( void )
 		// note that the center of projection for flowing through portals may
 		// be a different point than initialViewAreaOrigin for subviews that
 		// may have the viewOrigin in a solid/invalid area
-		FlowViewThroughPortals( viewDef->renderView.vieworg, 5, tr.viewDef->frustums[FRUSTUM_PRIMARY] );
+		FlowViewThroughPortals( viewDef->renderView.vieworg, 5, viewDef->frustums[FRUSTUM_PRIMARY] );
 	}
 }
 

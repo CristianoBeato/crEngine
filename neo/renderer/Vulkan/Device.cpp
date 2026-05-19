@@ -995,7 +995,7 @@ void crVulkanRenderDevice::SelectDeviceQueues( idList<VkDeviceQueueCreateInfo> &
             }
         }
 
-        crQueueCreateInfo ci{};
+        VkDeviceQueueCreateInfo ci{};
         ci.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
         ci.pNext = nullptr;
         ci.flags = 0;

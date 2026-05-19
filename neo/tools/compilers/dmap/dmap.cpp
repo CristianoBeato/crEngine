@@ -205,7 +205,7 @@ Dmap
 void Dmap( const idCmdArgs &args ) 
 {
 	int			i;
-	int			start, end;
+	uint32_t	start, end;
 	char		path[1024];
 	idStr		passedName;
 	bool		leaked = false;
@@ -390,7 +390,7 @@ void Dmap( const idCmdArgs &args )
 	//
 	start = Sys_Milliseconds();
 
-	R_InitMaterials(); // Initialize Dmap Materials.
+	tr.InitMaterials(); // Initialize Dmap Materials.
 	if ( !LoadDMapFile( passedName ) ) 
 		return;
 

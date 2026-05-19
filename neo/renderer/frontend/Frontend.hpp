@@ -160,7 +160,12 @@ public:
     ID_INLINE   void                    ZeroPerformanceCounters( void ) { std::memset( &pc, 0, sizeof( frontEndCounters_t ) ); }
     ID_INLINE   frontEndCounters_t      PerformanceCounters( void ) const { return pc; }
     ID_INLINE   const emptyCommand_t*   CommandBufferHead( void ) const { return frameData->cmdHead; }
-
+    ID_INLINE   void                    IncrementEntityReferences( void ) { pc.c_entityReferences++; }
+    ID_INLINE   void                    IncrementLightReferences( void ) { pc.c_lightReferences++; }
+    ID_INLINE   void                    IncrementEntityUpdates( void ) { pc.c_entityUpdates++; }
+    ID_INLINE   void                    IncrementLightUpdates( void ) { pc.c_lightUpdates++; }
+    ID_INLINE   void                    IncrementGenerateMd5( void ) { pc.c_generateMd5++; }
+    ID_INLINE   void                    AddFrontEndMicroSec( const uint64_t in_delta) { pc.frontEndMicroSec += in_delta; }
     ID_INLINE   void                    SetDeformedSurfacesCounters( int deformedVertsCount, int deformedIndexesCount )
     {
         pc.c_deformedSurfaces++;
@@ -182,14 +187,14 @@ public:
     void    StaticFree( void* data );
     void    ShowColoredScreenRect( const idScreenRect& rect, int colorIndex );
     void    GlobalToNormalizedDeviceCoordinates( const idVec3& global, idVec3& ndc );
-    void    RenderView( viewDef_t* parms );
-    void    RenderPostProcess( viewDef_t* parms );
+    void        RenderView( viewDef_t* parms );
+    void        RenderPostProcess( viewDef_t* parms );
 
     // ============================================================
     // TR_FRONTEND_ADDLIGHTS
     // ============================================================
-    void    AddLights( void );
-    void    OptimizeViewLightsList( void );
+    void        AddLights( void );
+    void        OptimizeViewLightsList( void );
 
     // ============================================================
     // TR_FRONTEND_ADDMODELS
@@ -210,14 +215,40 @@ public:
     // =============================================================
     // TR_FRONTEND_GUISURF
     // =============================================================
-    void SurfaceToTextureAxis( const crDrawGeometry* tri, idVec3& origin, idVec3 axis[3] );
-    void AddInGameGuis( const drawSurf_t* const drawSurfs[], const uint32_t numDrawSurfs );
+    void        SurfaceToTextureAxis( const crDrawGeometry* tri, idVec3& origin, idVec3 axis[3] );
+    void        AddInGameGuis( const drawSurf_t* const drawSurfs[], const uint32_t numDrawSurfs );
 
     // ============================================================
     // TR_FRONTEND_SUBVIEW
     // ============================================================
-    bool PreciseCullSurface( const drawSurf_t* drawSurf, idBounds& ndcBounds );
-    bool GenerateSubViews( const drawSurf_t* const drawSurfs[], const int numDrawSurfs );
+    bool        PreciseCullSurface( const drawSurf_t* drawSurf, idBounds& ndcBounds );
+    bool        GenerateSubViews( const drawSurf_t* const drawSurfs[], const int numDrawSurfs );
+
+    // ============================================================
+    // RENDERWORLD_DEFS
+    // ============================================================
+    void        DeriveEntityData( idRenderEntityLocal* def );
+    void        CreateEntityRefs( idRenderEntityLocal* def );
+    void        FreeEntityDefDerivedData( idRenderEntityLocal* def, bool keepDecals, bool keepCachedDynamicModel );
+    void        FreeEntityDefCachedDynamicModel( idRenderEntityLocal* def );
+    void        FreeEntityDefDecals( idRenderEntityLocal* def );
+    void        FreeEntityDefOverlay( idRenderEntityLocal* def );
+    void        FreeEntityDefFadedDecals( idRenderEntityLocal* def );
+
+    void        CreateLightRefs( idRenderLightLocal* light );
+    void        FreeLightDefDerivedData( idRenderLightLocal* light );
+
+    void        FreeDerivedData( void );
+    void        ReCreateWorldReferences( void );
+    void        CheckForEntityDefsUsingModel( idRenderModel* model );
+    
+
+
+    // ============================================================
+    // RENDERWORLD_PORTALS
+    // ============================================================
+    viewEntity_t*   SetEntityDefViewEntity( idRenderEntityLocal* def );
+    viewLight_t*    SetLightDefViewLight( idRenderLightLocal* def );
 
 private:
     uint32_t                smpFrame;
