@@ -30,6 +30,8 @@ Source Code.
 #ifndef __GEOMETRY_H__
 #define __GEOMETRY_H__
 
+
+
 // our only drawing geometry type
 class crDrawGeometry
 {

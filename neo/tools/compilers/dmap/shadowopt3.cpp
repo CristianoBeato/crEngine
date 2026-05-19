@@ -149,11 +149,11 @@ for each triangle
 */
 typedef struct 
 {
-	idVec3	v[3];
-	idVec3	edge[3];	// positive side is inside the triangle
-	uint	index[3];
-	idPlane	plane;		// positive side is forward for the triangle, which is away from the light
-	int		planeNum;	// from original triangle, not calculated from the clipped verts
+	idVec3		v[3];
+	idVec3		edge[3];	// positive side is inside the triangle
+	uint32_t	index[3];
+	idPlane		plane;		// positive side is forward for the triangle, which is away from the light
+	int			planeNum;	// from original triangle, not calculated from the clipped verts
 } shadowTri_t;
 
 static const int MAX_SHADOW_TRIS = 32768;

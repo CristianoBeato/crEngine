@@ -230,7 +230,6 @@ public:
     void        DeriveEntityData( idRenderEntityLocal* def );
     void        CreateEntityRefs( idRenderEntityLocal* def );
     void        FreeEntityDefDerivedData( idRenderEntityLocal* def, bool keepDecals, bool keepCachedDynamicModel );
-    void        FreeEntityDefCachedDynamicModel( idRenderEntityLocal* def );
     void        FreeEntityDefDecals( idRenderEntityLocal* def );
     void        FreeEntityDefOverlay( idRenderEntityLocal* def );
     void        FreeEntityDefFadedDecals( idRenderEntityLocal* def );
@@ -242,8 +241,6 @@ public:
     void        ReCreateWorldReferences( void );
     void        CheckForEntityDefsUsingModel( idRenderModel* model );
     
-
-
     // ============================================================
     // RENDERWORLD_PORTALS
     // ============================================================

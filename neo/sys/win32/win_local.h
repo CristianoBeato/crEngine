@@ -72,23 +72,7 @@ typedef struct
 	unsigned short	oldHardwareGamma[3][256];
 	// desktop gamma is saved here for restoration at exit
 	
-	static idCVar	sys_arch;
-	static idCVar	sys_cpustring;
-	static idCVar	in_mouse;
-	static idCVar	win_allowAltTab;
-	static idCVar	win_notaskkeys;
-	static idCVar	win_username;
-	static idCVar	win_outputEditString;
-	static idCVar	win_viewlog;
-	static idCVar	win_timerUpdate;
-	static idCVar	win_allowMultipleInstances;
-	
 	HINSTANCE		hInstDI;			// direct input
-	
-	LPDIRECTINPUT8			g_pdi;
-	LPDIRECTINPUTDEVICE8	g_pMouse;
-	LPDIRECTINPUTDEVICE8	g_pKeyboard;
-	idJoystickWin32			g_Joystick;
 	
 } Win32Vars_t;
 
