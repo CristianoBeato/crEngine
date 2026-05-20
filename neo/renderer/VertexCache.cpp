@@ -699,6 +699,18 @@ void idVertexCache::EndBackEnd( void )
 	}
 }
 
+size_t idVertexCache::VertexMemUsedKB(void) const
+{
+	size_t vCache = m_staticBuffers[CACHE_VERTEX_BUFFER].used.load();
+    return vCache / 1024;
+}
+
+size_t idVertexCache::IndexMemUsedKB(void) const
+{
+	size_t iCache = m_staticBuffers[CACHE_INDEX_BUFFER].used.load();
+    return iCache / 1024;
+}
+
 /*
 ==============
 idVertexCache::AllocIndexStatic

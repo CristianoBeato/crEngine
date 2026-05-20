@@ -648,12 +648,12 @@ void idCommonLocal::ExecuteMapChange( void )
 	// let the renderSystem generate interactions now that everything is spawned
 	renderWorld->GenerateAllInteractions();
 	
-	{
-		int vertexMemUsedKB = vertexCache.staticData.vertexMemUsed.GetValue() / 1024;
-		int indexMemUsedKB = vertexCache.staticData.indexMemUsed.GetValue() / 1024;
-		idLib::Printf( "Used %dkb of static vertex memory (%d%%)\n", vertexMemUsedKB, vertexMemUsedKB * 100 / ( STATIC_VERTEX_MEMORY / 1024 ) );
-		idLib::Printf( "Used %dkb of static index memory (%d%%)\n", indexMemUsedKB, indexMemUsedKB * 100 / ( STATIC_INDEX_MEMORY / 1024 ) );
-	}
+	auto vertexMemUsedKB = vertexCache.VertexMemUsedKB();
+	auto indexMemUsedKB = vertexCache.IndexMemUsedKB();
+	auto vertUsedPercentage = ( vertexMemUsedKB * 100 ) / ( STATIC_VERTEX_MEMORY / 1024 );
+	auto indexUsedPercentage = ( indexMemUsedKB * 100 ) / ( STATIC_INDEX_MEMORY / 1024 );
+	idLib::Printf( "Used %dkb of static vertex memory (%d%%)\n", vertexMemUsedKB, vertUsedPercentage );
+	idLib::Printf( "Used %dkb of static index memory (%d%%)\n", indexMemUsedKB, indexUsedPercentage );
 	
 	if( common->JapaneseCensorship() )
 	{

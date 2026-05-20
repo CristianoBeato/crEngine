@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #define __VERTEX_CACHE_H__
 
 #include <atomic>
-#include <vulkan/vulkan.h> // TODO: fix this reference
 
 /// TODO:
 /// Two transfer buffers ( vertex ad indexes ) 
@@ -74,6 +73,8 @@ public:
 	void			EndMapLoad( void );
 	void			BeginBackEnd( void );
 	void			EndBackEnd( void );
+	size_t			VertexMemUsedKB( void ) const;
+	size_t			IndexMemUsedKB( void ) const;
 
 	// call on loading a new map
 	void			FreeStaticData( void );

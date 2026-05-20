@@ -30,7 +30,33 @@ Source Code.
 #ifndef __GEOMETRY_H__
 #define __GEOMETRY_H__
 
+typedef struct vertCacheHandle_s
+{
+	vertCacheHandle_s( void ) : 
+		flags( 0 ),
+		frame( 0 ),
+		size( 0 ),
+		offset( 0 )
+	{
+	}
 
+	vertCacheHandle_s( const vertCacheHandle_s& r ) : 
+		flags( r.flags ),
+		frame( r.frame ),
+		size( r.size ),
+		offset( r.offset )
+	{
+	}
+
+	uint16_t	flags;	//
+	uint16_t 	frame;	//
+	size_t 		size;	//
+	uintptr_t	offset;	//
+
+	inline bool operator ==( const vertCacheHandle_s& r ) const { return ( offset == r.offset ) && ( size == r.size ); }
+	inline operator bool( void ) const { return ( size != 0 ); }
+
+} vertCacheHandle_t;
 
 // our only drawing geometry type
 class crDrawGeometry

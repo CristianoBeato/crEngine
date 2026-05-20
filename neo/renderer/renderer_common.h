@@ -91,33 +91,8 @@ class idRenderWorldLocal;
 struct viewEntity_t;
 struct viewLight_t;
 
-typedef struct vertCacheHandle_s
-{
-	vertCacheHandle_s( void ) : 
-		flags( 0 ),
-		frame( 0 ),
-		size( 0 ),
-		offset( 0 )
-	{
-	}
-
-	vertCacheHandle_s( const vertCacheHandle_s& r ) : 
-		flags( r.flags ),
-		frame( r.frame ),
-		size( r.size ),
-		offset( r.offset )
-	{
-	}
-
-	uint16_t	flags;	//
-	uint16_t 	frame;	//
-	size_t 		size;	//
-	uintptr_t	offset;	//
-
-	inline bool operator ==( const vertCacheHandle_s& r ) const { return ( offset == r.offset ) && ( size == r.size ); }
-	inline operator bool( void ) const { return ( size != 0 ); }
-
-} vertCacheHandle_t;
+#include "Geometry.h"
+#include "Interaction.h"
 
 typedef struct 
 {
@@ -125,8 +100,6 @@ typedef struct
 	uint16_t	count;	// joint number 
 	uint32_t	first;	// first joint
 } joint_cache_t;
-
-#include "Interaction.h"
 
 // drawSurf_t structures command the back end to render surfaces
 // a given crDrawGeometry may be used with multiple viewEntity_t,
@@ -535,9 +508,7 @@ localTrace_t R_LocalTrace( const idVec3& start, const idVec3& end, const float r
 
 /*
 =============================================================
-
 BACKEND
-
 =============================================================
 */
 
@@ -551,7 +522,6 @@ BACKEND
 #include "jobs/dynamicshadowvolume/DynamicShadowVolume.h"
 #include "GraphicsAPIWrapper.h"
 #include "GLMatrix.h"
-#include "Geometry.h"
 
 // BEATO Begin:
 #include "frontend/Frontend.hpp"
