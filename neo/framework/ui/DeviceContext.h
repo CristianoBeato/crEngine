@@ -34,12 +34,13 @@ If you have questions concerning this license or the applicable additional terms
 //
 
 #include "Rectangle.h"
-#include "../renderer/Font.h"
+#include "renderer/Font.h"
 
 const int VIRTUAL_WIDTH = 640;
 const int VIRTUAL_HEIGHT = 480;
 const int BLINK_DIVISOR = 200;
 
+class idGuiModel;
 class idDeviceContext
 {
 public:

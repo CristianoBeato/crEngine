@@ -27,6 +27,9 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+#ifndef __GUI_MODEL_H__
+#define __GUI_MODEL_H__
+
 struct guiModelSurface_t
 {
 	const idMaterial* 	material;
@@ -86,3 +89,4 @@ private:
 	idList<guiModelSurface_t, TAG_MODEL>	surfaces;
 };
 
+#endif //__GUI_MODEL_H__

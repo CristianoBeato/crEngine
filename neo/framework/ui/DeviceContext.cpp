@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 #include "DeviceContext.h"
-#include "renderer/models/GuiModel.h"
+#include "renderer/renderer_common.h"
 
 extern idCVar in_useJoystick;
 
@@ -112,7 +112,7 @@ void idDeviceContext::Clear()
 	initialized = false;
 }
 
-idDeviceContext::idDeviceContext()
+idDeviceContext::idDeviceContext( void )
 {
 	Clear();
 }

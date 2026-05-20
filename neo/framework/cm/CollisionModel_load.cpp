@@ -51,7 +51,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 // BEATO Begin:
-#include "renderer/VertexCache.h"
 #include "renderer/Geometry.h"
 // BEATO End
 

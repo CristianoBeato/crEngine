@@ -37,7 +37,6 @@ idCVar com_wipeSeconds( "com_wipeSeconds", "1", CVAR_SYSTEM, "" );
 idCVar com_disableAutoSaves( "com_disableAutoSaves", "0", CVAR_SYSTEM | CVAR_BOOL, "" );
 idCVar com_disableAllSaves( "com_disableAllSaves", "0", CVAR_SYSTEM | CVAR_BOOL, "" );
 
-
 extern idCVar sys_lang;
 extern idCVar g_demoMode;
 
@@ -648,13 +647,16 @@ void idCommonLocal::ExecuteMapChange( void )
 	// let the renderSystem generate interactions now that everything is spawned
 	renderWorld->GenerateAllInteractions();
 	
+#if 0
+	// TODO: Fix this, usyg a render sys call
 	auto vertexMemUsedKB = vertexCache.VertexMemUsedKB();
 	auto indexMemUsedKB = vertexCache.IndexMemUsedKB();
 	auto vertUsedPercentage = ( vertexMemUsedKB * 100 ) / ( STATIC_VERTEX_MEMORY / 1024 );
 	auto indexUsedPercentage = ( indexMemUsedKB * 100 ) / ( STATIC_INDEX_MEMORY / 1024 );
 	idLib::Printf( "Used %dkb of static vertex memory (%d%%)\n", vertexMemUsedKB, vertUsedPercentage );
 	idLib::Printf( "Used %dkb of static index memory (%d%%)\n", indexMemUsedKB, indexUsedPercentage );
-	
+#endif
+
 	if( common->JapaneseCensorship() )
 	{
 		if( currentMapName.Icmp( "game/mp/d3xpdm3" ) == 0 )
