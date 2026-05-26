@@ -14,16 +14,53 @@
 #include <chrono>
 #include <sys/stat.h>
 
-namespace fs = std::filesystem;
+/// TODO: Future, use SDL3 storage 
 
-#include <SDL3/SDL_filesystem.h>
-#include <SDL3/SDL_storage.h>
+namespace fs = std::filesystem;
 #include <SDL3/SDL_iostream.h>
+#include <SDL3/SDL_filesystem.h>
 
 constexpr char DEFALT_STRING[7] = { "detect" };
+static idStr basepath;
 
 static idCVar sys_defaultbasepath( "sys_defaultbasepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the local game source base path" );
 static idCVar sys_defaultsavepath( "sys_defaultsavepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the game saves folder" );
+
+/*
+==============
+Sys_DirExist
+==============
+*/
+bool Sys_DirExist( const char *path )
+{
+	std::error_code ec;
+	auto fpath = fs::path( path );
+	if ( fs::exists( fpath, ec ) )
+		return true; 	
+    return false;
+}
+
+/*
+================
+Sys_Mkdir
+================
+*/
+void Sys_Mkdir( const char* path )
+{
+	std::error_code ec;
+	
+	if (!path || !*path)
+		return;
+	
+	auto fpath = fs::path( path );
+	
+	// check if already exists 
+	if ( !fs::exists( fpath, ec ) )
+		idLib::Warning("Sys_Mkdir: error '%s' wen creating '%s'\n", ec.message().c_str(), path );
+
+	if( !fs::create_directories( fpath, ec ) )
+		idLib::Warning("Sys_Mkdir: error '%s' wen creating '%s'\n", ec.message().c_str(), path );
+}
 
 /*
 ==============
@@ -88,10 +125,9 @@ Try to be intelligent: if there is no BASE_GAMEDIR, try the next path
 */
 const char* Sys_DefaultBasePath( void )
 {
-	static idStr basepath;
     if ( basepath.IsEmpty() )
 	{
-#if 0
+#if 1
         basepath = SDL_GetBasePath();
 #else
 		fs::path cwd = fs::current_path();
@@ -104,8 +140,6 @@ const char* Sys_DefaultBasePath( void )
 }
 
 // ---------------------------------------------------------------------------
-
-#include <SDL3/SDL.h>
 
 /*
 ================
@@ -126,46 +160,19 @@ Sys_GetDriveFreeSpaceInBytes
 */
 uint64_t Sys_GetDriveFreeSpaceInBytes( const char* path )
 {
-	try 
+	std::error_code ec;
+	auto fpath = fs::path( path );
+	if ( fs::exists( fpath, ec ) )
+		return 0;
+
+	fs::space_info info = fs::space(fpath, ec );
+	if( ec )
 	{
-        fs::space_info info = fs::space(path);
-        return static_cast<uint64_t>(info.available);
-    } 
-	catch (const fs::filesystem_error& e) 
-	{
-		common->Error( "Sys_Rmdir: erro '%s' ao remover '%s'\n", e.what(), path );
+		idLib::Error( "Sys_GetDriveFreeSpaceInBytes: erro '%s' ao remover '%s'\n", ec.message().c_str(), path );
 		return 0;
 	}
-}
 
-/*
-================
-Sys_Mkdir
-================
-*/
-void Sys_Mkdir( const char* path )
-{
-	if (!path || !*path)
-		return;
-
-#if 0
-	if ( !SDL_CreateDirectory( path ) )
-		Sys_Printf( "ERROR: mkdir (%s) failed %s\n", path, SDL_GetError() );
-#else
-	// check if already exists 
-	if ( fs::exists( fs::path( path ) ) )
-		return; 
-
-	// try create
-	try 
-	{
-		fs::create_directories( fs::path( path ) );
-	}
-	catch (const fs::filesystem_error& e) 
-	{
-		common->Warning("Sys_Mkdir: error '%s' wen creating '%s'\n", e.what(), path);	
-	}
-#endif
+	return static_cast<uint64_t>( info.available );
 }
 
 
@@ -177,32 +184,33 @@ Sys_Rmdir
 */
 bool Sys_Rmdir( const char* path )
 {
+	std::error_code ec;
+	
 	if (!path || !*path)
 		return false;
 
-#if 0
-	if ( !SDL_RemovePath( path ) )
+	auto fpath = fs::path( path );
+
+	// check if already exists 
+	if ( !fs::exists( fpath, ec ) )
 	{
-		Sys_Printf( "ERROR: rmdir (%s) failed %s\n", path, SDL_GetError() );
+		idLib::Warning("Sys_Rmdir: error '%s' wen removing '%s'\n", ec.message().c_str(), path );
 		return false;
 	}
 
-#else		
-	try 
+	if( !fs::is_directory( fpath, ec ) )
 	{
-		fs::path dir(path);
-
-		// remove apenas se for diretório existente
-		if ( fs::exists(dir) && fs::is_directory(dir) )
-			return fs::remove(dir);
-	} 
-	catch (const fs::filesystem_error& e) 
-	{
-		common->DPrintf( "Sys_Rmdir: erro '%s' ao remover '%s'\n", e.what(), path );
+		idLib::Warning("Sys_Rmdir: error is not a dir wen removing '%s'\n", ec.message().c_str(), path );
+		return false;
 	}
-#endif
-		
-	return false;
+
+	if( !fs::remove( fpath, ec ) )
+	{
+		idLib::Warning( "Sys_Rmdir: error '%s' removing '%s'\n", ec.message().c_str(), path );
+		return false;
+	}
+
+	return true;
 }
 
 /*
@@ -212,43 +220,33 @@ Sys_IsFileWritable
 */
 bool Sys_IsFileWritable( const char* path )
 {
-    try 
+	std::error_code ec;
+
+	if (!path || !*path)
+		return false;
+
+	auto fpath = fs::path( path );
+	
+	// check if exists 
+	if ( fs::exists( fpath, ec ) )
 	{
-        if (!path || !*path)
-            return false;
-
-        fs::path p(path);
-
-        // If the file already exists, try opening it as an attachment (non-destructive)
-        if (fs ::exists( p ) ) 
-		{
-            std::ofstream f(p, std::ios::app);
-            return f.is_open();
-        }
-
+		// If the file already exists, try opening it as an attachment (non-destructive)
+		std::ofstream file( fpath, std::ios::app );
+        return file.is_open();
+	}
+	else
+	{
 		// If it doesn't exist, check if the parent directory is writable
-		fs::path dir = p.parent_path();
-        if (dir.empty())
-            dir = fs::current_path();
+		fs::path parent = fpath.parent_path();
+        if ( parent.empty())
+            parent = fs::current_path();
 
-        if ( !fs::exists( dir ) )
-            return false;
-#if 0
-        // tries to create and remove a temporary file
-		fs::path testFile = dir / ".write_test.tmp";
-        std::ofstream test(testFile);
-        if (!test.is_open())
-            return false;
+		// TODO:
 
-        test.close();
-        fs::remove(testFile);
-#endif	
-        return true;
-    } 
-	catch (const fs::filesystem_error&) 
-	{
-        return false;
-    }
+		return false;
+	}
+
+	return false;
 }
 
 /*
@@ -258,26 +256,20 @@ Sys_IsFolder
 */
 sysFolder_t Sys_IsFolder( const char* path )
 {
+	std::error_code ec;
+
 	if (!path || !*path)
 		return FOLDER_ERROR;
+		
+	auto fpath = fs::path( path );
 
-	try 
+	if ( fs::exists( fpath, ec ) ) 
 	{
-		fs::path p(path);
-		if (fs::exists(p)) 
-		{
-			if (fs::is_directory(p))
-				return FOLDER_YES;
-			else
-				return FOLDER_NO;
-		}
-		return FOLDER_NO;
-	} catch (const fs::filesystem_error& e) 
-	{
-		// Em idTech4x, você poderia logar isso com common->DPrintf
-		common->DPrintf("Sys_IsFolder: erro '%s' '%s'\n", e.what(), path);
-		return FOLDER_ERROR;
+		if ( fs::is_directory( fpath, ec ) )
+			return FOLDER_YES;
 	}
+	
+	return FOLDER_NO;
 }
 
 /*
@@ -290,23 +282,6 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	if (!directory || !*directory)
         return 0;
 
-#if 0
-	int count = 0;
-	char** pathlist = SDL_GlobDirectory( directory, extension, SDL_GLOB_CASEINSENSITIVE , &count );
-	for ( uint32_t i = 0; i < count; i++)
-	{
-		idStr path;
-		if ( pathlist[i] == nullptr )
-			continue;
-		
-		path = pathlist[i];
-
-
-		list.Append( path );
-	}
-	
-	SDL_free( pathlist );
-#else
 	try
 	{
 		// check for a valid path
@@ -336,7 +311,7 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 			}
 			else if( entry.is_regular_file() && !extFilter.empty() )
 			{
-				std::string ext = filePath.extension(); 
+				std::string ext = filePath.extension().string(); 
             	if ( ext != extFilter)
             	    continue;
 
@@ -351,23 +326,15 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	}
 	
 	return list.Num(); // idStrList.Num() retorna count
-#endif
 }
 
 // ---------------------------------------------------------------------------
-
-// only relevant when specified on command line
-const char* Sys_DefaultCDPath()
-{
-	return "";
-}
-
 
 ID_TIME_T Sys_FileTimeStamp( idFileHandle fp )
 {
 #if __PLATFORM_WINDOWS__
 	struct _stat st;
-	_fstat( fileno( fp ), &st );
+	_fstat( _fileno( fp ), &st );
 	return st.st_mtime;
 #else
 	struct stat st;

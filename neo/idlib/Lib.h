@@ -178,8 +178,8 @@ inline void SetZero( _t * in_array, const uint32_t in_count  )
 // System
 #include "sys/sys_assert.h"
 #include "sys/sys_threading.h"
-
 // BEATO Begin:
+#include "sys/sys_paths.hpp"
 #include "Exception.h"
 // BEATO end
 

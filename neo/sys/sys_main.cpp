@@ -7,7 +7,7 @@
 #include <SDL3/SDL_main.h>
 
 #if __PLATFORM_WINDOWS__
-#   incldue <windows.h>
+#   include <windows.h>
 #   include "win32/win_local.h"
 #elif __PLATFORM_LINUX__ || __PLATFORM_FBSD__
 #   include <sys/mman.h>
@@ -245,7 +245,7 @@ int main( int argc, char *argv[] )
 
 #if __PLATFORM_WINDOWS__
 	// hide or show the early console as necessary
-	if ( win32.win_viewlog.GetInteger() )
+	if ( win_viewlog.GetBool() )
 		Sys_ShowConsole( 1, true );
 	else
 		Sys_ShowConsole( 0, false );

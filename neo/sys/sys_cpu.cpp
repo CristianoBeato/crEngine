@@ -38,10 +38,6 @@ inline unsigned int __get_cpuid( unsigned int level, unsigned int* eax, unsigned
 #include <cpuid.h>
 #endif
 
-#ifdef strcmp
-#undef strcmp
-#endif // 
-
 enum cpuReg_t : uint8_t 
 {
     REG_EAX,

@@ -25,12 +25,32 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-#ifndef SYS_FILESYSTEM_H
-#define SYS_FILESYSTEM_H
+#ifndef __SYS_PATHS_HPP__
+#define __SYS_PATHS_HPP__
 
-void			Sys_Mkdir( const char* path );
-bool			Sys_Rmdir( const char* path );
-bool			Sys_IsFileWritable( const char* path );
+/// @brief Check for the existence of the given path
+/// @param path 
+/// @return true if exist, false if not, or fail to check 
+extern bool			Sys_DirExist( const char* path );
+
+/// @brief 
+/// @param path 
+extern void			Sys_Mkdir( const char* path );
+
+/// @brief 
+/// @param path 
+/// @return 
+extern bool			Sys_Rmdir( const char* path );
+
+/// @brief 
+/// @param path 
+/// @return 
+extern bool			Sys_IsFileWritable( const char* path );
+
+extern const char*	Sys_EXEPath( void );
+extern const char*	Sys_CWD( void );
+extern const char*	Sys_LaunchPath( void );
+
 
 enum sysFolder_t
 {
@@ -46,9 +66,4 @@ sysFolder_t		Sys_IsFolder( const char* path );
 // returns -1 if directory was not found (the list is cleared)
 int				Sys_ListFiles( const char* directory, const char* extension, idList<class idStr>& list );
 
-const char* 	Sys_EXEPath();
-const char* 	Sys_CWD();
-
-const char* 	Sys_LaunchPath();
-
-#endif
+#endif // __SYS_PATHS_HPP__

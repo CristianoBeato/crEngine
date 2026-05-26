@@ -169,7 +169,8 @@ set( IDLIB_SYS_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_assert.h
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_builddefines.h
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_defines.h
-	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_filesystem.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_paths.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_paths.hpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_includes.h
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_intrinsics.h
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_thread.cpp
