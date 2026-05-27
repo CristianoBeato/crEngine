@@ -161,8 +161,9 @@ static const int MAX_SHADOW_TRIS = 32768;
 static	shadowTri_t	outputTris[MAX_SHADOW_TRIS];
 static	int		numOutputTris;
 
-typedef struct shadowOptEdge_s {
-	uint	index[2];
+typedef struct shadowOptEdge_s 
+{
+	uint32_t	index[2];
 	struct shadowOptEdge_s	*nextEdge;
 } shadowOptEdge_t;
 
@@ -170,7 +171,8 @@ static const int MAX_SIL_EDGES = MAX_SHADOW_TRIS*3;
 static	shadowOptEdge_t	silEdges[MAX_SIL_EDGES];
 static	int		numSilEdges;
 
-typedef struct silQuad_s {
+typedef struct silQuad_s 
+{
 	int		nearV[2];
 	int		farV[2];		// will always be a projection of near[]
 	struct silQuad_s	*nextQuad;
@@ -181,7 +183,8 @@ static	silQuad_t	silQuads[MAX_SIL_QUADS];
 static int		numSilQuads;
 
 
-typedef struct {
+typedef struct 
+{
 	idVec3	normal;	// all sil planes go through the projection origin
 	shadowOptEdge_t	*edges;
 	silQuad_t		*fragmentedQuads;
@@ -1243,8 +1246,7 @@ void CleanupOptimizedShadowTris( crDrawGeometry *tri )
 	uniqued = (idVec3 *)_alloca( sizeof( *uniqued ) * maxUniqued );
 	numUniqued = 0;
 
-	uint	*remap = (uint *)_alloca( sizeof( *remap ) * tri->NumVerts() );
-
+	uint32_t	*remap = (uint32_t *)_alloca( sizeof( *remap ) * tri->NumVerts() );
 	for ( i = 0 ; i < tri->NumIndexes() ; i++ ) 
 	{
 		if ( tri->Indexes()[i] > tri->NumVerts() || tri->Indexes()[i] < 0 ) 

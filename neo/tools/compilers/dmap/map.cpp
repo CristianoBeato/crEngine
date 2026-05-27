@@ -1115,7 +1115,7 @@ void FreeDMapFile( void )
 	// free the map lights
 	for ( i = 0; i < dmapGlobals.mapLights.Num(); i++ ) 
 	{
-		R_FreeLightDefDerivedData( &dmapGlobals.mapLights[i]->def );
+		crFrontend::Get().FreeLightDefDerivedData( &dmapGlobals.mapLights[i]->def );
 	}
 	dmapGlobals.mapLights.DeleteContents( true );
 }
