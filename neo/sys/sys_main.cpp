@@ -100,7 +100,7 @@ const char* Sys_GetCmdLine( void )
 Sys_LockMemory
 ================
 */
-bool Sys_LockMemory( void* ptr, int bytes )
+bool Sys_LockMemory( void* ptr, const size_t bytes )
 {
 #if __PLATFORM_WINDOWS__
 	return ( VirtualLock( ptr, ( SIZE_T )bytes ) != FALSE );
@@ -116,7 +116,7 @@ bool Sys_LockMemory( void* ptr, int bytes )
 Sys_UnlockMemory
 ================
 */
-bool Sys_UnlockMemory( void* ptr, int bytes )
+bool Sys_UnlockMemory( void* ptr, const size_t bytes )
 {
 #if __PLATFORM_WINDOWS__
 	return ( VirtualUnlock( ptr, ( SIZE_T )bytes ) != FALSE );

@@ -85,16 +85,6 @@ const char* idSysLocal::GetProcessorString()
 	return Sys_GetProcessorString();
 }
 
-const char* idSysLocal::FPU_GetState()
-{
-	return Sys_FPU_GetState();
-}
-
-bool idSysLocal::FPU_StackIsEmpty()
-{
-	return Sys_FPU_StackIsEmpty();
-}
-
 void idSysLocal::FPU_SetFTZ( bool enable )
 {
 	Sys_FPU_SetFTZ( enable );
@@ -105,12 +95,12 @@ void idSysLocal::FPU_SetDAZ( bool enable )
 	Sys_FPU_SetDAZ( enable );
 }
 
-bool idSysLocal::LockMemory( void* ptr, int bytes )
+bool idSysLocal::LockMemory( void* ptr, const size_t bytes )
 {
 	return Sys_LockMemory( ptr, bytes );
 }
 
-bool idSysLocal::UnlockMemory( void* ptr, int bytes )
+bool idSysLocal::UnlockMemory( void* ptr, const size_t bytes )
 {
 	return Sys_UnlockMemory( ptr, bytes );
 }

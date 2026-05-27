@@ -577,8 +577,8 @@ void			Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats );
 void			Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t& stats );
 
 // lock and unlock memory
-bool			Sys_LockMemory( void* ptr, int bytes );
-bool			Sys_UnlockMemory( void* ptr, int bytes );
+bool			Sys_LockMemory( void* ptr, const size_t bytes );
+bool			Sys_UnlockMemory( void* ptr, const size_t bytes );
 
 // DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
 
@@ -942,15 +942,13 @@ public:
 	virtual double			ClockTicksPerSecond( void ) = 0;
 	virtual cpuid_t			GetProcessorId( void ) = 0;
 	virtual const char* 	GetProcessorString( void ) = 0;
-	virtual const char* 	FPU_GetState( void ) = 0;
-	virtual bool			FPU_StackIsEmpty() = 0;
-	virtual void			FPU_SetFTZ( bool enable ) = 0;
-	virtual void			FPU_SetDAZ( bool enable ) = 0;
+	virtual void			FPU_SetFTZ( const bool enable ) = 0;
+	virtual void			FPU_SetDAZ( const bool enable ) = 0;
 	
 	virtual void			FPU_EnableExceptions( int exceptions ) = 0;
 	
-	virtual bool			LockMemory( void* ptr, int bytes ) = 0;
-	virtual bool			UnlockMemory( void* ptr, int bytes ) = 0;
+	virtual bool			LockMemory( void* ptr, const size_t bytes ) = 0;
+	virtual bool			UnlockMemory( void* ptr, const size_t bytes ) = 0;
 	
 	virtual int				DLL_Load( const char* dllName ) = 0;
 	virtual void* 			DLL_GetProcAddress( int dllHandle, const char* procName ) = 0;
