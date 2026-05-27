@@ -39,51 +39,41 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sys/sys_defines.h"
 
-#include <stddef.h>					// for offsetof
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-
-// RB: added <stdint.h> for missing uintptr_t
-#include <stdint.h>
+#include <cstddef>					// for offsetof
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
+#include <cstdint> // RB: added <stdint.h> for missing uintptr_t
 
 // RB begin
-#if defined(__MINGW32__)
-//#include <sal.h> 	// RB: missing __analysis_assume
-#include <malloc.h> // DG: _alloca16 needs that
+#if __PLATFORM_WINDOWS__
+#	include <malloc.h> // DG: _alloca16 needs that
 
-#ifndef __analysis_assume
-#define __analysis_assume( x )
-#endif
+#	ifndef __analysis_assume
+#	define __analysis_assume( x )
+#	endif //!__analysis_assume
 
-#elif defined(__linux__)
-#include <malloc.h> // DG: _alloca16 needs that
-#include <signal.h>
-// RB end
+#else // !__PLATFORM_WINDOWS__
 // Yamagi begin
-#elif defined(__FreeBSD__)
-#include <signal.h>
-#endif
+#	if __PLATFORM_LINUX__
+#		include <malloc.h> // DG: _alloca16 needs that
+#	endif //__PLATFORM_LINUX__
+#	include <signal.h>
 // Yamagi end
+#endif
+// RB end
 
-#ifdef _MSC_VER
+#if __COMPILER_MSVC__
 #include <intrin.h>
 #pragma warning( disable : 4100 )	// unreferenced formal parameter
 #pragma warning( disable : 4127 )	// conditional expression is constant
 #endif
-
-
 
 #include "sys/sys_assert.h"
 #include "sys/sys_types.h"
 #include "sys/sys_intrinsics.h"
 #include "math/Math.h"
 #include "ParallelJobList.h"
-
-#if _MSC_VER >= 1600
-#undef nullptr
-#define nullptr 0
-#endif
 
 #endif // !__PARALLELJOBLIST_JOBHEADERS_H__

@@ -136,7 +136,7 @@ If you have questions concerning this license or the applicable additional terms
 #define NO_RETURN __declspec(noreturn)
 // RB end
 
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 // DG: this should at least work with GCC/MinGW, probably with clang as well..
 #define _alloca							    alloca
 #define ID_FORCE_INLINE					inline // TODO: always_inline?
@@ -248,7 +248,7 @@ bulk of the codebase, so it is the best place for analyze pragmas.
 // DG: alternative for GCC with attribute (NOOP for MSVC)
 #define ATTRIBUTE_PRINTF(STRIDX, FIRSTARGIDX)
 
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__ // 
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__ // 
 #define	VERIFY_FORMAT_STRING
 // STRIDX: index of format string in function arguments (first arg == 1)
 // FIRSTARGIDX: index of first argument for the format string

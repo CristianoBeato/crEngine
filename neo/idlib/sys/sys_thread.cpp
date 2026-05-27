@@ -66,7 +66,7 @@ interlockedInt_t Sys_InterlockedIncrement( interlockedInt_t& value )
 {
 #if __COMPILER_MSVC__
 	return InterlockedIncrementAcquire( & value ); // googling suggests that some experimental mingw code supports this too..
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_add_and_fetch( &value, 1 );
 #endif
 }
@@ -80,7 +80,7 @@ interlockedInt_t Sys_InterlockedDecrement( interlockedInt_t& value )
 {
 #if __COMPILER_MSVC__
 	return InterlockedDecrementRelease( & value );
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_sub_and_fetch( &value, 1 );
 #endif
 }
@@ -94,7 +94,7 @@ interlockedInt_t Sys_InterlockedAdd( interlockedInt_t& value, interlockedInt_t i
 {
 #if __COMPILER_MSVC__
 	return InterlockedExchangeAdd( & value, i ) + i;
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_add_and_fetch( &value, i );
 #endif
 }
@@ -108,7 +108,7 @@ interlockedInt_t Sys_InterlockedSub( interlockedInt_t& value, interlockedInt_t i
 {
 #if __COMPILER_MSVC__
 	return InterlockedExchangeAdd( & value, - i ) - i;
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_sub_and_fetch( &value, i );
 #endif
 }
@@ -122,7 +122,7 @@ interlockedInt_t Sys_InterlockedExchange( interlockedInt_t& value, interlockedIn
 {
 #if __COMPILER_MSVC__
 	return InterlockedExchange( & value, exchange );
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 	// source: http://gcc.gnu.org/onlinedocs/gcc-4.1.1/gcc/Atomic-Builtins.html
 	// These builtins perform an atomic compare and swap. That is, if the current value of *ptr is oldval, then write newval into *ptr.
 	return __sync_val_compare_and_swap( &value, value, exchange );
@@ -138,7 +138,7 @@ interlockedInt_t Sys_InterlockedCompareExchange( interlockedInt_t& value, interl
 {
 #if __COMPILER_MSVC__
 	return InterlockedCompareExchange( & value, exchange, comparand );
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_val_compare_and_swap( &value, comparand, exchange );
 #endif
 }
@@ -160,7 +160,7 @@ void* Sys_InterlockedExchangePointer( void*& ptr, void* exchange )
 {
 #if __COMPILER_MSVC__
 	return InterlockedExchangePointer( & ptr, exchange );
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_val_compare_and_swap( &ptr, ptr, exchange );
 #endif
 }
@@ -174,7 +174,7 @@ void* Sys_InterlockedCompareExchangePointer( void*& ptr, void* comparand, void* 
 {
 #if __COMPILER_MSVC__
 	return InterlockedCompareExchangePointer( & ptr, exchange, comparand );
-#elif __COMPILER_GCC__ || __COMPILER_CLANG__
+#elif __COMPILER_MINGW__ || __COMPILER_GCC__ || __COMPILER_CLANG__
 	return __sync_val_compare_and_swap( &ptr, comparand, exchange );
 #endif
 }

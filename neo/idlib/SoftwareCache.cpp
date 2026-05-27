@@ -26,13 +26,6 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
-
-// RB: missing __analysis_assume
-#if defined(__MINGW32__)
-#include <sal.h>
-#endif
-// RB end
-
 #include "ParallelJobList_JobHeaders.h"
 
 /*
@@ -50,18 +43,18 @@ bool SpursEmulationAssertFailed( const char* filename, int line, const char* exp
 	static bool halt = true;
 	if( halt )
 	{
-#ifdef _WIN32
-#ifdef _MSC_VER
+#if __PLATFORM_WINDOWS__
+#if __COMPILER_MSVC__
 		__debugbreak();
 #else
 		// DG: mingw support
 		DebugBreak();
 #endif
-#else // not _WIN32
+#else // !__PLATFORM_WINDOWS__
 		// DG: POSIX support
 		raise( SIGTRAP );
 		// DG: end
-#endif // _WIN32
+#endif // !__PLATFORM_WINDOWS__
 		
 	}
 	return true;

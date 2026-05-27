@@ -8,17 +8,15 @@
 #undef vsnprintf
 // DG end
 
-// STD 17
-#include <fstream>
-#include <filesystem>
-#include <chrono>
+
 #include <sys/stat.h>
-
-/// TODO: Future, use SDL3 storage 
-
-namespace fs = std::filesystem;
 #include <SDL3/SDL_iostream.h>
 #include <SDL3/SDL_filesystem.h>
+#include <fstream>
+
+// STD 17
+#include <filesystem>
+namespace fs = std::filesystem;
 
 constexpr char DEFALT_STRING[7] = { "detect" };
 static idStr basepath;
@@ -70,9 +68,10 @@ Sys_EXEPath
 const char* Sys_EXEPath( void )
 {
     static char	buf[ 1024 ];
+
 #if __PLATFORM_WINDOWS__
 	GetModuleFileName( nullptr, buf, sizeof( buf ) - 1 );
-#else
+#else //!__PLATFORM_WINDOWS__
 	idStr		linkpath;
 	int			len;
 	buf[ 0 ] = '\0';
@@ -85,7 +84,8 @@ const char* Sys_EXEPath( void )
 		buf[ 0 ] = '\0';
 		// RB end
 	}
-#endif
+#endif //!__PLATFORM_WINDOWS__
+
 	return buf;
 }
 
@@ -127,12 +127,7 @@ const char* Sys_DefaultBasePath( void )
 {
     if ( basepath.IsEmpty() )
 	{
-#if 1
         basepath = SDL_GetBasePath();
-#else
-		fs::path cwd = fs::current_path();
-		basepath = cwd.c_str(); 
-#endif
 		sys_defaultbasepath.SetString( basepath.c_str() );
 	}
 
@@ -245,7 +240,7 @@ bool Sys_IsFileWritable( const char* path )
 
 		return false;
 	}
-
+	
 	return false;
 }
 
@@ -335,27 +330,9 @@ ID_TIME_T Sys_FileTimeStamp( idFileHandle fp )
 #if __PLATFORM_WINDOWS__
 	struct _stat st;
 	_fstat( _fileno( fp ), &st );
-	return st.st_mtime;
 #else
 	struct stat st;
 	fstat( fileno( fp ), &st );
+#endif
 	return st.st_mtime;
-#endif
 }
-
-#if 0
-ID_TIME_T Sys_FileTimeStamp(const char* path) 
-{
-    try 
-	{
-        auto ftime = last_write_time(path);
-        // converte de filesystem::file_time_type para time_t
-        auto sctp = decltype(ftime)::clock::to_sys(ftime);
-        return std::chrono::system_clock::to_time_t(sctp);
-    } 
-	catch (const std::filesystem::filesystem_error&) 
-	{
-        return 0; // falha ou arquivo inexistente
-    }
-}
-#endif

@@ -68,6 +68,7 @@ along with Beato idTech 4x  Source Code.  If not, see <http://www.gnu.org/licens
 
 /*
 #define __COMPILER_MSVC__ 0
+#define __COMPILER_MINGW__
 #define __COMPILER_GCC__ 0
 #define __COMPILER_CLANG__ 0
 #define __COMPILER_INTEL__ 0
@@ -77,6 +78,8 @@ along with Beato idTech 4x  Source Code.  If not, see <http://www.gnu.org/licens
 #define __COMPILER_MSVC__ 1
 #elif defined( __clang__ )
 #define __COMPILER_CLANG__ 1
+#elif defined( __MINGW32__ ) || defined( __MINGW64__ )
+#define __COMPILER_MINGW__ 1
 #elif defined(__GNUC__) || defined(__GNUG__)
 #define __COMPILER_GCC__ 1
 #elif defined( __INTEL_COMPILER )

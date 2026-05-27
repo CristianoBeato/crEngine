@@ -179,7 +179,6 @@ inline void SetZero( _t * in_array, const uint32_t in_count  )
 #include "sys/sys_assert.h"
 #include "sys/sys_threading.h"
 // BEATO Begin:
-#include "sys/sys_paths.hpp"
 #include "Exception.h"
 // BEATO end
 
@@ -261,6 +260,9 @@ inline void SetZero( _t * in_array, const uint32_t in_count  )
 #include "hashing/CRC32.h"
 #include "hashing/MD4.h"
 #include "hashing/MD5.h"
+
+// Portable local paths queryng
+#include "sys/sys_paths.hpp"
 
 // misc
 #include "Dict.h"

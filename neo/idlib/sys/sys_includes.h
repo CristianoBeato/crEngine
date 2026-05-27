@@ -50,7 +50,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <cctype>
 #include <typeinfo>
 #include <memory>
-
 #include <algorithm>
 
 /// SDL3
@@ -66,7 +65,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 // RB: windows specific stuff should only be set on Windows
-#if defined(_WIN32)
+#if __PLATFORM_WINDOWS__
 #ifndef WIN32_LEAN_AND_MEAN
         #define WIN32_LEAN_AND_MEAN
 #endif
@@ -83,13 +82,21 @@ If you have questions concerning this license or the applicable additional terms
 #include <mmsystem.h>
 #include <mmreg.h>
 
-#ifdef _MSC_VER
+#ifdef __COMPILER_MSVC__
 #pragma warning( disable: 4005 )  /* macro redefinition */
+#pragma warning(disable : 4100)				// unreferenced formal parameter
+#pragma warning(disable : 4127)				// conditional expression is constant
+#pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
+#pragma warning(disable : 4714)				// function marked as __forceinline not inlined
+#pragma warning(disable : 4996)				// unsafe string operations
 
 #include <dsound.h>
+#include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
+
 #else
 // DG: MinGW is incompatible with the original dsound.h because it contains MSVC specific annotations
 #include <wine-dsound.h>
+#include <emmintrin.h>
 
 // RB: was missing in MinGW/include/winuser.h
 #ifndef MAPVK_VSC_TO_VK_EX
@@ -97,45 +104,20 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 // RB begin
-#if defined(__MINGW32__)
-//#include <sal.h> 	// RB: missing __analysis_assume
-// including <sal.h> breaks some STL crap ...
+#if __COMPILER_MINGW__
 
 #ifndef __analysis_assume
 #define __analysis_assume( x )
 #endif
-
 #endif
 // RB end
 
 #endif
 
-#ifdef _MSC_VER 
-#pragma warning( default: 4005 )  /* macro redefinition */
-#endif
-
 #endif /* !GAME_DLL */
 #endif /* !_D3SDK */
 
-// DG: intrinsics for GCC
-#if defined(__GNUC__) && defined(__SSE2__)
-#include <emmintrin.h>
-
-// TODO: else: alternative implementations?
-#endif
-// DG end
-
-#ifdef _MSC_VER
-#include <intrin.h>			// needed for intrinsics like _mm_setzero_si28
-
-#pragma warning(disable : 4100)				// unreferenced formal parameter
-#pragma warning(disable : 4127)				// conditional expression is constant
-#pragma warning(disable : 4244)				// conversion to smaller type, possible loss of data
-#pragma warning(disable : 4714)				// function marked as __forceinline not inlined
-#pragma warning(disable : 4996)				// unsafe string operations
-#endif // _MSC_VER
-
-#elif defined(__linux__) || defined(__FreeBSD__)
+#elif __PLATFORM_LINUX__ || __PLATFORM_FBSD__
 
 #include <signal.h>
 #include <pthread.h>
