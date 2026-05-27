@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __WIN_LOCAL_H__
 #define __WIN_LOCAL_H__
 
+extern idCVar win_viewlog;
+
 #define	WINDOW_STYLE	(WS_OVERLAPPED|WS_BORDER|WS_CAPTION|WS_VISIBLE | WS_THICKFRAME)
 
 void	Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void* ptr, int inputDeviceNum );

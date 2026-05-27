@@ -64,46 +64,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #pragma warning(disable:4740)	// warning C4740: flow in or out of inline asm code suppresses global optimization
 
-
-
-/*
-================
-Sys_GetDriveFreeSpace
-returns in megabytes
-================
-*/
-int Sys_GetDriveFreeSpace( const char* path )
-{
-	DWORDLONG lpFreeBytesAvailable;
-	DWORDLONG lpTotalNumberOfBytes;
-	DWORDLONG lpTotalNumberOfFreeBytes;
-	int ret = 26;
-	//FIXME: see why this is failing on some machines
-	if( ::GetDiskFreeSpaceEx( path, ( PULARGE_INTEGER )&lpFreeBytesAvailable, ( PULARGE_INTEGER )&lpTotalNumberOfBytes, ( PULARGE_INTEGER )&lpTotalNumberOfFreeBytes ) )
-	{
-		ret = ( double )( lpFreeBytesAvailable ) / ( 1024.0 * 1024.0 );
-	}
-	return ret;
-}
-
-/*
-========================
-Sys_GetDriveFreeSpaceInBytes
-========================
-*/
-int64_t Sys_GetDriveFreeSpaceInBytes( const char* path )
-{
-	DWORDLONG lpFreeBytesAvailable;
-	DWORDLONG lpTotalNumberOfBytes;
-	DWORDLONG lpTotalNumberOfFreeBytes;
-	int64_t ret = 1;
-	//FIXME: see why this is failing on some machines
-	if( ::GetDiskFreeSpaceEx( path, ( PULARGE_INTEGER )&lpFreeBytesAvailable, ( PULARGE_INTEGER )&lpTotalNumberOfBytes, ( PULARGE_INTEGER )&lpTotalNumberOfFreeBytes ) )
-	{
-		ret = lpFreeBytesAvailable;
-	}
-	return ret;
-}
+idCVar win_viewlog( "win_viewlog", "0", CVAR_SYSTEM | CVAR_INTEGER, "" );
 
 /*
 ================

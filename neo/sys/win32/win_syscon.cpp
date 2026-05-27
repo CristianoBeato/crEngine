@@ -117,7 +117,7 @@ static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPara
 			else
 			{
 				Sys_ShowConsole( 0, false );
-				win32.win_viewlog.SetBool( false );
+				win_viewlog.SetBool( false );
 			}
 			return 0;
 		case WM_CTLCOLORSTATIC:
@@ -437,7 +437,7 @@ void Sys_CreateConsole()
 	SendMessage( s_wcd.hwndInputLine, WM_SETFONT, ( WPARAM ) s_wcd.hfBufferFont, 0 );
 	
 // don't show it now that we have a splash screen up
-	if( win32.win_viewlog.GetBool() )
+	if( win_viewlog.GetBool() )
 	{
 		ShowWindow( s_wcd.hWnd, SW_SHOWDEFAULT );
 		UpdateWindow( s_wcd.hWnd );

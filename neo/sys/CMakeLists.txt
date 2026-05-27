@@ -58,7 +58,6 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_cpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_vulkan.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_vulkan.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sys_paths.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/achievements.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/achievements.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/localuser.cpp

@@ -354,7 +354,7 @@ void idFileSystemLocal::StartPreload( const idStrList& _preload )
 idFileSystemLocal::StopPreload
 ================
 */
-void idFileSystemLocal::StopPreload()
+void idFileSystemLocal::StopPreload( void )
 {
 }
 
@@ -363,7 +363,7 @@ void idFileSystemLocal::StopPreload()
 idFileSystemLocal::idFileSystemLocal
 ================
 */
-idFileSystemLocal::idFileSystemLocal()
+idFileSystemLocal::idFileSystemLocal( void )
 {
 	loadCount = 0;
 	loadStack = 0;
@@ -390,27 +390,20 @@ bool idFileSystemLocal::FilenameCompare( const char* s1, const char* s2 ) const
 		c2 = *s2++;
 		
 		if( c1 >= 'a' && c1 <= 'z' )
-		{
 			c1 -= ( 'a' - 'A' );
-		}
+
 		if( c2 >= 'a' && c2 <= 'z' )
-		{
 			c2 -= ( 'a' - 'A' );
-		}
 		
 		if( c1 == '\\' || c1 == ':' )
-		{
 			c1 = '/';
-		}
+		
 		if( c2 == '\\' || c2 == ':' )
-		{
 			c2 = '/';
-		}
 		
 		if( c1 != c2 )
-		{
 			return true;		// strings not equal
-		}
+		
 	}
 	while( c1 );
 	
@@ -428,9 +421,7 @@ int idFileSystemLocal::GetFileLength( const char* relativePath )
 	int			len;
 	
 	if( !IsInitialized() )
-	{
 		idLib::FatalError( "Filesystem call made without initialization" );
-	}
 	
 	if( !relativePath || !relativePath[0] )
 	{
@@ -442,17 +433,13 @@ int idFileSystemLocal::GetFileLength( const char* relativePath )
 	{
 		idResourceCacheEntry rc;
 		if( GetResourceCacheEntry( relativePath, rc ) )
-		{
 			return rc.length;
-		}
 	}
 	
 	// look for it in the filesystem or pack files
 	f = OpenFileRead( relativePath, false );
 	if( f == nullptr )
-	{
 		return -1;
-	}
 	
 	len = ( int )f->Length();
 	
@@ -470,7 +457,7 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 	idFileHandle fp;
 	
 	// RB begin
-#if defined(_WIN32)
+#if 0 // defined(_WIN32)
 	DWORD dwAccess = 0;
 	DWORD dwShare = 0;
 	DWORD dwCreate = 0;
@@ -517,17 +504,11 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 #endif
 	
 	if( mode == FS_WRITE )
-	{
 		fp = fopen( fileName, "wb" );
-	}
 	else if( mode == FS_READ )
-	{
 		fp = fopen( fileName, "rb" );
-	}
 	else if( mode == FS_APPEND )
-	{
 		fp = fopen( fileName, "ab" );
-	}
 	
 	if( !fp )//&& fs_caseSensitiveOS.GetBool() )
 	{
@@ -549,24 +530,17 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 			if( !entry.Icmp( fileName ) )
 			{
 				if( mode == FS_WRITE )
-				{
 					fp = fopen( entry, "wb" );
-				}
 				else if( mode == FS_READ )
-				{
 					fp = fopen( entry, "rb" );
-				}
 				else if( mode == FS_APPEND )
-				{
 					fp = fopen( entry, "ab" );
-				}
 	
 				if( fp )
 				{
 					if( fs_debug.GetInteger() )
-					{
 						common->Printf( "idFileSystemLocal::OpenFileRead: changed %s to %s\n", fileName, entry.c_str() );
-					}
+					
 					break;
 				}
 				else
@@ -592,7 +566,7 @@ idFileSystemLocal::CloseOSFile
 void idFileSystemLocal::CloseOSFile( idFileHandle o )
 {
 	// RB begin
-#if defined(_WIN32)
+#if 0 // defined(_WIN32)
 	::CloseHandle( o );
 #else
 	fclose( o );
@@ -608,7 +582,7 @@ idFileSystemLocal::DirectFileLength
 int idFileSystemLocal::DirectFileLength( idFileHandle o )
 {
 	// RB begin
-#if defined(_WIN32)
+#if 0 //defined(_WIN32)
 	return GetFileSize( o, nullptr );
 #else
 	int		pos;
@@ -673,9 +647,7 @@ idFileSystemLocal::EnableBackgroundCache
 void idFileSystemLocal::EnableBackgroundCache( bool enable )
 {
 	if( !fs_enableBackgroundCaching.GetBool() )
-	{
 		return;
-	}
 }
 
 /*
@@ -685,11 +657,8 @@ idFileSystemLocal::BeginLevelLoad
 */
 void idFileSystemLocal::BeginLevelLoad( const char* name, char* _blockBuffer, int _blockBufferSize )
 {
-
 	if( name == nullptr || *name == '\0' )
-	{
 		return;
-	}
 	
 	resourceBufferPtr = ( byte* )_blockBuffer;
 	resourceBufferAvailable = _blockBufferSize;
@@ -706,9 +675,7 @@ void idFileSystemLocal::BeginLevelLoad( const char* name, char* _blockBuffer, in
 	manifestName.StripPath();
 	
 	if( resourceFiles.Num() > 0 )
-	{
 		AddResourceFile( va( "%s.resources", manifestName.c_str() ) );
-	}
 	
 }
 
@@ -721,9 +688,8 @@ idFileSystemLocal::UnloadResourceContainer
 void idFileSystemLocal::UnloadResourceContainer( const char* name )
 {
 	if( name == nullptr || *name == '\0' )
-	{
 		return;
-	}
+	
 	RemoveResourceFile( va( "%s.resources", name ) );
 }
 
@@ -735,14 +701,10 @@ idFileSystemLocal::UnloadMapResources
 void idFileSystemLocal::UnloadMapResources( const char* name )
 {
 	if( name == nullptr || *name == '\0' || idStr::Icmp( "_startup", name ) == 0 )
-	{
 		return;
-	}
 	
 	if( resourceFiles.Num() > 0 )
-	{
 		RemoveMapResourceFile( va( "%s.resources", name ) );
-	}
 }
 
 /*
@@ -797,17 +759,13 @@ bool FileExistsInAllManifests( const char* filename, idList< idFileManifest >& m
 	for( int i = 0; i < manifests.Num(); i++ )
 	{
 		if( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
-		{
 			continue;
-		}
+		
 		if( strstr( manifests[ i ].GetManifestName(), "_pc" ) != nullptr )
-		{
 			continue;
-		}
+		
 		if( manifests[ i ].FindFile( filename ) == -1 )
-		{
 			return false;
-		}
 	}
 	return true;
 }
@@ -817,13 +775,10 @@ bool FileExistsInAllPreloadManifests( const char* filename, idList< idPreloadMan
 	for( int i = 0; i < manifests.Num(); i++ )
 	{
 		if( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
-		{
 			continue;
-		}
+		
 		if( manifests[ i ].FindResource( filename ) == -1 )
-		{
 			return false;
-		}
 	}
 	return true;
 }
@@ -833,13 +788,11 @@ void RemoveFileFromAllManifests( const char* filename, idList< idFileManifest >&
 	for( int i = 0; i < manifests.Num(); i++ )
 	{
 		if( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
-		{
 			continue;
-		}
+		
 		if( strstr( manifests[ i ].GetManifestName(), "_pc" ) != nullptr )
-		{
 			continue;
-		}
+		
 		manifests[ i ].RemoveAll( filename );
 	}
 }
@@ -880,7 +833,6 @@ void idFileSystemLocal::AddRenderProgs( idStrList& files )
 	{
 		files.AddUnique( idStr( "renderprogs/gl/" ) + work[i] );
 	}
-	
 }
 
 /*
@@ -918,10 +870,9 @@ bool IsExcludedFile( const idStr& resName )
 	for( int k = 0; k < numExcludeExtensions; k++ )
 	{
 		if( resName.Find( excludeExtensions[ k ], false ) >= 0 )
-		{
 			return true;
-		}
 	}
+
 	return false;
 }
 
@@ -935,9 +886,8 @@ bool idFileSystemLocal::IsBinaryModel( const idStr& resName ) const
 	idStrStatic< 32 > ext;
 	resName.ExtractFileExtension( ext );
 	if( ( ext.Icmp( "base" ) == 0 ) || ( ext.Icmp( "blwo" ) == 0 ) || ( ext.Icmp( "bflt" ) == 0 ) || ( ext.Icmp( "bma" ) == 0 ) )
-	{
 		return true;
-	}
+	
 	return false;
 }
 
@@ -4268,29 +4218,22 @@ idFileSystemLocal::OpenFileAppend
 */
 idFile* idFileSystemLocal::OpenFileAppend( const char* relativePath, bool sync, const char* basePath )
 {
-
 	const char* path;
 	idStr OSpath;
 	idFile_Permanent* f;
 	
 	if( !IsInitialized() )
-	{
 		common->FatalError( "Filesystem call made without initialization\n" );
-	}
 	
 	path = cvarSystem->GetCVarString( basePath );
 	if( !path[0] )
-	{
 		path = fs_savepath.GetString();
-	}
 	
 	OSpath = BuildOSPath( path, gameFolder, relativePath );
 	CreateOSPath( OSpath );
 	
 	if( fs_debug.GetInteger() )
-	{
 		common->Printf( "idFileSystem::OpenFileAppend: %s\n", OSpath.c_str() );
-	}
 	
 	f = new( TAG_IDFILE ) idFile_Permanent();
 	f->o = OpenOSFile( OSpath, FS_APPEND );
@@ -4316,17 +4259,14 @@ idFileSystemLocal::OpenFileByMode
 idFile* idFileSystemLocal::OpenFileByMode( const char* relativePath, fsMode_t mode )
 {
 	if( mode == FS_READ )
-	{
 		return OpenFileRead( relativePath );
-	}
+	
 	if( mode == FS_WRITE )
-	{
 		return OpenFileWrite( relativePath );
-	}
+	
 	if( mode == FS_APPEND )
-	{
 		return OpenFileAppend( relativePath, true );
-	}
+	
 	common->FatalError( "idFileSystemLocal::OpenFileByMode: bad mode" );
 	return nullptr;
 }
@@ -4339,9 +4279,8 @@ idFileSystemLocal::CloseFile
 void idFileSystemLocal::CloseFile( idFile* f )
 {
 	if( !IsInitialized() )
-	{
 		common->FatalError( "Filesystem call made without initialization\n" );
-	}
+	
 	delete f;
 }
 

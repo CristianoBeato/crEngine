@@ -545,15 +545,6 @@ uint64_t		Sys_Microseconds( void );
 cpuid_t			Sys_GetProcessorId();
 const char* 	Sys_GetProcessorString();
 
-// returns true if the FPU stack is empty
-bool			Sys_FPU_StackIsEmpty();
-
-// empties the FPU stack
-void			Sys_FPU_ClearStack();
-
-// returns the FPU state as a string
-const char* 	Sys_FPU_GetState();
-
 // enables the given FPU exceptions
 void			Sys_FPU_EnableExceptions( int exceptions );
 
@@ -641,14 +632,9 @@ void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 // and has a function signature with 'FILE' in it, it kinda needs to be here =/
 
 // RB begin
-#if defined(_WIN32)
-typedef HANDLE idFileHandle;
-#else
 typedef FILE* idFileHandle;
-#endif
 // RB end
 
-ID_TIME_T		Sys_FileTimeStamp( idFileHandle fp );
 // NOTE: do we need to guarantee the same output on all platforms?
 const char* 	Sys_TimeStampToStr( ID_TIME_T timeStamp );
 const char* 	Sys_SecToStr( int sec );

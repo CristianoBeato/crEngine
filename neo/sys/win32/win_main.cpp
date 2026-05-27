@@ -60,7 +60,6 @@ idCVar Win32Vars_t::win_allowAltTab( "win_allowAltTab", "0", CVAR_SYSTEM | CVAR_
 idCVar Win32Vars_t::win_notaskkeys( "win_notaskkeys", "0", CVAR_SYSTEM | CVAR_INTEGER, "disable windows task keys" );
 idCVar Win32Vars_t::win_username( "win_username", "", CVAR_SYSTEM | CVAR_INIT, "windows user name" );
 idCVar Win32Vars_t::win_outputEditString( "win_outputEditString", "1", CVAR_SYSTEM | CVAR_BOOL, "" );
-idCVar Win32Vars_t::win_viewlog( "win_viewlog", "0", CVAR_SYSTEM | CVAR_INTEGER, "" );
 idCVar Win32Vars_t::win_timerUpdate( "win_timerUpdate", "0", CVAR_SYSTEM | CVAR_BOOL, "allows the game to be updated while dragging the window" );
 
 Win32Vars_t	win32;
@@ -285,63 +284,6 @@ bool Sys_IsWindowVisible() {
 }
 
 /*
-==============
-Sys_Mkdir
-==============
-*/
-void Sys_Mkdir( const char *path ) {
-	_mkdir (path);
-}
-
-/*
-=================
-Sys_FileTimeStamp
-=================
-*/
-ID_TIME_T Sys_FileTimeStamp( idFileHandle fp ) {
-	FILETIME writeTime;
-	GetFileTime( fp, nullptr, nullptr, &writeTime );
-
-	/*
-		FILETIME = number of 100-nanosecond ticks since midnight 
-		1 Jan 1601 UTC. time_t = number of 1-second ticks since 
-		midnight 1 Jan 1970 UTC. To translate, we subtract a
-		FILETIME representation of midnight, 1 Jan 1970 from the
-		time in question and divide by the number of 100-ns ticks
-		in one second.
-	*/
-
-	SYSTEMTIME base_st = {
-		1970,   // wYear
-		1,      // wMonth
-		0,      // wDayOfWeek
-		1,      // wDay
-		0,      // wHour
-		0,      // wMinute
-		0,      // wSecond
-		0       // wMilliseconds
-	};
-
-	FILETIME base_ft;
-	SystemTimeToFileTime( &base_st, &base_ft );
-
-	LARGE_INTEGER itime;
-	itime.QuadPart = reinterpret_cast<LARGE_INTEGER&>( writeTime ).QuadPart;
-	itime.QuadPart -= reinterpret_cast<LARGE_INTEGER&>( base_ft ).QuadPart;
-	itime.QuadPart /= 10000000LL;
-	return itime.QuadPart;
-}
-
-/*
-========================
-Sys_Rmdir
-========================
-*/
-bool Sys_Rmdir( const char *path ) {
-	return _rmdir( path ) == 0;
-}
-
-/*
 ========================
 Sys_IsFileWritable
 ========================
@@ -352,43 +294,6 @@ bool Sys_IsFileWritable( const char *path ) {
 		return true;
 	}
 	return ( st.st_mode & S_IWRITE ) != 0;
-}
-
-/*
-========================
-Sys_IsFolder
-========================
-*/
-sysFolder_t Sys_IsFolder( const char *path ) {
-	struct _stat buffer;
-	if ( _stat( path, &buffer ) < 0 ) {
-		return FOLDER_ERROR;
-	}
-	return ( buffer.st_mode & _S_IFDIR ) != 0 ? FOLDER_YES : FOLDER_NO;
-}
-
-/*
-==============
-Sys_Cwd
-==============
-*/
-const char *Sys_Cwd() {
-	static char cwd[MAX_OSPATH];
-
-	_getcwd( cwd, sizeof( cwd ) - 1 );
-	cwd[MAX_OSPATH-1] = 0;
-
-	return cwd;
-}
-
-/*
-==============
-Sys_DefaultBasePath
-==============
-*/
-const char *Sys_DefaultBasePath() 
-{
-	return Sys_Cwd();
 }
 
 // Vista shit
@@ -1081,7 +986,7 @@ typedef enum STORM_PROCESS_DPI_AWARENESS {
 	STORM_PROCESS_PER_MONITOR_DPI_AWARE = 2
 } STORM_PROCESS_DPI_AWARENESS;
 
-
+#if 0
 /*
 ==================
 WinMain
@@ -1224,13 +1129,15 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	// never gets here
 	return 0;
 }
+#endif 
 
 /*
 ==================
 idSysLocal::OpenURL
 ==================
 */
-void idSysLocal::OpenURL( const char *url, bool doexit ) {
+void idSysLocal::OpenURL( const char *url, bool doexit )
+{
 	static bool doexit_spamguard = false;
 	HWND wnd;
 
@@ -1296,6 +1203,7 @@ Sys_SetLanguageFromSystem
 ================
 */
 extern idCVar sys_lang;
-void Sys_SetLanguageFromSystem() {
+void Sys_SetLanguageFromSystem( void ) 
+{
 	sys_lang.SetString( Sys_DefaultLanguage() );
 }

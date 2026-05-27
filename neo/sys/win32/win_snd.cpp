@@ -31,8 +31,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 
 // RB: <DxErr.h> not available on Windows 8 SDK
-#if defined(__MINGW32__)
-#include <sal.h>
+#if defined(__MINGW32__) // TODO: Remove 
+//#include <sal.h>
 #elif !defined(USE_WINRT) && (_WIN32_WINNT < 0x0602 /*_WIN32_WINNT_WIN8*/)
 #include <DxErr.h>
 #endif
