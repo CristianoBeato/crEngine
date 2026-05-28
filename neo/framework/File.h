@@ -274,44 +274,54 @@ private:
 	idBitMsg* 				msg;
 };
 
-
+typedef struct SDL_IOStream SDL_IOStream;
+typedef SDL_IOStream* idFileHandle;
 class idFile_Permanent : public idFile
 {
 	friend class			idFileSystemLocal;
 	
 public:
 	idFile_Permanent();
-	virtual					~idFile_Permanent();
+	virtual					~idFile_Permanent( void );
+	virtual int				Read( void* buffer, int len );
+	virtual int				Write( const void* buffer, int len );
+	virtual int				Tell( void ) const;
+	virtual void			ForceFlush( void );
+	virtual void			Flush( void );
+	virtual int				Seek( long offset, fsOrigin_t origin );
 	
-	virtual const char* 	GetName() const
+	virtual int				Length( void ) const
+	{
+	}
+
+	virtual ID_TIME_T		Timestamp( void ) const
+	{
+		return ftimestamp;
+	}
+
+	virtual const char* 	GetName( void ) const
 	{
 		return name.c_str();
 	}
-	virtual const char* 	GetFullPath() const
+
+	virtual const char* 	GetFullPath( void ) const
 	{
 		return fullPath.c_str();
 	}
-	virtual int				Read( void* buffer, int len );
-	virtual int				Write( const void* buffer, int len );
-	virtual int				Length() const;
-	virtual ID_TIME_T		Timestamp() const;
-	virtual int				Tell() const;
-	virtual void			ForceFlush();
-	virtual void			Flush();
-	virtual int				Seek( long offset, fsOrigin_t origin );
-	
+
 	// returns file pointer
-	idFileHandle			GetFilePtr()
-	{
-		return o;
-	}
+	idFileHandle			GetFilePtr( void ) { return fhandle; }
 	
 private:
 	idStr					name;			// relative path of the file - relative path
 	idStr					fullPath;		// full file path - OS path
 	int						mode;			// open mode
 	int						fileSize;		// size of the file
-	idFileHandle			o;				// file handle
+	//idFileHandle			o;				// file handle
+/// BEATO Begin: Use SDL iostream for file read/write portability
+	idFileHandle			fhandle;
+	ID_TIME_T				ftimestamp;
+/// BEATO End
 	bool					handleSync;		// true if written data is immediately flushed
 };
 

@@ -30,7 +30,14 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
+// BEATO Begin: Use SDL iostream for file reading portability
+#include <SDL3/SDL_iostream.h>
+#include <SDL3/SDL_filesystem.h>
+#include <SDL3/SDL_timer.h>
+// BEATO End
+
 #include "Unzip.h"
+#include "File.h"
 
 /*
 =================
@@ -1361,10 +1368,10 @@ idFile_Permanent
 idFile_Permanent::idFile_Permanent
 =================
 */
-idFile_Permanent::idFile_Permanent()
+idFile_Permanent::idFile_Permanent( void )
 {
 	name = "invalid";
-	o = nullptr;
+	fhandle = nullptr;
 	mode = 0;
 	fileSize = 0;
 	handleSync = false;
@@ -1375,17 +1382,14 @@ idFile_Permanent::idFile_Permanent()
 idFile_Permanent::~idFile_Permanent
 =================
 */
-idFile_Permanent::~idFile_Permanent()
+idFile_Permanent::~idFile_Permanent( void )
 {
-	if( o )
+	if( fhandle )
 	{
-		// RB begin
-#if defined(_WIN32)
-		CloseHandle( o );
-#else
-		fclose( o );
-#endif
-		// RB end
+// BEATO Begin:
+		SDL_CloseIO( fhandle );
+		fhandle = nullptr;
+// BEATO End
 	}
 }
 
@@ -1398,10 +1402,9 @@ Properly handles partial reads
 */
 int idFile_Permanent::Read( void* buffer, int len )
 {
-	int		block, remaining;
-	int		read;
-	byte* 	buf;
-	int		tries;
+	int			tries = 0;
+	intptr_t	block = 0, remaining = 0, read = 0;
+	byte* 		buf = nullptr;
 	
 	if( !( mode & ( 1 << FS_READ ) ) )
 	{
@@ -1409,10 +1412,8 @@ int idFile_Permanent::Read( void* buffer, int len )
 		return 0;
 	}
 	
-	if( !o )
-	{
+	if( !fhandle )
 		return 0;
-	}
 	
 	buf = ( byte* )buffer;
 	
@@ -1422,37 +1423,22 @@ int idFile_Permanent::Read( void* buffer, int len )
 	{
 		block = remaining;
 		
-		// RB begin
-#if defined(_WIN32)
-		DWORD bytesRead;
-		if( !ReadFile( o, buf, block, &bytesRead, nullptr ) )
-		{
-			idLib::Warning( "idFile_Permanent::Read failed with %d from %s", GetLastError(), name.c_str() );
-		}
-		read = bytesRead;
-#else
-		read = fread( buf, 1, block, o );
-#endif
-		// RB end
+// BEATO Begin:
+		read = SDL_ReadIO( fhandle, buf, block );
+// BEATO End
 		
 		if( read == 0 )
 		{
 			// we might have been trying to read from a CD, which
 			// sometimes returns a 0 read on windows
 			if( !tries )
-			{
 				tries = 1;
-			}
 			else
-			{
 				return len - remaining;
-			}
 		}
 		
 		if( read == -1 )
-		{
 			common->FatalError( "idFile_Permanent::Read: -1 bytes read from %s", name.c_str() );
-		}
 		
 		remaining -= read;
 		buf += read;
@@ -1469,10 +1455,9 @@ Properly handles partial writes
 */
 int idFile_Permanent::Write( const void* buffer, int len )
 {
-	int		block, remaining;
-	int		written;
-	byte* 	buf;
-	int		tries;
+	int			tries = 0;
+	intptr_t	block = 0, remaining = 0, written = 0;
+	byte* 		buf = nullptr;
 	
 	if( !( mode & ( 1 << FS_WRITE ) ) )
 	{
@@ -1480,10 +1465,8 @@ int idFile_Permanent::Write( const void* buffer, int len )
 		return 0;
 	}
 	
-	if( !o )
-	{
+	if( !fhandle )
 		return 0;
-	}
 	
 	buf = ( byte* )buffer;
 	
@@ -1493,15 +1476,9 @@ int idFile_Permanent::Write( const void* buffer, int len )
 	{
 		block = remaining;
 		
-		// RB begin
-#if defined(_WIN32)
-		DWORD bytesWritten;
-		WriteFile( o, buf, block, &bytesWritten, nullptr );
-		written = bytesWritten;
-#else
-		written = fwrite( buf, 1, block, o );
-#endif
-		// RB end
+// BEATO Begin
+		written = SDL_WriteIO( fhandle, buf, block );
+// BEATO End
 		
 		if( written == 0 )
 		{
@@ -1526,10 +1503,10 @@ int idFile_Permanent::Write( const void* buffer, int len )
 		buf += written;
 		fileSize += written;
 	}
+
 	if( handleSync )
-	{
 		Flush();
-	}
+	
 	return len;
 }
 
@@ -1538,15 +1515,11 @@ int idFile_Permanent::Write( const void* buffer, int len )
 idFile_Permanent::ForceFlush
 =================
 */
-void idFile_Permanent::ForceFlush()
+void idFile_Permanent::ForceFlush( void )
 {
-	// RB begin
-#if defined(_WIN32)
-	FlushFileBuffers( o );
-#else
-	setvbuf( o, nullptr, _IONBF, 0 );
-#endif
-	// RB end
+// BEATO Begin
+	SDL_FlushIO( fhandle );
+// BEATO End
 }
 
 /*
@@ -1554,15 +1527,11 @@ void idFile_Permanent::ForceFlush()
 idFile_Permanent::Flush
 =================
 */
-void idFile_Permanent::Flush()
+void idFile_Permanent::Flush( void )
 {
-	// RB begin
-#if defined(_WIN32)
-	FlushFileBuffers( o );
-#else
-	fflush( o );
-#endif
-	// RB end
+// BEATO Begin
+	SDL_FlushIO( fhandle );
+// BEATO End
 }
 
 /*
@@ -1570,36 +1539,13 @@ void idFile_Permanent::Flush()
 idFile_Permanent::Tell
 =================
 */
-int idFile_Permanent::Tell() const
+int idFile_Permanent::Tell( void ) const
 {
-	// RB begin
-#if defined(_WIN32)
-	return SetFilePointer( o, 0, nullptr, FILE_CURRENT );
-#else
-	return ftell( o );
-#endif
-	// RB end
-}
-
-/*
-================
-idFile_Permanent::Length
-================
-*/
-int idFile_Permanent::Length() const
-{
-	return fileSize;
-}
-
-/*
-================
-idFile_Permanent::Timestamp
-================
-*/
-ID_TIME_T idFile_Permanent::Timestamp() const
-{
-	ID_TIME_T ts = Sys_FileTimeStamp( o );
-	return ts;
+	if ( !fhandle ) 
+		return -1;
+// BEATO Begin
+	return SDL_TellIO( fhandle );
+// BEATO End
 }
 
 /*
@@ -1611,53 +1557,22 @@ idFile_Permanent::Seek
 */
 int idFile_Permanent::Seek( long offset, fsOrigin_t origin )
 {
-	// RB begin
-#if defined(_WIN32)
-	int retVal = INVALID_SET_FILE_POINTER;
-	switch( origin )
+// BEATO Begin	
+	SDL_IOWhence _origin;
+	switch ( origin )
 	{
-		case FS_SEEK_CUR:
-			retVal = SetFilePointer( o, offset, nullptr, FILE_CURRENT );
-			break;
-		case FS_SEEK_END:
-			retVal = SetFilePointer( o, offset, nullptr, FILE_END );
-			break;
-		case FS_SEEK_SET:
-			retVal = SetFilePointer( o, offset, nullptr, FILE_BEGIN );
-			break;
-	}
-	return ( retVal == INVALID_SET_FILE_POINTER ) ? -1 : 0;
-#else
-	int _origin;
-	
-	switch( origin )
-	{
-		case FS_SEEK_CUR:
+	case FS_SEEK_CUR: _origin = SDL_IO_SEEK_CUR; break;
+	case FS_SEEK_END: _origin = SDL_IO_SEEK_END; break;
+	case FS_SEEK_SET: _origin = SDL_IO_SEEK_SET; break;
+	default:
 		{
-			_origin = SEEK_CUR;
-			break;
-		}
-		case FS_SEEK_END:
-		{
-			_origin = SEEK_END;
-			break;
-		}
-		case FS_SEEK_SET:
-		{
-			_origin = SEEK_SET;
-			break;
-		}
-		default:
-		{
-			_origin = SEEK_CUR;
+			_origin = SDL_IO_SEEK_CUR;
 			common->FatalError( "idFile_Permanent::Seek: bad origin for %s\n", name.c_str() );
 			break;
 		}
 	}
-	
-	return fseek( o, offset, _origin );
-#endif
-	// RB end
+
+	return SDL_SeekIO( fhandle, offset, _origin );
 }
 
 #if 1
@@ -1969,12 +1884,10 @@ idFile_InnerResource::idFile_InnerResource( const char* _name, idFile* rezFile, 
 idFile_InnerResource::~idFile_InnerResource
 =================
 */
-idFile_InnerResource::~idFile_InnerResource()
+idFile_InnerResource::~idFile_InnerResource( void )
 {
 	if( resourceBuffer != nullptr )
-	{
 		fileSystem->FreeResourceBuffer();
-	}
 }
 
 /*
@@ -1987,14 +1900,10 @@ Properly handles partial reads
 int idFile_InnerResource::Read( void* buffer, int len )
 {
 	if( resourceFile == nullptr )
-	{
 		return 0;
-	}
 	
 	if( internalFilePos + len > length )
-	{
 		len = length - internalFilePos;
-	}
 	
 	int read = 0; //fileSystem->ReadFromBGL( resourceFile, (byte*)buffer, offset + internalFilePos, len );
 	
