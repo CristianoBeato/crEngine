@@ -33,18 +33,11 @@ If you have questions concerning this license or the applicable additional terms
 #include "Unzip.h"
 #include "Zip.h"
 
-#ifdef WIN32
-#include <io.h>	// for _read
-#else
-#if !__MACH__ && __MWERKS__
-#include <types.h>
-#include <stat.h>
-#else
-#include <sys/types.h>
-#include <sys/stat.h>
-#endif
-#include <unistd.h>
-#endif
+// BEATO Begin:
+#include <SDL3/SDL_iostream.h>
+#include <SDL3/SDL_filesystem.h>
+#include <SDL3/SDL_timer.h>
+// BEATO End
 
 
 /*
@@ -283,7 +276,10 @@ private:
 	int						ListOSFiles( const char* directory, const char* extension, idStrList& list );
 	idFileHandle			OpenOSFile( const char* name, fsMode_t mode );
 	void					CloseOSFile( idFileHandle o );
-	int						DirectFileLength( idFileHandle o );
+	intptr_t				DirectFileLength( idFileHandle o );
+// BEATO Begin
+	ID_TIME_T				FileTimeStamp( const char* path );
+// BEATO Eend
 	void					CopyFile( idFile* src, const char* toOSPath );
 	int						AddUnique( const char* name, idStrList& list, idHashIndex& hashIndex ) const;
 	void					GetExtensionList( const char* extension, idStrList& extensionList ) const;
@@ -334,9 +330,8 @@ idFileSystemLocal::ReadFromBGL
 int idFileSystemLocal::ReadFromBGL( idFile* _resourceFile, void* _buffer, int _offset, int _len )
 {
 	if( _resourceFile->Tell() != _offset )
-	{
 		_resourceFile->Seek( _offset, FS_SEEK_SET );
-	}
+	
 	return _resourceFile->Read( _buffer, _len );
 }
 
@@ -456,59 +451,13 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 {
 	idFileHandle fp;
 	
-	// RB begin
-#if 0 // defined(_WIN32)
-	DWORD dwAccess = 0;
-	DWORD dwShare = 0;
-	DWORD dwCreate = 0;
-	DWORD dwFlags = 0;
-	
+// BEATO Begin:
 	if( mode == FS_WRITE )
-	{
-		dwAccess = GENERIC_READ | GENERIC_WRITE;
-		dwShare = FILE_SHARE_READ;
-		dwCreate = CREATE_ALWAYS;
-		dwFlags = FILE_ATTRIBUTE_NORMAL;
-	}
+		fp = SDL_IOFromFile( fileName, "wb" );
 	else if( mode == FS_READ )
-	{
-		dwAccess = GENERIC_READ;
-		dwShare = FILE_SHARE_READ;
-		dwCreate = OPEN_EXISTING;
-		dwFlags = FILE_ATTRIBUTE_NORMAL;
-	}
+		fp = SDL_IOFromFile( fileName, "rb" );
 	else if( mode == FS_APPEND )
-	{
-		dwAccess = GENERIC_READ | GENERIC_WRITE;
-		dwShare = FILE_SHARE_READ;
-		dwCreate = OPEN_ALWAYS;
-		dwFlags = FILE_ATTRIBUTE_NORMAL;
-	}
-	
-	fp = CreateFile( fileName, dwAccess, dwShare, nullptr, dwCreate, dwFlags, nullptr );
-	if( fp == INVALID_HANDLE_VALUE )
-	{
-		return nullptr;
-	}
-#else
-	
-#ifndef __MWERKS__
-#ifndef WIN32
-	// some systems will let you fopen a directory
-	struct stat buf;
-	if( stat( fileName, &buf ) != -1 && !S_ISREG( buf.st_mode ) )
-	{
-		return nullptr;
-	}
-#endif
-#endif
-	
-	if( mode == FS_WRITE )
-		fp = fopen( fileName, "wb" );
-	else if( mode == FS_READ )
-		fp = fopen( fileName, "rb" );
-	else if( mode == FS_APPEND )
-		fp = fopen( fileName, "ab" );
+		fp = SDL_IOFromFile( fileName, "ab" );
 	
 	if( !fp )//&& fs_caseSensitiveOS.GetBool() )
 	{
@@ -530,11 +479,11 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 			if( !entry.Icmp( fileName ) )
 			{
 				if( mode == FS_WRITE )
-					fp = fopen( entry, "wb" );
+					fp = SDL_IOFromFile( entry, "wb" );
 				else if( mode == FS_READ )
-					fp = fopen( entry, "rb" );
+					fp = SDL_IOFromFile( entry, "rb" );
 				else if( mode == FS_APPEND )
-					fp = fopen( entry, "ab" );
+					fp = SDL_IOFromFile( entry, "ab" );
 	
 				if( fp )
 				{
@@ -552,8 +501,7 @@ idFileHandle idFileSystemLocal::OpenOSFile( const char* fileName, fsMode_t mode 
 		}
 	}
 	
-#endif
-	// RB end
+// BEATO Begin
 	
 	return fp;
 }
@@ -565,13 +513,10 @@ idFileSystemLocal::CloseOSFile
 */
 void idFileSystemLocal::CloseOSFile( idFileHandle o )
 {
-	// RB begin
-#if 0 // defined(_WIN32)
-	::CloseHandle( o );
-#else
-	fclose( o );
-#endif
-	// RB end
+// BEATO Begin
+	if( o )
+		SDL_CloseIO( o );
+// BEATO End
 }
 
 /*
@@ -579,23 +524,26 @@ void idFileSystemLocal::CloseOSFile( idFileHandle o )
 idFileSystemLocal::DirectFileLength
 ================
 */
-int idFileSystemLocal::DirectFileLength( idFileHandle o )
+intptr_t idFileSystemLocal::DirectFileLength( idFileHandle o )
 {
-	// RB begin
-#if 0 //defined(_WIN32)
-	return GetFileSize( o, nullptr );
-#else
-	int		pos;
-	int		end;
-	
-	pos = ftell( o );
-	fseek( o, 0, SEEK_END );
-	end = ftell( o );
-	fseek( o, pos, SEEK_SET );
-	
-	return end;
-#endif
-	// RB end
+// BEATO Begin
+	return SDL_GetIOSize( o );
+// BEATO End
+}
+
+ID_TIME_T idFileSystemLocal::FileTimeStamp( const char *path )
+{
+SDL_PathInfo info;
+    
+    // SDL_GetPathInfo lê os metadados diretamente usando o caminho do arquivo
+    if ( SDL_GetPathInfo( path, &info ) ) 
+	{
+        // modify_time está em nanosegundos. Convertemos para segundos dividindo por SDL_NS_PER_SECOND
+        return static_cast<ID_TIME_T>( info.modify_time / SDL_NS_PER_SECOND );
+    }
+    
+    // Retorna 0 caso o arquivo não exista ou ocorra erro
+    return 0; 
 }
 
 /*
@@ -3770,19 +3718,15 @@ Returns nullptr
 
 idFile* idFileSystemLocal::GetResourceFile( const char* fileName, bool memFile )
 {
-
 	if( resourceFiles.Num() == 0 )
-	{
 		return nullptr;
-	}
 	
 	static idResourceCacheEntry rc;
 	if( GetResourceCacheEntry( fileName, rc ) )
 	{
 		if( fs_debugResources.GetBool() )
-		{
 			idLib::Printf( "RES: loading file %s\n", rc.filename.c_str() );
-		}
+		
 		idFile_InnerResource* file = new idFile_InnerResource( rc.filename, resourceFiles[ rc.containerIndex ]->resourceFile, rc.offset, rc.length );
 		// DG: add parenthesis to make sure this block is only entered when file != nullptr - bug found by clang.
 		if( file != nullptr && ( ( memFile || rc.length <= resourceBufferAvailable ) || rc.length < 8 * 1024 * 1024 ) )
@@ -3853,36 +3797,26 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 	
 	// qpaths are not supposed to have a leading slash
 	if( relativePath[0] == '/' || relativePath[0] == '\\' )
-	{
 		relativePath++;
-	}
 	
 	// make absolutely sure that it can't back up the path.
 	// The searchpaths do guarantee that something will always
 	// be prepended, so we don't need to worry about "c:" or "//limbo"
-	if( strstr( relativePath, ".." ) || strstr( relativePath, "::" ) )
-	{
+	if( std::strstr( relativePath, ".." ) || std::strstr( relativePath, "::" ) )
 		return nullptr;
-	}
 	
 	// edge case
 	if( relativePath[0] == '\0' )
-	{
 		return nullptr;
-	}
 	
 	if( fs_debug.GetBool() )
-	{
 		idLib::Printf( "FILE DEBUG: opening %s\n", relativePath );
-	}
 	
 	if( resourceFiles.Num() > 0 && fs_resourceLoadPriority.GetInteger() ==  1 )
 	{
 		idFile* rf = GetResourceFile( relativePath, ( searchFlags & FSFLAG_RETURN_FILE_MEM ) != 0 );
 		if( rf != nullptr )
-		{
 			return rf;
-		}
 	}
 	
 	//
@@ -3890,29 +3824,26 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 	//
 	if( searchFlags & FSFLAG_SEARCH_DIRS )
 	{
-		for( int sp = searchPaths.Num() - 1; sp >= 0; sp-- )
+		for( uint32_t sp = searchPaths.Num() - 1; sp >= 0; sp-- )
 		{
 			if( gamedir != nullptr && gamedir[0] != 0 )
 			{
 				if( searchPaths[sp].gamedir != gamedir )
-				{
 					continue;
-				}
 			}
 			
 			idStr netpath = BuildOSPath( searchPaths[sp].path, searchPaths[sp].gamedir, relativePath );
 			idFileHandle fp = OpenOSFile( netpath, FS_READ );
 			if( !fp )
-			{
 				continue;
-			}
 			
 			idFile_Permanent* file = new( TAG_IDFILE ) idFile_Permanent();
-			file->o = fp;
+			file->fhandle = fp;
 			file->name = relativePath;
 			file->fullPath = netpath;
 			file->mode = ( 1 << FS_READ );
-			file->fileSize = DirectFileLength( file->o );
+			file->fileSize = DirectFileLength( fp );
+			file->ftimestamp = FileTimeStamp( netpath.c_str() );
 			if( fs_debug.GetInteger() )
 			{
 				common->Printf( "idFileSystem::OpenFileRead: %s (found in '%s/%s')\n", relativePath, searchPaths[sp].path.c_str(), searchPaths[sp].gamedir.c_str() );
@@ -3921,7 +3852,6 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 			// if fs_copyfiles is set
 			if( allowCopyFiles )
 			{
-			
 				idStr copypath;
 				idStr name;
 				copypath = BuildOSPath( fs_savepath.GetString(), searchPaths[sp].gamedir, relativePath );
@@ -3941,9 +3871,8 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 						idStrStatic< MAX_OSPATH > samplePath = relativePath;
 						samplePath.SetFileExtension( "idwav" );
 						if( samplePath.Find( "generated/" ) == -1 )
-						{
 							samplePath.Insert( "generated/", 0 );
-						}
+						
 						fileManifest.AddUnique( samplePath );
 						if( relativePath.Find( "/vo/", false ) >= 0 )
 						{
@@ -3952,18 +3881,15 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 							{
 								const char* lang = Sys_Lang( i );
 								if( idStr::Icmp( lang, ID_LANG_ENGLISH ) == 0 )
-								{
 									continue;
-								}
+								
 								samplePath = relativePath;
 								samplePath.Replace( "/vo/", va( "/vo/%s/", lang ) );
 								samplePath.SetFileExtension( "idwav" );
 								if( samplePath.Find( "generated/" ) == -1 )
-								{
 									samplePath.Insert( "generated/", 0 );
-								}
-								fileManifest.AddUnique( samplePath );
 								
+								fileManifest.AddUnique( samplePath );
 							}
 						}
 					}
@@ -4085,14 +4011,15 @@ idFile* idFileSystemLocal::OpenFileWrite( const char* relativePath, const char* 
 	CreateOSPath( OSpath );
 	
 	f = new( TAG_IDFILE ) idFile_Permanent();
-	f->o = OpenOSFile( OSpath, FS_WRITE );
-	if( !f->o )
+	f->fhandle = OpenOSFile( OSpath, FS_WRITE );
+	if( !f->fhandle )
 	{
 		delete f;
 		return nullptr;
 	}
 	f->name = relativePath;
 	f->fullPath = OSpath;
+	f->ftimestamp = FileTimeStamp( OSpath.c_str() );
 	f->mode = ( 1 << FS_WRITE );
 	f->handleSync = false;
 	f->fileSize = 0;
@@ -4107,33 +4034,31 @@ idFileSystemLocal::OpenExplicitFileRead
 */
 idFile* idFileSystemLocal::OpenExplicitFileRead( const char* OSPath )
 {
-	idFile_Permanent* f;
+	idFile_Permanent* f = nullptr;
 	
 	if( !IsInitialized() )
-	{
 		common->FatalError( "Filesystem call made without initialization\n" );
-	}
 	
 	if( fs_debug.GetInteger() )
-	{
 		common->Printf( "idFileSystem::OpenExplicitFileRead: %s\n", OSPath );
-	}
 	
 	//common->DPrintf( "idFileSystem::OpenExplicitFileRead - reading from: %s\n", OSPath );
 	
 	f = new( TAG_IDFILE ) idFile_Permanent();
-	f->o = OpenOSFile( OSPath, FS_READ );
-	if( !f->o )
+	f->fhandle = OpenOSFile( OSPath, FS_READ );
+	if( !f->fhandle )
 	{
 		delete f;
 		return nullptr;
 	}
+
 	f->name = OSPath;
 	f->fullPath = OSPath;
 	f->mode = ( 1 << FS_READ );
 	f->handleSync = false;
-	f->fileSize = DirectFileLength( f->o );
-	
+	f->fileSize = DirectFileLength( f->fhandle );
+	f->ftimestamp = FileTimeStamp( OSPath );
+
 	return f;
 }
 
@@ -4144,12 +4069,10 @@ idFileSystemLocal::OpenExplicitPakFile
 */
 idFile_Cached* idFileSystemLocal::OpenExplicitPakFile( const char* OSPath )
 {
-	idFile_Cached* f;
+	idFile_Cached* f = nullptr;
 	
 	if( !IsInitialized() )
-	{
 		common->FatalError( "Filesystem call made without initialization\n" );
-	}
 	
 	//if ( fs_debug.GetInteger() ) {
 	//	common->Printf( "idFileSystem::OpenExplicitFileRead: %s\n", OSPath );
@@ -4158,8 +4081,8 @@ idFile_Cached* idFileSystemLocal::OpenExplicitPakFile( const char* OSPath )
 	//common->DPrintf( "idFileSystem::OpenExplicitFileRead - reading from: %s\n", OSPath );
 	
 	f = new( TAG_IDFILE ) idFile_Cached();
-	f->o = OpenOSFile( OSPath, FS_READ );
-	if( !f->o )
+	f->fhandle = OpenOSFile( OSPath, FS_READ );
+	if( !f->fhandle )
 	{
 		delete f;
 		return nullptr;
@@ -4168,7 +4091,9 @@ idFile_Cached* idFileSystemLocal::OpenExplicitPakFile( const char* OSPath )
 	f->fullPath = OSPath;
 	f->mode = ( 1 << FS_READ );
 	f->handleSync = false;
-	f->fileSize = DirectFileLength( f->o );
+	f->fileSize = DirectFileLength( f->fhandle );
+	f->ftimestamp = FileTimeStamp( OSPath );
+
 	
 	return f;
 }
@@ -4180,24 +4105,20 @@ idFileSystemLocal::OpenExplicitFileWrite
 */
 idFile* idFileSystemLocal::OpenExplicitFileWrite( const char* OSPath )
 {
-	idFile_Permanent* f;
+	idFile_Permanent* f = nullptr;
 	
 	if( !IsInitialized() )
-	{
 		common->FatalError( "Filesystem call made without initialization\n" );
-	}
 	
 	if( fs_debug.GetInteger() )
-	{
 		common->Printf( "idFileSystem::OpenExplicitFileWrite: %s\n", OSPath );
-	}
 	
 	//common->DPrintf( "writing to: %s\n", OSPath );
 	CreateOSPath( OSPath );
 	
 	f = new( TAG_IDFILE ) idFile_Permanent();
-	f->o = OpenOSFile( OSPath, FS_WRITE );
-	if( !f->o )
+	f->fhandle = OpenOSFile( OSPath, FS_WRITE );
+	if( !f->fhandle )
 	{
 		delete f;
 		return nullptr;
@@ -4218,9 +4139,9 @@ idFileSystemLocal::OpenFileAppend
 */
 idFile* idFileSystemLocal::OpenFileAppend( const char* relativePath, bool sync, const char* basePath )
 {
-	const char* path;
 	idStr OSpath;
-	idFile_Permanent* f;
+	const char* path = nullptr;
+	idFile_Permanent* f = nullptr;
 	
 	if( !IsInitialized() )
 		common->FatalError( "Filesystem call made without initialization\n" );
@@ -4236,8 +4157,8 @@ idFile* idFileSystemLocal::OpenFileAppend( const char* relativePath, bool sync, 
 		common->Printf( "idFileSystem::OpenFileAppend: %s\n", OSpath.c_str() );
 	
 	f = new( TAG_IDFILE ) idFile_Permanent();
-	f->o = OpenOSFile( OSpath, FS_APPEND );
-	if( !f->o )
+	f->fhandle = OpenOSFile( OSpath, FS_APPEND );
+	if( !f->fhandle )
 	{
 		delete f;
 		return nullptr;
@@ -4246,7 +4167,8 @@ idFile* idFileSystemLocal::OpenFileAppend( const char* relativePath, bool sync, 
 	f->fullPath = OSpath;
 	f->mode = ( 1 << FS_WRITE ) + ( 1 << FS_APPEND );
 	f->handleSync = sync;
-	f->fileSize = DirectFileLength( f->o );
+	f->fileSize = DirectFileLength( f->fhandle );
+	f->ftimestamp = FileTimeStamp( OSpath );
 	
 	return f;
 }

@@ -215,33 +215,55 @@ Sys_IsFileWritable
 */
 bool Sys_IsFileWritable( const char* path )
 {
-	std::error_code ec;
-
 	if (!path || !*path)
 		return false;
 
+#if 1
+	std::error_code ec;
 	auto fpath = fs::path( path );
 	
-	// check if exists 
 	if ( fs::exists( fpath, ec ) )
 	{
-		// If the file already exists, try opening it as an attachment (non-destructive)
-		std::ofstream file( fpath, std::ios::app );
-        return file.is_open();
-	}
-	else
-	{
-		// If it doesn't exist, check if the parent directory is writable
-		fs::path parent = fpath.parent_path();
-        if ( parent.empty())
-            parent = fs::current_path();
+		fs::file_status status = fs::status( fpath, ec );
+        if ( ec ) 
+			return false;
 
-		// TODO:
-
-		return false;
+		// Checks if the owner's write bit (owner_write) is active.
+		return ( status.permissions() & fs::perms::owner_write ) != fs::perms::none;
 	}
-	
-	return false;
+
+	// The file does NOT exist. We need to check the parent folder.
+	fs::path parent = fpath.parent_path();
+
+	// If the path doesn't have an explicit parent (e.g., "my_file.txt"), 
+	// it uses the current directory.
+	if ( parent.empty() )
+    {
+        parent = fs::current_path( ec );
+        if ( ec ) 
+			return false;
+    }
+
+	// Check if the parent folder exists and if we have write permission to it.
+    if ( fs::exists( parent, ec ) )
+    {
+        fs::file_status parent_status = fs::status( parent, ec );
+        if ( ec )
+			return false;
+
+        // If we can write to the folder, we can create the file inside it.
+        return ( parent_status.permissions() & fs::perms::owner_write ) != fs::perms::none;
+    }
+
+    return false;
+
+#else
+#	if __PLATFORM_WINDOWS__
+	return _access( path, 2 ) == 0;
+#	else
+	return access( path, W_OK ) == 0;
+#	endif 
+#endif
 }
 
 /*
@@ -321,18 +343,4 @@ int Sys_ListFiles( const char* directory, const char* extension, idStrList& list
 	}
 	
 	return list.Num(); // idStrList.Num() retorna count
-}
-
-// ---------------------------------------------------------------------------
-
-ID_TIME_T Sys_FileTimeStamp( idFileHandle fp )
-{
-#if __PLATFORM_WINDOWS__
-	struct _stat st;
-	_fstat( _fileno( fp ), &st );
-#else
-	struct stat st;
-	fstat( fileno( fp ), &st );
-#endif
-	return st.st_mtime;
 }

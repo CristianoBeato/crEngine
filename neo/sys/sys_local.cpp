@@ -95,11 +95,14 @@ const char* idSysLocal::GetProcessorString( void )
 	return Sys_GetProcessorString();
 }
 
+<<<<<<< HEAD
 /*
 =================
 idSysLocal::FPU_SetFTZ
 =================
 */
+=======
+>>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 void idSysLocal::FPU_SetFTZ( bool enable )
 {
 	Sys_FPU_SetFTZ( enable );
@@ -115,21 +118,27 @@ void idSysLocal::FPU_SetDAZ( bool enable )
 	Sys_FPU_SetDAZ( enable );
 }
 
+<<<<<<< HEAD
 /*
 =================
 idSysLocal::LockMemory
 =================
 */
+=======
+>>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 bool idSysLocal::LockMemory( void* ptr, const size_t bytes )
 {
 	return Sys_LockMemory( ptr, bytes );
 }
 
+<<<<<<< HEAD
 /*
 =================
 idSysLocal::UnlockMemory
 =================
 */
+=======
+>>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 bool idSysLocal::UnlockMemory( void* ptr, const size_t bytes )
 {
 	return Sys_UnlockMemory( ptr, bytes );

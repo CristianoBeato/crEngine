@@ -199,10 +199,10 @@ cpuid_t Sys_GetProcessorId( void )
     GetCPUInfo();    
 
     // check for an AMD
-	if ( std::strcmp( sys_cpuvendor.GetString(), "AuthenticAMD" ) == 0)
+	if ( strcmp( sys_cpuvendor.GetString(), "AuthenticAMD" ) == 0)
 		cpuid = CPUID_AMD;
 	// check for an Intel
-	else if ( std::strcmp( sys_cpuvendor.GetString(), "GenuineIntel" ) == 0)
+	else if ( strcmp( sys_cpuvendor.GetString(), "GenuineIntel" ) == 0)
 		cpuid = CPUID_INTEL;
 	else
 		cpuid = CPUID_GENERIC;
