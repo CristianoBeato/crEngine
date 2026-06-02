@@ -44,19 +44,18 @@ public:
 	virtual void			DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... );
 	virtual void			DebugVPrintf( const char* fmt, va_list arg );
 	
-	virtual double			GetClockTicks();
-	virtual double			ClockTicksPerSecond();
-	virtual cpuid_t			GetProcessorId();
-	virtual const char* 	GetProcessorString();
-	virtual const char* 	FPU_GetState();
-	virtual bool			FPU_StackIsEmpty();
+	virtual double			GetClockTicks( void );
+	virtual double			ClockTicksPerSecond( void );
+	virtual cpuid_t			GetProcessorId( void );
+	virtual const char* 	GetProcessorString( void );
+	
 	virtual void			FPU_SetFTZ( bool enable );
 	virtual void			FPU_SetDAZ( bool enable );
 	
 	virtual void			FPU_EnableExceptions( int exceptions );
 	
-	virtual bool			LockMemory( void* ptr, int bytes );
-	virtual bool			UnlockMemory( void* ptr, int bytes );
+	virtual bool			LockMemory( void* ptr, const size_t bytes );
+	virtual bool			UnlockMemory( void* ptr, const size_t bytes );
 	
 	virtual int				DLL_Load( const char* dllName );
 	virtual void* 			DLL_GetProcAddress( int dllHandle, const char* procName );
