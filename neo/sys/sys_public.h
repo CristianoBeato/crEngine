@@ -933,8 +933,14 @@ public:
 	virtual double			ClockTicksPerSecond( void ) = 0;
 	virtual cpuid_t			GetProcessorId( void ) = 0;
 	virtual const char* 	GetProcessorString( void ) = 0;
+<<<<<<< HEAD
+
+	virtual void			FPU_SetFTZ( bool enable ) = 0;
+	virtual void			FPU_SetDAZ( bool enable ) = 0;
+=======
 	virtual void			FPU_SetFTZ( const bool enable ) = 0;
 	virtual void			FPU_SetDAZ( const bool enable ) = 0;
+>>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 	
 	virtual void			FPU_EnableExceptions( int exceptions ) = 0;
 	
@@ -956,8 +962,8 @@ public:
 // TODO: implement as singleton
 extern idSys* 				sys;
 
-bool Sys_LoadOpenAL();
-void Sys_FreeOpenAL();
+bool Sys_LoadOpenAL( void );
+void Sys_FreeOpenAL( void );
 
 
 #endif /* !__SYS_PUBLIC__ */
