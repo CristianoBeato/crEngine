@@ -9,17 +9,27 @@
 #if __PLATFORM_WINDOWS__
 #   include <windows.h>
 #   include "win32/win_local.h"
+static HANDLE s_instanceLock = nullptr;
 #elif __PLATFORM_LINUX__ || __PLATFORM_FBSD__
 #   include <sys/mman.h>
 #   include "posix/posix_public.h"
+static int s_instanceLock = 0; 
 #endif
 
 static struct sys_main
 {
-    sysMemoryStats_t    exeLaunchMemoryStats;
+	sysMemoryStats_t    exeLaunchMemoryStats;
     idList<idStr>       argVec;
     idStr               cmdLine;
 } sysMain;
+
+static idCVar sys_allowMultipleInstances( "sys_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
+
+// Unique identifier for your application (change to your project name)
+// Avoid spaces or special characters in the Windows Mutex name.
+#define APP_UNIQUE_ID "crEngine_Unique_Instance_ID_000"
+static bool	CreateInstanceLock( void );
+static void DestroyInstanceLock( void );
 
 /*
 ================
@@ -27,7 +37,7 @@ Sys_Init
 The cvar system must already be setup
 ================
 */
-void Sys_Init() 
+void Sys_Init( void ) 
 {
 #if __PLATFORM_WINDOWS__
 	CoInitialize( nullptr );
@@ -49,7 +59,7 @@ void Sys_Shutdown( void )
 	crVideo::Get()->ShutDown();
 /// BEATO End
 
-    Sys_ReleaseAlreadyRunningLock();
+    DestroyInstanceLock();
 
 #if __PLATFORM_WINDOWS__
     CoUninitialize();
@@ -65,14 +75,28 @@ Sys_Quit
 */
 void Sys_Quit( void )
 {
-#if __PLATFORM_WINDOWS__
-	timeEndPeriod( 1 );
 	Sys_ShutdownInput();
 	Sys_DestroyConsole();
+	DestroyInstanceLock();
+#if __PLATFORM_WINDOWS__
+	timeEndPeriod( 1 );
 	ExitProcess( 0 );
 #else
 	Posix_Exit( EXIT_SUCCESS );
 #endif
+}
+
+/*
+ ==================
+ Sys_AlreadyRunning
+ ==================
+ */
+bool Sys_AlreadyRunning( void )
+{
+	if( sys_allowMultipleInstances.GetBool() )
+		return false;
+
+	return CreateInstanceLock();
 }
 
 /*
@@ -270,5 +294,56 @@ int main( int argc, char *argv[] )
     
     // we never get here
     return EXIT_FAILURE;
+}
+
+bool CreateInstanceLock( void )
+{
+#if __PLATFORM_WINDOWS__
+	// Creates a named mutex in the global scope of Windows.
+	s_instanceLock = CreateMutexA( nullptr, FALSE, APP_UNIQUE_ID );
+
+	// If the mutex already existed, it means that another instance created it first.
+	if ( ::GetLastError() == ERROR_ALREADY_EXISTS || ::GetLastError() == ERROR_ACCESS_DENIED ) 
+		return true;
+#else
+	// Path to the lock file in the Linux/Unix temporary directory
+	// The "/tmp/" prefix ensures that the file is visible to all local users
+	const char* lockFile = "/tmp/" APP_UNIQUE_ID ".lock";
+
+	// Opens or creates the file with read/write permissions
+    s_instanceLock = open( lockFile, O_CREAT | O_RDWR, 0666 );
+    if ( s_instanceLock < 0 ) 
+        return false; // The lock file could not be created.
+
+	// Attempts to apply a non-blocking exclusive lock ( LOCK_EX | LOCK_NB )
+    if ( flock( s_instanceLock, LOCK_EX | LOCK_NB) < 0 ) 
+	{
+        // If it fails, it means that another instance has already locked this file.
+        close( s_instanceLock );
+        return true;
+    }
+
+#endif
+	return false;
+}
+
+void DestroyInstanceLock( void )
+{
+#if __PLATFORM_WINDOWS__
+	// Release firt instance global mutex
+	if( s_instanceLock == nullptr )
+	{
+		CloseHandle( s_instanceLock );
+		s_instanceLock = nullptr;
+	}
+#else
+	// Release firt instance lock file
+	if( s_instanceLock > 0 )
+	{
+
+		s_instanceLock = 0;
+	}
+
+#endif
 }
 

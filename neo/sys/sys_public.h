@@ -506,19 +506,14 @@ const char* 	Sys_GetCmdLine( void );
 // DG end
 // motorsep 12-28-2014; reverted back to the original Sys_ReLaunch; guys from RBDoom 3 BFG team made it impossible to pass any cmds on restart
 void			Sys_ReLaunch(void * launchData, unsigned int launchDataSize);
-void			Sys_Launch( const char* path, idCmdArgs& args,  void* launchData, unsigned int launchDataSize );
-void			Sys_SetLanguageFromSystem();
-const char* 	Sys_DefaultLanguage();
-void			Sys_Quit();
+void			Sys_SetLanguageFromSystem( void );
+const char* 	Sys_DefaultLanguage( void );
+void			Sys_Quit( void );
 
 bool			Sys_AlreadyRunning( void );
 
-// BEATO Begin:
-void			Sys_ReleaseAlreadyRunningLock( void ) ;
-// BEATO End
-
 // note that this isn't journaled...
-char* 			Sys_GetClipboardData();
+char* 			Sys_GetClipboardData( void );
 void			Sys_SetClipboardData( const char* string );
 
 // will go to the various text consoles
@@ -631,16 +626,12 @@ void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 // This really isn't the right place to have this, but since this is the 'top level' include
 // and has a function signature with 'FILE' in it, it kinda needs to be here =/
 
-// RB begin
-typedef FILE* idFileHandle;
-// RB end
-
 // NOTE: do we need to guarantee the same output on all platforms?
 const char* 	Sys_TimeStampToStr( ID_TIME_T timeStamp );
 const char* 	Sys_SecToStr( int sec );
 
-const char* 	Sys_DefaultBasePath();
-const char* 	Sys_DefaultSavePath();
+const char* 	Sys_DefaultBasePath( void );
+const char* 	Sys_DefaultSavePath( void );
 
 // know early if we are performing a fatal error shutdown so the error message doesn't get lost
 void			Sys_SetFatalError( const char* error );

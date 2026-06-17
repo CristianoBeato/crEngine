@@ -47,48 +47,24 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "../sys_local.h"
 #include "win_local.h"
-#include "../../renderer/renderer_common.h"
+#include "renderer/renderer_common.h"
 
 #ifdef ID_ALLOW_TOOLS
 #include "tools/edit_public.h"
 #endif
 
-idCVar Win32Vars_t::sys_arch( "sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar Win32Vars_t::sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
-idCVar Win32Vars_t::in_mouse( "in_mouse", "1", CVAR_SYSTEM | CVAR_BOOL, "enable mouse input" );
-idCVar Win32Vars_t::win_allowAltTab( "win_allowAltTab", "0", CVAR_SYSTEM | CVAR_BOOL, "allow Alt-Tab when fullscreen" );
-idCVar Win32Vars_t::win_notaskkeys( "win_notaskkeys", "0", CVAR_SYSTEM | CVAR_INTEGER, "disable windows task keys" );
-idCVar Win32Vars_t::win_username( "win_username", "", CVAR_SYSTEM | CVAR_INIT, "windows user name" );
-idCVar Win32Vars_t::win_outputEditString( "win_outputEditString", "1", CVAR_SYSTEM | CVAR_BOOL, "" );
-idCVar Win32Vars_t::win_timerUpdate( "win_timerUpdate", "0", CVAR_SYSTEM | CVAR_BOOL, "allows the game to be updated while dragging the window" );
+//idCVar Win32Vars_t::sys_arch( "sys_arch", "", CVAR_SYSTEM | CVAR_INIT, "" );
+//idCVar Win32Vars_t::sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
+//idCVar Win32Vars_t::in_mouse( "in_mouse", "1", CVAR_SYSTEM | CVAR_BOOL, "enable mouse input" );
+//idCVar Win32Vars_t::win_allowAltTab( "win_allowAltTab", "0", CVAR_SYSTEM | CVAR_BOOL, "allow Alt-Tab when fullscreen" );
+//idCVar Win32Vars_t::win_notaskkeys( "win_notaskkeys", "0", CVAR_SYSTEM | CVAR_INTEGER, "disable windows task keys" );
+//idCVar Win32Vars_t::win_username( "win_username", "", CVAR_SYSTEM | CVAR_INIT, "windows user name" );
+//idCVar Win32Vars_t::win_timerUpdate( "win_timerUpdate", "0", CVAR_SYSTEM | CVAR_BOOL, "allows the game to be updated while dragging the window" );
 
+idCVar win_outputEditString( "win_outputEditString", "1", CVAR_SYSTEM | CVAR_BOOL, "" );
 Win32Vars_t	win32;
 
-static char		sys_cmdline[MAX_STRING_CHARS];
-
-static HANDLE hProcessMutex;
-
 bool enableToolsSupport = true;
-
-/*
-==================
-Sys_Sentry
-==================
-*/
-void Sys_Sentry() {
-}
-
-
-/*
-==================
-Sys_FlushCacheMemory
-
-On windows, the vertex buffers are write combined, so they
-don't need to be flushed from the cache
-==================
-*/
-void Sys_FlushCacheMemory( void *base, int bytes ) {
-}
 
 /*
 =============
@@ -116,7 +92,7 @@ void Sys_Error( const char *error, ... ) {
 
 	Sys_ShutdownInput();
 
-	GLimp_Shutdown();
+	//
 
 	extern idCVar com_productionMode;
 	if ( com_productionMode.GetInteger() == 0 ) {
@@ -132,82 +108,6 @@ void Sys_Error( const char *error, ... ) {
 	Sys_DestroyConsole();
 
 	exit (1);
-}
-
-/*
-========================
-Sys_Launch
-========================
-*/
-void Sys_Launch( const char * path, idCmdArgs & args,  void * data, unsigned int dataSize ) {
-
-	TCHAR				szPathOrig[_MAX_PATH];
-	STARTUPINFO			si;
-	PROCESS_INFORMATION	pi;
-
-	ZeroMemory( &si, sizeof(si) );
-	si.cb = sizeof(si);
-
-	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), (const char *)data ) );
-
-	if ( !CreateProcess( nullptr, szPathOrig, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi ) ) {
-		idLib::Error( "Could not start process: '%s' ", szPathOrig );
-		return;
-	}
-	cmdSystem->AppendCommandText( "quit\n" );
-}
-
-/*
-========================
-Sys_GetCmdLine
-========================
-*/
-const char * Sys_GetCmdLine() 
-{
-	return sys_cmdline;
-}
-
-/*
-========================
-Sys_ReLaunch
-========================
-*/
-
-// motorsep 12-28-2014; reverted back to the original Sys_ReLaunch; guys from RBDoom 3 BFG team made it impossible to pass any cmds on restart
-
-//void Sys_ReLaunch() {
-void Sys_ReLaunch( void * data, const unsigned int dataSize ) 
-{
-	TCHAR				szPathOrig[MAX_PRINT_MSG];
-	STARTUPINFO			si;
-	PROCESS_INFORMATION	pi;
-
-	ZeroMemory( &si, sizeof(si) );
-	si.cb = sizeof(si);
-
-	/*
-	// DG: we don't have function arguments in Sys_ReLaunch() anymore, everyone only passed
-	//     the command-line +" +set com_skipIntroVideos 1" anyway and it was painful on POSIX systems
-	//     so let's just add it here.
-	idStr cmdLine = Sys_GetCmdLine();
-	if( cmdLine.Find( "com_skipIntroVideos" ) < 0 )
-	{
-		cmdLine.Append( " +set com_skipIntroVideos 1" );
-	}
-
-	strcpy( szPathOrig, va( "\"%s\" %s", Sys_EXEPath(), cmdLine.c_str() ) );
-	// DG end
-	*/
-
-	strcpy(szPathOrig, va("\"%s\" %s", Sys_EXEPath(), (const char *)data));
-
-	CloseHandle( hProcessMutex );
-
-	if ( !CreateProcess( nullptr, szPathOrig, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi ) ) {
-		idLib::Error( "Could not start process: '%s' ", szPathOrig );
-		return;
-	}
-	cmdSystem->AppendCommandText( "quit\n" );
 }
 
 /*
@@ -228,7 +128,7 @@ void Sys_Printf( const char *fmt, ... )
 
 	OutputDebugString( msg );
 
-	if ( win32.win_outputEditString.GetBool() && idLib::IsMainThread() ) {
+	if ( win_outputEditString.GetBool() && idLib::IsMainThread() ) {
 		Conbuf_AppendText( msg );
 	}
 }
@@ -265,37 +165,6 @@ void Sys_DebugVPrintf( const char *fmt, va_list arg ) {
 	OutputDebugString( msg );
 }
 
-/*
-==============
-Sys_ShowWindow
-==============
-*/
-void Sys_ShowWindow( bool show ) {
-	::ShowWindow( win32.hWnd, show ? SW_SHOW : SW_HIDE );
-}
-
-/*
-==============
-Sys_IsWindowVisible
-==============
-*/
-bool Sys_IsWindowVisible() {
-	return ( ::IsWindowVisible( win32.hWnd ) != 0 );
-}
-
-/*
-========================
-Sys_IsFileWritable
-========================
-*/
-bool Sys_IsFileWritable( const char *path ) {
-	struct _stat st;
-	if ( _stat( path, &st ) == -1 ) {
-		return true;
-	}
-	return ( st.st_mode & S_IWRITE ) != 0;
-}
-
 // Vista shit
 typedef HRESULT (WINAPI * SHGetKnownFolderPath_t)( const GUID & rfid, DWORD dwFlags, HANDLE hToken, PWSTR *ppszPath );
 // NOTE: FOLIDERID_SavedGames is already exported from in shell32.dll in Windows 7.  We can only detect
@@ -303,167 +172,6 @@ typedef HRESULT (WINAPI * SHGetKnownFolderPath_t)( const GUID & rfid, DWORD dwFl
 // This GUID value should never change, so we name it something other than FOLDERID_SavedGames to get
 // around this problem.
 const GUID FOLDERID_SavedGames_IdTech5 = { 0x4c5c32ff, 0xbb9d, 0x43b0, { 0xb5, 0xb4, 0x2d, 0x72, 0xe5, 0x4e, 0xaa, 0xa4 } };
-
-/*
-==============
-Sys_DefaultSavePath
-==============
-*/
-const char *Sys_DefaultSavePath() {
-	static char savePath[ MAX_PATH ];
-	std::memset( savePath, 0, MAX_PATH );
-
-	HMODULE hShell = LoadLibrary( "shell32.dll" );
-	if ( hShell ) {
-		SHGetKnownFolderPath_t SHGetKnownFolderPath = (SHGetKnownFolderPath_t)GetProcAddress( hShell, "SHGetKnownFolderPath" );
-		if ( SHGetKnownFolderPath ) {
-			wchar_t * path;
-
-			// RB FIXME?
-#if defined(__MINGW32__)
-			if ( SUCCEEDED( SHGetKnownFolderPath( FOLDERID_SavedGames_IdTech5, CSIDL_FLAG_CREATE, 0, &path ) ) )
-#else
-			if ( SUCCEEDED( SHGetKnownFolderPath( FOLDERID_SavedGames_IdTech5, CSIDL_FLAG_CREATE | CSIDL_FLAG_PER_USER_INIT, 0, &path ) ) )
-#endif
-			// RB end
-			{
-				if ( wcstombs( savePath, path, MAX_PATH ) > MAX_PATH ) {
-					savePath[0] = 0;
-				}
-				CoTaskMemFree( path );
-			}
-		}
-		FreeLibrary( hShell );
-	}
-
-	if ( savePath[0] == 0 )
-	{
-		// RB: looks like a bug in the shlobj.h
-#if defined(__MINGW32__)
-		SHGetFolderPath( nullptr, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, nullptr, 1, savePath );
-#else
-		SHGetFolderPath( nullptr, CSIDL_PERSONAL | CSIDL_FLAG_CREATE, nullptr, SHGFP_TYPE_CURRENT, savePath );
-#endif
-		// RB end
-		strcat( savePath, "\\My Games" );
-	}
-
-	strcat( savePath, SAVE_PATH );
-
-	return savePath;
-}
-
-/*
-==============
-Sys_ListFiles
-==============
-*/
-int Sys_ListFiles( const char *directory, const char *extension, idStrList &list ) {
-	idStr		search;
-	struct _finddata_t findinfo;
-	// RB: 64 bit fixes, changed int to intptr_t
-	intptr_t	findhandle;
-	// RB end
-	int			flag;
-
-	if ( !extension) {
-		extension = "";
-	}
-
-	// passing a slash as extension will find directories
-	if ( extension[0] == '/' && extension[1] == 0 ) {
-		extension = "";
-		flag = 0;
-	} else {
-		flag = _A_SUBDIR;
-	}
-
-	sprintf( search, "%s\\*%s", directory, extension );
-
-	// search
-	list.Clear();
-
-	findhandle = _findfirst( search, &findinfo );
-	if ( findhandle == -1 ) {
-		return -1;
-	}
-
-	do {
-		if ( flag ^ ( findinfo.attrib & _A_SUBDIR ) ) {
-			list.Append( findinfo.name );
-		}
-	} while ( _findnext( findhandle, &findinfo ) != -1 );
-
-	_findclose( findhandle );
-
-	return list.Num();
-}
-
-
-/*
-================
-Sys_GetClipboardData
-================
-*/
-char *Sys_GetClipboardData() 
-{
-	char *data = nullptr;
-	char *cliptext;
-
-	if ( OpenClipboard( nullptr ) != 0 ) {
-		HANDLE hClipboardData;
-
-		if ( ( hClipboardData = GetClipboardData( CF_TEXT ) ) != 0 ) {
-			if ( ( cliptext = (char *)GlobalLock( hClipboardData ) ) != 0 ) {
-				data = (char *)Mem_Alloc( GlobalSize( hClipboardData ) + 1, TAG_CRAP );
-				strcpy( data, cliptext );
-				GlobalUnlock( hClipboardData );
-				
-				strtok( data, "\n\r\b" );
-			}
-		}
-		CloseClipboard();
-	}
-	return data;
-}
-
-/*
-================
-Sys_SetClipboardData
-================
-*/
-void Sys_SetClipboardData( const char *string ) 
-{
-	HGLOBAL HMem;
-	char *PMem;
-
-	// allocate memory block
-	HMem = (char *)::GlobalAlloc( GMEM_MOVEABLE | GMEM_DDESHARE, strlen( string ) + 1 );
-	if ( HMem == nullptr ) {
-		return;
-	}
-	// lock allocated memory and obtain a pointer
-	PMem = (char *)::GlobalLock( HMem );
-	if ( PMem == nullptr ) {
-		return;
-	}
-	// copy text into allocated memory block
-	lstrcpy( PMem, string );
-	// unlock allocated memory
-	::GlobalUnlock( HMem );
-	// open Clipboard
-	if ( !OpenClipboard( 0 ) ) {
-		::GlobalFree( HMem );
-		return;
-	}
-	// remove current Clipboard contents
-	EmptyClipboard();
-	// supply the memory handle to the Clipboard
-	SetClipboardData( CF_TEXT, HMem );
-	HMem = 0;
-	// close Clipboard
-	CloseClipboard();
-}
 
 /*
 ========================
@@ -629,185 +337,6 @@ bool Sys_Exec(	const char * appPath, const char * workingPath, const char * args
 		CloseHandle( hStdInRead );
 		CloseHandle( hStdInWrite );
 		return true;
-}
-
-/*
-========================================================================
-
-EVENT LOOP
-
-========================================================================
-*/
-
-#define	MAX_QUED_EVENTS		256
-#define	MASK_QUED_EVENTS	( MAX_QUED_EVENTS - 1 )
-
-sysEvent_t	eventQue[MAX_QUED_EVENTS];
-int			eventHead = 0;
-int			eventTail = 0;
-
-/*
-================
-Sys_QueEvent
-
-Ptr should either be null, or point to a block of data that can
-be freed by the game later.
-================
-*/
-void Sys_QueEvent( sysEventType_t type, int value, int value2, int ptrLength, void *ptr, int inputDeviceNum ) {
-	sysEvent_t * ev = &eventQue[ eventHead & MASK_QUED_EVENTS ];
-
-	if ( eventHead - eventTail >= MAX_QUED_EVENTS ) {
-		common->Printf("Sys_QueEvent: overflow\n");
-		// we are discarding an event, but don't leak memory
-		if ( ev->evPtr ) {
-			Mem_Free( ev->evPtr );
-		}
-		eventTail++;
-	}
-
-	eventHead++;
-
-	ev->evType = type;
-	ev->evValue = value;
-	ev->evValue2 = value2;
-	ev->evPtrLength = ptrLength;
-	ev->evPtr = ptr;
-	ev->inputDevice = inputDeviceNum;
-}
-
-/*
-=============
-Sys_PumpEvents
-
-This allows windows to be moved during renderbump
-=============
-*/
-void Sys_PumpEvents() {
-    MSG msg;
-
-	// foresthale 2014-06-14: the gui editor has a race condition with the game event loop, so don't do anything
-	if ( com_editors & EDITOR_GUI )
-	{
-		return;
-	}
-
-	// pump the message loop
-	while( PeekMessage( &msg, nullptr, 0, 0, PM_NOREMOVE ) ) {
-		if ( !GetMessage( &msg, nullptr, 0, 0 ) ) {
-			common->Quit();
-		}
-
-		// save the msg time, because wndprocs don't have access to the timestamp
-		if ( win32.sysMsgTime && win32.sysMsgTime > (int)msg.time ) {
-			// don't ever let the event times run backwards	
-//			common->Printf( "Sys_PumpEvents: win32.sysMsgTime (%i) > msg.time (%i)\n", win32.sysMsgTime, msg.time );
-		} else {
-			win32.sysMsgTime = msg.time;
-		}
- 
-		TranslateMessage (&msg);
-      	DispatchMessage (&msg);
-	}
-}
-
-/*
-================
-Sys_GenerateEvents
-================
-*/
-void Sys_GenerateEvents() {
-	static int entered = false;
-	char *s;
-
-	if ( entered ) {
-		return;
-	}
-	entered = true;
-
-	// pump the message loop
-	Sys_PumpEvents();
-
-	// grab or release the mouse cursor if necessary
-	IN_Frame();
-
-	// check for console commands
-	s = Sys_ConsoleInput();
-	if ( s ) {
-		char	*b;
-		int		len;
-
-		len = strlen( s ) + 1;
-		b = (char *)Mem_Alloc( len, TAG_EVENTS );
-		strcpy( b, s );
-		Sys_QueEvent( SE_CONSOLE, 0, 0, len, b, 0 );
-	}
-
-	entered = false;
-}
-
-/*
-================
-Sys_ClearEvents
-================
-*/
-void Sys_ClearEvents() {
-	eventHead = eventTail = 0;
-}
-
-/*
-================
-Sys_GetEvent
-================
-*/
-sysEvent_t Sys_GetEvent() {
-	sysEvent_t	ev;
-
-	// return if we have data
-	if ( eventHead > eventTail ) {
-		eventTail++;
-		return eventQue[ ( eventTail - 1 ) & MASK_QUED_EVENTS ];
-	}
-
-	// return the empty event 
-	std::memset( &ev, 0, sizeof( ev ) );
-
-	return ev;
-}
-
-//================================================================
-
-/*
-=================
-Sys_In_Restart_f
-
-Restart the input subsystem
-=================
-*/
-void Sys_In_Restart_f( const idCmdArgs &args ) {
-	Sys_ShutdownInput();
-	Sys_InitInput();
-}
-
-/*
-================
-Sys_AlreadyRunning
-
-returns true if there is a copy of D3 running already
-================
-*/
-bool Sys_AlreadyRunning() 
-{
-#ifndef DEBUG
-	if ( !win32.win_allowMultipleInstances.GetBool() ) 
-	{
-		hProcessMutex = ::CreateMutex( nullptr, FALSE, "DOOM3" );
-		if ( ::GetLastError() == ERROR_ALREADY_EXISTS || ::GetLastError() == ERROR_ACCESS_DENIED ) {
-			return true;
-		}
-	}
-#endif
-	return false;
 }
 
 //=======================================================================
@@ -1130,72 +659,6 @@ int WINAPI WinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLin
 	return 0;
 }
 #endif 
-
-/*
-==================
-idSysLocal::OpenURL
-==================
-*/
-void idSysLocal::OpenURL( const char *url, bool doexit )
-{
-	static bool doexit_spamguard = false;
-	HWND wnd;
-
-	if (doexit_spamguard) {
-		common->DPrintf( "OpenURL: already in an exit sequence, ignoring %s\n", url );
-		return;
-	}
-
-	common->Printf("Open URL: %s\n", url);
-
-	if ( !ShellExecute( nullptr, "open", url, nullptr, nullptr, SW_RESTORE ) ) {
-		common->Error( "Could not open url: '%s' ", url );
-		return;
-	}
-
-	wnd = GetForegroundWindow();
-	if ( wnd ) {
-		ShowWindow( wnd, SW_MAXIMIZE );
-	}
-
-	if ( doexit ) {
-		doexit_spamguard = true;
-		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "quit\n" );
-	}
-}
-
-/*
-==================
-idSysLocal::StartProcess
-==================
-*/
-void idSysLocal::StartProcess( const char *exePath, bool doexit ) {
-	TCHAR				szPathOrig[_MAX_PATH];
-	STARTUPINFO			si;
-	PROCESS_INFORMATION	pi;
-
-	ZeroMemory( &si, sizeof(si) );
-	si.cb = sizeof(si);
-
-	strncpy( szPathOrig, exePath, _MAX_PATH );
-
-	if( !CreateProcess( nullptr, szPathOrig, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi ) ) {
-        common->Error( "Could not start process: '%s' ", szPathOrig );
-	    return;
-	}
-
-	if ( doexit ) {
-		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "quit\n" );
-	}
-}
-
-/*
-==================
-Sys_SetFatalError
-==================
-*/
-void Sys_SetFatalError( const char *error ) {
-}
 
 /*
 ================

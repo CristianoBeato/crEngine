@@ -58,6 +58,7 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_cpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_vulkan.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_vulkan.hpp
+    
     ${CMAKE_CURRENT_SOURCE_DIR}/common/achievements.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/achievements.h
     ${CMAKE_CURRENT_SOURCE_DIR}/common/localuser.cpp
@@ -69,7 +70,6 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/socket_net.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/process.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/events.cpp
     )
 
@@ -86,9 +86,7 @@ set( SYSTEM_WIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_nanoafx.h
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_shared.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_snd.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_syscon.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_wndproc.cpp
     )
 
 if( WIN32 )
