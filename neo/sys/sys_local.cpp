@@ -46,7 +46,7 @@ const char* sysLanguageNames[] =
 
 const int numLanguages = sizeof( sysLanguageNames ) / sizeof sysLanguageNames[ 0 ] - 1;
 
-static idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames> );
+idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames> );
 
 idSysLocal			sysLocal;
 idSys* 				sys = &sysLocal;
@@ -80,7 +80,7 @@ double idSysLocal::ClockTicksPerSecond( void )
 idSysLocal::GetProcessorId
 =================
 */
-cpuid_t idSysLocal::GetProcessorId()
+cpuid_t idSysLocal::GetProcessorId( void )
 {
 	return Sys_GetProcessorId();
 }
@@ -95,14 +95,11 @@ const char* idSysLocal::GetProcessorString( void )
 	return Sys_GetProcessorString();
 }
 
-<<<<<<< HEAD
 /*
 =================
 idSysLocal::FPU_SetFTZ
 =================
 */
-=======
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 void idSysLocal::FPU_SetFTZ( bool enable )
 {
 	Sys_FPU_SetFTZ( enable );
@@ -118,60 +115,24 @@ void idSysLocal::FPU_SetDAZ( bool enable )
 	Sys_FPU_SetDAZ( enable );
 }
 
-<<<<<<< HEAD
 /*
 =================
 idSysLocal::LockMemory
 =================
 */
-=======
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 bool idSysLocal::LockMemory( void* ptr, const size_t bytes )
 {
 	return Sys_LockMemory( ptr, bytes );
 }
 
-<<<<<<< HEAD
 /*
 =================
 idSysLocal::UnlockMemory
 =================
 */
-=======
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 bool idSysLocal::UnlockMemory( void* ptr, const size_t bytes )
 {
 	return Sys_UnlockMemory( ptr, bytes );
-}
-
-/*
-=================
-idSysLocal::DLL_Load
-=================
-*/
-int idSysLocal::DLL_Load( const char* dllName )
-{
-	return Sys_DLL_Load( dllName );
-}
-
-/*
-=================
-idSysLocal::DLL_GetProcAddress
-=================
-*/
-void* idSysLocal::DLL_GetProcAddress( int dllHandle, const char* procName )
-{
-	return Sys_DLL_GetProcAddress( dllHandle, procName );
-}
-
-/*
-=================
-idSysLocal::DLL_Unload
-=================
-*/
-void idSysLocal::DLL_Unload( int dllHandle )
-{
-	Sys_DLL_Unload( dllHandle );
 }
 
 /*

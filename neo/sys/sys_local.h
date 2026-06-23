@@ -44,31 +44,19 @@ public:
 	virtual void			DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... );
 	virtual void			DebugVPrintf( const char* fmt, va_list arg );
 	
-<<<<<<< HEAD
 	virtual double			GetClockTicks( void );
 	virtual double			ClockTicksPerSecond( void );
 	virtual cpuid_t			GetProcessorId( void );
 	virtual const char* 	GetProcessorString( void );
-	
-	virtual void			FPU_SetFTZ( bool enable );
-	virtual void			FPU_SetDAZ( bool enable );
-=======
-	virtual double			GetClockTicks();
-	virtual double			ClockTicksPerSecond();
-	virtual cpuid_t			GetProcessorId();
-	virtual const char* 	GetProcessorString();
+
 	virtual void			FPU_SetFTZ( const bool enable );
 	virtual void			FPU_SetDAZ( const bool enable );
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 	
 	virtual void			FPU_EnableExceptions( int exceptions );
 	
 	virtual bool			LockMemory( void* ptr, const size_t bytes );
 	virtual bool			UnlockMemory( void* ptr, const size_t bytes );
 	
-	virtual int				DLL_Load( const char* dllName );
-	virtual void* 			DLL_GetProcAddress( int dllHandle, const char* procName );
-	virtual void			DLL_Unload( int dllHandle );
 	virtual void			DLL_GetFileName( const char* baseName, char* dllName, int maxLength );
 	
 	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down );

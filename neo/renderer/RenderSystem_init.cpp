@@ -1605,45 +1605,18 @@ void GfxInfo_f( const idCmdArgs& args )
 	common->Printf( "\nPIXELFORMAT: color(%d-bits) Z(%d-bit) stencil(%d-bits)\n", glConfig.colorBits, glConfig.depthBits, glConfig.stencilBits );
 	common->Printf( "MODE: %d, %d x %d %s hz:", r_vidMode.GetInteger(), tr.GetWidth(), tr.GetHeight(), fsstrings[r_fullscreen.GetBool()] );
 	if( glConfig.displayFrequency )
-	{
 		common->Printf( "%d\n", glConfig.displayFrequency );
-	}
 	else
-	{
 		common->Printf( "N/A\n" );
-	}
 	
 	common->Printf( "-------\n" );
-	
-	// RB begin
-#if defined(_WIN32)
-	// WGL_EXT_swap_interval
-	typedef BOOL ( WINAPI * PFNWGLSWAPINTERVALEXTPROC )( int interval );
-	extern	PFNWGLSWAPINTERVALEXTPROC wglSwapIntervalEXT;
-	
-	if( r_swapInterval.GetInteger() && wglSwapIntervalEXT != nullptr )
-	{
-		common->Printf( "Forcing swapInterval %i\n", r_swapInterval.GetInteger() );
-	}
-	else
-	{
-		common->Printf( "swapInterval not forced\n" );
-	}
-#endif
-	// RB end
-	
+		
 	if( glConfig.stereoPixelFormatAvailable && glConfig.isStereoPixelFormat )
-	{
 		idLib::Printf( "OpenGl quad buffer stereo pixel format active\n" );
-	}
 	else if( glConfig.stereoPixelFormatAvailable )
-	{
 		idLib::Printf( "OpenGl quad buffer stereo pixel available but not selected\n" );
-	}
 	else
-	{
 		idLib::Printf( "OpenGl quad buffer stereo pixel format not available\n" );
-	}
 	
 	idLib::Printf( "Stereo mode: " );
 	switch( tr.GetStereo3DMode() )

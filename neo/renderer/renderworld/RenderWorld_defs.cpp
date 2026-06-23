@@ -661,10 +661,10 @@ void crFrontend::FreeDerivedData( void )
 
 /*
 ===================
-R_CheckForEntityDefsUsingModel
+crFrontend::CheckForEntityDefsUsingModel
 ===================
 */
-void R_CheckForEntityDefsUsingModel( idRenderModel* model )
+void crFrontend::CheckForEntityDefsUsingModel( idRenderModel* model )
 {
 	for( int j = 0; j < tr.worlds.Num(); j++ )
 	{

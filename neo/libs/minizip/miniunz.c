@@ -520,7 +520,7 @@ static int do_extract_onefile(unzFile uf, const char* filename, int opt_extract_
         return 1;
 }
 
-
+#if 0
 int main(int argc, char *argv[]) {
     const char *zipfilename=NULL;
     const char *filename_to_extract=NULL;
@@ -645,3 +645,5 @@ int main(int argc, char *argv[]) {
 
     return ret_value;
 }
+
+#endif 

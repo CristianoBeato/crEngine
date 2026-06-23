@@ -61,77 +61,10 @@ If you have questions concerning this license or the applicable additional terms
 //idCVar Win32Vars_t::win_username( "win_username", "", CVAR_SYSTEM | CVAR_INIT, "windows user name" );
 //idCVar Win32Vars_t::win_timerUpdate( "win_timerUpdate", "0", CVAR_SYSTEM | CVAR_BOOL, "allows the game to be updated while dragging the window" );
 
-idCVar win_outputEditString( "win_outputEditString", "1", CVAR_SYSTEM | CVAR_BOOL, "" );
 Win32Vars_t	win32;
 
 bool enableToolsSupport = true;
 
-/*
-=============
-Sys_Error
-
-Show the early console as an error dialog
-=============
-*/
-void Sys_Error( const char *error, ... ) {
-	va_list		argptr;
-	char		text[4096];
-    MSG        msg;
-
-	va_start( argptr, error );
-	vsprintf( text, error, argptr );
-	va_end( argptr);
-
-	Conbuf_AppendText( text );
-	Conbuf_AppendText( "\n" );
-
-	Win_SetErrorText( text );
-	Sys_ShowConsole( 1, true );
-
-	timeEndPeriod( 1 );
-
-	Sys_ShutdownInput();
-
-	//
-
-	extern idCVar com_productionMode;
-	if ( com_productionMode.GetInteger() == 0 ) {
-		// wait for the user to quit
-		while ( 1 ) {
-			if ( !GetMessage( &msg, nullptr, 0, 0 ) ) {
-				common->Quit();
-			}
-			TranslateMessage( &msg );
-			DispatchMessage( &msg );
-		}
-	}
-	Sys_DestroyConsole();
-
-	exit (1);
-}
-
-/*
-==============
-Sys_Printf
-==============
-*/
-#define MAXPRINTMSG 4096
-void Sys_Printf( const char *fmt, ... ) 
-{
-	char		msg[MAXPRINTMSG];
-
-	va_list argptr;
-	va_start(argptr, fmt);
-	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, argptr );
-	va_end(argptr);
-	msg[sizeof(msg)-1] = '\0';
-
-	OutputDebugString( msg );
-
-	if ( win_outputEditString.GetBool() && idLib::IsMainThread() ) {
-		Conbuf_AppendText( msg );
-	}
-}
 
 /*
 ==============

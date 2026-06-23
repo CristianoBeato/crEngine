@@ -568,37 +568,28 @@ uint32_t		Sys_GetDriveFreeSpace( const char* path );
 uint64_t		Sys_GetDriveFreeSpaceInBytes( const char* path );
 
 // returns memory stats
-void			Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats );
-void			Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t& stats );
+void					Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats );
+void					Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t& stats );
 
 // lock and unlock memory
-bool			Sys_LockMemory( void* ptr, const size_t bytes );
-bool			Sys_UnlockMemory( void* ptr, const size_t bytes );
-
-// DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
-
-// RB: 64 bit fixes, changed int to intptr_t
-intptr_t		Sys_DLL_Load( const char* dllName );
-void* 			Sys_DLL_GetProcAddress( intptr_t dllHandle, const char* procName );
-void			Sys_DLL_Unload( intptr_t dllHandle );
-// RB end
+bool					Sys_LockMemory( void* ptr, const size_t bytes );
+bool					Sys_UnlockMemory( void* ptr, const size_t bytes );
 
 // event generation
-void			Sys_GenerateEvents();
-sysEvent_t		Sys_GetEvent();
-void			Sys_ClearEvents();
+void					Sys_GenerateEvents( void );
+sysEvent_t				Sys_GetEvent( void );
+void					Sys_ClearEvents( void );
 
 // input is tied to windows, so it needs to be started up and shut down whenever
 // the main window is recreated
-void			Sys_InitInput();
-void			Sys_ShutdownInput();
-void			Sys_InitScanTable( void );
-const unsigned char *Sys_GetScanTable( void );
+void					Sys_InitInput( void );
+void					Sys_ShutdownInput( void );
+const unsigned char*	Sys_GetScanTable( void );
 
 // keyboard input polling
-int				Sys_PollKeyboardInputEvents();
-int				Sys_ReturnKeyboardInputEvent( const int n, int& ch, bool& state );
-void			Sys_EndKeyboardInputEvents();
+int						Sys_PollKeyboardInputEvents( void );
+int						Sys_ReturnKeyboardInputEvent( const int n, int& ch, bool& state );
+void					Sys_EndKeyboardInputEvents( void );
 
 // mouse input polling
 inline constexpr int MAX_MOUSE_EVENTS = 256;
@@ -933,23 +924,14 @@ public:
 	virtual double			ClockTicksPerSecond( void ) = 0;
 	virtual cpuid_t			GetProcessorId( void ) = 0;
 	virtual const char* 	GetProcessorString( void ) = 0;
-<<<<<<< HEAD
-
-	virtual void			FPU_SetFTZ( bool enable ) = 0;
-	virtual void			FPU_SetDAZ( bool enable ) = 0;
-=======
 	virtual void			FPU_SetFTZ( const bool enable ) = 0;
 	virtual void			FPU_SetDAZ( const bool enable ) = 0;
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 	
 	virtual void			FPU_EnableExceptions( int exceptions ) = 0;
 	
 	virtual bool			LockMemory( void* ptr, const size_t bytes ) = 0;
 	virtual bool			UnlockMemory( void* ptr, const size_t bytes ) = 0;
 	
-	virtual int				DLL_Load( const char* dllName ) = 0;
-	virtual void* 			DLL_GetProcAddress( int dllHandle, const char* procName ) = 0;
-	virtual void			DLL_Unload( int dllHandle ) = 0;
 	virtual void			DLL_GetFileName( const char* baseName, char* dllName, int maxLength ) = 0;
 	
 	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down ) = 0;

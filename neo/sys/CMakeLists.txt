@@ -38,6 +38,7 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_profile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_profile.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/Sys_process.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_public.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_savegame.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_savegame.h
@@ -104,10 +105,10 @@ set( SYSTEM_SOURCES
 ##################################################################
 
 
-if( WIN332 )
-    set( SYSTEM_LIBRARIES  )
+if( WIN32 )
+    set( SYSTEM_LIBRARIES ws2_32 iphlpapi )
 else( )
-
+    set( SYSTEM_LIBRARIES  )
 endif()
 
 ## Executable 
@@ -137,17 +138,34 @@ set( MODULES_LIBRARIES
     contrib    
     )
 
+set( THIRD_PARTY_LIBRARIES
+    ZLIB::ZLIB 
+    SDL3::SDL3
+    PNG::PNG 
+    jpeg#JPEG::JPEG 
+    ogg
+    vorbis
+    vorbisfile
+    )
+
 # to build the executable we need to build all modules
 if( MONOLITH )
     add_dependencies( crEngine ${MODULES_LIBRARIES} )
-    target_link_libraries( crEngine PRIVATE -Wl,--start-group ${MODULES_LIBRARIES} -Wl,--end-group )
+    target_link_libraries( crEngine 
+        PRIVATE 
+            -Wl,--start-group ${MODULES_LIBRARIES}  -Wl,--end-group 
+        PUBLIC
+            ${SYSTEM_LIBRARIES} ${THIRD_PARTY_LIBRARIES}
+            )
 else( )
     add_dependencies( crEngine ${MODULES_LIBRARIES} )
-    target_link_libraries( crEngine PRIVATE -Wl,--start-group ${MODULES_LIBRARIES} -Wl,--end-group )
+    target_link_libraries( crEngine 
+        PRIVATE 
+            -Wl,--start-group ${MODULES_LIBRARIES} -Wl,--end-group 
+        PUBLIC
+            ${SYSTEM_LIBRARIES} ${THIRD_PARTY_LIBRARIES}
+            )
 endif( )
-
-# link external libraries
-target_link_libraries( crEngine PUBLIC ZLIB::ZLIB PNG::PNG JPEG::JPEG SDL3 ${OGG_LIBRARY} ${VORBISFILE_LIBRARY} )
 
 #set the idLib root dir as include
 target_include_directories( crEngine PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 

@@ -40,7 +40,7 @@ The cvar system must already be setup
 void Sys_Init( void ) 
 {
 #if __PLATFORM_WINDOWS__
-	CoInitialize( nullptr );
+	CoInitialize( nullptr ); // TODO: Move to Xaudio 
 #endif
 
 // BEATO Begin:
@@ -62,7 +62,7 @@ void Sys_Shutdown( void )
     DestroyInstanceLock();
 
 #if __PLATFORM_WINDOWS__
-    CoUninitialize();
+    CoUninitialize(); // TODO: Move to Xaudio
 #else
 	Posix_Shutdown();
 #endif
@@ -79,7 +79,6 @@ void Sys_Quit( void )
 	Sys_DestroyConsole();
 	DestroyInstanceLock();
 #if __PLATFORM_WINDOWS__
-	timeEndPeriod( 1 );
 	ExitProcess( 0 );
 #else
 	Posix_Exit( EXIT_SUCCESS );
