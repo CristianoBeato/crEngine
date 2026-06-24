@@ -20,6 +20,7 @@ namespace fs = std::filesystem;
 
 constexpr char DEFALT_STRING[7] = { "detect" };
 static idStr basepath;
+static idStr savepath;
 
 static idCVar sys_defaultbasepath( "sys_defaultbasepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the local game source base path" );
 static idCVar sys_defaultsavepath( "sys_defaultsavepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the game saves folder" );
@@ -96,26 +97,33 @@ const char* Sys_EXEPath( void )
  */
 const char* Sys_DefaultSavePath( void )
 {
-	if ( strncmp( DEFALT_STRING, sys_defaultsavepath.GetString(), strlen( DEFALT_STRING ) ) == 0 )
+	if( savepath.IsEmpty() )
     {
 #if __PLATFORM_LINUX__
 		char path[1024];
     	SDL_snprintf( path, 1024, "%s/.%s", getenv( "HOME" ), GAME_NAME );
 		sys_defaultsavepath.SetString( path );
 #else
-		char* path = SDL_GetPrefPath( "crEngine", GAME_NAME );
-		sys_defaultsavepath.SetString( path );
+		auto path = SDL_GetPrefPath( "crEngine", GAME_NAME );
+		savepath = path;
 		SDL_free( path );
+
+		// remove last slash
+		savepath.StripTrailing( '\\' );
+
+		// in windows make surre that we are using black slashes;
+		savepath.BackSlashesToSlashes();
+
+		sys_defaultsavepath.SetString( savepath.c_str() );
 #endif
     }
 	
-	return sys_defaultsavepath.GetString();
+	return savepath.c_str();
 }
 
 /*
 ================
 Sys_DefaultBasePath
-
 Get the default base path
 - binary image path
 - current directory
@@ -127,7 +135,20 @@ const char* Sys_DefaultBasePath( void )
 {
     if ( basepath.IsEmpty() )
 	{
+		// Retrieve base path
         basepath = SDL_GetBasePath();
+
+#if __PLATFORM_WINDOWS__
+		// remove last slash
+		basepath.StripTrailing( '\\' );
+
+		// in windows make surre that we are using black slashes;
+		basepath.BackSlashesToSlashes(); 	
+#else // posix platform
+		basepath.StripTrailing( '/' );
+#endif // __PLATFORM_LINUX__ || __PLATFORM_FBSD__
+
+		/// so we can query on console
 		sys_defaultbasepath.SetString( basepath.c_str() );
 	}
 
