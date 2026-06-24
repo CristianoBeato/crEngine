@@ -36,6 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL3/SDL_cpuinfo.h>
 #include <SDL3/SDL_loadso.h>
 #include <SDL3/SDL_clipboard.h>
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_messagebox.h>
 
 #include "sys_video.h"
 
@@ -457,6 +459,71 @@ crVideo *idSysLocal::GetVideoSystem(void) const
 {
 	static crVideoSDL3 video = crVideoSDL3();
     return dynamic_cast<crVideo*>( &video );
+}
+
+#define MAXPRINTMSG 4096
+
+
+/*
+==================
+Sys_SetFatalError
+==================
+*/
+void Sys_SetFatalError( const char *error ) 
+{
+	SDL_Log( error );
+	SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error!", error, nullptr );
+
+	// Engine exit signal
+#if __PLATFORM_WINDOWS__
+	exit( EXIT_FAILURE );
+#else
+	Posix_Exit( EXIT_FAILURE );
+#endif
+}
+
+/*
+=============
+Sys_Error
+
+Show the early console as an error dialog
+=============
+*/
+void Sys_Error( const char *error, ... )
+{
+	va_list argptr;
+	char	text[4096];
+	va_start( argptr, error );
+	vsprintf( text, error, argptr );
+	va_end( argptr);
+
+	SDL_Log( text );
+	SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error!", text, nullptr );
+
+	// Engine exit signal
+#if __PLATFORM_WINDOWS__
+	exit( EXIT_FAILURE );
+#else
+	Posix_Exit( EXIT_FAILURE );
+#endif
+
+}
+
+/*
+==============
+Sys_Printf
+==============
+*/
+void Sys_Printf( const char *fmt, ... ) 
+{
+	va_list argptr;
+	char	text[MAXPRINTMSG];
+	va_start( argptr, fmt );
+	vsprintf( text, fmt, argptr );
+	va_end( argptr);
+
+	text[sizeof(text)-1] = '\0';
+	SDL_Log( text );
 }
 
 // BEATO End

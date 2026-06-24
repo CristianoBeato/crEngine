@@ -162,38 +162,6 @@ char* Sys_GetCurrentUser()
 	return s_userName;
 }
 
-/*
-==================
-Sys_SetFatalError
-==================
-*/
-void Sys_SetFatalError( const char *error ) 
-{
-}
-
-
-/*
-==============
-Sys_Printf
-==============
-*/
-#define MAXPRINTMSG 4096
-void Sys_Printf( const char *fmt, ... ) 
-{
-	char		msg[MAXPRINTMSG];
-
-	va_list argptr;
-	va_start(argptr, fmt);
-	idStr::vsnPrintf( msg, MAXPRINTMSG-1, fmt, argptr );
-	va_end(argptr);
-	msg[sizeof(msg)-1] = '\0';
-
-	OutputDebugString( msg );
-
-	if ( win_outputEditString.GetBool() && idLib::IsMainThread() ) {
-		Conbuf_AppendText( msg );
-	}
-}
 
 /*
 =============
@@ -202,6 +170,7 @@ Sys_Error
 Show the early console as an error dialog
 =============
 */
+#if 0
 void Sys_Error( const char *error, ... ) {
 	va_list		argptr;
 	char		text[4096];
@@ -220,19 +189,23 @@ void Sys_Error( const char *error, ... ) {
 	Sys_ShutdownInput();
 
 	//
-
+#if 0 //TODO FIX
 	extern idCVar com_productionMode;
-	if ( com_productionMode.GetInteger() == 0 ) {
+	if ( com_productionMode.GetInteger() == 0 ) 
+	{
 		// wait for the user to quit
 		while ( 1 ) {
-			if ( !GetMessage( &msg, nullptr, 0, 0 ) ) {
+			if ( !GetMessage( &msg, nullptr, 0, 0 ) ) 
+			{
 				common->Quit();
 			}
 			TranslateMessage( &msg );
 			DispatchMessage( &msg );
 		}
 	}
+#endif
 	Sys_DestroyConsole();
 
 	exit (1);
 }
+#endif
