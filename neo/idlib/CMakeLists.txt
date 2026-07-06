@@ -175,6 +175,8 @@ set( IDLIB_SYS_SOURCES
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_intrinsics.h
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_thread.cpp
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_threading.h
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_timer.cpp
+	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_timer.h
 	${CMAKE_CURRENT_SOURCE_DIR}/sys/sys_types.h
 	)
 
