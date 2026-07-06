@@ -29,6 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #include "ParallelJobList.h"
 
+// BEATO Begin: SDL_GetNumLogicalCPUCores
+#include <SDL3/SDL_cpuinfo.h>
+// BEATO End
+
 /*
 ================================================================================================
 
@@ -1242,9 +1246,6 @@ idParallelJobManagerLocal
 ================================================================================================
 */
 
-extern void Sys_CPUCount( int& logicalNum, int& coreNum, int& packageNum );
-
-
 // WINDOWS LOGICAL PROCESSOR LIMITS:
 //
 // http://download.microsoft.com/download/5/7/7/577a5684-8a83-43ae-9272-ff260a9c20e2/Hyper-thread_Windows.doc
@@ -1266,8 +1267,8 @@ extern void Sys_CPUCount( int& logicalNum, int& coreNum, int& packageNum );
 // Hyperthreading is not dead yet.  Intel's Core i7 Processor is quad-core with HT for 8 logicals.
 
 // DOOM3: We don't have that many jobs, so just set this fairly low so we don't spin up a ton of idle threads
-#define MAX_JOB_THREADS		2
-#define NUM_JOB_THREADS		"2"
+constexpr uint32_t	MAX_JOB_THREADS = 4;
+constexpr char* 	NUM_JOB_THREADS = "4";
 #define JOB_THREAD_CORES	{	CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\
 								CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\
 								CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\
@@ -1285,28 +1286,26 @@ class idParallelJobManagerLocal : public idParallelJobManager
 public:
 	virtual						~idParallelJobManagerLocal() {}
 	
-	virtual void				Init();
-	virtual void				Shutdown();
+	virtual void				Init( void );
+	virtual void				Shutdown( void );
 	
 	virtual idParallelJobList* 	AllocJobList( jobListId_t id, jobListPriority_t priority, unsigned int maxJobs, unsigned int maxSyncs, const idColor* color );
 	virtual void				FreeJobList( idParallelJobList* jobList );
 	
-	virtual int					GetNumJobLists() const;
-	virtual int					GetNumFreeJobLists() const;
+	virtual int					GetNumJobLists( void ) const;
+	virtual int					GetNumFreeJobLists( void ) const;
 	virtual idParallelJobList* 	GetJobList( int index );
 	
-	virtual int					GetNumProcessingUnits();
+	virtual int					GetNumProcessingUnits( void );
 	
-	virtual void				WaitForAllJobLists();
+	virtual void				WaitForAllJobLists( void );
 	
 	void						Submit( idParallelJobList_Threads* jobList, int parallelism );
 	
 private:
 	idJobThread						threads[MAX_JOB_THREADS];
-	unsigned int					maxThreads;
-	int								numPhysicalCpuCores;
-	int								numLogicalCpuCores;
-	int								numCpuPackages;
+	uint32_t						maxThreads;
+	uint32_t						numLogicalCpuCores;
 	idStaticList< idParallelJobList*, MAX_JOBLISTS >	jobLists;
 };
 
@@ -1339,10 +1338,12 @@ void idParallelJobManagerLocal::Init()
 		threads[i].Start( cores[i], i );
 	}
 	maxThreads = jobs_numThreads.GetInteger();
-	
-	//Sys_CPUCount( numPhysicalCpuCores, numLogicalCpuCores, numCpuPackages );
-	Sys_CPUCount( numLogicalCpuCores, numPhysicalCpuCores, numCpuPackages ); // SS2 fix - wrong order of parameters fed into the function
+
+// BEATO Begin: Let the SDL find the avalable logic tread counts
+	numLogicalCpuCores = SDL_GetNumLogicalCPUCores();
+// BEATO End
 }
+
 
 /*
 ========================

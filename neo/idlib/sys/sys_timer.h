@@ -1,6 +1,6 @@
 
-#ifndef __TIMER_H__
-#define __TIMER_H__
+#ifndef __SYS_TIMER_H__
+#define __SYS_TIMER_H__
 
 // a decent minimum sleep time to avoid going below the process scheduler speeds
 inline constexpr uint32_t SYS_MINSLEEP = 20u;
@@ -14,4 +14,4 @@ extern void			Sys_Sleep( const uint32_t in_msec );
 extern uint32_t     Sys_Milliseconds( void );
 extern uint64_t     Sys_Microseconds( void );
 
-#endif //!__TIMER_H__
+#endif //!__SYS_TIMER_H__

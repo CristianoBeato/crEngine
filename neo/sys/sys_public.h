@@ -524,18 +524,6 @@ void			Sys_Printf( VERIFY_FORMAT_STRING const char* msg, ... );
 void			Sys_DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... );
 void			Sys_DebugVPrintf( const char* fmt, va_list arg );
 
-// a decent minimum sleep time to avoid going below the process scheduler speeds
-#define			SYS_MINSLEEP	20
-
-// allow game to yield CPU time
-// NOTE: due to SYS_MINSLEEP this is very bad portability karma, and should be completely removed
-void			Sys_Sleep( const uint32_t in_msec );
-
-// Sys_Milliseconds should only be used for profiling purposes,
-// any game related timing information should come from event timestamps
-uint32_t		Sys_Milliseconds( void );
-uint64_t		Sys_Microseconds( void );
-
 // returns a selection of the CPUID_* flags
 cpuid_t			Sys_GetProcessorId();
 const char* 	Sys_GetProcessorString();
@@ -620,9 +608,6 @@ void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 // NOTE: do we need to guarantee the same output on all platforms?
 const char* 	Sys_TimeStampToStr( ID_TIME_T timeStamp );
 const char* 	Sys_SecToStr( int sec );
-
-const char* 	Sys_DefaultBasePath( void );
-const char* 	Sys_DefaultSavePath( void );
 
 // know early if we are performing a fatal error shutdown so the error message doesn't get lost
 void			Sys_SetFatalError( const char* error );
