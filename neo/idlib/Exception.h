@@ -21,7 +21,7 @@ public:
 	}
 	
 	// this really, really should be a const function, but it's referenced too many places to change right now
-	const char* 	GetError( void ) { return error; }
+	const char* 	GetError( void ) const { return error; }
 	
 protected:
 	// if GetError() were correctly const this would be named GetError(), too
