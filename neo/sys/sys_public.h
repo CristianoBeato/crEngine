@@ -401,18 +401,6 @@ struct sysEvent_t
 	int				GetYCoord( void ) const { return evValue2; }
 };
 
-struct sysMemoryStats_t
-{
-	int memoryLoad;
-	int totalPhysical;
-	int availPhysical;
-	int totalPageFile;
-	int availPageFile;
-	int totalVirtual;
-	int availVirtual;
-	int availExtendedVirtual;
-};
-
 enum videoMode_t : uint8_t
 {
 	VIDEO_MODE_WINDOW,
@@ -517,7 +505,6 @@ char* 			Sys_GetClipboardData( void );
 void			Sys_SetClipboardData( const char* string );
 
 // will go to the various text consoles
-// NOT thread safe - never use in the async paths
 void			Sys_Printf( VERIFY_FORMAT_STRING const char* msg, ... );
 
 // guaranteed to be thread-safe

@@ -6,97 +6,11 @@
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
-#if __PLATFORM_WINDOWS__
-#   include <windows.h>
-#   include "win32/win_local.h"
-static HANDLE s_instanceLock = nullptr;
-#elif __PLATFORM_LINUX__ || __PLATFORM_FBSD__
-#   include <sys/mman.h>
-#   include "posix/posix_public.h"
-static int s_instanceLock = 0; 
-#endif
-
 static struct sys_main
 {
-	sysMemoryStats_t    exeLaunchMemoryStats;
     idList<idStr>       argVec;
     idStr               cmdLine;
 } sysMain;
-
-static idCVar sys_allowMultipleInstances( "sys_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
-
-// Unique identifier for your application (change to your project name)
-// Avoid spaces or special characters in the Windows Mutex name.
-#define APP_UNIQUE_ID "crEngine_Unique_Instance_ID_000"
-static bool	CreateInstanceLock( void );
-static void DestroyInstanceLock( void );
-
-/*
-================
-Sys_Init
-The cvar system must already be setup
-================
-*/
-void Sys_Init( void ) 
-{
-#if __PLATFORM_WINDOWS__
-	CoInitialize( nullptr ); // TODO: Move to Xaudio 
-#endif
-
-// BEATO Begin:
-	crVideo::Get()->StartUp( 1 );
-// BEATO End
-}
-
-/*
-===============
-Sys_Shutdown
-===============
-*/
-void Sys_Shutdown( void )
-{
-/// BEATO Begin:
-	crVideo::Get()->ShutDown();
-/// BEATO End
-
-    DestroyInstanceLock();
-
-#if __PLATFORM_WINDOWS__
-    CoUninitialize(); // TODO: Move to Xaudio
-#else
-	Posix_Shutdown();
-#endif
-}
-
-/*
-================
-Sys_Quit
-================
-*/
-void Sys_Quit( void )
-{
-	Sys_ShutdownInput();
-	Sys_DestroyConsole();
-	DestroyInstanceLock();
-#if __PLATFORM_WINDOWS__
-	ExitProcess( 0 );
-#else
-	Posix_Exit( EXIT_SUCCESS );
-#endif
-}
-
-/*
- ==================
- Sys_AlreadyRunning
- ==================
- */
-bool Sys_AlreadyRunning( void )
-{
-	if( sys_allowMultipleInstances.GetBool() )
-		return false;
-
-	return CreateInstanceLock();
-}
 
 /*
  ==================
@@ -120,38 +34,6 @@ const char* Sys_GetCmdLine( void )
 
 /*
 ================
-Sys_LockMemory
-================
-*/
-bool Sys_LockMemory( void* ptr, const size_t bytes )
-{
-#if __PLATFORM_WINDOWS__
-	return ( VirtualLock( ptr, ( SIZE_T )bytes ) != FALSE );
-#elif __PLATFORM_LINUX__
-    return mlock(ptr, bytes) == 0;
-#else
-    return false;
-#endif
-}
-
-/*
-================
-Sys_UnlockMemory
-================
-*/
-bool Sys_UnlockMemory( void* ptr, const size_t bytes )
-{
-#if __PLATFORM_WINDOWS__
-	return ( VirtualUnlock( ptr, ( SIZE_T )bytes ) != FALSE );
-#elif __PLATFORM_LINUX__
-    return munlock( ptr, bytes ) == 0;
-#else
-    return false;
-#endif
-}
-
-/*
-================
 Sys_GetExeLaunchMemoryStatus
 ================
 */
@@ -160,74 +42,6 @@ void Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t &stats )
 	stats = sysMain.exeLaunchMemoryStats;
 }
 
-
-/*
-================
-Sys_GetCurrentMemoryStatus
-
-	returns OS mem info
-	all values are in kB except the memoryload
-================
-*/
-void Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats )
-{
-#if __PLATFORM_WINDOWS__
-	MEMORYSTATUSEX statex = {};
-	unsigned __int64 work;
-	
-	statex.dwLength = sizeof( statex );
-	GlobalMemoryStatusEx( &statex );
-	
-	std::memset( &stats, 0, sizeof( stats ) );
-	
-	stats.memoryLoad = statex.dwMemoryLoad;
-	
-	work = statex.ullTotalPhys >> 20;
-	stats.totalPhysical = *( int* )&work;
-	
-	work = statex.ullAvailPhys >> 20;
-	stats.availPhysical = *( int* )&work;
-	
-	work = statex.ullAvailPageFile >> 20;
-	stats.availPageFile = *( int* )&work;
-	
-	work = statex.ullTotalPageFile >> 20;
-	stats.totalPageFile = *( int* )&work;
-	
-	work = statex.ullTotalVirtual >> 20;
-	stats.totalVirtual = *( int* )&work;
-	
-	work = statex.ullAvailVirtual >> 20;
-	stats.availVirtual = *( int* )&work;
-	
-	work = statex.ullAvailExtendedVirtual >> 20;
-	stats.availExtendedVirtual = *( int* )&work;
-#elif __PLATFORM_LINUX__
-    FILE *f = fopen("/proc/meminfo", "r");
-    if (!f) 
-    {
-        stats.totalPhysical = stats.availPhysical = 0;
-        stats.totalVirtual = stats.availVirtual = 0;
-        return;
-    }
-
-    char buffer[256];
-    while (fgets(buffer, sizeof(buffer), f)) 
-    {
-        if ( sscanf(buffer, "MemTotal: %d kB", &stats.totalPhysical) == 1) continue;
-        if ( sscanf(buffer, "MemAvailable: %d kB", &stats.availPhysical) == 1) continue;
-        if ( sscanf(buffer, "SwapTotal: %d kB", &stats.totalVirtual) == 1) continue;
-        if ( sscanf(buffer, "SwapFree: %d kB", &stats.availVirtual) == 1) continue;
-    }
-    fclose(f);
-
-    // converte de kB para bytes
-    stats.totalPhysical     *= 1024;
-    stats.availPhysical *= 1024;
-    stats.totalVirtual      *= 1024;
-    stats.availVirtual  *= 1024;
-#endif //__PLATFORM_LINUX__ 
-}
 
 void ToolsFrame( void )
 {
@@ -293,56 +107,5 @@ int main( int argc, char *argv[] )
     
     // we never get here
     return EXIT_FAILURE;
-}
-
-bool CreateInstanceLock( void )
-{
-#if __PLATFORM_WINDOWS__
-	// Creates a named mutex in the global scope of Windows.
-	s_instanceLock = CreateMutexA( nullptr, FALSE, APP_UNIQUE_ID );
-
-	// If the mutex already existed, it means that another instance created it first.
-	if ( ::GetLastError() == ERROR_ALREADY_EXISTS || ::GetLastError() == ERROR_ACCESS_DENIED ) 
-		return true;
-#else
-	// Path to the lock file in the Linux/Unix temporary directory
-	// The "/tmp/" prefix ensures that the file is visible to all local users
-	const char* lockFile = "/tmp/" APP_UNIQUE_ID ".lock";
-
-	// Opens or creates the file with read/write permissions
-    s_instanceLock = open( lockFile, O_CREAT | O_RDWR, 0666 );
-    if ( s_instanceLock < 0 ) 
-        return false; // The lock file could not be created.
-
-	// Attempts to apply a non-blocking exclusive lock ( LOCK_EX | LOCK_NB )
-    if ( flock( s_instanceLock, LOCK_EX | LOCK_NB) < 0 ) 
-	{
-        // If it fails, it means that another instance has already locked this file.
-        close( s_instanceLock );
-        return true;
-    }
-
-#endif
-	return false;
-}
-
-void DestroyInstanceLock( void )
-{
-#if __PLATFORM_WINDOWS__
-	// Release firt instance global mutex
-	if( s_instanceLock == nullptr )
-	{
-		CloseHandle( s_instanceLock );
-		s_instanceLock = nullptr;
-	}
-#else
-	// Release firt instance lock file
-	if( s_instanceLock > 0 )
-	{
-
-		s_instanceLock = 0;
-	}
-
-#endif
 }
 

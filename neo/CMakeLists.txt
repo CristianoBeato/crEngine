@@ -222,4 +222,8 @@ add_subdirectory( renderer ) # render system
 add_subdirectory( sound ) # sound system
 add_subdirectory( swf ) # SWF menus system
 add_subdirectory( tools )
+add_subdirectory( platform )
 add_subdirectory( sys ) # engine system executable
+
+# External enginde editor tools
+add_subdirectory( editor )

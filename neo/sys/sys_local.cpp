@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "sys_local.h"
+#include "platform/platform.hpp"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_cpuinfo.h>
@@ -49,6 +50,8 @@ const char* sysLanguageNames[] =
 const int numLanguages = sizeof( sysLanguageNames ) / sizeof sysLanguageNames[ 0 ] - 1;
 
 idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames> );
+static idCVar sys_allowMultipleInstances( "sys_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
+
 
 idSysLocal			sysLocal;
 idSys* 				sys = &sysLocal;
@@ -187,6 +190,16 @@ idSysLocal::FPU_EnableExceptions
 void idSysLocal::FPU_EnableExceptions( int exceptions )
 {
 	Sys_FPU_EnableExceptions( exceptions );
+}
+
+/*
+=================
+idSysLocal::OpenURL
+=================
+*/
+void idSysLocal::OpenURL( const char *url, bool doexit )
+{
+	crPlatform::Get()->OpenURL( url, doexit );
 }
 
 /*
@@ -417,9 +430,6 @@ crVideo *idSysLocal::GetVideoSystem(void) const
     return dynamic_cast<crVideo*>( &video );
 }
 
-#define MAXPRINTMSG 4096
-
-
 /*
 ==================
 Sys_SetFatalError
@@ -427,15 +437,14 @@ Sys_SetFatalError
 */
 void Sys_SetFatalError( const char *error ) 
 {
+	///
 	SDL_Log( error );
+
+	/// present a message box
 	SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error!", error, nullptr );
 
-	// Engine exit signal
-#if __PLATFORM_WINDOWS__
-	exit( EXIT_FAILURE );
-#else
-	Posix_Exit( EXIT_FAILURE );
-#endif
+	/// close aplication
+	crPlatform::Get()->Exit( EXIT_FAILURE );
 }
 
 /*
@@ -448,21 +457,12 @@ Show the early console as an error dialog
 void Sys_Error( const char *error, ... )
 {
 	va_list argptr;
-	char	text[4096];
 	va_start( argptr, error );
-	vsprintf( text, error, argptr );
+	crConsole::Get()->VError( error, argptr );
 	va_end( argptr);
 
-	SDL_Log( text );
-	SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error!", text, nullptr );
-
-	// Engine exit signal
-#if __PLATFORM_WINDOWS__
-	exit( EXIT_FAILURE );
-#else
-	Posix_Exit( EXIT_FAILURE );
-#endif
-
+	/// close aplication
+	crPlatform::Get()->Exit( EXIT_FAILURE );
 }
 
 /*
@@ -473,13 +473,83 @@ Sys_Printf
 void Sys_Printf( const char *fmt, ... ) 
 {
 	va_list argptr;
-	char	text[MAXPRINTMSG];
 	va_start( argptr, fmt );
-	vsprintf( text, fmt, argptr );
+	crConsole::Get()->VPrintf( fmt, argptr );
 	va_end( argptr);
+}
 
-	text[sizeof(text)-1] = '\0';
-	SDL_Log( text );
+/*
+================
+Sys_DebugVPrintf
+================
+*/
+void Sys_DebugVPrintf( const char* fmt, va_list arg )
+{
+	crConsole::Get()->DebugVPrintf( fmt, arg );
+}
+
+/*
+================
+Sys_DebugPrintf
+================
+*/
+void Sys_DebugPrintf( const char* fmt, ... )
+{
+	va_list argptr;
+	va_start( argptr, fmt );
+	crConsole::Get()->DebugVPrintf( fmt, argptr );
+	va_end( argptr);
+}
+
+/*
+================
+Sys_Init
+The cvar system must already be setup
+================
+*/
+void Sys_Init( void ) 
+{
+// BEATO Begin:
+	crPlatform::Get()->StartUp();
+	crVideo::Get()->StartUp( 1 );
+// BEATO End
+}
+
+/*
+===============
+Sys_Shutdown
+===============
+*/
+void Sys_Shutdown( void )
+{
+/// BEATO Begin:
+	crVideo::Get()->ShutDown();
+	crPlatform::Get()->ShutDown();
+/// BEATO End
+}
+
+/*
+================
+Sys_Quit
+================
+*/
+void Sys_Quit( void )
+{
+	Sys_ShutdownInput();
+	crPlatform::Get()->Exit( EXIT_SUCCESS );
+}
+
+/*
+ ==================
+ Sys_AlreadyRunning
+ ==================
+ */
+bool Sys_AlreadyRunning( void )
+{
+	if( sys_allowMultipleInstances.GetBool() )
+		return false;
+
+	return crPlatform::Get()->CreateInstanceLock();
 }
 
 // BEATO End
