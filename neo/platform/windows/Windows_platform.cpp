@@ -209,3 +209,22 @@ void crWindowsPlatform::GetExeLaunchMemoryStatus(sysMemoryStats_t &stats)
 {
     stats = exeLaunchMemoryStats;
 }
+
+void crWindowsPlatform::SetFatalError(const char *error)
+{
+}
+
+const char *crWindowsPlatform::GetCurrentUser(void)
+{
+	static const uint32_t K_NAME_LEN = 1024;
+	static char s_userName[K_NAME_LEN];
+	unsigned long size = sizeof( s_userName );
+	
+	if( !GetUserName( s_userName, &size ) )
+		std::strncpy( s_userName, "player", K_NAME_LEN );
+	
+	if( !s_userName[0] )
+		std::strncpy( s_userName, "player", K_NAME_LEN );
+	
+	return s_userName;
+}

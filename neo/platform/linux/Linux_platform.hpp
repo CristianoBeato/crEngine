@@ -42,6 +42,7 @@ public:
     virtual void OpenURL( const char *url, const bool doexit );
     virtual void GetCurrentMemoryStatus( sysMemoryStats_t& stats );
     virtual void GetExeLaunchMemoryStatus( sysMemoryStats_t &stats );
+    virtual void SetFatalError(const char *error);
     virtual const char* GetCurrentUser( void );
 
 private:

@@ -404,7 +404,26 @@ void crLinuxPlatform::GetExeLaunchMemoryStatus(sysMemoryStats_t &stats)
 
 const char *crLinuxPlatform::GetCurrentUser(void)
 {
-    return nullptr;
+	static const uint32_t NAME_LEN = 256;
+	static char usrname[NAME_LEN] = {0};
+
+	/// Retrieve current user id and name.
+	if( usrname[0] == '\0' )
+	{
+		uid_t uid = getuid();
+        struct passwd* pw = getpwuid( uid );
+        if ( pw && pw->pw_name )
+        {
+            std::strncpy( usrname, pw->pw_name, NAME_LEN - 1 );
+            usrname[NAME_LEN - 1] = '\0';
+        }
+        else
+        {
+            return "current_user"; // Failed to retrieve the name
+        }
+	}
+
+	return usrname;
 }
 
 /*
