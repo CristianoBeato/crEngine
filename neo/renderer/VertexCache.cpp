@@ -713,6 +713,17 @@ size_t idVertexCache::IndexMemUsedKB(void) const
 
 /*
 ==============
+idVertexCache::AllocStaging
+==============
+*/
+uintptr_t idVertexCache::AllocStaging(const size_t in_bytes)
+{
+	/// TODO: 
+    return uintptr_t();
+}
+
+/*
+==============
 idVertexCache::AllocIndexStatic
 ==============
 */

@@ -506,19 +506,14 @@ const char* 	Sys_GetCmdLine( void );
 // DG end
 // motorsep 12-28-2014; reverted back to the original Sys_ReLaunch; guys from RBDoom 3 BFG team made it impossible to pass any cmds on restart
 void			Sys_ReLaunch(void * launchData, unsigned int launchDataSize);
-void			Sys_Launch( const char* path, idCmdArgs& args,  void* launchData, unsigned int launchDataSize );
-void			Sys_SetLanguageFromSystem();
-const char* 	Sys_DefaultLanguage();
-void			Sys_Quit();
+void			Sys_SetLanguageFromSystem( void );
+const char* 	Sys_DefaultLanguage( void );
+void			Sys_Quit( void );
 
 bool			Sys_AlreadyRunning( void );
 
-// BEATO Begin:
-void			Sys_ReleaseAlreadyRunningLock( void ) ;
-// BEATO End
-
 // note that this isn't journaled...
-char* 			Sys_GetClipboardData();
+char* 			Sys_GetClipboardData( void );
 void			Sys_SetClipboardData( const char* string );
 
 // will go to the various text consoles
@@ -528,18 +523,6 @@ void			Sys_Printf( VERIFY_FORMAT_STRING const char* msg, ... );
 // guaranteed to be thread-safe
 void			Sys_DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... );
 void			Sys_DebugVPrintf( const char* fmt, va_list arg );
-
-// a decent minimum sleep time to avoid going below the process scheduler speeds
-#define			SYS_MINSLEEP	20
-
-// allow game to yield CPU time
-// NOTE: due to SYS_MINSLEEP this is very bad portability karma, and should be completely removed
-void			Sys_Sleep( const uint32_t in_msec );
-
-// Sys_Milliseconds should only be used for profiling purposes,
-// any game related timing information should come from event timestamps
-uint32_t		Sys_Milliseconds( void );
-uint64_t		Sys_Microseconds( void );
 
 // returns a selection of the CPUID_* flags
 cpuid_t			Sys_GetProcessorId();
@@ -573,37 +556,28 @@ uint32_t		Sys_GetDriveFreeSpace( const char* path );
 uint64_t		Sys_GetDriveFreeSpaceInBytes( const char* path );
 
 // returns memory stats
-void			Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats );
-void			Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t& stats );
+void					Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats );
+void					Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t& stats );
 
 // lock and unlock memory
-bool			Sys_LockMemory( void* ptr, const size_t bytes );
-bool			Sys_UnlockMemory( void* ptr, const size_t bytes );
-
-// DLL loading, the path should be a fully qualified OS path to the DLL file to be loaded
-
-// RB: 64 bit fixes, changed int to intptr_t
-intptr_t		Sys_DLL_Load( const char* dllName );
-void* 			Sys_DLL_GetProcAddress( intptr_t dllHandle, const char* procName );
-void			Sys_DLL_Unload( intptr_t dllHandle );
-// RB end
+bool					Sys_LockMemory( void* ptr, const size_t bytes );
+bool					Sys_UnlockMemory( void* ptr, const size_t bytes );
 
 // event generation
-void			Sys_GenerateEvents();
-sysEvent_t		Sys_GetEvent();
-void			Sys_ClearEvents();
+void					Sys_GenerateEvents( void );
+sysEvent_t				Sys_GetEvent( void );
+void					Sys_ClearEvents( void );
 
 // input is tied to windows, so it needs to be started up and shut down whenever
 // the main window is recreated
-void			Sys_InitInput();
-void			Sys_ShutdownInput();
-void			Sys_InitScanTable( void );
-const unsigned char *Sys_GetScanTable( void );
+void					Sys_InitInput( void );
+void					Sys_ShutdownInput( void );
+const unsigned char*	Sys_GetScanTable( void );
 
 // keyboard input polling
-int				Sys_PollKeyboardInputEvents();
-int				Sys_ReturnKeyboardInputEvent( const int n, int& ch, bool& state );
-void			Sys_EndKeyboardInputEvents();
+int						Sys_PollKeyboardInputEvents( void );
+int						Sys_ReturnKeyboardInputEvent( const int n, int& ch, bool& state );
+void					Sys_EndKeyboardInputEvents( void );
 
 // mouse input polling
 inline constexpr int MAX_MOUSE_EVENTS = 256;
@@ -634,9 +608,6 @@ void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 // NOTE: do we need to guarantee the same output on all platforms?
 const char* 	Sys_TimeStampToStr( ID_TIME_T timeStamp );
 const char* 	Sys_SecToStr( int sec );
-
-const char* 	Sys_DefaultBasePath();
-const char* 	Sys_DefaultSavePath();
 
 // know early if we are performing a fatal error shutdown so the error message doesn't get lost
 void			Sys_SetFatalError( const char* error );
@@ -946,9 +917,6 @@ public:
 	virtual bool			LockMemory( void* ptr, const size_t bytes ) = 0;
 	virtual bool			UnlockMemory( void* ptr, const size_t bytes ) = 0;
 	
-	virtual int				DLL_Load( const char* dllName ) = 0;
-	virtual void* 			DLL_GetProcAddress( int dllHandle, const char* procName ) = 0;
-	virtual void			DLL_Unload( int dllHandle ) = 0;
 	virtual void			DLL_GetFileName( const char* baseName, char* dllName, int maxLength ) = 0;
 	
 	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down ) = 0;

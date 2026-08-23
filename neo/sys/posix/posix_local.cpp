@@ -161,15 +161,13 @@ void Posix_Exit( int ret )
 	
 	// process spawning. it's best when it happens after everything has shut down
 	if( exit_spawn[0] )
-	{
 		Sys_DoStartProcess( exit_spawn, false );
-	}
+	
 	// in case of signal, handler tries a common->Quit
 	// we use set_exit to maintain a correct exit code
 	if( set_exit )
-	{
 		exit( set_exit );
-	}
+
 	exit( ret );
 }
 
@@ -192,29 +190,6 @@ set the process to be spawned when we quit
 void Posix_SetExitSpawn( const char* exeName )
 {
 	idStr::Copynz( exit_spawn, exeName, 1024 );
-}
-
-/*
-==================
-idSysLocal::StartProcess
-if !quit, start the process asap
-otherwise, push it for execution at exit
-(i.e. let complete shutdown of the game and freeing of resources happen)
-NOTE: might even want to add a small delay?
-==================
-*/
-void idSysLocal::StartProcess( const char* exeName, bool quit )
-{
-	if( quit )
-	{
-		common->DPrintf( "Sys_StartProcess %s (delaying until final exit)\n", exeName );
-		Posix_SetExitSpawn( exeName );
-		cmdSystem->BufferCommandText( CMD_EXEC_APPEND, "quit\n" );
-		return;
-	}
-	
-	common->DPrintf( "Sys_StartProcess %s\n", exeName );
-	Sys_DoStartProcess( exeName );
 }
 
 /*
@@ -273,137 +248,4 @@ extern idCVar sys_lang;
 void Sys_SetLanguageFromSystem()
 {
 	sys_lang.SetString( Sys_DefaultLanguage() );
-}
-
-/*
-=================
-Sys_OpenURL
-=================
-*/
-void idSysLocal::OpenURL( const char* url, bool quit )
-{
-	const char*	script_path;
-	idFile*		script_file;
-	char		cmdline[ 1024 ];
-	
-	static bool	quit_spamguard = false;
-	
-	if( quit_spamguard )
-	{
-		common->DPrintf( "Sys_OpenURL: already in a doexit sequence, ignoring %s\n", url );
-		return;
-	}
-	
-	common->Printf( "Open URL: %s\n", url );
-	// opening an URL on *nix can mean a lot of things ..
-	// just spawn a script instead of deciding for the user :-)
-	
-	// look in the savepath first, then in the basepath
-	script_path = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_savepath" ), "", "openurl.sh" );
-	script_file = fileSystem->OpenExplicitFileRead( script_path );
-	if( !script_file )
-	{
-		script_path = fileSystem->BuildOSPath( cvarSystem->GetCVarString( "fs_basepath" ), "", "openurl.sh" );
-		script_file = fileSystem->OpenExplicitFileRead( script_path );
-	}
-	if( !script_file )
-	{
-		common->Printf( "Can't find URL script 'openurl.sh' in either savepath or basepath\n" );
-		common->Printf( "OpenURL '%s' failed\n", url );
-		return;
-	}
-	fileSystem->CloseFile( script_file );
-	
-	// if we are going to quit, only accept a single URL before quitting and spawning the script
-	if( quit )
-	{
-		quit_spamguard = true;
-	}
-	
-	common->Printf( "URL script: %s\n", script_path );
-	
-	// StartProcess is going to execute a system() call with that - hence the &
-	idStr::snPrintf( cmdline, 1024, "%s '%s' &",  script_path, url );
-	sys->StartProcess( cmdline, quit );
-}
-
-/*
-========================
-Sys_ReLaunch
-========================
-*/
-void Sys_ReLaunch( void * data, const unsigned int dataSize )
-{
-	// DG: implementing this... basic old fork() exec() (+ setsid()) routine..
-	// NOTE: this function used to have parameters: the commandline arguments, but as one string..
-	//       for Linux/Unix we want one char* per argument so we'll just add the friggin'
-	//       " +set com_skipIntroVideos 1" to the other commandline arguments in this function.
-	
-	int ret = fork();
-	if( ret < 0 )
-		idLib::Error( "Sys_ReLaunch(): Couldn't fork(), reason: %s ", strerror( errno ) );
-		
-	if( ret == 0 )
-	{
-		// child process
-		
-		// get our own session so we don't depend on the (soon to be killed)
-		// parent process anymore - else we'll freeze
-		pid_t sId = setsid();
-		if( sId == ( pid_t ) - 1 )
-		{
-			idLib::Error( "Sys_ReLaunch(): setsid() failed! Reason: %s ", strerror( errno ) );
-		}
-		
-		// close all FDs (except for stdin/out/err) so we don't leak FDs
-		DIR* devfd = opendir( "/dev/fd" );
-		if( devfd != nullptr )
-		{
-			struct dirent entry;
-			struct dirent* result;
-			while( readdir_r( devfd, &entry, &result ) == 0 )
-			{
-				const char* filename = result->d_name;
-				char* endptr = nullptr;
-				long int fd = strtol( filename, &endptr, 0 );
-				if( endptr != filename && fd > STDERR_FILENO )
-					close( fd );
-			}
-		}
-		else
-		{
-			idLib::Warning( "Sys_ReLaunch(): Couldn't open /dev/fd/ - will leak file descriptors. Reason: %s", strerror( errno ) );
-		}
-		
-		// + 3 because "+set" "com_skipIntroVideos" "1" - and note that while we'll skip
-		// one (the first) cmdargv argument, we need one more pointer for nullptr at the end.
-		int argc = cmdargc + 3;
-		const char** argv = ( const char** )calloc( argc, sizeof( char* ) );
-		
-		int i;
-		for( i = 0; i < cmdargc - 1; ++i )
-			argv[i] = cmdargv[i + 1]; // ignore cmdargv[0] == executable name
-			
-		// add +set com_skipIntroVideos 1
-		argv[i++] = "+set";
-		argv[i++] = "com_skipIntroVideos";
-		argv[i++] = "1";
-		// execv expects nullptr terminated array
-		argv[i] = nullptr;
-		
-		const char* exepath = Sys_EXEPath();
-		
-		errno = 0;
-		execv( exepath, ( char** )argv );
-		// we only get here if execv() fails, else the executable is restarted
-		idLib::Error( "Sys_ReLaunch(): WTF exec() failed! Reason: %s ", strerror( errno ) );
-		
-	}
-	else
-	{
-		// original process
-		// just do a clean shutdown
-		cmdSystem->AppendCommandText( "quit\n" );
-	}
-	// DG end
 }

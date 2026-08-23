@@ -3824,8 +3824,11 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 	//
 	if( searchFlags & FSFLAG_SEARCH_DIRS )
 	{
-		for( uint32_t sp = searchPaths.Num() - 1; sp >= 0; sp-- )
+		//for( uint32_t sp = searchPaths.Num() - 1; sp >= 0; sp-- )
+		// Begin: fix for unsigned integer type usage
+		for( auto index = searchPaths.Num(); index > 0; index-- )
 		{
+			auto sp = index - 1u;
 			if( gamedir != nullptr && gamedir[0] != 0 )
 			{
 				if( searchPaths[sp].gamedir != gamedir )

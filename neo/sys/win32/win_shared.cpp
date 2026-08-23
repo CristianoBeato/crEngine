@@ -43,6 +43,8 @@ If you have questions concerning this license or the applicable additional terms
 #undef StrCmpNI
 #undef StrCmpI
 
+idCVar win_outputEditString( "win_outputEditString", "1", CVAR_SYSTEM | CVAR_BOOL, "" );
+
 // RB begin
 #if !defined(__MINGW32__)
 #include <comdef.h>
@@ -160,3 +162,50 @@ char* Sys_GetCurrentUser()
 	return s_userName;
 }
 
+
+/*
+=============
+Sys_Error
+
+Show the early console as an error dialog
+=============
+*/
+#if 0
+void Sys_Error( const char *error, ... ) {
+	va_list		argptr;
+	char		text[4096];
+    MSG        msg;
+
+	va_start( argptr, error );
+	vsprintf( text, error, argptr );
+	va_end( argptr);
+
+	Conbuf_AppendText( text );
+	Conbuf_AppendText( "\n" );
+
+	Win_SetErrorText( text );
+	Sys_ShowConsole( 1, true );
+
+	Sys_ShutdownInput();
+
+	//
+#if 0 //TODO FIX
+	extern idCVar com_productionMode;
+	if ( com_productionMode.GetInteger() == 0 ) 
+	{
+		// wait for the user to quit
+		while ( 1 ) {
+			if ( !GetMessage( &msg, nullptr, 0, 0 ) ) 
+			{
+				common->Quit();
+			}
+			TranslateMessage( &msg );
+			DispatchMessage( &msg );
+		}
+	}
+#endif
+	Sys_DestroyConsole();
+
+	exit (1);
+}
+#endif

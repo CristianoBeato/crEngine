@@ -235,6 +235,7 @@ static int isLargeFile(const char* filename) {
  return largeFile;
 }
 
+#if 0
 int main(int argc, char *argv[]) {
     int i;
     int opt_overwrite=0;
@@ -507,3 +508,4 @@ int main(int argc, char *argv[]) {
     free(buf);
     return 0;
 }
+#endif 

@@ -153,27 +153,6 @@ int Sys_GetSystemRam( void )
 	return SDL_GetSystemRAM();
 }
 
-
-/*
-========================
-Sys_CPUCount
-
-numLogicalCPUCores	- the number of logical CPU per core
-numPhysicalCPUCores	- the total number of cores per package
-numCPUPackages		- the total number of packages (physical processors)
-========================
-*/
-// RB begin
-void Sys_CPUCount( int& numLogicalCPUCores, int& numPhysicalCPUCores, int& numCPUPackages )
-{
-	numPhysicalCPUCores = SDL_GetNumLogicalCPUCores();
-	numLogicalCPUCores = 1;
-	numCPUPackages = 1;
-
-	common->Printf( "/proc/cpuinfo CPU processors: %d\n", numPhysicalCPUCores );
-	common->Printf( "/proc/cpuinfo CPU logical cores: %d\n", numLogicalCPUCores );
-}
-
 /*
 ===============
 Sys_GetProcessorString

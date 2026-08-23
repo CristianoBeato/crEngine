@@ -36,6 +36,8 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL3/SDL_cpuinfo.h>
 #include <SDL3/SDL_loadso.h>
 #include <SDL3/SDL_clipboard.h>
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_messagebox.h>
 
 #include "sys_video.h"
 
@@ -80,7 +82,7 @@ double idSysLocal::ClockTicksPerSecond( void )
 idSysLocal::GetProcessorId
 =================
 */
-cpuid_t idSysLocal::GetProcessorId()
+cpuid_t idSysLocal::GetProcessorId( void )
 {
 	return Sys_GetProcessorId();
 }
@@ -95,14 +97,11 @@ const char* idSysLocal::GetProcessorString( void )
 	return Sys_GetProcessorString();
 }
 
-<<<<<<< HEAD
 /*
 =================
 idSysLocal::FPU_SetFTZ
 =================
 */
-=======
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 void idSysLocal::FPU_SetFTZ( bool enable )
 {
 	Sys_FPU_SetFTZ( enable );
@@ -118,60 +117,24 @@ void idSysLocal::FPU_SetDAZ( bool enable )
 	Sys_FPU_SetDAZ( enable );
 }
 
-<<<<<<< HEAD
 /*
 =================
 idSysLocal::LockMemory
 =================
 */
-=======
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 bool idSysLocal::LockMemory( void* ptr, const size_t bytes )
 {
 	return Sys_LockMemory( ptr, bytes );
 }
 
-<<<<<<< HEAD
 /*
 =================
 idSysLocal::UnlockMemory
 =================
 */
-=======
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 bool idSysLocal::UnlockMemory( void* ptr, const size_t bytes )
 {
 	return Sys_UnlockMemory( ptr, bytes );
-}
-
-/*
-=================
-idSysLocal::DLL_Load
-=================
-*/
-int idSysLocal::DLL_Load( const char* dllName )
-{
-	return Sys_DLL_Load( dllName );
-}
-
-/*
-=================
-idSysLocal::DLL_GetProcAddress
-=================
-*/
-void* idSysLocal::DLL_GetProcAddress( int dllHandle, const char* procName )
-{
-	return Sys_DLL_GetProcAddress( dllHandle, procName );
-}
-
-/*
-=================
-idSysLocal::DLL_Unload
-=================
-*/
-void idSysLocal::DLL_Unload( int dllHandle )
-{
-	Sys_DLL_Unload( dllHandle );
 }
 
 /*
@@ -370,50 +333,6 @@ const char* Sys_DefaultLanguage()
 	return ID_LANG_ENGLISH;
 }
 
-// BEATO Begin:
-/*
-================
-Sys_Milliseconds
-================
-*/
-uint32_t Sys_Milliseconds( void )
-{
-	return SDL_GetTicks();
-}
-
-
-
-/*
-========================
-Sys_Microseconds
-========================
-*/
-uint64_t Sys_Microseconds( void )
-{
-	static uint64_t baseCounter = 0;
-	static uint64_t frequency = 0;
-
-	// init the timer 
-	if ( frequency == 0)
-	{
-		frequency = SDL_GetPerformanceFrequency();
-    	baseCounter = SDL_GetPerformanceCounter();
-	}
-	
-	return ( ( SDL_GetPerformanceCounter() - baseCounter ) * 1000000ULL) / frequency;
-}
-
-/*
-==============
-Sys_Sleep
-==============
-*/
-void Sys_Sleep( const uint32_t in_msec ) 
-{
-	SDL_Delay( in_msec );
-}
-
-
 /*
 ========================================================================
 
@@ -496,6 +415,71 @@ crVideo *idSysLocal::GetVideoSystem(void) const
 {
 	static crVideoSDL3 video = crVideoSDL3();
     return dynamic_cast<crVideo*>( &video );
+}
+
+#define MAXPRINTMSG 4096
+
+
+/*
+==================
+Sys_SetFatalError
+==================
+*/
+void Sys_SetFatalError( const char *error ) 
+{
+	SDL_Log( error );
+	SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error!", error, nullptr );
+
+	// Engine exit signal
+#if __PLATFORM_WINDOWS__
+	exit( EXIT_FAILURE );
+#else
+	Posix_Exit( EXIT_FAILURE );
+#endif
+}
+
+/*
+=============
+Sys_Error
+
+Show the early console as an error dialog
+=============
+*/
+void Sys_Error( const char *error, ... )
+{
+	va_list argptr;
+	char	text[4096];
+	va_start( argptr, error );
+	vsprintf( text, error, argptr );
+	va_end( argptr);
+
+	SDL_Log( text );
+	SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error!", text, nullptr );
+
+	// Engine exit signal
+#if __PLATFORM_WINDOWS__
+	exit( EXIT_FAILURE );
+#else
+	Posix_Exit( EXIT_FAILURE );
+#endif
+
+}
+
+/*
+==============
+Sys_Printf
+==============
+*/
+void Sys_Printf( const char *fmt, ... ) 
+{
+	va_list argptr;
+	char	text[MAXPRINTMSG];
+	va_start( argptr, fmt );
+	vsprintf( text, fmt, argptr );
+	va_end( argptr);
+
+	text[sizeof(text)-1] = '\0';
+	SDL_Log( text );
 }
 
 // BEATO End

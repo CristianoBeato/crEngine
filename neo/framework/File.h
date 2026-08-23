@@ -52,29 +52,29 @@ typedef class idFile* idFilep;
 class idFile
 {
 public:
-	virtual					~idFile() {};
+	virtual					~idFile( void ) {};
 	// Get the name of the file.
-	virtual const char* 	GetName() const;
+	virtual const char* 	GetName( void ) const;
 	// Get the full file path.
-	virtual const char* 	GetFullPath() const;
+	virtual const char* 	GetFullPath( void ) const;
 	// Read data from the file to the buffer.
 	virtual int				Read( void* buffer, int len );
 	// Write data from the buffer to the file.
 	virtual int				Write( const void* buffer, int len );
 	// Returns the length of the file.
-	virtual int				Length() const;
+	virtual int				Length( void ) const;
 	// Return a time value for reload operations.
-	virtual ID_TIME_T		Timestamp() const;
+	virtual ID_TIME_T		Timestamp( void ) const;
 	// Returns offset in file.
-	virtual int				Tell() const;
+	virtual int				Tell( void ) const;
 	// Forces flush on files being writting to.
-	virtual void			ForceFlush();
+	virtual void			ForceFlush( void );
 	// Causes any buffered data to be written to the file.
-	virtual void			Flush();
+	virtual void			Flush( void );
 	// Seek on a file.
 	virtual int				Seek( long offset, fsOrigin_t origin );
 	// Go back to the beginning of the file.
-	virtual void			Rewind();
+	virtual void			Rewind( void );
 	// Like fprintf.
 	virtual int				Printf( VERIFY_FORMAT_STRING const char* fmt, ... );
 	// Like fprintf but with argument pointer

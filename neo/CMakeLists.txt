@@ -30,11 +30,11 @@ include_directories( SDL3::Headers )
 include_directories( ${CMAKE_SOURCE_DIR}/libs/SDL3PP )
 
 ## find zip library ( and minizip on unix)
-find_package( ZLIB REQUIRED )
-find_package( PNG REQUIRED )
+find_package( ZLIB REQUIRED CONFIG )
+find_package( PNG REQUIRED CONFIG )
 find_package( JPEG REQUIRED )
-#find_package( ogg ) #TODO: fix on windows
-#find_package( vorbis ) #TODO: fix on windows
+#find_package( Ogg CONFIG REQUIRED ) 
+#find_package( VORBIS REQUIRED ) 
 
 ## Toolchain configuration
 ##################################################################

@@ -28,6 +28,16 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __SYS_PATHS_HPP__
 #define __SYS_PATHS_HPP__
 
+/// @brief Retrieve defaut execution path
+/// @param  
+/// @return 
+extern const char* 	Sys_DefaultBasePath( void );
+
+/// @brief Retrieve default game save path
+/// @param  
+/// @return 
+extern const char* 	Sys_DefaultSavePath( void );
+
 /// @brief Check for the existence of the given path
 /// @param path 
 /// @return true if exist, false if not, or fail to check 
