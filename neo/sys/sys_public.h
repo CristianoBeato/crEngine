@@ -631,10 +631,6 @@ void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 // This really isn't the right place to have this, but since this is the 'top level' include
 // and has a function signature with 'FILE' in it, it kinda needs to be here =/
 
-// RB begin
-typedef FILE* idFileHandle;
-// RB end
-
 // NOTE: do we need to guarantee the same output on all platforms?
 const char* 	Sys_TimeStampToStr( ID_TIME_T timeStamp );
 const char* 	Sys_SecToStr( int sec );
@@ -942,14 +938,8 @@ public:
 	virtual double			ClockTicksPerSecond( void ) = 0;
 	virtual cpuid_t			GetProcessorId( void ) = 0;
 	virtual const char* 	GetProcessorString( void ) = 0;
-<<<<<<< HEAD
-
-	virtual void			FPU_SetFTZ( bool enable ) = 0;
-	virtual void			FPU_SetDAZ( bool enable ) = 0;
-=======
 	virtual void			FPU_SetFTZ( const bool enable ) = 0;
 	virtual void			FPU_SetDAZ( const bool enable ) = 0;
->>>>>>> 980f8a93b305795c6c09d01484744292c33298bd
 	
 	virtual void			FPU_EnableExceptions( int exceptions ) = 0;
 	

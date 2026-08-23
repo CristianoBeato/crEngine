@@ -69,7 +69,6 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/socket_net.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/process.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/events.cpp
     )
 
