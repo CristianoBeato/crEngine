@@ -1352,6 +1352,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 	try
 	{
 // BEATO Begin:
+		auto platform = crPlatform::Get();
 		auto video = crVideo::Get();
 		auto renderSystem = idRenderSystem::Get();
 		auto soundSystem = idSoundSystem::Get();
@@ -1403,7 +1404,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		console->Init();
 		
 		// get architecture info
-		Sys_Init();
+		platform->Init(); //Sys_Init();
 		
 		// initialize networking
 		Sys_InitNetworking();
@@ -1413,8 +1414,8 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		
 		consoleUsed = com_allowConsole.GetBool();
 		
-		if( Sys_AlreadyRunning() )
-			Sys_Quit();
+		if( platform->AlreadyRunning() )
+			platform->Quit();
 		
 		// initialize processor specific SIMD implementation
 		InitSIMD();
@@ -2103,18 +2104,22 @@ CONSOLE_COMMAND( showStringMemory, "shows memory used by strings", nullptr )
 {
 	idStr::ShowMemoryUsage_f( args );
 }
+
 CONSOLE_COMMAND( showDictMemory, "shows memory used by dictionaries", nullptr )
 {
 	idDict::ShowMemoryUsage_f( args );
 }
+
 CONSOLE_COMMAND( listDictKeys, "lists all keys used by dictionaries", nullptr )
 {
 	idDict::ListKeys_f( args );
 }
+
 CONSOLE_COMMAND( listDictValues, "lists all values used by dictionaries", nullptr )
 {
 	idDict::ListValues_f( args );
 }
+
 CONSOLE_COMMAND( testSIMD, "test SIMD code", nullptr )
 {
 	idSIMD::Test_f( args );
