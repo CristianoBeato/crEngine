@@ -47,56 +47,6 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-enum cpuid_t
-{
-	CPUID_NONE							= 0x00000,
-	CPUID_UNSUPPORTED					= ( 1 << 0 ),	// unsupported (386/486)
-	CPUID_GENERIC						= ( 1 << 1 ),	// unrecognized processor
-	CPUID_INTEL							= ( 1 << 2 ),	// Intel
-	CPUID_AMD							= ( 1 << 3 ),	// AMD
-	CPUID_ARM							= ( 1 << 4 ),	// ARM cpu
-	CPUID_MMX							= ( 1 << 5 ),	// Multi Media Extensions
-	CPUID_3DNOW							= ( 1 << 6 ),	// 3DNow!
-	CPUID_SSE							= ( 1 << 7 ),	// Streaming SIMD Extensions
-	CPUID_SSE2							= ( 1 << 8 ),	// Streaming SIMD Extensions 2
-	CPUID_SSE3							= ( 1 << 9 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
-	CPUID_SSSE3							= ( 1 << 10 ),	//
-	CPUID_SSE41							= ( 1 << 11 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
-	CPUID_SSE42							= ( 1 << 12 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
-	CPUID_ALTIVEC						= ( 1 << 13),	// AltiVec
-	CPUID_HTT							= ( 1 << 14 ),	// Hyper-Threading Technology
-	CPUID_CMOV							= ( 1 << 15 ),	// Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
-	CPUID_FTZ							= ( 1 << 16 ),	// Flush-To-Zero mode (denormal results are flushed to zero)
-	CPUID_DAZ							= ( 1 << 17 ),	// Denormals-Are-Zero mode (denormal source operands are set to zero)
-	CPUID_XENON							= ( 1 << 18 ),	// Xbox 360
-	CPUID_CELL							= ( 1 << 19 )	// PS3
-};
-
-enum fpuExceptions_t
-{
-	FPU_EXCEPTION_INVALID_OPERATION		= 1,
-	FPU_EXCEPTION_DENORMALIZED_OPERAND	= 2,
-	FPU_EXCEPTION_DIVIDE_BY_ZERO		= 4,
-	FPU_EXCEPTION_NUMERIC_OVERFLOW		= 8,
-	FPU_EXCEPTION_NUMERIC_UNDERFLOW		= 16,
-	FPU_EXCEPTION_INEXACT_RESULT		= 32
-};
-
-enum fpuPrecision_t
-{
-	FPU_PRECISION_SINGLE				= 0,
-	FPU_PRECISION_DOUBLE				= 1,
-	FPU_PRECISION_DOUBLE_EXTENDED		= 2
-};
-
-enum fpuRounding_t
-{
-	FPU_ROUNDING_TO_NEAREST				= 0,
-	FPU_ROUNDING_DOWN					= 1,
-	FPU_ROUNDING_UP						= 2,
-	FPU_ROUNDING_TO_ZERO				= 3
-};
-
 enum joystickAxis_t
 {
 	AXIS_LEFT_X,
@@ -447,62 +397,9 @@ enum grab_e
 	GRAB_SETSTATE	= ( 1 << 3 )
 };
 
-// 
-/*
-================================================
-idJoystick is managed by each platform's local Sys implementation, and
-provides full *Joy Pad* support (the most common device, these days).
-================================================
-*/
-//class idJoystick
-//{
-//public:
-//	virtual			~idJoystick() { }
-//	
-//	virtual bool	Init() { return false; }
-//	virtual void	Shutdown() { }
-//	virtual void	Deactivate() { }
-//	virtual void	SetRumble( int deviceNum, int rumbleLow, int rumbleHigh ) { }
-//	virtual int		PollInputEvents( int inputDeviceNum ) { return 0; }
-//	virtual int		ReturnInputEvent( const int n, int& action, int& value ) { return 0; }
-//	virtual void	EndInputEvents() { }
-//};
-
-
-class crGamepadDevice
-{
-public:
-	crGamepadDevice( void ) {};
-	~crGamepadDevice( void ){}
-	virtual uint32_t	PollEvents( void );
-	virtual bool 		GetEvent( const uint32_t eventID,  int ) const;
-	virtual void 		ClearEvents( void ) = 0;
-	virtual uint16_t	GetEventState( const sys_jEvents event ) const = 0;
-	virtual void 		SetRumble(float lowFreq, float highFreq, uint32_t duration_ms = 0) = 0;
-	virtual void 		SetLEDColor(uint8_t r, uint8_t g, uint8_t b) = 0;
-};
-// BEATO End
-
 // typedef unsigned long address_t; // DG: this isn't even used
 
-void			Sys_Init( void );
-void			Sys_Shutdown( void );
 void			Sys_Error( const char* error, ... );
-const char* 	Sys_GetCmdLine( void );
-// DG: Sys_ReLaunch() doesn't need any options (and the old way is painful for POSIX systems)
-//void			Sys_ReLaunch();
-// DG end
-// motorsep 12-28-2014; reverted back to the original Sys_ReLaunch; guys from RBDoom 3 BFG team made it impossible to pass any cmds on restart
-void			Sys_ReLaunch(void * launchData, unsigned int launchDataSize);
-void			Sys_SetLanguageFromSystem( void );
-const char* 	Sys_DefaultLanguage( void );
-void			Sys_Quit( void );
-
-bool			Sys_AlreadyRunning( void );
-
-// note that this isn't journaled...
-char* 			Sys_GetClipboardData( void );
-void			Sys_SetClipboardData( const char* string );
 
 // will go to the various text consoles
 void			Sys_Printf( VERIFY_FORMAT_STRING const char* msg, ... );
@@ -511,27 +408,7 @@ void			Sys_Printf( VERIFY_FORMAT_STRING const char* msg, ... );
 void			Sys_DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... );
 void			Sys_DebugVPrintf( const char* fmt, va_list arg );
 
-// returns a selection of the CPUID_* flags
-cpuid_t			Sys_GetProcessorId();
-const char* 	Sys_GetProcessorString();
 
-// enables the given FPU exceptions
-void			Sys_FPU_EnableExceptions( int exceptions );
-
-// sets the FPU precision
-void			Sys_FPU_SetPrecision( int precision );
-
-// sets the FPU rounding mode
-void			Sys_FPU_SetRounding( int rounding );
-
-// sets Flush-To-Zero mode (only available when CPUID_FTZ is set)
-void			Sys_FPU_SetFTZ( bool enable );
-
-// sets Denormals-Are-Zero mode (only available when CPUID_DAZ is set)
-void			Sys_FPU_SetDAZ( bool enable );
-
-// returns amount of system ram
-int				Sys_GetSystemRam( void );
 
 // returns amount of video ram
 int				Sys_GetVideoRam( void );
@@ -542,53 +419,6 @@ uint32_t		Sys_GetDriveFreeSpace( const char* path );
 // returns amount of drive space in path in bytes
 uint64_t		Sys_GetDriveFreeSpaceInBytes( const char* path );
 
-// returns memory stats
-void					Sys_GetCurrentMemoryStatus( sysMemoryStats_t& stats );
-void					Sys_GetExeLaunchMemoryStatus( sysMemoryStats_t& stats );
-
-// lock and unlock memory
-bool					Sys_LockMemory( void* ptr, const size_t bytes );
-bool					Sys_UnlockMemory( void* ptr, const size_t bytes );
-
-// event generation
-void					Sys_GenerateEvents( void );
-sysEvent_t				Sys_GetEvent( void );
-void					Sys_ClearEvents( void );
-
-// input is tied to windows, so it needs to be started up and shut down whenever
-// the main window is recreated
-void					Sys_InitInput( void );
-void					Sys_ShutdownInput( void );
-const unsigned char*	Sys_GetScanTable( void );
-
-// keyboard input polling
-int						Sys_PollKeyboardInputEvents( void );
-int						Sys_ReturnKeyboardInputEvent( const int n, int& ch, bool& state );
-void					Sys_EndKeyboardInputEvents( void );
-
-// mouse input polling
-inline constexpr int MAX_MOUSE_EVENTS = 256;
-int				Sys_PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] );
-
-// Beato Begin:
-// gamepad management
-inline constexpr int MAX_JOYSTICKS = 4; // Limit for Most consoles is 4 Controllers 
-extern uint32_t 		Sys_GamepadCount( void );
-extern crGamepadDevice*	Sys_GetGamepadDevice( void );
-// BEATO end
-
-// joystick input polling
-void			Sys_SetRumble( int device, uint16_t low, uint16_t hi );
-int				Sys_PollJoystickInputEvents( int deviceNum );
-bool			Sys_ReturnJoystickInputEvent( const int n, int& action, int& value );
-void			Sys_EndJoystickInputEvents( void );
-
-// when the console is down, or the game is about to perform a lengthy
-// operation like map loading, the system can release the mouse cursor
-// when in windowed mode
-void			Sys_GrabMouseCursor( bool grabIt );
-void			Sys_ShowConsole( int visLevel, bool quitOnClose );
-
 // This really isn't the right place to have this, but since this is the 'top level' include
 // and has a function signature with 'FILE' in it, it kinda needs to be here =/
 
@@ -596,8 +426,7 @@ void			Sys_ShowConsole( int visLevel, bool quitOnClose );
 const char* 	Sys_TimeStampToStr( ID_TIME_T timeStamp );
 const char* 	Sys_SecToStr( int sec );
 
-// know early if we are performing a fatal error shutdown so the error message doesn't get lost
-void			Sys_SetFatalError( const char* error );
+
 
 // Execute the specified process and wait until it's done, calling workFn every waitMS milliseconds.
 // If showOutput == true, std IO from the executed process will be output to the console.
@@ -609,17 +438,6 @@ typedef void ( *execOutputFunction_t )( const char* text );
 bool Sys_Exec(	const char* appPath, const char* workingPath, const char* args,
 				execProcessWorkFunction_t workFn, execOutputFunction_t outputFn, const int waitMS,
 				unsigned int& exitCode );
-
-// localization
-
-#define ID_LANG_ENGLISH		"english"
-#define ID_LANG_FRENCH		"french"
-#define ID_LANG_ITALIAN		"italian"
-#define ID_LANG_GERMAN		"german"
-#define ID_LANG_SPANISH		"spanish"
-#define ID_LANG_JAPANESE	"japanese"
-int Sys_NumLangs();
-const char* Sys_Lang( int idx );
 
 /*
 ==============================================================
@@ -762,122 +580,6 @@ const char* 	Sys_GetLocalIP( int i );
 void			Sys_InitNetworking();
 void			Sys_ShutdownNetworking();
 
-// BEATO Begin:
-
-class crDisplay
-{
-public:
-    virtual const char* Name( void ) const = 0;
-    virtual const vidMode_t* Modes( uint32_t *in_count ) const = 0;
-};
-
-typedef class crVideo* crVideop;
-class crVideo
-{
-public:
-	static crVideop				Get( void );
-
-	/// @brief Initialize video management system, list displays and video modes 
-	/// @param in_flags 
-	/// @return true on success, false on error 
-	virtual bool    			StartUp( const uint32_t in_flags ) = 0;
-
-	/// @brief Release video system
-	/// @param  
-	virtual void    			ShutDown( void ) = 0;
-
-	/// @brief Retrieve native window handler 
-	/// @return pointer to handle object
-	virtual void*				WindowHandler( void ) = 0;
-	
-	/// @brief Grab mouse and keyboard to window 
-	/// @param in_flags 
-	virtual void				GrabInput( const uint32_t in_flags ) = 0;
-
-	/// @brief Set window to a 
-	/// @param in_mode 
-	/// @param in_fullScreen 
-	/// @return 
-	virtual bool				SetMode( const vidMode_t in_mode, const videoMode_t in_fullScreen ) = 0;
-
-	/// @brief Configure video gama ( TODO: Move to renderer )
-	/// @param red gama curve
-	/// @param green gama curve
-	/// @param blue gama cuver
-	virtual void				SetGamma( uint16_t red[256], uint16_t green[256], uint16_t blue[256] ) = 0;
-
-	/// @brief Show or hide window 
-	/// @param show on true show window if hide, on false hiden window 
-	virtual void				ShowWindow( bool show ) = 0;
-
-	/// @brief Enable or disable text input event, it enable window to record
-	/// keyboard events as text input, utilized by the console.
-	/// @param in_enable set text input moode enable
-	virtual void				TextInput( const bool in_enable ) = 0;	
-
-	/// @brief Check if window is visible
-	/// @return true if window is not hiden 
-	virtual bool				IsWindowVisible( void ) const = 0;
-
-	/// @brief 
-	/// @return 
-	virtual crDisplay* const* 	Displays( uint32_t* in_count ) const = 0;
-};
-
-/// Render API Context Management
-
-typedef class crRenderDevice* crRenderDevicep;
-class crRenderDevice
-{
-public:
-	struct properties_t
-	{
-		bool		BCnTextureCompression = false;
-		bool		ETC2TextureCompression = false;
-		bool		asotropicFiltering = false;
-		bool		sRGBFramebufferAvailable = false;
-		bool		textureFloatAvailable = false;
-		bool		depthBoundsTestAvailable = false;
-		bool		timerQueryAvailable = false;
-		bool		occlusionQueryAvailable = false;
-
-		uint16_t 	deviceID = 0;
-		uint16_t 	vendorID = 0;
-		uint32_t 	driverVersion = 0;
-		
-		uint32_t	maxTextureSize = 0;
-		uint32_t	maxSampleCount = 0;
-		uint32_t 	shaderStorageAlignment = 0;
-		float		maxAnisotropicFiltering = 0.0f;
-		float		maxTextureLODBias = 0.0f;
-		float		timestampPeriod = 0.0f;
-
-		/// buffes aligments
-		size_t 		uniformBuffersAlignment = 0;
-		size_t 		storageBuffersAlignment = 0;
-		size_t		texelBufferOffsetAlignment = 0;
-	};
-
-	virtual bool				Create(  const char** in_layers, const uint32_t in_numLayers, const char** in_enabledExtensions, const uint32_t in_numExtensions ) = 0;
-	virtual void				Destroy( void ) = 0;
-	virtual const char*			Name( void ) const = 0;
-	virtual const properties_t	Properties( void ) const = 0;
-	virtual const int32_t		Score( void ) const = 0;
-	virtual bool				ReloadCache( void ) = 0;
-	virtual const bool      	ExtensionAvailable( const char* in_ext ) const = 0;
-};
-
-/// Render API Context Management
-class crRenderAPI
-{
-public:
-	static crRenderAPI* Get( void );
-	virtual bool				StartUp( void ) = 0;
-	virtual void				ShutDown( void ) = 0;
-	virtual uint32_t			GetDevices( crRenderDevicep* m_deviceArray ) = 0;
-};
-// BEATO End
-
 /*
 ==============================================================
 
@@ -885,7 +587,8 @@ public:
 
 ==============================================================
 */
-
+/// BEATO: on future we gona ignore idSys, and use crPlatform instead for game logic system portable functions, to minimize
+/// code polution
 class idSys
 {
 public:

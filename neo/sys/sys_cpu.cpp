@@ -140,18 +140,6 @@ static inline bool HasDAZ( void )
     return false;
 }
 
-/*
-================
-Sys_GetSystemRam
-
-	returns amount of physical memory in MB
-================
-*/
-int Sys_GetSystemRam( void )
-{
-	// SDL get the memory amount based in Mebibyte ( base 2 )
-	return SDL_GetSystemRAM();
-}
 
 /*
 ===============

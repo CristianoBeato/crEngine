@@ -64,9 +64,6 @@ idCVar com_pid( "com_pid", "0", CVAR_INTEGER | CVAR_INIT | CVAR_SYSTEM, "process
 
 // exit - quit - error --------------------------------------------------------
 
-static int set_exit = 0;
-static char exit_spawn[ 1024 ];
-
 /*
 ==================
 Sys_DoStartProcess
@@ -148,28 +145,7 @@ Posix_Exit
 ================
 */
 void Posix_Exit( int ret )
-{
-	Posix_ConsoleExit();
-	
-	// at this point, too late to catch signals
-	Posix_ClearSigs();
-	
-	//if( asyncThread.threadHandle )
-	//{
-	//	Sys_DestroyThread( asyncThread );
-	//}
-	
-	// process spawning. it's best when it happens after everything has shut down
-	if( exit_spawn[0] )
-		Sys_DoStartProcess( exit_spawn, false );
-	
-	// in case of signal, handler tries a common->Quit
-	// we use set_exit to maintain a correct exit code
-	if( set_exit )
-		exit( set_exit );
 
-	exit( ret );
-}
 
 /*
 ================
@@ -181,15 +157,10 @@ void Posix_SetExit( int ret )
 	set_exit = 0;
 }
 
-/*
-===============
-Posix_SetExitSpawn
-set the process to be spawned when we quit
-===============
-*/
-void Posix_SetExitSpawn( const char* exeName )
+
+void Posix_
 {
-	idStr::Copynz( exit_spawn, exeName, 1024 );
+	
 }
 
 /*

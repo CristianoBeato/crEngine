@@ -42,14 +42,6 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "sys_video.h"
 
-const char* sysLanguageNames[] =
-{
-	ID_LANG_ENGLISH, ID_LANG_FRENCH, ID_LANG_ITALIAN, ID_LANG_GERMAN, ID_LANG_SPANISH, ID_LANG_JAPANESE, nullptr
-};
-
-const int numLanguages = sizeof( sysLanguageNames ) / sizeof sysLanguageNames[ 0 ] - 1;
-
-idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", sysLanguageNames, idCmdSystem::ArgCompletion_String<sysLanguageNames> );
 static idCVar sys_allowMultipleInstances( "sys_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
 
 
@@ -309,43 +301,6 @@ const char* Sys_SecToStr( int sec )
 	return timeString;
 }
 
-// return number of supported languages
-int Sys_NumLangs()
-{
-	return numLanguages;
-}
-
-// get language name by index
-const char* Sys_Lang( int idx )
-{
-	if( idx >= 0 && idx < numLanguages )
-	{
-		return sysLanguageNames[ idx ];
-	}
-	return "";
-}
-
-const char* Sys_DefaultLanguage()
-{
-	// sku breakdowns are as follows
-	//  EFIGS	Digital
-	//  EF  S	North America
-	//   FIGS	EU
-	//  E		UK
-	// JE    	Japan
-	
-	// If japanese exists, default to japanese
-	// else if english exists, defaults to english
-	// otherwise, french
-	
-	if( !fileSystem->UsingResourceFiles() )
-	{
-		return ID_LANG_ENGLISH;
-	}
-	
-	return ID_LANG_ENGLISH;
-}
-
 /*
 ========================================================================
 
@@ -354,74 +309,6 @@ DLL Loading
 ========================================================================
 */
 
-/*
-=====================
-Sys_DLL_Load
-=====================
-*/
-// RB: 64 bit fixes, changed int to intptr_t
-intptr_t Sys_DLL_Load( const char *dllName )
-{
-	auto lib = SDL_LoadObject( dllName );
-	if ( !lib )
-		throw idException( SDL_GetError() );
-	
-	return reinterpret_cast<intptr_t>( lib );
-}
-
-/*
-=====================
-Sys_DLL_GetProcAddress
-=====================
-*/
-void *Sys_DLL_GetProcAddress( intptr_t dllHandle, const char *procName )
-{
-	// RB: added missing cast
-	return reinterpret_cast<void*>( SDL_LoadFunction( reinterpret_cast<SDL_SharedObject*>( dllHandle ), procName ) );
-}
-
-/*
-=====================
-Sys_DLL_Unload
-=====================
-*/
-void Sys_DLL_Unload( intptr_t dllHandle )
-{
-	if( !dllHandle )
-		return;
-
-	SDL_UnloadObject( reinterpret_cast<SDL_SharedObject*>( dllHandle ) );
-}
-
-char* Sys_GetClipboardData( void )
-{
-	size_t strl = 0;
-	char* clpbrd = nullptr;
-	char* copy = nullptr;
-	if ( !SDL_HasClipboardText() )
-		return nullptr;
-
-	clpbrd = SDL_GetClipboardText();
-	if (  clpbrd == nullptr )
-		Sys_Printf( "failed to get clipboard content %s\n", SDL_GetError() );
-	
-	copy = static_cast<char*>( Mem_Alloc( SDL_strlen( clpbrd ) + 1, TAG_CRAP ) );
-
-	SDL_free( clpbrd );
-
-	return copy;
-}
-
-void Sys_SetClipboardData( const char* string )
-{
-	if ( string == nullptr )
-		return;
-
-	SDL_ClearClipboardData();
-
-	if( !SDL_SetClipboardText( string ) )
-		Sys_Printf( "failed to set clipboard content %s\n",  SDL_GetError() );
-}
 
 // RB end
 crVideo *idSysLocal::GetVideoSystem(void) const
