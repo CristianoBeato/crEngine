@@ -172,7 +172,7 @@ public:
 	virtual void					GrabMouseCursor( const bool in_grabIt ) = 0;	
 };
 
-struct sysMemoryStats_t
+typedef struct sysMemoryStats_e
 {
 	size_t memoryLoad;
 	size_t totalPhysical;
@@ -182,14 +182,14 @@ struct sysMemoryStats_t
 	size_t totalVirtual;
 	size_t availVirtual;
     size_t availExtendedVirtual;
-};
+} sysMemoryStats_t;
 
 class crCPUInfo
 {
 public: 
 	static crCPUInfo* Get( void );
-	crCPUInfo( void );
-	~crCPUInfo( void );
+	crCPUInfo( void ) {};
+	~crCPUInfo( void ) {};
 
 	enum cpuid_t
 	{
@@ -208,12 +208,9 @@ public:
 		CPUID_SSE41							= ( 1 << 11 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
 		CPUID_SSE42							= ( 1 << 12 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
 		CPUID_ALTIVEC						= ( 1 << 13),	// AltiVec
-		CPUID_HTT							= ( 1 << 14 ),	// Hyper-Threading Technology
 		CPUID_CMOV							= ( 1 << 15 ),	// Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
 		CPUID_FTZ							= ( 1 << 16 ),	// Flush-To-Zero mode (denormal results are flushed to zero)
 		CPUID_DAZ							= ( 1 << 17 ),	// Denormals-Are-Zero mode (denormal source operands are set to zero)
-		CPUID_XENON							= ( 1 << 18 ),	// Xbox 360
-		CPUID_CELL							= ( 1 << 19 )	// PS3
 	};
 
 	enum FPUExceptions_t
@@ -241,28 +238,32 @@ public:
 		FPU_ROUNDING_TO_ZERO				= 3
 	};
 
+	virtual void	Init( void ) = 0;
 
 	/// @brief returns a selection of the CPUID_* flags
-	cpuid_t			GetProcessorId( void );
-	const char* 	GetProcessorString( void );
-
+	inline uint32_t			GetProcessorId( void ) const { return m_cpuIDFlags; };
+	inline const char*		GetProcessorString( void ) const { m_ProcessorName.c_str(); };
+	inline const uint32_t	GetProcessorThreads( void ) const { return m_cpuThreads; }
+ 
 	// enables the given FPU exceptions
-	virtual void	FPUEnableExceptions( const FPUExceptions_t in_exceptions ) = 0;
-
-	// sets the FPU precision
-	virtual void	FPUSetPrecision( const FPUPrecision_t in_precision ) = 0;
+	void		FPUEnableExceptions( const FPUExceptions_t in_exceptions );
 
 	// sets the FPU rounding mode
-	virtual void	FPUSetRounding( const FPURounding_t in_rounding ) = 0;
+	void		FPUSetRounding( const FPURounding_t in_rounding );
 
 	// sets Flush-To-Zero mode (only available when CPUID_FTZ is set)
-	virtual void	FPUSetFTZ( const bool in_enable ) = 0;
+	void		FPUSetFTZ( const bool in_enable );
 
 	/// sets Denormals-Are-Zero mode (only available when CPUID_DAZ is set)
-	virtual void	FPUSetDAZ( const bool in_enable ) = 0;
+	void		FPUSetDAZ( const bool in_enable );
 
 	/// @brief returns amount of physical memory in MB
-	virtual size_t	GetSystemRam( void ) const = 0;
+	size_t		GetSystemRam( void ) const;
+
+protected:
+	idStr   	m_ProcessorName;
+	uint32_t	m_cpuIDFlags;
+	uint32_t	m_cpuThreads;
 };
 
 class crPlatform

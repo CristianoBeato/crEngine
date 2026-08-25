@@ -1,33 +1,18 @@
 #include "precompiled.h"
 #include "platform.hpp"
 #include "CPUInfo.hpp"
-
 #include <cfenv>
 #include <SDL3/SDL_cpuinfo.h>
-
-crCPUInfo *crCPUInfo::Get(void)
-{
-    static crCPUInfoLocal gCPUInfoLocal = crCPUInfoLocal(); 
-    return &gCPUInfoLocal;
-}
-
-crCPUInfoLocal::crCPUInfoLocal( void )
-{
-}
-
-crCPUInfoLocal::~crCPUInfoLocal( void )
-{
-}
 
 /*
 ================
 crCPUInfoLocal::FPUEnableExceptions
 ================
 */
-void crCPUInfoLocal::FPUEnableExceptions(const FPUExceptions_t in_exceptions)
+void crCPUInfo::FPUEnableExceptions(const FPUExceptions_t in_exceptions)
 {
     int exceptions = (int)in_exceptions; 
-#if __COMPILER_MSVC__
+#if __COMPILER_MSVC__ || __COMPILER_MINGW__
     unsigned int mask = 0;
     if (exceptions & 1) 
         mask |= _EM_INVALID;
@@ -63,24 +48,10 @@ void crCPUInfoLocal::FPUEnableExceptions(const FPUExceptions_t in_exceptions)
 
 /*
 ================
-crCPUInfoLocal::FPUSetPrecision
-================
-*/
-void crCPUInfoLocal::FPUSetPrecision( const FPUPrecision_t in_precision )
-{
-    // NO-OP on modern CPUs. 
-    // Precision control (x87 PC bits) is legacy and not portable.
-    // If you *must* change x87 precision, implement platform-specific code (asm/_controlfp).
-    // We intentionally do nothing to avoid x87 usage.
-    // Keep function so legacy calls compile, but it's effectively ignored.
-}
-
-/*
-================
 crCPUInfoLocal::FPUSetRounding
 ================
 */
-void crCPUInfoLocal::FPUSetRounding( const FPURounding_t in_rounding )
+void crCPUInfo::FPUSetRounding( const FPURounding_t in_rounding )
 {
     int rounding = (int)in_rounding;
     // rounding = 0,1,2,3 -> FE_TONEAREST, FE_DOWNWARD, FE_UPWARD, FE_TOWARDZERO
@@ -94,7 +65,7 @@ void crCPUInfoLocal::FPUSetRounding( const FPURounding_t in_rounding )
 
     const int mode = roundingModes[rounding & 3];
 
-#if _ARCH_x86_32_ || _ARCH_x86_64_ // has X87
+#if _ARCH_x86_64_ || _ARCH_x86_32_ // has X87
     // --- x87 FPU ---
     std::fesetround( mode );
 #endif
@@ -111,7 +82,7 @@ void crCPUInfoLocal::FPUSetRounding( const FPURounding_t in_rounding )
 crCPUInfoLocal::FPUSetFTZ
 ================
 */
-void crCPUInfoLocal::FPUSetFTZ( const bool in_enable )
+void crCPUInfo::FPUSetFTZ( const bool in_enable )
 {
     // check current status
 	int mode = _MM_GET_FLUSH_ZERO_MODE();
@@ -126,7 +97,7 @@ void crCPUInfoLocal::FPUSetFTZ( const bool in_enable )
 crCPUInfoLocal::FPUSetDAZ
 ================
 */
-void crCPUInfoLocal::FPUSetDAZ( const bool in_enable )
+void crCPUInfo::FPUSetDAZ( const bool in_enable )
 {
 	int mode = _MM_GET_DENORMALS_ZERO_MODE();
 	if ( in_enable && mode != _MM_DENORMALS_ZERO_ON)
@@ -136,12 +107,16 @@ void crCPUInfoLocal::FPUSetDAZ( const bool in_enable )
 }
 
 /*
-================
-crCPUInfoLocal::GetSystemRam
-================
+=====================
+crCPUInfo::GetSystemRam
+=====================
 */
-size_t crCPUInfoLocal::GetSystemRam( void ) const
+size_t crCPUInfo::GetSystemRam( void ) const
 {
     // SDL get the memory amount based in Mebibyte ( base 2 )
-	return SDL_GetSystemRAM();
+	static size_t size = 0;
+	if( size == 0 )
+		size = SDL_GetSystemRAM();
+
+    return size;
 }

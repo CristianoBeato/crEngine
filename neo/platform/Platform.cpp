@@ -5,6 +5,7 @@
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_clipboard.h>
 #include <SDL3/SDL_loadso.h>
+#include <SDL3/SDL_cpuinfo.h>
 
 #define ID_LANG_ENGLISH		"english"
 #define ID_LANG_FRENCH		"french"
