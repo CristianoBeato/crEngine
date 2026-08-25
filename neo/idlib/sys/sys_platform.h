@@ -41,6 +41,7 @@ along with Beato idTech 4x  Source Code.  If not, see <http://www.gnu.org/licens
 #elif defined(i386) || defined(__i386__) || defined(__i386) || defined(_M_IX86)
 #define _ARCH_x86_32_ 1
 #elif defined(__arm__) || defined(_M_ARM)
+#define _ARCH_ARM_32_ 1
 #elif defined(__aarch64__) || defined(_M_ARM64)
 #define _ARCH_ARM_64_ 1
 #elif defined(__powerpc) || defined(__powerpc__) || defined(__powerpc64__) || defined(__POWERPC__) || defined(__ppc__) || defined(__PPC__) || defined(_ARCH_PPC)
