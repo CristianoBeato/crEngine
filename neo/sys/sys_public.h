@@ -595,25 +595,12 @@ public:
 	virtual void			DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... ) = 0;
 	virtual void			DebugVPrintf( const char* fmt, va_list arg ) = 0;
 	
+	virtual void			Quit( void ) = 0;
+
 	virtual double			GetClockTicks( void ) = 0;
 	virtual double			ClockTicksPerSecond( void ) = 0;
-	virtual cpuid_t			GetProcessorId( void ) = 0;
-	virtual const char* 	GetProcessorString( void ) = 0;
-	virtual void			FPU_SetFTZ( const bool enable ) = 0;
-	virtual void			FPU_SetDAZ( const bool enable ) = 0;
-	
-	virtual void			FPU_EnableExceptions( int exceptions ) = 0;
-	
-	virtual bool			LockMemory( void* ptr, const size_t bytes ) = 0;
-	virtual bool			UnlockMemory( void* ptr, const size_t bytes ) = 0;
-	
+		
 	virtual void			DLL_GetFileName( const char* baseName, char* dllName, int maxLength ) = 0;
-	
-	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down ) = 0;
-	virtual sysEvent_t		GenerateMouseMoveEvent( int deltax, int deltay ) = 0;
-	
-	virtual void			OpenURL( const char* url, bool quit ) = 0;
-	virtual void			StartProcess( const char* exePath, bool quit ) = 0;
 };
 
 // TODO: implement as singleton

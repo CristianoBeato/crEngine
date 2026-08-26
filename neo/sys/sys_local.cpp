@@ -74,66 +74,6 @@ double idSysLocal::ClockTicksPerSecond( void )
 
 /*
 =================
-idSysLocal::GetProcessorId
-=================
-*/
-cpuid_t idSysLocal::GetProcessorId( void )
-{
-	return Sys_GetProcessorId();
-}
-
-/*
-=================
-idSysLocal::GetProcessorString
-=================
-*/
-const char* idSysLocal::GetProcessorString( void )
-{
-	return Sys_GetProcessorString();
-}
-
-/*
-=================
-idSysLocal::FPU_SetFTZ
-=================
-*/
-void idSysLocal::FPU_SetFTZ( bool enable )
-{
-	Sys_FPU_SetFTZ( enable );
-}
-
-/*
-=================
-idSysLocal::FPU_SetDAZ
-=================
-*/
-void idSysLocal::FPU_SetDAZ( bool enable )
-{
-	Sys_FPU_SetDAZ( enable );
-}
-
-/*
-=================
-idSysLocal::LockMemory
-=================
-*/
-bool idSysLocal::LockMemory( void* ptr, const size_t bytes )
-{
-	return Sys_LockMemory( ptr, bytes );
-}
-
-/*
-=================
-idSysLocal::UnlockMemory
-=================
-*/
-bool idSysLocal::UnlockMemory( void* ptr, const size_t bytes )
-{
-	return Sys_UnlockMemory( ptr, bytes );
-}
-
-/*
-=================
 idSysLocal::DLL_GetFileName
 =================
 */
@@ -181,7 +121,7 @@ idSysLocal::FPU_EnableExceptions
 */
 void idSysLocal::FPU_EnableExceptions( int exceptions )
 {
-	Sys_FPU_EnableExceptions( exceptions );
+	crCPUInfo::Get()->FPUEnableExceptions( static_cast<crCPUInfo::FPUEnableExceptions>(exceptions) ); 
 }
 
 /*
@@ -269,34 +209,28 @@ const char* Sys_TimeStampToStr( ID_TIME_T timeStamp )
 Sys_SecToStr
 ========================
 */
-const char* Sys_SecToStr( int sec )
+const char* Sys_SecToStr( const uint32_t sec )
 {
-	static char timeString[MAX_STRING_CHARS];
+	char timeString[MAX_STRING_CHARS];
 	
-	int weeks = sec / ( 3600 * 24 * 7 );
+	uint32_t weeks = sec / ( 3600 * 24 * 7 );
 	sec -= weeks * ( 3600 * 24 * 7 );
 	
-	int days = sec / ( 3600 * 24 );
+	uint32_t days = sec / ( 3600 * 24 );
 	sec -= days * ( 3600 * 24 );
 	
-	int hours = sec / 3600;
+	uint32_t hours = sec / 3600;
 	sec -= hours * 3600;
 	
-	int min = sec / 60;
+	uint32_t min = sec / 60;
 	sec -= min * 60;
 	
 	if( weeks > 0 )
-	{
-		sprintf( timeString, "%dw, %dd, %d:%02d:%02d", weeks, days, hours, min, sec );
-	}
+		std::sprintf( timeString, "%dw, %dd, %d:%02d:%02d", weeks, days, hours, min, sec );
 	else if( days > 0 )
-	{
-		sprintf( timeString, "%dd, %d:%02d:%02d", days, hours, min, sec );
-	}
+		std::sprintf( timeString, "%dd, %d:%02d:%02d", days, hours, min, sec );
 	else
-	{
-		sprintf( timeString, "%d:%02d:%02d", hours, min, sec );
-	}
+		std::sprintf( timeString, "%d:%02d:%02d", hours, min, sec );
 	
 	return timeString;
 }
@@ -417,12 +351,13 @@ void Sys_Shutdown( void )
 
 /*
 ================
-Sys_Quit
+idSysLocal::Quit
 ================
 */
-void Sys_Quit( void )
+void idSysLocal::Quit( void )
 {
-	Sys_ShutdownInput();
+	crInput::Get()->Shutdown();
+	crConsole::Get()->Shutdown();
 	crPlatform::Get()->Exit( EXIT_SUCCESS );
 }
 

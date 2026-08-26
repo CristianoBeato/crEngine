@@ -44,30 +44,12 @@ public:
 	virtual void			DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... );
 	virtual void			DebugVPrintf( const char* fmt, va_list arg );
 	
+	virtual void			Quit( void );
+
 	virtual double			GetClockTicks( void );
 	virtual double			ClockTicksPerSecond( void );
-	virtual cpuid_t			GetProcessorId( void );
-	virtual const char* 	GetProcessorString( void );
-
-	virtual void			FPU_SetFTZ( const bool enable );
-	virtual void			FPU_SetDAZ( const bool enable );
-	
-	virtual void			FPU_EnableExceptions( int exceptions );
-	
-	virtual bool			LockMemory( void* ptr, const size_t bytes );
-	virtual bool			UnlockMemory( void* ptr, const size_t bytes );
 	
 	virtual void			DLL_GetFileName( const char* baseName, char* dllName, int maxLength );
-	
-	virtual sysEvent_t		GenerateMouseButtonEvent( int button, bool down );
-	virtual sysEvent_t		GenerateMouseMoveEvent( int deltax, int deltay );
-	
-	virtual void			OpenURL( const char* url, bool quit );
-	virtual void			StartProcess( const char* exeName, bool quit );
-
-// BEATO Begin:
-	virtual crVideo*		GetVideoSystem( void ) const;
-// BEATO End
 };
 
 #endif /* !__SYS_LOCAL__ */
