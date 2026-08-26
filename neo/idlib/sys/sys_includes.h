@@ -76,7 +76,7 @@ If you have questions concerning this license or the applicable additional terms
 #define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// prevent auto literal to string conversion
 
 #ifndef _D3SDK
-#ifndef GAME_DLL
+#ifndef __GAME_DLL__
 
 #include <winsock2.h>
 #include <mmsystem.h>
@@ -114,7 +114,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #endif
 
-#endif /* !GAME_DLL */
+#endif /* !__GAME_DLL__ */
 #endif /* !_D3SDK */
 
 #elif __PLATFORM_LINUX__ || __PLATFORM_FBSD__

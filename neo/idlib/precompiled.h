@@ -73,6 +73,7 @@ If you have questions concerning this license or the applicable additional terms
 
 // non-portable system services
 #include "sys/sys_public.h"
+#include "platform/Platform.hpp"
 
 // id lib
 #include "idlib/Lib.h"
@@ -163,11 +164,11 @@ inline constexpr uint32_t   MAX_SMP_FRAMES = 3;
 
 #ifndef _D3SDK
 
-#ifdef GAME_DLL
+#ifdef __GAME_DLL__
 
 #include "d3xp/Game_local.h"
 
-#else
+#endif //__GAME_DLL__
 
 #include "framework/DemoChecksum.h"
 
@@ -184,7 +185,7 @@ inline constexpr uint32_t   MAX_SMP_FRAMES = 3;
 // Compilers for map, model, video etc. processing.
 #include "tools/compilers/compiler_public.h"
 
-#endif /* !GAME_DLL */
+// #endif /* !__GAME_DLL__ */
 
 #endif /* !_D3SDK */
 
