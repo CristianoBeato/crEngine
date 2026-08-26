@@ -9,9 +9,13 @@ public:
 
     crConsole( void ) {};
     virtual ~crConsole( void ) {};
+	virtual void			Shutdown( void ) = 0;
 	virtual void			ShowConsole( const int in_visLevel, const bool in_quitOnClose ) = 0;
+	virtual void            Printf( const char *fmt, ... ) = 0;
     virtual void            VPrintf( const char *fmt, va_list arg ) = 0;
+	virtual void            DebugPrintf( const char *fmt, ... ) = 0;
     virtual void            DebugVPrintf( const char *fmt, va_list arg ) = 0;
+	virtual void			Error( const char* fmt, ... ) = 0;
     virtual void            VError( const char *fmt, va_list arg ) = 0; 
     virtual const char *    GetCmdLine( void ) = 0;
 };
@@ -133,12 +137,12 @@ public:
 // mouse input polling
 inline constexpr int MAX_MOUSE_EVENTS = 256;
 inline constexpr int MAX_JOYSTICKS = 4; // Limit for Most consoles is 4 Controllers 
-class crInput
+class crInputSystem
 {
 public:
-	static crInput*	Get( void );
-	crInput( void ) {};
-	~crInput( void ) {};
+	static crInputSystem*	Get( void );
+	crInputSystem( void ) {};
+	~crInputSystem( void ) {};
 
 	// input is tied to windows, so it needs to be started up and shut down whenever
 	// the main window is recreated
@@ -157,8 +161,10 @@ public:
 	virtual void					EndKeyboardInputEvents( void ) = 0;
 	
 	// mouse polling
-	virtual int						PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] );
-		
+	virtual int						PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) = 0;
+	virtual sysEvent_t				GenerateMouseButtonEvent( const int button, const bool down ) = 0;
+	virtual sysEvent_t 				GenerateMouseMoveEvent( const int32_t deltax, const int32_t deltay ) = 0;
+
 	// joystick input polling
 	virtual uint32_t				GamepadCount( void ) = 0;
 	virtual void					SetRumble( const int device, uint16_t in_low, uint16_t in_hi ) = 0;
@@ -242,7 +248,7 @@ public:
 
 	/// @brief returns a selection of the CPUID_* flags
 	inline uint32_t			GetProcessorId( void ) const { return m_cpuIDFlags; };
-	inline const char*		GetProcessorString( void ) const { m_ProcessorName.c_str(); };
+	inline const char*		GetProcessorString( void ) const { return &m_ProcessorName[0]; };
 	inline const uint32_t	GetProcessorThreads( void ) const { return m_cpuThreads; }
  
 	// enables the given FPU exceptions
@@ -261,10 +267,17 @@ public:
 	size_t		GetSystemRam( void ) const;
 
 protected:
-	idStr   	m_ProcessorName;
+	char		m_ProcessorName[256];
 	uint32_t	m_cpuIDFlags;
 	uint32_t	m_cpuThreads;
 };
+
+#define ID_LANG_ENGLISH		"english"
+#define ID_LANG_FRENCH		"french"
+#define ID_LANG_ITALIAN		"italian"
+#define ID_LANG_GERMAN		"german"
+#define ID_LANG_SPANISH		"spanish"
+#define ID_LANG_JAPANESE	"japanese"
 
 class crPlatform
 {

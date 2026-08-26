@@ -53,14 +53,11 @@ void idMenuHandler_Shell::Update()
 //#endif
 
 	if( gui == nullptr || !gui->IsActive() )
-	{
 		return;
-	}
 	
-	if( ( IsPacifierVisible() || common->Dialog().IsDialogActive() ) && actionRepeater.isActive )
-	{
+	auto dialog = common->Dialog();
+	if( ( IsPacifierVisible() || dialog.IsDialogActive() ) && actionRepeater.isActive )
 		ClearWidgetActionRepeater();
-	}
 	
 	if( nextState != state )
 	{
@@ -81,9 +78,7 @@ void idMenuHandler_Shell::Update()
 			transition = MENU_TRANSITION_SIMPLE;
 			state = nextState;
 			if( menuBar != nullptr && gui != nullptr )
-			{
 				menuBar->ClearSprite();
-			}
 		}
 		else if( nextState == SHELL_STATE_IDLE )
 		{

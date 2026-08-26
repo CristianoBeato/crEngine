@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Game_local.h"
-#include "../framework/Common_local.h"
 
 static const int SNAP_GAMESTATE = 0;
 static const int SNAP_SHADERPARMS = 1;
@@ -914,7 +913,7 @@ void idGameLocal::ClientReadSnapshot( const idSnapShot& ss )
 			
 			if( entityNumber < MAX_CLIENTS )
 			{
-				commonLocal.GetUCmdMgr().ResetPlayer( entityNumber );
+				common->ResetPlayer( entityNumber );
 				SpawnPlayer( entityNumber );
 				ent = entities[ entityNumber ];
 				ent->FreeModelDef();

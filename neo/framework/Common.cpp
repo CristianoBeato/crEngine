@@ -226,7 +226,8 @@ void idCommonLocal::Quit()
 	{
 		Shutdown();
 	}
-	Sys_Quit();
+
+	idLib::sys->Quit();
 }
 
 
@@ -1177,9 +1178,9 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 	// FIX ME: timing should be polled from the video
 	while( Sys_Milliseconds() <= 14000 ) // 13 sec (+1 sec delay) is the length of the test video we have
 	{		
-		Sys_GenerateEvents();		
-		ev = Sys_GetEvent();
-		Sys_PollJoystickInputEvents( 0 );
+		crInputSystem::Get()->GenerateEvents();		
+		ev = crInputSystem::Get()->GetEvent();
+		crInputSystem::Get()->PollJoystickInputEvents( 0 );
 		renderSystem->DrawStretchPic( chop, 0, imageWidth, SCREEN_HEIGHT, 0, 0, 1, 1, material );
 		const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );
 		renderSystem->RenderCommandBuffers( cmd );		
@@ -1190,7 +1191,7 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 						if(ev.evValue < K_JOY_STICK1_UP || K_JOY_DPAD_RIGHT  < ev.evValue )			
 							EndVideo = true;					
 					}					
-					ev = Sys_GetEvent();
+					ev = crInputSystem::Get()->GetEvent();
 				}
 			}
 		}

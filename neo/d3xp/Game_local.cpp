@@ -31,19 +31,20 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Game_local.h"
-
 #include "gamesys/SysCvar.h"	
 
 // BEATO Begin:
 #ifdef __ID_GAME_LOGIC__
 idSoundSystem* 				soundSystem = nullptr;
 idRenderSystem* 			renderSystem = nullptr;
+crInputSystem*				inputSystem = nullptr;
 #endif //__ID_GAME_LOGIC__
 // BEATO End
 
-#ifdef GAME_DLL
+#ifdef __GAME_DLL__
 idSys* 						sys = nullptr;
 idCommon* 					common = nullptr;
+crPlatform*					platform = nullptr;
 idCmdSystem* 				cmdSystem = nullptr;
 idCVarSystem* 				cvarSystem = nullptr;
 idFileSystem* 				fileSystem = nullptr;
@@ -56,7 +57,6 @@ idCVar* 					idCVar::staticVars = nullptr;
 
 idCVar com_forceGenericSIMD( "com_forceGenericSIMD", "0", CVAR_BOOL | CVAR_SYSTEM, "force generic platform independent SIMD" );
 #endif
-
 
 idRenderWorld* 				gameRenderWorld = nullptr;		// all drawing is done to this world
 idSoundWorld* 				gameSoundWorld = nullptr;		// all audio goes to this world
@@ -142,6 +142,9 @@ extern "C" gameExport_t* GetGameAPI( gameImport_t* import )
 	
 	// set interface pointers used by idLib
 	idLib::sys					= sys;
+	idLib::platform				= platform;
+	idLib::CPUInfo				= crCPUInfo::Get();
+	idLib::input				= inputSystem;
 	idLib::common				= common;
 	idLib::cvarSystem			= cvarSystem;
 	idLib::fileSystem			= fileSystem;
@@ -293,7 +296,7 @@ void idGameLocal::Init()
 	const idDict* dict;
 	idAAS* aas;
 	
-#ifndef GAME_DLL
+#ifndef __GAME_DLL__
 	
 	TestGameAPI();
 	
@@ -385,13 +388,10 @@ idGameLocal::Shutdown
   shut down the entire game
 ============
 */
-void idGameLocal::Shutdown()
+void idGameLocal::Shutdown( void )
 {
-
 	if( !common )
-	{
 		return;
-	}
 	
 	Printf( "------------ Game Shutdown -----------\n" );
 	
@@ -439,14 +439,16 @@ void idGameLocal::Shutdown()
 	
 	Printf( "--------------------------------------\n" );
 	
-#ifdef GAME_DLL
+#ifdef __GAME_DLL__
 	
 	// remove auto-completion function pointers pointing into this DLL
 	cvarSystem->RemoveFlaggedAutoCompletion( CVAR_GAME );
 	
+#if ID_MEM_TEST
 	// enable leak test
 	Mem_EnableLeakTest( "game" );
-	
+#endif //ID_MEM_TEST
+
 	// shutdown idLib
 	idLib::ShutDown();
 	
@@ -2615,7 +2617,7 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 		
 		DemoWriteGameInfo();
 		
-#ifdef GAME_DLL
+#ifdef __GAME_DLL__
 		// allow changing SIMD usage on the fly
 		if( com_forceGenericSIMD.IsModified() )
 		{

@@ -45,12 +45,14 @@ If you have questions concerning this license or the applicable additional terms
 
 ===============================================================================
 */
-
 idSys* 			idLib::sys			= nullptr;
+crPlatform*		idLib::platform		= nullptr;
+crCPUInfo*		idLib::CPUInfo		= nullptr;
+crInputSystem*	idLib::input		= nullptr;
 idCommon* 		idLib::common		= nullptr;
 idCVarSystem* 	idLib::cvarSystem	= nullptr;
 idFileSystem* 	idLib::fileSystem	= nullptr;
-int				idLib::frameNumber	= 0;
+uint32_t		idLib::frameNumber	= 0;
 //bool			idLib::mainThreadInitialized = 0;
 uint64_t		idLib::isMainThread = 0;
 
@@ -61,9 +63,8 @@ char idException::error[2048];
 idLib::Init
 ================
 */
-void idLib::Init()
+void idLib::Init( void )
 {
-
 	assert( sizeof( bool ) == 1 );
 	
 	// Get the main thread id

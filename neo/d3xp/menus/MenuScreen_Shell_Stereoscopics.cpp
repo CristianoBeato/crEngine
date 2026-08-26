@@ -227,11 +227,13 @@ void idMenuScreen_Shell_Stereoscopics::HideScreen( const mainMenuTransition_t tr
 					// DG end
 
 					// motorsep 12-28-2014; reverted back to the original Sys_ReLaunch; guys from RBDoom 3 BFG team made it impossible to pass any cmds on restart
-					idStr cmdLine = Sys_GetCmdLine();
-					if (cmdLine.Find("com_skipIntroVideos") < 0) {
+					//Sys_GetCmdLine();
+					idStr cmdLine = crPlatform::Get()->GetCmdLine(); 
+					if ( cmdLine.Find("com_skipIntroVideos") < 0 )
 						cmdLine.Append(" +set com_skipIntroVideos 1");
-					}
-					Sys_ReLaunch((void*)cmdLine.c_str(), cmdLine.Length());
+					
+					//Sys_ReLaunch((void*)cmdLine.c_str(), cmdLine.Length());
+					crPlatform::Get()->ReLaunch( (void*)cmdLine.c_str(), cmdLine.Length() );
 				}
 				return idSWFScriptVar();
 			}
@@ -247,10 +249,10 @@ void idMenuScreen_Shell_Stereoscopics::HideScreen( const mainMenuTransition_t tr
 		optionText.Append( idStrId( "#str_swf_restart_now" ) ); // Restart Now
 		common->Dialog().AddDynamicDialog( GDM_GAME_RESTART_REQUIRED, callbacks, optionText, true, idStr() );
 	}
+
 	if( stereoData.IsDataChanged() )
-	{
 		stereoData.CommitData();
-	}
+	
 	idMenuScreen::HideScreen( transitionType );
 }
 
@@ -265,9 +267,7 @@ bool idMenuScreen_Shell_Stereoscopics::HandleAction( idWidgetAction& action, con
 	if( menuData != nullptr )
 	{
 		if( menuData->ActiveScreen() != SHELL_AREA_STEREOSCOPICS )
-		{
 			return false;
-		}
 	}
 	
 	widgetAction_t actionType = action.GetType();
@@ -285,23 +285,19 @@ bool idMenuScreen_Shell_Stereoscopics::HandleAction( idWidgetAction& action, con
 		}
 		case WIDGET_ACTION_PRESS_FOCUSED:
 		{
-		
 			if( options == nullptr )
-			{
 				return true;
-			}
 			
 			int selectionIndex = options->GetFocusIndex();
 			if( parms.Num() > 0 )
-			{
 				selectionIndex = parms[0].ToInteger();
-			}
 			
 			if( selectionIndex != options->GetFocusIndex() )
 			{
 				options->SetViewIndex( options->GetViewOffset() + selectionIndex );
 				options->SetFocusIndex( selectionIndex );
 			}
+
 			stereoData.AdjustField( selectionIndex, 1 );
 			options->Update();
 			
@@ -309,11 +305,8 @@ bool idMenuScreen_Shell_Stereoscopics::HandleAction( idWidgetAction& action, con
 		}
 		case WIDGET_ACTION_START_REPEATER:
 		{
-		
 			if( options == nullptr )
-			{
 				return true;
-			}
 			
 			if( parms.Num() == 4 )
 			{

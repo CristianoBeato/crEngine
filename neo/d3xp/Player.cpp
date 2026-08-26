@@ -31,8 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Game_local.h"
-#include "framework/Common_local.h"
-
 #include "PredictedValue_impl.h"
 
 #include "Mover.h"				// ###### SR
@@ -4815,15 +4813,14 @@ void idPlayer::WeaponRisingCallback( idWeapon * weapon )
 idPlayer::Weapon_GUI
 ===============
 */
-void idPlayer::Weapon_GUI()
+void idPlayer::Weapon_GUI( void )
 {
 
 	if( !objectiveSystemOpen )
 	{
 		if( idealWeapon != currentWeapon )
-		{
 			Weapon_Combat();
-		}
+		
 		StopFiring();
 		weapon.GetEntity()->LowerWeapon();
 	}
@@ -4843,7 +4840,8 @@ void idPlayer::Weapon_GUI()
 		if( ui )
 		{
 			bool updateVisuals = false;
-			sysEvent_t ev = sys->GenerateMouseButtonEvent( 1, isDown );
+			
+			sysEvent_t ev = inputSystem->GenerateMouseButtonEvent( 1, isDown );
 			command = ui->HandleEvent( &ev, gameLocal.time, &updateVisuals );
 			if( updateVisuals && focusGUIent && ui == focusUI )
 			{
@@ -5769,12 +5767,12 @@ void idPlayer::UpdateFocus()
 			}
 			
 			// clamp the mouse to the corner
-			ev = sys->GenerateMouseMoveEvent( -2000, -2000 );
+			ev = inputSystem->GenerateMouseMoveEvent( -2000, -2000 );
 			command = focusUI->HandleEvent( &ev, gameLocal.time );
 			HandleGuiCommands( focusGUIent, command );
 			
 			// move to an absolute position
-			ev = sys->GenerateMouseMoveEvent( pt.x * SCREEN_WIDTH, pt.y * SCREEN_HEIGHT );
+			ev = inputSystem->GenerateMouseMoveEvent( pt.x * SCREEN_WIDTH, pt.y * SCREEN_HEIGHT );
 			command = focusUI->HandleEvent( &ev, gameLocal.time );
 			HandleGuiCommands( focusGUIent, command );
 			focusTime = gameLocal.time + FOCUS_GUI_TIME;
@@ -7922,11 +7920,11 @@ void idPlayer::Move()
 idPlayer::AllowClientAuthPhysics
 ========================
 */
-bool idPlayer::AllowClientAuthPhysics()
+bool idPlayer::AllowClientAuthPhysics( void )
 {
 	// note respawn count > 1: respawn should be called twice - once for initial spawn and once for actual respawn by game mode
 	// TODO: I don't think doom 3 will need to care about the respawn count.
-	return ( usercmd.serverGameMilliseconds > serverOverridePositionTime && commonLocal.GetUCmdMgr().HasUserCmdForPlayer( entityNumber ) );
+	return ( usercmd.serverGameMilliseconds > serverOverridePositionTime && common->HasUserCmdForPlayer( entityNumber ) );
 }
 
 /*
@@ -9041,7 +9039,7 @@ void idPlayer::RouteGuiMouse( idUserInterface* gui )
 	
 	if( usercmd.mx != oldMouseX || usercmd.my != oldMouseY )
 	{
-		ev = sys->GenerateMouseMoveEvent( usercmd.mx - oldMouseX, usercmd.my - oldMouseY );
+		ev = inputSystem->GenerateMouseMoveEvent( usercmd.mx - oldMouseX, usercmd.my - oldMouseY );
 		command = gui->HandleEvent( &ev, gameLocal.time );
 		oldMouseX = usercmd.mx;
 		oldMouseY = usercmd.my;

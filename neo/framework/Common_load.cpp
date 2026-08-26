@@ -529,7 +529,7 @@ void idCommonLocal::ExecuteMapChange( void )
 	
 	// release the mouse cursor
 	// before we do this potentially long operation
-	Sys_GrabMouseCursor( false );
+	crInputSystem::Get()->GrabMouseCursor( false );
 	
 	// let the renderSystem load all the geometry
 	if( !renderWorld->InitFromMap( fullMapName ) )
@@ -696,7 +696,7 @@ void idCommonLocal::ExecuteMapChange( void )
 	// we are valid for game draws now
 	insideExecuteMapChange = false;
 	mapSpawned = true;
-	Sys_ClearEvents();
+	crInputSystem::Get()->ClearEvents();
 	
 	
 	int	msec = Sys_Milliseconds() - start;

@@ -38,10 +38,10 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
-inline constexpr int GAME_API_VERSION = 10;
+inline constexpr uint32_t GAME_API_VERSION = 20;
 
-inline constexpr int TIME_GROUP1 = 0;
-inline constexpr int TIME_GROUP2 = 1;
+inline constexpr int 	TIME_GROUP1 = 0;
+inline constexpr int 	TIME_GROUP2 = 1;
 
 // default scripts
 inline constexpr char SCRIPT_DEFAULTDEFS[]	= { "script/game_defs.script" };
@@ -326,6 +326,7 @@ extern idGameEdit* 				gameEdit;
 #ifdef __ID_GAME_LOGIC__
 extern idRenderSystem*	renderSystem;	// render system
 extern idSoundSystem*	soundSystem;	// sound system
+extern crInputSystem*	inputSystem;	// input system
 #endif // __ID_GAME_LOGIC__
 // BEATO End
 
@@ -349,7 +350,7 @@ typedef struct
 
 typedef struct
 {
-	int							version;				// API version
+	uint32_t					version;				// API version
 	idGame* 					game;					// interface to run the game
 	idGameEdit* 				gameEdit;				// interface for in-game editing	
 } gameExport_t;

@@ -1267,8 +1267,8 @@ idParallelJobManagerLocal
 // Hyperthreading is not dead yet.  Intel's Core i7 Processor is quad-core with HT for 8 logicals.
 
 // DOOM3: We don't have that many jobs, so just set this fairly low so we don't spin up a ton of idle threads
-constexpr uint32_t	MAX_JOB_THREADS = 4;
-constexpr char* 	NUM_JOB_THREADS = "4";
+constexpr uint32_t		MAX_JOB_THREADS = 4;
+constexpr const char*	NUM_JOB_THREADS = "4";
 #define JOB_THREAD_CORES	{	CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\
 								CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\
 								CORE_ANY, CORE_ANY, CORE_ANY, CORE_ANY,	\

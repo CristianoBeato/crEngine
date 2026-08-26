@@ -1582,7 +1582,7 @@ GfxInfo_f
 */
 void GfxInfo_f( const idCmdArgs& args )
 {
-	common->Printf( "CPU: %s\n", Sys_GetProcessorString() );
+	common->Printf( "CPU: %s\n", crCPUInfo::Get()->GetProcessorString() );
 	
 	const char* fsstrings[] =
 	{
@@ -1695,7 +1695,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 	}
 	
 	// this could take a while, so give them the cursor back ASAP
-	Sys_GrabMouseCursor( false );
+	crInputSystem::Get()->GrabMouseCursor( false );
 	
 	// dump ambient caches
 	renderModelManager->FreeModelVertexCaches();

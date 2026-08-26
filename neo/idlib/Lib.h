@@ -50,14 +50,17 @@ private:
 	static uint64_t				isMainThread;
 	
 public:
-	static class idSys* 		sys;
-	static class idCommon* 		common;
-	static class idCVarSystem* 	cvarSystem;
-	static class idFileSystem* 	fileSystem;
-	static int					frameNumber;
+	static class idSys* 		sys;			// main engine system
+	static class idCommon* 		common;			// common engine framework
+	static class crPlatform*	platform;		// platform specific systems
+	static class crInputSystem*	input;			// user input system
+	static class crCPUInfo*		CPUInfo;		// Cpu info and utilities
+	static class idCVarSystem* 	cvarSystem;		// Console Variables management
+	static class idFileSystem* 	fileSystem;		// File system management 
+	static uint32_t				frameNumber;
 	
-	static void					Init();
-	static void					ShutDown();
+	static void					Init( void );
+	static void					ShutDown( void );
 	
 	// wrapper to idCommon functions
 	static void					Printf( const char* fmt, ... );

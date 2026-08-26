@@ -485,16 +485,12 @@ void idCommonLocal::Error( const char* fmt, ... )
 	com_refreshOnPrint = false;
 	
 	if( com_productionMode.GetInteger() == 3 )
-	{
-		Sys_Quit();
-	}
+		idLib::sys->Quit();
 	
 	// when we are running automated scripts, make sure we
 	// know if anything failed
 	if( cvarSystem->GetCVarInteger( "fs_copyfiles" ) )
-	{
 		code = ERP_FATAL;
-	}
 	
 	// if we don't have the render backend running, make it a fatal error
 	if( !idRenderSystem::Get()->IsRenderAPIRunning() )
@@ -509,9 +505,8 @@ void idCommonLocal::Error( const char* fmt, ... )
 		// full screen rendering window covering the
 		// error dialog
 		if( com_errorEntered == ERP_FATAL )
-		{
-			Sys_Quit();
-		}
+			idLib::sys->Quit();
+		
 		code = ERP_FATAL;
 	}
 	
@@ -537,9 +532,8 @@ void idCommonLocal::Error( const char* fmt, ... )
 	va_end( argptr );
 	errorMessage[sizeof( errorMessage ) - 1] = '\0';
 	
-	
 	// copy the error message to the clip board
-	Sys_SetClipboardData( errorMessage );
+	crPlatform::Get()->SetClipboardData( errorMessage );
 	
 	// add the message to the error list
 	errorList.AddUnique( errorMessage );
@@ -583,9 +577,8 @@ void idCommonLocal::FatalError( const char* fmt, ... )
 	va_list		argptr;
 	
 	if( com_productionMode.GetInteger() == 3 )
-	{
-		Sys_Quit();
-	}
+		idLib::sys->Quit();
+	
 	// if we got a recursive error, make it fatal
 	if( com_errorEntered )
 	{
@@ -605,7 +598,7 @@ void idCommonLocal::FatalError( const char* fmt, ... )
 		Sys_Printf( "%s\n", errorMessage );
 		
 		// write the console to a log file?
-		Sys_Quit();
+		idLib::sys->Quit();
 	}
 	com_errorEntered = ERP_FATAL;
 	
@@ -615,12 +608,8 @@ void idCommonLocal::FatalError( const char* fmt, ... )
 	errorMessage[sizeof( errorMessage ) - 1] = '\0';
 	
 	if( cvarSystem->GetCVarBool( "r_fullscreen" ) )
-	{
 		cmdSystem->BufferCommandText( CMD_EXEC_NOW, "vid_restart partial windowed\n" );
-	}
 	
-	Sys_SetFatalError( errorMessage );
-	
-	Sys_Error( "%s", errorMessage );
-	
+	crPlatform::Get()->SetFatalError( errorMessage );
+	crConsole::Get()->Error( "%s", errorMessage );
 }

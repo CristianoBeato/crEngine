@@ -7,13 +7,6 @@
 #include <SDL3/SDL_loadso.h>
 #include <SDL3/SDL_cpuinfo.h>
 
-#define ID_LANG_ENGLISH		"english"
-#define ID_LANG_FRENCH		"french"
-#define ID_LANG_ITALIAN		"italian"
-#define ID_LANG_GERMAN		"german"
-#define ID_LANG_SPANISH		"spanish"
-#define ID_LANG_JAPANESE	"japanese"
-
 const char* k_sysLanguageNames[] =
 {
 	ID_LANG_ENGLISH, ID_LANG_FRENCH, ID_LANG_ITALIAN, ID_LANG_GERMAN, ID_LANG_SPANISH, ID_LANG_JAPANESE, nullptr

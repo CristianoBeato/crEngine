@@ -229,15 +229,16 @@ public:
 	{
 		return soundWorld;
 	}
-	virtual idSoundWorld* 		MenuSW()
+	virtual idSoundWorld* 		MenuSW( void )
 	{
 		return menuSoundWorld;
 	}
-	virtual idSession* 			Session()
+	virtual idSession* 			Session( void )
 	{
 		return session;
 	}
-	virtual idCommonDialog& 	Dialog()
+
+	virtual idCommonDialog& 	Dialog( void )
 	{
 		return commonDialog;
 	}
@@ -359,9 +360,19 @@ public:	// These are public because they are called directly by static functions
 	void	LocalizeMapData( const char* fileName, idLangDict& langDict );
 	void	LocalizeSpecificMapData( const char* fileName, idLangDict& langDict, const idLangDict& replaceArgs );
 	
-	idUserCmdMgr& GetUCmdMgr()
+	virtual idUserCmdMgr& GetUCmdMgr( void )
 	{
 		return userCmdMgr;
+	}
+
+	virtual void ResetPlayer( int playerIndex )
+	{
+		userCmdMgr.ResetPlayer( playerIndex );
+	}
+
+	virtual bool HasUserCmdForPlayer( int playerIndex, int buffer = 0 ) const
+	{
+		return userCmdMgr.HasUserCmdForPlayer( playerIndex, buffer );
 	}
 	
 private:

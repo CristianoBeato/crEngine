@@ -375,13 +375,9 @@ bool idPlayerProfile::GetAchievement( const int id ) const
 	}
 	
 	if( id < 64 )
-	{
 		return ( achievementBits & ( int64_t )1 << id ) != 0;
-	}
 	else
-	{
 		return ( achievementBits2 & ( int64_t )1 << ( id - 64 ) ) != 0;
-	}
 }
 
 /*

@@ -134,25 +134,19 @@ void idAchievementManager::Init( idPlayer* player )
 idAchievementManager::SyncAchievments
 ========================
 */
-void idAchievementManager::SyncAchievments()
+void idAchievementManager::SyncAchievments( void )
 {
 	idLocalUser* user = GetLocalUser();
 	if( user == nullptr || user->GetProfile() == nullptr )
-	{
 		return;
-	}
 	
 	// Set achievement counts
 	for( int i = 0; i < counts.Num(); i++ )
 	{
 		if( user->GetProfile()->GetAchievement( i ) )
-		{
 			counts[i] = achievementInfo[i].required;
-		}
 		else if( achievementInfo[i].lifetime )
-		{
 			counts[i] = user->GetStatInt( i );
-		}
 	}
 }
 
@@ -367,6 +361,7 @@ CONSOLE_COMMAND( AchievementsReset, "Lock an achievement", nullptr )
 		idLib::Printf( "Must be signed in\n" );
 		return;
 	}
+
 	if( args.Argc() == 1 )
 	{
 		for( int i = 0; i < ACHIEVEMENTS_NUM; i++ )
@@ -463,17 +458,11 @@ CONSOLE_COMMAND( AchievementsList, "Lists achievements and status", nullptr )
 		}
 		int count = 0;
 		if( achievementInfo[i].lifetime )
-		{
 			count = user->GetStatInt( i );
-		}
 		else if( player != nullptr )
-		{
 			count = player->GetAchievementManager().GetCount( ( achievement_t ) i );
-		}
 		else
-		{
 			count = 0;
-		}
 		
 		achievementDescription_t data;
 		bool descriptionValid = session->GetAchievementSystem().GetAchievementDescription( user, i, data );

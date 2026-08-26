@@ -146,13 +146,6 @@ extern idCVar		com_productionMode;
 extern int			com_editors;			// current active editor(s)
 extern bool			com_editorActive;		//  true if an editor has focus
 
-#ifdef _WIN32
-const char			DMAP_MSGID[] = "DMAPOutput";
-const char			DMAP_DONE[] = "DMAPDone";
-extern HWND			com_hwndMsg;
-extern bool			com_outputMsg;
-#endif
-
 struct MemInfo_t
 {
 	idStr			filebase;
@@ -326,10 +319,15 @@ public:
 	virtual int					GetGameFrame() = 0;
 	
 	virtual void				InitializeMPMapsModes() = 0;
-	virtual const idStrList& 			GetModeList() const = 0;
-	virtual const idStrList& 			GetModeDisplayList() const = 0;
+	virtual const idStrList&	GetModeList() const = 0;
+	virtual const idStrList&		GetModeDisplayList() const = 0;
 	virtual const idList<mpMap_t>& 		GetMapList() const = 0;
 	
+// BEATO Begin
+	virtual void				ResetPlayer( int playerIndex ) = 0;
+	virtual bool				HasUserCmdForPlayer( int playerIndex, int buffer = 0 ) const = 0;
+// BEATO End
+
 	virtual void				ResetPlayerInput( int playerIndex ) = 0;
 	
 	virtual bool				JapaneseCensorship() const = 0;
