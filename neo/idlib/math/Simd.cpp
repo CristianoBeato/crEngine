@@ -42,9 +42,10 @@ idSIMDProcessor *	SIMDProcessor = nullptr;
 idSIMD::Init
 ================
 */
-void idSIMD::Init() {
+void idSIMD::Init( void ) 
+{
 	generic = new (TAG_MATH) idSIMD_Generic;
-	generic->cpuid = CPUID_GENERIC;
+	generic->cpuid = crCPUInfo::CPUID_GENERIC;
 	processor = nullptr;
 	SIMDProcessor = generic;
 }
@@ -54,43 +55,48 @@ void idSIMD::Init() {
 idSIMD::InitProcessor
 ============
 */
-void idSIMD::InitProcessor( const char *module, bool forceGeneric ) {
-	cpuid_t cpuid;
+void idSIMD::InitProcessor( const char *module, bool forceGeneric )
+{
+	uint32_t cpuid = 0;
 	idSIMDProcessor *newProcessor;
 
-	cpuid = idLib::sys->GetProcessorId();
+	cpuid = idLib::CPUInfo->GetProcessorId();
 
-	if ( forceGeneric ) {
-
+	if ( forceGeneric ) 
+	{
 		newProcessor = generic;
-
-	} else {
+	} 
+	else 
+	{
 
 		if ( processor == nullptr ) 
 		{
-			if ( ( cpuid & CPUID_MMX ) && ( cpuid & CPUID_SSE ) ) {
+			if ( ( cpuid & crCPUInfo::CPUID_MMX ) && ( cpuid & crCPUInfo::CPUID_SSE ) ) 
 				processor = new (TAG_MATH) idSIMD_SSE;
-			} else {
+			else
 				processor = generic;
-			}
+			
 			processor->cpuid = cpuid;
 		}
 
 		newProcessor = processor;
 	}
 
-	if ( newProcessor != SIMDProcessor ) {
+	if ( newProcessor != SIMDProcessor ) 
+	{
 		SIMDProcessor = newProcessor;
 		idLib::common->Printf( "%s using %s for SIMD processing\n", module, SIMDProcessor->GetName() );
 	}
 
-	if ( cpuid & CPUID_FTZ ) {
-		idLib::sys->FPU_SetFTZ( true );
+	if ( cpuid & crCPUInfo::CPUID_FTZ ) 
+	{
+		idLib::CPUInfo->FPUSetFTZ( true );
 		idLib::common->Printf( "enabled Flush-To-Zero mode\n" );
 	}
 
-	if ( cpuid & CPUID_DAZ ) {
-		idLib::sys->FPU_SetDAZ( true );
+	if ( cpuid & crCPUInfo::CPUID_DAZ ) 
+	{
+		idLib::CPUInfo->FPUSetDAZ( true );
 		idLib::common->Printf( "enabled Denormals-Are-Zero mode\n" );
 	}
 }
@@ -100,10 +106,11 @@ void idSIMD::InitProcessor( const char *module, bool forceGeneric ) {
 idSIMD::Shutdown
 ================
 */
-void idSIMD::Shutdown() {
-	if ( processor != generic ) {
+void idSIMD::Shutdown( void ) 
+{
+	if ( processor != generic ) 
 		delete processor;
-	}
+	
 	delete generic;
 	generic = nullptr;
 	processor = nullptr;
@@ -1238,7 +1245,8 @@ void TestMath() {
 idSIMD::Test_f
 ============
 */
-void idSIMD::Test_f( const idCmdArgs &args ) {
+void idSIMD::Test_f( const idCmdArgs &args ) 
+{
 
 	// RB begin
 #if defined(_WIN32)
@@ -1249,14 +1257,16 @@ void idSIMD::Test_f( const idCmdArgs &args ) {
 	p_simd = processor;
 	p_generic = generic;
 
-	if ( idStr::Length( args.Argv( 1 ) ) != 0 ) {
-		cpuid_t cpuid = idLib::sys->GetProcessorId();
+	if ( idStr::Length( args.Argv( 1 ) ) != 0 ) 
+	{
+		uint32_t cpuid = idLib::CPUInfo->GetProcessorId();
 		idStr argString = args.Args();
 
 		argString.Replace( " ", "" );
 
 		if ( idStr::Icmp( argString, "SSE" ) == 0 ) {
-			if ( !( cpuid & CPUID_MMX ) || !( cpuid & CPUID_SSE ) ) {
+			if ( !( cpuid & crCPUInfo::CPUID_MMX ) || !( cpuid & crCPUInfo::CPUID_SSE ) ) 
+			{
 				common->Printf( "CPU does not support MMX & SSE\n" );
 				return;
 			}

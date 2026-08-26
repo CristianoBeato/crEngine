@@ -87,12 +87,13 @@ struct dominantTri_t;
 class idSIMDProcessor
 {
 public:
-	idSIMDProcessor()
+	idSIMDProcessor( void )
 	{
-		cpuid = CPUID_NONE;
+		cpuid = crCPUInfo::CPUID_NONE;
+		
 	}
 	
-	cpuid_t							cpuid;
+	uint32_t	cpuid;
 	
 	virtual const char* VPCALL		GetName() const = 0;
 	
