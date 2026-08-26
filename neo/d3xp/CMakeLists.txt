@@ -256,19 +256,24 @@ set( D3XP_SOURCES
 ## library configurarion 
 ##################################################################
 
-add_library( d3xp STATIC ${D3XP_SOURCES} )
+add_library( game SHARED ${D3XP_SOURCES} )
 
 #set the idLib specific definitions
-target_compile_definitions( d3xp PRIVATE _D3XP __ID_GAME_LOGIC__ ) #TODO: fix on non monolith build
+target_compile_definitions( game PRIVATE _D3XP __GAME_DLL__ __ID_GAME_LOGIC__ ) #TODO: fix on non monolith build
 
 # d3xp need idLib
-add_dependencies( d3xp idLib )
+add_dependencies( game idLib framework )
+
+# link 
+target_link_libraries( game idLib framework )
 
 #set the idLib root dir as include
-target_include_directories( d3xp PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
+target_include_directories( game PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
 
 # set the precompiled header
-target_precompile_headers( d3xp 
-	PUBLIC ${CMAKE_SOURCE_DIR}/idlib/precompiled.h 
-	PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Game.h
+target_precompile_headers( game
+	PUBLIC 
+        ${CMAKE_SOURCE_DIR}/idlib/precompiled.h 
+	PRIVATE 
+        ${CMAKE_CURRENT_SOURCE_DIR}/Game.h
 	) 

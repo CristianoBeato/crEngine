@@ -133,7 +133,7 @@ set( MODULES_LIBRARIES
     tools
     sound
     renderer
-    d3xp
+#    d3xp
     idLib
     contrib    
     )
