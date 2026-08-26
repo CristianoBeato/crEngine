@@ -34,7 +34,7 @@ public:
     virtual void StartUp( void );
     virtual void ShutDown( void );
     virtual void Exit( const int code );
-    virtual bool CreateInstanceLock( void );
+    virtual bool AlreadyRunning( void );
     virtual bool LockMemory( void* ptr, const size_t bytes );
     virtual bool UnlockMemory( void* ptr, const size_t bytes );
     virtual void ReLaunch( void * data, const size_t dataSize );

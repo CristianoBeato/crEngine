@@ -83,7 +83,7 @@ void crLinuxPlatform::Exit( const int code )
 	exit( code );
 }
 
-bool crLinuxPlatform::CreateInstanceLock(void)
+bool crLinuxPlatform::AlreadyRunning(void)
 {
     // Path to the lock file in the Linux/Unix temporary directory
 	// The "/tmp/" prefix ensures that the file is visible to all local users

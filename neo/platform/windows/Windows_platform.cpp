@@ -1,7 +1,7 @@
 
 #include "Windows_platform.hpp"
 
-#include <windows.h>
+#include <shellapi.h>
 
 // Unique identifier for your application (change to your project name)
 // Avoid spaces or special characters in the Windows Mutex name.
@@ -41,10 +41,9 @@ void crWindowsPlatform::ShutDown(void)
 
 void crWindowsPlatform::Exit(const int code)
 {
-    
 }
 
-bool crWindowsPlatform::CreateInstanceLock(void)
+bool crWindowsPlatform::AlreadyRunning(void)
 {
     // Creates a named mutex in the global scope of Windows.
 	s_instanceLock = CreateMutexA( nullptr, FALSE, APP_UNIQUE_ID );
