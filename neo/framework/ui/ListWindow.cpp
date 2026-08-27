@@ -273,7 +273,7 @@ const char* idListWindow::HandleEvent( const sysEvent_t* event, bool* updateVisu
 	if( key != K_MOUSE1 )
 	{
 		// Send a fake mouse click event so onAction gets run in our parents
-		const sysEvent_t ev = sys->GenerateMouseButtonEvent( 1, true );
+		const sysEvent_t ev = crInputSystem::Get()->GenerateMouseButtonEvent( 1, true );
 		idWindow::HandleEvent( &ev, updateVisuals );
 	}
 	

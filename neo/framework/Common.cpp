@@ -68,7 +68,7 @@ struct version_s
 } version;
 
 idCVar com_version( "si_version", version.string, CVAR_SYSTEM | CVAR_ROM | CVAR_SERVERINFO, "engine version" );
-idCVar com_forceGenericSIMD( "com_forceGenericSIMD", "0", CVAR_BOOL | CVAR_SYSTEM | CVAR_NOCHEAT, "force generic platform independent SIMD" );
+//idCVar com_forceGenericSIMD( "com_forceGenericSIMD", "0", CVAR_BOOL | CVAR_SYSTEM | CVAR_NOCHEAT, "force generic platform independent SIMD" );
 
 #ifdef ID_RETAIL
 idCVar com_allowConsole( "com_allowConsole", "0", CVAR_BOOL | CVAR_SYSTEM | CVAR_INIT, "allow toggling console with the tilde key" );
@@ -97,6 +97,7 @@ idCVar com_pause( "com_pause", "0", CVAR_BOOL | CVAR_SYSTEM | CVAR_NOCHEAT, "set
 // DG end
 
 extern idCVar g_demoMode;
+extern idCVar com_forceGenericSIMD;
 
 idCVar com_engineHz( "com_engineHz", "60", CVAR_FLOAT | CVAR_ARCHIVE, "Frames per second the engine runs at", 10.0f, 1024.0f );
 float com_engineHz_latched = 60.0f; // Latched version of cvar, updated between map loads
@@ -1427,11 +1428,11 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// initialize the file system
 		fileSystem->Init();
 		
-		const char* defaultLang = Sys_DefaultLanguage();
+		const char* defaultLang = crPlatform::Get()->DefaultLanguage();
 		com_isJapaneseSKU = ( idStr::Icmp( defaultLang, ID_LANG_JAPANESE ) == 0 );
 		
 		// Allow the system to set a default lanugage
-		Sys_SetLanguageFromSystem();
+		crPlatform::Get()->SetLanguageFromSystem();
 		
 		// Pre-allocate our 20 MB save buffer here on time, instead of on-demand for each save....
 		saveFile.SetNameAndType( SAVEGAME_CHECKPOINT_FILENAME, SAVEGAMEFILE_BINARY );
@@ -1531,7 +1532,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// init the user command input code
 		usercmdGen->Init();
 		
-		Sys_SetRumble( 0, 0, 0 );
+		crInputSystem::Get()->SetRumble( 0, 0, 0 );
 		
 		// initialize the user interfaces
 		uiManager->Init();
@@ -1785,7 +1786,7 @@ void idCommonLocal::Shutdown()
 	
 	// shut down non-portable system services
 	printf( "Sys_Shutdown();\n" );
-	Sys_Shutdown();
+	crPlatform::Get()->Shutdown();
 	
 	// shut down the console
 	printf( "console->Shutdown();\n" );
@@ -1883,7 +1884,7 @@ idCommonLocal::BusyWait
 */
 void idCommonLocal::BusyWait()
 {
-	Sys_GenerateEvents();
+	crInputSystem::Get()->GenerateEvents();
 	
 	const bool captureToImage = false;
 	UpdateScreen( captureToImage );

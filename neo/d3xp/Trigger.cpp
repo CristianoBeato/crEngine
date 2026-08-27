@@ -1300,10 +1300,13 @@ void idTrigger_Touch::Spawn()
 	
 	if (touchPlayer = spawnArgs.GetBool("touch_player", false))
 		contentMask |= CONTENTS_BODY;
+
 	if (touchAI = spawnArgs.GetBool("touch_ai", false))
 		contentMask |= CONTENTS_BODY;
+
 	if (spawnArgs.GetBool("touch_projectile", false))
 		contentMask |= CONTENTS_PROJECTILE;
+
 	if (spawnArgs.GetBool("touch_corpse", false))
 		contentMask |= CONTENTS_CORPSE;
 	
@@ -1421,13 +1424,9 @@ idTrigger_Touch::Event_Trigger
 void idTrigger_Touch::Event_Trigger( idEntity* activator )
 {
 	if( thinkFlags & TH_THINK )
-	{
 		BecomeInactive( TH_THINK );
-	}
 	else
-	{
 		BecomeActive( TH_THINK );
-	}
 }
 
 /*

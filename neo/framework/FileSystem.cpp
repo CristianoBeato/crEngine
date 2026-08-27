@@ -1921,13 +1921,12 @@ void idFileSystemLocal::CopyFile( const char* fromOSPath, const char* toOSPath )
 		newFromPath.ToLower();
 		if( newFromPath.Find( "/vo/", false ) >= 0 )
 		{
-			for( int i = 0; i < Sys_NumLangs(); i++ )
+			for( int i = 0; i < crPlatform::Get()->NumLangs(); i++ )
 			{
-				const char* lang = Sys_Lang( i );
+				const char* lang = crPlatform::Get()->Language( i );
 				if( idStr::Icmp( lang, ID_LANG_ENGLISH ) == 0 )
-				{
 					continue;
-				}
+				
 				newFromPath = fromOSPath;
 				newToPath = toOSPath;
 				newFromPath.BackSlashesToSlashes();
@@ -3880,9 +3879,9 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 						if( relativePath.Find( "/vo/", false ) >= 0 )
 						{
 							// this is vo so add the language variants
-							for( int i = 0; i < Sys_NumLangs(); i++ )
+							for( int i = 0; i < crPlatform::Get()->NumLangs(); i++ )
 							{
-								const char* lang = Sys_Lang( i );
+								const char* lang = crPlatform::Get()->Language( i );
 								if( idStr::Icmp( lang, ID_LANG_ENGLISH ) == 0 )
 									continue;
 								
@@ -3899,9 +3898,9 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 					else if( relativePath.Icmpn( "guis/", 5 ) == 0 )
 					{
 						// this is a gui so add the language variants
-						for( int i = 0; i < Sys_NumLangs(); i++ )
+						for( int i = 0; i < crPlatform::Get()->NumLangs(); i++ )
 						{
-							const char* lang = Sys_Lang( i );
+							const char* lang = crPlatform::Get()->Language( i );
 							if( idStr::Icmp( lang, ID_LANG_ENGLISH ) == 0 )
 							{
 								fileManifest.Append( relativePath );

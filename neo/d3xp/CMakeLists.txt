@@ -262,10 +262,10 @@ add_library( game SHARED ${D3XP_SOURCES} )
 target_compile_definitions( game PRIVATE _D3XP __GAME_DLL__ __ID_GAME_LOGIC__ ) #TODO: fix on non monolith build
 
 # d3xp need idLib
-add_dependencies( game idLib framework )
+add_dependencies( game idLib )
 
 # link 
-target_link_libraries( game idLib framework )
+target_link_libraries( game idLib )
 
 #set the idLib root dir as include
 target_include_directories( game PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 

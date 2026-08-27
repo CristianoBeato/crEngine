@@ -19,8 +19,8 @@ elseif (UNIX)
 endif ()
 
 set( PLATFORM_SOURCE
-    ${SYSTEM_PLATFORM_SOURCE}
-    ${CMAKE_CURRENT_SOURCE_DIR}/platform.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Platform.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Platform.hpp
     )
 
 ## library configurarion 
@@ -35,5 +35,5 @@ target_precompile_headers( platform
 	PUBLIC 
         ${CMAKE_SOURCE_DIR}/idlib/precompiled.h 
 	PRIVATE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/platform.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/Platform.hpp
 	) 

@@ -509,7 +509,7 @@ public:
 	virtual void			FreeStreamBuffers( void ) override;
 		
 	// RB begin
-	virtual void*			GetDevice( void ) const;
+	virtual void*			GetDevice( void ) const override;
 	// RB end
 	
 	// for the sound level meter window
