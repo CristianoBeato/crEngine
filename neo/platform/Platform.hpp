@@ -78,6 +78,11 @@ public:
 	/// @brief 
 	/// @return 
 	virtual crDisplay* const* 	Displays( uint32_t* in_count ) const = 0;
+
+	/// @brief when the console is down, or the game is about to perform a lengthy
+	/// operation like map loading, the system can release the mouse cursor
+	/// when in windowed mode
+	virtual void				GrabMouseCursor( const bool in_grabIt ) = 0;
 };
 
 /// Render API Context Management
@@ -170,12 +175,7 @@ public:
 	virtual void					SetRumble( const int device, uint16_t in_low, uint16_t in_hi ) = 0;
 	virtual int						PollJoystickInputEvents( const int in_deviceNum ) = 0;
 	virtual bool					ReturnJoystickInputEvent( const int n, int& in_action, int& in_value ) = 0;
-	virtual void					EndJoystickInputEvents( void ) = 0;
-
-	// when the console is down, or the game is about to perform a lengthy
-	// operation like map loading, the system can release the mouse cursor
-	// when in windowed mode
-	virtual void					GrabMouseCursor( const bool in_grabIt ) = 0;	
+	virtual void					EndJoystickInputEvents( void ) = 0;	
 };
 
 typedef struct sysMemoryStats_e

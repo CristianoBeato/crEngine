@@ -554,10 +554,10 @@ idEditField::Paste
 */
 void idEditField::Paste( void )
 {
-	char*	cbd = nullptr;
+	const char*	cbd = nullptr;
 	int		pasteLen = 0, i = 0;
 	
-	cbd = Sys_GetClipboardData();
+	cbd = crPlatform::Get()->GetClipboardData();
 	
 	if( !cbd )
 		return;
@@ -569,7 +569,7 @@ void idEditField::Paste( void )
 		CharEvent( cbd[i] );
 	}
 	
-	Mem_Free( cbd );
+	Mem_Free( (void*)cbd );
 }
 
 /*

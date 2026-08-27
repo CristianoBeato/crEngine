@@ -815,7 +815,7 @@ bool	idConsoleLocal::ProcessEvent( const sysEvent_t* event, bool forceAccept )
 		if( keyCatching )
 		{
 			Close();
-			Sys_GrabMouseCursor( true );
+			crVideo::Get()->GrabMouseCursor( true );
 		}
 		else
 		{

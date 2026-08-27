@@ -1695,7 +1695,7 @@ void R_VidRestart_f( const idCmdArgs& args )
 	}
 	
 	// this could take a while, so give them the cursor back ASAP
-	crInputSystem::Get()->GrabMouseCursor( false );
+	crVideo::Get()->GrabMouseCursor( false );
 	
 	// dump ambient caches
 	renderModelManager->FreeModelVertexCaches();

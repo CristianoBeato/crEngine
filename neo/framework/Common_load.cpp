@@ -435,7 +435,7 @@ void idCommonLocal::ExecuteMapChange( void )
 	
 	for( int i = 0; i < MAX_INPUT_DEVICES; i++ )
 	{
-		Sys_SetRumble( i, 0, 0 );
+		crInputSystem::Get()->SetRumble( i, 0, 0 );
 	}
 	
 	// close console and remove any prints from the notify lines
@@ -529,7 +529,7 @@ void idCommonLocal::ExecuteMapChange( void )
 	
 	// release the mouse cursor
 	// before we do this potentially long operation
-	crInputSystem::Get()->GrabMouseCursor( false );
+	crVideo::Get()->GrabMouseCursor( false );
 	
 	// let the renderSystem load all the geometry
 	if( !renderWorld->InitFromMap( fullMapName ) )
@@ -576,7 +576,7 @@ void idCommonLocal::ExecuteMapChange( void )
 		
 		while( session->GetState() == idSession::LOADING )
 		{
-			Sys_GenerateEvents();
+			crInputSystem::Get()->GenerateEvents();
 			session->UpdateSignInManager();
 			session->Pump();
 			Sys_Sleep( 10 );
@@ -791,7 +791,7 @@ void idCommonLocal::UpdateLevelLoadPacifier(bool updateSecondary, int mProgress)
 	if( time - lastPacifierSessionTime >= sessionUpdateTime )
 	{
 		lastPacifierSessionTime = time;
-		Sys_GenerateEvents();
+		crInputSystem::Get()->GenerateEvents();
 		
 		session->UpdateSignInManager();
 		session->Pump();

@@ -363,7 +363,7 @@ void idCommonLocal::UpdateScreen( bool captureToImage, bool releaseMouse )
 	
 	// release the mouse capture back to the desktop
 	if( releaseMouse )
-		Sys_GrabMouseCursor( false );
+		crVideo::Get()->GrabMouseCursor( false );
 	// DG end
 	
 	// build all the draw commands without running a new game tic
@@ -391,13 +391,14 @@ void idCommonLocal::ProcessGameReturn( const gameReturn_t& ret )
 	// set joystick rumble
 	if( in_useJoystick.GetBool() && in_joystickRumble.GetBool() && !game->Shell_IsActive() && session->GetSignInManager().GetMasterInputDevice() >= 0 )
 	{
-		Sys_SetRumble( session->GetSignInManager().GetMasterInputDevice(), ret.vibrationLow, ret.vibrationHigh );		// Only set the rumble on the active controller
+		// Only set the rumble on the active controller
+		crInputSystem::Get()->SetRumble( session->GetSignInManager().GetMasterInputDevice(), ret.vibrationLow, ret.vibrationHigh );
 	}
 	else
 	{
 		for( int i = 0; i < MAX_INPUT_DEVICES; i++ )
 		{
-			Sys_SetRumble( i, 0, 0 );
+			crInputSystem::Get()->SetRumble( i, 0, 0 );
 		}
 	}
 	
@@ -463,7 +464,7 @@ void idCommonLocal::Frame( void )
 		}
 		
 		// pump all the events
-		Sys_GenerateEvents();
+		crInputSystem::Get()->GenerateEvents();
 		
 		// write config file if anything changed
 		WriteConfiguration();
@@ -486,13 +487,13 @@ void idCommonLocal::Frame( void )
 		if( com_pause.GetInteger() || console->Active() || Dialog().IsDialogActive() || session->IsSystemUIShowing()
 				|| ( game && game->InhibitControls() ) )
 		{
-			Sys_GrabMouseCursor( false );
+			crVideo::Get()->GrabMouseCursor( false );
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, true );
 			chatting = true;
 		}
 		else
 		{
-			Sys_GrabMouseCursor( true );
+			crVideo::Get()->GrabMouseCursor( true );
 			usercmdGen->InhibitUsercmd( INHIBIT_SESSION, false );
 		}
 		
@@ -566,7 +567,7 @@ void idCommonLocal::Frame( void )
 		// How many game frames to run
 		int numGameFrames = 0;
 		
-		for( ;; )
+		while( true )
 		{
 			const int thisFrameTime = Sys_Milliseconds();
 			static int lastFrameTime = thisFrameTime;	// initialized only the first time
@@ -674,9 +675,7 @@ void idCommonLocal::Frame( void )
 		if( mapSpawned && !pauseGame )
 		{
 			if( IsClient() )
-			{
 				RunNetworkSnapshotFrame();
-			}
 		}
 		
 		ExecuteReliableMessages();
@@ -699,26 +698,21 @@ void idCommonLocal::Frame( void )
 		{
 			for( int i = 0; i < MAX_INPUT_DEVICES; i++ )
 			{
-				Sys_PollJoystickInputEvents( i );
-				Sys_EndJoystickInputEvents();
+				crInputSystem::Get()->PollJoystickInputEvents( i );
+				crInputSystem::Get()->EndJoystickInputEvents();
 			}
 		}
+
 		if( pauseGame )
-		{
 			usercmdGen->Clear();
-		}
 		
 		usercmd_t newCmd = usercmdGen->GetCurrentUsercmd();
 		
 		// Store server game time - don't let time go past last SS time in case we are extrapolating
 		if( IsClient() )
-		{
 			newCmd.serverGameMilliseconds = std::min( Game()->GetServerGameTimeMs(), Game()->GetSSEndTime() );
-		}
 		else
-		{
 			newCmd.serverGameMilliseconds = Game()->GetServerGameTimeMs();
-		}
 		
 		userCmdMgr.MakeReadPtrCurrentForPlayer( Game()->GetLocalClientNum() );
 		
