@@ -23,6 +23,8 @@ endif ()
 set( PLATFORM_SOURCE
     ${CMAKE_CURRENT_SOURCE_DIR}/Platform.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Platform.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Video.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Video.hpp
     )
 
 ## library configurarion 

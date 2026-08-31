@@ -14,7 +14,7 @@ public:
     crLinuxPlatform( void );
     ~crLinuxPlatform( void );
 
-    virtual void Init( const char* cmdLine );
+    virtual void Init( void );
     virtual void Shutdown( void );
     virtual void Quit( void );
     virtual void Exit( const int code );
@@ -26,7 +26,7 @@ public:
     virtual void OpenURL( const char *url, const bool doexit );
     virtual void GetCurrentMemoryStatus( sysMemoryStats_t& stats );
     virtual void GetExeLaunchMemoryStatus( sysMemoryStats_t &stats );
-    virtual void SetFatalError(const char *error);
+//    virtual void SetFatalError(const char *error);
     virtual const char* GetCurrentUser( void );
 
 private:

@@ -391,6 +391,7 @@ typedef struct vidMode_t
 
 enum grab_e
 {
+	GRAB_DISABLE	=	0,
 	GRAB_ENABLE		= ( 1 << 0 ),
 	GRAB_REENABLE	= ( 1 << 1 ),
 	GRAB_HIDECURSOR	= ( 1 << 2 ),

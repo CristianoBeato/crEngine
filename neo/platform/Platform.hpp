@@ -289,7 +289,7 @@ public:
     crPlatform( void ) {};
     virtual ~crPlatform( void ) {};
 
-    virtual void    	Init( const char* cmdLine ) = 0;
+    virtual void    	Init( void ) = 0;
     virtual void    	Shutdown( void ) = 0;
     virtual void    	Quit( void ) = 0;
     virtual void    	Exit( const int code ) = 0;
@@ -313,7 +313,7 @@ public:
     virtual void    	GetExeLaunchMemoryStatus( sysMemoryStats_t &stats ) = 0;
 
     // know early if we are performing a fatal error shutdown so the error message doesn't get lost
-    virtual void    	SetFatalError( const char* error ) = 0;
+    virtual void    	SetFatalError( const char* error );
 
     /// 
     virtual const char* GetCurrentUser( void ) = 0;

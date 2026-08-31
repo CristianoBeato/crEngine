@@ -31,7 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 #include "precompiled.h"
 #include "sys_local.h"
-#include "platform/platform.hpp"
+#include "platform/Platform.hpp"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_cpuinfo.h>
@@ -39,8 +39,6 @@ If you have questions concerning this license or the applicable additional terms
 #include <SDL3/SDL_clipboard.h>
 #include <SDL3/SDL_log.h>
 #include <SDL3/SDL_messagebox.h>
-
-#include "sys_video.h"
 
 static idCVar sys_allowMultipleInstances( "sys_allowMultipleInstances", "0", CVAR_SYSTEM | CVAR_BOOL, "allow multiple instances running concurrently" );
 
@@ -87,52 +85,32 @@ void idSysLocal::DLL_GetFileName( const char* baseName, char* dllName, int maxLe
 idSysLocal::GenerateMouseButtonEvent
 =================
 */
-sysEvent_t idSysLocal::GenerateMouseButtonEvent( int button, bool down )
-{
-	sysEvent_t ev;
-	ev.evType = SE_KEY;
-	ev.evValue = K_MOUSE1 + button - 1;
-	ev.evValue2 = down;
-	ev.evPtrLength = 0;
-	ev.evPtr = nullptr;
-	return ev;
-}
+// sysEvent_t idSysLocal::GenerateMouseButtonEvent( int button, bool down )
+// {
+// 	sysEvent_t ev;
+// 	ev.evType = SE_KEY;
+// 	ev.evValue = K_MOUSE1 + button - 1;
+// 	ev.evValue2 = down;
+// 	ev.evPtrLength = 0;
+// 	ev.evPtr = nullptr;
+// 	return ev;
+// }
 
 /*
 =================
 idSysLocal::GenerateMouseMoveEvent
 =================
 */
-sysEvent_t idSysLocal::GenerateMouseMoveEvent( int deltax, int deltay )
-{
-	sysEvent_t ev;
-	ev.evType = SE_MOUSE;
-	ev.evValue = deltax;
-	ev.evValue2 = deltay;
-	ev.evPtrLength = 0;
-	ev.evPtr = nullptr;
-	return ev;
-}
-
-/*
-=================
-idSysLocal::FPU_EnableExceptions
-=================
-*/
-void idSysLocal::FPU_EnableExceptions( int exceptions )
-{
-	crCPUInfo::Get()->FPUEnableExceptions( static_cast<crCPUInfo::FPUEnableExceptions>(exceptions) ); 
-}
-
-/*
-=================
-idSysLocal::OpenURL
-=================
-*/
-void idSysLocal::OpenURL( const char *url, bool doexit )
-{
-	crPlatform::Get()->OpenURL( url, doexit );
-}
+//sysEvent_t idSysLocal::GenerateMouseMoveEvent( int deltax, int deltay )
+//{
+//	sysEvent_t ev;
+//	ev.evType = SE_MOUSE;
+//	ev.evValue = deltax;
+//	ev.evValue2 = deltay;
+//	ev.evPtrLength = 0;
+//	ev.evPtr = nullptr;
+//	return ev;
+//}
 
 /*
 =================
@@ -209,8 +187,9 @@ const char* Sys_TimeStampToStr( ID_TIME_T timeStamp )
 Sys_SecToStr
 ========================
 */
-const char* Sys_SecToStr( const uint32_t sec )
+const char* Sys_SecToStr( const uint32_t in_sec )
 {
+	uint32_t sec = in_sec;
 	char timeString[MAX_STRING_CHARS];
 	
 	uint32_t weeks = sec / ( 3600 * 24 * 7 );
@@ -236,39 +215,6 @@ const char* Sys_SecToStr( const uint32_t sec )
 }
 
 /*
-========================================================================
-
-DLL Loading
-
-========================================================================
-*/
-
-
-// RB end
-crVideo *idSysLocal::GetVideoSystem(void) const
-{
-	static crVideoSDL3 video = crVideoSDL3();
-    return dynamic_cast<crVideo*>( &video );
-}
-
-/*
-==================
-Sys_SetFatalError
-==================
-*/
-void Sys_SetFatalError( const char *error ) 
-{
-	///
-	SDL_Log( error );
-
-	/// present a message box
-	SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error!", error, nullptr );
-
-	/// close aplication
-	crPlatform::Get()->Exit( EXIT_FAILURE );
-}
-
-/*
 =============
 Sys_Error
 
@@ -285,93 +231,3 @@ void Sys_Error( const char *error, ... )
 	/// close aplication
 	crPlatform::Get()->Exit( EXIT_FAILURE );
 }
-
-/*
-==============
-Sys_Printf
-==============
-*/
-void Sys_Printf( const char *fmt, ... ) 
-{
-	va_list argptr;
-	va_start( argptr, fmt );
-	crConsole::Get()->VPrintf( fmt, argptr );
-	va_end( argptr);
-}
-
-/*
-================
-Sys_DebugVPrintf
-================
-*/
-void Sys_DebugVPrintf( const char* fmt, va_list arg )
-{
-	crConsole::Get()->DebugVPrintf( fmt, arg );
-}
-
-/*
-================
-Sys_DebugPrintf
-================
-*/
-void Sys_DebugPrintf( const char* fmt, ... )
-{
-	va_list argptr;
-	va_start( argptr, fmt );
-	crConsole::Get()->DebugVPrintf( fmt, argptr );
-	va_end( argptr);
-}
-
-/*
-================
-Sys_Init
-The cvar system must already be setup
-================
-*/
-void Sys_Init( void ) 
-{
-// BEATO Begin:
-	crPlatform::Get()->StartUp();
-	crVideo::Get()->StartUp( 1 );
-// BEATO End
-}
-
-/*
-===============
-Sys_Shutdown
-===============
-*/
-void Sys_Shutdown( void )
-{
-/// BEATO Begin:
-	crVideo::Get()->ShutDown();
-	crPlatform::Get()->ShutDown();
-/// BEATO End
-}
-
-/*
-================
-idSysLocal::Quit
-================
-*/
-void idSysLocal::Quit( void )
-{
-	crInput::Get()->Shutdown();
-	crConsole::Get()->Shutdown();
-	crPlatform::Get()->Exit( EXIT_SUCCESS );
-}
-
-/*
- ==================
- Sys_AlreadyRunning
- ==================
- */
-bool Sys_AlreadyRunning( void )
-{
-	if( sys_allowMultipleInstances.GetBool() )
-		return false;
-
-	return crPlatform::Get()->CreateInstanceLock();
-}
-
-// BEATO End

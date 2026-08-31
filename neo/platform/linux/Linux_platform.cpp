@@ -30,7 +30,7 @@ crPlatform *crPlatform::Get(void)
     return &gLinuxPlatform;
 }
 
-void crLinuxPlatform::Init(const char *cmdLine)
+void crLinuxPlatform::Init( void )
 {
 
 #ifdef ID_MCHECK
@@ -380,20 +380,21 @@ void crLinuxPlatform::GetCurrentMemoryStatus(sysMemoryStats_t &stats)
     }
 
     char buffer[256];
-    while (fgets(buffer, sizeof(buffer), f)) 
+    while ( std::fgets(buffer, sizeof(buffer), f)) 
     {
-        if ( sscanf(buffer, "MemTotal: %d kB", &stats.totalPhysical) == 1) 
+        if ( std::sscanf(buffer, "MemTotal: %zd kB", &stats.totalPhysical) == 1) 
 			continue;
 
-        if ( sscanf(buffer, "MemAvailable: %d kB", &stats.availPhysical) == 1) 
+        if ( std::sscanf(buffer, "MemAvailable: %zd kB", &stats.availPhysical) == 1) 
 			continue;
 
-        if ( sscanf(buffer, "SwapTotal: %d kB", &stats.totalVirtual) == 1) 
+        if ( std::sscanf(buffer, "SwapTotal: %zd kB", &stats.totalVirtual) == 1) 
 			continue;
 
-        if ( sscanf(buffer, "SwapFree: %d kB", &stats.availVirtual) == 1) 
+        if ( std::sscanf(buffer, "SwapFree: %zd kB", &stats.availVirtual) == 1) 
 			continue;
     }
+
     fclose(f);
 
     // convert from kB to bytes

@@ -38,7 +38,6 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_main.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_profile.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_profile.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/Sys_process.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_public.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_savegame.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_savegame.h
@@ -54,9 +53,6 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_stats_misc.h
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_voicechat.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_voicechat.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/sys_video.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/sys_video.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/sys_cpu.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_vulkan.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/sys_vulkan.hpp
     

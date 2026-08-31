@@ -214,11 +214,6 @@ void crWindowsPlatform::GetExeLaunchMemoryStatus(sysMemoryStats_t &stats)
     stats = exeLaunchMemoryStats;
 }
 
-void crWindowsPlatform::SetFatalError(const char *error)
-{
-
-}
-
 const char *crWindowsPlatform::GetCurrentUser(void)
 {
 	static const uint32_t K_NAME_LEN = 1024;

@@ -63,6 +63,7 @@ public:
     virtual void    TextInput( const bool in_enable );	
 	virtual bool    IsWindowVisible( void ) const;
 	virtual crDisplay* const* Displays( uint32_t* in_count ) const;
+    virtual void	GrabMouseCursor( const bool in_grabIt );
 
 private:
     bool                                m_grabbed;

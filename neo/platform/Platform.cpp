@@ -2,6 +2,8 @@
 #include "precompiled.h"
 #include "Platform.hpp"
 
+#include <SDL3/SDL_log.h>
+#include <SDL3/SDL_messagebox.h>
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_clipboard.h>
 #include <SDL3/SDL_loadso.h>
@@ -41,6 +43,17 @@ void crConsole::Error( const char *fmt, ... )
 	crPlatform::Get()->Exit( EXIT_FAILURE );
 }
 
+void crPlatform::SetFatalError(const char *error)
+{
+	///
+	SDL_Log( error );
+
+	/// present a message box
+	SDL_ShowSimpleMessageBox( SDL_MESSAGEBOX_ERROR, "Error!", error, nullptr );
+
+	/// close aplication
+	crPlatform::Get()->Exit( EXIT_FAILURE );
+}
 
 /*
 =====================

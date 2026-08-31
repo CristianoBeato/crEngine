@@ -30,7 +30,7 @@ int main( int argc, char *argv[] )
     }
 
     crConsole::Get()->Startup();
-    crPlatform::Get()->Init( cmdLine );
+    //crPlatform::Get()->Init( cmdLine );
 
     // Sys_FPU_EnableExceptions( TEST_FPU_EXCEPTIONS );
 	

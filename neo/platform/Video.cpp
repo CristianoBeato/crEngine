@@ -23,7 +23,7 @@ along with crEngine Source Code.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "precompiled.h"
-#include "sys_video.h"
+#include "Video.hpp"
 
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_events.h>
@@ -303,4 +303,12 @@ bool crVideoSDL3::IsWindowVisible( void ) const
         return false;
 
     return !( m_mainWindow.GetFlags() & SDL_WINDOW_HIDDEN );
+}
+
+void crVideoSDL3::GrabMouseCursor(const bool in_grabIt)
+{
+    if( in_grabIt )
+        GrabInput( GRAB_ENABLE );
+    else
+        GrabInput( GRAB_DISABLE );
 }
