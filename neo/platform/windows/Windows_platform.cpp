@@ -8,6 +8,7 @@
 #define APP_UNIQUE_ID "crEngine_Unique_Instance_ID_000"
 static HANDLE s_instanceLock = nullptr;
 
+
 crPlatform *crPlatform::Get(void)
 {
     static crWindowsPlatform gWindowsPlatform = crWindowsPlatform();
@@ -24,7 +25,11 @@ crWindowsPlatform::~crWindowsPlatform( void )
 
 void crWindowsPlatform::StartUp(void)
 {
-    CoInitialize( nullptr ); // TODO: Move to Xaudio 
+    CoInitialize( nullptr ); // TODO: Move to Xaudio
+
+	com_pid.SetInteger( getpid() );
+	common->Printf( "pid: %d\n", com_pid.GetInteger() );
+	common->Printf( "%d MB System Memory\n", Sys_GetSystemRam() );
 }
 
 void crWindowsPlatform::ShutDown(void)
@@ -211,6 +216,7 @@ void crWindowsPlatform::GetExeLaunchMemoryStatus(sysMemoryStats_t &stats)
 
 void crWindowsPlatform::SetFatalError(const char *error)
 {
+
 }
 
 const char *crWindowsPlatform::GetCurrentUser(void)

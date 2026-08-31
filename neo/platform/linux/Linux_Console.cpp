@@ -25,7 +25,7 @@ constexpr int siglist[] =
 	-1
 };
 
-constexpr char* signames[] =
+constexpr const char* signames[] =
 {
 	"SIGHUP",
 	"SIGQUIT",
@@ -56,7 +56,7 @@ crLinuxConsole::~crLinuxConsole( void )
 {
 }
 
-void crLinuxConsole::StartUp( void )
+void crLinuxConsole::Startup( void )
 {
     InitSigs();
     InitConsoleInput();
@@ -80,14 +80,23 @@ void crLinuxConsole::Shutdown( void )
 	ClearSigs();
 }
 
+void crLinuxConsole::ShowConsole(const int in_visLevel, const bool in_quitOnClose)
+{
+}
+
 void crLinuxConsole::VPrintf( const char *fmt, va_list arg )
 {
     TTYHide();
-	vprintf( fmt, arg );
+	std::vprintf( fmt, arg );
 	TTYShow();
 }
 
-const char *crLinuxConsole::ConsoleInput( void )
+void crLinuxConsole::SetFatalError( const char *error )
+{
+	std::strncpy( m_fatalError, error, sizeof( m_fatalError ) );
+}
+
+const char *crLinuxConsole::ConsoleInput(void)
 {
 	if( m_ttyEnabled )
 	{
@@ -145,7 +154,7 @@ const char *crLinuxConsole::ConsoleInput( void )
 						TTYFlushIn();
 						assert( hidden );
 						TTYShow();
-						return NULL;
+						return nullptr;
 					}
 					switch( key )
 					{
@@ -255,7 +264,7 @@ const char *crLinuxConsole::ConsoleInput( void )
 									TTYFlushIn();
 									assert( hidden );
 									TTYShow();
-									return NULL;
+									return nullptr;
 								}
 								case 65:
 								case 66:
@@ -347,10 +356,10 @@ const char *crLinuxConsole::ConsoleInput( void )
 	return nullptr;
 }
 
-void crLinuxConsole::VDebug(const char *fmt, va_list arg)
+void crLinuxConsole::VDebug( const char *fmt, va_list arg )
 {
     TTYHide();
-	vprintf( fmt, arg );
+	std::vprintf( fmt, arg );
 	TTYShow();
 }
 
@@ -359,7 +368,7 @@ void crLinuxConsole::VError( const char *fmt, va_list arg )
     va_list argptr; 
 	Printf( "Error: " );
 	TTYHide();
-	vprintf( fmt, argptr );
+	std::vprintf( fmt, argptr );
 	Printf( "\n" );
 }
 
@@ -441,6 +450,7 @@ void crLinuxConsole::TTYHide(void)
 		m_inputHide++;
 		return;
 	}
+
 	// clear after cursor
 	len = std::strlen( m_inputField.GetBuffer() ) - m_inputField.GetCursor();
 	while( len > 0 )
@@ -448,6 +458,7 @@ void crLinuxConsole::TTYHide(void)
 		TTYRight();
 		len--;
 	}
+
 	buf_len = std::strlen( m_inputField.GetBuffer() );
 	while( buf_len > 0 )
 	{

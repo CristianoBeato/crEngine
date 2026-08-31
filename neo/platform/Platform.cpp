@@ -1,6 +1,6 @@
 
 #include "precompiled.h"
-#include "platform.hpp"
+#include "Platform.hpp"
 
 #include <SDL3/SDL_timer.h>
 #include <SDL3/SDL_clipboard.h>
@@ -15,6 +15,32 @@ const char* k_sysLanguageNames[] =
 constexpr uint32_t k_numLanguages = sizeof( k_sysLanguageNames ) / sizeof k_sysLanguageNames[ 0 ] - 1;
 
 idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", k_sysLanguageNames, idCmdSystem::ArgCompletion_String<k_sysLanguageNames> );
+
+void crConsole::Printf( const char *fmt, ... )
+{
+	va_list argptr;
+	va_start( argptr, fmt );
+	VPrintf( fmt, argptr );
+	va_end( argptr );
+}
+
+void crConsole::Debug( const char *fmt, ... )
+{
+	va_list argptr;
+	va_start( argptr, fmt );
+	VDebug( fmt, argptr );
+	va_end( argptr );
+}
+
+void crConsole::Error( const char *fmt, ... )
+{
+	va_list argptr;
+	va_start( argptr, fmt );
+	VError( fmt, argptr );
+	va_end( argptr );
+	crPlatform::Get()->Exit( EXIT_FAILURE );
+}
+
 
 /*
 =====================

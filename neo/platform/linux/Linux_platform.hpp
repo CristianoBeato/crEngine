@@ -2,24 +2,7 @@
 #ifndef __LINUX_PLATFORM_HPP__
 #define __LINUX_PLATFORM_HPP__
 
-#include "../platform.hpp"
-
-class crLinuxConsole : public crConsole
-{
-public:
-    crLinuxConsole( const crLinuxConsole& ) = delete;
-    crLinuxConsole operator =( const crLinuxConsole& ) = delete;
-
-    crLinuxConsole( void );
-    ~crLinuxConsole( void );
-    void            StartUp( void );
-    void            ShutDown( void );
-    virtual void    VPrintf( const char *fmt, va_list arg );
-    virtual void    DebugVPrintf( const char *fmt, va_list arg );
-    virtual void    VError( const char *fmt, va_list arg );
-private:
-
-};
+#include "../Platform.hpp"
 
 class crLinuxPlatform : public crPlatform
 {
@@ -31,8 +14,9 @@ public:
     crLinuxPlatform( void );
     ~crLinuxPlatform( void );
 
-    virtual void StartUp( void );
-    virtual void ShutDown( void );
+    virtual void Init( const char* cmdLine );
+    virtual void Shutdown( void );
+    virtual void Quit( void );
     virtual void Exit( const int code );
     virtual bool AlreadyRunning( void );
     virtual bool LockMemory( void* ptr, const size_t bytes );
@@ -46,12 +30,11 @@ public:
     virtual const char* GetCurrentUser( void );
 
 private:
+    int                 m_instanceLock;
     int                 m_setExit;
     sysMemoryStats_t    m_exeLaunchMemoryStats;
     const char          m_exitSpawn[ 1024 ];
-
     void                SetExitSpawn( const char* exeName );
-    void                ClearSigs( void );
 };
 
 #endif //!__LINUX_PLATFORM_HPP__

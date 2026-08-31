@@ -11,10 +11,12 @@ if (WIN32)
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_console.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_platform.cpp 
         )
-elseif (UNIX)
+elseif (LINUX)
     set( SYSTEM_PLATFORM_SOURCE 
-        ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_console.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_Console.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_Console.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_platform.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_platform.hpp
         )
 endif ()
 
@@ -25,7 +27,7 @@ set( PLATFORM_SOURCE
 
 ## library configurarion 
 ##################################################################
-add_library( platform STATIC ${PLATFORM_SOURCE} )
+add_library( platform STATIC ${PLATFORM_SOURCE} ${SYSTEM_PLATFORM_SOURCE} )
 
 #set the idLib root dir as include
 target_include_directories( platform PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 

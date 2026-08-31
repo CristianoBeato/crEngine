@@ -1,6 +1,6 @@
 
 #include "Linux_platform.hpp"
-#include "../platform.hpp"
+#include "../Platform.hpp"
 
 #include <string.h>
 #include <pthread.h>
@@ -9,12 +9,16 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/mman.h>
+#include <sys/file.h>
+#include <pwd.h>
 #include <fcntl.h>
 #include <dirent.h>
 
 static const char** cmdargv = nullptr;
-static int cmdargc = 0;
-static int s_instanceLock = 0; 
+static int cmdargc = 0; 
+
+// pid - useful when you attach to gdb..
+idCVar com_pid( "com_pid", "0", CVAR_INTEGER | CVAR_INIT | CVAR_SYSTEM, "process id" );
 
 // Unique identifier for your application (change to your project name)
 // Avoid spaces or special characters in the Windows Mutex name.
@@ -26,54 +30,50 @@ crPlatform *crPlatform::Get(void)
     return &gLinuxPlatform;
 }
 
-crConsole *crConsole::Get(void)
+void crLinuxPlatform::Init(const char *cmdLine)
 {
-	static crLinuxConsole gLinuxConsole = crLinuxConsole();
-    return &gLinuxConsole;
+
+#ifdef ID_MCHECK
+	// must have -lmcheck linkage
+	mcheck( abrt_func );
+	Sys_Printf( "memory consistency checking enabled\n" );#endif
+#endif
+
+
 }
 
-crLinuxConsole::crLinuxConsole( void )
-{
-}
-
-crLinuxConsole::~crLinuxConsole( void )
-{
-}
-
-void crLinuxConsole::StartUp(void)
-{
-}
-
-void crLinuxConsole::ShutDown(void)
-{
-}
-
-void crLinuxConsole::VPrintf(const char *fmt, va_list arg)
-{
-	TtyHide();
-	vprintf( fmt, arg );
-	TtyShow();
-}
-void crLinuxPlatform::ShutDown(void)
+void crLinuxPlatform::Shutdown(void)
 {
 	// Release firt instance lock file
-	if( s_instanceLock > 0 )
+	if( m_instanceLock > 0 )
 	{
-		close( s_instanceLock );
-		s_instanceLock = 0;
+		close( m_instanceLock );
+		m_instanceLock = 0;
 	}
 }
 
-void crLinuxPlatform::Exit( const int code )
+/*
+================
+crLinuxPlatform::Quit
+================
+*/
+void crLinuxPlatform::Quit(void)
 {
-	Posix_ConsoleExit();
-	
-	// at this point, too late to catch signals
-	ClearSigs();
+	Exit( EXIT_SUCCESS );
+}
+
+/*
+================
+crLinuxPlatform::Exit
+================
+*/
+void crLinuxPlatform::Exit(const int code)
+{
+	crConsole::Get()->Shutdown();
 	
 	// process spawning. it's best when it happens after everything has shut down
 	if( m_exitSpawn[0] )
-		Sys_DoStartProcess( m_exitSpawn, false );
+		StartProcess( m_exitSpawn, false );
 	
 	// in case of signal, handler tries a common->Quit
 	// we use set_exit to maintain a correct exit code
@@ -90,15 +90,15 @@ bool crLinuxPlatform::AlreadyRunning(void)
 	const char* lockFile = "/tmp/" APP_UNIQUE_ID ".lock";
 
 	// Opens or creates the file with read/write permissions
-    s_instanceLock = open( lockFile, O_CREAT | O_RDWR, 0666 );
-    if ( s_instanceLock < 0 ) 
+    m_instanceLock = open( lockFile, O_CREAT | O_RDWR, 0666 );
+    if ( m_instanceLock < 0 ) 
         return false; // The lock file could not be created.
 
 	// Attempts to apply a non-blocking exclusive lock ( LOCK_EX | LOCK_NB )
-    if ( flock( s_instanceLock, LOCK_EX | LOCK_NB) < 0 ) 
+    if ( flock( m_instanceLock, LOCK_EX | LOCK_NB) < 0 ) 
 	{
         // If it fails, it means that another instance has already locked this file.
-        close( s_instanceLock );
+        close( m_instanceLock );
         return true;
     }
 }
@@ -153,18 +153,23 @@ void crLinuxPlatform::ReLaunch(void *data, const size_t dataSize)
 		
 		// close all FDs (except for stdin/out/err) so we don't leak FDs
 		DIR* devfd = opendir( "/dev/fd" );
-		if( devfd != NULL )
+		if( devfd != nullptr )
 		{
-			struct dirent entry;
 			struct dirent* result;
-			while( readdir_r( devfd, &entry, &result ) == 0 )
+			// struct dirent entry;
+			// while( readdir_r( devfd, &entry, &result ) == 0 )
+			while( ( result = readdir( devfd ) ) != nullptr )
 			{
+
 				const char* filename = result->d_name;
-				char* endptr = NULL;
-				long int fd = strtol( filename, &endptr, 0 );
+				char* endptr = nullptr;
+				long int fd = std::strtol( filename, &endptr, 0 );
 				if( endptr != filename && fd > STDERR_FILENO )
 					close( fd );
 			}
+
+			// 
+			closedir( devfd ); 
 		}
 		else
 		{
@@ -311,13 +316,14 @@ void crLinuxPlatform::OpenURL(const char *url, const bool doexit)
 		DIR* devfd = opendir( "/dev/fd" );
 		if( devfd != NULL )
 		{
-			struct dirent entry;
 			struct dirent* result;
-			while( readdir_r( devfd, &entry, &result ) == 0 )
+			// struct dirent entry;
+			// while( readdir_r( devfd, &entry, &result ) == 0 )
+			while( ( result = readdir( devfd ) ) != nullptr )
 			{
 				const char* filename = result->d_name;
-				char* endptr = NULL;
-				long int fd = strtol( filename, &endptr, 0 );
+				char* endptr = nullptr;
+				long int fd = std::strtol( filename, &endptr, 0 );
 				if( endptr != filename && fd > STDERR_FILENO )
 					close( fd );
 			}
@@ -399,7 +405,7 @@ void crLinuxPlatform::GetCurrentMemoryStatus(sysMemoryStats_t &stats)
 
 void crLinuxPlatform::GetExeLaunchMemoryStatus(sysMemoryStats_t &stats)
 {
-	stats = exeLaunchMemoryStats;
+	stats = m_exeLaunchMemoryStats;
 }
 
 const char *crLinuxPlatform::GetCurrentUser(void)
@@ -434,31 +440,5 @@ set the process to be spawned when we quit
 */
 void crLinuxPlatform::SetExitSpawn( const char *exeName )
 {
-	idStr::Copynz( m_exitSpawn, exeName, 1024 );
-}
-
-/*
-================
-Posix_ClearSigs
-================
-*/
-void crLinuxPlatform::ClearSigs( void )
-{
-	struct sigaction action;
-	int i;
-	
-	// Set up the structure
-	action.sa_handler = SIG_DFL;
-	sigemptyset( &action.sa_mask );
-	action.sa_flags = 0;
-	
-	i = 0;
-	while( siglist[ i ] != -1 )
-	{
-		if( sigaction( siglist[ i ], &action, nullptr ) != 0 )
-		{
-			Sys_Printf( "Failed to reset %s handler: %s\n", signames[ i ], strerror( errno ) );
-		}
-		i++;
-	}
+	idStr::Copynz( const_cast<char*>(m_exitSpawn), exeName, 1024 );
 }

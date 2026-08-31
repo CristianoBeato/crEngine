@@ -2,6 +2,7 @@
 #define __LINUX_CONSOLE_HPP__
 
 #include <cstdio>
+#include <termios.h>
 #include "../Platform.hpp"
 
 inline constexpr uint32_t COMMAND_HISTORY = 64;
@@ -12,10 +13,10 @@ public:
     crLinuxConsole( void );
     ~crLinuxConsole( void );
     
-    virtual void        StartUp( void );
+    virtual void        Startup( void );
     virtual void        Shutdown( void );
     virtual void        ShowConsole( const int in_visLevel, const bool in_quitOnClose );
-    virtual const char* GetCmdLine( void );
+    virtual void        SetFatalError( const char* error );
     virtual const char* ConsoleInput( void );
     virtual void        VPrintf( const char *fmt, va_list arg );
     virtual void        VDebug( const char *fmt, va_list arg );

@@ -9,15 +9,17 @@ public:
 
     crConsole( void ) {};
     virtual ~crConsole( void ) {};
+	virtual void			Startup( void ) = 0;
 	virtual void			Shutdown( void ) = 0;
 	virtual void			ShowConsole( const int in_visLevel, const bool in_quitOnClose ) = 0;
-	virtual void            Printf( const char *fmt, ... ) = 0;
-    virtual void            VPrintf( const char *fmt, va_list arg ) = 0;
-	virtual void            DebugPrintf( const char *fmt, ... ) = 0;
-    virtual void            DebugVPrintf( const char *fmt, va_list arg ) = 0;
-	virtual void			Error( const char* fmt, ... ) = 0;
+    virtual void			SetFatalError( const char* error ) = 0;
+	virtual const char* 	ConsoleInput( void ) = 0;
+	virtual void            VPrintf( const char *fmt, va_list arg ) = 0;
+    virtual void            VDebug( const char *fmt, va_list arg ) = 0;
     virtual void            VError( const char *fmt, va_list arg ) = 0; 
-    virtual const char *    GetCmdLine( void ) = 0;
+	void					Error( const char* fmt, ... );
+	void            		Printf( const char *fmt, ... );
+	void            		Debug( const char *fmt, ... );
 };
 
 class crDisplay
@@ -287,12 +289,11 @@ public:
     crPlatform( void ) {};
     virtual ~crPlatform( void ) {};
 
-    virtual void    	Init( void ) = 0;
+    virtual void    	Init( const char* cmdLine ) = 0;
     virtual void    	Shutdown( void ) = 0;
     virtual void    	Quit( void ) = 0;
     virtual void    	Exit( const int code ) = 0;
     virtual bool    	AlreadyRunning( void ) = 0;
-    virtual bool    	CreateInstanceLock( void ) = 0;
 
     /// @brief lock memory caching restriction
     virtual bool    	LockMemory( void* ptr, const size_t bytes ) = 0;
