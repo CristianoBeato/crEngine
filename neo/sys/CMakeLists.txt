@@ -70,33 +70,6 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/events.cpp
     )
 
-# linux sources 
-set( SYSTEM_LINUX_SOURCES 
-    ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_console.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_local.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_public.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/posix/posix_signal.cpp
-    )
-
-set( SYSTEM_WIN_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_local.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_nanoafx.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_shared.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/win32/win_syscon.cpp
-    )
-
-if( WIN32 )
-    set ( SYSTEM_PLATFORM_SOURCES ${SYSTEM_WIN_SOURCES} )
-elseif( "${CMAKE_SYSTEM}" MATCHES "Linux")
-    set ( SYSTEM_PLATFORM_SOURCES ${SYSTEM_LINUX_SOURCES} ${SYSTEM_SDL_SOURCES} )
-endif( )
-
-set( SYSTEM_SOURCES
-    ${SYSTEM_MAIN_SOURCES}
-    ${SYSTEM_PLATFORM_SOURCES}    
-    )
-
 ## Link Libraries
 ##################################################################
 
@@ -110,7 +83,7 @@ endif()
 ## Executable 
 ##################################################################
 
-add_executable( crEngine WIN32 ${SYSTEM_SOURCES} )
+add_executable( crEngine WIN32 ${SYSTEM_MAIN_SOURCES} )
 
 ##
 ## GCC require a specific modules linking order 

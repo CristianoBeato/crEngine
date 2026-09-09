@@ -31,7 +31,6 @@ If you have questions concerning this license or the applicable additional terms
 /// @brief Retrieve defaut execution path
 /// @param  
 /// @return 
-extern const char* 	Sys_DefaultBasePath( void );
 
 /// @brief Retrieve default game save path
 /// @param  
@@ -62,12 +61,6 @@ extern const char*	Sys_CWD( void );
 extern const char*	Sys_LaunchPath( void );
 
 
-enum sysFolder_t
-{
-	FOLDER_ERROR	= -1,
-	FOLDER_NO		= 0,
-	FOLDER_YES		= 1
-};
 
 // returns FOLDER_YES if the specified path is a folder
 sysFolder_t		Sys_IsFolder( const char* path );
