@@ -5,8 +5,6 @@
 #include <termios.h>
 #include "../Platform.hpp"
 
-inline constexpr uint32_t COMMAND_HISTORY = 64;
-
 class crLinuxConsole : public crConsole
 {
 public:

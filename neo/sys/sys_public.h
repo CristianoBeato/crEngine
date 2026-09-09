@@ -58,18 +58,6 @@ enum joystickAxis_t
 	MAX_JOYSTICK_AXIS
 };
 
-enum sysEventType_t
-{
-	SE_NONE,				// evTime is still valid
-	SE_KEY,					// evValue is a key code, evValue2 is the down flag
-	SE_CHAR,				// evValue is an ascii char
-	SE_MOUSE,				// evValue and evValue2 are reletive signed x / y moves
-	SE_MOUSE_ABSOLUTE,		// evValue and evValue2 are absolute coordinates in the window's client area.
-	SE_MOUSE_LEAVE,			// evValue and evValue2 are meaninless, this indicates the mouse has left the client area.
-	SE_JOYSTICK,		// evValue is an axis number and evValue2 is the current state (-127 to 127)
-	SE_CONSOLE				// evPtr is a char*, from typing something at a non-game console
-};
-
 enum sys_mEvents
 {
 	M_ACTION1,
@@ -330,25 +318,6 @@ enum keyNum_t
 	K_MWHEELUP,
 	
 	K_LAST_KEY
-};
-
-struct sysEvent_t
-{
-	sysEventType_t	evType;
-	int				evValue;
-	int				evValue2;
-	int				evPtrLength;		// bytes of data pointed to by evPtr, for journaling
-	void* 			evPtr;				// this must be manually freed if not nullptr
-	int				inputDevice;
-
-	bool			IsKeyEvent( void ) const { return evType == SE_KEY; }
-	bool			IsMouseEvent( void ) const { return evType == SE_MOUSE; }
-	bool			IsCharEvent( void ) const { return evType == SE_CHAR; }
-	bool			IsJoystickEvent( void ) const { return evType == SE_JOYSTICK; }
-	bool			IsKeyDown( void ) const { return evValue2 != 0; }
-	keyNum_t		GetKey( void ) const { return static_cast< keyNum_t >( evValue ); }
-	int				GetXCoord( void ) const { return evValue; }
-	int				GetYCoord( void ) const { return evValue2; }
 };
 
 enum videoMode_t : uint8_t

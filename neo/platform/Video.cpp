@@ -150,6 +150,9 @@ bool crVideoSDL3::StartUp( const uint32_t in_flags )
         return false;
     }
 
+    // Capture mouse relative motion
+    SDL_SetWindowRelativeMouseMode( m_mainWindow, true );
+
     return true;
 }
 

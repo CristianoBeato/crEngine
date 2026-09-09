@@ -2,6 +2,8 @@
 #ifndef __PLATFORM_H__
 #define __PLATFORM_H__
 
+inline constexpr uint32_t COMMAND_HISTORY = 64;
+
 class crConsole
 {
 public:
@@ -141,44 +143,8 @@ public:
 };
 // BEATO End
 
-// mouse input polling
-inline constexpr int MAX_MOUSE_EVENTS = 256;
-inline constexpr int MAX_JOYSTICKS = 4; // Limit for Most consoles is 4 Controllers 
-class crInputSystem
-{
-public:
-	static crInputSystem*	Get( void );
-	crInputSystem( void ) {};
-	~crInputSystem( void ) {};
-
-	// input is tied to windows, so it needs to be started up and shut down whenever
-	// the main window is recreated
-	virtual void					Init( void ) = 0;
-	virtual void					Shutdown( void ) = 0;
-	// event generation
-	virtual void					GenerateEvents( void ) = 0;
-	virtual sysEvent_t				GetEvent( void ) = 0;
-	virtual void					ClearEvents( void ) = 0;
-	
-	virtual const unsigned char*	GetScanTable( void ) = 0;
-	
-	// keyboard input polling
-	virtual int						PollKeyboardInputEvents( void ) = 0;
-	virtual int						ReturnKeyboardInputEvent( const int n, int& ch, bool& state ) = 0;
-	virtual void					EndKeyboardInputEvents( void ) = 0;
-	
-	// mouse polling
-	virtual int						PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] ) = 0;
-	virtual sysEvent_t				GenerateMouseButtonEvent( const int button, const bool down ) = 0;
-	virtual sysEvent_t 				GenerateMouseMoveEvent( const int32_t deltax, const int32_t deltay ) = 0;
-
-	// joystick input polling
-	virtual uint32_t				GamepadCount( void ) = 0;
-	virtual void					SetRumble( const int device, uint16_t in_low, uint16_t in_hi ) = 0;
-	virtual int						PollJoystickInputEvents( const int in_deviceNum ) = 0;
-	virtual bool					ReturnJoystickInputEvent( const int n, int& in_action, int& in_value ) = 0;
-	virtual void					EndJoystickInputEvents( void ) = 0;	
-};
+#include "Events.hpp"
+#include "Input.hpp"
 
 class crPaths
 {

@@ -1345,7 +1345,7 @@ void idUsercmdGenLocal::Key( int keyNum, bool down )
 idUsercmdGenLocal::Mouse
 ===================
 */
-void idUsercmdGenLocal::Mouse()
+void idUsercmdGenLocal::Mouse( void )
 {
 	int	mouseEvents[MAX_MOUSE_EVENTS][2];
 	
