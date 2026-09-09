@@ -398,28 +398,6 @@ enum grab_e
 	GRAB_SETSTATE	= ( 1 << 3 )
 };
 
-// typedef unsigned long address_t; // DG: this isn't even used
-
-void			Sys_Error( const char* error, ... );
-
-// will go to the various text consoles
-void			Sys_Printf( VERIFY_FORMAT_STRING const char* msg, ... );
-
-// guaranteed to be thread-safe
-void			Sys_DebugPrintf( VERIFY_FORMAT_STRING const char* fmt, ... );
-void			Sys_DebugVPrintf( const char* fmt, va_list arg );
-
-
-
-// returns amount of video ram
-int				Sys_GetVideoRam( void );
-
-// returns amount of drive space in path
-uint32_t		Sys_GetDriveFreeSpace( const char* path );
-
-// returns amount of drive space in path in bytes
-uint64_t		Sys_GetDriveFreeSpaceInBytes( const char* path );
-
 // This really isn't the right place to have this, but since this is the 'top level' include
 // and has a function signature with 'FILE' in it, it kinda needs to be here =/
 

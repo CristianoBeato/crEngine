@@ -49,15 +49,14 @@ idSys* 				sys = &sysLocal;
 void idSysLocal::DebugPrintf( const char* fmt, ... )
 {
 	va_list argptr;
-	
 	va_start( argptr, fmt );
-	Sys_DebugVPrintf( fmt, argptr );
+	crConsole::Get()->VDebug( fmt, argptr );
 	va_end( argptr );
 }
 
 void idSysLocal::DebugVPrintf( const char* fmt, va_list arg )
 {
-	Sys_DebugVPrintf( fmt, arg );
+	crConsole::Get()->VDebug( fmt, arg );
 }
 
 double idSysLocal::GetClockTicks( void )

@@ -1665,7 +1665,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 	}
 	catch( idException& )
 	{
-		Sys_Error( "Error during initialization" );
+		crConsole::Get()->Error( "Error during initialization" );
 	}
 }
 
@@ -1674,12 +1674,11 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 idCommonLocal::Shutdown
 =================
 */
-void idCommonLocal::Shutdown()
+void idCommonLocal::Shutdown( void )
 {
 	if( com_shuttingDown )
-	{
 		return;
-	}
+	
 	com_shuttingDown = true;
 	
 	
