@@ -15,6 +15,8 @@ elseif (LINUX)
     set( SYSTEM_PLATFORM_SOURCE 
         ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_Console.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_Console.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_Path.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_Path.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_platform.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/linux/Linux_platform.hpp
         )

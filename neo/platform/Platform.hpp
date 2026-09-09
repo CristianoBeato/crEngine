@@ -180,6 +180,61 @@ public:
 	virtual void					EndJoystickInputEvents( void ) = 0;	
 };
 
+class crPaths
+{
+public:
+	static idCVar	sys_DefaultBasePath;
+	static idCVar 	sys_DefaultSavePath;
+    static crPaths* Get( void );
+
+	enum sysFolder_t
+	{
+		FOLDER_ERROR	= -1,
+		FOLDER_NO		= 0,
+		FOLDER_YES		= 1
+	};
+
+	virtual const char* EXEPath( void ) = 0;
+	
+	/// @brief Get the default base path
+	/// 		- binary image path
+	/// 		- current directory
+	/// 		- hardcoded
+	/// Try to be intelligent: if there is no BASE_GAMEDIR, try the next path 
+	virtual const char* DefaultBasePath( void );
+	
+	virtual const char*	DefaultSavePath( void ) = 0;
+
+	uint64_t 			GetDriveFreeSpace( const char* path );
+	uint64_t 			GetDriveFreeSpaceInBytes( const char* path );
+
+	/// @brief use fs_debug to verbose Sys_ListFiles
+	/// @param path
+	/// @param extension
+	/// @return -1 if directory was not found (the list is cleared), or n for the element count in the list 
+	int					ListFiles( const char *path, const char* extension, idList<class idStr>& list );
+	bool 				DirExist( const char *path );
+
+	/// @brief Create a path three 
+	/// @param path 
+	void 				Mkdir( const char* path );
+	
+	/// @brief Remove a folder in the path 
+	/// @param path 
+	/// @return false on erro, folder not enpty, not acessible 
+	bool				Rmdir( const char* path );
+	
+	/// @brief check if file is protected form writing
+	/// @param path 
+	/// @return true if are unlocked 
+	virtual bool		IsFileWritable( const char* path );
+	
+	/// @brief returns FOLDER_YES if the specified path is a folder
+	/// @param path 
+	/// @return FOLDER_ERROR on error, FOLDER_NO for not folder, FOLDER_YES for a folder
+	sysFolder_t			IsFolder( const char* path );
+};
+
 typedef struct sysMemoryStats_e
 {
 	size_t memoryLoad;
