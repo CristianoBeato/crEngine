@@ -9,7 +9,12 @@
 if (WIN32)
     set( SYSTEM_PLATFORM_SOURCE
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_console.cpp
-        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_platform.cpp 
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_CPUInfo.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_CPUInfo.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Path.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Path.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Platform.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Platform.hpp 
         )
 elseif (LINUX)
     set( SYSTEM_PLATFORM_SOURCE 
