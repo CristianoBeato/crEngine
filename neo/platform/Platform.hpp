@@ -171,6 +171,12 @@ public:
 	
 	virtual const char*	DefaultSavePath( void ) = 0;
 
+	/// @brief Retrieve current work dir
+	/// @return 
+	virtual const char*	CWD( void ) = 0;
+	
+	const char*			LaunchPath( void ) { return CWD(); }
+
 	uint64_t 			GetDriveFreeSpace( const char* path );
 	uint64_t 			GetDriveFreeSpaceInBytes( const char* path );
 
@@ -199,6 +205,8 @@ public:
 	/// @param path 
 	/// @return FOLDER_ERROR on error, FOLDER_NO for not folder, FOLDER_YES for a folder
 	sysFolder_t			IsFolder( const char* path );
+
+
 };
 
 typedef struct sysMemoryStats_e

@@ -6,9 +6,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <SDL3/SDL_filesystem.h>
+
 static idStr s_basepath;
 static idStr s_savepath;
-
 
 crPaths* crPaths::Get( void )
 {
@@ -16,6 +17,11 @@ crPaths* crPaths::Get( void )
     return &gWindowsPaths;
 }
 
+/*
+==============
+crWindowsPaths::IsFileWritable
+==============
+*/
 bool crWindowsPaths::IsFileWritable( const char *path )
 {
 	return _access( path, 2 ) == 0;
@@ -23,7 +29,34 @@ bool crWindowsPaths::IsFileWritable( const char *path )
 
 /*
 ==============
-Sys_DefaultSavePath
+crWindowsPaths::EXEPath
+==============
+*/
+const char* crWindowsPaths::EXEPath( void )
+{
+    static char	buf[ 1024 ];
+	GetModuleFileName( nullptr, buf, sizeof( buf ) - 1 );
+    return buf;
+}
+
+/*
+==============
+crWindowsPaths::CWD
+==============
+*/
+const char *crWindowsPaths::CWD(void)
+ {
+	static char cwd[MAX_OSPATH];
+
+	_getcwd( cwd, sizeof( cwd ) - 1 );
+	cwd[MAX_OSPATH-1] = 0;
+
+	return cwd;
+}
+
+/*
+==============
+crWindowsPaths::DefaultSavePath
 ==============
 */
 const char *crWindowsPaths::DefaultBasePath( void )
@@ -69,16 +102,4 @@ const char *crWindowsPaths::DefaultSavePath( void )
     }
 	
 	return s_savepath.c_str();
-}
-
-/*
-==============
-crWindowsPaths::EXEPath
-==============
-*/
-const char* crWindowsPaths::EXEPath( void )
-{
-    static char	buf[ 1024 ];
-	GetModuleFileName( nullptr, buf, sizeof( buf ) - 1 );
-    return buf;
 }

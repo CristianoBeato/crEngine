@@ -265,6 +265,95 @@ const char *crPaths::DefaultBasePath( void )
 
 /*
 ==============
+crPaths::GetDriveFreeSpace
+==============
+*/
+uint64_t crPaths::GetDriveFreeSpace(const char *path)
+{
+	uint64_t bytes = GetDriveFreeSpaceInBytes(path);
+    return static_cast<uint32_t>( bytes / ( 1024 * 1024 ) ); // convert to MB
+}
+
+/*
+==============
+crPaths::GetDriveFreeSpaceInBytes
+==============
+*/
+uint64_t crPaths::GetDriveFreeSpaceInBytes(const char *path)
+{
+	std::error_code ec;
+	auto fpath = fs::path( path );
+	if ( fs::exists( fpath, ec ) )
+		return 0;
+
+	fs::space_info info = fs::space(fpath, ec );
+	if( ec )
+	{
+		idLib::Error( "Sys_GetDriveFreeSpaceInBytes: erro '%s' ao remover '%s'\n", ec.message().c_str(), path );
+		return 0;
+	}
+
+	return static_cast<uint64_t>( info.available );
+}
+
+int crPaths::ListFiles(const char * in_path, const char * in_extension, idList<class idStr> & out_list )
+{
+	if ( !in_path || !(*in_path) )
+        return 0;
+
+#if 1
+	try
+	{
+		// check for a valid path
+		fs::path dirPath( in_path );
+        if (!fs::exists(dirPath) || !fs::is_directory(dirPath))
+            return 0;
+
+		// get the extensions
+        std::string extFilter;
+        if ( in_extension && *in_extension ) 
+		{
+            extFilter = in_extension;
+            if (extFilter[0] != '.')
+                extFilter = "." + extFilter;
+        }
+
+        out_list.Clear(); // idStrList tem Clear()
+
+        for (const auto& entry : fs::directory_iterator(dirPath)) 
+		{
+			const fs::path& filePath = entry.path();
+          
+			// we are listing subpaths
+			if ( entry.is_directory() && std::strncmp( in_extension, PATHSEPARATOR_STR, std::strlen( in_extension ) ) )
+			{
+            	out_list.Append(filePath.filename().string().c_str());
+			}
+			else if( entry.is_regular_file() && !extFilter.empty() )
+			{
+				std::string ext = filePath.extension().string(); 
+            	if ( ext != extFilter)
+            	    continue;
+
+				out_list.Append(filePath.filename().string().c_str());
+			}	
+        }
+	}
+	catch(const std::exception& e)
+	{
+		 common->DPrintf("Sys_ListFiles: fail '%s' to acess '%s'\n", e.what(), in_extension );
+        return 0;
+	}
+#else
+	// TODO: 
+	auto paths = SDL_GlobDirectory( in_path,   )
+#endif
+	
+	return out_list.Num();
+}
+
+/*
+==============
 crPaths::DirExist
 ==============
 */
@@ -281,7 +370,7 @@ bool crPaths::DirExist( const char *path )
 	if( !SDL_GetPathInfo( path, &info ) )
 		return false;
 
-	if( info.type != SDL_PATHTYPE_NONE )
+	if( info.type != SDL_PATHTYPE_NONE || info.type != SDL_PATHTYPE_OTHER /* simbolic link ?*/ )
 		return false; 
 
 	return true;
@@ -401,6 +490,7 @@ crPaths::IsFolder
 */
 crPaths::sysFolder_t crPaths::IsFolder( const char* path )
 {
+#if 0
 	std::error_code ec;
 
 	if (!path || !*path)
@@ -414,5 +504,14 @@ crPaths::sysFolder_t crPaths::IsFolder( const char* path )
 			return FOLDER_YES;
 	}
 	
+#else
+	SDL_PathInfo info;
+	if( !SDL_GetPathInfo( path, &info ) )
+		return FOLDER_ERROR;
+
+	// is a folder 
+	if( info.type != SDL_PATHTYPE_DIRECTORY )
+		return FOLDER_YES; 
+#endif 
 	return FOLDER_NO;
 }
