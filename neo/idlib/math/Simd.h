@@ -90,7 +90,6 @@ public:
 	idSIMDProcessor( void )
 	{
 		cpuid = crCPUInfo::CPUID_NONE;
-		
 	}
 	
 	uint32_t	cpuid;

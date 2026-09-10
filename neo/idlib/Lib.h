@@ -265,9 +265,6 @@ inline void SetZero( _t * in_array, const uint32_t in_count  )
 #include "hashing/MD4.h"
 #include "hashing/MD5.h"
 
-// Portable local paths queryng
-#include "sys/sys_paths.hpp"
-
 // misc
 #include "Dict.h"
 #include "LangDict.h"
