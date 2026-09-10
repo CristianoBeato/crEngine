@@ -36,28 +36,21 @@ struct sysEvent_t
 class crEvents
 {
 public:
-	static crEvents*	Get( void );
+	static crEvents*		Get( void );
 
-	void		StartUp( void );
-	void		ShutDown( void );
-
-    void        PumpEvents( void );
-    void        GenerateEvents( void );
-    void        QueEvent( const sysEventType_t type, 
-				const int value, 
-				const int value2, 
-				const size_t ptrLength, 
-				const void *ptr, 
-				const int inputDeviceNum );
-    sysEvent_t  GetEvent( void );
-    void        ClearEvents( void );
-
-private:
-	int					m_eventHead;
-	idList<sysEvent_t>	m_event_queue;
-
-	static void 		PushConsoleEvent( const char* s );
-	static bool SDLCALL HandleSDLEvents( void *userdata, SDL_Event *event );
+	virtual void			StartUp( void ) = 0;
+	virtual void			ShutDown( void ) = 0;
+    virtual void        	PumpEvents( void ) = 0;
+    virtual void        	GenerateEvents( void ) = 0;
+    virtual sysEvent_t		GetEvent( void ) = 0;
+    virtual void        	ClearEvents( void ) = 0;
+	virtual unsigned char	GetConsoleKey( const bool in_shifted ) = 0;
+    virtual void        	QueEvent( const sysEventType_t in_type, 
+				const int in_value, 
+				const int in_value2, 
+				const size_t in_ptrLength, 
+				const void* in_ptr, 
+				const int in_inputDeviceNum ) = 0;
 };
 
 #endif //!__EVENTS_HPP__

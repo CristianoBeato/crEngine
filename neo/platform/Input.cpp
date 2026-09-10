@@ -2,40 +2,89 @@
 #include "Input.hpp"
 #include "Platform.hpp"
 
-void crGamepad::Init()
+// keyboard event storage structure
+struct keyboardPoll_t
 {
-    
-}
+	int		key = 0;
+	bool	state = false;
+};
 
-void crGamepad::Release(void)
+// mouse event storage structure
+struct mousePoll_t
 {
-    m_gamePadId = -1;
-	m_gamePad = nullptr;
-	m_activeEvents = 0;
-	m_gameJoyStick = nullptr;
+	int action = 0;
+	int value = 0;
+};
 
-
-    ClearState();
-}
-
-void crGamepad::ClearState(void)
+struct joysticPoll_t
 {
-    // clear button states 
-	for( auto i = 0; i < SDL_GAMEPAD_BUTTON_COUNT; i++)
-    {
-		m_oldState[i] = 0;
-    }
+	int button = 0;
+	int value = 0;
+};
 
-    // clear axis states
-    for( auto i = 0;i < SDL_GAMEPAD_AXIS_COUNT; i++) 
-    {
-		m_oldAxisState[i] = 0;
+class crInputSystemSDL3 : public crInputSystem
+{
+public:
+	crInputSystemSDL3( void );
+	~crInputSystemSDL3( void );
+
+	// input is tied to windows, so it needs to be started up and shut down whenever
+	// the main window is recreated
+	virtual void					Startup( void );
+	virtual void					Shutdown( void );
+	virtual const unsigned char*	GetScanTable( void );
+	
+	// keyboard input polling
+	virtual uint32_t				PollKeyboardInputEvents( void ) const;
+	virtual bool					ReturnKeyboardInputEvent( const uint32_t in_event, int& out_ch, bool& out_state ) const;
+	virtual void					EndKeyboardInputEvents( void );
+	
+	// mouse polling
+	virtual uint32_t				PollMouseInputEvents( void ) const;
+	virtual bool					ReturnMouseInputEvent( const uint32_t in_event, int &out_action, int &out_value );
+	virtual void					EndMouseInputEvents( void );
+
+	virtual sysEvent_t				GenerateMouseButtonEvent( const int in_button, const bool in_down );
+	virtual sysEvent_t 				GenerateMouseMoveEvent( const int32_t deltax, const int32_t deltay );
+
+	// joystick input polling
+	virtual uint32_t				PollJoystickInputEvents( const uint32_t in_deviceNum );
+	virtual bool					ReturnJoystickInputEvent( const uint32_t in_deviceNum, const uint32_t in_event, int& out_action, int& out_value );
+	virtual void					EndJoystickInputEvents( const uint32_t in_deviceNum );
+
+	virtual uint32_t				GamepadCount( void ) = 0;
+	virtual void					SetRumble( const int device, uint16_t in_low, uint16_t in_hi );
+protected:
+	friend class crEvents;
+
+	inline void    AppendKeyboardEvent( const int in_key, const bool in_state )
+	{
+		m_kbdPolls.Append( { in_key, in_state } );
 	}
 
-	for( auto i = 0; i < MAX_CONTROLLER_BUTTON_EVENTS;i++)
-    {
-        m_oldButtonStates[i] = false;
-    }
+    inline void    AppendMouseEvents( const int in_action, const int in_value )
+	{
+		m_mousePolls.Append({ in_action, in_value } );
+	}
+
+    inline void    AppendJoysticEvent( const uint32_t in_device, const int in_button, const int in_value )
+	{
+		// TODO: clamp device
+		m_joysticPolls[in_device].Append( { in_button, in_value } );
+	}
+
+private:
+	idStaticList<keyboardPoll_t, MAX_KEYBOARD_EVENTS>	m_kbdPolls;
+	idStaticList<mousePoll_t, MAX_MOUSE_EVENTS>			m_mousePolls;
+	idStaticList<joysticPoll_t, MAX_KEYBOARD_EVENTS>	m_joysticPolls[MAX_JOYSTICKS];
+};
+
+crInputSystemSDL3::crInputSystemSDL3( void ) : crInputSystem()
+{
+}
+
+crInputSystemSDL3::~crInputSystemSDL3( void )
+{
 }
 
 /*
@@ -43,7 +92,7 @@ void crGamepad::ClearState(void)
 crInputSystem::PollKeyboardInputEvents
 ================
 */
-int crInputSystem::PollKeyboardInputEvents( void )
+uint32_t crInputSystemSDL3::PollKeyboardInputEvents( void ) const
 {
 	return m_kbdPolls.Num();
 }
@@ -53,14 +102,14 @@ int crInputSystem::PollKeyboardInputEvents( void )
 crInputSystem::ReturnKeyboardInputEvent
 ================
 */
-int crInputSystem::ReturnKeyboardInputEvent( const int n, int& key, bool& state )
+bool crInputSystemSDL3::ReturnKeyboardInputEvent( const uint32_t n, int& key, bool& state ) const
 {
 	if( n >= m_kbdPolls.Num() )
-		return 0;
+		return false;
 		
 	key = m_kbdPolls[n].key;
 	state = m_kbdPolls[n].state;
-	return 1;
+	return true;
 }
 
 /*
@@ -68,34 +117,87 @@ int crInputSystem::ReturnKeyboardInputEvent( const int n, int& key, bool& state 
 crInputSystem::EndKeyboardInputEvents
 ================
 */
-void crInputSystem::EndKeyboardInputEvents( void )
+void crInputSystemSDL3::EndKeyboardInputEvents( void )
 {
 	m_kbdPolls.SetNum( 0 );
 }
-
 
 /*
 ================
 crInputSystem::PollMouseInputEvents
 ================
 */
-int crInputSystem::PollMouseInputEvents( int mouseEvents[MAX_MOUSE_EVENTS][2] )
+uint32_t crInputSystemSDL3::PollMouseInputEvents(void) const
 {
-	int numEvents = m_mousePolls.Num();
-	
-	if( numEvents > MAX_MOUSE_EVENTS )
-		numEvents = MAX_MOUSE_EVENTS;
-	
-	
-	for( int i = 0; i < numEvents; i++ )
-	{
-		const mouse_poll_t& mp = m_mousePolls[i];
-		
-		mouseEvents[i][0] = mp.action;
-		mouseEvents[i][1] = mp.value;
-	}
-	
+    return m_mousePolls.Num();
+}
+
+/*
+================
+crInputSystem::ReturnMouseInputEvent
+================
+*/
+bool crInputSystemSDL3::ReturnMouseInputEvent(const uint32_t in_event, int &out_action, int &out_value)
+{
+	if( in_event >= m_mousePolls.Num() )
+		return false;
+
+	const auto mpoll = m_mousePolls[in_event];
+	out_action = mpoll.action;
+	out_value = mpoll.value;
+
+	return true;
+}
+
+/*
+================
+crInputSystem::EndMouseInputEvents
+================
+*/
+void crInputSystemSDL3::EndMouseInputEvents(void)
+{
 	m_mousePolls.SetNum( 0 );
-	
-	return numEvents;
+}
+
+/*
+================
+crInputSystem::PollJoystickInputEvents
+================
+*/
+uint32_t crInputSystemSDL3::PollJoystickInputEvents( const uint32_t in_deviceNum )
+{
+	/// TODO check if device is available
+    return m_joysticPolls[in_deviceNum].Num();
+}
+
+/*
+================
+crInputSystem::ReturnJoystickInputEvent
+================
+*/
+bool crInputSystemSDL3::ReturnJoystickInputEvent(const uint32_t in_deviceNum, const uint32_t in_event, int &out_action, int &out_value)
+{
+	/// TODO: if not device available return false
+
+	if( in_event >= m_joysticPolls[in_deviceNum].Num() )
+		return false;
+
+	const auto jpoll = m_joysticPolls[in_deviceNum][in_event];
+	out_action = jpoll.button;
+	out_value = jpoll.value;
+
+    return true;
+}
+
+/*
+================
+crInputSystem::EndJoystickInputEvents
+================
+*/
+void crInputSystemSDL3::EndJoystickInputEvents(const uint32_t in_deviceNum)
+{
+	/// TODO: yah yow know, just do it...
+
+	/// Don't resize to don't reallocate memory 
+	m_joysticPolls[in_deviceNum].SetNum( 0 );
 }
