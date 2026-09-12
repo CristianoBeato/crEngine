@@ -124,45 +124,45 @@ class idFileSystemLocal : public idFileSystem
 public:
 	idFileSystemLocal();
 	
-	virtual void			Init();
-	virtual void			Restart();
-	virtual void			Shutdown( bool reloading );
-	virtual bool			IsInitialized() const;
-	virtual idFileList* 	ListFiles( const char* relativePath, const char* extension, bool sort = false, bool fullRelativePath = false, const char* gamedir = nullptr );
-	virtual idFileList* 	ListFilesTree( const char* relativePath, const char* extension, bool sort = false, const char* gamedir = nullptr );
-	virtual void			FreeFileList( idFileList* fileList );
-	virtual const char* 	OSPathToRelativePath( const char* OSPath );
-	virtual const char* 	RelativePathToOSPath( const char* relativePath, const char* basePath );
-	virtual const char* 	BuildOSPath( const char* base, const char* game, const char* relativePath );
-	virtual const char* 	BuildOSPath( const char* base, const char* relativePath );
-	virtual void			CreateOSPath( const char* OSPath );
-	virtual int				ReadFile( const char* relativePath, void** buffer, ID_TIME_T* timestamp );
-	virtual void			FreeFile( void* buffer );
-	virtual int				WriteFile( const char* relativePath, const void* buffer, int size, const char* basePath = "fs_savepath" );
-	virtual void			RemoveFile( const char* relativePath );
-	virtual	bool			RemoveDir( const char* relativePath );
-	virtual bool			RenameFile( const char* relativePath, const char* newName, const char* basePath = "fs_savepath" );
-	virtual idFile* 		OpenFileReadFlags( const char* relativePath, int searchFlags, bool allowCopyFiles = true, const char* gamedir = nullptr );
-	virtual idFile* 		OpenFileRead( const char* relativePath, bool allowCopyFiles = true, const char* gamedir = nullptr );
-	virtual idFile* 		OpenFileReadMemory( const char* relativePath, bool allowCopyFiles = true, const char* gamedir = nullptr );
-	virtual idFile* 		OpenFileWrite( const char* relativePath, const char* basePath = "fs_savepath" );
-	virtual idFile* 		OpenFileAppend( const char* relativePath, bool sync = false, const char* basePath = "fs_basepath" );
-	virtual idFile* 		OpenFileByMode( const char* relativePath, fsMode_t mode );
-	virtual idFile* 		OpenExplicitFileRead( const char* OSPath );
-	virtual idFile* 		OpenExplicitFileWrite( const char* OSPath );
+	virtual void				Init();
+	virtual void				Restart();
+	virtual void				Shutdown( bool reloading );
+	virtual bool				IsInitialized() const;
+	virtual idFileList* 		ListFiles( const char* relativePath, const char* extension, bool sort = false, bool fullRelativePath = false, const char* gamedir = nullptr );
+	virtual idFileList* 		ListFilesTree( const char* relativePath, const char* extension, bool sort = false, const char* gamedir = nullptr );
+	virtual void				FreeFileList( idFileList* fileList );
+	virtual const char* 		OSPathToRelativePath( const char* OSPath );
+	virtual const char* 		RelativePathToOSPath( const char* relativePath, const char* basePath );
+	virtual const char* 		BuildOSPath( const char* base, const char* game, const char* relativePath );
+	virtual const char* 		BuildOSPath( const char* base, const char* relativePath );
+	virtual void				CreateOSPath( const char* OSPath );
+	virtual int					ReadFile( const char* relativePath, void** buffer, ID_TIME_T* timestamp );
+	virtual void				FreeFile( void* buffer );
+	virtual int					WriteFile( const char* relativePath, const void* buffer, int size, const char* basePath = "fs_savepath" );
+	virtual void				RemoveFile( const char* relativePath );
+	virtual	bool				RemoveDir( const char* relativePath );
+	virtual bool				RenameFile( const char* relativePath, const char* newName, const char* basePath = "fs_savepath" );
+	virtual idFile* 			OpenFileReadFlags( const char* relativePath, int searchFlags, bool allowCopyFiles = true, const char* gamedir = nullptr );
+	virtual idFile* 			OpenFileRead( const char* relativePath, bool allowCopyFiles = true, const char* gamedir = nullptr );
+	virtual idFile* 			OpenFileReadMemory( const char* relativePath, bool allowCopyFiles = true, const char* gamedir = nullptr );
+	virtual idFile* 			OpenFileWrite( const char* relativePath, const char* basePath = "fs_savepath" );
+	virtual idFile* 			OpenFileAppend( const char* relativePath, bool sync = false, const char* basePath = "fs_basepath" );
+	virtual idFile* 			OpenFileByMode( const char* relativePath, fsMode_t mode );
+	virtual idFile* 			OpenExplicitFileRead( const char* OSPath );
+	virtual idFile* 			OpenExplicitFileWrite( const char* OSPath );
 	virtual idFile_Cached* 		OpenExplicitPakFile( const char* OSPath );
-	virtual void			CloseFile( idFile* f );
-	virtual void			FindDLL( const char* basename, char dllPath[ MAX_OSPATH ] );
-	virtual void			CopyFile( const char* fromOSPath, const char* toOSPath );
-	virtual findFile_t		FindFile( const char* path );
-	virtual bool			FilenameCompare( const char* s1, const char* s2 ) const;
-	virtual int				GetFileLength( const char* relativePath );
-	virtual sysFolder_t		IsFolder( const char* relativePath, const char* basePath = "fs_basepath" );
+	virtual void				CloseFile( idFile* f );
+	virtual void				FindDLL( const char* basename, char dllPath[ MAX_OSPATH ] );
+	virtual void				CopyFile( const char* fromOSPath, const char* toOSPath );
+	virtual findFile_t			FindFile( const char* path );
+	virtual bool				FilenameCompare( const char* s1, const char* s2 ) const;
+	virtual int					GetFileLength( const char* relativePath );
+	virtual crPaths::Folder_t	IsFolder( const char* relativePath, const char* basePath = "fs_basepath" );
 	// resource tracking
-	virtual void			EnableBackgroundCache( bool enable );
-	virtual void			BeginLevelLoad( const char* name, char* _blockBuffer, int _blockBufferSize );
-	virtual void			EndLevelLoad();
-	virtual bool			InProductionMode()
+	virtual void				EnableBackgroundCache( bool enable );
+	virtual void				BeginLevelLoad( const char* name, char* _blockBuffer, int _blockBufferSize );
+	virtual void				EndLevelLoad();
+	virtual bool				InProductionMode()
 	{
 		return /*( resourceFiles.Num() > 0 ) |*/ ( com_productionMode.GetInteger() != 0 );
 	}
@@ -273,7 +273,7 @@ private:
 	bool 					IsFileSameAsInResources(const char *filename);
 
 	void					ReplaceSeparators( idStr& path, char sep = PATHSEPARATOR_CHAR );
-	int						ListOSFiles( const char* directory, const char* extension, idStrList& list );
+	int						ListOSFiles( idStr directory, idStr extension, idStrList& list );
 	idFileHandle			OpenOSFile( const char* name, fsMode_t mode );
 	void					CloseOSFile( idFileHandle o );
 	intptr_t				DirectFileLength( idFileHandle o );
@@ -533,16 +533,16 @@ intptr_t idFileSystemLocal::DirectFileLength( idFileHandle o )
 
 ID_TIME_T idFileSystemLocal::FileTimeStamp( const char *path )
 {
-SDL_PathInfo info;
+	SDL_PathInfo info;
     
-    // SDL_GetPathInfo lê os metadados diretamente usando o caminho do arquivo
+    // SDL_GetPathInfo reads the metadata directly using the file path
     if ( SDL_GetPathInfo( path, &info ) ) 
 	{
-        // modify_time está em nanosegundos. Convertemos para segundos dividindo por SDL_NS_PER_SECOND
+        // modify time is in nanoseconds. We convert it to seconds by dividing by SDL_NS_PER_SECOND.
         return static_cast<ID_TIME_T>( info.modify_time / SDL_NS_PER_SECOND );
     }
     
-    // Retorna 0 caso o arquivo não exista ou ocorra erro
+    // Returns 0 if the file does not exist or an error occurs.
     return 0; 
 }
 
@@ -581,7 +581,9 @@ void idFileSystemLocal::CreateOSPath( const char* OSPath )
 		{
 			// create the directory
 			*ofs = 0;
-			Sys_Mkdir( path );
+			// crPaths::Get()->Mkdir( path );
+			if( !SDL_CreateDirectory( path ) );
+				idLib::Error( SDL_GetError() );
 			*ofs = PATHSEPARATOR_CHAR;
 		}
 	}
@@ -706,10 +708,10 @@ bool FileExistsInAllManifests( const char* filename, idList< idFileManifest >& m
 {
 	for( int i = 0; i < manifests.Num(); i++ )
 	{
-		if( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
+		if( std::strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
 			continue;
 		
-		if( strstr( manifests[ i ].GetManifestName(), "_pc" ) != nullptr )
+		if( std::strstr( manifests[ i ].GetManifestName(), "_pc" ) != nullptr )
 			continue;
 		
 		if( manifests[ i ].FindFile( filename ) == -1 )
@@ -722,7 +724,7 @@ bool FileExistsInAllPreloadManifests( const char* filename, idList< idPreloadMan
 {
 	for( int i = 0; i < manifests.Num(); i++ )
 	{
-		if( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
+		if( std::strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
 			continue;
 		
 		if( manifests[ i ].FindResource( filename ) == -1 )
@@ -735,10 +737,10 @@ void RemoveFileFromAllManifests( const char* filename, idList< idFileManifest >&
 {
 	for( int i = 0; i < manifests.Num(); i++ )
 	{
-		if( strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
+		if( std::strstr( manifests[ i ].GetManifestName(), "_startup" ) != nullptr )
 			continue;
 		
-		if( strstr( manifests[ i ].GetManifestName(), "_pc" ) != nullptr )
+		if( std::strstr( manifests[ i ].GetManifestName(), "_pc" ) != nullptr )
 			continue;
 		
 		manifests[ i ].RemoveAll( filename );
@@ -2262,10 +2264,9 @@ bool idFileSystemLocal::RemoveDir( const char* relativePath )
 {
 	bool success = true;
 	if( fs_savepath.GetString()[0] )
-	{
-		success &= Sys_Rmdir( BuildOSPath( fs_savepath.GetString(), relativePath ) );
-	}
-	success &= Sys_Rmdir( BuildOSPath( fs_basepath.GetString(), relativePath ) );
+		success &= SDL_RemovePath( BuildOSPath( fs_savepath.GetString(), relativePath ) );
+
+	success &= SDL_RemovePath( BuildOSPath( fs_basepath.GetString(), relativePath ) );
 	return success;
 }
 
@@ -2299,14 +2300,10 @@ int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIM
 	}
 	
 	if( timestamp )
-	{
 		*timestamp = FILE_NOT_FOUND_TIMESTAMP;
-	}
 	
 	if( buffer )
-	{
 		*buffer = nullptr;
-	}
 	
 	buf = nullptr;	// quiet compiler warning
 	
@@ -2812,14 +2809,48 @@ idFileSystemLocal::ListOSFiles
  call to the OS for a listing of files in an OS directory
 ===============
 */
-int	idFileSystemLocal::ListOSFiles( const char* directory, const char* extension, idStrList& list )
+int	idFileSystemLocal::ListOSFiles( idStr directory, idStr extension, idStrList& list )
 {
-	if( !extension )
-	{
+#if 0
+	if( extension.IsEmpty() )
 		extension = "";
-	}
-	
-	return Sys_ListFiles( directory, extension, list );
+	return crPaths::Get()->ListFiles( directory, extension, list );
+#else
+	int count = 0;
+	idStr pattern;
+
+	// Clears the destination list according to the idTech4 standard.
+    list.Clear();
+
+    // Converts the extension to the wildcard format required by SDL3.
+    if ( extension.IsEmpty() || extension[0] == '\0' ) 
+        pattern = "*"; // If empty, gets all files.
+	else if ( extension[0] == '*' ) 
+        pattern = extension; // If it already has an asterisk (*), use it as is.
+	else if ( extension[0] == '.' ) 
+        pattern = idStr( "*" ) + extension; // If it is '.pk4', it becomes '*.pk4'
+	else 
+        pattern = idStr( "*." ) + extension; // If it is 'pk4', it becomes '*.pk4'
+
+    // The SDL_GLOB_CASEINSENSITIVE flag ensures portability (essential for Linux/Android)
+    char** arquivos = SDL_GlobDirectory( directory, pattern.c_str(), SDL_GLOB_CASEINSENSITIVE, &count );
+
+    // If it fails or finds nothing, it returns zero.
+    if ( arquivos == nullptr )
+        return 0; 
+
+    // Append to the dirs
+    list.AssureSize( count );
+    for ( int i = 0; i < count; i++ ) 
+	{
+        // SDL_GlobDirectory returns only the file/folder name relative to 'directory'
+        list.Append( arquivos[i] );
+    }
+
+    SDL_free( arquivos );
+
+    return list.Num();
+#endif
 }
 
 /*
@@ -4219,7 +4250,7 @@ void idFileSystemLocal::FindDLL( const char* name, char _dllPath[ MAX_OSPATH ] )
 	sys->DLL_GetFileName( name, dllName, MAX_OSPATH );
 	
 	// from executable directory first - this is handy for developement
-	idStr dllPath = Sys_EXEPath( );
+	idStr dllPath = crPaths::EXEPath( );
 	dllPath.StripFilename( );
 	dllPath.AppendPath( dllName );
 	idFile* dllFile = OpenExplicitFileRead( dllPath );
@@ -4246,9 +4277,8 @@ findFile_t idFileSystemLocal::FindFile( const char* path )
 {
 	idFile* f = OpenFileReadFlags( path, FSFLAG_SEARCH_DIRS );
 	if( f == nullptr )
-	{
 		return FIND_NO;
-	}
+	
 	delete f;
 	return FIND_YES;
 }
@@ -4258,7 +4288,7 @@ findFile_t idFileSystemLocal::FindFile( const char* path )
 idFileSystemLocal::IsFolder
 ===============
 */
-sysFolder_t idFileSystemLocal::IsFolder( const char* relativePath, const char* basePath )
+crPaths::Folder_t idFileSystemLocal::IsFolder( const char* relativePath, const char* basePath )
 {
-	return Sys_IsFolder( RelativePathToOSPath( relativePath, basePath ) );
+	return crPaths::IsFolder( RelativePathToOSPath( relativePath, basePath ) );
 }

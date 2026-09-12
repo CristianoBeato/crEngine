@@ -194,7 +194,7 @@ public:
 	// Returns length of file, -1 if no file exists
 	virtual int				GetFileLength( const char* relativePath ) = 0;
 	
-	virtual sysFolder_t		IsFolder( const char* relativePath, const char* basePath = "fs_basepath" ) = 0;
+	virtual crPaths::Folder_t	IsFolder( const char* relativePath, const char* basePath = "fs_basepath" ) = 0;
 	
 	// resource tracking and related things
 	virtual void			EnableBackgroundCache( bool enable ) = 0;

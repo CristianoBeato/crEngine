@@ -30,6 +30,7 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
+#include <SDL3/SDL_filesystem.h> // SDL_GlobDirectory
 #include "Common_local.h"
 
 idCVar com_product_lang_ext( "com_product_lang_ext", "1", CVAR_INTEGER | CVAR_SYSTEM | CVAR_ARCHIVE, "Extension to use when creating language files." );
@@ -154,34 +155,32 @@ bool TestGuiParm( const char* parm, const char* value, idStrList& excludeList )
 	return true;
 }
 
-void GetFileList( const char* dir, const char* ext, idStrList& list )
+static void GetFileList( const idStr &dir, const idStr &ext, idStrList& list )
 {
+	int count = 0;
+	char** path_list = SDL_GlobDirectory( dir, "*", SDL_GLOB_CASEINSENSITIVE, &count );
 
-	//Recurse Subdirectories
-	idStrList dirList;
-	Sys_ListFiles( dir, "/", dirList );
-	for( int i = 0; i < dirList.Num(); i++ )
+	for ( int i = 0; i < count; i++)
 	{
-		if( dirList[i] == "." || dirList[i] == ".." )
-		{
-			continue;
-		}
-		idStr fullName = va( "%s/%s", dir, dirList[i].c_str() );
-		GetFileList( fullName, ext, list );
-	}
-	
-	idStrList fileList;
-	Sys_ListFiles( dir, ext, fileList );
-	for( int i = 0; i < fileList.Num(); i++ )
-	{
-		idStr fullName = va( "%s/%s", dir, fileList[i].c_str() );
-		list.Append( fullName );
+		SDL_PathInfo info{};
+
+		// Constructs the full path to validate the item type.
+		idStr fullPath = dir + "/" + path_list[i];
+
+		// retrieve path properties
+		if( !SDL_GetPathInfo( fullPath, &info ) )
+			continue; 
+
+		// Recurse Subdirectories
+		if ( info.type == SDL_PATHTYPE_DIRECTORY )
+			GetFileList( fullPath, ext, list );
+		else if( info.type == SDL_PATHTYPE_FILE )
+			list.Append( fullPath );
 	}
 }
 
 int LocalizeMap( const char* mapName, idLangDict& langDict, ListHash& listHash, idStrList& excludeList, bool writeFile )
 {
-
 	common->Printf( "Localizing Map '%s'\n", mapName );
 	
 	int strCount = 0;
