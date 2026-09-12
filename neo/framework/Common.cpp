@@ -1179,8 +1179,8 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 	// FIX ME: timing should be polled from the video
 	while( Sys_Milliseconds() <= 14000 ) // 13 sec (+1 sec delay) is the length of the test video we have
 	{		
-		crInputSystem::Get()->GenerateEvents();		
-		ev = crInputSystem::Get()->GetEvent();
+		crEvents::Get()->GenerateEvents();		
+		ev = crEvents::Get()->GetEvent();
 		crInputSystem::Get()->PollJoystickInputEvents( 0 );
 		renderSystem->DrawStretchPic( chop, 0, imageWidth, SCREEN_HEIGHT, 0, 0, 1, 1, material );
 		const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );
@@ -1192,7 +1192,7 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 						if(ev.evValue < K_JOY_STICK1_UP || K_JOY_DPAD_RIGHT  < ev.evValue )			
 							EndVideo = true;					
 					}					
-					ev = crInputSystem::Get()->GetEvent();
+					ev = crEvents::Get()->GetEvent();
 				}
 			}
 		}
@@ -1487,10 +1487,12 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// start the sound system, but don't do any hardware operations yet
 		soundSystem->Init();
 		
-/// BEATO Begin: initialize video and Vulkan system
+/// BEATO Begin: initialize events, input and video and Vulkan system
+		/// Initialize event manager
+		crEvents::Get()->StartUp();
+
 		// input and sound systems need to be tied to the new window
-		//Sys_InitInput();
-		crInputSystem::Get()->Init();
+		crInputSystem::Get()->Startup();
 
 		video->StartUp( 0 );
 /// BEATO End
@@ -1881,9 +1883,9 @@ void idCommonLocal::Stop( bool resetSession )
 idCommonLocal::BusyWait
 ===============
 */
-void idCommonLocal::BusyWait()
+void idCommonLocal::BusyWait( void )
 {
-	crInputSystem::Get()->GenerateEvents();
+	crEvents::Get()->GenerateEvents();
 	
 	const bool captureToImage = false;
 	UpdateScreen( captureToImage );

@@ -79,7 +79,9 @@ If you have questions concerning this license or the applicable additional terms
 #include "idlib/Lib.h"
 
 /// BEATO Begin: platform portable sub systems
+#include "platform/Paths.hpp"
 #include "platform/Events.hpp"
+#include "platform/Input.hpp"
 #include "platform/Video.hpp"
 /// BEATO End
 
