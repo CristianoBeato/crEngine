@@ -157,7 +157,7 @@ public:
 	virtual findFile_t			FindFile( const char* path );
 	virtual bool				FilenameCompare( const char* s1, const char* s2 ) const;
 	virtual int					GetFileLength( const char* relativePath );
-	virtual crPaths::Folder_t	IsFolder( const char* relativePath, const char* basePath = "fs_basepath" );
+	virtual Folder_t			IsFolder( const char* relativePath, const char* basePath = "fs_basepath" );
 	// resource tracking
 	virtual void				EnableBackgroundCache( bool enable );
 	virtual void				BeginLevelLoad( const char* name, char* _blockBuffer, int _blockBufferSize );
@@ -4288,7 +4288,16 @@ findFile_t idFileSystemLocal::FindFile( const char* path )
 idFileSystemLocal::IsFolder
 ===============
 */
-crPaths::Folder_t idFileSystemLocal::IsFolder( const char* relativePath, const char* basePath )
+Folder_t idFileSystemLocal::IsFolder( const char* relativePath, const char* basePath )
 {
-	return crPaths::IsFolder( RelativePathToOSPath( relativePath, basePath ) );
+	SDL_PathInfo info;
+	if( !SDL_GetPathInfo( RelativePathToOSPath( relativePath, basePath ), &info ) )
+		return FOLDER_ERROR; // failed to retrieve properties
+
+	// is a folder 
+	if( info.type != SDL_PATHTYPE_DIRECTORY )
+		return FOLDER_YES;
+		
+	// is a file
+	return FOLDER_NO;
 }

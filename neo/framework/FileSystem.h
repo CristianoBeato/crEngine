@@ -95,6 +95,13 @@ private:
 	idStrList				list;
 };
 
+enum Folder_t
+{
+	FOLDER_ERROR	= -1,
+	FOLDER_NO		= 0,
+	FOLDER_YES		= 1
+};
+
 class idFileSystem
 {
 public:
@@ -194,7 +201,7 @@ public:
 	// Returns length of file, -1 if no file exists
 	virtual int				GetFileLength( const char* relativePath ) = 0;
 	
-	virtual crPaths::Folder_t	IsFolder( const char* relativePath, const char* basePath = "fs_basepath" ) = 0;
+	virtual Folder_t		IsFolder( const char* relativePath, const char* basePath = "fs_basepath" ) = 0;
 	
 	// resource tracking and related things
 	virtual void			EnableBackgroundCache( bool enable ) = 0;
