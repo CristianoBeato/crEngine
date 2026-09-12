@@ -576,7 +576,7 @@ void idCommonLocal::ExecuteMapChange( void )
 		
 		while( session->GetState() == idSession::LOADING )
 		{
-			crInputSystem::Get()->GenerateEvents();
+			crEvents::Get()->GenerateEvents();
 			session->UpdateSignInManager();
 			session->Pump();
 			Sys_Sleep( 10 );
@@ -647,7 +647,7 @@ void idCommonLocal::ExecuteMapChange( void )
 	// let the renderSystem generate interactions now that everything is spawned
 	renderWorld->GenerateAllInteractions();
 	
-#if 0
+#if 0 /// TODO:
 	// TODO: Fix this, usyg a render sys call
 	auto vertexMemUsedKB = vertexCache.VertexMemUsedKB();
 	auto indexMemUsedKB = vertexCache.IndexMemUsedKB();
@@ -689,14 +689,13 @@ void idCommonLocal::ExecuteMapChange( void )
 	delete loadGUI;
 	loadGUI = nullptr;
 	
-	
 	// capture the current screen and start a wipe
 	StartWipe( "wipe2Material" );
 	
 	// we are valid for game draws now
 	insideExecuteMapChange = false;
 	mapSpawned = true;
-	crInputSystem::Get()->ClearEvents();
+	crEvents::Get()->ClearEvents();
 	
 	
 	int	msec = Sys_Milliseconds() - start;
@@ -791,7 +790,7 @@ void idCommonLocal::UpdateLevelLoadPacifier(bool updateSecondary, int mProgress)
 	if( time - lastPacifierSessionTime >= sessionUpdateTime )
 	{
 		lastPacifierSessionTime = time;
-		crInputSystem::Get()->GenerateEvents();
+		crEvents::Get()->GenerateEvents();
 		
 		session->UpdateSignInManager();
 		session->Pump();

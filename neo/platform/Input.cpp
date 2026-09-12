@@ -2,6 +2,11 @@
 #include "Input.hpp"
 #include "Platform.hpp"
 
+#include <SDL3/SDL_gamepad.h>
+
+inline constexpr uint32_t MAX_CONTROLLER_BUTTON_EVENTS = K_JOY_DPAD_RIGHT - K_JOY1 + 1;
+inline constexpr uint32_t EVENTS_MAX_CONTROLLER_EVENTS = SDL_GAMEPAD_BUTTON_COUNT + SDL_GAMEPAD_AXIS_COUNT;
+
 // keyboard event storage structure
 struct keyboardPoll_t
 {

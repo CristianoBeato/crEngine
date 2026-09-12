@@ -87,7 +87,7 @@ sysEvent_t	idEventLoop::GetRealEvent()
 	}
 	else
 	{
-		ev = crInputSystem::Get()->GetEvent();
+		ev = crEvents::Get()->GetEvent();
 		
 		// write the journal value out if needed
 		if( com_journal.GetInteger() == 1 )

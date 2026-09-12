@@ -2,20 +2,16 @@
 #ifndef __INPUT_HPP__
 #define __INPUT_HPP__
 
-#include <SDL3/SDL_gamepad.h>
-
 // mouse input polling
 inline constexpr uint32_t MAX_MOUSE_EVENTS = 256;
 inline constexpr uint32_t MAX_KEYBOARD_EVENTS = 512;
 inline constexpr uint32_t MAX_JOYSTICKS = 4; // Limit for Most consoles is 4 Controllers 
 
-inline constexpr uint32_t MAX_CONTROLLER_BUTTON_EVENTS = K_JOY_DPAD_RIGHT - K_JOY1 + 1;
-inline constexpr uint32_t EVENTS_MAX_CONTROLLER_EVENTS = SDL_GAMEPAD_BUTTON_COUNT + SDL_GAMEPAD_AXIS_COUNT;
-
 class crInputSystem
 {
 public:
 	static crInputSystem*	Get( void );
+	
 	crInputSystem( void ) {};
 	~crInputSystem( void ) {};
 

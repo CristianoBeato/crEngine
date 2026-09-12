@@ -464,7 +464,7 @@ void idCommonLocal::Frame( void )
 		}
 		
 		// pump all the events
-		crInputSystem::Get()->GenerateEvents();
+		crEvents::Get()->GenerateEvents();
 		
 		// write config file if anything changed
 		WriteConfiguration();
@@ -613,9 +613,8 @@ void idCommonLocal::Frame( void )
 				// based on com_engineHz
 				const int frameDelay = FRAME_TO_MSEC( gameFrame + 1 ) - FRAME_TO_MSEC( gameFrame );
 				if( gameTimeResidual < frameDelay )
-				{
 					break;
-				}
+				
 				gameTimeResidual -= frameDelay;
 				gameFrame++;
 				numGameFrames++;
@@ -699,8 +698,13 @@ void idCommonLocal::Frame( void )
 			for( int i = 0; i < MAX_INPUT_DEVICES; i++ )
 			{
 				crInputSystem::Get()->PollJoystickInputEvents( i );
-				crInputSystem::Get()->EndJoystickInputEvents();
+				crInputSystem::Get()->EndJoystickInputEvents( i );
 			}
+		}
+		else
+		{
+			crInputSystem::Get()->PollJoystickInputEvents( deviceNum );
+			crInputSystem::Get()->EndJoystickInputEvents( deviceNum );
 		}
 
 		if( pauseGame )

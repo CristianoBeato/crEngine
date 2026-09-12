@@ -369,7 +369,12 @@ bool SDLCALL crEventsSDL3::HandleSDLEvents( void *userdata, SDL_Event *event )
 				{
 					char* s = nullptr;
 					size_t s_pos = 0;
-					s = std::strdup( event->text.text );
+
+#if __PLATFORM_WINDOWS__
+					s = _strdup( event->text.text );
+#else
+					s = strdup( event->text.text );
+#endif
 					while( s != nullptr )
 					{
 						gEventsSDL3.QueEvent( SE_CHAR, s[s_pos], 0, 0, nullptr, 0 );

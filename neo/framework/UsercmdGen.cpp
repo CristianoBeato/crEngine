@@ -271,7 +271,7 @@ private:
 	
 	void			Mouse();
 	void			Keyboard();
-	void			Joystick( int deviceNum );
+	void			Joystick( const uint32_t deviceNum );
 	
 	void			Key( int keyNum, bool down );
 	
@@ -507,7 +507,7 @@ void idUsercmdGenLocal::MouseMove()
 	
 	if( idMath::Fabs( mx ) > 1000 || idMath::Fabs( my ) > 1000 )
 	{
-		Sys_DebugPrintf( "idUsercmdGenLocal::MouseMove: Ignoring ridiculous mouse delta.\n" );
+		crConsole::Get()->Debug( "idUsercmdGenLocal::MouseMove: Ignoring ridiculous mouse delta.\n" );
 		mx = my = 0;
 	}
 	
@@ -515,9 +515,7 @@ void idUsercmdGenLocal::MouseMove()
 	my *= sensitivity.GetFloat();
 	
 	if( m_showMouseRate.GetBool() )
-	{
-		Sys_DebugPrintf( "[%3i %3i  = %5.1f %5.1f] ", mouseDx, mouseDy, mx, my );
-	}
+		crConsole::Get()->Debug( "[%3i %3i  = %5.1f %5.1f] ", mouseDx, mouseDy, mx, my );
 	
 	mouseDx = 0;
 	mouseDy = 0;
@@ -1055,42 +1053,31 @@ void idUsercmdGenLocal::JoystickMove2()
 idUsercmdGenLocal::CmdButtons
 ==============
 */
-void idUsercmdGenLocal::CmdButtons()
+void idUsercmdGenLocal::CmdButtons( void )
 {
 	cmd.buttons = 0;
 	
 	// check the attack button
 	if( ButtonState( UB_ATTACK ) )
-	{
 		cmd.buttons |= BUTTON_ATTACK;
-	}
 	
 	// check the use button
 	if( ButtonState( UB_USE ) )
-	{
 		cmd.buttons |= BUTTON_USE;
-	}
 	
 	// check the run button
 	if( toggled_run.on || ( in_alwaysRun.GetBool() && common->IsMultiplayer() ) )
-	{
 		cmd.buttons |= BUTTON_RUN;
-	}
 	
 	// check the zoom button
 	if( toggled_zoom.on )
-	{
 		cmd.buttons |= BUTTON_ZOOM;
-	}
 	
 	if( ButtonState( UB_MOVEUP ) )
-	{
 		cmd.buttons |= BUTTON_JUMP;
-	}
+
 	if( toggled_crouch.on )
-	{
 		cmd.buttons |= BUTTON_CROUCH;
-	}
 }
 
 /*
@@ -1132,13 +1119,9 @@ void idUsercmdGenLocal::MakeCurrent()
 		// get basic movement from joystick and set key bits
 		// must be done before CmdButtons!
 		if( joy_newCode.GetBool() )
-		{
 			JoystickMove2();
-		}
 		else
-		{
 			JoystickMove();
-		}
 		
 		// keyboard angle adjustment
 		AdjustAngles();
@@ -1154,13 +1137,9 @@ void idUsercmdGenLocal::MakeCurrent()
 		
 		// check to make sure the angles haven't wrapped
 		if( viewangles[PITCH] - oldAngles[PITCH] > 90 )
-		{
 			viewangles[PITCH] = oldAngles[PITCH] + 90;
-		}
 		else if( oldAngles[PITCH] - viewangles[PITCH] > 90 )
-		{
 			viewangles[PITCH] = oldAngles[PITCH] - 90;
-		}
 	}
 	else
 	{
@@ -1290,7 +1269,7 @@ void idUsercmdGenLocal::Clear()
 idUsercmdGenLocal::ClearAngles
 ================
 */
-void idUsercmdGenLocal::ClearAngles()
+void idUsercmdGenLocal::ClearAngles( void )
 {
 	viewangles.Zero();
 }
@@ -1310,9 +1289,8 @@ void idUsercmdGenLocal::Key( int keyNum, bool down )
 
 	// Sanity check, sometimes we get double message :(
 	if( keyState[ keyNum ] == down )
-	{
 		return;
-	}
+	
 	keyState[ keyNum ] = down;
 	
 	int action = idKeyInput::GetUsercmdAction( keyNum );
@@ -1347,15 +1325,18 @@ idUsercmdGenLocal::Mouse
 */
 void idUsercmdGenLocal::Mouse( void )
 {
-	int	mouseEvents[MAX_MOUSE_EVENTS][2];
-	
-	int numEvents = crInputSystem::Get()->PollMouseInputEvents( mouseEvents );
-	
+	auto inputSystem = crInputSystem::Get();
+
+	// int	mouseEvents[MAX_MOUSE_EVENTS][2];
+	// int numEvents = crInputSystem::Get()->PollMouseInputEvents( mouseEvents );
+	auto numEvents = inputSystem->PollMouseInputEvents();
+
 	// Study each of the buffer elements and process them.
-	for( int i = 0; i < numEvents; i++ )
+	for( auto i = 0; i < numEvents; i++ )
 	{
-		int action = mouseEvents[i][0];
-		int value = mouseEvents[i][1];
+		int action = 0, value = 0; 
+		inputSystem->ReturnMouseInputEvent( i, action, value );
+
 		switch( action )
 		{
 			case M_ACTION1:
@@ -1395,6 +1376,9 @@ void idUsercmdGenLocal::Mouse( void )
 				break;
 		}
 	}
+
+	//
+	inputSystem->EndMouseInputEvents();
 }
 
 /*
@@ -1404,19 +1388,20 @@ idUsercmdGenLocal::Keyboard
 */
 void idUsercmdGenLocal::Keyboard( void )
 {
-
-	int numEvents = crInputSystem::Get()->PollKeyboardInputEvents();
+	auto inputSystem = crInputSystem::Get();
+	
+	int numEvents = inputSystem->PollKeyboardInputEvents();
 	
 	// Study each of the buffer elements and process them.
 	for( int i = 0; i < numEvents; i++ )
 	{
 		int key;
 		bool state;
-		if( crInputSystem::Get()->ReturnKeyboardInputEvent( i, key, state ) )
+		if( inputSystem->ReturnKeyboardInputEvent( i, key, state ) )
 			Key( key, state );
 	}
 	
-	crInputSystem::Get()->EndKeyboardInputEvents();
+	inputSystem->EndKeyboardInputEvents();
 }
 
 /*
@@ -1424,16 +1409,16 @@ void idUsercmdGenLocal::Keyboard( void )
 idUsercmdGenLocal::Joystick
 ===============
 */
-void idUsercmdGenLocal::Joystick( int deviceNum )
+void idUsercmdGenLocal::Joystick( const uint32_t deviceNum )
 {
-	int numEvents = crInputSystem::Get()->PollJoystickInputEvents( deviceNum );
+	auto inputSystem = crInputSystem::Get();
+	int numEvents = inputSystem->PollJoystickInputEvents( deviceNum );
 	
 	// Study each of the buffer elements and process them.
 	for( int i = 0; i < numEvents; i++ )
 	{
-		int action;
-		int value;
-		if( crInputSystem::Get()->ReturnJoystickInputEvent( i, action, value ) )
+		int action = 0, value = 0;
+		if( inputSystem->ReturnJoystickInputEvent( deviceNum, i, action, value ) )
 		{
 			if( action >= J_ACTION1 && action <= J_ACTION_MAX )
 			{
@@ -1456,7 +1441,7 @@ void idUsercmdGenLocal::Joystick( int deviceNum )
 		}
 	}
 	
-	crInputSystem::Get()->EndJoystickInputEvents();
+	inputSystem->EndJoystickInputEvents( deviceNum );
 }
 
 /*
@@ -1482,9 +1467,7 @@ void idUsercmdGenLocal::BuildCurrentUsercmd( int deviceNum )
 
 	pollTime = Sys_Milliseconds();
 	if( pollTime - lastPollTime > 100 )
-	{
 		lastPollTime = pollTime - 100;
-	}
 	
 	// initialize current usercmd
 	InitCurrent();
@@ -1497,9 +1480,7 @@ void idUsercmdGenLocal::BuildCurrentUsercmd( int deviceNum )
 	
 	// process the system joystick events
 	if( deviceNum >= 0 && in_useJoystick.GetBool() )
-	{
 		Joystick( deviceNum );
-	}
 	
 	// create the usercmd
 	MakeCurrent();
