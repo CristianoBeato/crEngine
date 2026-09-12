@@ -123,7 +123,7 @@ bool crVideoSDL3::StartUp( const uint32_t in_flags )
     
     if( !SDL_WasInit( SDL_INIT_VIDEO ) )
 	{
-		if( SDL_Init( SDL_INIT_VIDEO ) )
+		if( SDL_InitSubSystem( SDL_INIT_VIDEO ) )
         {
 			common->Error( "Error while initializing SDL: %s", SDL_GetError() );
             return false;
@@ -170,6 +170,9 @@ void crVideoSDL3::ShutDown(void)
 
     SDL_Vulkan_UnloadLibrary();
 
+    // Release SDL video system
+    if( SDL_WasInit( SDL_INIT_VIDEO ) )
+        SDL_QuitSubSystem( SDL_INIT_VIDEO );
 }
 
 void *crVideoSDL3::WindowHandler(void)
