@@ -32,6 +32,8 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Common_local.h"
 
+#include <SDL3/SDL_log.h>
+
 idCVar com_logFile( "logFile", "0", CVAR_SYSTEM | CVAR_NOCHEAT, "1 = buffer log, 2 = flush after each print", 0, 2, idCmdSystem::ArgCompletion_Integer<0, 2> );
 idCVar com_logFileName( "logFileName", "qconsole.log", CVAR_SYSTEM | CVAR_NOCHEAT, "name of log file, if empty, qconsole.log will be used" );
 idCVar com_timestampPrints( "com_timestampPrints", "0", CVAR_SYSTEM, "print time with each console print, 1 = msec, 2 = sec", 0, 2, idCmdSystem::ArgCompletion_Integer<0, 2> );
@@ -139,7 +141,7 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 	{
 		msg[sizeof( msg ) - 2] = '\n';
 		msg[sizeof( msg ) - 1] = '\0'; // avoid output garbling
-		Sys_Printf( "idCommon::VPrintf: truncated to %d characters\n", strlen( msg ) - 1 );
+		crConsole::Get()->Printf( "idCommon::VPrintf: truncated to %d characters\n", strlen( msg ) - 1 );
 	}
 	
 	if( rd_buffer )
@@ -180,11 +182,15 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 	
 	if( !idLib::IsMainThread() )
 	{
+#if 0
 		// RB: printf should be thread-safe on Linux
 #if defined(_WIN32)
 		OutputDebugString( msg );
 #else
 		printf( "%s", msg );
+#endif
+#else
+		SDL_Log( "%s", msg );
 #endif
 		// RB end
 		return;
@@ -197,7 +203,7 @@ void idCommonLocal::VPrintf( const char* fmt, va_list args )
 	idStr::RemoveColors( msg );
 	
 	// echo to dedicated console and early console
-	Sys_Printf( "%s", msg );
+	crConsole::Get()->Printf( "%s", msg );
 	
 	// print to script debugger server
 	DebuggerServerPrint( msg );
@@ -515,9 +521,7 @@ void idCommonLocal::Error( const char* fmt, ... )
 	if( currentTime - lastErrorTime < 100 )
 	{
 		if( ++errorCount > 3 )
-		{
 			code = ERP_FATAL;
-		}
 	}
 	else
 	{
@@ -561,7 +565,7 @@ void idCommonLocal::Error( const char* fmt, ... )
 		cmdSystem->BufferCommandText( CMD_EXEC_NOW, "vid_restart partial windowed\n" );
 	}
 	
-	Sys_Error( "%s", errorMessage );
+	crConsole::Get()->Error( "%s", errorMessage );
 	
 }
 
@@ -588,14 +592,14 @@ void idCommonLocal::FatalError( const char* fmt, ... )
 		// full screen rendering window covering the
 		// error dialog
 		
-		Sys_Printf( "FATAL: recursed fatal error:\n%s\n", errorMessage );
+		crConsole::Get()->Printf( "FATAL: recursed fatal error:\n%s\n", errorMessage );
 		
 		va_start( argptr, fmt );
 		idStr::vsnPrintf( errorMessage, sizeof( errorMessage ), fmt, argptr );
 		va_end( argptr );
 		errorMessage[sizeof( errorMessage ) - 1] = '\0';
 		
-		Sys_Printf( "%s\n", errorMessage );
+		crConsole::Get()->Printf( "%s\n", errorMessage );
 		
 		// write the console to a log file?
 		idLib::sys->Quit();

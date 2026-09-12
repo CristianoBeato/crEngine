@@ -19,7 +19,7 @@ int main( int argc, char *argv[] )
 
     if( !SDL_Init( SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD | SDL_INIT_AUDIO ) )
     {
-		Sys_Error( SDL_GetError() );
+		crConsole::Get()->SetFatalError( SDL_GetError() );
         return EXIT_FAILURE;    
     }
 
@@ -29,6 +29,7 @@ int main( int argc, char *argv[] )
         cmdLine += idStr( argv[i] );
     }
 
+    /// Initialize console
     crConsole::Get()->Startup();
     //crPlatform::Get()->Init( cmdLine );
 
@@ -36,7 +37,7 @@ int main( int argc, char *argv[] )
 	
 	common->Init( argc, argv, nullptr );
 
-	// hide or show the early console as necessary
+	// hide or show the early console as necessary ( Windows only )
 	if ( sys_viewlog.GetBool() )
 		crConsole::Get()->ShowConsole( 1, true );
 	else

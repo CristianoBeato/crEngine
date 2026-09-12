@@ -42,9 +42,6 @@ constexpr int	CON_TEXTSIZE = 0x180000;
 constexpr int	NUM_CON_TIMES = 4;
 constexpr int	CONSOLE_FIRSTREPEAT = 200;
 constexpr int	CONSOLE_REPEAT = 100;
-
-constexpr int	COMMAND_HISTORY = 64;
-
 constexpr int 	FPS_FRAMES = 6;
 
 struct overlayText_t
