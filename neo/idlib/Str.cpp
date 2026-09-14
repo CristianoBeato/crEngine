@@ -162,17 +162,18 @@ void idStr::operator=( const char* text )
 	}
 	
 	if( text == data )
-	{
 		return; // copying same thing
-	}
 	
 	// check if we're aliasing
 	if( text >= data && text <= data + len )
 	{
 		diff = text - data;
-		
-		assert( strlen( text ) < ( unsigned )len );
-		
+
+#if CR_USE_SDL_STRING_UTILS
+		assert( SDL_strlen( text ) < ( unsigned ) len );
+#else
+		assert( std::strlen( text ) < ( unsigned )len );
+#endif 	
 		for( i = 0; text[ i ]; i++ )
 		{
 			data[ i ] = text[ i ];
@@ -186,10 +187,14 @@ void idStr::operator=( const char* text )
 	}
 	
 	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
-	l = ( int )strlen( text );
+#if CR_USE_SDL_STRING_UTILS
+	l = SDL_strlen( text );
+#else
+	l = std::strlen( text );
+#endif
 	// RB end
 	EnsureAlloced( l + 1, false );
-	strcpy( data, text );
+	std::strcpy( data, text );
 	len = l;
 }
 
@@ -200,23 +205,27 @@ idStr::FindChar
 returns -1 if not found otherwise the index of the char
 ============
 */
-int idStr::FindChar( const char* str, const char c, int start, int end )
+int64_t idStr::FindChar( const char* str, const char c, int64_t start, int64_t end )
 {
-	int i;
+	int64_t i;
 	
 	if( end == -1 )
 	{
 		// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
-		end = ( int )strlen( str ) - 1;
+#if CR_USE_SDL_STRING_UTILS
+		end = ( int64_t ) SDL_strlen( str ) - 1;
+#else	
+		end = ( int64_t ) std::strlen( str ) - 1;
+#endif
 		// RB end
 	}
+
 	for( i = start; i <= end; i++ )
 	{
 		if( str[i] == c )
-		{
 			return i;
-		}
 	}
+
 	return -1;
 }
 
@@ -227,16 +236,22 @@ idStr::FindText
 returns -1 if not found otherwise the index of the text
 ============
 */
-int idStr::FindText( const char* str, const char* text, bool casesensitive, int start, int end )
+int64_t idStr::FindText( const char* str, const char* text, bool casesensitive, int64_t start, int64_t end )
 {
 	int l, i, j;
 	
 	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
+#if CR_USE_SDL_STRING_UTILS
 	if( end == -1 )
-	{
-		end = ( int )strlen( str );
-	}
-	l = end - ( int )strlen( text );
+		end = ( int64_t )SDL_strlen( str );
+	
+	l = end - ( int64_t )SDL_strlen( text );
+#else
+	if( end == -1 )
+		end = ( int64_t )std::strlen( str );
+	
+	l = end - ( int64_t )std::strlen( text );
+#endif
 	// RB end
 	
 	for( i = start; i <= l; i++ )
@@ -246,19 +261,20 @@ int idStr::FindText( const char* str, const char* text, bool casesensitive, int 
 			for( j = 0; text[j]; j++ )
 			{
 				if( str[i + j] != text[j] )
-				{
 					break;
-				}
 			}
 		}
 		else
 		{
 			for( j = 0; text[j]; j++ )
 			{
-				if( ::toupper( str[i + j] ) != ::toupper( text[j] ) )
-				{
+#if CR_USE_SDL_STRING_UTILS
+				if( SDL_toupper( str[i + j] ) != SDL_toupper( text[j] ) )
 					break;
-				}
+#else
+				if( std::toupper( str[i + j] ) != std::toupper( text[j] ) )
+					break;
+#endif 
 			}
 		}
 		if( !text[j] )
@@ -297,23 +313,21 @@ bool idStr::Filter( const char* filter, const char* name, bool casesensitive )
 			for( i = 0; *filter; i++ )
 			{
 				if( *filter == '*' || *filter == '?' || ( *filter == '[' && *( filter + 1 ) != '[' ) )
-				{
 					break;
-				}
+				
 				buf += *filter;
 				if( *filter == '[' )
-				{
 					filter++;
-				}
+				
 				filter++;
 			}
+
 			if( buf.Length() )
 			{
 				index = idStr( name ).Find( buf.c_str(), casesensitive );
 				if( index == -1 )
-				{
 					return false;
-				}
+				
 				name += index + strlen( buf );
 			}
 		}
@@ -327,9 +341,8 @@ bool idStr::Filter( const char* filter, const char* name, bool casesensitive )
 			if( *( filter + 1 ) == '[' )
 			{
 				if( *name != '[' )
-				{
 					return false;
-				}
+				
 				filter += 2;
 				name++;
 			}
@@ -340,24 +353,24 @@ bool idStr::Filter( const char* filter, const char* name, bool casesensitive )
 				while( *filter && !found )
 				{
 					if( *filter == ']' && *( filter + 1 ) != ']' )
-					{
 						break;
-					}
+					
 					if( *( filter + 1 ) == '-' && *( filter + 2 ) && ( *( filter + 2 ) != ']' || *( filter + 3 ) == ']' ) )
 					{
 						if( casesensitive )
 						{
 							if( *name >= *filter && *name <= *( filter + 2 ) )
-							{
 								found = true;
-							}
 						}
 						else
 						{
-							if( ::toupper( *name ) >= ::toupper( *filter ) && ::toupper( *name ) <= ::toupper( *( filter + 2 ) ) )
-							{
+#if CR_USE_SDL_STRING_UTILS
+							if( SDL_toupper( *name ) >= SDL_toupper( *filter ) && SDL_toupper( *name ) <= SDL_toupper( *( filter + 2 ) ) )
 								found = true;
-							}
+#else
+							if( std::toupper( *name ) >= std::toupper( *filter ) && std::toupper( *name ) <= std::toupper( *( filter + 2 ) ) )
+								found = true;
+#endif
 						}
 						filter += 3;
 					}
@@ -366,16 +379,12 @@ bool idStr::Filter( const char* filter, const char* name, bool casesensitive )
 						if( casesensitive )
 						{
 							if( *filter == *name )
-							{
 								found = true;
-							}
 						}
 						else
 						{
-							if( ::toupper( *filter ) == ::toupper( *name ) )
-							{
+							if( std::toupper( *filter ) == std::toupper( *name ) )
 								found = true;
-							}
 						}
 						filter++;
 					}
@@ -617,9 +626,7 @@ idStr::CStyleUnQuote
 const char* idStr::CStyleUnQuote( const char* str )
 {
 	if( str[0] != '\"' )
-	{
 		return str;
-	}
 	
 	static int index = 0;
 	static char buffers[4][16384];	// in case called by nested functions

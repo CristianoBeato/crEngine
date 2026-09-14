@@ -292,7 +292,7 @@ public:
 	bool				CheckExtension( const char* ext );
 	
 	// char * methods to replace library functions
-	static int			Length( const char* s );
+	static size_t		Length( const char* s );
 	static char* 		ToLower( char* s );
 	static char* 		ToUpper( char* s );
 	static bool			IsNumeric( const char* s );
@@ -312,8 +312,8 @@ public:
 	static void			Copynz( char* dest, const char* src, int destsize );
 	static int			snPrintf( char* dest, int size, VERIFY_FORMAT_STRING const char* fmt, ... );
 	static int			vsnPrintf( char* dest, int size, const char* fmt, va_list argptr );
-	static int			FindChar( const char* str, const char c, int start = 0, int end = -1 );
-	static int			FindText( const char* str, const char* text, bool casesensitive = true, int start = 0, int end = -1 );
+	static int64_t		FindChar( const char* str, const char c, int64_t start = 0, int64_t end = -1 );
+	static int64_t		FindText( const char* str, const char* text, bool casesensitive = true, int64_t start = 0, int64_t end = -1 );
 	static bool			Filter( const char* filter, const char* name, bool casesensitive );
 	static void			StripMediaName( const char* name, idStr& mediaName );
 	static bool			CheckExtension( const char* name, const char* ext );
@@ -360,7 +360,7 @@ public:
 	static idStr		FormatNumber( int number );
 	
 protected:
-	int					len;
+	int64_t				len;
 	char* 				data;
 	int					allocedAndFlag;	// top bit is used to store a flag that indicates if the string data is static or not
 	char				baseBuffer[ STR_ALLOC_BASE ];
@@ -1257,15 +1257,27 @@ ID_INLINE bool idStr::CheckExtension( const char* ext )
 	return idStr::CheckExtension( data, ext );
 }
 
-ID_INLINE int idStr::Length( const char* s )
+ID_INLINE size_t idStr::Length( const char* s )
 {
+#if CR_USE_SDL_STRING_UTILS
+	return SDL_strlen( s );
+#else
 	int i;
 	for( i = 0; s[i]; i++ ) {}
 	return i;
+#endif
 }
 
 ID_INLINE char* idStr::ToLower( char* s )
 {
+#if CR_USE_SDL_STRING_UTILS
+	auto count = SDL_strlen( s );
+	for ( auto i = 0; i < count; i++)
+	{
+		if( SDL_isupper( s[i] ) != 0 )
+			s[i] = SDL_tolower( s[i] );
+	}
+#else
 	for( int i = 0; s[i]; i++ )
 	{
 		if( CharIsUpper( s[i] ) )
@@ -1273,11 +1285,20 @@ ID_INLINE char* idStr::ToLower( char* s )
 			s[i] += ( 'a' - 'A' );
 		}
 	}
+#endif
 	return s;
 }
 
 ID_INLINE char* idStr::ToUpper( char* s )
 {
+#if CR_USE_SDL_STRING_UTILS
+	auto count = SDL_strlen( s );
+	for ( size_t i = 0; i < count; i++)
+	{
+		if( SDL_islower( s[i] ) != 0 )
+			s[i] = SDL_toupper( s[i] );
+	}
+#else
 	for( int i = 0; s[i]; i++ )
 	{
 		if( CharIsLower( s[i] ) )
@@ -1285,6 +1306,7 @@ ID_INLINE char* idStr::ToUpper( char* s )
 			s[i] -= ( 'a' - 'A' );
 		}
 	}
+#endif
 	return s;
 }
 
@@ -1335,45 +1357,68 @@ ID_INLINE bool idStr::IsColor( const char* s )
 
 ID_INLINE char idStr::ToLower( char c )
 {
+#if CR_USE_SDL_STRING_UTILS
+	return SDL_tolower( c );
+#else
 	if( c <= 'Z' && c >= 'A' )
 	{
 		return ( c + ( 'a' - 'A' ) );
 	}
 	return c;
+#endif
 }
 
 ID_INLINE char idStr::ToUpper( char c )
 {
+#if CR_USE_SDL_STRING_UTILS
+	return SDL_toupper( c );
+#else
 	if( c >= 'a' && c <= 'z' )
 	{
 		return ( c - ( 'a' - 'A' ) );
 	}
 	return c;
+#endif
 }
 
 ID_INLINE bool idStr::CharIsPrintable( int c )
 {
+#if CR_USE_SDL_STRING_UTILS
+	return SDL_isprint( c ) != 0; 
+#else
 	// test for regular ascii and western European high-ascii chars
 	return ( c >= 0x20 && c <= 0x7E ) || ( c >= 0xA1 && c <= 0xFF );
+#endif
 }
 
 ID_INLINE bool idStr::CharIsLower( int c )
 {
+#if CR_USE_SDL_STRING_UTILS
+	return SDL_islower( c ) != 0;
+#else
 	// test for regular ascii and western European high-ascii chars
 	return ( c >= 'a' && c <= 'z' ) || ( c >= 0xE0 && c <= 0xFF );
+#endif
 }
 
 ID_INLINE bool idStr::CharIsUpper( int c )
 {
+#if CR_USE_SDL_STRING_UTILS
+	return SDL_isupper( c ) != 0;
+#else
 	// test for regular ascii and western European high-ascii chars
 	return ( c <= 'Z' && c >= 'A' ) || ( c >= 0xC0 && c <= 0xDF );
+#endif
 }
 
 ID_INLINE bool idStr::CharIsAlpha( int c )
 {
+#if CR_USE_SDL_STRING_UTILS
+	return SDL_isalpha( c ) != 0;
+#else
 	// test for regular ascii and western European high-ascii chars
-	return ( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) ||
-			 ( c >= 0xC0 && c <= 0xFF ) );
+	return ( ( c >= 'a' && c <= 'z' ) || ( c >= 'A' && c <= 'Z' ) || ( c >= 0xC0 && c <= 0xFF ) );
+#endif
 }
 
 ID_INLINE bool idStr::CharIsNumeric( int c )
@@ -1410,9 +1455,7 @@ ID_INLINE void idStr::CopyRange( const char* text, int start, int end )
 {
 	int l = end - start;
 	if( l < 0 )
-	{
 		l = 0;
-	}
 	
 	EnsureAlloced( l + 1 );
 	

@@ -276,4 +276,8 @@ inline constexpr int MAX_QPATH = 256;
 //#define	MAX_QPATH 256			// max length of a game pathname
 //#define MAX_QPATH	256
 
+#ifndef CR_USE_SDL_STRING_UTILS
+# define CR_USE_SDL_STRING_UTILS 1
+#endif // CR_USE_SDL_STRING_UTILS
+
 #endif
