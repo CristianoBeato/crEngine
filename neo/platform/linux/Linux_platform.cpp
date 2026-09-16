@@ -192,7 +192,7 @@ void crLinuxPlatform::ReLaunch(void *data, const size_t dataSize)
 		// execv expects NULL terminated array
 		argv[i] = NULL;
 		
-		const char* exepath = Sys_EXEPath();
+		const char* exepath = crPaths::Get()->EXEPath();
 		
 		errno = 0;
 		execv( exepath, ( char** )argv );
@@ -349,7 +349,7 @@ void crLinuxPlatform::OpenURL(const char *url, const bool doexit)
 		// execv expects NULL terminated array
 		argv[i] = NULL;
 		
-		const char* exepath = Sys_EXEPath();
+		const char* exepath = crPaths::Get()->EXEPath();
 		
 		errno = 0;
 		execv( exepath, ( char** )argv );
