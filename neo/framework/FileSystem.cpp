@@ -3527,13 +3527,10 @@ void idFileSystemLocal::InitPrecache()
 idFileSystemLocal::ReOpenCacheFiles
 ================
 */
-void idFileSystemLocal::ReOpenCacheFiles()
+void idFileSystemLocal::ReOpenCacheFiles( void )
 {
-
 	if( !fs_enableBackgroundCaching.GetBool() )
-	{
 		return;
-	}
 }
 
 
@@ -3597,7 +3594,7 @@ Called only at inital startup, not when the filesystem
 is resetting due to a game change
 ================
 */
-void idFileSystemLocal::Init()
+void idFileSystemLocal::Init( void )
 {
 	// allow command line parms to override our defaults
 	// we have to specially handle this, because normal command
@@ -3609,14 +3606,13 @@ void idFileSystemLocal::Init()
 	common->StartupVariable( "fs_game_base" );
 	common->StartupVariable( "fs_copyfiles" );
 	
+	auto paths = crPaths::Get();
+
 	if( fs_basepath.GetString()[0] == '\0' )
-	{
-		fs_basepath.SetString( Sys_DefaultBasePath() );
-	}
+		fs_basepath.SetString( paths->DefaultBasePath() );
+	
 	if( fs_savepath.GetString()[0] == '\0' )
-	{
-		fs_savepath.SetString( Sys_DefaultSavePath() );
-	}
+		fs_savepath.SetString( paths->DefaultSavePath() );
 	
 	// try to start up normally
 	Startup();
@@ -3626,9 +3622,7 @@ void idFileSystemLocal::Init()
 	// graphics screen when the font fails to load
 	// Dedicated servers can run with no outside files at all
 	if( ReadFile( "default.cfg", nullptr, nullptr ) <= 0 )
-	{
 		common->FatalError( "Couldn't load default.cfg" );
-	}
 }
 
 /*
@@ -3647,9 +3641,7 @@ void idFileSystemLocal::Restart()
 	// busted and error out now, rather than getting an unreadable
 	// graphics screen when the font fails to load
 	if( ReadFile( "default.cfg", nullptr, nullptr ) <= 0 )
-	{
 		common->FatalError( "Couldn't load default.cfg" );
-	}
 }
 
 /*
@@ -3770,9 +3762,8 @@ idFile* idFileSystemLocal::GetResourceFile( const char* fileName, bool memFile )
 			else
 			{
 				if( fs_debugResources.GetBool() )
-				{
 					idLib::Printf( "MEM: Allocating %05d bytes for a resource load\n", rc.length );
-				}
+				
 				buf = ( byte* )Mem_Alloc( rc.length, TAG_TEMP );
 			}
 			file->Read( ( void* )buf, rc.length );
@@ -3945,10 +3936,8 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 					else
 					{
 						// never add .amp files
-						if( strstr( relativePath, ".amp" ) == nullptr )
-						{
+						if( std::strstr( relativePath, ".amp" ) == nullptr )
 							fileManifest.Append( relativePath );
-						}
 					}
 					
 				}
@@ -3977,15 +3966,11 @@ idFile* idFileSystemLocal::OpenFileReadFlags( const char* relativePath, int sear
 	{
 		idFile* rf = GetResourceFile( relativePath, ( searchFlags & FSFLAG_RETURN_FILE_MEM ) != 0 );
 		if( rf != nullptr )
-		{
 			return rf;
-		}
 	}
 	
 	if( fs_debug.GetInteger( ) )
-	{
 		common->Printf( "Can't find %s\n", relativePath );
-	}
 	
 	return nullptr;
 }
@@ -4023,22 +4008,16 @@ idFile* idFileSystemLocal::OpenFileWrite( const char* relativePath, const char* 
 	idFile_Permanent* f;
 	
 	if( !IsInitialized() )
-	{
 		common->FatalError( "Filesystem call made without initialization\n" );
-	}
 	
 	path = cvarSystem->GetCVarString( basePath );
 	if( !path[0] )
-	{
 		path = fs_savepath.GetString();
-	}
 	
 	OSpath = BuildOSPath( path, gameFolder, relativePath );
 	
 	if( fs_debug.GetInteger() )
-	{
 		common->Printf( "idFileSystem::OpenFileWrite: %s\n", OSpath.c_str() );
-	}
 	
 	common->DPrintf( "writing to: %s\n", OSpath.c_str() );
 	CreateOSPath( OSpath );
@@ -4050,6 +4029,7 @@ idFile* idFileSystemLocal::OpenFileWrite( const char* relativePath, const char* 
 		delete f;
 		return nullptr;
 	}
+
 	f->name = relativePath;
 	f->fullPath = OSpath;
 	f->ftimestamp = FileTimeStamp( OSpath.c_str() );
@@ -4250,7 +4230,7 @@ void idFileSystemLocal::FindDLL( const char* name, char _dllPath[ MAX_OSPATH ] )
 	sys->DLL_GetFileName( name, dllName, MAX_OSPATH );
 	
 	// from executable directory first - this is handy for developement
-	idStr dllPath = crPaths::EXEPath( );
+	idStr dllPath = crPaths::Get()->EXEPath( );
 	dllPath.StripFilename( );
 	dllPath.AppendPath( dllName );
 	idFile* dllFile = OpenExplicitFileRead( dllPath );

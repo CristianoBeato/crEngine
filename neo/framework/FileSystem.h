@@ -95,6 +95,7 @@ private:
 	idStrList				list;
 };
 
+
 enum Folder_t
 {
 	FOLDER_ERROR	= -1,
