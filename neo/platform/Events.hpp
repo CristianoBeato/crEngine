@@ -37,7 +37,6 @@ class crEvents
 {
 public:
 	static crEvents*		Get( void );
-
 	virtual void			StartUp( void ) = 0;
 	virtual void			ShutDown( void ) = 0;
     virtual void        	PumpEvents( void ) = 0;
@@ -45,12 +44,7 @@ public:
     virtual sysEvent_t		GetEvent( void ) = 0;
     virtual void        	ClearEvents( void ) = 0;
 	virtual unsigned char	GetConsoleKey( const bool in_shifted ) = 0;
-    virtual void        	QueEvent( const sysEventType_t in_type, 
-				const int in_value, 
-				const int in_value2, 
-				const size_t in_ptrLength, 
-				const void* in_ptr, 
-				const int in_inputDeviceNum ) = 0;
+    virtual void        	QueEvent( const sysEventType_t in_type, const int in_value, const int in_value2, const size_t in_ptrLength, const void* in_ptr, const int in_inputDeviceNum ) = 0;
 };
 
 #endif //!__EVENTS_HPP__

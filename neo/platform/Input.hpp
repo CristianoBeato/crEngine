@@ -52,6 +52,14 @@ public:
 
 	virtual uint32_t				GamepadCount( void ) = 0;
 	virtual void					SetRumble( const int device, uint16_t in_low, uint16_t in_hi ) = 0;
+
+
+protected:
+	friend class crEventsSDL3;
+	virtual void    AppendKeyboardEvent( const int in_key, const bool in_state ) = 0;
+    virtual void    AppendMouseEvents( const int in_action, const int in_value ) = 0;
+    virtual void	AppendMouseMotion( const int in_motionX, const int in_motionY ) = 0;
+	virtual void    AppendJoysticEvent( const uint32_t in_device, const int in_button, const int in_value ) = 0;
 };
 
 #endif //!__INPUT_HPP__

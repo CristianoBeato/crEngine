@@ -62,17 +62,23 @@ public:
 protected:
 	friend class crEvents;
 
-	inline void    AppendKeyboardEvent( const int in_key, const bool in_state )
+	virtual void    AppendKeyboardEvent( const int in_key, const bool in_state ) override
 	{
 		m_kbdPolls.Append( { in_key, in_state } );
 	}
 
-    inline void    AppendMouseEvents( const int in_action, const int in_value )
+    virtual void    AppendMouseEvents( const int in_action, const int in_value ) override
 	{
 		m_mousePolls.Append({ in_action, in_value } );
 	}
 
-    inline void    AppendJoysticEvent( const uint32_t in_device, const int in_button, const int in_value )
+	virtual void	AppendMouseMotion( const int in_motionX, const int in_motionY )
+	{
+		m_mousePolls.Append({ M_DELTAX, in_motionX } );
+		m_mousePolls.Append({ M_DELTAY, in_motionY } );
+	}
+
+    virtual void    AppendJoysticEvent( const uint32_t in_device, const int in_button, const int in_value ) override
 	{
 		// TODO: clamp device
 		m_joysticPolls[in_device].Append( { in_button, in_value } );

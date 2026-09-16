@@ -55,7 +55,7 @@ crEvents::Get
 static crEventsSDL3 gEventsSDL3 = crEventsSDL3();
 crEvents* crEvents::Get( void )
 {
-	return &gEventsSDL3
+	return &gEventsSDL3;
 }
 
 /*
@@ -131,19 +131,14 @@ void crEventsSDL3::GenerateEvents( void )
 crEvents::QueEvent
 ================
 */
-void crEventsSDL3::QueEvent(    const sysEventType_t type, 
-                            const int value, 
-                            const int value2, 
-                            const size_t ptrLength, 
-                            const void *ptr, 
-                            const int inputDeviceNum )
+void crEventsSDL3::QueEvent( const sysEventType_t type, const int value, const int value2, const size_t ptrLength, const void *ptr, const int inputDeviceNum )
 {
 	sysEvent_t eventData = { };
 	eventData.evType = type;
 	eventData.evValue = value;
 	eventData.evValue2 = value2;
 	eventData.evPtrLength = ptrLength;
-	eventData.evPtr = ptr;
+	eventData.evPtr = const_cast<void*>( ptr );
 	eventData.inputDevice = inputDeviceNum;
 	m_event_queue.Append( eventData );
 }
@@ -244,6 +239,7 @@ bool SDLCALL crEventsSDL3::HandleSDLEvents( void *userdata, SDL_Event *event )
 	sysEvent_t res = { };
 	int key;
 	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, 0, nullptr };
+	auto is = crInputSystem::Get();
 	switch( event->type )
 	{
 		case SDL_EVENT_WINDOW_FOCUS_GAINED:
@@ -347,7 +343,7 @@ bool SDLCALL crEventsSDL3::HandleSDLEvents( void *userdata, SDL_Event *event )
 			}
 			
 			gEventsSDL3.QueEvent( SE_KEY, key, event->key.down ? 1 : 0, 0, nullptr, 0 );
-			crInputSystem::Get()->AppendKeyboardEvent( key, event->key.down ); // kbd_polls.Append( kbd_poll_t( key, event->key.down ) );
+			is->AppendKeyboardEvent( key, event->key.down ); // kbd_polls.Append( kbd_poll_t( key, event->key.down ) );
 			
 			if( key == K_BACKSPACE && event->key.down ) 
 			{
@@ -400,25 +396,23 @@ bool SDLCALL crEventsSDL3::HandleSDLEvents( void *userdata, SDL_Event *event )
 				gEventsSDL3.QueEvent( SE_MOUSE_ABSOLUTE, event->motion.x, event->motion.y, 0, nullptr, 0 );
 			else // this is the old, default behavior
 				gEventsSDL3.QueEvent( SE_MOUSE, event->motion.xrel, event->motion.yrel, 0, nullptr, 0 );
-			
 			// DG end
 			
-			mouse_polls.Append( mouse_poll_t( M_DELTAX, event->motion.xrel ) );
-			mouse_polls.Append( mouse_poll_t( M_DELTAY, event->motion.yrel ) );
-			
+			is->AppendMouseMotion( event->motion.xrel, event->motion.yrel );
+
 			return false;
 		}
 		case SDL_EVENT_MOUSE_WHEEL:
 			if( event->wheel.y > 0 )
 			{
-				mouse_polls.Append( mouse_poll_t( M_DELTAZ, 1 ) );
+				is->AppendMouseEvents( M_DELTAZ, 1 ); // mouse_polls.Append( mouse_poll_t( M_DELTAZ, 1 ) );
 				gEventsSDL3.QueEvent( SE_KEY, K_MWHEELUP, 1, 0, nullptr, 0 );
 				// Immediately Queue Not Pressed Event
 				gEventsSDL3.QueEvent( SE_KEY, K_MWHEELUP, 0, 0, nullptr, 0 );
 			}
 			else
 			{
-				mouse_polls.Append( mouse_poll_t( M_DELTAZ, -1 ) );
+				is->AppendMouseEvents( M_DELTAZ, -1 ); // mouse_polls.Append( mouse_poll_t( M_DELTAZ, -1 ) );
 				gEventsSDL3.QueEvent( SE_KEY, K_MWHEELDOWN, 1, 0, nullptr, 0 );
 				// Immediately Queue Not Pressed Event
 				gEventsSDL3.QueEvent( SE_KEY, K_MWHEELDOWN, 0, 0, nullptr, 0 );
@@ -433,17 +427,18 @@ bool SDLCALL crEventsSDL3::HandleSDLEvents( void *userdata, SDL_Event *event )
 				case SDL_BUTTON_LEFT:
 				{
 					gEventsSDL3.QueEvent( SE_KEY, K_MOUSE1, event->button.down ? 1 : 0, 0, nullptr, 0 );
-					mouse_polls.Append( mouse_poll_t( M_ACTION1, event->button.down ? 1 : 0 ) );
+					is->AppendMouseEvents( M_ACTION1, event->button.down ? 1 : 0 ); // mouse_polls.Append( mouse_poll_t( M_ACTION1, event->button.down ? 1 : 0 ) );
+					
 				}	break;
 				case SDL_BUTTON_MIDDLE:
 				{
 					gEventsSDL3.QueEvent( SE_KEY, K_MOUSE3, event->button.down ? 1 : 0, 0, nullptr, 0 );
-					mouse_polls.Append( mouse_poll_t( M_ACTION3, event->button.down ? 1 : 0 ) );
+					is->AppendMouseEvents( M_ACTION3, event->button.down ? 1 : 0 ); // mouse_polls.Append( mouse_poll_t( M_ACTION3, event->button.down ? 1 : 0 ) );
 				} break;
 				case SDL_BUTTON_RIGHT:
 				{
 					gEventsSDL3.QueEvent( SE_KEY, K_MOUSE2, event->button.down ? 1 : 0, 0, nullptr, 0 );
-					mouse_polls.Append( mouse_poll_t( M_ACTION2, event->button.down ? 1 : 0 ) );
+					is->AppendMouseEvents( M_ACTION2, event->button.down ? 1 : 0 ); // mouse_polls.Append( mouse_poll_t( M_ACTION2, event->button.down ? 1 : 0 ) );
 				} break;
 			}
 			return false;
@@ -451,12 +446,12 @@ bool SDLCALL crEventsSDL3::HandleSDLEvents( void *userdata, SDL_Event *event )
 
 		case SDL_EVENT_GAMEPAD_ADDED:
 		{
-			Sys_JoystickConnect( event->gdevice.which );
+			// Sys_JoystickConnect( event->gdevice.which );
 	        return false;
 		}
 		case SDL_EVENT_GAMEPAD_REMOVED:
 		{
-			Sys_JoystickDisconnect( event->gdevice.which );
+			// Sys_JoystickDisconnect( event->gdevice.which );
 			return false;
 		}
 		case SDL_EVENT_GAMEPAD_BUTTON_DOWN:
