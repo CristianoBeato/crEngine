@@ -27,6 +27,17 @@ typedef struct
 
 #define	PORT_ANY			-1
 
+class crNetSoket
+{
+public:
+	crNetSoket( void );
+	~crNetSoket( void );
+	virtual bool	Open( void ) = 0;
+	virtual bool	Close( void ) = 0;
+	virtual void	ReciveUDP( void* out_data, size_t &out_size, const size_t in_maxSize ) = 0;
+	virtual void	SendUDP( const void in_data, const size_t in_size ) = 0;
+};
+
 /*
 ================================================
 idUDP
@@ -87,8 +98,12 @@ public:
 	
 private:
 	netadr_t	bound_to;		// interface and port
-	int			netSocket;		// OS specific socket
 	bool		silent;			// don't emit anything ( black hole )
+#if USE_SDL3NET
+	NET_DatagramSocket*	netSocket;
+#else
+	int					netSocket;		// OS specific socket
+#endif 
 };
 
 // TODO: update to a class
@@ -143,18 +158,6 @@ private:
 typedef crNetMessage msg_t;
 
 inline constexpr uint32_t MAX_INTERFACES = 32;
-
-class crNetSoket
-{
-public:
-	crNetSoket( void );
-	~crNetSoket( void );
-
-	virtual bool	Open( void ) = 0;
-	virtual bool	Close( void ) = 0;
-	virtual void	ReciveUDP( void* out_data, size_t &out_size, const size_t in_maxSize ) = 0;
-	virtual void	SendUDP( const void in_data, const size_t in_size ) = 0;
-};
 
 struct sockaddr_in;
 class crNetwork

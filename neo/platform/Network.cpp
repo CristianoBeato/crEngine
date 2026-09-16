@@ -2,6 +2,12 @@
 #include "precompiled.h"
 #include "Network.hpp"
 
+#define USE_SDL3NET 1
+
+#if USE_SDL3NET
+#include <SDL3_net/SDL_net.h>
+#endif
+
 #if __PLATFORM_LINUX__
 #   include <arpa/inet.h>
 #   include <netdb.h>
@@ -95,10 +101,19 @@ idUDP::GetPacket
 */
 bool idUDP::GetPacket( netadr_t& from, void* data, size_t& size, size_t maxSize )
 {
+#if USE_SDL3NET
+	// Verify if our SDL3_net socket is active.
+	if ( !netSocket )
+		return;
+
+	if( !NET_SendDatagram( netSocket, , )
+
+#else
 	// DG: this fake while(1) loop pissed me off so I replaced it.. no functional change.
 	if( ! crNetwork::Get()->GetUDPPacket( netSocket, from, ( char* )data, size, maxSize ) )
 		return false;
-	
+#endif
+
 	packetsRead++;
 	bytesRead += size;
 	
