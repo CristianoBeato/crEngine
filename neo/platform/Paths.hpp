@@ -52,7 +52,7 @@ public:
 	/// @brief returns FOLDER_YES if the specified path is a folder
 	/// @param path 
 	/// @return FOLDER_ERROR on error, FOLDER_NO for not folder, FOLDER_YES for a folder
-	Folder_t			IsFolder( const char* path );
+	//Folder_t			IsFolder( const char* path );
 };
 
 #endif //!__PATHS_HPP__

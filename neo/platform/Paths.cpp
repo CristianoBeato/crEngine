@@ -4,13 +4,17 @@
 
 #include <SDL3/SDL_filesystem.h>
 
+#ifdef vsnprintf
+#undef vsnprintf
+#endif //vsnprintf
+
 // STD 17
 #include <filesystem>
 namespace fs = std::filesystem;
 
 static idStr s_basepath;
-idCVar sys_DefaultBasePath( "sys_defaultbasepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the local game source base path" );
-idCVar sys_DefaultSavePath( "sys_defaultsavepath", DEFALT_STRING, CVAR_SYSTEM | CVAR_ROM, "the game saves folder" );
+idCVar sys_DefaultBasePath( "sys_defaultbasepath", "", CVAR_SYSTEM | CVAR_ROM, "the local game source base path" );
+idCVar sys_DefaultSavePath( "sys_defaultsavepath", "", CVAR_SYSTEM | CVAR_ROM, "the game saves folder" );
 
 /*
 ================
@@ -225,11 +229,11 @@ void crPaths::Mkdir( const char* path )
 */
 
 /*
-/*
 ==============
 crPaths::Rmdir
 ==============
 */
+/*
 bool crPaths::Rmdir(const char *path)
 {
 	if( !SDL_RemovePath( path ) )
@@ -291,12 +295,14 @@ bool crPaths::IsFileWritable( const char* path )
     return false;
 }
 
-/*
+
 /*
 ========================
 crPaths::IsFolder
 ========================
 */
+
+/*
 crPaths::Folder_t crPaths::IsFolder( const char* path ) const
 {
 #if 0
