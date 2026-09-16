@@ -537,7 +537,7 @@ Sys_FPE_handler
 static void Sys_FPE_handler( int signum, siginfo_t* info, void* context )
 {
 	assert( signum == SIGFPE );
-	Sys_Printf( "FPE\n" );
+		idLib::Printf( "FPE\n" );
 }
 
 void crLinuxConsole::InitSigs(void)

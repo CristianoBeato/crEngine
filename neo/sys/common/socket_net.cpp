@@ -52,8 +52,8 @@ Note that other POSIX systems may need some small changes, e.g. in Sys_InitNetwo
 #include <signal.h>
 #include <unistd.h>
 #include <fcntl.h>
-#include <sys/socket.h>
 #include <sys/time.h>
+#include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
@@ -759,8 +759,7 @@ bool Net_GetUDPPacket( int netSocket, netadr_t& net_from, char* data, int& size,
 		idLib::Printf( "Net_GetUDPPacket: %s\n", NET_ErrorString() );
 		return false;
 	}
-#if 0
-	// TODO: WTF was this about?
+#if 0 // TODO: WTF was this about?
 	// DG: ip_socket is never initialized, so this is dead code
 	// - and if netSocket is 0 (so this would be true) recvfrom above will already fail
 	if( static_cast<unsigned int>( netSocket ) == ip_socket )
@@ -1278,7 +1277,6 @@ const char* Sys_GetLocalIP( int i )
 	}
 	return netint[i].addr;
 }
-
 
 msg_t::msg_t(int bufferSize, bool compressed)
 	: mData(0)
