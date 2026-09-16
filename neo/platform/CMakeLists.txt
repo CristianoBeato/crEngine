@@ -11,6 +11,8 @@ if (WIN32)
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_console.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_CPUInfo.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_CPUInfo.hpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Network.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Network.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Path.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Path.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Platform.cpp

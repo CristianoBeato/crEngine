@@ -1,14 +1,12 @@
 
-#ifndef __LINUX_NETWORK_HPP__
-#define __LINUX_NETWORK_HPP__
+#ifndef __WINDOWS_NETWORK_HPP__
+#define __WINDOWS_NETWORK_HPP__
 
-typedef int SOCKET;
-
-class crLinuxNetwork : public crNetwork
+class crWindowsNetwork : public crNetwork
 {
 public:
-    crLinuxNetwork( void );
-    ~crLinuxNetwork( void );
+    crWindowsNetwork( void );
+    ~crWindowsNetwork( void );
 
     virtual void			Init( void );
     virtual void			Shutdown( void );
@@ -23,7 +21,9 @@ protected:
 
 private:
     bool    m_usingSocks;
+    bool	m_winsockInitialized = false;
+    WSADATA	m_winsockdata;
     SOCKET  m_socksSocket;
 };
 
-#endif //!__LINUX_NETWORK_HPP__
+#endif //!__WINDOWS_NETWORK_HPP__   

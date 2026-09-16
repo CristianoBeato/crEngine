@@ -45,7 +45,7 @@ crLinuxNetwork::~crLinuxNetwork( void )
 NET_ErrorString
 ========================
 */
-const char* crLinuxNetwork::ErrorString( void )
+const char* crLinuxNetwork::ErrorString( void ) const
 {
     return strerror( errno );
 }
@@ -192,6 +192,7 @@ int crLinuxNetwork::IPSocket( const char* bind_ip, int port, netadr_t* bound_to 
 		close( newsocket );
 		return 0;
 	}
+
 	flags |= O_NONBLOCK;
 	if( fcntl( newsocket, F_SETFL, flags ) < 0 )
 	{
@@ -375,6 +376,7 @@ void crLinuxNetwork::SendUDPPacket( int netSocket, size_t length, const void* da
 		m_socksBuf[1] = 0;
 		m_socksBuf[2] = 0;	// fragment (not fragmented)
 		m_socksBuf[3] = 1;	// address type: IPV4
+
 		*( int* )&m_socksBuf[4] = addr.sin_addr.s_addr;
 		*( short* )&m_socksBuf[8] = addr.sin_port;
 		std::memcpy( &m_socksBuf[10], data, length );
@@ -384,6 +386,7 @@ void crLinuxNetwork::SendUDPPacket( int netSocket, size_t length, const void* da
 	{
 		ret = sendto( netSocket, ( const char* )data, length, 0, ( sockaddr* )&addr, sizeof( addr ) );
 	}
+	
 	if( ret == SOCKET_ERROR )
 	{
 		int err = errno;

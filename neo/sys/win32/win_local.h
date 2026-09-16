@@ -61,8 +61,6 @@ typedef struct
 	
 	OSVERSIONINFOEX	osversion;
 	
-	cpuid_t			cpuid;
-	
 	// when we get a windows message, we store the time off so keyboard processing
 	// can know the exact time of an event (not really needed now that we use async direct input)
 	int				sysMsgTime;

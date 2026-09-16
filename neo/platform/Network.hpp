@@ -134,9 +134,27 @@ private:
 	char *			mData;
 };
 
+// host to network short
+// u_short htons(u_short hostshort); // convert from host byte order to network byte order to 16 bits integer 
+
+// host to network long
+// u_long htonl(u_long hostlong); // convert from host byte order to network byte order to 32 bits integer 
+
 typedef crNetMessage msg_t;
 
 inline constexpr uint32_t MAX_INTERFACES = 32;
+
+class crNetSoket
+{
+public:
+	crNetSoket( void );
+	~crNetSoket( void );
+
+	virtual bool	Open( void ) = 0;
+	virtual bool	Close( void ) = 0;
+	virtual void	ReciveUDP( void* out_data, size_t &out_size, const size_t in_maxSize ) = 0;
+	virtual void	SendUDP( const void in_data, const size_t in_size ) = 0;
+};
 
 struct sockaddr_in;
 class crNetwork
@@ -194,7 +212,7 @@ protected:
 	void	NetadrToSockadr( const netadr_t* a, sockaddr_in* s );
 
 	/// PLATFOM SPECIFIC
-	virtual const char* ErrorString( void ) = 0;
+	virtual const char* ErrorString( void ) const = 0;
 };
 
 #endif //!__NETWORK_SYSTEM_HPP__
