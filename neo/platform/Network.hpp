@@ -17,7 +17,9 @@ typedef struct NET_Address NET_Address;
 typedef struct NET_DatagramSocket NET_DatagramSocket;
 #endif
 
-typedef enum
+#define	PORT_ANY			-1
+
+typedef enum : uint8_t
 {
 	NA_BAD,					// an address lookup failed
 	NA_LOOPBACK,
@@ -26,16 +28,25 @@ typedef enum
 	NA_IP6					// IPv6
 } netadrtype_t;
 
-typedef struct
+class crAddress
 {
-	netadrtype_t	type;
-	uint8_t	        ip[16];
-	uint16_t	    port;
-	NET_Address*	address;	
-} netadr_t;
+public:
+	crAddress( void );
+	~crAddress( void );
 
+	void	OpenFromString( const idStr in_from, const uint16_t in_port );
 
-#define	PORT_ANY			-1
+	netadrtype_t Type( void ) const { return m_type; }
+
+	const char*	ToString( void ) const;
+
+	bool operator == ( const crAddress & in_ref ) const;
+
+private:
+	netadrtype_t	m_type;
+	uint16_t		m_port;
+	NET_Address*	m_address;
+};
 
 /*
 ================================================
@@ -63,11 +74,11 @@ public:
 
 	void		Close();
 	
-	bool		GetPacket( netadr_t& from, void* data, size_t& size, size_t maxSize );
+	bool		GetPacket( crAddress& from, void* data, size_t& size, size_t maxSize );
 	
-	bool		GetPacketBlocking( netadr_t& from, void* data, size_t& size, size_t maxSize, int timeout );
+	bool		GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t maxSize, int timeout );
 								   
-	void		SendPacket( const netadr_t to, const void* data, size_t size );
+	void		SendPacket( const crAddress to, const void* data, size_t size );
 	
 	void		SetSilent( const bool silent )
 	{

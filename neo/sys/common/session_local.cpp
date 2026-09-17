@@ -419,21 +419,17 @@ void idSessionLocalWin::Connect_f( const idCmdArgs& args )
 	Cancel();
 	
 	if( signInManager->GetMasterLocalUser() == nullptr )
-	{
 		signInManager->RegisterLocalUser( 0 );
-	}
 	
 	lobbyConnectInfo_t connectInfo;
 	
-	Sys_StringToNetAdr( args.Argv( 1 ), &connectInfo.netAddr, true );
+// BEATO Begin:
 	// DG: don't use net_port to select port to connect to
 	//     the port can be specified in the command, else the default port is used
-	if( connectInfo.netAddr.port == 0 )
-	{
-		connectInfo.netAddr.port = 27015;
-	}
 	// DG end
-	
+	connectInfo.netAddr.OpenFromString( args.Argv( 1 ), 27015 );
+// BEATO End
+
 	ConnectAndMoveToLobby( GetPartyLobby(), connectInfo, false );
 }
 

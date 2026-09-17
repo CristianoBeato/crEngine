@@ -74,13 +74,9 @@ void idLobbyBackendDirect::StartFinding( const idMatchParameters& p, int numPart
 	isHost	= false;
 	
 	if( lobbyToSessionCB->CanJoinLocalHost() )
-	{
 		state = STATE_READY;
-	}
 	else
-	{
 		state = STATE_FAILED;
-	}
 }
 
 /*
@@ -104,15 +100,15 @@ void idLobbyBackendDirect::JoinFromConnectInfo( const lobbyConnectInfo_t& connec
 {
 	if( lobbyToSessionCB->CanJoinLocalHost() )
 	{
-		// TODO: "CanJoinLocalHost" == *must* join LocalHost ?!
-		Sys_StringToNetAdr( "localhost", &address, true );
-		address.port = net_port.GetInteger();
+// BEATO Begin:
+		address.OpenFromString( "localhost", net_port.GetInteger() );
+// BEATO End
 		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): canJoinLocalHost\n" );
 	}
 	else
 	{
 		address = connectInfo.netAddr;
-		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): %s\n", Sys_NetAdrToString( address ) );
+		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): %s\n", address.ToString() );
 	}
 	
 	state		= STATE_READY;
@@ -125,7 +121,7 @@ void idLobbyBackendDirect::JoinFromConnectInfo( const lobbyConnectInfo_t& connec
 idLobbyBackendDirect::Shutdown
 ========================
 */
-void idLobbyBackendDirect::Shutdown()
+void idLobbyBackendDirect::Shutdown( void )
 {
 	state = STATE_SHUTDOWN;
 }
@@ -144,7 +140,7 @@ void idLobbyBackendDirect::BecomeHost( int numInvites )
 idLobbyBackendDirect::FinishBecomeHost
 ========================
 */
-void idLobbyBackendDirect::FinishBecomeHost()
+void idLobbyBackendDirect::FinishBecomeHost( void )
 {
 	isHost = true;
 }
@@ -174,7 +170,7 @@ void idLobbyBackendDirect::SetIsJoinable( bool joinable )
 idLobbyBackendDirect::GetConnectInfo
 ========================
 */
-lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo()
+lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo( void )
 {
 	lobbyConnectInfo_t connectInfo;
 	
@@ -192,8 +188,10 @@ lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo()
 		if( ip == nullptr || idStr::Length( ip ) == 0 || idStr::Icmp( ip, "localhost" ) == 0 )
 			ip = "0.0.0.0";
 		// DG end
-		Sys_StringToNetAdr( ip, &address, false );
-		address.port = net_port.GetInteger();
+		
+// BEATO Begin:
+		address.OpenFromString( ip, net_port.GetInteger() );
+// BEATO End
 	}
 	
 	connectInfo.netAddr = address;
@@ -208,7 +206,9 @@ idLobbyBackendDirect::IsOwnerOfConnectInfo
 */
 bool idLobbyBackendDirect::IsOwnerOfConnectInfo( const lobbyConnectInfo_t& connectInfo ) const
 {
-	return Sys_CompareNetAdrBase( address, connectInfo.netAddr );
+// BEATO Begin:
+	return address == connectInfo.netAddr;
+// BEATO End
 }
 
 /*

@@ -184,6 +184,39 @@ static NET_DatagramSocket* NET_IPSocket( const char* bind_ip, Uint16 port, netad
     return socket;
 }
 
+/*
+================================================================================================
+crAddress
+================================================================================================
+*/
+
+void crAddress::OpenFromString(const idStr in_from, const uint16_t in_port)
+{
+}
+
+// DG: FIXME: those static buffers look fishy - I would feel better if they were
+//            at least thread-local - so /maybe/ use ID_TLS here?
+//            or maybe return an idStr and change calling code accordingly
+static int index = 0;	// todo atomic
+static char buf[ 32 ][ 64 ];	// flip/flop
+const char *crAddress::ToString(void) const
+{
+	/// this will continue valid, wile address exist 
+	auto local = NET_GetAddressString( m_address );
+	
+	char* s = buf[index];
+	index = ( index + 1 ) & 3;
+    
+	// copy to our temp string 
+	SDL_strlcpy( s, local, SDL_strnlen( local, 64 ) );
+
+	return s;
+}
+
+bool crAddress::operator==(const crAddress &in_ref) const
+{
+    return NET_CompareAddresses( m_address, in_ref.m_address );
+}
 
 /*
 ================================================================================================
@@ -282,9 +315,8 @@ void idUDP::Close( void )
 idUDP::GetPacket
 ========================
 */
-bool idUDP::GetPacket( netadr_t& from, void* data, size_t& size, size_t maxSize )
+bool idUDP::GetPacket( crAddress& from, void* data, size_t& size, size_t maxSize )
 {
-#if USE_SDL3NET
 	NET_Datagram *packet = nullptr;
 
 	// Verify if our SDL3_net socket is active.
@@ -312,12 +344,6 @@ bool idUDP::GetPacket( netadr_t& from, void* data, size_t& size, size_t maxSize 
     // Release SDL Datagram, to prevent memory leak
     NET_DestroyDatagram( packet );
     
-#else
-	// DG: this fake while(1) loop pissed me off so I replaced it.. no functional change.
-	if( ! crNetwork::Get()->GetUDPPacket( netSocket, from, ( char* )data, size, maxSize ) )
-		return false;
-#endif
-
 	packetsRead++;
 	bytesRead += size;
 	
@@ -331,7 +357,7 @@ bool idUDP::GetPacket( netadr_t& from, void* data, size_t& size, size_t maxSize 
 idUDP::GetPacketBlocking
 ========================
 */
-bool idUDP::GetPacketBlocking( netadr_t& from, void* data, size_t& size, size_t maxSize, int timeout )
+bool idUDP::GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t maxSize, int timeout )
 {
 #if USE_SDL3NET
 	if ( !m_netSocket ) 
@@ -495,7 +521,7 @@ bool crNetMessage::WriteString(const char * output)
 	return Write(length) && WriteBytes(output, length);
 }
 
-bool crNetMessage::ReadPacket(idUDP & socket, netadr_t & addrFrom)
+bool crNetMessage::ReadPacket(idUDP & socket, crAddress & addrFrom)
 {
 	mDataOffset = 0;
 	if (mCompressed)
@@ -600,12 +626,78 @@ crNetwork::StringToNetAdr
 */
 bool crNetwork::StringToNetAdr( const char* s, netadr_t* a, bool doDNSResolve )
 {
-	sockaddr_in sadr;
+#if USE_SDL3NET
+	int numBytes = 0;
+
+	// Clear the destination structure to avoid memory garbage.
+	a->type = NA_BAD;
+	a->port = PORT_ANY;
+	a->address = nullptr;
+	std::memset( a->ip, 0x00, 16 );
+
+	/// not valid 
+	if ( !s || !s[0] )
+        return false;
+
+	// Handles the special "localhost" case that Doom 3 usually checks manually.
+	idStr addressStr( s );
+    if ( addressStr.Icmp( "localhost" ) == 0 ) 
+        addressStr = "127.0.0.1";
+
+	// If doDNSResolve is false, SDL3_net can still process the input if the string is already
+	// a direct IP (e.g., "192.168.1.1").
+    // SDL3_net resolves hostnames natively using controlled asynchronous or blocking methods.
+    NET_Address* resolvedAddr = nullptr;
+
+	// We attempt to resolve the address. We pass port 0 just to get the IP.
+	if ( ( resolvedAddr = NET_ResolveHostname( addressStr.c_str() ) ) == nullptr ) 
+	    return false;
+
+	// Extract the formatted string from the IP resolved by SDL3_net
+    // SDL3_net gives us the clean IP (whether converted from text or resolved via DNS)
+	const char* ipString = NET_GetAddressString( resolvedAddr );
+    if ( !ipString ) 
+	{
+        NET_UnrefAddress( resolvedAddr );
+        return false;
+    }
+
+	// Populate the Doom 3 netadr_t structure based on the returned IP
+    // Here, we parse the string returned by SDL into the netadr_t bytes.
+    const void* rawBytes = NET_GetAddressBytes( resolvedAddr, &numBytes );
 	
+	// Identify the type and fill in the raw bytes
+    if ( rawBytes && numBytes > 0 ) 
+	{
+        if ( numBytes == 16 ) 
+		{
+            // --- NATIVE IPv6 ALLOCATION ---
+            a->type = NA_IP6;
+            std::memcpy( a->ip, rawBytes, 16 );
+        } 
+        else if ( numBytes == 4 ) 
+		{
+			// --- NATIVE IPv4 ALLOCATION ---
+            a->type = NA_IP;
+            std::memcpy( a->ip, rawBytes, 4 ); 
+		}
+    }
+	else
+	{
+		a->type = NA_BAD;
+    }
+
+	// Release SDL3_net address reference
+	NET_UnrefAddress( resolvedAddr );
+
+	return ( a->type != NA_BAD );
+#else
+	sockaddr_in sadr;
 	if( !StringToSockaddr( s, &sadr, doDNSResolve ) )
 		return false;
 	
 	SockadrToNetadr( &sadr, a );
+#endif
 	return true;
 }
 
@@ -685,6 +777,7 @@ Compares without the port.
 bool crNetwork::CompareNetAdrBase( const netadr_t a, const netadr_t b ) const
 {
 #if USE_SDL3NET
+	// TODO: store andresses 
 	if( NET_CompareAddresses( a.address, b.address ) == 0 )
 		return true;
 #else
@@ -789,7 +882,10 @@ crNetwork::StringToSockaddr
 bool crNetwork::StringToSockaddr( const char* s, sockaddr_in* sadr, const bool doDNSResolve )
 {
 #if USE_SDL3NET
-	NET_ResolveHostname();
+	// Clear the destination structure to avoid memory garbage.
+	sadr->sin_addr = nullptr;
+	sadr->sin_family =
+
 #else
 	char buf[256];
 	int port;
