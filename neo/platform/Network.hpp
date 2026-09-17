@@ -34,6 +34,7 @@ public:
 	crAddress( void );
 	~crAddress( void );
 
+	void	OpenFromPort( const netadrtype_t in_type, const uint16_t in_port );
 	void	OpenFromString( const idStr in_from, const uint16_t in_port );
 
 	netadrtype_t Type( void ) const { return m_type; }
