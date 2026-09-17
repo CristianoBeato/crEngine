@@ -30,7 +30,6 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef	__SYS_LOBBY_BACKEND_H__
 #define	__SYS_LOBBY_BACKEND_H__
 
-
 extern idCVar net_verboseResource;
 #define NET_VERBOSERESOURCE_PRINT if ( net_verboseResource.GetBool() ) idLib::Printf
 
@@ -42,7 +41,7 @@ class lobbyAddress_t
 public:
 	lobbyAddress_t();
 	
-	void InitFromNetadr( const netadr_t& netadr );
+	void InitFromNetadr( const crAddress& netadr );
 	
 	void InitFromIPandPort( const char* ip, int port );
 	
@@ -53,7 +52,9 @@ public:
 	void ReadFromMsg( idBitMsg& msg );
 	
 	// IP address
-	netadr_t	netAddr;
+// BEATO Begin: use SDL3_net for Network
+	crAddress	netAddr;
+// BEATO End
 };
 
 struct lobbyConnectInfo_t
@@ -61,15 +62,29 @@ struct lobbyConnectInfo_t
 public:
 	void WriteToMsg( idBitMsg& msg ) const
 	{
+		// TODO: Fix
+#if 0
 		msg.WriteNetadr( netAddr );
+#else
+#endif
 	}
+	
 	void ReadFromMsg( idBitMsg& msg )
 	{
+		// TODO: Fix
+#if 0
 		msg.ReadNetadr( &netAddr );
+#else
+#endif
 	}
-	lobbyConnectInfo_t() : netAddr() { }
 	
-	netadr_t				netAddr;
+	lobbyConnectInfo_t() : netAddr( nullptr ) 
+	{
+	}
+	
+// BEATO Begin: use SDL3_net for Network
+	crAddress			netAddr;
+// Beato End
 };
 
 class idNetSessionPort
@@ -78,8 +93,8 @@ public:
 	idNetSessionPort();
 	
 	bool InitPort( int portNumber, bool useBackend );
-	bool ReadRawPacket( lobbyAddress_t& from, void* data, int& size, int maxSize );
-	void SendRawPacket( const lobbyAddress_t& to, const void* data, int size );
+	bool ReadRawPacket( lobbyAddress_t& from, void* data, size_t& size, size_t maxSize );
+	void SendRawPacket( const lobbyAddress_t& to, const void* data, size_t size );
 	
 	bool IsOpen();
 	void Close();

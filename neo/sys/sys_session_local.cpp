@@ -4380,10 +4380,11 @@ lobbyAddress_t
 lobbyAddress_t::lobbyAddress_t
 ========================
 */
-lobbyAddress_t::lobbyAddress_t()
+lobbyAddress_t::lobbyAddress_t( void )
 {
-	std::memset( &netAddr, 0, sizeof( netAddr ) );
-	netAddr.type = NA_BAD;
+// BEATO Begin:
+	netAddr = crAddress();
+// BEATO End
 }
 
 /*
@@ -4393,11 +4394,9 @@ lobbyAddress_t::InitFromIPandPort
 */
 void lobbyAddress_t::InitFromIPandPort( const char* ip, int port )
 {
-	Sys_StringToNetAdr( ip, &netAddr, true );
-	if( !netAddr.port )
-	{
-		netAddr.port = port;
-	}
+// BEATO Begin: Use SDL3_net for internet conection
+	netAddr.OpenFromString( ip, port );	
+// BEATO End
 }
 
 
@@ -4406,9 +4405,9 @@ void lobbyAddress_t::InitFromIPandPort( const char* ip, int port )
 lobbyAddress_t::InitFromNetadr
 ========================
 */
-void lobbyAddress_t::InitFromNetadr( const netadr_t& netadr )
+void lobbyAddress_t::InitFromNetadr( const crAddress& netadr )
 {
-	assert( netadr.type != NA_BAD );
+	assert( netadr.Type() != NA_BAD );
 	netAddr = netadr;
 }
 
@@ -4419,7 +4418,9 @@ lobbyAddress_t::ToString
 */
 const char* lobbyAddress_t::ToString() const
 {
-	return Sys_NetAdrToString( netAddr );
+// BEATO Begin:
+	return netAddr.ToString();
+// BEATO End
 }
 
 /*
@@ -4439,7 +4440,7 @@ lobbyAddress_t::Compare
 */
 bool lobbyAddress_t::Compare( const lobbyAddress_t& addr, bool ignoreSessionCheck ) const
 {
-	return Sys_CompareNetAdrBase( netAddr, addr.netAddr );
+	return netAddr == addr.netAddr;
 }
 
 /*
@@ -4494,7 +4495,7 @@ bool idNetSessionPort::InitPort( int portNumber, bool useBackend )
 idNetSessionPort::ReadRawPacket
 ========================
 */
-bool idNetSessionPort::ReadRawPacket( lobbyAddress_t& from, void* data, int& size, int maxSize )
+bool idNetSessionPort::ReadRawPacket( lobbyAddress_t& from, void* data, size_t& size, size_t maxSize )
 {
 	bool result = UDP.GetPacket( from.netAddr, data, size, maxSize );
 	
@@ -4516,13 +4517,12 @@ bool idNetSessionPort::ReadRawPacket( lobbyAddress_t& from, void* data, int& siz
 idNetSessionPort::SendRawPacket
 ========================
 */
-void idNetSessionPort::SendRawPacket( const lobbyAddress_t& to, const void* data, int size )
+void idNetSessionPort::SendRawPacket( const lobbyAddress_t& to, const void* data, size_t size )
 {
 	static idRandom2 random( Sys_Milliseconds() );
 	if( net_forceDrop.GetInteger() != 0 && net_forceDrop.GetInteger() >= random.RandomInt( 100 ) )
-	{
 		return;
-	}
+	
 	assert( size <= idPacketProcessor::MAX_FINAL_PACKET_SIZE );
 	
 	UDP.SendPacket( to.netAddr, data, size );
@@ -4660,10 +4660,8 @@ idSessionLocal::ListServersCommon
 */
 void idSessionLocal::ListServersCommon()
 {
-	netadr_t broadcast;
-	std::memset( &broadcast, 0, sizeof( broadcast ) );
-	broadcast.type = NA_BROADCAST;
-	broadcast.port = net_port.GetInteger();
+	crAddress broadcast = crAddress();
+	broadcast.OpenFromPort( NA_BROADCAST, net_port.GetInteger() );
 	
 	lobbyAddress_t address;
 	address.InitFromNetadr( broadcast );
@@ -4695,8 +4693,8 @@ void idSessionLocal::HandleDedicatedServerQueryRequest( lobbyAddress_t& remoteAd
 	bool canJoin = true;
 	
 	// DG: use int instead of long for 64bit compatibility
-	const unsigned int localChecksum = NetGetVersionChecksum();
-	const unsigned int remoteChecksum = msg.ReadLong();
+	const uint32_t localChecksum = NetGetVersionChecksum();
+	const uint32_t remoteChecksum = msg.ReadLong();
 	// DG end
 	
 	if( remoteChecksum != localChecksum )

@@ -70,7 +70,9 @@ public:
 private:
 
 	lobbyBackendState_t		state;
-	netadr_t				address;
+// BEATO Begin: use SDL3_net for Network
+	crAddress				address;
+// BEATO End
 };
 
 #endif	// __SYS_LOBBY_BACKEND_DIRECT_H__ 
