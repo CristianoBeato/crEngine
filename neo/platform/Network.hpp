@@ -37,7 +37,8 @@ public:
 	void	OpenFromPort( const netadrtype_t in_type, const uint16_t in_port );
 	void	OpenFromString( const idStr in_from, const uint16_t in_port );
 
-	netadrtype_t Type( void ) const { return m_type; }
+	netadrtype_t	Type( void ) const { return m_type; }
+	uint16_t		Port( void ) const { return m_port; }
 
 	const char*	ToString( void ) const;
 
@@ -64,16 +65,17 @@ public:
 	// if the InitForPort fails, the idUDP.port field will remain 0
 	bool		InitForPort( int portNumber );
 	
-	uint16_t	GetPort( void ) const { return bound_to.port; }
+	uint16_t	GetPort( void ) const { return bound.Port(); }
 
-	netadr_t	GetAdr() const { return bound_to; }
+	crAddress	GetAdr( void ) const { return bound; }
 
-	uint32_t		GetUIntAdr( void ) const
+	uint32_t		GetUIntAdrIPV4( void ) const
 	{
-		return ( bound_to.ip[0] | bound_to.ip[1] << 8 | bound_to.ip[2] << 16 | bound_to.ip[3] << 24 );
+		return 0; // TODO:
+		//return ( bound_to.ip[0] | bound_to.ip[1] << 8 | bound_to.ip[2] << 16 | bound_to.ip[3] << 24 );
 	}
 
-	void		Close();
+	void		Close( void );
 	
 	bool		GetPacket( crAddress& from, void* data, size_t& size, size_t maxSize );
 	
@@ -83,12 +85,12 @@ public:
 	
 	void		SetSilent( const bool silent )
 	{
-		this->silent = silent;
+		m_silent = silent;
 	}
 
 	bool		GetSilent( void ) const
 	{
-		return silent;
+		return m_silent;
 	}
 	
 	int			packetsRead;
@@ -103,14 +105,10 @@ public:
 	}
 	
 private:
-	netadr_t	bound_to;		// interface and port
-	bool		silent;			// don't emit anything ( black hole )
-#if USE_SDL3NET
+	crAddress			m_bound;		// interface and port
+	bool				m_silent;			// don't emit anything ( black hole )
 	bool				m_isInitialized;
 	NET_DatagramSocket*	m_netSocket;
-#else
-	int					netSocket;		// OS specific socket
-#endif 
 };
 
 // TODO: update to a class

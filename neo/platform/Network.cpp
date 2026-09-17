@@ -232,8 +232,8 @@ idUDP::idUDP
 idUDP::idUDP( void )
 {
 	m_netSocket = nullptr;
-	std::memset( &bound_to, 0, sizeof( bound_to ) );
-	silent = false;
+	std::memset( &m_bound, 0, sizeof( m_bound ) );
+	m_silent = false;
 	packetsRead = 0;
 	bytesRead = 0;
 	packetsWritten = 0;
@@ -257,27 +257,13 @@ idUDP::InitForPort
 */
 bool idUDP::InitForPort( int portNumber )
 {
-
-#if USE_SDL3NET
-	m_netSocket = NET_IPSocket( nullptr, portNumber, &bound_to );
+	m_netSocket = NET_IPSocket( nullptr, portNumber, &m_bound );
 	if ( !m_netSocket ) 
 	{
-		std::memset( &bound_to, 0, sizeof( bound_to ) );
+		std::memset( &bound, 0, sizeof( bound ) );
         idLib::Printf( "idUDP::Init: Failed to open port %d: %s\n", portNumber, SDL_GetError() );
         return false;
-    }
-#else
-	// DG: don't specify an IP to bind for (and certainly not net_ip)
-	// => it'll listen on all addresses (0.0.0.0 / INADDR_ANY)
-	netSocket = crNetwork::Get()->IPSocket( nullptr, portNumber, &bound_to );
-	// DG end
-	if( netSocket <= 0 )
-	{
-		netSocket = 0;
-		std::memset( &bound_to, 0, sizeof( bound_to ) );
-		return false;
-	}
-#endif 
+    } 
 
 	return true;
 }
@@ -289,25 +275,12 @@ idUDP::Close
 */
 void idUDP::Close( void )
 {
-#if USE_SDL3NET
 	if( m_netSocket )
 	{
 		NET_DestroyDatagramSocket( m_netSocket );
 		m_netSocket = nullptr;
-		std::memset( &bound_to, 0, sizeof( bound_to ) );
+		std::memset( &bound_, 0, sizeof( bound_to ) );
 	}
-#else
-	if( netSocket )
-	{		
-#if __PLATFORM_LINUX__
-        close( netSocket );
-#else if __PLATFORM_WINDOWS__
-		closesocket( netSocket );
-#endif
-		netSocket = 0;
-		std::memset( &bound_to, 0, sizeof( bound_to ) );
-	}
-#endif
 }
 
 /*
@@ -417,9 +390,9 @@ bool idUDP::GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t
 idUDP::SendPacket
 ========================
 */
-void idUDP::SendPacket( const netadr_t to, const void* data, size_t size )
+void idUDP::SendPacket( const crAddress to, const void* data, size_t size )
 {
-	if( to.type == NA_BAD )
+	if( to.Type() == NA_BAD )
 	{
 		idLib::Warning( "idUDP::SendPacket: bad address type NA_BAD - ignored" );
 		return;
@@ -428,10 +401,9 @@ void idUDP::SendPacket( const netadr_t to, const void* data, size_t size )
 	packetsWritten++;
 	bytesWritten += size;
 	
-	if( silent )
+	if( m_silent )
 		return;
 
-#if USE_SDL3NET
 	uint16_t port;
 	
 	// Verify if our SDL3_net socket is active.
@@ -442,10 +414,6 @@ void idUDP::SendPacket( const netadr_t to, const void* data, size_t size )
 
 	if ( !NET_SendDatagram( m_netSocket, to.address, port, data, size ) ) 
 		idLib::Printf( "idUDP::SendPacket sendto error - packet dropped: %s\n", SDL_GetError() );
-
-#else
-	crNetwork::Get()->SendUDPPacket( netSocket, size, data, to );
-#endif
 }
 
 /*
