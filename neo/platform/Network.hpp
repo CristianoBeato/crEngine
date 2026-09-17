@@ -2,6 +2,8 @@
 #ifndef __NETWORK_SYSTEM_HPP__
 #define __NETWORK_SYSTEM_HPP__
 
+#define USE_SDL3NET 1
+
 /*
 ==============================================================
 
@@ -10,33 +12,30 @@
 ==============================================================
 */
 
+#if USE_SDL3NET
+typedef struct NET_Address NET_Address;
+typedef struct NET_DatagramSocket NET_DatagramSocket;
+#endif
+
 typedef enum
 {
 	NA_BAD,					// an address lookup failed
 	NA_LOOPBACK,
 	NA_BROADCAST,
-	NA_IP
+	NA_IP,					// IPv4
+	NA_IP6					// IPv6
 } netadrtype_t;
 
 typedef struct
 {
 	netadrtype_t	type;
-	uint8_t	        ip[4];
+	uint8_t	        ip[16];
 	uint16_t	    port;
+	NET_Address*	address;	
 } netadr_t;
 
-#define	PORT_ANY			-1
 
-class crNetSoket
-{
-public:
-	crNetSoket( void );
-	~crNetSoket( void );
-	virtual bool	Open( void ) = 0;
-	virtual bool	Close( void ) = 0;
-	virtual void	ReciveUDP( void* out_data, size_t &out_size, const size_t in_maxSize ) = 0;
-	virtual void	SendUDP( const void in_data, const size_t in_size ) = 0;
-};
+#define	PORT_ANY			-1
 
 /*
 ================================================
@@ -47,26 +46,21 @@ class idUDP
 {
 public:
 	// this just zeros netSocket and port
-	idUDP();
-	virtual		~idUDP();
+	idUDP( void );
+	virtual		~idUDP( void );
 	
 	// if the InitForPort fails, the idUDP.port field will remain 0
 	bool		InitForPort( int portNumber );
 	
-	int			GetPort() const
-	{
-		return bound_to.port;
-	}
+	uint16_t	GetPort( void ) const { return bound_to.port; }
 
-	netadr_t	GetAdr() const
-	{
-		return bound_to;
-	}
+	netadr_t	GetAdr() const { return bound_to; }
 
-	uint32_t		GetUIntAdr() const
+	uint32_t		GetUIntAdr( void ) const
 	{
 		return ( bound_to.ip[0] | bound_to.ip[1] << 8 | bound_to.ip[2] << 16 | bound_to.ip[3] << 24 );
 	}
+
 	void		Close();
 	
 	bool		GetPacket( netadr_t& from, void* data, size_t& size, size_t maxSize );
@@ -75,12 +69,12 @@ public:
 								   
 	void		SendPacket( const netadr_t to, const void* data, size_t size );
 	
-	void		SetSilent( bool silent )
+	void		SetSilent( const bool silent )
 	{
 		this->silent = silent;
 	}
 
-	bool		GetSilent() const
+	bool		GetSilent( void ) const
 	{
 		return silent;
 	}
@@ -93,14 +87,15 @@ public:
 	
 	bool		IsOpen( void ) const
 	{
-		return netSocket > 0;
+		return m_netSocket != nullptr;
 	}
 	
 private:
 	netadr_t	bound_to;		// interface and port
 	bool		silent;			// don't emit anything ( black hole )
 #if USE_SDL3NET
-	NET_DatagramSocket*	netSocket;
+	bool				m_isInitialized;
+	NET_DatagramSocket*	m_netSocket;
 #else
 	int					netSocket;		// OS specific socket
 #endif 
@@ -167,10 +162,10 @@ public:
 
 	crNetwork( void );
 
-    virtual void			Init( void ) = 0;
-    virtual void			Shutdown( void ) = 0;
+    virtual void			Init( void );
+    virtual void			Shutdown( void );
 
-	virtual int				IPSocket( const char* bind_ip, int port, netadr_t* bound_to ) = 0;
+	virtual int				IPSocket( const char* bind_ip, int port, netadr_t* bound_to );
 	virtual bool			GetUDPPacket( int netSocket, netadr_t& net_from, char* data, size_t& size, size_t maxSize ) = 0;
 	virtual bool			WaitForData( int netSocket, int timeout ) = 0;
 	virtual void			SendUDPPacket( int netSocket, size_t length, const void* data, const netadr_t to ) = 0;
@@ -188,11 +183,14 @@ public:
     const char* 			GetLocalIP( int i ) const;
 
 protected:
+
+#if 0
 	static idCVar net_socksServer;
 	static idCVar net_socksPort;
 	static idCVar net_socksUsername;
 	static idCVar net_socksPassword;
 	static idCVar net_ip;
+#endif
 
 	typedef struct
 	{
@@ -208,6 +206,8 @@ protected:
 	net_interface		m_netint[MAX_INTERFACES];
 	char				m_socksBuf[4096];
 	struct sockaddr_in	m_socksRelayAddr;
+
+	NET_DatagramSocket*	m_gameSocket;
 
 	bool	ExtractPort( const char* src, char* buf, const size_t bufsize, int* port );
 	bool	StringToSockaddr( const char* s, sockaddr_in* sadr, const bool doDNSResolve );

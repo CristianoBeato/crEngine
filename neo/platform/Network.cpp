@@ -6,21 +6,184 @@
 
 #if USE_SDL3NET
 #include <SDL3_net/SDL_net.h>
-#endif
-
-#if __PLATFORM_LINUX__
+#elif __PLATFORM_LINUX__
 #   include <arpa/inet.h>
 #   include <netdb.h>
-#else if __PLATFORM_WINDOWS__
+#elif __PLATFORM_WINDOWS__
 #   include <winsock2.h>
 #   include <ws2tcpip.h>
 #endif
 
-idCVar crNetwork::net_socksServer( "net_socksServer", "", CVAR_ARCHIVE, "" );
-idCVar crNetwork::net_socksPort( "net_socksPort", "1080", CVAR_ARCHIVE | CVAR_INTEGER, "" );
-idCVar crNetwork::net_socksUsername( "net_socksUsername", "", CVAR_ARCHIVE, "" );
-idCVar crNetwork::net_socksPassword( "net_socksPassword", "", CVAR_ARCHIVE, "" );
-idCVar crNetwork::net_ip( "net_ip", "localhost", CVAR_NOCHEAT, "local IP address" );
+static idCVar net_socksServer( "net_socksServer", "", CVAR_ARCHIVE, "" );
+static idCVar net_socksPort( "net_socksPort", "1080", CVAR_ARCHIVE | CVAR_INTEGER, "" );
+static idCVar net_socksUsername( "net_socksUsername", "", CVAR_ARCHIVE, "" );
+static idCVar net_socksPassword( "net_socksPassword", "", CVAR_ARCHIVE, "" );
+static idCVar net_ip( "net_ip", "localhost", CVAR_NOCHEAT, "local IP address" );
+
+static void ip_to_addr( const char ip[4], char* addr )
+{
+	idStr::snPrintf( addr, 16, "%d.%d.%d.%d", ( unsigned char )ip[0], ( unsigned char )ip[1],
+					 ( unsigned char )ip[2], ( unsigned char )ip[3] );
+}
+
+#if 0
+static void IdAddressToSDLAddress( const netadr_t &idAddr, NET_Address **sdlAddr, uint16_t *port ) 
+{
+	// Na idTech 4 as portas na netadr_t já estão em Host Byte Order (normalmente)
+    *port = idAddr.port; 
+
+    if ( idAddr.type == NA_BROADCAST ) 
+	{
+        // Endereço de broadcast padrão
+        *sdlAddr = NET_ResolveHostname("255.255.255.255");
+    } 
+	else if ( idAddr.type == NA_LOOPBACK ) 
+	{
+        *sdlAddr = NET_ResolveHostname("127.0.0.1");
+    } 
+	else 
+	{
+        // Converte os 4 bytes brutos para o formato de string clássico "a.b.c.d"
+        char ipStr[32];
+        SDL_snprintf( ipStr, sizeof(ipStr), "%d.%d.%d.%d", 
+                      idAddr.ip[0], idAddr.ip[1], idAddr.ip[2], idAddr.ip[3] );
+        
+        // Resolve de forma síncrona/imediata já que é um IP numérico puro
+        *sdlAddr = NET_ResolveHostname( ipStr );
+    }
+
+    // Como o SDL3_net resolve assincronamente por padrão, forçamos o travamento 
+    // imediato. Como é um IP cru (sem DNS), isso resolve instantaneamente (0ms)
+    if ( *sdlAddr ) 
+	{
+        NET_WaitUntilResolved( *sdlAddr, -1 ); //
+    }
+}
+#endif
+
+static void SDLAddressToIdAddress( NET_Address *sdlAddr, uint16_t port, netadr_t &idAddr ) 
+{
+    idAddr.port = port;
+    idAddr.type = NA_IP; // Default for packets coming from the network
+
+    int numBytes = 0;
+	
+	// Gets the pointer to the raw network bytes stored by SDL3
+    const uint8_t *bytes = (const uint8_t *)NET_GetAddressBytes( sdlAddr, &numBytes ); //
+    if ( bytes != nullptr ) 
+	{
+        if ( numBytes == 4 ) 
+		{
+			// Raw IPv4: Copies the 4 bytes directly into the idTech 4 structure.
+			SDL_memcpy( &idAddr.ip[0], &bytes[0], numBytes );
+        } 
+        else if ( numBytes == 16 ) 
+		{
+            // If SDL3_net receives an IPv4 address mapped within IPv6 (OS Dual-Stack mechanism)
+            // The last 4 bytes of an IPv4-mapped IPv6 address (::ffff:192.168.x.x) represent the actual IPv4 address.
+			if ( bytes[10] == 0xFF && bytes[11] == 0xFF ) 
+			{
+				SDL_memcpy( &idAddr.ip[0], &bytes[12], 4 );
+            } 
+			else 
+			{
+            	// True native IPv6. 
+			    idAddr.type = NA_IP6;
+				SDL_memcpy( &idAddr.ip[0], &bytes[0], numBytes );
+			}
+        }
+    } 
+	else 
+	{
+        idAddr.type = NA_BAD;
+        SDL_memset( idAddr.ip, 0, 4 );
+    }
+}
+
+/*
+========================
+NET_IPSocket
+========================
+*/
+static NET_DatagramSocket* NET_IPSocket( const char* bind_ip, Uint16 port, netadr_t* bound_to ) 
+{
+    NET_Address* bindAddr = nullptr;
+
+    // Se um IP específico foi passado, precisamos tratá-lo
+    // If are specific IP, resolve it 
+	if ( bind_ip && bind_ip[0] && idStr::Icmp( bind_ip, "localhost" ) != 0 ) 
+	{
+        bindAddr = NET_ResolveHostname( bind_ip );
+        if ( bindAddr ) 
+		{
+            // Ensures immediate resolution because it is numerical.
+            NET_WaitUntilResolved( bindAddr, -1 ); //
+            
+            // Validates whether the resolution actually failed.
+            if ( NET_GetAddressStatus( bindAddr ) == NET_FAILURE ) 
+			{ 
+                idLib::Printf( "NET_IPSocket: Falha ao resolver bind_ip '%s'\n", bind_ip );
+                NET_UnrefAddress( bindAddr ); 
+                return nullptr;
+            }
+        }
+    }
+
+    // NOTE: If bindAddr remains nullptr, SDL3_net will bind to "any" (0.0.0.0 and ::)
+
+	// Create and associate the Socket using modern SDL3 properties
+	// We use SDL_CreateProperties() if you want to customize (e.g., REUSEADDR or ALLOW/_BROADCAST)
+	// If you don't need additional customizations, the last parameter can simply be 0.
+    SDL_PropertiesID props = SDL_CreateProperties();
+    SDL_SetBooleanProperty( props, NET_PROP_DATAGRAM_SOCKET_ALLOW_BROADCAST_BOOLEAN, true ); //
+    SDL_SetBooleanProperty( props, NET_PROP_DATAGRAM_SOCKET_REUSEADDR_BOOLEAN, true );       //
+
+    NET_DatagramSocket* socket = NET_CreateDatagramSocket( bindAddr, port, props ); //
+
+	// Clears temporary properties and the resolved address
+    SDL_DestroyProperties( props );
+    if ( bindAddr ) 
+        NET_UnrefAddress( bindAddr ); //
+
+    if ( !socket ) 
+	{
+        common->Printf( "NET_IPSocket: Failed to create soket on port %d: %s\n", port, SDL_GetError() );
+        return nullptr;
+    }
+
+    // Populate the netadr_t structure with the actual address to which we were bound (bound_to).
+    if ( bound_to ) 
+	{
+        SDL_memset( bound_to, 0, sizeof( netadr_t ) );
+        
+		// If bound to a specific IP, we retrieve its bytes.
+        // If bound to "any", the OS will report zeros, but we set the appropriate type.
+		if ( bind_ip && bind_ip[0] ) 
+		{
+            // We use the conversion function created in the previous step.
+			// Note that we need to retrieve the actual bound address from the API if the OS modified it,
+			// but since SDL3_net abstracts this, we will read the original bindAddr or assume the default.
+			// For greater robustness with random ports (port == 0):
+			bound_to->port = port; 
+            bound_to->type = ( idStr( bind_ip ).Find( ':' ) != -1 ) ? NA_IP6 : NA_IP;
+
+        } 
+		else 
+		{
+            // Dual-stack local listener por padrão opera em IPv6 recebendo também IPv4 mapeado
+            bound_to->type = NA_IP6;
+            bound_to->port = port;
+        }
+
+        // If the engine opened on port 0, the OS chose a dynamic port.
+        // Since SDL3_net lacks a direct public "NET_GetSocketPort" method,
+        // if you are using dynamic ports in idTech 4 (such as for dedicated server listening ports),
+        // ensure you pass the static port configured in the "net_port" CVar (default 27666).
+    }
+
+    return socket;
+}
+
 
 /*
 ================================================================================================
@@ -35,7 +198,7 @@ idUDP::idUDP
 */
 idUDP::idUDP( void )
 {
-	netSocket = 0;
+	m_netSocket = nullptr;
 	std::memset( &bound_to, 0, sizeof( bound_to ) );
 	silent = false;
 	packetsRead = 0;
@@ -61,6 +224,16 @@ idUDP::InitForPort
 */
 bool idUDP::InitForPort( int portNumber )
 {
+
+#if USE_SDL3NET
+	m_netSocket = NET_IPSocket( nullptr, portNumber, &bound_to );
+	if ( !m_netSocket ) 
+	{
+		std::memset( &bound_to, 0, sizeof( bound_to ) );
+        idLib::Printf( "idUDP::Init: Failed to open port %d: %s\n", portNumber, SDL_GetError() );
+        return false;
+    }
+#else
 	// DG: don't specify an IP to bind for (and certainly not net_ip)
 	// => it'll listen on all addresses (0.0.0.0 / INADDR_ANY)
 	netSocket = crNetwork::Get()->IPSocket( nullptr, portNumber, &bound_to );
@@ -71,7 +244,8 @@ bool idUDP::InitForPort( int portNumber )
 		std::memset( &bound_to, 0, sizeof( bound_to ) );
 		return false;
 	}
-	
+#endif 
+
 	return true;
 }
 
@@ -82,16 +256,25 @@ idUDP::Close
 */
 void idUDP::Close( void )
 {
-	if( netSocket )
+#if USE_SDL3NET
+	if( m_netSocket )
 	{
+		NET_DestroyDatagramSocket( m_netSocket );
+		m_netSocket = nullptr;
+		std::memset( &bound_to, 0, sizeof( bound_to ) );
+	}
+#else
+	if( netSocket )
+	{		
 #if __PLATFORM_LINUX__
         close( netSocket );
-#else
+#else if __PLATFORM_WINDOWS__
 		closesocket( netSocket );
 #endif
 		netSocket = 0;
 		std::memset( &bound_to, 0, sizeof( bound_to ) );
 	}
+#endif
 }
 
 /*
@@ -102,12 +285,33 @@ idUDP::GetPacket
 bool idUDP::GetPacket( netadr_t& from, void* data, size_t& size, size_t maxSize )
 {
 #if USE_SDL3NET
+	NET_Datagram *packet = nullptr;
+
 	// Verify if our SDL3_net socket is active.
-	if ( !netSocket )
-		return;
+	if ( !m_netSocket )
+		return false;
 
-	if( !NET_SendDatagram( netSocket, , )
+	// attempts to retrieve a datagram from the SDL3 asynchronous queue
+	if ( !NET_ReceiveDatagram( m_netSocket, &packet ) ) 
+		idLib::Printf( "GetPacket: %s\n", SDL_GetError() );
+	
+	// somenthing wrong
+    if ( !packet )
+		return false;
 
+    //
+	// Clamps the size to prevent a buffer overflow if the packet is larger than expected.
+    size = ( packet->buflen > maxSize ) ? maxSize : packet->buflen;
+
+    // Copies the raw bytes to the engine's data buffer.
+    std::memcpy( data, packet->buf, size );
+
+    // Converts the SDL NET_Address to the idTech 4 netadr_t.
+	SDLAddressToIdAddress( packet->addr, packet->port, from );
+
+    // Release SDL Datagram, to prevent memory leak
+    NET_DestroyDatagram( packet );
+    
 #else
 	// DG: this fake while(1) loop pissed me off so I replaced it.. no functional change.
 	if( ! crNetwork::Get()->GetUDPPacket( netSocket, from, ( char* )data, size, maxSize ) )
@@ -129,12 +333,56 @@ idUDP::GetPacketBlocking
 */
 bool idUDP::GetPacketBlocking( netadr_t& from, void* data, size_t& size, size_t maxSize, int timeout )
 {
+#if USE_SDL3NET
+	if ( !m_netSocket ) 
+        return false;
+
+	// Attempts to read immediately if a packet is already queued in SDL3 memory
+	NET_Datagram *packet = nullptr;
+    if ( NET_ReceiveDatagram( m_netSocket, &packet ) ) 
+	{
+        if ( packet ) 
+		{
+            size_t bytesCopied = ( packet->buflen > maxSize ) ? maxSize : packet->buflen;
+            std::memcpy( data, packet->buf, bytesCopied );
+            SDLAddressToIdAddress( packet->addr, packet->port, from );
+            NET_DestroyDatagram( packet );
+            size = bytesCopied;
+        }
+    }
+
+    // If the internal queue was empty, we force an operating system block.
+    // Since NET_WaitUntilInputAvailable accepts a generic array (void**), we create a single-element array.
+	void *socketArray[1] = { (void*)m_netSocket };
+    
+	// If the timeout_ms parameter is less than 0 in the original call, we pass -1 (infinite wait)
+    Sint32 sdlTimeout = ( timeout < 0 ) ? -1 : (Sint32)timeout;
+
+	// Puts the engine thread to sleep until data is received or the timeout expires.
+    // Returns > 0 if the socket has data available.
+	int readySockets = NET_WaitUntilInputAvailable( socketArray, 1, sdlTimeout ); 
+    if ( readySockets > 0 ) 
+	{
+		if ( NET_ReceiveDatagram( m_netSocket, &packet ) ) 
+		{
+            if ( packet ) 
+			{
+                size_t bytesCopied = ( packet->buflen > maxSize ) ? maxSize : packet->buflen;
+                std::memcpy( data, packet->buf, bytesCopied );
+                SDLAddressToIdAddress( packet->addr, packet->port, from );
+                NET_DestroyDatagram( packet );
+                size = bytesCopied;
+            }
+        }
+    }
+
+#else
 	if( !crNetwork::Get()->WaitForData( netSocket, timeout ) )
 		return false;
 	
 	if( GetPacket( from, data, size, maxSize ) )
 		return true;
-	
+#endif
 	return false;
 }
 
@@ -156,8 +404,22 @@ void idUDP::SendPacket( const netadr_t to, const void* data, size_t size )
 	
 	if( silent )
 		return;
+
+#if USE_SDL3NET
+	uint16_t port;
 	
+	// Verify if our SDL3_net socket is active.
+	if ( !m_netSocket )
+		return;
+	
+	// Sends asynchronously. SDL places this in an internal queue and dispatches it.
+
+	if ( !NET_SendDatagram( m_netSocket, to.address, port, data, size ) ) 
+		idLib::Printf( "idUDP::SendPacket sendto error - packet dropped: %s\n", SDL_GetError() );
+
+#else
 	crNetwork::Get()->SendUDPPacket( netSocket, size, data, to );
+#endif
 }
 
 /*
@@ -309,6 +571,28 @@ crNetwork::crNetwork(void) :
 {
 }
 
+
+void crNetwork::Init( void )
+{
+	// Try initialize SDL3_net
+	if ( !NET_Init() ) 
+    	idLib::Error(" Failed to initialize SDL3_net: %s", SDL_GetError()); 
+	
+	// Cria um socket UDP vinculado a qualquer interface na porta do Doom 3 (ex: 27666)
+	m_gameSocket = NET_CreateDatagramSocket(NULL, 27666); //
+	if (!m_gameSocket)
+    	idLib::Error(" Failed to create net socket: %s", SDL_GetError());
+}
+
+void crNetwork::Shutdown( void )
+{
+}
+
+int crNetwork::IPSocket(const char *bind_ip, int port, netadr_t *bound_to)
+{
+    return 0;
+}
+
 /*
 ========================
 crNetwork::StringToNetAdr
@@ -400,6 +684,11 @@ Compares without the port.
 */
 bool crNetwork::CompareNetAdrBase( const netadr_t a, const netadr_t b ) const
 {
+#if USE_SDL3NET
+	if( NET_CompareAddresses( a.address, b.address ) == 0 )
+		return true;
+#else
+
 	if( a.type != b.type )
 		return false;
 	
@@ -418,9 +707,10 @@ bool crNetwork::CompareNetAdrBase( const netadr_t a, const netadr_t b ) const
 			return true;
 
 		return false;
-	}
-	
-	idLib::Printf( "Sys_CompareNetAdrBase: bad address type\n" );
+	}	
+#endif
+
+	idLib::Printf( "CompareNetAdrBase: bad address type\n" );
 	return false;
 }
 
@@ -498,6 +788,9 @@ crNetwork::StringToSockaddr
 */
 bool crNetwork::StringToSockaddr( const char* s, sockaddr_in* sadr, const bool doDNSResolve )
 {
+#if USE_SDL3NET
+	NET_ResolveHostname();
+#else
 	char buf[256];
 	int port;
 	
@@ -539,7 +832,7 @@ bool crNetwork::StringToSockaddr( const char* s, sockaddr_in* sadr, const bool d
 	// Frees the memory dynamically allocated by getaddrinfo
     freeaddrinfo( res );
 #endif
-	
+#endif
 	return true;
 }
 
