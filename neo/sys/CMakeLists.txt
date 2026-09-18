@@ -64,7 +64,6 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/session_local.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/signin.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/signin.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/socket_net.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.h
     )
