@@ -35,6 +35,7 @@ avoids alignment errors. It allows concurrent writing and reading. The data set 
 is never free-d.
 ================================================
 */
+class crAddress;
 class idBitMsg
 {
 public:

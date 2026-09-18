@@ -523,6 +523,9 @@ void idBitMsg::ReadNetadr( crAddress &adr ) const
 	netadrtype_t type = ( netadrtype_t ) ReadByte();
 	uint16_t port = ReadUShort();
 	ReadData( ip, 16 );
+
+	// TODO: Read the IP
+	adr = crAddress( type, port );
 }
 #endif
 

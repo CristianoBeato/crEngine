@@ -2,17 +2,7 @@
 #include "precompiled.h"
 #include "Network.hpp"
 
-#define USE_SDL3NET 1
-
-#if USE_SDL3NET
 #include <SDL3_net/SDL_net.h>
-#elif __PLATFORM_LINUX__
-#   include <arpa/inet.h>
-#   include <netdb.h>
-#elif __PLATFORM_WINDOWS__
-#   include <winsock2.h>
-#   include <ws2tcpip.h>
-#endif
 
 static idCVar net_socksServer( "net_socksServer", "", CVAR_ARCHIVE, "" );
 static idCVar net_socksPort( "net_socksPort", "1080", CVAR_ARCHIVE | CVAR_INTEGER, "" );
@@ -32,6 +22,11 @@ crAddress
 ================================================================================================
 */
 
+/*
+========================
+crAddress::crAddress
+========================
+*/
 crAddress::crAddress( void ) :
 	m_type( NA_BAD ), 
 	m_address( nullptr ),
@@ -39,15 +34,21 @@ crAddress::crAddress( void ) :
 {
 }
 
-crAddress::crAddress(const netadrtype_t in_type, const uint16_t in_port)
+/*
+========================
+crAddress::crAddress
+========================
+*/
+crAddress::crAddress( const netadrtype_t in_type, const portID_t in_port ) : 
+	m_type( in_type ),
+	m_port( in_type ),
+	m_address( nullptr ) 
 {
-	m_type = in_type;
     m_port = in_port;
 	idassert( in_type == NA_BROADCAST || in_type == NA_LOOPBACK );
 	
 	// Instead of calling NET_ResolveHostname for fixed strings, we keep it as nullptr. 
 	// idUDP::SendPacket will handle translating the nullptr at the time of sending!
-	m_address = nullptr;
 	/*
 	if ( in_type == NA_BROADCAST ) 
         m_address = NET_ResolveHostname( "255.255.255.255" );
@@ -59,7 +60,15 @@ crAddress::crAddress(const netadrtype_t in_type, const uint16_t in_port)
 	*/
 }
 
-crAddress::crAddress(const idStr in_from, const uint16_t in_port)
+/*
+========================
+crAddress::crAddress
+========================
+*/
+crAddress::crAddress( const idStr in_from, const portID_t in_port ) : 
+	m_type( NA_BAD ),
+	m_port( 0 ),
+	m_address( nullptr )
 {
 	// If are specific IP, resolve it 
 	if ( ( !in_from.IsEmpty() ) && ( in_from.Cmp( "localhost" ) != 0 ) ) 
@@ -90,52 +99,69 @@ crAddress::crAddress(const idStr in_from, const uint16_t in_port)
     }	
 }
 
-crAddress::crAddress( NET_Address *in_addrs, const uint16_t in_port)
+/*
+========================
+crAddress::crAddress
+========================
+*/
+crAddress::crAddress( NET_Address *in_addrs, const portID_t in_port) : m_port( in_port ), m_address( in_addrs )
 {
-	m_port = in_port;
-	m_address = in_addrs;
+	int numBytes = 0;
+	
+	if ( !m_address ) //( may can be a loopback ? )
+	{
+		m_type = NA_BAD;
+		return; // throw a exeption ?
+	}
 
-	if ( m_address ) 
-	{
-        int numBytes = 0;
-		// reference the address pointer 
-        NET_RefAddress( m_address ); 
+    // increment reference the address pointer 
+    NET_RefAddress( m_address ); 
         
-        NET_GetAddressBytes( m_address, &numBytes );
-        m_type = ( numBytes == 16 ) ? NA_IP6 : NA_IP;
-    } 
-	else 
-	{
-        m_type = NA_BAD;
-    }
+    NET_GetAddressBytes( m_address, &numBytes );
+    
+	// Retrieve the type
+	m_type = ( numBytes == 16 ) ? NA_IP6 : NA_IP;
 }
 
-crAddress::crAddress(const crAddress &in_ref)
+/*
+========================
+crAddress::crAddress
+========================
+*/
+crAddress::crAddress( const crAddress &in_ref ) :
+	m_type( in_ref.m_type ),
+	m_port( in_ref.m_port ),	
+	m_address( in_ref.m_address )
 {
-	// if any current address reference in the class, drop it
-	if( m_address != nullptr )
-		NET_UnrefAddress( m_address );
-
-	// copy the reference 
-	m_address = in_ref.m_address;
-	m_port = in_ref.m_port;
-	m_type = in_ref.m_type;
-
-	// 
+	// we are referencing a already existing pointer 
 	if( m_address != nullptr )
 		NET_RefAddress( m_address );
 }
 
+/*
+========================
+crAddress::~crAddress
+========================
+*/
 crAddress::~crAddress(void)
 {
+	// decrement reference 
 	if ( m_address )
 	{
 		// release this reference
 		NET_UnrefAddress( m_address );
 		m_address = nullptr; 
 	}
+
+	m_port = 0;
+	m_type = NA_BAD;
 }
 
+/*
+========================
+crAddress::GetAnderess
+========================
+*/
 void crAddress::GetAnderess( uint8_t *bytes ) const
 {
 	int numBytes = 0;
@@ -176,6 +202,12 @@ void crAddress::GetAnderess( uint8_t *bytes ) const
 static int index = 0;	// todo atomic
 static char buf[ 32 ][ 64 ];
 // flip/flop
+
+/*
+========================
+crAddress::ToString
+========================
+*/
 const char *crAddress::ToString(void) const
 {
 	/// this will continue valid, wile address exist 
@@ -190,8 +222,17 @@ const char *crAddress::ToString(void) const
 	return s;
 }
 
+/*
+========================
+crAddress::operator =
+========================
+*/
 crAddress crAddress::operator=(const crAddress &in_ref)
 {
+	// Protect from auto referencing 
+	if ( this == &in_ref )
+        return *this;	
+
 	// if any current address reference in the class, drop it
 	if( m_address != nullptr )
 		NET_UnrefAddress( m_address );
@@ -208,6 +249,11 @@ crAddress crAddress::operator=(const crAddress &in_ref)
 	return *this;
 }
 
+/*
+========================
+crAddress::operator ==
+========================
+*/
 bool crAddress::operator==(const crAddress &in_ref) const
 {
     return NET_CompareAddresses( m_address, in_ref.m_address );
@@ -250,7 +296,7 @@ idUDP::~idUDP( void )
 idUDP::InitForPort
 ========================
 */
-bool idUDP::InitForPort( const uint32_t portNumber )
+bool idUDP::InitForPort( const portID_t in_portNumber )
 {
 	// Close any previous socket 
 	if ( m_netSocket != nullptr ) 
@@ -272,7 +318,7 @@ bool idUDP::InitForPort( const uint32_t portNumber )
 	// Creates the Datagram (UDP) socket
 	// Passing nullptr binds to "any" (0.0.0.0 and ::), automatically enabling dual-stack. 
 	// SDL3_net internally converts portNumber to the correct network byte order.
-	m_netSocket = NET_CreateDatagramSocket( nullptr, portNumber, props );
+	m_netSocket = NET_CreateDatagramSocket( nullptr, in_portNumber, props );
 
 	// done release properties handle 
 	if ( props != 0 ) 
@@ -282,7 +328,7 @@ bool idUDP::InitForPort( const uint32_t portNumber )
 	if ( !m_netSocket ) 
 	{
 		m_bound = crAddress();
-		idLib::Printf( "idUDP::Init: Failed to open port %d: %s\n", portNumber, SDL_GetError() );
+		idLib::Printf( "idUDP::Init: Failed to open port %d: %s\n", m_portNumber, SDL_GetError() );
         return false;
     } 
 
@@ -317,12 +363,12 @@ void idUDP::Close( void )
 idUDP::GetPacket
 ========================
 */
-bool idUDP::GetPacket( crAddress& from, void* data, size_t& size, size_t maxSize )
+bool idUDP::GetPacket( crAddress& out_from, void* out_data, size_t& out_size, const size_t in_maxSize )
 {
 	NET_Datagram *packet = nullptr;
 
 	// assecure the size to 0 if we can't read any packet 
-	size = 0;
+	out_size = 0;
 
 	// Verify if our SDL3_net socket is active.
 	if ( !m_netSocket )
@@ -341,19 +387,19 @@ bool idUDP::GetPacket( crAddress& from, void* data, size_t& size, size_t maxSize
 
     //
 	// Clamps the size to prevent a buffer overflow if the packet is larger than expected.
-    size = Min( maxSize, (size_t)packet->buflen );
+    out_size = Min( in_maxSize, (size_t)packet->buflen );
 	
     // Copies the raw bytes to the engine's data buffer.
-    std::memcpy( data, packet->buf, size );
+    std::memcpy( out_data, packet->buf, out_size );
 
 	// update Address reference
-	from = crAddress( packet->addr, packet->port );
+	out_from = crAddress( packet->addr, packet->port );
 	
     // Release SDL Datagram, to prevent memory leak
     NET_DestroyDatagram( packet );
     
 	m_packetsRead++;
-	m_bytesRead += size;
+	m_bytesRead += out_size;
 	
 	return true;
 }
@@ -363,12 +409,12 @@ bool idUDP::GetPacket( crAddress& from, void* data, size_t& size, size_t maxSize
 idUDP::GetPacketBlocking
 ========================
 */
-bool idUDP::GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t maxSize, int32_t timeout )
+bool idUDP::GetPacketBlocking( crAddress& out_from, void* out_data, size_t& out_size, const size_t in_maxSize, const int32_t in_timeout )
 {
 	NET_Datagram *packet = nullptr;
-    size = 0;
+    out_size = 0;
 
-	if ( !m_netSocket || !data ) 
+	if ( !m_netSocket || !out_data ) 
         return false;
 
 	// Attempts to read immediately if a packet is already queued in SDL3 memory
@@ -376,13 +422,13 @@ bool idUDP::GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t
 	{
         if ( packet ) 
 		{
-			size = Min( maxSize, ( size_t ) packet->buflen );
-            std::memcpy( data, packet->buf, size );
-            from = crAddress( packet->addr, packet->port );
+			out_size = Min( in_maxSize, ( size_t ) packet->buflen );
+            std::memcpy( out_data, packet->buf, out_size );
+            out_from = crAddress( packet->addr, packet->port );
             NET_DestroyDatagram( packet );
             
 			m_packetsRead++;
-			m_bytesRead += size;
+			m_bytesRead += out_size;
         }
     }
 
@@ -391,27 +437,27 @@ bool idUDP::GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t
 	void *socketArray[1] = { (void*)m_netSocket };
     
 	// If the timeout_ms parameter is less than 0 in the original call, we pass -1 (infinite wait)
-    Sint32 sdlTimeout = ( timeout < 0 ) ? -1 : (Sint32)timeout;
+    Sint32 sdlTimeout = ( in_timeout < 0 ) ? -1 : (Sint32)in_timeout;
 
 	// Puts the engine thread to sleep until data is received or the timeout expires.
     // Returns > 0 if the socket has data available.
-	int readySockets = NET_WaitUntilInputAvailable( socketArray, 1, sdlTimeout ); 
-    if ( readySockets > 0 ) 
-	{
-		if ( NET_ReceiveDatagram( m_netSocket, &packet ) ) 
-		{
-            if ( packet ) 
-			{
-                size = Min( maxSize, (size_t)packet->buflen );
-                std::memcpy( data, packet->buf, size );
-                from = crAddress( packet->addr, packet->port );
-				NET_DestroyDatagram( packet );
+	int readySockets = NET_WaitUntilInputAvailable( socketArray, 1, sdlTimeout );
+	if( readySockets <= 0 )
+		return false;
 
-				m_packetsRead++;
-                m_bytesRead += size;
-            }
-        }
-    }
+    if ( !NET_ReceiveDatagram( m_netSocket, &packet ) )
+		return false;
+		
+    if ( !packet ) // TODO: print a error
+		return false;
+		
+	out_size = Min( in_maxSize, (size_t)packet->buflen );
+	std::memcpy( out_data, packet->buf, out_size );
+	out_from = crAddress( packet->addr, packet->port );
+	NET_DestroyDatagram( packet );
+
+	m_packetsRead++;
+	m_bytesRead += out_size;
 
 	return false;
 }
@@ -421,9 +467,9 @@ bool idUDP::GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t
 idUDP::SendPacket
 ========================
 */
-void idUDP::SendPacket( const crAddress &to, const void* data, size_t size )
+void idUDP::SendPacket( const crAddress &in_to, const void* in_data, const size_t in_size )
 {
-	if( to.Type() == NA_BAD )
+	if( in_to.Type() == NA_BAD )
 	{
 		idLib::Warning( "idUDP::SendPacket: bad address type NA_BAD - ignored" );
 		return;
@@ -434,19 +480,21 @@ void idUDP::SendPacket( const crAddress &to, const void* data, size_t size )
 		return;
 	
 	// Resolves the correct handle
-	NET_Address* targetHandle = to.GetHandle();
-	if ( to.Type() == NA_BROADCAST || to.Type() == NA_LOOPBACK ) // Special addresses (Broadcast and Loopback) must pass nullptr!
+	NET_Address* targetHandle = in_to.GetHandle();
+	
+	// Special addresses (Broadcast and Loopback) must pass nullptr!
+	if ( in_to.Type() == NA_BROADCAST || in_to.Type() == NA_LOOPBACK ) 
 		targetHandle = nullptr; 
 
 	// Sends asynchronously. SDL places this in an internal queue and dispatches it.
-	if ( !NET_SendDatagram( m_netSocket, to.GetHandle(), to.Port(), data, size ) )
+	if ( !NET_SendDatagram( m_netSocket, in_to.GetHandle(), in_to.Port(), in_data, in_size ) )
 	{ 
 		idLib::Printf( "idUDP::SendPacket sendto error - packet dropped: %s\n", SDL_GetError() );
 		return;
 	}
 
 	m_packetsWritten++;
-	m_bytesWritten += size;
+	m_bytesWritten += in_size;
 }
 
 /*
@@ -597,7 +645,6 @@ crNetwork::crNetwork(void)
 {
 }
 
-
 void crNetwork::Init( void )
 {
 	int count = 0;
@@ -738,7 +785,7 @@ const char* crNetwork::GetLocalIP( const uint32_t i ) const
 crNetwork::ExtractPort
 ========================
 */
-bool crNetwork::ExtractPort( const char* src, char* buf, const size_t bufsize, int* port )
+bool crNetwork::ExtractPort( const char* in_src, char* in_buf, const size_t in_size, int* port )
 {
 	char* p = nullptr;
 #if CR_USE_SDL_STRING_UTILS

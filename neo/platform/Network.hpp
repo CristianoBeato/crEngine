@@ -2,6 +2,9 @@
 #ifndef __NETWORK_SYSTEM_HPP__
 #define __NETWORK_SYSTEM_HPP__
 
+inline constexpr uint16_t PORT_ANY = 0;
+typedef uint16_t portID_t;
+
 /*
 ==============================================================
 
@@ -12,8 +15,6 @@
 
 typedef struct NET_Address NET_Address;
 typedef struct NET_DatagramSocket NET_DatagramSocket;
-
-#define	PORT_ANY			-1
 
 typedef enum : uint8_t
 {
@@ -28,15 +29,15 @@ class crAddress
 {
 public:
 	crAddress( void );
-	crAddress( const netadrtype_t in_type, const uint16_t in_port );
-	crAddress( const idStr in_from, const uint16_t in_port );
+	crAddress( const netadrtype_t in_type, const portID_t in_port );
+	crAddress( const idStr in_from, const portID_t in_port );
 	crAddress( const crAddress &in_ref );
 	~crAddress( void );
 
 	netadrtype_t	Type( void ) const { return m_type; }
-	uint16_t		Port( void ) const { return m_port; }
+	portID_t		Port( void ) const { return m_port; }
 
-	void			GetAnderess( uint8_t *bytes ) const;
+	void			GetAnderess( uint8_t * out_bytes ) const;
 	const char*		ToString( void ) const;
 
 	crAddress operator = ( const crAddress & in_ref );
@@ -45,13 +46,13 @@ public:
 protected:
 	friend class idUDP;
 	friend class crNetwork;
-	crAddress( NET_Address* in_addrs, const uint16_t in_port );
+	crAddress( NET_Address* in_addrs, const portID_t in_port );
 	NET_Address*	GetHandle( void ) const { return m_address; }	
 
 private:
-	netadrtype_t	m_type;
-	uint16_t		m_port;
-	NET_Address*	m_address;
+	netadrtype_t	m_type;		// the conection type 
+	portID_t		m_port;		// the port that conect 
+	NET_Address*	m_address;	// opaque handle to SDL3_net library
 };
 
 /*
@@ -67,7 +68,7 @@ public:
 	virtual		~idUDP( void );
 	
 	// if the InitForPort fails, the idUDP.port field will remain 0
-	bool		InitForPort( const uint32_t portNumber );
+	bool		InitForPort( const portID_t in_portNumber );
 	
 	uint16_t	GetPort( void ) const { return m_bound.Port(); }
 
@@ -81,15 +82,15 @@ public:
 
 	void		Close( void );
 	
-	bool		GetPacket( crAddress& from, void* data, size_t& size, size_t maxSize );
+	bool		GetPacket( crAddress& out_from, void* out_data, size_t& out_size, size_t in_maxSize );
 	
-	bool		GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t maxSize, int32_t timeout );
+	bool		GetPacketBlocking( crAddress& out_from, void* out_data, size_t& out_size, const size_t out_maxSize, const int32_t out_timeout );
 								   
-	void		SendPacket( const crAddress &to, const void* data, size_t size );
+	void		SendPacket( const crAddress &in_to, const void* in_data, const size_t in_size );
 	
-	void		SetSilent( const bool silent )
+	void		SetSilent( const bool in_silent )
 	{
-		m_silent = silent;
+		m_silent = in_silent;
 	}
 
 	bool		GetSilent( void ) const
