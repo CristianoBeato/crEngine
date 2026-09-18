@@ -238,7 +238,7 @@ void idBitMsg::WriteString( const char* s, int maxLength, bool make7Bit )
 idBitMsg::WriteData
 ========================
 */
-void idBitMsg::WriteData( const void* data, int length )
+void idBitMsg::WriteData( const void* data, size_t length )
 {
 	std::memcpy( GetByteSpace( length ), data, length );
 }
@@ -248,12 +248,27 @@ void idBitMsg::WriteData( const void* data, int length )
 idBitMsg::WriteNetadr
 ========================
 */
+#if 0
 void idBitMsg::WriteNetadr( const netadr_t adr )
 {
 	WriteData( adr.ip, 4 );
 	WriteUShort( adr.port );
 	WriteByte( adr.type );
 }
+#else
+void idBitMsg::WriteNetadr( const crAddress &adr )
+{
+	uint8_t addrs[16];
+
+	WriteByte( adr.Type() );
+	WriteUShort( adr.Port() );
+
+	// retrieve the address
+	adr.GetAnderess( &addrs[0] );
+	WriteData( addrs, 16 );
+}
+
+#endif
 
 /*
 ========================
@@ -494,12 +509,22 @@ int idBitMsg::ReadData( void* data, int length ) const
 idBitMsg::ReadNetadr
 ========================
 */
+#if 0
 void idBitMsg::ReadNetadr( netadr_t* adr ) const
 {
 	ReadData( adr->ip, 4 );
 	adr->port = ReadUShort();
 	adr->type = ( netadrtype_t ) ReadByte();
 }
+#else
+void idBitMsg::ReadNetadr( crAddress &adr ) const
+{
+	uint8_t ip[16];
+	netadrtype_t type = ( netadrtype_t ) ReadByte();
+	uint16_t port = ReadUShort();
+	ReadData( ip, 16 );
+}
+#endif
 
 /*
 ========================

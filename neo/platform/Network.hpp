@@ -2,8 +2,6 @@
 #ifndef __NETWORK_SYSTEM_HPP__
 #define __NETWORK_SYSTEM_HPP__
 
-#define USE_SDL3NET 1
-
 /*
 ==============================================================
 
@@ -12,10 +10,8 @@
 ==============================================================
 */
 
-#if USE_SDL3NET
 typedef struct NET_Address NET_Address;
 typedef struct NET_DatagramSocket NET_DatagramSocket;
-#endif
 
 #define	PORT_ANY			-1
 
@@ -32,17 +28,25 @@ class crAddress
 {
 public:
 	crAddress( void );
+	crAddress( const netadrtype_t in_type, const uint16_t in_port );
+	crAddress( const idStr in_from, const uint16_t in_port );
+	crAddress( const crAddress &in_ref );
 	~crAddress( void );
-
-	void	OpenFromPort( const netadrtype_t in_type, const uint16_t in_port );
-	void	OpenFromString( const idStr in_from, const uint16_t in_port );
 
 	netadrtype_t	Type( void ) const { return m_type; }
 	uint16_t		Port( void ) const { return m_port; }
 
-	const char*	ToString( void ) const;
+	void			GetAnderess( uint8_t *bytes ) const;
+	const char*		ToString( void ) const;
 
+	crAddress operator = ( const crAddress & in_ref );
 	bool operator == ( const crAddress & in_ref ) const;
+
+protected:
+	friend class idUDP;
+	friend class crNetwork;
+	crAddress( NET_Address* in_addrs, const uint16_t in_port );
+	NET_Address*	GetHandle( void ) const { return m_address; }	
 
 private:
 	netadrtype_t	m_type;
@@ -63,11 +67,11 @@ public:
 	virtual		~idUDP( void );
 	
 	// if the InitForPort fails, the idUDP.port field will remain 0
-	bool		InitForPort( int portNumber );
+	bool		InitForPort( const uint32_t portNumber );
 	
-	uint16_t	GetPort( void ) const { return bound.Port(); }
+	uint16_t	GetPort( void ) const { return m_bound.Port(); }
 
-	crAddress	GetAdr( void ) const { return bound; }
+	crAddress	GetAdr( void ) const { return m_bound; }
 
 	uint32_t		GetUIntAdrIPV4( void ) const
 	{
@@ -79,9 +83,9 @@ public:
 	
 	bool		GetPacket( crAddress& from, void* data, size_t& size, size_t maxSize );
 	
-	bool		GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t maxSize, int timeout );
+	bool		GetPacketBlocking( crAddress& from, void* data, size_t& size, size_t maxSize, int32_t timeout );
 								   
-	void		SendPacket( const crAddress to, const void* data, size_t size );
+	void		SendPacket( const crAddress &to, const void* data, size_t size );
 	
 	void		SetSilent( const bool silent )
 	{
@@ -93,11 +97,11 @@ public:
 		return m_silent;
 	}
 	
-	int			packetsRead;
-	int			bytesRead;
+	uint32_t	m_packetsRead;
+	size_t		m_bytesRead;
 	
-	int			packetsWritten;
-	int			bytesWritten;
+	uint32_t	m_packetsWritten;
+	size_t		m_bytesWritten;
 	
 	bool		IsOpen( void ) const
 	{
@@ -111,15 +115,15 @@ private:
 	NET_DatagramSocket*	m_netSocket;
 };
 
-// TODO: update to a class
-struct crNetMessage
+class crNetMessage
 {
+public:
 	crNetMessage( const size_t bufferSize = 32767, const bool compressed = true );
 	~crNetMessage( void );
 
 	void ResetReadOffset();
 
-	bool ReadBytes(char * bytes, int numBytes);
+	bool ReadBytes(char * bytes, size_t numBytes);
 
 	template<typename T>
 	bool Read(T & output)
@@ -127,9 +131,9 @@ struct crNetMessage
 		return ReadBytes((char*)&output, sizeof(T));
 	}
 
-	bool ReadString(char * buffer, int maxlength);
+	bool ReadString(char * buffer, size_t maxlength);
 
-	bool WriteBytes(const char * bytes, int numBytes);
+	bool WriteBytes(const char * bytes, size_t numBytes);
 
 	template<typename T>
 	bool Write(const T & output)
@@ -139,8 +143,8 @@ struct crNetMessage
 
 	bool WriteString(const char * output);
 
-	bool ReadPacket(idUDP & socket, netadr_t & addrFrom);
-	void SendPacket(idUDP & socket, const netadr_t & addr);
+	bool ReadPacket(idUDP & socket, crAddress & addrFrom);
+	void SendPacket(idUDP & socket, const crAddress & addr);
 	
 	inline const char * Data ( void ) const{ return mData; }
 	inline size_t Size( void ) const { return mDataOffset; }
@@ -154,43 +158,21 @@ private:
 	char *			mData;
 };
 
-// host to network short
-// u_short htons(u_short hostshort); // convert from host byte order to network byte order to 16 bits integer 
-
-// host to network long
-// u_long htonl(u_long hostlong); // convert from host byte order to network byte order to 32 bits integer 
-
 typedef crNetMessage msg_t;
 
 inline constexpr uint32_t MAX_INTERFACES = 32;
 
-struct sockaddr_in;
 class crNetwork
 {
 public:
     static crNetwork*  Get( void );
 
 	crNetwork( void );
-
-    virtual void			Init( void );
-    virtual void			Shutdown( void );
-
-	virtual int				IPSocket( const char* bind_ip, int port, netadr_t* bound_to );
-	virtual bool			GetUDPPacket( int netSocket, netadr_t& net_from, char* data, size_t& size, size_t maxSize ) = 0;
-	virtual bool			WaitForData( int netSocket, int timeout ) = 0;
-	virtual void			SendUDPPacket( int netSocket, size_t length, const void* data, const netadr_t to ) = 0;
-
-    // parses the port number
-    // can also do DNS resolve if you ask for it.
-    // NOTE: DNS resolve is a slow/blocking call, think before you use
-    // ( could be exploited for server DoS )
-    bool					StringToNetAdr( const char* s, netadr_t* a, bool doDNSResolve );
-
-    const char* 			NetAdrToString( const netadr_t a );
-    bool					IsLANAddress( const netadr_t a );
-    bool					CompareNetAdrBase( const netadr_t a, const netadr_t b ) const; //( can be a static member )
+	void					Init( void );
+    void					Shutdown( void );
+    bool					IsLANAddress( const crAddress &a );
     uint32_t				GetLocalIPCount( void ) const;
-    const char* 			GetLocalIP( int i ) const;
+    const char* 			GetLocalIP( const uint32_t i ) const;
 
 protected:
 
@@ -202,30 +184,10 @@ protected:
 	static idCVar net_ip;
 #endif
 
-	typedef struct
-	{
-		// RB: 64 bit fixes, changed long to int
-		// FIXME: IPv6?
-		uint32_t ip;
-		uint32_t mask;
-		// RB end
-		char addr[16];
-	} net_interface;
-
-	uint32_t			m_numInterfaces;
-	net_interface		m_netint[MAX_INTERFACES];
-	char				m_socksBuf[4096];
-	struct sockaddr_in	m_socksRelayAddr;
-
-	NET_DatagramSocket*	m_gameSocket;
+	int          		m_localAddressCount;
+	crAddress*   		m_localAddresses;
 
 	bool	ExtractPort( const char* src, char* buf, const size_t bufsize, int* port );
-	bool	StringToSockaddr( const char* s, sockaddr_in* sadr, const bool doDNSResolve );
-	void	SockadrToNetadr( sockaddr_in* s, netadr_t* a );
-	void	NetadrToSockadr( const netadr_t* a, sockaddr_in* s );
-
-	/// PLATFOM SPECIFIC
-	virtual const char* ErrorString( void ) const = 0;
 };
 
 #endif //!__NETWORK_SYSTEM_HPP__
