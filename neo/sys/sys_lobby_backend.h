@@ -78,7 +78,7 @@ public:
 #endif
 	}
 	
-	lobbyConnectInfo_t() : netAddr( nullptr ) 
+	lobbyConnectInfo_t() : netAddr() 
 	{
 	}
 	

@@ -324,6 +324,7 @@ public:
 	{
 		return marketplaceHasNewContent;
 	}
+
 	virtual void			SetSystemMarketplaceHasNewContent( bool hasNewContent )
 	{
 		marketplaceHasNewContent = hasNewContent;
@@ -342,10 +343,12 @@ public:
 	{
 		sessionOptions |= option;
 	}
+
 	virtual	void			ClearSessionOption( sessionOption_t option )
 	{
 		sessionOptions &= ~option;
 	}
+	
 	virtual sessionState_t	GetBackState();
 	virtual void			Cancel();
 	virtual void			MoveToPressStart();
@@ -518,6 +521,10 @@ public:
 	virtual int				NumServers() const = 0;
 	virtual void			ListServers( const idCallback& callback ) = 0;
 	virtual void			ListServersCommon();
+// BEATO Begin:
+	virtual void			ListLanServers( void );
+// BEATO End
+
 	virtual void			CancelListServers() = 0;
 	virtual void			ConnectToServer( int i ) = 0;
 	virtual const serverInfo_t* ServerInfo( int i ) const = 0;

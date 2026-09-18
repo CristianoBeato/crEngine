@@ -4330,33 +4330,25 @@ If we return false, the invite will be ignored
 bool idSessionLocal::PreMigrateInvite( idLobby& lobby )
 {
 	if( GetActivePlatformLobby() == nullptr )
-	{
 		return false;
-	}
 	
 	// Check to see if we can migrate AT ALL
 	// This is checking for coop, we should make this a specific option (MATCH_ALLOW_MIGRATION)
 	if( !verify( ( GetPartyLobby().parms.matchFlags & MATCH_PARTY_INVITE_PLACEHOLDER ) == 0 ) )
-	{
 		return false;	// Shouldn't get invites for coop (we should make this a specific option (MATCH_ALLOW_MIGRATION))
-	}
 	
 	// Check to see if the match is searchable
 	if( MatchTypeIsSearchable( GetGameLobby().parms.matchFlags ) )
-	{
 		// Searchable games migrate lobbies independently, and don't need to stay in sync
 		return true;
-	}
-	
+
 	//
 	// Beyond this point, game lobbies must be sync'd with party lobbies as far as host status
 	// So to enforce that, we pull you out of the game lobby if you are in one when migration occurs
 	//
 	
 	if( lobby.lobbyType != idLobby::TYPE_PARTY )
-	{
 		return false;		// We shouldn't be getting invites from non party lobbies when in a non searchable game
-	}
 	
 	// Non placeholder Party lobbies can always migrate
 	if( GetBackState() >= idSessionLocal::PARTY_LOBBY )
@@ -4504,9 +4496,7 @@ bool idNetSessionPort::ReadRawPacket( lobbyAddress_t& from, void* data, size_t& 
 	{
 		forcePacketDropCurr = random.RandomInt( 100 );
 		if( net_forceDrop.GetInteger() >= forcePacketDropCurr )
-		{
 			return false;
-		}
 	}
 	
 	return result;
@@ -4660,8 +4650,7 @@ idSessionLocal::ListServersCommon
 */
 void idSessionLocal::ListServersCommon()
 {
-	crAddress broadcast = crAddress();
-	broadcast.OpenFromPort( NA_BROADCAST, net_port.GetInteger() );
+	crAddress broadcast = crAddress( NA_BROADCAST, net_port.GetInteger() );
 	
 	lobbyAddress_t address;
 	address.InitFromNetadr( broadcast );
@@ -4677,9 +4666,68 @@ void idSessionLocal::ListServersCommon()
 	msg.WriteLong( localChecksum );
 	
 	GetPort();
+	
 	// Send the query as a broadcast
 	GetPartyLobby().SendConnectionLess( address, idLobby::OOB_MATCH_QUERY, msg.GetReadData(), msg.GetSize() );
 }
+
+// BEATO Begin:
+/*
+========================
+idSessionLocal::ListServersCommon
+========================
+*/
+
+static const char* pingMessage = "get_servers_handshake";
+static const char* reponseMessage "servers_handshake_acepted";
+
+void idSessionLocal::ListLanServers( void )
+{
+	char buffer[2048];
+    size_t bytesRead = 0;
+
+	idUDP lanSocket;
+	if ( !lanSocket.InitForPort( 0 ) ) 
+        return;
+
+	// Dispara o ping de broadcast na porta padrão do Doom 3 BFG (27666)
+    crAddress broadcastAddr = crAddress( NA_BROADCAST, 27666 );
+
+	lanSocket.SendPacket( broadcastAddr, pingMessage, std::strlen(pingMessage) + 1 );
+	crAddress serverAddress;
+
+	 // Timeout curto de 1000ms por resposta para o menu continuar fluido
+    while ( lanSocket.GetPacketBlocking( serverAddress, buffer, bytesRead, sizeof(buffer), 1000 ) ) 
+	{
+        if ( bytesRead > 0 && idStr::Cmp( buffer, reponseMessage ) ) 
+		{    
+            // Cria um novo registro de Lobby nativo da Engine
+            lobbyInfo_t newLobby;
+            newLobby.address = serverAddress; // Copia segura via operador = da crAddress
+
+            // Faz o parsing das informações textuais retornadas pelo servidor
+            // O buffer geralmente vem quebrado por quebras de linha (\n)
+            idTokenList tokens;
+            idStr::Split( buffer, '\n', tokens );
+            
+            // Exemplo de mapeamento dos tokens recebidos na string:
+            // tokens[0] = "infoResponse", tokens[1] = Hostname, tokens[2] = NomeDoMapa, etc.
+            if ( tokens.Num() >= 4 ) 
+			{
+                newLobby.serverName = tokens[1];
+                newLobby.mapName = tokens[2];
+                // Converte as contagens de jogadores
+                idStr::SplitPlayers( tokens[3], newLobby.currentPlayers, newLobby.maxPlayers );
+            }
+
+            // Armazena diretamente na estrutura de dados do Lobby da BFG!
+            m_lobbyList.Append( newLobby );
+        }
+    }
+
+    idLib::Printf( "Busca de Lobbies LAN finalizada. %d servidores encontrados.\n", m_lobbyList.Num() );	
+}
+// BEATO End
 
 /*
 ========================
