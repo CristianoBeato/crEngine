@@ -170,6 +170,31 @@ inline void SetZero( _t * in_array, const uint32_t in_count  )
 }
 // BEATO End
 
+// In a head mounted display with separate displays for each eye,
+// screen separation will be zero and world separation will be the eye distance.
+struct stereoDistances_t
+{
+	// Offset to projection matrix, positive one eye, negative the other.
+	// Total distance is twice this, so 0.05 would give a 10% of screen width
+	// separation for objects at infinity.
+	float	screenSeparation;
+	
+	// Game world units from one eye to the centerline.
+	// Total distance is twice this.
+	float	worldSeparation;
+};
+
+/// @brief Calcule the stereo view distance utils 
+/// @param interOcularCentimeters distance between two eyes, typically 6.0 - 7.0
+/// @param screenWidthCentimeters read from operating system
+/// @param convergenceWorldUnits pass 0 for head mounted display mode
+/// @param fov_x_degrees edge to edge horizontal field of view, typically 60 - 90
+extern stereoDistances_t CaclulateStereoDistances( const float	interOcularCentimeters,	const float screenWidthCentimeters, const float convergenceWorldUnits, const float	fov_x_degrees );
+
+/// @CristianoBeato Move here since we use in the player view and GuiModel
+// 3D stereo utils
+extern float	GetScreenSeparationForGuis( const float in_fov, const float in_physicalScreenWidth, const float in_interOccularCentimeters, const float in_convergence );
+
 /*
 ===============================================================================
 

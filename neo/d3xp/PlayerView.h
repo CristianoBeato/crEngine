@@ -88,6 +88,7 @@ public:
 
 
 
+extern float	GetScreenSeparationForGuis( void );
 
 class idPlayerView;
 class FullscreenFXManager;

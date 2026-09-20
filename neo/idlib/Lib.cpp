@@ -698,3 +698,62 @@ BreakOnListDefault
 void BreakOnListDefault()
 {
 }
+
+static float CentimetersToInches( const float cm )
+{
+	return cm / 2.54f;
+}
+
+static float CentimetersToWorldUnits( const float cm )
+{
+	// In Doom 3, one world unit == one inch
+	return CentimetersToInches( cm );
+}
+
+static float	CalculateWorldSeparation( const float screenSeparation, const float convergenceDistance, const float fov_x_degrees )
+{
+
+	const float fovRadians = DEG2RAD( fov_x_degrees );
+	const float screen = std::tan( fovRadians * 0.5f ) * fabs( screenSeparation );
+	const float worldSeparation = screen * convergenceDistance / 0.5f;
+	
+	return worldSeparation;
+}
+
+/// @brief Calcule the stereo view distance utils 
+/// @param interOcularCentimeters distance between two eyes, typically 6.0 - 7.0
+/// @param screenWidthCentimeters read from operating system
+/// @param convergenceWorldUnits pass 0 for head mounted display mode
+/// @param fov_x_degrees edge to edge horizontal field of view, typically 60 - 90
+/// @return 
+stereoDistances_t	CaclulateStereoDistances( const float	interOcularCentimeters,	const float screenWidthCentimeters, const float convergenceWorldUnits, const float	fov_x_degrees )  			
+{
+
+	stereoDistances_t	dists = {};
+	
+	if( convergenceWorldUnits == 0.0f )
+	{
+		// head mounted display mode
+		dists.worldSeparation = CentimetersToInches( interOcularCentimeters * 0.5 );
+		dists.screenSeparation = 0.0f;
+		return dists;
+	}
+	
+	// 3DTV mode
+	dists.screenSeparation = 0.5f * interOcularCentimeters / screenWidthCentimeters;
+	dists.worldSeparation = CalculateWorldSeparation( dists.screenSeparation, convergenceWorldUnits, fov_x_degrees );
+	
+	return dists;
+}
+
+
+float	GetScreenSeparationForGuis( const float in_fov, const float in_physicalScreenWidth, const float in_interOccularCentimeters, const float in_convergence )
+{
+	const stereoDistances_t dists = CaclulateStereoDistances(
+										in_interOccularCentimeters,
+										in_physicalScreenWidth,
+										in_convergence,
+										in_fov );
+										
+	return dists.screenSeparation;
+}

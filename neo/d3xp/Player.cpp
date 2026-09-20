@@ -9856,7 +9856,7 @@ idPlayer::DefaultFov
 Returns the base FOV
 ====================
 */
-float idPlayer::DefaultFov() const
+float idPlayer::DefaultFov( void ) const
 {
 	float fov;
 	

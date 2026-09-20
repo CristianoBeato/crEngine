@@ -34,7 +34,8 @@ If you have questions concerning this license or the applicable additional terms
 
 // _D3XP : rename all gameLocal.time to gameLocal.slow.time for merge!
 
-const int IMPULSE_DELAY = 150;
+constexpr int IMPULSE_DELAY = 150;
+
 /*
 ==============
 idPlayerView::idPlayerView
@@ -239,9 +240,7 @@ screenBlob_t* idPlayerView::GetScreenBlob()
 	for( int i = 1 ; i < MAX_SCREEN_BLOBS ; i++ )
 	{
 		if( screenBlobs[i].finishTime < oldest->finishTime )
-		{
 			oldest = &screenBlobs[i];
-		}
 	}
 	return oldest;
 }
@@ -411,13 +410,9 @@ idAngles idPlayerView::AngleOffset() const
 		for( int i = 0 ; i < 3 ; i++ )
 		{
 			if( ang[i] > 70.0f )
-			{
 				ang[i] = 70.0f;
-			}
 			else if( ang[i] < -70.0f )
-			{
 				ang[i] = -70.0f;
-			}
 		}
 	}
 	return ang;
@@ -485,9 +480,8 @@ void idPlayerView::SingleView( const renderView_t* view, idMenuHandler_HUD* hudM
 				
 				float	fade = ( float )( blob->finishTime - gameLocal.fast.time ) / ( blob->finishTime - blob->startFadeTime );
 				if( fade > 1.0f )
-				{
 					fade = 1.0f;
-				}
+				
 				if( fade )
 				{
 					renderSystem->SetColor4( 1.0f, 1.0f, 1.0f, fade );
@@ -499,9 +493,7 @@ void idPlayerView::SingleView( const renderView_t* view, idMenuHandler_HUD* hudM
 		player->DrawHUD( hudManager ); // SS2 FIXME - if g_skipViewEffects 1, FLash HUD gets disabled ########## SR fixed.
 		
 		if( player->spectating )
-		{
 			return;
-		}
 		
 		if ( !g_skipViewEffects.GetBool() ) {	// ######################## SR fix3
 		
@@ -661,84 +653,8 @@ void idPlayerView::ScreenFade()
 	}
 }
 
-idCVar	stereoRender_interOccularCentimeters( "stereoRender_interOccularCentimeters", "3.0", CVAR_ARCHIVE | CVAR_RENDERER, "Distance between eyes" );
-idCVar	stereoRender_convergence( "stereoRender_convergence", "6", CVAR_RENDERER, "0 = head mounted display, otherwise world units to convergence plane" );
-
 extern	idCVar stereoRender_screenSeparation;	// screen units from center to eyes
 extern	idCVar stereoRender_swapEyes;
-
-// In a head mounted display with separate displays for each eye,
-// screen separation will be zero and world separation will be the eye distance.
-struct stereoDistances_t
-{
-	// Offset to projection matrix, positive one eye, negative the other.
-	// Total distance is twice this, so 0.05 would give a 10% of screen width
-	// separation for objects at infinity.
-	float	screenSeparation;
-	
-	// Game world units from one eye to the centerline.
-	// Total distance is twice this.
-	float	worldSeparation;
-};
-
-float CentimetersToInches( const float cm )
-{
-	return cm / 2.54f;
-}
-
-float CentimetersToWorldUnits( const float cm )
-{
-	// In Doom 3, one world unit == one inch
-	return CentimetersToInches( cm );
-}
-
-float	CalculateWorldSeparation(
-	const float screenSeparation,
-	const float convergenceDistance,
-	const float fov_x_degrees )
-{
-
-	const float fovRadians = DEG2RAD( fov_x_degrees );
-	const float screen = tan( fovRadians * 0.5f ) * fabs( screenSeparation );
-	const float worldSeparation = screen * convergenceDistance / 0.5f;
-	
-	return worldSeparation;
-}
-
-stereoDistances_t	CaclulateStereoDistances(
-	const float	interOcularCentimeters,		// distance between two eyes, typically 6.0 - 7.0
-	const float screenWidthCentimeters,		// read from operating system
-	const float convergenceWorldUnits,		// pass 0 for head mounted display mode
-	const float	fov_x_degrees )  			// edge to edge horizontal field of view, typically 60 - 90
-{
-
-	stereoDistances_t	dists = {};
-	
-	if( convergenceWorldUnits == 0.0f )
-	{
-		// head mounted display mode
-		dists.worldSeparation = CentimetersToInches( interOcularCentimeters * 0.5 );
-		dists.screenSeparation = 0.0f;
-		return dists;
-	}
-	
-	// 3DTV mode
-	dists.screenSeparation = 0.5f * interOcularCentimeters / screenWidthCentimeters;
-	dists.worldSeparation = CalculateWorldSeparation( dists.screenSeparation, convergenceWorldUnits, fov_x_degrees );
-	
-	return dists;
-}
-
-float	GetScreenSeparationForGuis()
-{
-	const stereoDistances_t dists = CaclulateStereoDistances(
-										stereoRender_interOccularCentimeters.GetFloat(),
-										renderSystem->GetPhysicalScreenWidthInCentimeters(),
-										stereoRender_convergence.GetFloat(),
-										80.0f /* fov */ );
-										
-	return dists.screenSeparation;
-}
 
 /*
 ===================
@@ -749,9 +665,7 @@ void idPlayerView::EmitStereoEyeView( const int eye, idMenuHandler_HUD* hudManag
 {
 	renderView_t* view = player->GetRenderView();
 	if( view == nullptr )
-	{
 		return;
-	}
 	
 	renderView_t eyeView = *view;
 	
@@ -1136,23 +1050,18 @@ int FullscreenFX_Multiplayer::DetermineLevel()
 	
 	// for testing purposes
 	if( testfx >= 0 && testfx < 3 )
-	{
 		return testfx;
-	}
 	
 	idPlayer* player = fxman->GetPlayer();
 	
 	if( player != nullptr && player->PowerUpActive( INVULNERABILITY ) )
-	{
 		return 2;
-	}
+	
 	//else if ( player->PowerUpActive( HASTE ) ) {
 	//	return 1;
 	//}
 	else if( player != nullptr && player->PowerUpActive( BERSERK ) )
-	{
 		return 0;
-	}
 	
 	return -1;
 }
@@ -1166,21 +1075,15 @@ bool FullscreenFX_Multiplayer::Active()
 {
 
 	if( !common->IsMultiplayer() && g_testMultiplayerFX.GetInteger() == -1 )
-	{
 		return false;
-	}
 	
 	if( DetermineLevel() >= 0 )
-	{
 		return true;
-	}
 	else
 	{
 		// latch the clear flag
 		if( fader.GetAlpha() == 0 )
-		{
 			clearAccumBuffer = true;
-		}
 	}
 	
 	return false;
@@ -1237,10 +1140,6 @@ void FullscreenFX_Multiplayer::Restore( idRestoreGame* savefile )
 	clearAccumBuffer = true;
 }
 
-
-
-
-
 /*
 ==================
 FullscreenFX_Warp::Initialize
@@ -1261,9 +1160,7 @@ FullscreenFX_Warp::Active
 bool FullscreenFX_Warp::Active()
 {
 	if( grabberEnabled )
-	{
 		return true;
-	}
 	
 	return false;
 }
