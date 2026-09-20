@@ -54,8 +54,6 @@ idDeclManager* 				declManager = nullptr;
 idAASFileManager* 			AASFileManager = nullptr;
 idCollisionModelManager* 	collisionModelManager = nullptr;
 idCVar* 					idCVar::staticVars = nullptr;
-
-idCVar com_forceGenericSIMD( "com_forceGenericSIMD", "0", CVAR_BOOL | CVAR_SYSTEM, "force generic platform independent SIMD" );
 #endif
 
 idRenderWorld* 				gameRenderWorld = nullptr;		// all drawing is done to this world
@@ -309,7 +307,12 @@ void idGameLocal::Init()
 	idCVar::RegisterStaticVars();
 	
 	// initialize processor specific SIMD
-	idSIMD::InitProcessor( "game", com_forceGenericSIMD.GetBool() );
+	bool forceGenericSIMD = false;
+	idCVar* com_forceGenericSIMD = cvarSystem->Find( "com_forceGenericSIMD" );
+	if ( com_forceGenericSIMD && com_forceGenericSIMD->GetBool() )
+		forceGenericSIMD = true;
+
+	idSIMD::InitProcessor( "game", forceGenericSIMD );
 	
 #endif
 	
@@ -2619,10 +2622,9 @@ void idGameLocal::RunFrame( idUserCmdMgr& cmdMgr, gameReturn_t& ret )
 		
 #ifdef __GAME_DLL__
 		// allow changing SIMD usage on the fly
-		if( com_forceGenericSIMD.IsModified() )
-		{
-			idSIMD::InitProcessor( "game", com_forceGenericSIMD.GetBool() );
-		}
+		auto com_forceGenericSIMD = cvarSystem->Find( "com_forceGenericSIMD" );
+		if( com_forceGenericSIMD->IsModified() )
+			idSIMD::InitProcessor( "game", com_forceGenericSIMD->GetBool() );
 #endif
 		
 		// make sure the random number counter is used each frame so random events

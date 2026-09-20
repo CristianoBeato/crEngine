@@ -36,9 +36,9 @@ If you have questions concerning this license or the applicable additional terms
 idCVar com_wipeSeconds( "com_wipeSeconds", "1", CVAR_SYSTEM, "" );
 idCVar com_disableAutoSaves( "com_disableAutoSaves", "0", CVAR_SYSTEM | CVAR_BOOL, "" );
 idCVar com_disableAllSaves( "com_disableAllSaves", "0", CVAR_SYSTEM | CVAR_BOOL, "" );
+idCVar g_demoMode( "g_demoMode", "0", CVAR_INTEGER, "this is a demo" );
 
 extern idCVar sys_lang;
-extern idCVar g_demoMode;
 
 // This is for the dirty hack to get a dialog to show up before we capture the screen for autorender.
 const int NumScreenUpdatesToShowDialog = 25;

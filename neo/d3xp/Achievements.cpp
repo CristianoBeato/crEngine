@@ -33,7 +33,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "Game_local.h"
 
 idCVar achievements_Verbose( "achievements_Verbose", "1", CVAR_BOOL, "debug spam" );
-idCVar g_demoMode( "g_demoMode", "0", CVAR_INTEGER, "this is a demo" );
 
 bool idAchievementManager::cheatingDialogShown = false;
 
@@ -213,11 +212,11 @@ idAchievementManager::EventCompletesAchievement
 */
 void idAchievementManager::EventCompletesAchievement( const achievement_t eventId )
 {
-	if( g_demoMode.GetBool() )
-	{
+	// Retrieve from engine framework
+	idCVar* g_demoMode = cvarSystem->Find( "g_demoMode" );
+	if( g_demoMode->GetBool() )
 		return;
-	}
-	
+
 	idLocalUser* localUser = GetLocalUser();
 	if( localUser == nullptr || localUser->GetProfile() == nullptr )
 	{
