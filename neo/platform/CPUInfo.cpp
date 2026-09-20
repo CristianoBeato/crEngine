@@ -1,8 +1,18 @@
 #include "precompiled.h"
-#include "platform.hpp"
-#include "CPUInfo.hpp"
+#include "Platform.hpp"
 #include <cfenv>
 #include <SDL3/SDL_cpuinfo.h>
+
+
+crCPUInfo::crCPUInfo( void ) :  m_cpuIDFlags( 0 ), m_cpuThreads( 0 )
+{
+    std::memset( m_VendorName, 0x00, 64 );
+    std::memset( m_ProcessorName, 0x00, 256 );
+}
+
+crCPUInfo::~crCPUInfo( void )
+{
+}
 
 /*
 ================

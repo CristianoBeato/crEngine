@@ -30,10 +30,14 @@ elseif (LINUX)
 endif ()
 
 set( PLATFORM_SOURCE
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/CPUInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Events.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Events.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Input.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Joystick.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/Joystick.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Network.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Network.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/Platform.cpp

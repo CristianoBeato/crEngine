@@ -1,7 +1,7 @@
 #include "precompiled.h"
 #include "sys/sys_local.h"
 #include "sys/sys_public.h"
-#include "joystick.h"
+#include "Joystick.hpp"
 
 #include <SDL3/SDL_haptic.h>
 #include <utility> // std::move
@@ -67,11 +67,11 @@ void Sys_InitGamepads( void )
     //    return;
     //}
 
-	idStr ControllerPath = Sys_DefaultBasePath();
+	idStr ControllerPath = crPaths::Get()->DefaultBasePath();
 	ControllerPath.Append("/base/gamecontrollerdb.txt");
 	common->Printf( "Loading controller Mapping file \"%s\"\n",ControllerPath.c_str());
 	SDL_AddGamepadMappingsFromFile( ControllerPath.c_str() );
-	ControllerPath = Sys_DefaultSavePath();
+	ControllerPath = crPaths::Get()->DefaultSavePath();
 	ControllerPath.Append("/gamecontrollerdb.txt");
 	common->Printf( "Loading controller Mapping file \"%s\"\n",ControllerPath.c_str());
 	SDL_AddGamepadMappingsFromFile(ControllerPath.c_str());

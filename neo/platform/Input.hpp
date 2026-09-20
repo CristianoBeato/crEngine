@@ -12,9 +12,6 @@ class crInputSystem
 public:
 	static crInputSystem*	Get( void );
 	
-	crInputSystem( void ) {};
-	~crInputSystem( void ) {};
-
 	// input is tied to windows, so it needs to be started up and shut down whenever
 	// the main window is recreated
 	virtual void					Startup( void ) = 0;

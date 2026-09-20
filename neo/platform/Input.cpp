@@ -31,7 +31,7 @@ class crInputSystemSDL3 : public crInputSystem
 {
 public:
 	crInputSystemSDL3( void );
-	~crInputSystemSDL3( void );
+	virtual ~crInputSystemSDL3( void );
 
 	// input is tied to windows, so it needs to be started up and shut down whenever
 	// the main window is recreated
@@ -40,9 +40,9 @@ public:
 	virtual const unsigned char*	GetScanTable( void );
 	
 	// keyboard input polling
-	virtual uint32_t				PollKeyboardInputEvents( void ) const;
-	virtual bool					ReturnKeyboardInputEvent( const uint32_t in_event, int& out_ch, bool& out_state ) const;
-	virtual void					EndKeyboardInputEvents( void );
+	virtual uint32_t				PollKeyboardInputEvents( void ) const override;
+	virtual bool					ReturnKeyboardInputEvent( const uint32_t in_event, int& out_ch, bool& out_state ) const override;
+	virtual void					EndKeyboardInputEvents( void ) override;
 	
 	// mouse polling
 	virtual uint32_t				PollMouseInputEvents( void ) const;
@@ -57,7 +57,7 @@ public:
 	virtual bool					ReturnJoystickInputEvent( const uint32_t in_deviceNum, const uint32_t in_event, int& out_action, int& out_value );
 	virtual void					EndJoystickInputEvents( const uint32_t in_deviceNum );
 
-	virtual uint32_t				GamepadCount( void ) = 0;
+	virtual uint32_t				GamepadCount( void );
 	virtual void					SetRumble( const int device, uint16_t in_low, uint16_t in_hi );
 protected:
 	friend class crEvents;
@@ -90,12 +90,56 @@ private:
 	idStaticList<joysticPoll_t, MAX_KEYBOARD_EVENTS>	m_joysticPolls[MAX_JOYSTICKS];
 };
 
-crInputSystemSDL3::crInputSystemSDL3( void ) : crInputSystem()
+crInputSystem* crInputSystem::Get( void ) 
+{
+	static crInputSystemSDL3 gInputSystemSDL3 = crInputSystemSDL3();
+	return &gInputSystemSDL3;
+}
+
+/*
+================
+crInputSystemSDL3::crInputSystemSDL3
+================
+*/
+crInputSystemSDL3::crInputSystemSDL3( void )
 {
 }
 
+/*
+================
+crInputSystemSDL3::~crInputSystemSDL3
+================
+*/
 crInputSystemSDL3::~crInputSystemSDL3( void )
 {
+}
+
+/*
+================
+crInputSystemSDL3::Startup
+================
+*/
+void crInputSystemSDL3::Startup(void)
+{
+}
+
+/*
+================
+crInputSystemSDL3::Shutdown
+================
+*/
+void crInputSystemSDL3::Shutdown(void)
+{
+}
+
+/*
+================
+crInputSystemSDL3::GetScanTable
+================
+*/
+const unsigned char *crInputSystemSDL3::GetScanTable(void)
+{
+    return nullptr;
 }
 
 /*
@@ -170,6 +214,16 @@ void crInputSystemSDL3::EndMouseInputEvents(void)
 	m_mousePolls.SetNum( 0 );
 }
 
+sysEvent_t crInputSystemSDL3::GenerateMouseButtonEvent(const int in_button, const bool in_down)
+{
+    return sysEvent_t();
+}
+
+sysEvent_t crInputSystemSDL3::GenerateMouseMoveEvent(const int32_t deltax, const int32_t deltay)
+{
+    return sysEvent_t();
+}
+
 /*
 ================
 crInputSystem::PollJoystickInputEvents
@@ -211,4 +265,14 @@ void crInputSystemSDL3::EndJoystickInputEvents(const uint32_t in_deviceNum)
 
 	/// Don't resize to don't reallocate memory 
 	m_joysticPolls[in_deviceNum].SetNum( 0 );
+}
+
+uint32_t crInputSystemSDL3::GamepadCount(void)
+{
+	/// Future 
+    return 0;
+}
+
+void crInputSystemSDL3::SetRumble(const int device, uint16_t in_low, uint16_t in_hi)
+{
 }
