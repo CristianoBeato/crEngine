@@ -31,16 +31,16 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __COMMON_LOCAL_H__
 #define __COMMON_LOCAL_H__
 
-static const int MAX_USERCMD_BACKUP = 256;
-static const int NUM_USERCMD_RELAY = 10;
-static const int NUM_USERCMD_SEND = 8;
+inline constexpr int MAX_USERCMD_BACKUP = 256;
+inline constexpr int NUM_USERCMD_RELAY = 10;
+inline constexpr int NUM_USERCMD_SEND = 8;
 
-static const int initialHz = 60;
-static const int initialBaseTicks = 1000 / initialHz;
-static const int initialBaseTicksPerSec = initialHz * initialBaseTicks;
+inline constexpr int initialHz = 60;
+inline constexpr int initialBaseTicks = 1000 / initialHz;
+inline constexpr int initialBaseTicksPerSec = initialHz * initialBaseTicks;
 
-static const int LOAD_TIP_CHANGE_INTERVAL = 12000;
-static const int LOAD_TIP_COUNT = 26;
+inline constexpr int LOAD_TIP_CHANGE_INTERVAL = 12000;
+inline constexpr int LOAD_TIP_COUNT = 26;
 
 class idGameThread : public idSysThread
 {
@@ -394,7 +394,7 @@ private:
 	idStrList					warningList;
 	idStrList					errorList;
 	
-	int							gameDLL;
+	void*						gameDLL;
 	
 	idCommonDialog				commonDialog;
 	

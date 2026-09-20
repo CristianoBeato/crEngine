@@ -30,6 +30,8 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
+#include <SDL3/SDL_loadso.h>
+
 #include "Common_local.h"
 
 #include "ConsoleHistory.h"
@@ -68,7 +70,7 @@ struct version_s
 } version;
 
 idCVar com_version( "si_version", version.string, CVAR_SYSTEM | CVAR_ROM | CVAR_SERVERINFO, "engine version" );
-//idCVar com_forceGenericSIMD( "com_forceGenericSIMD", "0", CVAR_BOOL | CVAR_SYSTEM | CVAR_NOCHEAT, "force generic platform independent SIMD" );
+idCVar com_forceGenericSIMD( "com_forceGenericSIMD", "0", CVAR_BOOL | CVAR_SYSTEM | CVAR_NOCHEAT, "force generic platform independent SIMD" );
 
 #ifdef ID_RETAIL
 idCVar com_allowConsole( "com_allowConsole", "0", CVAR_BOOL | CVAR_SYSTEM | CVAR_INIT, "allow toggling console with the tilde key" );
@@ -106,12 +108,6 @@ int64_t com_engineHz_denominator = 100LL * 60LL;
 
 int				com_editors;			// currently opened editor(s)
 bool			com_editorActive;		//  true if an editor has focus
-
-// RB begin
-#if defined(_WIN32)
-HWND com_hwndMsg = nullptr;
-#endif
-// RB end
 
 #ifdef __DOOM_DLL__
 idGame* 		game = nullptr;
@@ -1234,7 +1230,7 @@ void idCommonLocal::LoadGameDLL( void )
 	gameExport_t	gameExport;
 	GetGameAPI_t	GetGameAPI;
 	
-	fileSystem->FindDLL( "game", dllPath, true );
+	fileSystem->FindDLL( "game", dllPath );
 	
 	if( !dllPath[ 0 ] )
 	{
@@ -1242,7 +1238,13 @@ void idCommonLocal::LoadGameDLL( void )
 		return;
 	}
 	common->DPrintf( "Loading game DLL: '%s'\n", dllPath );
+
+#if 0
 	gameDLL = sys->DLL_Load( dllPath );
+#else
+	gameDLL = reinterpret_cast<void*>( SDL_LoadObject( dllPath ) );
+#endif
+
 	if( !gameDLL )
 	{
 		common->FatalError( "couldn't load game dynamic library" );
@@ -1250,10 +1252,19 @@ void idCommonLocal::LoadGameDLL( void )
 	}
 	
 	const char* functionName = "GetGameAPI";
+
+#if 0
 	GetGameAPI = ( GetGameAPI_t ) Sys_DLL_GetProcAddress( gameDLL, functionName );
+#else
+	GetGameAPI = reinterpret_cast<GetGameAPI_t>( SDL_LoadFunction( static_cast<SDL_SharedObject*>( gameDLL ), functionName ) );
+#endif
 	if( !GetGameAPI )
 	{
+#if 0
 		Sys_DLL_Unload( gameDLL );
+#else
+		SDL_UnloadObject( static_cast<SDL_SharedObject*>( gameDLL ) );
+#endif
 		gameDLL = nullptr;
 		common->FatalError( "couldn't find game DLL API" );
 		return;
@@ -1265,8 +1276,8 @@ void idCommonLocal::LoadGameDLL( void )
 	gameImport.cmdSystem				= ::cmdSystem;
 	gameImport.cvarSystem				= ::cvarSystem;
 	gameImport.fileSystem				= ::fileSystem;
-	gameImport.renderSystem				= ::renderSystem;
-	gameImport.soundSystem				= ::soundSystem;
+	gameImport.renderSystem				= idRenderSystem::Get();
+	gameImport.soundSystem				= idSoundSystem::Get();
 	gameImport.renderModelManager		= ::renderModelManager;
 	gameImport.uiManager				= ::uiManager;
 	gameImport.declManager				= ::declManager;
@@ -1277,7 +1288,11 @@ void idCommonLocal::LoadGameDLL( void )
 	
 	if( gameExport.version != GAME_API_VERSION )
 	{
+#if 0
 		Sys_DLL_Unload( gameDLL );
+#else
+		SDL_UnloadObject( static_cast<SDL_SharedObject*>( gameDLL ) );
+#endif
 		gameDLL = nullptr;
 		common->FatalError( "wrong game DLL API version" );
 		return;
@@ -1320,7 +1335,11 @@ void idCommonLocal::UnloadGameDLL( void )
 	
 	if( gameDLL )
 	{
+#if 0
 		Sys_DLL_Unload( gameDLL );
+#else
+		SDL_UnloadObject( static_cast<SDL_SharedObject*>( gameDLL ) );
+#endif
 		gameDLL = nullptr;
 	}
 
@@ -1409,7 +1428,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		platform->Init(); //Sys_Init();
 		
 		// initialize networking
-		Sys_InitNetworking();
+		crNetwork::Get()->Init();
 		
 		// override cvars from command line
 		StartupVariable( nullptr );

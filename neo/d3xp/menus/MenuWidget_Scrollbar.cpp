@@ -245,7 +245,7 @@ idMenuWidget_ScrollBar::HandleAction
 bool idMenuWidget_ScrollBar::HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled )
 {
 
-	widgetAction_t actionType = action.GetType();
+	uint8_t actionType = action.GetType();
 	
 	switch( actionType )
 	{
@@ -253,9 +253,7 @@ bool idMenuWidget_ScrollBar::HandleAction( idWidgetAction& action, const idWidge
 		{
 		
 			if( event.parms.Num() != 3 )
-			{
 				return true;
-			}
 			
 			dragging = true;
 			

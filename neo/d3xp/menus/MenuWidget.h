@@ -33,7 +33,7 @@ If you have questions concerning this license or the applicable additional terms
 class idMenuHandler;
 class idMenuWidget;
 
-enum menuOption_t
+enum menuOption_t : int8_t
 {
 	OPTION_INVALID = -1,
 	OPTION_BUTTON_TEXT,
@@ -45,7 +45,7 @@ enum menuOption_t
 	MAX_MENU_OPTION_TYPES
 };
 
-enum widgetEvent_t
+enum widgetEvent_t : uint8_t
 {
 	WIDGET_EVENT_PRESS,
 	WIDGET_EVENT_RELEASE,
@@ -98,7 +98,7 @@ enum widgetEvent_t
 	MAX_WIDGET_EVENT
 };
 
-enum scrollType_t
+enum scrollType_t : uint8_t
 {
 	SCROLL_SINGLE,		// scroll a single unit
 	SCROLL_PAGE,		// scroll a page
@@ -107,7 +107,7 @@ enum scrollType_t
 	SCROLL_END,			// scroll to the last selection
 };
 
-enum widgetAction_t
+enum widgetAction_t : uint8_t
 {
 	WIDGET_ACTION_NONE,
 	WIDGET_ACTION_COMMAND,
@@ -146,7 +146,7 @@ enum widgetAction_t
 	MAX_WIDGET_ACTION
 };
 
-enum actionHandler_t
+enum actionHandler_t : uint8_t
 {
 	WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER,
 	WIDGET_ACTION_EVENT_SCROLL_UP_START_REPEATER_VARIABLE,

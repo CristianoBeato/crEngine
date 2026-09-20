@@ -217,6 +217,14 @@ extern idCVar r_useShadowMapping;			// use shadow mapping instead of stencil sha
 // RB end
 extern idCVar r_shadowMapMaxDistance;
 
+// BEATO Begin:
+extern idCVar stereoRender_interOccularCentimeters;
+extern idCVar stereoRender_convergence;
+extern idCVar stereoRender_enable;
+extern idCVar stereoRender_swapEyes;
+extern idCVar stereoRender_deGhost;
+// BEATO End
+
 extern idCVar r_skipStaticInteractions;		// skip interactions created at level load
 extern idCVar r_skipDynamicInteractions;	// skip interactions created after level load
 extern idCVar r_skipPostProcess;			// skip all post-process renderings
