@@ -2,7 +2,6 @@
 #ifndef __PATHS_HPP__
 #define __PATHS_HPP__
 
-
 class crPaths
 {
 public:
