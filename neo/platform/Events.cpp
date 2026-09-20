@@ -26,17 +26,11 @@ class crEventsSDL3 : public crEvents
 public:
 	virtual void			StartUp( void ) override;
 	virtual void			ShutDown( void ) override;
-    virtual void        	PumpEvents( void ) override;
     virtual void        	GenerateEvents( void ) override;
 	virtual sysEvent_t  	GetEvent( void ) override;
 	virtual void        	ClearEvents( void ) override;
-	virtual unsigned char	GetConsoleKey( const bool in_shifted );
-    virtual void        	QueEvent( const sysEventType_t in_type, 
-				const int in_value, 
-				const int in_value2, 
-				const size_t in_ptrLength, 
-				const void* in_ptr, 
-				const int in_inputDeviceNum ) override;
+	virtual unsigned char	GetConsoleKey( const bool in_shifted ) override;
+    virtual void        	QueEvent( const sysEventType_t in_type, const int in_value, const int in_value2, const size_t in_ptrLength, const void* in_ptr, const int in_inputDeviceNum ) override;
 
 private:
 	int					m_eventHead;

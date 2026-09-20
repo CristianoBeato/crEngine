@@ -39,7 +39,6 @@ public:
 	static crEvents*		Get( void );
 	virtual void			StartUp( void ) = 0;
 	virtual void			ShutDown( void ) = 0;
-    virtual void        	PumpEvents( void ) = 0;
     virtual void        	GenerateEvents( void ) = 0;
     virtual sysEvent_t		GetEvent( void ) = 0;
     virtual void        	ClearEvents( void ) = 0;
