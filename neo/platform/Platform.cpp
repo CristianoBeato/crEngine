@@ -16,7 +16,7 @@ const char* k_sysLanguageNames[] =
 
 constexpr uint32_t k_numLanguages = sizeof( k_sysLanguageNames ) / sizeof k_sysLanguageNames[ 0 ] - 1;
 
-static idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", k_sysLanguageNames, idCmdSystem::ArgCompletion_String<k_sysLanguageNames> );
+idCVar sys_lang( "sys_lang", ID_LANG_ENGLISH, CVAR_SYSTEM | CVAR_INIT, "", k_sysLanguageNames, idCmdSystem::ArgCompletion_String<k_sysLanguageNames> );
 
 
 void crConsole::Printf( const char *fmt, ... )

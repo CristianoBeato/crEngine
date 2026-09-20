@@ -5,8 +5,9 @@
 class crLinuxPaths : public crPaths
 {
 public:
+    virtual const char*	CWD( void ) override;
     virtual const char* EXEPath( void ) override;
-	virtual const char* DefaultBasePath( void ) override;
+	//virtual const char* DefaultBasePath( void ) override;
 	virtual const char*	DefaultSavePath( void ) override;
     virtual bool		IsFileWritable( const char* path ) override;
 

@@ -42,6 +42,18 @@ void crLinuxPlatform::Init( void )
 
 }
 
+crLinuxPlatform::crLinuxPlatform( void ) 
+{
+	m_instanceLock = 0;
+	m_setExit = false;
+	m_exeLaunchMemoryStats = {};
+	m_exitSpawn[0] = '\0';
+}
+
+crLinuxPlatform::~crLinuxPlatform( void )
+{
+}
+
 void crLinuxPlatform::Shutdown(void)
 {
 	// Release firt instance lock file
@@ -407,6 +419,11 @@ void crLinuxPlatform::GetCurrentMemoryStatus(sysMemoryStats_t &stats)
 void crLinuxPlatform::GetExeLaunchMemoryStatus(sysMemoryStats_t &stats)
 {
 	stats = m_exeLaunchMemoryStats;
+}
+
+const char *crLinuxPlatform::GetCmdLine(void)
+{
+    return nullptr; // TODO: 
 }
 
 const char *crLinuxPlatform::GetCurrentUser(void)

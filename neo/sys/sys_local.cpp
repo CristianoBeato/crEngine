@@ -46,6 +46,11 @@ static idCVar sys_allowMultipleInstances( "sys_allowMultipleInstances", "0", CVA
 idSysLocal			sysLocal;
 idSys* 				sys = &sysLocal;
 
+void idSysLocal::Quit( void )
+{
+	crPlatform::Get()->Quit();
+}
+
 void idSysLocal::DebugPrintf( const char* fmt, ... )
 {
 	va_list argptr;

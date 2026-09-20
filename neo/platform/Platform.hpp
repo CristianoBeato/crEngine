@@ -163,29 +163,32 @@ class crCPUInfo
 {
 public: 
 	static crCPUInfo* Get( void );
-	crCPUInfo( void ) {};
-	~crCPUInfo( void ) {};
+	crCPUInfo( void );
+	~crCPUInfo( void );
 
-	enum cpuid_t
+	enum cpuid_t : uint32_t
 	{
 		CPUID_NONE							= 0x00000,
 		CPUID_UNSUPPORTED					= ( 1 << 0 ),	// unsupported (386/486)
-		CPUID_GENERIC						= ( 1 << 1 ),	// unrecognized processor
+		CPUID_GENERIC						= ( 1 << 1 ),	// suported but unrecognized processor
 		CPUID_INTEL							= ( 1 << 2 ),	// Intel
 		CPUID_AMD							= ( 1 << 3 ),	// AMD
 		CPUID_ARM							= ( 1 << 4 ),	// ARM cpu
 		CPUID_MMX							= ( 1 << 5 ),	// Multi Media Extensions
-		CPUID_3DNOW							= ( 1 << 6 ),	// 3DNow!
+		// CPUID_3DNOW							= ( 1 << 6 ),	// 3DNow! ( Deprecated since 2010, and linux droped in 2022 )
 		CPUID_SSE							= ( 1 << 7 ),	// Streaming SIMD Extensions
 		CPUID_SSE2							= ( 1 << 8 ),	// Streaming SIMD Extensions 2
 		CPUID_SSE3							= ( 1 << 9 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
 		CPUID_SSSE3							= ( 1 << 10 ),	//
 		CPUID_SSE41							= ( 1 << 11 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
 		CPUID_SSE42							= ( 1 << 12 ),	// Streaming SIMD Extentions 3 aka Prescott's New Instructions
-		CPUID_ALTIVEC						= ( 1 << 13),	// AltiVec
-		CPUID_CMOV							= ( 1 << 15 ),	// Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
-		CPUID_FTZ							= ( 1 << 16 ),	// Flush-To-Zero mode (denormal results are flushed to zero)
-		CPUID_DAZ							= ( 1 << 17 ),	// Denormals-Are-Zero mode (denormal source operands are set to zero)
+		CPUID_AVX							= ( 1 << 13 ),
+		CPUID_AVX2							= ( 1 << 14 ),
+		CPUID_AVX512						= ( 1 << 15 ),
+		CPUID_ALTIVEC						= ( 1 << 16 ),	// AltiVec
+		CPUID_CMOV							= ( 1 << 17 ),	// Conditional Move (CMOV) and fast floating point comparison (FCOMI) instructions
+		CPUID_FTZ							= ( 1 << 18 ),	// Flush-To-Zero mode (denormal results are flushed to zero)
+		CPUID_DAZ							= ( 1 << 19 ),	// Denormals-Are-Zero mode (denormal source operands are set to zero)
 	};
 
 	enum FPUExceptions_t
@@ -218,8 +221,9 @@ public:
 	/// @brief returns a selection of the CPUID_* flags
 	inline uint32_t			GetProcessorId( void ) const { return m_cpuIDFlags; };
 	inline const char*		GetProcessorString( void ) const { return &m_ProcessorName[0]; };
-	inline const uint32_t	GetProcessorThreads( void ) const { return m_cpuThreads; }
- 
+	inline const uint16_t	GetProcessorThreads( void ) const { return m_cpuThreads; }
+	inline const uint16_t	GetProcessorCacheLines( void ) const { return m_cpuThreads; }
+
 	// enables the given FPU exceptions
 	void		FPUEnableExceptions( const FPUExceptions_t in_exceptions );
 
@@ -236,9 +240,11 @@ public:
 	size_t		GetSystemRam( void ) const;
 
 protected:
-	char		m_ProcessorName[256];
+	uint16_t	m_cpuCacheLines;
+	uint16_t	m_cpuThreads;
 	uint32_t	m_cpuIDFlags;
-	uint32_t	m_cpuThreads;
+	char		m_VendorName[64];
+	char		m_ProcessorName[256];
 };
 
 #define ID_LANG_ENGLISH		"english"
@@ -268,7 +274,7 @@ public:
     /// @brief unlock memory caching restriction
     virtual bool    	UnlockMemory( void* ptr, const size_t bytes ) = 0;
 
-	virtual const char*	GetCmdLine( void );
+	virtual const char*	GetCmdLine( void ) = 0;
     virtual void    	ReLaunch( void * data, const size_t dataSize ) = 0;
     virtual void    	StartProcess( const char *exePath, const bool doexit ) = 0;
     virtual void    	OpenURL( const char *url, const bool doexit ) = 0;

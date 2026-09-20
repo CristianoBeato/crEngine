@@ -3029,7 +3029,8 @@ void idLobby::HandleReliableMsg( int p, idBitMsg& msg, const lobbyAddress_t* rem
 		
 		// DG: if connectInfo.ip = 0.0.0.0 just use remoteAddress
 		//     i.e. the IP used to connect to the lobby
-		if( remoteAddress && *( ( int* )connectInfo.netAddr.ip ) == 0 )
+		auto ip = connectInfo.netAddr.ToString();
+		if( remoteAddress && SDL_strcmp( ip, "0.0.0.0" ) == 0 ) // TODO: Can be returned in IPv6 format so find other work arround
 		{
 			connectInfo.netAddr = remoteAddress->netAddr;
 		}

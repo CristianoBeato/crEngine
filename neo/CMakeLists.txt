@@ -29,6 +29,10 @@ find_package( SDL3 REQUIRED CONFIG )
 include_directories( SDL3::Headers )
 include_directories( ${CMAKE_SOURCE_DIR}/libs/SDL3PP )
 
+# find SDL3_net lib
+find_package( SDL3_net REQUIRED CONFIG )
+include_directories( SDL3_net::Headers )
+
 ## find zip library ( and minizip on unix)
 find_package( ZLIB REQUIRED )
 find_package( PNG REQUIRED CONFIG )

@@ -6,15 +6,12 @@ class crLinuxCPUInfo : public crCPUInfo
 {
 public:
     crLinuxCPUInfo( void );
-    ~crLinuxCPUInfo( void );
+    virtual ~crLinuxCPUInfo( void );
 
-    virtual void	Init( void );
+    virtual void	Init( void ) override;
 
 protected:
     void    GetProcessorName( void );
-
-private:
-
 };
 
 #endif //!__LINUX_CPU_INFO_HPP__

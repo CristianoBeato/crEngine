@@ -64,8 +64,6 @@ set( SYSTEM_MAIN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/common/session_local.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/signin.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/common/signin.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/common/joystick.h
     )
 
 ## Link Libraries
@@ -100,6 +98,7 @@ set( MODULES_LIBRARIES
     tools
     sound
     renderer
+    platform
 #    d3xp
     idLib
     contrib    
@@ -108,6 +107,7 @@ set( MODULES_LIBRARIES
 set( THIRD_PARTY_LIBRARIES
     ZLIB::ZLIB 
     SDL3::SDL3
+    SDL3_net::SDL3_net
     PNG::PNG 
     jpeg#JPEG::JPEG 
     ogg

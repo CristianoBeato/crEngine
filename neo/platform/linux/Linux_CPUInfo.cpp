@@ -3,14 +3,47 @@
 #include "../Platform.hpp"
 #include "Linux_CPUInfo.hpp"
 
+#include <SDL3/SDL_cpuinfo.h>
 
-crLinuxCPUInfo::crLinuxCPUInfo( void )
+crCPUInfo* crCPUInfo::Get()
+{
+    static crLinuxCPUInfo gLinuxCPUInfo = crLinuxCPUInfo();
+    return &gLinuxCPUInfo;
+}
+
+crLinuxCPUInfo::crLinuxCPUInfo( void ) : crCPUInfo()
 {
 }
 
 crLinuxCPUInfo::~crLinuxCPUInfo( void )
 {
 }
+
+void crLinuxCPUInfo::Init(void)
+{
+    uint32_t CPUArchitecture = 0;
+
+    /// Retrieve the proc name
+    GetProcessorName();
+
+    m_cpuThreads = SDL_GetNumLogicalCPUCores();
+    m_cpuCacheLines = SDL_GetCPUCacheLineSize();
+
+    if( SDL_HasMMX() ) CPUArchitecture |= CPUID_MMX;    
+    if( SDL_HasSSE() ) CPUArchitecture |= CPUID_SSE;
+    if( SDL_HasSSE2() ) CPUArchitecture |= CPUID_SSE2;
+    if( SDL_HasSSE3() ) CPUArchitecture |= CPUID_SSE3;
+    if( SDL_HasSSE41()) CPUArchitecture |= CPUID_SSE41;
+    if( SDL_HasSSE42()) CPUArchitecture |= CPUID_SSE2;
+    if( SDL_HasAVX()) CPUArchitecture |= CPUID_AVX;
+    if( SDL_HasAVX2()) CPUArchitecture |= CPUID_AVX2;
+    if( SDL_HasAVX512F()) CPUArchitecture |= CPUID_AVX512;
+    if( SDL_HasAltiVec()) CPUArchitecture |= CPUID_ALTIVEC;
+    //if( SDL_HasARMSIMD()) CPUArchitecture |=
+    //if( SDL_HasNEON()) CPUArchitecture |=
+    
+    m_cpuIDFlags |= CPUArchitecture;
+}   
 
 void crLinuxCPUInfo::GetProcessorName(void)
 {
@@ -20,43 +53,42 @@ void crLinuxCPUInfo::GetProcessorName(void)
     char    modelName[256];
     char    line[512];
     
-    
+    /// trye read CPU description file 
     FILE* cpuinfo_file = fopen64( "/proc/cpuinfo", "r" );
     if( !cpuinfo_file )
     {
-        m_ProcessorName = idStr( "Unknow" );
+        // failed, 
+        SDL_snprintf( m_ProcessorName, 256, "Unknow" );
         idLib::Error( "Faild to open \"/proc/cpuinfo\"");
         return;
     }
 
     // read file line by using fgets
-    while (fgets(line, sizeof(line), cpuinfo_file)) 
+    while ( std::fgets( line, sizeof(line), cpuinfo_file ) ) 
     {
-        
-        // 1. Busca o modelo comercial do processador
         // Search for the processor brand
-        if (!foundModel && strstr(line, "model name") != NULL ) 
+        if ( !foundModel && std::strstr(line, "model name") != nullptr ) 
         {
-            char* colon = strchr(line, ':');
-            if (colon != NULL) 
+            char* colon = std::strchr(line, ':');
+            if ( colon != nullptr ) 
             {
-                // Avança o ponteiro para pular o ':' e o espaço que vem depois dele
+                // Advance the pointer to skip the ':' and the space following it
                 char* nameStart = colon + 2; 
                 
-                // Remove a quebra de linha '\n' que o fgets traz no final
-                size_t len = strlen(nameStart);
+                // Remove the newline character '\n' that fgets includes at the end
+                size_t len = std::strlen(nameStart);
                 if (len > 0 && nameStart[len - 1] == '\n') 
                     nameStart[len - 1] = '\0';
                 
-                // Copia com segurança para a estrutura
+                // Safely copies to the structure
                 std::strncpy( modelName, nameStart, sizeof(modelName) - 1);
-                modelName[sizeof( info.modelName) - 1] = '\0'; // Garante o null-terminator
+                modelName[sizeof( modelName) - 1] = '\0'; // Garante o null-terminator
                 foundModel = 1;
             }
         }
 
-        // Fallback do nome para arquiteturas ARM (onde o campo se chama "Processor")
-        if (!foundModel && std::strstr(line, "Processor") != NULL) 
+        // Fallback for the name on ARM architectures (where the field is named "Processor")
+        if (!foundModel && std::strstr(line, "Processor") != nullptr ) 
         {
             char* colon = std::strchr(line, ':');
             if (colon != nullptr) 
@@ -72,33 +104,37 @@ void crLinuxCPUInfo::GetProcessorName(void)
             }
         }
 
-        // 2. Busca a fabricante exata (vendor_id)
-        if (!foundVendor && strstr(line, "vendor_id") != NULL) 
+        // Searches for the exact manufacturer (vendor_id)
+        if (!foundVendor && std::strstr(line, "vendor_id") != nullptr ) 
         {
-            if ( std::strstr(line, "GenuineIntel") != NULL) 
+            if ( std::strstr(line, "GenuineIntel") != nullptr ) 
             {
-                std::strcpy( vendor, "Apenas Intel");
+                SDL_snprintf( m_VendorName, 64, "Intel" );
+                m_cpuIDFlags |= CPUID_INTEL;
                 foundVendor = 1;
-            } 
-            else if (std::strstr(line, "AuthenticAMD") != NULL) 
+            }
+            else if ( std::strstr(line, "AuthenticAMD") != nullptr ) 
             {
-                std::strcpy( vendor, "Apenas AMD" );
+                SDL_snprintf( m_VendorName, 64, "AMD" );
+                m_cpuIDFlags |= CPUID_AMD;
                 foundVendor = 1;
             }
         }
 
-        // Otimização: Se já achou tudo o que precisava na primeira CPU da lista, para o loop
-        if (foundModel && foundVendor) {
+        // We found what we need, stop the loop
+        if (foundModel && foundVendor)
             break;
-        }
     }
 
+    //
     fclose( cpuinfo_file );
 
-    // Fallback de arquitetura caso não seja um x86 clássico (Intel/AMD)
-    if (strcmp(info.vendor, "Desconhecido") == 0 && foundModel) {
+#if 0
+    // Architecture fallback for non-classic x86 (Intel/AMD) systems
+    if ( strcmp( m_VendorName, "Desconhecido") == 0 && foundModel ) 
+    {
 
-        if (strstr(info.modelName, "ARM") != NULL || strstr(info.modelName, "aarch64") != NULL) 
+        if (std::strstr( modelName, "ARM") != NULL || strstr(info.modelName, "aarch64") != NULL) 
         {
             strcpy(info.vendor, "Apenas ARM");
         } 
@@ -107,4 +143,5 @@ void crLinuxCPUInfo::GetProcessorName(void)
             strcpy(info.vendor, "Apenas RISC-V");
         }
     }
+#endif
 }

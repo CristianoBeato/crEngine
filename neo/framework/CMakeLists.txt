@@ -151,7 +151,8 @@ set( FRAMEWORK_SOURCE
 add_library( framework STATIC ${FRAMEWORK_SOURCE} )
 
 #set the idLib specific definitions
-#target_compile_definitions( framework PRIVATE __DOOM_DLL__ ) TODO: fix on non monolith build 
+
+target_compile_definitions( framework PRIVATE __DOOM_DLL__ ) #TODO: fix on non monolith build 
 
 # d3xp need idLib
 add_dependencies( framework idLib sound renderer )

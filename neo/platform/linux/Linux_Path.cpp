@@ -6,6 +6,44 @@
 #include <unistd.h>
 
 static idStr s_savepath;
+extern idCVar sys_DefaultBasePath;
+extern idCVar sys_DefaultSavePath;
+
+/*
+================
+crLinuxPaths::EXEPath
+================
+*/
+crPaths* crPaths::Get( void )
+{
+	static crLinuxPaths gLinuxPaths = crLinuxPaths();
+	return &gLinuxPaths; 
+}
+
+/*
+================
+crLinuxPaths::CWD
+================
+*/
+const char *crLinuxPaths::CWD(void)
+{
+	static char cwd_path[MAX_OSPATH]{ "\0" };
+
+	if( cwd_path[0] == '\0' )
+	{
+		char *cwd = getcwd( nullptr, 0 );
+		if ( cwd == nullptr )
+			return "./";
+
+		///
+		idStr::Copynz( cwd_path, cwd, MAX_OSPATH );
+
+		free(cwd);
+	}
+
+    return cwd_path;
+}
+
 /*
 ================
 crLinuxPaths::EXEPath
