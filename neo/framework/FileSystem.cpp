@@ -136,9 +136,9 @@ public:
 	virtual const char* 		BuildOSPath( const char* base, const char* game, const char* relativePath );
 	virtual const char* 		BuildOSPath( const char* base, const char* relativePath );
 	virtual void				CreateOSPath( const char* OSPath );
-	virtual int					ReadFile( const char* relativePath, void** buffer, ID_TIME_T* timestamp );
+	virtual intptr_t			ReadFile( const char* relativePath, void** buffer, ID_TIME_T* timestamp );
 	virtual void				FreeFile( void* buffer );
-	virtual int					WriteFile( const char* relativePath, const void* buffer, int size, const char* basePath = "fs_savepath" );
+	virtual intptr_t			WriteFile( const char* relativePath, const void* buffer, size_t size, const char* basePath = "fs_savepath" );
 	virtual void				RemoveFile( const char* relativePath );
 	virtual	bool				RemoveDir( const char* relativePath );
 	virtual bool				RenameFile( const char* relativePath, const char* newName, const char* basePath = "fs_savepath" );
@@ -156,7 +156,7 @@ public:
 	virtual void				CopyFile( const char* fromOSPath, const char* toOSPath );
 	virtual findFile_t			FindFile( const char* path );
 	virtual bool				FilenameCompare( const char* s1, const char* s2 ) const;
-	virtual int					GetFileLength( const char* relativePath );
+	virtual size_t				GetFileLength( const char* relativePath );
 	virtual Folder_t			IsFolder( const char* relativePath, const char* basePath = "fs_basepath" );
 	// resource tracking
 	virtual void				EnableBackgroundCache( bool enable );
@@ -410,10 +410,12 @@ bool idFileSystemLocal::FilenameCompare( const char* s1, const char* s2 ) const
 idFileSystemLocal::GetFileLength
 ========================
 */
-int idFileSystemLocal::GetFileLength( const char* relativePath )
+size_t idFileSystemLocal::GetFileLength( const char* relativePath )
 {
 	idFile* 	f;
-	int			len;
+	size_t		len;
+
+	// TODO: if are a file in disc, we can just retrive the properties of the file 
 	
 	if( !IsInitialized() )
 		idLib::FatalError( "Filesystem call made without initialization" );
@@ -436,7 +438,7 @@ int idFileSystemLocal::GetFileLength( const char* relativePath )
 	if( f == nullptr )
 		return -1;
 	
-	len = ( int )f->Length();
+	len = f->Length();
 	
 	delete f;
 	return len;
@@ -2279,7 +2281,7 @@ a null buffer will just return the file length and time without loading
 timestamp can be nullptr if not required
 ============
 */
-int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIME_T* timestamp )
+intptr_t idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIME_T* timestamp )
 {
 
 	idFile* 	f;
@@ -2436,14 +2438,12 @@ idFileSystemLocal::WriteFile
 Filenames are relative to the search path
 ============
 */
-int idFileSystemLocal::WriteFile( const char* relativePath, const void* buffer, int size, const char* basePath )
+intptr_t idFileSystemLocal::WriteFile( const char* relativePath, const void* buffer, size_t size, const char* basePath )
 {
 	idFile* f;
 	
 	if( !IsInitialized() )
-	{
 		common->FatalError( "Filesystem call made without initialization\n" );
-	}
 	
 	if( !relativePath || !buffer )
 	{
