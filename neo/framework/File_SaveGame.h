@@ -152,26 +152,25 @@ public:
 	{
 		return name.c_str();
 	}
-	virtual int				Read( void* buffer, int len );
-	virtual int				Write( const void* buffer, int len );
+	virtual intptr_t		Read( void* buffer, const size_t len );
+	virtual intptr_t		Write( const void* buffer, const size_t len );
 	
 	// this file is strictly streaming, you can't seek at all
-	virtual int				Length() const
+	virtual size_t			Length( void ) const
 	{
-		// RB: 64 bit fix, we don't need support for files bigger than 2 GB
-		return ( int ) compressedLength;
-		// RB end
+		return compressedLength;
 	}
+
 	virtual void			SetLength( size_t len )
 	{
 		compressedLength = len;
 	}
-	virtual int				Tell() const
+	virtual intptr_t		Tell( void ) const
 	{
 		assert( 0 );
 		return 0;
 	}
-	virtual int				Seek( long offset, fsOrigin_t origin )
+	virtual intptr_t		Seek( const intptr_t offset, const fsOrigin_t origin )
 	{
 		assert( 0 );
 		return 0;

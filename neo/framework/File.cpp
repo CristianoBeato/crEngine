@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014-2016 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2024-2026 Kot in Action Creative Artel
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -194,7 +195,7 @@ const char* idFile::GetFullPath() const
 idFile::Read
 =================
 */
-int idFile::Read( void* buffer, int len )
+intptr_t idFile::Read( void* buffer, size_t len )
 {
 	common->FatalError( "idFile::Read: cannot read from idFile" );
 	return 0;
@@ -205,7 +206,7 @@ int idFile::Read( void* buffer, int len )
 idFile::Write
 =================
 */
-int idFile::Write( const void* buffer, int len )
+intptr_t idFile::Write( const void* buffer, size_t len )
 {
 	common->FatalError( "idFile::Write: cannot write to idFile" );
 	return 0;
@@ -216,7 +217,7 @@ int idFile::Write( const void* buffer, int len )
 idFile::Length
 =================
 */
-int idFile::Length() const
+size_t idFile::Length( void ) const
 {
 	return 0;
 }
@@ -226,7 +227,7 @@ int idFile::Length() const
 idFile::Timestamp
 =================
 */
-ID_TIME_T idFile::Timestamp() const
+ID_TIME_T idFile::Timestamp( void ) const
 {
 	return 0;
 }
@@ -236,7 +237,7 @@ ID_TIME_T idFile::Timestamp() const
 idFile::Tell
 =================
 */
-int idFile::Tell() const
+intptr_t idFile::Tell( void ) const
 {
 	return 0;
 }
@@ -246,7 +247,7 @@ int idFile::Tell() const
 idFile::ForceFlush
 =================
 */
-void idFile::ForceFlush()
+void idFile::ForceFlush( void )
 {
 }
 
@@ -255,7 +256,7 @@ void idFile::ForceFlush()
 idFile::Flush
 =================
 */
-void idFile::Flush()
+void idFile::Flush( void )
 {
 }
 
@@ -264,9 +265,9 @@ void idFile::Flush()
 idFile::Seek
 =================
 */
-int idFile::Seek( long offset, fsOrigin_t origin )
+intptr_t idFile::Seek( const intptr_t offset, const fsOrigin_t origin )
 {
-	return -1;
+	return -1l;
 }
 
 /*
@@ -274,7 +275,7 @@ int idFile::Seek( long offset, fsOrigin_t origin )
 idFile::Rewind
 =================
 */
-void idFile::Rewind()
+void idFile::Rewind( void )
 {
 	Seek( 0, FS_SEEK_SET );
 }
@@ -284,10 +285,10 @@ void idFile::Rewind()
 idFile::Printf
 =================
 */
-int idFile::Printf( const char* fmt, ... )
+intptr_t idFile::Printf( const char* fmt, ... )
 {
 	char buf[MAX_PRINT_MSG];
-	int length;
+	intptr_t length;
 	va_list argptr;
 	
 	va_start( argptr, fmt );
@@ -306,10 +307,10 @@ int idFile::Printf( const char* fmt, ... )
 idFile::VPrintf
 =================
 */
-int idFile::VPrintf( const char* fmt, va_list args )
+intptr_t idFile::VPrintf( const char* fmt, va_list args )
 {
 	char buf[MAX_PRINT_MSG];
-	int length;
+	size_t length;
 	
 	length = idStr::vsnPrintf( buf, MAX_PRINT_MSG - 1, fmt, args );
 	return Write( buf, length );
@@ -320,10 +321,10 @@ int idFile::VPrintf( const char* fmt, va_list args )
 idFile::WriteFloatString
 =================
 */
-int idFile::WriteFloatString( const char* fmt, ... )
+intptr_t idFile::WriteFloatString( const char* fmt, ... )
 {
 	char buf[MAX_PRINT_MSG];
-	int len;
+	intptr_t len;
 	va_list argPtr;
 	
 	va_start( argPtr, fmt );
@@ -338,9 +339,9 @@ int idFile::WriteFloatString( const char* fmt, ... )
  idFile::ReadInt
  =================
  */
-int idFile::ReadInt( int& value )
+intptr_t idFile::ReadInt( int& value )
 {
-	int result = Read( &value, sizeof( value ) );
+	intptr_t result = Read( &value, sizeof( value ) );
 	value = LittleLong( value );
 	return result;
 }
@@ -350,9 +351,9 @@ int idFile::ReadInt( int& value )
  idFile::ReadUnsignedInt
  =================
  */
-int idFile::ReadUnsignedInt( unsigned int& value )
+intptr_t idFile::ReadUnsignedInt( unsigned int& value )
 {
-	int result = Read( &value, sizeof( value ) );
+	intptr_t result = Read( &value, sizeof( value ) );
 	value = LittleLong( value );
 	return result;
 }
@@ -362,9 +363,9 @@ int idFile::ReadUnsignedInt( unsigned int& value )
  idFile::ReadShort
  =================
  */
-int idFile::ReadShort( short& value )
+intptr_t idFile::ReadShort( short& value )
 {
-	int result = Read( &value, sizeof( value ) );
+	intptr_t result = Read( &value, sizeof( value ) );
 	value = LittleShort( value );
 	return result;
 }
@@ -374,9 +375,9 @@ int idFile::ReadShort( short& value )
  idFile::ReadUnsignedShort
  =================
  */
-int idFile::ReadUnsignedShort( unsigned short& value )
+intptr_t idFile::ReadUnsignedShort( unsigned short& value )
 {
-	int result = Read( &value, sizeof( value ) );
+	intptr_t result = Read( &value, sizeof( value ) );
 	value = LittleShort( value );
 	return result;
 }
@@ -386,7 +387,7 @@ int idFile::ReadUnsignedShort( unsigned short& value )
  idFile::ReadChar
  =================
  */
-int idFile::ReadChar( char& value )
+intptr_t idFile::ReadChar( char& value )
 {
 	return Read( &value, sizeof( value ) );
 }
@@ -396,7 +397,7 @@ int idFile::ReadChar( char& value )
  idFile::ReadUnsignedChar
  =================
  */
-int idFile::ReadUnsignedChar( unsigned char& value )
+intptr_t idFile::ReadUnsignedChar( unsigned char& value )
 {
 	return Read( &value, sizeof( value ) );
 }
@@ -406,9 +407,9 @@ int idFile::ReadUnsignedChar( unsigned char& value )
  idFile::ReadFloat
  =================
  */
-int idFile::ReadFloat( float& value )
+intptr_t idFile::ReadFloat( float& value )
 {
-	int result = Read( &value, sizeof( value ) );
+	intptr_t result = Read( &value, sizeof( value ) );
 	value = LittleFloat( value );
 	return result;
 }
@@ -418,10 +419,10 @@ int idFile::ReadFloat( float& value )
  idFile::ReadBool
  =================
  */
-int idFile::ReadBool( bool& value )
+intptr_t idFile::ReadBool( bool& value )
 {
 	unsigned char c;
-	int result = ReadUnsignedChar( c );
+	intptr_t result = ReadUnsignedChar( c );
 	value = c ? true : false;
 	return result;
 }
@@ -431,10 +432,10 @@ int idFile::ReadBool( bool& value )
  idFile::ReadString
  =================
  */
-int idFile::ReadString( idStr& string )
+intptr_t idFile::ReadString( idStr& string )
 {
 	int len;
-	int result = 0;
+	intptr_t result = 0;
 	
 	ReadInt( len );
 	if( len >= 0 )
@@ -442,6 +443,7 @@ int idFile::ReadString( idStr& string )
 		string.Fill( ' ', len );
 		result = Read( &string[ 0 ], len );
 	}
+
 	return result;
 }
 
@@ -450,9 +452,9 @@ int idFile::ReadString( idStr& string )
  idFile::ReadVec2
  =================
  */
-int idFile::ReadVec2( idVec2& vec )
+intptr_t idFile::ReadVec2( idVec2& vec )
 {
-	int result = Read( &vec, sizeof( vec ) );
+	intptr_t result = Read( &vec, sizeof( vec ) );
 	LittleRevBytes( &vec, sizeof( float ), sizeof( vec ) / sizeof( float ) );
 	return result;
 }
@@ -462,9 +464,9 @@ int idFile::ReadVec2( idVec2& vec )
  idFile::ReadVec3
  =================
  */
-int idFile::ReadVec3( idVec3& vec )
+intptr_t idFile::ReadVec3( idVec3& vec )
 {
-	int result = Read( &vec, sizeof( vec ) );
+	intptr_t result = Read( &vec, sizeof( vec ) );
 	LittleRevBytes( &vec, sizeof( float ), sizeof( vec ) / sizeof( float ) );
 	return result;
 }
@@ -474,9 +476,9 @@ int idFile::ReadVec3( idVec3& vec )
  idFile::ReadVec4
  =================
  */
-int idFile::ReadVec4( idVec4& vec )
+intptr_t idFile::ReadVec4( idVec4& vec )
 {
-	int result = Read( &vec, sizeof( vec ) );
+	intptr_t result = Read( &vec, sizeof( vec ) );
 	LittleRevBytes( &vec, sizeof( float ), sizeof( vec ) / sizeof( float ) );
 	return result;
 }
@@ -486,9 +488,9 @@ int idFile::ReadVec4( idVec4& vec )
 idFile::ReadVec5
 =================
 */
-int idFile::ReadVec5( idVec5& vec )
+intptr_t idFile::ReadVec5( idVec5& vec )
 {
-	int result = Read( &vec, sizeof( vec ) );
+	intptr_t result = Read( &vec, sizeof( vec ) );
 	LittleRevBytes( &vec, sizeof( float ), sizeof( vec ) / sizeof( float ) );
 	return result;
 }
@@ -498,9 +500,9 @@ int idFile::ReadVec5( idVec5& vec )
  idFile::ReadVec6
  =================
  */
-int idFile::ReadVec6( idVec6& vec )
+intptr_t idFile::ReadVec6( idVec6& vec )
 {
-	int result = Read( &vec, sizeof( vec ) );
+	intptr_t result = Read( &vec, sizeof( vec ) );
 	LittleRevBytes( &vec, sizeof( float ), sizeof( vec ) / sizeof( float ) );
 	return result;
 }
@@ -510,9 +512,9 @@ int idFile::ReadVec6( idVec6& vec )
  idFile::ReadMat3
  =================
  */
-int idFile::ReadMat3( idMat3& mat )
+intptr_t idFile::ReadMat3( idMat3& mat )
 {
-	int result = Read( &mat, sizeof( mat ) );
+	intptr_t result = Read( &mat, sizeof( mat ) );
 	LittleRevBytes( &mat, sizeof( float ), sizeof( mat ) / sizeof( float ) );
 	return result;
 }
@@ -522,7 +524,7 @@ int idFile::ReadMat3( idMat3& mat )
 idFile::ReadWinding
 =================
 */
-int idFile::ReadWinding( idWinding& winding )
+intptr_t idFile::ReadWinding( idWinding& winding )
 {
 	int numPts = 0;
 	ReadInt( numPts );
@@ -531,7 +533,7 @@ int idFile::ReadWinding( idWinding& winding )
 	for ( int i = 0; i < numPts; ++i )
 		ReadVec5( winding[ i ] );
 
-	return 1;
+	return 1l;
 }
 
 /*
@@ -539,7 +541,7 @@ int idFile::ReadWinding( idWinding& winding )
 idFile::ReadPlane
 =================
 */
-int idFile::ReadPlane( idPlane& plane )
+intptr_t idFile::ReadPlane( idPlane& plane )
 {
 	idVec4 vec;
 	const int res = ReadVec4( vec );
@@ -552,7 +554,7 @@ int idFile::ReadPlane( idPlane& plane )
  idFile::WriteInt
  =================
  */
-int idFile::WriteInt( const int value )
+intptr_t idFile::WriteInt( const int value )
 {
 	int v = LittleLong( value );
 	return Write( &v, sizeof( v ) );
@@ -563,7 +565,7 @@ int idFile::WriteInt( const int value )
  idFile::WriteUnsignedInt
  =================
  */
-int idFile::WriteUnsignedInt( const unsigned int value )
+intptr_t idFile::WriteUnsignedInt( const unsigned int value )
 {
 	unsigned int v = LittleLong( value );
 	return Write( &v, sizeof( v ) );
@@ -574,7 +576,7 @@ int idFile::WriteUnsignedInt( const unsigned int value )
  idFile::WriteShort
  =================
  */
-int idFile::WriteShort( const short value )
+intptr_t idFile::WriteShort( const short value )
 {
 	short v = LittleShort( value );
 	return Write( &v, sizeof( v ) );
@@ -585,7 +587,7 @@ int idFile::WriteShort( const short value )
  idFile::WriteUnsignedShort
  =================
  */
-int idFile::WriteUnsignedShort( const unsigned short value )
+intptr_t idFile::WriteUnsignedShort( const unsigned short value )
 {
 	unsigned short v = LittleShort( value );
 	return Write( &v, sizeof( v ) );
@@ -596,7 +598,7 @@ int idFile::WriteUnsignedShort( const unsigned short value )
  idFile::WriteChar
  =================
  */
-int idFile::WriteChar( const char value )
+intptr_t idFile::WriteChar( const char value )
 {
 	return Write( &value, sizeof( value ) );
 }
@@ -606,7 +608,7 @@ int idFile::WriteChar( const char value )
  idFile::WriteUnsignedChar
  =================
  */
-int idFile::WriteUnsignedChar( const unsigned char value )
+intptr_t idFile::WriteUnsignedChar( const unsigned char value )
 {
 	return Write( &value, sizeof( value ) );
 }
@@ -616,7 +618,7 @@ int idFile::WriteUnsignedChar( const unsigned char value )
  idFile::WriteFloat
  =================
  */
-int idFile::WriteFloat( const float value )
+intptr_t idFile::WriteFloat( const float value )
 {
 	float v = LittleFloat( value );
 	return Write( &v, sizeof( v ) );
@@ -627,7 +629,7 @@ int idFile::WriteFloat( const float value )
  idFile::WriteBool
  =================
  */
-int idFile::WriteBool( const bool value )
+intptr_t idFile::WriteBool( const bool value )
 {
 	unsigned char c = value;
 	return WriteUnsignedChar( c );
@@ -638,9 +640,9 @@ int idFile::WriteBool( const bool value )
  idFile::WriteString
  =================
  */
-int idFile::WriteString( const char* value )
+intptr_t idFile::WriteString( const char* value )
 {
-	int len = strlen( value );
+	size_t len = std::strlen( value );
 	WriteInt( len );
 	return Write( value, len );
 }
@@ -650,7 +652,7 @@ int idFile::WriteString( const char* value )
  idFile::WriteVec2
  =================
  */
-int idFile::WriteVec2( const idVec2& vec )
+intptr_t idFile::WriteVec2( const idVec2& vec )
 {
 	idVec2 v = vec;
 	LittleRevBytes( &v, sizeof( float ), sizeof( v ) / sizeof( float ) );
@@ -662,7 +664,7 @@ int idFile::WriteVec2( const idVec2& vec )
  idFile::WriteVec3
  =================
  */
-int idFile::WriteVec3( const idVec3& vec )
+intptr_t idFile::WriteVec3( const idVec3& vec )
 {
 	idVec3 v = vec;
 	LittleRevBytes( &v, sizeof( float ), sizeof( v ) / sizeof( float ) );
@@ -674,7 +676,7 @@ int idFile::WriteVec3( const idVec3& vec )
  idFile::WriteVec4
  =================
  */
-int idFile::WriteVec4( const idVec4& vec )
+intptr_t idFile::WriteVec4( const idVec4& vec )
 {
 	idVec4 v = vec;
 	LittleRevBytes( &v, sizeof( float ), sizeof( v ) / sizeof( float ) );
@@ -686,7 +688,7 @@ int idFile::WriteVec4( const idVec4& vec )
 idFile::WriteVec5
 =================
 */
-int idFile::WriteVec5( const idVec5& vec )
+intptr_t idFile::WriteVec5( const idVec5& vec )
 {
 	idVec5 v = vec;
 	LittleRevBytes( &v, sizeof( float ), sizeof( v ) / sizeof( float ) );
@@ -697,7 +699,7 @@ int idFile::WriteVec5( const idVec5& vec )
  idFile::WriteVec6
  =================
  */
-int idFile::WriteVec6( const idVec6& vec )
+intptr_t idFile::WriteVec6( const idVec6& vec )
 {
 	idVec6 v = vec;
 	LittleRevBytes( &v, sizeof( float ), sizeof( v ) / sizeof( float ) );
@@ -709,7 +711,7 @@ int idFile::WriteVec6( const idVec6& vec )
  idFile::WriteMat3
  =================
  */
-int idFile::WriteMat3( const idMat3& mat )
+intptr_t idFile::WriteMat3( const idMat3& mat )
 {
 	idMat3 v = mat;
 	LittleRevBytes( &v, sizeof( float ), sizeof( v ) / sizeof( float ) );
@@ -721,7 +723,7 @@ int idFile::WriteMat3( const idMat3& mat )
 idFile::WriteWinding
 =================
 */
-int idFile::WriteWinding( const idWinding& winding )
+intptr_t idFile::WriteWinding( const idWinding& winding )
 {
 	WriteInt( winding.GetNumPoints() );
 	for ( int i = 0; i < winding.GetNumPoints(); ++i )
@@ -734,7 +736,7 @@ int idFile::WriteWinding( const idWinding& winding )
 idFile::WritePlane
 =================
 */
-int idFile::WritePlane( const idPlane& plane )
+intptr_t idFile::WritePlane( const idPlane& plane )
 {
 	return WriteVec4( plane.ToVec4() );
 }
@@ -754,7 +756,7 @@ idFile_Memory
 idFile_Memory::idFile_Memory
 =================
 */
-idFile_Memory::idFile_Memory()
+idFile_Memory::idFile_Memory( void )
 {
 	name = "*unknown*";
 	maxSize = 0;
@@ -828,7 +830,7 @@ idFile_Memory::TakeDataOwnership
 this also makes the file read only
 =================
 */
-void idFile_Memory::TakeDataOwnership()
+void idFile_Memory::TakeDataOwnership( void )
 {
 	if( filePtr != nullptr && fileSize > 0 )
 	{
@@ -843,7 +845,7 @@ void idFile_Memory::TakeDataOwnership()
 idFile_Memory::~idFile_Memory
 =================
 */
-idFile_Memory::~idFile_Memory()
+idFile_Memory::~idFile_Memory( void )
 {
 	if( filePtr && allocated > 0 && maxSize == 0 )
 	{
@@ -856,9 +858,8 @@ idFile_Memory::~idFile_Memory()
 idFile_Memory::Read
 =================
 */
-int idFile_Memory::Read( void* buffer, int len )
+intptr_t idFile_Memory::Read( void* buffer, size_t len )
 {
-
 	if( !( mode & ( 1 << FS_READ ) ) )
 	{
 		common->FatalError( "idFile_Memory::Read: %s not opened in read mode", name.c_str() );
@@ -869,6 +870,7 @@ int idFile_Memory::Read( void* buffer, int len )
 	{
 		len = filePtr + fileSize - curPtr;
 	}
+
 	std::memcpy( buffer, curPtr, len );
 	curPtr += len;
 	return len;
@@ -911,13 +913,10 @@ CONSOLE_COMMAND( clearHistogram, "", 0 )
 	histogram.Clear();
 }
 
-int idFile_Memory::Write( const void* buffer, int len )
+intptr_t idFile_Memory::Write( const void* buffer, size_t len )
 {
 	if( len == 0 )
-	{
-		// ~4% falls into this case for some reason...
-		return 0;
-	}
+		return 0; // ~4% falls into this case for some reason...
 	
 	if( !( mode & ( 1 << FS_WRITE ) ) )
 	{
@@ -925,7 +924,7 @@ int idFile_Memory::Write( const void* buffer, int len )
 		return 0;
 	}
 	
-	int alloc = curPtr + len + 1 - filePtr - allocated; // need room for len+1
+	size_t alloc = curPtr + len + 1 - filePtr - allocated; // need room for len+1
 	if( alloc > 0 )
 	{
 		if( maxSize != 0 )
@@ -933,19 +932,18 @@ int idFile_Memory::Write( const void* buffer, int len )
 			common->Error( "idFile_Memory::Write: exceeded maximum size %d", maxSize );
 			return 0;
 		}
-		int extra = granularity * ( 1 + alloc / granularity );
+		
+		size_t extra = granularity * ( 1 + alloc / granularity );
 		char* newPtr = ( char* ) Mem_Alloc( allocated + extra, TAG_IDFILE );
 		if( allocated )
-		{
 			std::memcpy( newPtr, filePtr, allocated );
-		}
+		
 		allocated += extra;
 		curPtr = newPtr + ( curPtr - filePtr );
 		
 		if( filePtr )
-		{
 			Mem_Free( filePtr );
-		}
+		
 		filePtr = newPtr;
 	}
 	
@@ -990,7 +988,7 @@ int idFile_Memory::Write( const void* buffer, int len )
 idFile_Memory::Length
 =================
 */
-int idFile_Memory::Length() const
+size_t idFile_Memory::Length( void ) const
 {
 	return fileSize;
 }
@@ -1039,7 +1037,7 @@ void idFile_Memory::PreAllocate( size_t len )
 idFile_Memory::Timestamp
 =================
 */
-ID_TIME_T idFile_Memory::Timestamp() const
+ID_TIME_T idFile_Memory::Timestamp( void ) const
 {
 	return 0;
 }
@@ -1049,7 +1047,7 @@ ID_TIME_T idFile_Memory::Timestamp() const
 idFile_Memory::Tell
 =================
 */
-int idFile_Memory::Tell() const
+intptr_t idFile_Memory::Tell( void ) const
 {
 	return ( curPtr - filePtr );
 }
@@ -1059,7 +1057,7 @@ int idFile_Memory::Tell() const
 idFile_Memory::ForceFlush
 =================
 */
-void idFile_Memory::ForceFlush()
+void idFile_Memory::ForceFlush( void )
 {
 }
 
@@ -1068,7 +1066,7 @@ void idFile_Memory::ForceFlush()
 idFile_Memory::Flush
 =================
 */
-void idFile_Memory::Flush()
+void idFile_Memory::Flush( void )
 {
 }
 
@@ -1079,9 +1077,8 @@ idFile_Memory::Seek
   returns zero on success and -1 on failure
 =================
 */
-int idFile_Memory::Seek( long offset, fsOrigin_t origin )
+intptr_t idFile_Memory::Seek( const intptr_t offset, const fsOrigin_t origin )
 {
-
 	switch( origin )
 	{
 		case FS_SEEK_CUR:
@@ -1105,16 +1102,19 @@ int idFile_Memory::Seek( long offset, fsOrigin_t origin )
 			return -1;
 		}
 	}
+
 	if( curPtr < filePtr )
 	{
 		curPtr = filePtr;
 		return -1;
 	}
+
 	if( curPtr > filePtr + fileSize )
 	{
 		curPtr = filePtr + fileSize;
 		return -1;
 	}
+
 	return 0;
 }
 
@@ -1182,7 +1182,7 @@ void idFile_Memory::Clear( bool freeMemory )
 idFile_Memory::SetData
 =================
 */
-void idFile_Memory::SetData( const char* data, int length )
+void idFile_Memory::SetData( const char* data, size_t length )
 {
 	maxSize = 0;
 	fileSize = length;
@@ -1202,13 +1202,9 @@ idFile_Memory::TruncateData
 void idFile_Memory::TruncateData( size_t len )
 {
 	if( len > allocated )
-	{
 		idLib::Error( "idFile_Memory::TruncateData: len (%d) exceeded allocated size (%d)", len, allocated );
-	}
 	else
-	{
 		fileSize = len;
-	}
 }
 
 /*
@@ -1257,9 +1253,8 @@ idFile_BitMsg::~idFile_BitMsg()
 idFile_BitMsg::Read
 =================
 */
-int idFile_BitMsg::Read( void* buffer, int len )
+intptr_t idFile_BitMsg::Read( void* buffer, size_t len )
 {
-
 	if( !( mode & ( 1 << FS_READ ) ) )
 	{
 		common->FatalError( "idFile_BitMsg::Read: %s not opened in read mode", name.c_str() );
@@ -1274,7 +1269,7 @@ int idFile_BitMsg::Read( void* buffer, int len )
 idFile_BitMsg::Write
 =================
 */
-int idFile_BitMsg::Write( const void* buffer, int len )
+intptr_t idFile_BitMsg::Write( const void* buffer, size_t len )
 {
 
 	if( !( mode & ( 1 << FS_WRITE ) ) )
@@ -1292,7 +1287,7 @@ int idFile_BitMsg::Write( const void* buffer, int len )
 idFile_BitMsg::Length
 =================
 */
-int idFile_BitMsg::Length() const
+size_t idFile_BitMsg::Length( void ) const
 {
 	return msg->GetSize();
 }
@@ -1302,7 +1297,7 @@ int idFile_BitMsg::Length() const
 idFile_BitMsg::Timestamp
 =================
 */
-ID_TIME_T idFile_BitMsg::Timestamp() const
+ID_TIME_T idFile_BitMsg::Timestamp( void ) const
 {
 	return 0;
 }
@@ -1312,16 +1307,12 @@ ID_TIME_T idFile_BitMsg::Timestamp() const
 idFile_BitMsg::Tell
 =================
 */
-int idFile_BitMsg::Tell() const
+intptr_t idFile_BitMsg::Tell( void ) const
 {
 	if( mode == FS_READ )
-	{
 		return msg->GetReadCount();
-	}
 	else
-	{
 		return msg->GetSize();
-	}
 }
 
 /*
@@ -1329,7 +1320,7 @@ int idFile_BitMsg::Tell() const
 idFile_BitMsg::ForceFlush
 =================
 */
-void idFile_BitMsg::ForceFlush()
+void idFile_BitMsg::ForceFlush( void )
 {
 }
 
@@ -1349,9 +1340,9 @@ idFile_BitMsg::Seek
   returns zero on success and -1 on failure
 =================
 */
-int idFile_BitMsg::Seek( long offset, fsOrigin_t origin )
+intptr_t idFile_BitMsg::Seek( const intptr_t offset, const fsOrigin_t origin )
 {
-	return -1;
+	return -1ull;
 }
 
 
@@ -1400,7 +1391,7 @@ idFile_Permanent::Read
 Properly handles partial reads
 =================
 */
-int idFile_Permanent::Read( void* buffer, int len )
+intptr_t idFile_Permanent::Read( void* buffer, const size_t len )
 {
 	int			tries = 0;
 	intptr_t	block = 0, remaining = 0, read = 0;
@@ -1453,7 +1444,7 @@ idFile_Permanent::Write
 Properly handles partial writes
 =================
 */
-int idFile_Permanent::Write( const void* buffer, int len )
+intptr_t idFile_Permanent::Write( const void* buffer, const size_t len )
 {
 	int			tries = 0;
 	intptr_t	block = 0, remaining = 0, written = 0;
@@ -1539,10 +1530,10 @@ void idFile_Permanent::Flush( void )
 idFile_Permanent::Tell
 =================
 */
-int idFile_Permanent::Tell( void ) const
+intptr_t idFile_Permanent::Tell( void ) const
 {
 	if ( !fhandle ) 
-		return -1;
+		return -1l;
 // BEATO Begin
 	return SDL_TellIO( fhandle );
 // BEATO End
@@ -1555,8 +1546,11 @@ idFile_Permanent::Seek
   returns zero on success and -1 on failure
 =================
 */
-int idFile_Permanent::Seek( long offset, fsOrigin_t origin )
+intptr_t idFile_Permanent::Seek( intptr_t offset, const fsOrigin_t origin )
 {
+	if( !fhandle )
+		return -1l;
+
 // BEATO Begin	
 	SDL_IOWhence _origin;
 	switch ( origin )
@@ -1575,7 +1569,6 @@ int idFile_Permanent::Seek( long offset, fsOrigin_t origin )
 	return SDL_SeekIO( fhandle, offset, _origin );
 }
 
-#if 1
 /*
 =================================================================================
 
@@ -1635,7 +1628,7 @@ idFile_ReadBuffered::Read
 
 =================
 */
-int idFile_Cached::Read( void* buffer, int len )
+intptr_t idFile_Cached::Read( void* buffer, size_t len )
 {
 	if( internalFilePos >= bufferedStartOffset && internalFilePos + len < bufferedEndOffset )
 	{
@@ -1644,11 +1637,11 @@ int idFile_Cached::Read( void* buffer, int len )
 		internalFilePos += len;
 		return len;
 	}
-	int read = idFile_Permanent::Read( buffer, len );
+
+	intptr_t read = idFile_Permanent::Read( buffer, len );
 	if( read != -1 )
-	{
-		internalFilePos += ( int64_t )read;
-	}
+		internalFilePos += read;
+	
 	return read;
 }
 
@@ -1659,7 +1652,7 @@ int idFile_Cached::Read( void* buffer, int len )
 idFile_Cached::Tell
 =================
 */
-int idFile_Cached::Tell() const
+intptr_t idFile_Cached::Tell( void ) const
 {
 	return internalFilePos;
 }
@@ -1671,7 +1664,7 @@ idFile_Cached::Seek
   returns zero on success and -1 on failure
 =================
 */
-int idFile_Cached::Seek( long offset, fsOrigin_t origin )
+intptr_t idFile_Cached::Seek( const intptr_t offset, const fsOrigin_t origin )
 {
 	if( origin == FS_SEEK_SET && offset >= bufferedStartOffset && offset < bufferedEndOffset )
 	{
@@ -1680,11 +1673,10 @@ int idFile_Cached::Seek( long offset, fsOrigin_t origin )
 		return 0;
 	}
 	
-	int retVal = idFile_Permanent::Seek( offset, origin );
+	intptr_t retVal = idFile_Permanent::Seek( offset, origin );
 	internalFilePos = idFile_Permanent::Tell();
 	return retVal;
 }
-#endif
 
 /*
 =================================================================================
@@ -1699,7 +1691,7 @@ idFile_InZip
 idFile_InZip::idFile_InZip
 =================
 */
-idFile_InZip::idFile_InZip()
+idFile_InZip::idFile_InZip( void )
 {
 	name = "invalid";
 	zipFilePos = 0;
@@ -1712,7 +1704,7 @@ idFile_InZip::idFile_InZip()
 idFile_InZip::~idFile_InZip
 =================
 */
-idFile_InZip::~idFile_InZip()
+idFile_InZip::~idFile_InZip( void )
 {
 	unzCloseCurrentFile( z );
 	unzClose( z );
@@ -1725,9 +1717,9 @@ idFile_InZip::Read
 Properly handles partial reads
 =================
 */
-int idFile_InZip::Read( void* buffer, int len )
+intptr_t idFile_InZip::Read( void* buffer, const size_t len )
 {
-	int l = unzReadCurrentFile( z, buffer, len );
+	intptr_t l = unzReadCurrentFile( z, buffer, len );
 	return l;
 }
 
@@ -1736,7 +1728,7 @@ int idFile_InZip::Read( void* buffer, int len )
 idFile_InZip::Write
 =================
 */
-int idFile_InZip::Write( const void* buffer, int len )
+intptr_t idFile_InZip::Write( const void* buffer, size_t len )
 {
 	common->FatalError( "idFile_InZip::Write: cannot write to the zipped file %s", name.c_str() );
 	return 0;
@@ -1747,7 +1739,7 @@ int idFile_InZip::Write( const void* buffer, int len )
 idFile_InZip::ForceFlush
 =================
 */
-void idFile_InZip::ForceFlush()
+void idFile_InZip::ForceFlush( void )
 {
 	common->FatalError( "idFile_InZip::ForceFlush: cannot flush the zipped file %s", name.c_str() );
 }
@@ -1757,7 +1749,7 @@ void idFile_InZip::ForceFlush()
 idFile_InZip::Flush
 =================
 */
-void idFile_InZip::Flush()
+void idFile_InZip::Flush( void )
 {
 	common->FatalError( "idFile_InZip::Flush: cannot flush the zipped file %s", name.c_str() );
 }
@@ -1767,7 +1759,7 @@ void idFile_InZip::Flush()
 idFile_InZip::Tell
 =================
 */
-int idFile_InZip::Tell() const
+intptr_t idFile_InZip::Tell( void ) const
 {
 	// DG: make sure the value fits into an int
 	// it's a long after all, and there'S also unztell64 that returns ZPOS64_T
@@ -1783,7 +1775,7 @@ int idFile_InZip::Tell() const
 idFile_InZip::Length
 ================
 */
-int idFile_InZip::Length() const
+size_t idFile_InZip::Length( void ) const
 {
 	return fileSize;
 }
@@ -1807,16 +1799,17 @@ idFile_InZip::Seek
 */
 #define ZIP_SEEK_BUF_SIZE	(1<<15)
 
-int idFile_InZip::Seek( long offset, fsOrigin_t origin )
+intptr_t idFile_InZip::Seek( const intptr_t offset, const fsOrigin_t origin )
 {
 	int res, i;
 	char* buf;
+	int off = offset;
 	
 	switch( origin )
 	{
 		case FS_SEEK_END:
 		{
-			offset = fileSize - offset;
+			off = fileSize - offset;
 		}
 		// FALLTHROUGH
 		case FS_SEEK_SET:
@@ -1825,16 +1818,15 @@ int idFile_InZip::Seek( long offset, fsOrigin_t origin )
 			// DG use standard unzip.h function instead of custom one (not needed anymore with minizip 1.1)
 			unzSetOffset64( z, zipFilePos );
 			unzOpenCurrentFile( z );
-			if( offset <= 0 )
-			{
+			if( off <= 0 )
 				return 0;
-			}
 		}
 		// FALLTHROUGH
 		case FS_SEEK_CUR:
 		{
+			//crStaticPointer<char, TAG_TEMP> buf = crStaticPointer( ZIP_SEEK_BUF_SIZE );
 			buf = ( char* ) _alloca16( ZIP_SEEK_BUF_SIZE );
-			for( i = 0; i < ( offset - ZIP_SEEK_BUF_SIZE ); i += ZIP_SEEK_BUF_SIZE )
+			for( i = 0; i < ( off - ZIP_SEEK_BUF_SIZE ); i += ZIP_SEEK_BUF_SIZE )
 			{
 				res = unzReadCurrentFile( z, buf, ZIP_SEEK_BUF_SIZE );
 				if( res < ZIP_SEEK_BUF_SIZE )
@@ -1842,8 +1834,8 @@ int idFile_InZip::Seek( long offset, fsOrigin_t origin )
 					return -1;
 				}
 			}
-			res = i + unzReadCurrentFile( z, buf, offset - i );
-			return ( res == offset ) ? 0 : -1;
+			res = i + unzReadCurrentFile( z, buf, off - i );
+			return ( res == off ) ? 0 : -1;
 		}
 		default:
 		{
@@ -1851,10 +1843,8 @@ int idFile_InZip::Seek( long offset, fsOrigin_t origin )
 			break;
 		}
 	}
-	return -1;
+	return -1l;
 }
-
-#if 1
 
 /*
 =================================================================================
@@ -1869,7 +1859,7 @@ idFile_InnerResource
 idFile_InnerResource::idFile_InnerResource
 =================
 */
-idFile_InnerResource::idFile_InnerResource( const char* _name, idFile* rezFile, int _offset, int _len )
+idFile_InnerResource::idFile_InnerResource( const char* _name, idFile* rezFile, intptr_t _offset, size_t _len )
 {
 	name = _name;
 	offset = _offset;
@@ -1897,15 +1887,16 @@ idFile_InnerResource::Read
 Properly handles partial reads
 =================
 */
-int idFile_InnerResource::Read( void* buffer, int len )
+intptr_t idFile_InnerResource::Read( void* buffer, const size_t len_ )
 {
+	size_t len = len_;
 	if( resourceFile == nullptr )
 		return 0;
 	
 	if( internalFilePos + len > length )
 		len = length - internalFilePos;
 	
-	int read = 0; //fileSystem->ReadFromBGL( resourceFile, (byte*)buffer, offset + internalFilePos, len );
+	intptr_t read = 0; //fileSystem->ReadFromBGL( resourceFile, (byte*)buffer, offset + internalFilePos, len );
 	
 	if( read != len )
 	{
@@ -1930,7 +1921,7 @@ int idFile_InnerResource::Read( void* buffer, int len )
 idFile_InnerResource::Tell
 =================
 */
-int idFile_InnerResource::Tell() const
+intptr_t idFile_InnerResource::Tell( void ) const
 {
 	return internalFilePos;
 }
@@ -1944,7 +1935,7 @@ idFile_InnerResource::Seek
 =================
 */
 
-int idFile_InnerResource::Seek( long offset, fsOrigin_t origin )
+intptr_t idFile_InnerResource::Seek( const intptr_t offset, const fsOrigin_t origin )
 {
 	switch( origin )
 	{
@@ -1957,19 +1948,17 @@ int idFile_InnerResource::Seek( long offset, fsOrigin_t origin )
 		{
 			internalFilePos = offset;
 			if( internalFilePos >= 0 && internalFilePos < length )
-			{
 				return 0;
-			}
-			return -1;
+			
+			return -1l;
 		}
 		case FS_SEEK_CUR:
 		{
 			internalFilePos += offset;
 			if( internalFilePos >= 0 && internalFilePos < length )
-			{
 				return 0;
-			}
-			return -1;
+			
+			return -1l;
 		}
 		default:
 		{
@@ -1977,9 +1966,9 @@ int idFile_InnerResource::Seek( long offset, fsOrigin_t origin )
 			break;
 		}
 	}
-	return -1;
+
+	return -1l;
 }
-#endif
 
 /*
 ================================================================================================

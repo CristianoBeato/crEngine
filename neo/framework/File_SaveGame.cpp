@@ -730,7 +730,7 @@ Modifies:
 	uncompressedProducedBytes
 ============================
 */
-int idFile_SaveGamePipelined::Write( const void* buffer, int length )
+intptr_t idFile_SaveGamePipelined::Write( const void* buffer, const size_t length )
 {
 	if( buffer == nullptr || length <= 0 )
 	{
@@ -1161,7 +1161,7 @@ Modifies:
 	bytesZlib
 ============================
 */
-int idFile_SaveGamePipelined::Read( void* buffer, int length )
+intptr_t idFile_SaveGamePipelined::Read( void* buffer, const size_t length )
 {
 	if( buffer == nullptr || length <= 0 )
 	{

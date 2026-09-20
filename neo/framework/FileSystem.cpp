@@ -2309,7 +2309,7 @@ int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIM
 	
 	// if this is a .cfg file and we are playing back a journal, read
 	// it from the journal file
-	if( strstr( relativePath, ".cfg" ) == relativePath + strlen( relativePath ) - 4 )
+	if( std::strstr( relativePath, ".cfg" ) == relativePath + strlen( relativePath ) - 4 )
 	{
 		isConfig = true;
 		if( eventLoop && eventLoop->JournalLevel() == 2 )
@@ -2327,6 +2327,7 @@ int idFileSystemLocal::ReadFile( const char* relativePath, void** buffer, ID_TIM
 				*buffer = nullptr;
 				return -1;
 			}
+			
 			buf = ( byte* )Mem_ClearedAlloc( len + 1, TAG_IDFILE );
 			*buffer = buf;
 			r = eventLoop->com_journalDataFile->Read( buf, len );

@@ -56,20 +56,20 @@ public:
 	
 	// initialization
 	virtual void			Init( idFile* f, bool compress, int wordLength ) = 0;
-	virtual void			FinishCompress() = 0;
-	virtual float			GetCompressionRatio() const = 0;
+	virtual void			FinishCompress( void ) = 0;
+	virtual float			GetCompressionRatio( void ) const = 0;
 	
 	// common idFile interface
-	virtual const char* 	GetName() = 0;
-	virtual const char* 	GetFullPath() = 0;
-	virtual int				Read( void* outData, int outLength ) = 0;
-	virtual int				Write( const void* inData, int inLength ) = 0;
-	virtual int				Length() = 0;
-	virtual ID_TIME_T			Timestamp() = 0;
-	virtual int				Tell() = 0;
-	virtual void			ForceFlush() = 0;
-	virtual void			Flush() = 0;
-	virtual int				Seek( long offset, fsOrigin_t origin ) = 0;
+	virtual const char* 	GetName( void ) = 0;
+	virtual const char* 	GetFullPath( void ) = 0;
+	virtual intptr_t		Read( void* outData, const size_t outLength ) = 0;
+	virtual intptr_t		Write( const void* inData, const size_t inLength ) = 0;
+	virtual size_t			Length( void ) = 0;
+	virtual ID_TIME_T		Timestamp( void ) = 0;
+	virtual intptr_t		Tell( void ) = 0;
+	virtual void			ForceFlush( void ) = 0;
+	virtual void			Flush( void ) = 0;
+	virtual intptr_t		Seek( const intptr_t offset, const fsOrigin_t origin ) = 0;
 };
 
 #endif /* !__COMPRESSOR_H__ */
