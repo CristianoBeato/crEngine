@@ -1384,6 +1384,7 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		idLib::common		= common;
 		idLib::cvarSystem	= cvarSystem;
 		idLib::fileSystem	= fileSystem;
+		idLib::CPUInfo 		= crCPUInfo::Get();
 		
 		// initialize idLib
 		idLib::Init();

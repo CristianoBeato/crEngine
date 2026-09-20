@@ -107,12 +107,13 @@ bool crLinuxPlatform::AlreadyRunning(void)
         return false; // The lock file could not be created.
 
 	// Attempts to apply a non-blocking exclusive lock ( LOCK_EX | LOCK_NB )
-    if ( flock( m_instanceLock, LOCK_EX | LOCK_NB) < 0 ) 
-	{
-        // If it fails, it means that another instance has already locked this file.
-        close( m_instanceLock );
-        return true;
-    }
+    if ( flock( m_instanceLock, LOCK_EX | LOCK_NB) == 0 )
+		return false; // we can lock file, so we don't have any other intance locking it 
+		
+	// If it fails, it means that another instance has already locked this file.
+	close( m_instanceLock );
+    
+	return true;
 }
 
 /*

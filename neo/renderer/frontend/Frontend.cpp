@@ -80,7 +80,8 @@ void crFrontend::Clear(void)
 	std::memset( &pc, 0, sizeof( pc ) );
 
 	/// Clear front end job list
-	parallelJobManager->FreeJobList( frontEndJobList );
+	if( parallelJobManager && frontEndJobList )
+		parallelJobManager->FreeJobList( frontEndJobList );
 	frontEndJobList = nullptr;
 }
 
