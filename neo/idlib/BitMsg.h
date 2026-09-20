@@ -43,56 +43,56 @@ public:
 	{
 		InitWrite( nullptr, 0 );
 	}
-	idBitMsg( byte* data, int length )
+	idBitMsg( byte* data, size_t length )
 	{
 		InitWrite( data, length );
 	}
-	idBitMsg( const byte* data, int length )
+	idBitMsg( const byte* data, size_t length )
 	{
 		InitRead( data, length );
 	}
 	
 	// both read & write
-	void			InitWrite( byte* data, int length );
+	void			InitWrite( byte* data, size_t length );
 	
 	// read only
-	void			InitRead( const byte* data, int length );
+	void			InitRead( const byte* data, size_t length );
 	
 	// get data for writing
-	byte* 			GetWriteData();
+	byte* 			GetWriteData( void );
 	
 	// get data for reading
-	const byte* 	GetReadData() const;
+	const byte* 	GetReadData( void ) const;
 	
 	// get the maximum message size
-	int				GetMaxSize() const;
+	size_t			GetMaxSize( void ) const;
 	
 	// generate error if not set and message is overflowed
 	void			SetAllowOverflow( bool set );
 	
 	// returns true if the message was overflowed
-	bool			IsOverflowed() const;
+	bool			IsOverflowed( void ) const;
 	
 	// size of the message in bytes
-	int				GetSize() const;
+	size_t			GetSize( void ) const;
 	
 	// set the message size
-	void			SetSize( int size );
+	void			SetSize( size_t size );
 	
 	// get current write bit
-	int				GetWriteBit() const;
+	int				GetWriteBit( void ) const;
 	
 	// set current write bit
 	void			SetWriteBit( int bit );
 	
 	// returns number of bits written
-	int				GetNumBitsWritten() const;
+	int				GetNumBitsWritten( void ) const;
 	
 	// space left in bytes for writing
-	int				GetRemainingSpace() const;
+	size_t			GetRemainingSpace( void ) const;
 	
 	// space left in bits for writing
-	int				GetRemainingWriteBits() const;
+	int				GetRemainingWriteBits( void ) const;
 	
 	//------------------------
 	// Write State
@@ -401,8 +401,8 @@ public:
 private:
 	byte* 			writeData;		// pointer to data for writing
 	const byte* 	readData;		// pointer to data for reading
-	int				maxSize;		// maximum size of message in bytes
-	int				curSize;		// current size of message in bytes
+	size_t			maxSize;		// maximum size of message in bytes
+	size_t			curSize;		// current size of message in bytes
 	mutable int		writeBit;		// number of bits written to the last written byte
 	mutable int		readCount;		// number of bytes read so far
 	mutable int		readBit;		// number of bits read from the last read byte
@@ -422,7 +422,7 @@ private:
 idBitMsg::InitWrite
 ========================
 */
-ID_INLINE void idBitMsg::InitWrite( byte* data, int length )
+ID_INLINE void idBitMsg::InitWrite( byte* data, size_t length )
 {
 	writeData = data;
 	readData = data;
@@ -443,7 +443,7 @@ ID_INLINE void idBitMsg::InitWrite( byte* data, int length )
 idBitMsg::InitRead
 ========================
 */
-ID_INLINE void idBitMsg::InitRead( const byte* data, int length )
+ID_INLINE void idBitMsg::InitRead( const byte* data, size_t length )
 {
 	writeData = nullptr;
 	readData = data;
@@ -464,7 +464,7 @@ ID_INLINE void idBitMsg::InitRead( const byte* data, int length )
 idBitMsg::GetWriteData
 ========================
 */
-ID_INLINE byte* idBitMsg::GetWriteData()
+ID_INLINE byte* idBitMsg::GetWriteData( void )
 {
 	return writeData;
 }
@@ -484,7 +484,7 @@ ID_INLINE const byte* idBitMsg::GetReadData() const
 idBitMsg::GetMaxSize
 ========================
 */
-ID_INLINE int idBitMsg::GetMaxSize() const
+ID_INLINE size_t idBitMsg::GetMaxSize( void ) const
 {
 	return maxSize;
 }
@@ -514,7 +514,7 @@ ID_INLINE bool idBitMsg::IsOverflowed() const
 idBitMsg::GetSize
 ========================
 */
-ID_INLINE int idBitMsg::GetSize() const
+ID_INLINE size_t idBitMsg::GetSize() const
 {
 	return curSize + ( writeBit != 0 );
 }
@@ -524,7 +524,7 @@ ID_INLINE int idBitMsg::GetSize() const
 idBitMsg::SetSize
 ========================
 */
-ID_INLINE void idBitMsg::SetSize( int size )
+ID_INLINE void idBitMsg::SetSize( size_t size )
 {
 	assert( writeBit == 0 );
 	
@@ -579,7 +579,7 @@ ID_INLINE int idBitMsg::GetNumBitsWritten() const
 idBitMsg::GetRemainingSpace
 ========================
 */
-ID_INLINE int idBitMsg::GetRemainingSpace() const
+ID_INLINE size_t idBitMsg::GetRemainingSpace() const
 {
 	return maxSize - GetSize();
 }
