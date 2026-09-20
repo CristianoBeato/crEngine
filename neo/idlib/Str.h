@@ -310,6 +310,7 @@ public:
 	static int			IcmpnPath( const char* s1, const char* s2, int n );	// compares paths and makes sure folders come first
 	static void			Append( char* dest, int size, const char* src );
 	static void			Copynz( char* dest, const char* src, int destsize );
+	static size_t		CopyString( char* dest, const char* src, size_t destsize );
 	static int			snPrintf( char* dest, int size, VERIFY_FORMAT_STRING const char* fmt, ... );
 	static int			vsnPrintf( char* dest, int size, const char* fmt, va_list argptr );
 	static int64_t		FindChar( const char* str, const char c, int64_t start = 0, int64_t end = -1 );

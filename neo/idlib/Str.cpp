@@ -28,6 +28,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 
 #include "precompiled.h"
+#include "Str.h"
 #pragma hdrstop
 
 #ifdef USE_STRING_DATA_ALLOCATOR
@@ -1904,6 +1905,7 @@ void idStr::Copynz( char* dest, const char* src, int destsize )
 		idLib::common->Warning( "idStr::Copynz: nullptr src" );
 		return;
 	}
+
 	if( destsize < 1 )
 	{
 		idLib::common->Warning( "idStr::Copynz: destsize < 1" );
@@ -1915,12 +1917,49 @@ void idStr::Copynz( char* dest, const char* src, int destsize )
 }
 
 /*
-================
-idStr::Append
-
-  never goes past bounds or leaves without a terminating 0
-================
+=============
+idStr::CopyString
+=============
 */
+size_t idStr::CopyString( char *dest, const char *src, size_t destsize )
+{
+    const char *s = src;
+    size_t n = destsize;
+
+    // Copies as many bytes as possible until space runs out or the source string ends.
+    if (n != 0) 
+	{
+        while (--n != 0) 
+		{
+            if ((*dest++ = *s++) == '\0') 
+                break;
+        }
+    }
+
+    // If the buffer overflowed, ensure null termination at the last available byte.
+    if (n == 0) 
+	{
+        if ( destsize != 0) 
+            *dest = '\0'; // Ensures the '\0' at the end of the buffer
+        
+		// Continues counting the length of the source string for the return value        
+		while (*s++)
+		{
+			// Only advances the source pointer
+		}
+            
+    }
+
+    return ( s - src - 1 ); // Retorna o tamanho total da string src (sem contar o \0)
+}
+
+/*
+ ================
+ idStr::Append
+
+   never goes past bounds or leaves without a terminating 0
+ ================
+ */
 void idStr::Append( char* dest, int size, const char* src )
 {
 	int		l1;
@@ -2353,6 +2392,7 @@ char* va( const char* fmt, ... )
 {
 	va_list argptr;
 	static int index = 0;
+	// @CristianoBeato TODO: may we can use a ring buffer ? 
 	static char string[4][16384];	// in case called by nested functions
 	char* buf;
 	
