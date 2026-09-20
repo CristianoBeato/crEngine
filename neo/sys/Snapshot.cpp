@@ -1409,7 +1409,7 @@ void idSnapShot::ApplyToExistingState( int objId, idBitMsg& msg )
 	}
 	
 	// Actually apply it
-	for( objectSize_t i = 0; i < Min( objectState->buffer.Size(), msg.GetSize() ); i++ )
+	for( objectSize_t i = 0; i < Min( objectState->buffer.Size(), static_cast<objectSize_t>( msg.GetSize() ) ); i++ )
 	{
 		objectState->buffer[i] += msg.GetReadData()[i];
 	}

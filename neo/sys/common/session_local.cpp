@@ -137,8 +137,8 @@ public:
 	virtual void				PumpLobbies();
 	virtual void				JoinAfterSwap( void* joinID );
 	
-	virtual bool				GetLobbyAddressFromNetAddress( const netadr_t& netAddr, lobbyAddress_t& outAddr ) const;
-	virtual bool				GetNetAddressFromLobbyAddress( const lobbyAddress_t& lobbyAddress, netadr_t& outNetAddr ) const;
+	virtual bool				GetLobbyAddressFromNetAddress( const crAddress& netAddr, lobbyAddress_t& outAddr ) const;
+	virtual bool				GetNetAddressFromLobbyAddress( const lobbyAddress_t& lobbyAddress, crAddress& outNetAddr ) const;
 	
 public:
 	void	Connect_f( const idCmdArgs& args );
@@ -761,9 +761,18 @@ void idSessionLocalWin::JoinAfterSwap( void* joinID )
 idSessionLocalWin::GetLobbyAddressFromNetAddress
 ========================
 */
-bool idSessionLocalWin::GetLobbyAddressFromNetAddress( const netadr_t& netAddr, lobbyAddress_t& outAddr ) const
+bool idSessionLocalWin::GetLobbyAddressFromNetAddress( const crAddress& netAddr, lobbyAddress_t& outAddr ) const
 {
-	return false;
+	if ( netAddr.Type() == NA_BAD ) 
+	{
+		// Resets to the default constructor if the address is invalid
+		outAddr = lobbyAddress_t(); 
+        return false;
+    }
+
+    // Populates the lobby structure using the initialization method you created
+	outAddr.InitFromNetadr( netAddr );
+    return true;
 }
 
 /*
@@ -771,7 +780,11 @@ bool idSessionLocalWin::GetLobbyAddressFromNetAddress( const netadr_t& netAddr, 
 idSessionLocalWin::GetNetAddressFromLobbyAddress
 ========================
 */
-bool idSessionLocalWin::GetNetAddressFromLobbyAddress( const lobbyAddress_t& lobbyAddress, netadr_t& outNetAddr ) const
+bool idSessionLocalWin::GetNetAddressFromLobbyAddress( const lobbyAddress_t& lobbyAddress, crAddress& outNetAddr ) const
 {
-	return false;
+	// Directly copies the address encapsulated within the lobby
+	outNetAddr = lobbyAddress.netAddr;
+
+    // Returns true if it is an active and valid network address
+	return ( outNetAddr.Type() != NA_BAD );
 }

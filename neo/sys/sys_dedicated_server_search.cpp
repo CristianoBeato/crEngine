@@ -159,7 +159,7 @@ void idDedicatedServerSearch::HandleQueryAck( lobbyAddress_t& addr, idBitMsg& ms
 idDedicatedServerSearch::GetAddrAtIndex
 ========================
 */
-bool idDedicatedServerSearch::GetAddrAtIndex( netadr_t& addr, int i )
+bool idDedicatedServerSearch::GetAddrAtIndex( crAddress& addr, int i )
 {
 	if( i >= 0 && i < list.Num() )
 	{

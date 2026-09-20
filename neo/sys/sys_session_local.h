@@ -56,22 +56,27 @@ public:
 	{
 		return false;
 	}
+
 	virtual bool						IsPeer() const
 	{
 		return false;
 	}
+
 	virtual bool						HasActivePeers() const
 	{
 		return false;
+
 	}
 	virtual int							GetNumLobbyUsers() const
 	{
 		return 0;
 	}
+
 	virtual int							GetNumActiveLobbyUsers() const
 	{
 		return 0;
 	}
+	
 	virtual bool						IsLobbyUserConnected( int index ) const
 	{
 		return false;
@@ -782,7 +787,7 @@ protected:
 	public:
 		byte						data[ idPacketProcessor::MAX_FINAL_PACKET_SIZE ];
 		lobbyAddress_t				address;
-		int							size;
+		size_t						size;
 		int							time;
 		bool						dedicated;
 		idQueueNode<idQueuePacket>	queueNode;
@@ -805,11 +810,11 @@ protected:
 	
 	void	TickSendQueue();
 	
-	void	QueuePacket( idQueue< idQueuePacket, &idQueuePacket::queueNode >& queue, int time, const lobbyAddress_t& to, const void* data, int size, bool dedicated );
-	bool	ReadRawPacketFromQueue( int time, lobbyAddress_t& from, void* data, int& size, bool& outDedicated, int maxSize );
+	void	QueuePacket( idQueue< idQueuePacket, &idQueuePacket::queueNode >& queue, int time, const lobbyAddress_t& to, const void* data, size_t size, bool dedicated );
+	bool	ReadRawPacketFromQueue( int time, lobbyAddress_t& from, void* data, size_t& size, bool& outDedicated, int maxSize );
 	
-	void	SendRawPacket( const lobbyAddress_t& to, const void* data, int size, bool dedicated );
-	bool	ReadRawPacket( lobbyAddress_t& from, void* data, int& size, bool& outDedicated, int maxSize );
+	void	SendRawPacket( const lobbyAddress_t& to, const void* data, size_t size, bool dedicated );
+	bool	ReadRawPacket( lobbyAddress_t& from, void* data, size_t& size, bool& outDedicated, int maxSize );
 	
 	void	ConnectAndMoveToLobby( idLobby& lobby, const lobbyConnectInfo_t& connectInfo, bool fromInvite );
 	void	GoodbyeFromHost( idLobby& lobby, int peerNum, const lobbyAddress_t& remoteAddress, int msgType );
@@ -827,8 +832,8 @@ protected:
 	virtual idLobbyBackend* 	JoinFromConnectInfo( const lobbyConnectInfo_t& connectInfo , idLobbyBackend::lobbyBackendType_t lobbyType ) = 0;
 	virtual void				DestroyLobbyBackend( idLobbyBackend* lobby ) = 0;
 	virtual void				PumpLobbies() = 0;
-	virtual bool				GetLobbyAddressFromNetAddress( const netadr_t& netAddr, lobbyAddress_t& outAddr ) const = 0;
-	virtual bool				GetNetAddressFromLobbyAddress( const lobbyAddress_t& lobbyAddress, netadr_t& outNetAddr ) const = 0;
+	virtual bool				GetLobbyAddressFromNetAddress( const crAddress& netAddr, lobbyAddress_t& outAddr ) const = 0;
+	virtual bool				GetNetAddressFromLobbyAddress( const lobbyAddress_t& lobbyAddress, crAddress& outNetAddr ) const = 0;
 	
 	void 	HandleDedicatedServerQueryRequest( lobbyAddress_t& remoteAddr, idBitMsg& msg, int msgType );
 	void 	HandleDedicatedServerQueryAck( lobbyAddress_t& remoteAddr, idBitMsg& msg );

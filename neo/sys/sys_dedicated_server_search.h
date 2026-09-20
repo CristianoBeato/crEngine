@@ -38,20 +38,20 @@ idDedicatedServerSearch
 class idDedicatedServerSearch
 {
 public:
-	idDedicatedServerSearch();
-	~idDedicatedServerSearch();
+	idDedicatedServerSearch( void );
+	~idDedicatedServerSearch( void );
 	
-	void			StartSearch( const idCallback& cb );
-	void			Clear();
+	void					StartSearch( const idCallback& cb );
+	void					Clear( void );
 	
-	void			HandleQueryAck( lobbyAddress_t& addr, idBitMsg& msg );
+	void					HandleQueryAck( lobbyAddress_t& addr, idBitMsg& msg );
 	
 	
-	bool			GetAddrAtIndex( netadr_t& addr, int i );
+	bool					GetAddrAtIndex( crAddress& addr, int i );
 	const serverInfo_t* 	DescribeServerAtIndex( int i ) const;
 	const idList< idStr >* 	GetServerPlayersAtIndex( int i ) const;
 	
-	int				NumServers() const;
+	int						NumServers( void ) const;
 	
 private:
 	struct serverInfoDedicated_t

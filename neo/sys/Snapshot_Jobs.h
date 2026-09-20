@@ -34,7 +34,11 @@ If you have questions concerning this license or the applicable additional terms
 
 //#define SNAPSHOT_CHECKSUMS
 
+#if _ARCH_x86_64_ || _ARCH_ARM_64_ || _ARCH_PPC_64_
+typedef int64_t objectSize_t;
+#else 
 typedef int32_t objectSize_t;
+#endif
 
 static const objectSize_t SIZE_STALE		= MAX_TYPE( objectSize_t );				// Special size to indicate object went stale
 static const objectSize_t SIZE_NOT_STALE	= MAX_TYPE( objectSize_t ) - 1;			// Special size to indicate object is no longer stale

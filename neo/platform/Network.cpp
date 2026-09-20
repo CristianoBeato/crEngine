@@ -4,11 +4,11 @@
 
 #include <SDL3_net/SDL_net.h>
 
-static idCVar net_socksServer( "net_socksServer", "", CVAR_ARCHIVE, "" );
-static idCVar net_socksPort( "net_socksPort", "1080", CVAR_ARCHIVE | CVAR_INTEGER, "" );
-static idCVar net_socksUsername( "net_socksUsername", "", CVAR_ARCHIVE, "" );
-static idCVar net_socksPassword( "net_socksPassword", "", CVAR_ARCHIVE, "" );
-static idCVar net_ip( "net_ip", "localhost", CVAR_NOCHEAT, "local IP address" );
+idCVar net_socksServer( "net_socksServer", "", CVAR_ARCHIVE, "" );
+idCVar net_socksPort( "net_socksPort", "1080", CVAR_ARCHIVE | CVAR_INTEGER, "" );
+idCVar net_socksUsername( "net_socksUsername", "", CVAR_ARCHIVE, "" );
+idCVar net_socksPassword( "net_socksPassword", "", CVAR_ARCHIVE, "" );
+idCVar net_ip( "net_ip", "localhost", CVAR_NOCHEAT, "local IP address" );
 
 static void ip_to_addr( const char ip[4], char* addr )
 {
@@ -83,7 +83,7 @@ crAddress::crAddress( const idStr in_from, const portID_t in_port ) :
             if ( NET_GetAddressStatus( m_address ) == NET_FAILURE ) 
 			{ 
 				m_type = NA_BAD;
-                idLib::Printf( "crAddress::OpenFromString: failed to resolve '%s'\n", in_from );
+                idLib::Printf( "crAddress::OpenFromString: failed to resolve '%s'\n", in_from.c_str() );
                 NET_UnrefAddress( m_address ); 
                 return;
             }
@@ -195,14 +195,6 @@ void crAddress::GetAnderess( uint8_t *bytes ) const
     }
 }
 
-
-// DG: FIXME: those static buffers look fishy - I would feel better if they were
-//            at least thread-local - so /maybe/ use ID_TLS here?
-//            or maybe return an idStr and change calling code accordingly
-static int index = 0;	// todo atomic
-static char buf[ 32 ][ 64 ];
-// flip/flop
-
 /*
 ========================
 crAddress::ToString
@@ -210,16 +202,18 @@ crAddress::ToString
 */
 const char *crAddress::ToString(void) const
 {
+	static idStr 	s_str[3];
+	static uint32_t s_curr = 0;
+
 	/// this will continue valid, wile address exist 
 	auto local = NET_GetAddressString( m_address );
-	
-	char* s = buf[index];
-	index = ( index + 1 ) & 3;
-    
-	// copy to our temp string 
-	SDL_strlcpy( s, local, SDL_strnlen( local, 64 ) );
 
-	return s;
+	auto c = s_curr;
+	s_curr = ( s_curr + 1 ) % 3;
+
+	s_str[c] = idStr( local );
+
+	return s_str[c].c_str();
 }
 
 /*
@@ -328,7 +322,7 @@ bool idUDP::InitForPort( const portID_t in_portNumber )
 	if ( !m_netSocket ) 
 	{
 		m_bound = crAddress();
-		idLib::Printf( "idUDP::Init: Failed to open port %d: %s\n", m_portNumber, SDL_GetError() );
+		idLib::Printf( "idUDP::Init: Failed to open port %d: %s\n", in_portNumber, SDL_GetError() );
         return false;
     } 
 
@@ -338,7 +332,7 @@ bool idUDP::InitForPort( const portID_t in_portNumber )
     m_packetsWritten = 0;
     m_bytesWritten = 0;
 
-	idLib::Printf( "idUDP::InitForPort: Port %d successfully opened in Dual-Stack mode. (IPv4/IPv6).\n", portNumber );
+	idLib::Printf( "idUDP::InitForPort: Port %d successfully opened in Dual-Stack mode. (IPv4/IPv6).\n", in_portNumber );
 
 	return true;
 }
@@ -516,7 +510,7 @@ crNetMessage::crNetMessage( const size_t bufferSize, const bool compressed ) :
 	, mCompressed(compressed)
 {
 	mData = new char[mDataMaxSize];
-	std::memset(mData, 0, sizeof(mData));
+	std::memset( mData, 0, sizeof(char) * mDataMaxSize );
 }
 
 /*
@@ -636,16 +630,40 @@ crNetwork
 ================================================================================================
 */
 
-/*
-========================
-crNetwork::crNetwork
-========================
-*/
-crNetwork::crNetwork(void)
+class crNetworkSDL3 : public crNetwork
+{
+public:
+	crNetworkSDL3( void );
+	~crNetworkSDL3( void );
+	virtual void					Init( void );
+	virtual void					Shutdown( void );
+    virtual	bool					IsLANAddress( const crAddress &a );
+    virtual uint32_t				GetLocalIPCount( void ) const;
+    virtual const char* 			GetLocalIP( const uint32_t i ) const;
+
+protected:
+	bool	ExtractPort( const char* src, char* buf, const size_t bufsize, int* port );
+
+private:
+	int          		m_localAddressCount;
+	crAddress*   		m_localAddresses;
+};
+
+crNetwork *crNetwork::Get(void)
+{
+	static crNetworkSDL3 gNetworkSDL3 = crNetworkSDL3();
+    return &gNetworkSDL3;
+}
+
+crNetworkSDL3::crNetworkSDL3( void )
 {
 }
 
-void crNetwork::Init( void )
+crNetworkSDL3::~crNetworkSDL3( void )
+{
+}
+
+void crNetworkSDL3::Init( void )
 {
 	int count = 0;
 
@@ -671,7 +689,7 @@ void crNetwork::Init( void )
     }	
 }
 
-void crNetwork::Shutdown(void)
+void crNetworkSDL3::Shutdown(void)
 {
 	if( m_localAddresses != nullptr )
 	{
@@ -684,10 +702,10 @@ void crNetwork::Shutdown(void)
 
 /*
 ========================
-crNetwork::IsLANAddress
+crNetworkSDL3::IsLANAddress
 ========================
 */
-bool crNetwork::IsLANAddress( const crAddress &adr )
+bool crNetworkSDL3::IsLANAddress( const crAddress &adr )
 {
 	if ( adr.Type() == NA_LOOPBACK || adr.Type() == NA_BROADCAST ) 
         return true;
@@ -758,7 +776,7 @@ bool crNetwork::IsLANAddress( const crAddress &adr )
 crNetwork::GetLocalIPCount
 ========================
 */
-uint32_t crNetwork::GetLocalIPCount( void ) const
+uint32_t crNetworkSDL3::GetLocalIPCount( void ) const
 {
 	if( m_localAddressCount == 0 && m_localAddresses == nullptr )
 		return 0;
@@ -771,7 +789,7 @@ uint32_t crNetwork::GetLocalIPCount( void ) const
 crNetwork::GetLocalIP
 ========================
 */
-const char* crNetwork::GetLocalIP( const uint32_t i ) const
+const char* crNetworkSDL3::GetLocalIP( const uint32_t i ) const
 {
 	if( ( i >= m_localAddressCount ) )
 		return nullptr;
@@ -785,22 +803,22 @@ const char* crNetwork::GetLocalIP( const uint32_t i ) const
 crNetwork::ExtractPort
 ========================
 */
-bool crNetwork::ExtractPort( const char* in_src, char* in_buf, const size_t in_size, int* port )
+bool crNetworkSDL3::ExtractPort( const char* in_src, char* out_buf, const size_t in_size, int* port )
 {
 	char* p = nullptr;
 #if CR_USE_SDL_STRING_UTILS
-	SDL_strlcpy( buf, src, bufsize ); // TODO: check for bugs 
+	SDL_strlcpy( out_buf, in_src, in_size ); // TODO: check for bugs 
 #else
 	std::strncpy( buf, src, bufsize );
 #endif
-	p = buf;
-	p += Min( bufsize - 1, idStr::Length( src ) );
+	p = out_buf;
+	p += Min( in_size - 1, idStr::Length( in_src ) );
 	*p = '\0';
 
 #if CR_USE_SDL_STRING_UTILS
-    p = SDL_strchr( buf, ':' );
+    p = SDL_strchr( out_buf, ':' );
 #else
-    p = std::strchr( buf, ':' );
+    p = std::strchr( out_buf, ':' );
 #endif
 
 	if( !p )

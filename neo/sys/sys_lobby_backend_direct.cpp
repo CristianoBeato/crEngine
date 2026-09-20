@@ -101,7 +101,7 @@ void idLobbyBackendDirect::JoinFromConnectInfo( const lobbyConnectInfo_t& connec
 	if( lobbyToSessionCB->CanJoinLocalHost() )
 	{
 // BEATO Begin:
-		address.OpenFromString( "localhost", net_port.GetInteger() );
+		address = crAddress( "localhost", net_port.GetInteger() );
 // BEATO End
 		NET_VERBOSE_PRINT( "NET: idLobbyBackendDirect::JoinFromConnectInfo(): canJoinLocalHost\n" );
 	}
@@ -170,6 +170,7 @@ void idLobbyBackendDirect::SetIsJoinable( bool joinable )
 idLobbyBackendDirect::GetConnectInfo
 ========================
 */
+extern idCVar net_ip;
 lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo( void )
 {
 	lobbyConnectInfo_t connectInfo;
@@ -190,7 +191,7 @@ lobbyConnectInfo_t idLobbyBackendDirect::GetConnectInfo( void )
 		// DG end
 		
 // BEATO Begin:
-		address.OpenFromString( ip, net_port.GetInteger() );
+		address = crAddress( ip, net_port.GetInteger() );
 // BEATO End
 	}
 	
@@ -216,7 +217,7 @@ bool idLobbyBackendDirect::IsOwnerOfConnectInfo( const lobbyConnectInfo_t& conne
 idLobbyBackendDirect::Pump
 ========================
 */
-void idLobbyBackendDirect::Pump()
+void idLobbyBackendDirect::Pump( void )
 {
 }
 

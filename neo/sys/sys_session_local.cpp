@@ -2756,7 +2756,7 @@ bool idSessionLocal::HandlePackets()
 	
 	byte				packetBuffer[ idPacketProcessor::MAX_FINAL_PACKET_SIZE ];
 	lobbyAddress_t		remoteAddress;
-	int					recvSize = 0;
+	size_t					recvSize = 0;
 	bool				fromDedicated = false;
 	
 	while( ReadRawPacket( remoteAddress, packetBuffer, recvSize, fromDedicated, sizeof( packetBuffer ) ) && recvSize > 0 )
@@ -2996,7 +2996,7 @@ void idSessionLocal::TickSendQueue()
 idSessionLocal::QueuePacket
 ========================
 */
-void idSessionLocal::QueuePacket( idQueue< idQueuePacket, &idQueuePacket::queueNode >& queue, int time, const lobbyAddress_t& to, const void* data, int size, bool dedicated )
+void idSessionLocal::QueuePacket( idQueue< idQueuePacket, &idQueuePacket::queueNode >& queue, int time, const lobbyAddress_t& to, const void* data, size_t size, bool dedicated )
 {
 	//mem.PushHeap();
 	
@@ -3019,7 +3019,7 @@ void idSessionLocal::QueuePacket( idQueue< idQueuePacket, &idQueuePacket::queueN
 idSessionLocal::ReadRawPacketFromQueue
 ========================
 */
-bool idSessionLocal::ReadRawPacketFromQueue( int time, lobbyAddress_t& from, void* data, int& size, bool& outDedicated, int maxSize )
+bool idSessionLocal::ReadRawPacketFromQueue( int time, lobbyAddress_t& from, void* data, size_t& size, bool& outDedicated, int maxSize )
 {
 	idQueuePacket* packet = recvQueue.Peek();
 	
@@ -3046,7 +3046,7 @@ bool idSessionLocal::ReadRawPacketFromQueue( int time, lobbyAddress_t& from, voi
 idSessionLocal::SendRawPacket
 ========================
 */
-void idSessionLocal::SendRawPacket( const lobbyAddress_t& to, const void* data, int size, bool dedicated )
+void idSessionLocal::SendRawPacket( const lobbyAddress_t& to, const void* data, size_t size, bool dedicated )
 {
 	const int now = Sys_Milliseconds();
 	
@@ -3145,7 +3145,7 @@ void idSessionLocal::SendRawPacket( const lobbyAddress_t& to, const void* data, 
 idSessionLocal::ReadRawPacket
 ========================
 */
-bool idSessionLocal::ReadRawPacket( lobbyAddress_t& from, void* data, int& size, bool& outDedicated, int maxSize )
+bool idSessionLocal::ReadRawPacket( lobbyAddress_t& from, void* data, size_t& size, bool& outDedicated, int maxSize )
 {
 	SCOPED_PROFILE_EVENT( "Session::ReadRawPacket" );
 	
@@ -4387,7 +4387,7 @@ lobbyAddress_t::InitFromIPandPort
 void lobbyAddress_t::InitFromIPandPort( const char* ip, int port )
 {
 // BEATO Begin: Use SDL3_net for internet conection
-	netAddr.OpenFromString( ip, port );	
+	netAddr = crAddress( ip, port );	
 // BEATO End
 }
 
@@ -4523,7 +4523,7 @@ void idNetSessionPort::SendRawPacket( const lobbyAddress_t& to, const void* data
 idNetSessionPort::IsOpen
 ========================
 */
-bool idNetSessionPort::IsOpen()
+bool idNetSessionPort::IsOpen( void )
 {
 	return UDP.IsOpen();
 }
@@ -4533,7 +4533,7 @@ bool idNetSessionPort::IsOpen()
 idNetSessionPort::Close
 ========================
 */
-void idNetSessionPort::Close()
+void idNetSessionPort::Close( void )
 {
 	UDP.Close();
 }
@@ -4679,10 +4679,14 @@ idSessionLocal::ListServersCommon
 */
 
 static const char* pingMessage = "get_servers_handshake";
-static const char* reponseMessage "servers_handshake_acepted";
+static const char* reponseMessage = "servers_handshake_acepted";
+
+// @CristianoBeato: Todo: We need create a system that send a hand shake, and then the serves send the game properties
+// that are holsing 
 
 void idSessionLocal::ListLanServers( void )
 {
+#if 0 // TODO:
 	char buffer[2048];
     size_t bytesRead = 0;
 
@@ -4726,6 +4730,7 @@ void idSessionLocal::ListLanServers( void )
     }
 
     idLib::Printf( "Busca de Lobbies LAN finalizada. %d servidores encontrados.\n", m_lobbyList.Num() );	
+#endif 
 }
 // BEATO End
 

@@ -46,6 +46,7 @@ public:
 protected:
 	friend class idUDP;
 	friend class crNetwork;
+	friend class crNetworkSDL3;
 	crAddress( NET_Address* in_addrs, const portID_t in_port );
 	NET_Address*	GetHandle( void ) const { return m_address; }	
 
@@ -166,29 +167,12 @@ inline constexpr uint32_t MAX_INTERFACES = 32;
 class crNetwork
 {
 public:
-    static crNetwork*  Get( void );
-
-	crNetwork( void );
-	void					Init( void );
-    void					Shutdown( void );
-    bool					IsLANAddress( const crAddress &a );
-    uint32_t				GetLocalIPCount( void ) const;
-    const char* 			GetLocalIP( const uint32_t i ) const;
-
-protected:
-
-#if 0
-	static idCVar net_socksServer;
-	static idCVar net_socksPort;
-	static idCVar net_socksUsername;
-	static idCVar net_socksPassword;
-	static idCVar net_ip;
-#endif
-
-	int          		m_localAddressCount;
-	crAddress*   		m_localAddresses;
-
-	bool	ExtractPort( const char* src, char* buf, const size_t bufsize, int* port );
+    static crNetwork*  				Get( void );
+	virtual void					Init( void ) = 0;
+    virtual void					Shutdown( void ) = 0;
+    virtual bool					IsLANAddress( const crAddress &a ) = 0;
+    virtual uint32_t				GetLocalIPCount( void ) const = 0;
+    virtual const char* 			GetLocalIP( const uint32_t i ) const = 0;
 };
 
 #endif //!__NETWORK_SYSTEM_HPP__
