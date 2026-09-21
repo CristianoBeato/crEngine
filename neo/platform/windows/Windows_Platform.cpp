@@ -23,13 +23,111 @@ crWindowsPlatform::~crWindowsPlatform( void )
 {
 }
 
-void crWindowsPlatform::StartUp(void)
+void crWindowsPlatform::Init(void)
 {
     CoInitialize( nullptr ); // TODO: Move to Xaudio
 
-	com_pid.SetInteger( getpid() );
-	common->Printf( "pid: %d\n", com_pid.GetInteger() );
-	common->Printf( "%d MB System Memory\n", Sys_GetSystemRam() );
+	//
+	// Windows user name
+	//
+	// win_username.SetString( Sys_GetCurrentUser() );
+
+
+	//
+	// CPU type
+	//
+	if ( !idStr::Icmp( sys_cpustring.GetString(), "detect" ) ) {
+		idStr string;
+
+		//common->Printf( "%1.0f MHz ", Sys_ClockTicksPerSecond() / 1000000.0f );
+
+		auto cpuid = crCPUInfo::Get()->GetProcessorId();
+
+		string.Clear();
+
+		if ( cpuid & crCPUInfo::CPUID_AMD ) 
+		{
+			string += "AMD CPU";
+		} 
+		else if ( cpuid & crCPUInfo::CPUID_INTEL ) 
+		{
+			string += "Intel CPU";
+		} 
+		else if ( cpuid & crCPUInfo::CPUID_UNSUPPORTED ) 
+		{
+			string += "unsupported CPU";
+		} 
+		else 
+		{
+			string += "generic CPU";
+		}
+
+		string += " with ";
+		if ( cpuid & crCPUInfo::CPUID_MMX ) 
+			string += "MMX & ";
+
+		if ( cpuid & crCPUInfo::CPUID_SSE ) 
+			string += "SSE & ";
+		
+		if ( cpuid & crCPUInfo::CPUID_SSE2 ) 
+            string += "SSE2 & ";
+		
+		if ( cpuid & crCPUInfo::CPUID_SSE3 ) 
+			string += "SSE3 & ";
+		
+		if ( cpuid & crCPUInfo::CPUID_HTT ) 
+			string += "HTT & ";
+		
+		string.StripTrailing( " & " );
+		string.StripTrailing( " with " );
+		sys_cpustring.SetString( string );
+	} 
+	else {
+
+		common->Printf( "forcing CPU type to " );
+		idLexer src( sys_cpustring.GetString(), idStr::Length( sys_cpustring.GetString() ), "sys_cpustring" );
+		idToken token;
+
+		int id = crCPUInfo::CPUID_NONE;
+		while( src.ReadToken( &token ) ) 
+		{
+			if ( token.Icmp( "generic" ) == 0 ) 
+			{
+				id |= CPUID_GENERIC;
+			} else if ( token.Icmp( "intel" ) == 0 ) {
+				id |= CPUID_INTEL;
+			} else if ( token.Icmp( "amd" ) == 0 ) {
+				id |= CPUID_AMD;
+			} else if ( token.Icmp( "mmx" ) == 0 ) {
+				id |= CPUID_MMX;
+			} else if ( token.Icmp( "3dnow" ) == 0 ) {
+				id |= CPUID_3DNOW;
+			} else if ( token.Icmp( "sse" ) == 0 ) {
+				id |= CPUID_SSE;
+			} else if ( token.Icmp( "sse2" ) == 0 ) {
+				id |= CPUID_SSE2;
+			} else if ( token.Icmp( "sse3" ) == 0 ) {
+				id |= CPUID_SSE3;
+			} else if ( token.Icmp( "htt" ) == 0 ) {
+				id |= CPUID_HTT;
+			}
+		}
+		if ( id == CPUID_NONE ) {
+			common->Printf( "WARNING: unknown sys_cpustring '%s'\n", win32.sys_cpustring.GetString() );
+			id = CPUID_GENERIC;
+		}
+		cpuid = (cpuid_t) id;
+	}
+
+	common->Printf( "%s\n", sys_cpustring.GetString() );
+	common->Printf( "%d MB System Memory\n", crCPUInfo::Get()->GetSystemRam() );
+	//common->Printf( "%d MB Video Memory\n", GetVideoRam() );
+	if ( ( cpuid & crCPUInfo::CPUID_SSE2 ) == 0 ) 
+	{
+		common->Error( "SSE2 not supported!" );
+	}
+
+	//g_Joystick.Init();
 }
 
 void crWindowsPlatform::ShutDown(void)
@@ -91,11 +189,11 @@ void crWindowsPlatform::ReLaunch(void *data, const size_t dataSize)
 	// DG end
 	*/
 
-	strcpy(szPathOrig, va("\"%s\" %s", Sys_EXEPath(), (const char *)data));
+	SDL_snprintf( szPathOrig, MAX_PRINT_MSG, ("\"%s\" %s", crPaths::Get()->EXEPath(), (const char *)data) );
 
 	CloseHandle( hProcessMutex );
 
-	if ( !CreateProcess( NULL, szPathOrig, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi ) ) 
+	if ( !CreateProcess( nullptr, szPathOrig, nullptr, nullptr, FALSE, 0, nullptr, nullptr, &si, &pi ) ) 
     {
 		idLib::Error( "Could not start process: '%s' ", szPathOrig );
 		return;

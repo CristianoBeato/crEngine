@@ -13,7 +13,7 @@ public:
 
     crWindowsPlatform( void );
     ~crWindowsPlatform( void );
-    virtual void        StartUp( void );
+    virtual void        Init( void );
     virtual void        ShutDown( void );
     virtual void        Exit( const int code );
     virtual bool        AlreadyRunning( void );
