@@ -3,6 +3,7 @@
 #include "Platform.hpp"
 
 #include <SDL3/SDL_gamepad.h>
+#include <SDL3/SDL_haptic.h>
 
 inline constexpr uint32_t MAX_CONTROLLER_BUTTON_EVENTS = K_JOY_DPAD_RIGHT - K_JOY1 + 1;
 inline constexpr uint32_t EVENTS_MAX_CONTROLLER_EVENTS = SDL_GAMEPAD_BUTTON_COUNT + SDL_GAMEPAD_AXIS_COUNT;
@@ -26,6 +27,50 @@ struct joysticPoll_t
 	int button = 0;
 	int value = 0;
 };
+
+class idJoystickSDL3
+{
+public:
+	idJoystickSDL3();
+	
+	bool	Init( void );
+	void	SetRumble( const uint16_t rumbleLow, const uint16_t rumbleHigh );
+	int		PollInputEvents( int inputDeviceNum );
+	int		ReturnInputEvent( const int n, int& action, int& value );
+	void	EndInputEvents( void ) 
+	{}
+	
+protected:
+	friend void		JoystickSamplingThread( void* data );
+	
+	void 			PushButton( int key, bool value );
+	void 			PostInputEvent( int event, int value, int range = 16384 );
+
+	struct
+	{
+		int event;
+		int value;
+	}	events[ MAX_JOY_EVENT ];
+	
+	// should these be per-controller?
+	bool					buttonStates[MAX_INPUT_DEVICES][K_LAST_KEY];	// For keeping track of button up/down events
+	int						joyAxis[MAX_INPUT_DEVICES][MAX_JOYSTICK_AXIS];	// For keeping track of joystick axises
+
+private:
+	uint32_t				m_numEvents;
+	SDL_JoystickID			m_joyID;
+	SDL_Gamepad*			m_gamepadHande;
+};
+
+idJoystickSDL3::idJoystickSDL3( void )
+{
+
+}
+
+void idJoystickSDL3::SetRumble( const uint16_t rumbleLow, const uint16_t rumbleHigh )
+{
+	SDL_RumbleGamepad( m_gamepadHande, rumbleLow, rumbleHigh, 33u );
+}
 
 class crInputSystemSDL3 : public crInputSystem
 {
@@ -87,8 +132,9 @@ protected:
 private:
 	idStaticList<keyboardPoll_t, MAX_KEYBOARD_EVENTS>	m_kbdPolls;
 	idStaticList<mousePoll_t, MAX_MOUSE_EVENTS>			m_mousePolls;
-	idStaticList<joysticPoll_t, MAX_KEYBOARD_EVENTS>	m_joysticPolls[MAX_JOYSTICKS];
+	idJoystickSDL3										m_joysticks[MAX_JOYSTICKS];
 };
+
 
 crInputSystem* crInputSystem::Get( void ) 
 {

@@ -39,10 +39,141 @@ constexpr int SDL3_TO_IDTECH_AXIS[SDL_GAMEPAD_AXIS_COUNT] =
 	J_AXIS_RIGHT_TRIG	// SDL_GAMEPAD_AXIS_RIGHT_TRIGGER ( RT R2 )
 };
 
-
 //=====================================================================================
 //	Joystick Input Handling
 //=====================================================================================
+
+bool idJoystick::Init(void)
+{
+    return false;
+}
+
+void idJoystick::Shutdown(void)
+{
+	if( !m_gamepadHandle )
+	{
+		SDL_CloseGamepad( m_gamepadHandle );
+		m_gamepadHandle = nullptr;
+	}
+}
+
+void idJoystick::Deactivate(void)
+{
+	// Se o jogo for minimizado, você pode zerar os estados se quiser
+	m_pendingEvents.clear();
+	m_currentEventIndex = 0;
+}
+
+static inline uint16_t normalizeTo16Bits( const int32_t fullval )
+{
+	if( fullval <= 0 )
+		return 0;
+
+	double proportional = ( fullval / INT32_MAX) * UINT16_MAX; // Rule of three / Proportional normalization
+	return static_cast<uint16_t>( proportional + 0.5 ); // Converts back to a 16-bit integer (with standard rounding)
+}
+
+void idJoystick::SetRumble( const int rumbleLow, const int rumbleHigh )
+{
+    if ( !m_gamepadHandle )
+		return; 
+
+	// Simple conversion to the 16-bit scale required by SDL3 (0 to 65535)
+	Uint16 low = normalizeTo16Bits( rumbleLow );
+    Uint16 high = normalizeTo16Bits( rumbleHigh );
+    SDL_RumbleGamepad( m_gamepadHandle, low, high, 16u ); 
+}
+
+uint32_t idJoystick::PollInputEvents(void)
+{
+	m_pendingEvents.clear();
+	m_currentEventIndex = 0;
+
+	// Updates SDL3's internal hardware states before querying them
+	SDL_UpdateJoysticks(); // Move, here we gola lose some events
+
+	// SCANNING THE BUTTONS (Button Polling)
+    // Map the standard buttons that idTech 4 expects. 
+	SDL_GamepadButton botoesParaVerificar[] = 
+	{
+            SDL_GAMEPAD_BUTTON_SOUTH,  // A / X
+            SDL_GAMEPAD_BUTTON_EAST,   // B / O
+            SDL_GAMEPAD_BUTTON_WEST,   // X / Quadrado
+            SDL_GAMEPAD_BUTTON_NORTH,  // Y / Triângulo
+            SDL_GAMEPAD_BUTTON_START,
+            SDL_GAMEPAD_BUTTON_BACK
+    };
+
+	for (auto btn : botoesParaVerificar) 
+	{
+        // Pergunta o estado exato e atual do botão direto para a memória do SDL3
+        bool isPressed = SDL_GetGamepadButton( m_gamepadHandle, btn);
+            
+        joystickAction_t action;
+        action.actionType = 1; // Substitua pelo ID correspondente de botão na idTech (ex: SE_KEY)
+        action.index = btn;
+        action.value = isPressed ? 1 : 0;
+            
+        m_pendingEvents.push_back(action);
+    }
+
+    // 2. FAZENDO VARREDURA DOS ANALÓGICOS (Polling de Eixos)
+    SDL_GamepadAxis eixosParaVerificar[] = 
+	{
+        SDL_GAMEPAD_AXIS_LEFTX,
+        SDL_GAMEPAD_AXIS_LEFTY,
+        SDL_GAMEPAD_AXIS_RIGHTX,
+        SDL_GAMEPAD_AXIS_RIGHTY
+    };
+
+    for (auto axis : eixosParaVerificar) 
+	{
+        // Pergunta a posição exata atual do analógico
+        Sint16 axisValue = SDL_GetGamepadAxis( m_gamepadHandle, axis);
+
+        // Aplica filtro de deadzone direto no polling
+        if ( axisValue < - m_deadZone || axisValue > m_deadZone ) 
+		{
+            joystickAction_t action;
+            action.actionType = 2; // Substitua pelo ID de eixo na idTech (ex: SE_AXIS)
+            action.index = axis;
+            action.value = axisValue;
+            pendingEvents.push_back(action);
+        } 
+		else 
+		{
+            // Envia 0 para indicar que o analógico voltou ao centro estabilizado
+            joystickAction_t action;
+            action.actionType = 2;
+            action.index = axis;
+            action.value = 0;
+            pendingEvents.push_back(action);
+        }
+    }
+
+    // Retorna a quantidade de estados capturados nesta rodada para o motor saber que há dados
+	return m_pendingEvents.size();
+}
+
+uint32_t idJoystick::ReturnInputEvent(const int n, int &action, int &value)
+{
+    if ( m_currentEventIndex >= pendingEvents.size())
+		return 0; // Terminou de ler os estados
+
+    const auto& ev = pendingEvents[m_currentEventIndex];
+    action = ev.actionType;
+
+    // Dependendo de como a idTech mapeia, junte o tipo do botão/eixo aqui:
+    // value = ev.value;
+        
+    m_currentEventIndex++;
+    return 1; // Indica que retornou com sucesso um dado de input
+}
+
+void idJoystick::EndInputEvents(void)
+{
+	pendingEvents.clear();
+}
 
 bool Sys_JoystickConnect( const SDL_JoystickID in_JoystickID )
 {
