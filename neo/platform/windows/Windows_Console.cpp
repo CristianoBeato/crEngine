@@ -2,6 +2,8 @@
 #include "precompiled.h"
 #include "Windows_Console.hpp"
 
+#include "rc/crEngine_resource.h"
+
 static idCVar win_viewlog( "win_viewlog", "0", CVAR_SYSTEM | CVAR_INTEGER, "" );
 
 constexpr uint32_t COPY_ID = 1;
@@ -13,8 +15,6 @@ constexpr uint32_t ERRORTEXT_ID = 11;
 
 constexpr uint32_t EDIT_ID = 100;
 constexpr uint32_t INPUT_ID = 101;
-
-constexpr uint32_t	COMMAND_HISTORY	= 64;
 
 constexpr uint32_t CONSOLE_BUFFER_SIZE = 16384;
 
