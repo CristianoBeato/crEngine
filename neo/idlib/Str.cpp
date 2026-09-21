@@ -1898,7 +1898,7 @@ idStr::Copynz
 Safe strncpy that ensures a trailing zero
 =============
 */
-void idStr::Copynz( char* dest, const char* src, int destsize )
+void idStr::Copynz( char* dest, const char* src, const size_t destsize )
 {
 	if( !src )
 	{
@@ -1912,7 +1912,19 @@ void idStr::Copynz( char* dest, const char* src, int destsize )
 		return;
 	}
 	
+#if 0
+#if CR_USE_SDL_STRING_UTILS
+	SDL_strlcpy( dest, src, destsize - 1 );
+#else
 	strncpy( dest, src, destsize - 1 );
+#endif
+#else
+#if CR_USE_SDL_STRING_UTILS
+	SDL_snprintf( dest, destsize, src ); // safer than strncpy
+#else
+	snprintf( dest, destsize, src ); // safer than strncpy
+#endif  
+#endif
 	dest[destsize - 1] = 0;
 }
 
@@ -1921,8 +1933,9 @@ void idStr::Copynz( char* dest, const char* src, int destsize )
 idStr::CopyString
 =============
 */
-size_t idStr::CopyString( char *dest, const char *src, size_t destsize )
+size_t idStr::CopyString( char *dest, const char *src, const size_t destsize )
 {
+#if 0
     const char *s = src;
     size_t n = destsize;
 
@@ -1951,6 +1964,9 @@ size_t idStr::CopyString( char *dest, const char *src, size_t destsize )
     }
 
     return ( s - src - 1 ); // Retorna o tamanho total da string src (sem contar o \0)
+#else
+	return SDL_snprintf( dest, destsize, src );
+#endif 
 }
 
 /*
@@ -1960,17 +1976,21 @@ size_t idStr::CopyString( char *dest, const char *src, size_t destsize )
    never goes past bounds or leaves without a terminating 0
  ================
  */
-void idStr::Append( char* dest, int size, const char* src )
+void idStr::Append( char* dest, const size_t size, const char* src )
 {
-	int		l1;
+	size_t l1 = 0;
 	
 	// RB: 64 bit fixes,  conversion from 'size_t' to 'int', possible loss of data
-	l1 = ( int )strlen( dest );
+#if CR_USE_SDL_STRING_UTILS
+	l1 = SDL_strlen( dest );
+#else
+	l1 = std::strlen( dest );
+#endif
+
 	// RB end
 	if( l1 >= size )
-	{
 		idLib::common->Error( "idStr::Append: already overflowed" );
-	}
+	
 	idStr::Copynz( dest + l1, src, size - l1 );
 }
 
