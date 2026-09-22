@@ -392,13 +392,16 @@ void idCommonLocal::ProcessGameReturn( const gameReturn_t& ret )
 	if( in_useJoystick.GetBool() && in_joystickRumble.GetBool() && !game->Shell_IsActive() && session->GetSignInManager().GetMasterInputDevice() >= 0 )
 	{
 		// Only set the rumble on the active controller
-		crInputSystem::Get()->SetRumble( session->GetSignInManager().GetMasterInputDevice(), ret.vibrationLow, ret.vibrationHigh );
+		auto joystick = crInputSystem::Get()->Joystick( session->GetSignInManager().GetMasterInputDevice() );
+		joystick->SetRumble( ret.vibrationLow, ret.vibrationHigh );
 	}
 	else
 	{
-		for( int i = 0; i < MAX_INPUT_DEVICES; i++ )
+		auto count = crInputSystem::Get()->JoystickCount(); // this will update joysticks state
+		for( uint32_t i = 0; i < count; i++ )
 		{
-			crInputSystem::Get()->SetRumble( i, 0, 0 );
+			auto joystick = crInputSystem::Get()->Joystick( i );
+			joystick->SetRumble( 0, 0 );
 		}
 	}
 	
@@ -693,18 +696,24 @@ void idCommonLocal::Frame( void )
 		// build a new usercmd
 		int deviceNum = session->GetSignInManager().GetMasterInputDevice();
 		usercmdGen->BuildCurrentUsercmd( deviceNum );
+
+		// Update joystics
+		auto jcount = crInputSystem::Get()->JoystickCount(); // BEATO: Required sinse we update all joysticks state here
 		if( deviceNum == -1 )
 		{
-			for( int i = 0; i < MAX_INPUT_DEVICES; i++ )
+			for( uint32_t i = 0; i < jcount; i++ )
 			{
-				crInputSystem::Get()->PollJoystickInputEvents( i );
-				crInputSystem::Get()->EndJoystickInputEvents( i );
+				auto Joystick = crInputSystem::Get()->Joystick( i );
+				Joystick->PollInputEvents();
+				Joystick->EndInputEvents();
 			}
 		}
 		else
 		{
-			crInputSystem::Get()->PollJoystickInputEvents( deviceNum );
-			crInputSystem::Get()->EndJoystickInputEvents( deviceNum );
+			/// retrieve a active joystic id
+			auto Joystick = crInputSystem::Get()->Joystick( static_cast<uint32_t>( deviceNum ) );
+			Joystick->PollInputEvents();
+			Joystick->EndInputEvents();
 		}
 
 		if( pauseGame )

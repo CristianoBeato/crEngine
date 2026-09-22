@@ -1177,7 +1177,7 @@ void idCommonLocal::RenderBink( const char* path,  const char* path_audio )
 	{		
 		crEvents::Get()->GenerateEvents();		
 		ev = crEvents::Get()->GetEvent();
-		crInputSystem::Get()->PollJoystickInputEvents( 0 );
+		// crInputSystem::Get()->PollJoystickInputEvents( 0 );
 		renderSystem->DrawStretchPic( chop, 0, imageWidth, SCREEN_HEIGHT, 0, 0, 1, 1, material );
 		const emptyCommand_t* cmd = renderSystem->SwapCommandBuffers( &time_frontend, &time_backend, &time_shadows, &time_gpu );
 		renderSystem->RenderCommandBuffers( cmd );		

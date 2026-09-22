@@ -62,7 +62,8 @@ struct gameReturn_t
 	bool		syncNextGameFrame;					// used when cinematics are skipped to prevent session from simulating several game frames to
 	// keep the game time in sync with real time
 	int			vibrationLow;
-	int			vibrationHigh;
+	int			vibrationHigh; 
+	// TODO: Add dual sense trigger feedback
 };
 
 class idGame

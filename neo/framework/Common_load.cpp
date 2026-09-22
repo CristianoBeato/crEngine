@@ -431,11 +431,12 @@ void idCommonLocal::ExecuteMapChange( void )
 		cvarSystem->ResetFlaggedVariables( CVAR_CHEAT );
 	}
 	
-	int start = Sys_Milliseconds();
+	auto start = Sys_Milliseconds();
 	
-	for( int i = 0; i < MAX_INPUT_DEVICES; i++ )
+	auto joystickCount = crInputSystem::Get()->JoystickCount();
+	for( uint32_t i = 0; i < joystickCount; i++ )
 	{
-		crInputSystem::Get()->SetRumble( i, 0, 0 );
+		crInputSystem::Get()->Joystick( i )->SetRumble( 0, 0 );
 	}
 	
 	// close console and remove any prints from the notify lines
@@ -466,10 +467,10 @@ void idCommonLocal::ExecuteMapChange( void )
 	StartWipe( "wipeMaterial", true );
 	CompleteWipe();
 	
-	int sm = Sys_Milliseconds();
+	auto sm = Sys_Milliseconds();
 	// shut down the existing game if it is running
 	UnloadMap();
-	int ms = Sys_Milliseconds() - sm;
+	auto ms = Sys_Milliseconds() - sm;
 	common->Printf( "%6d msec to unload map\n", ms );
 	
 	// Free media from previous level and
@@ -697,8 +698,7 @@ void idCommonLocal::ExecuteMapChange( void )
 	mapSpawned = true;
 	crEvents::Get()->ClearEvents();
 	
-	
-	int	msec = Sys_Milliseconds() - start;
+	auto	msec = Sys_Milliseconds() - start;
 	common->Printf( "%6d msec to load %s\n", msec, currentMapName.c_str() );
 	//Sys_DumpMemory( false );
 	
