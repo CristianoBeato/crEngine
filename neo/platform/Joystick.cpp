@@ -3,7 +3,9 @@
 #include "sys/sys_public.h"
 #include "Joystick.hpp"
 
+#include <SDL3/SDL_init.h>
 #include <SDL3/SDL_haptic.h>
+
 #include <utility> // std::move
 
 const uint32_t MAX_JOYSTICK_BUTTON_EVENTS = K_JOY_DPAD_RIGHT - K_JOY1 + 1;
@@ -39,28 +41,57 @@ constexpr int SDL3_TO_IDTECH_AXIS[SDL_GAMEPAD_AXIS_COUNT] =
 	J_AXIS_RIGHT_TRIG	// SDL_GAMEPAD_AXIS_RIGHT_TRIGGER ( RT R2 )
 };
 
+
 //=====================================================================================
-//	Joystick Input Handling
+//	idJoystickSDL3 Input Handling
 //=====================================================================================
 
-bool idJoystick::Init(void)
+idJoystickSDL3::idJoystickSDL3(void) :
+    m_deadZone( 0 ),
+    m_currentEventIndex( 0 ),
+    m_JoystickID( 0 ),
+    m_gamepadFeedback( 0 ),
+    m_gamepadHandle( nullptr )
 {
-    return false;
 }
 
-void idJoystick::Shutdown(void)
+bool idJoystickSDL3::Init(void)
 {
-	if( !m_gamepadHandle )
+ 
+#if 0
+    m_gamepadFeedback = SDL_OpenHapticFromJoystick( m_JoystickID );
+
+    // Initialize simple rumble
+    if ( !SDL_InitHapticRumble( m_gamepadFeedback ) )
+        SDL_CloseHaptic( m_gamepadFeedback );
+ 
+    SDL_HapticEffect hapticEffect{};
+#endif
+
+    return true;
+}
+
+void idJoystickSDL3::Shutdown(void)
+{
+#if 0
+    if( m_gamepadFeedback )
+    {
+        SDL_CloseHaptic( m_gamepadFeedback );
+        m_gamepadFeedback = nullptr;
+    }
+#endif
+
+	if( m_gamepadHandle )
 	{
 		SDL_CloseGamepad( m_gamepadHandle );
 		m_gamepadHandle = nullptr;
 	}
 }
 
-void idJoystick::Deactivate(void)
+void idJoystickSDL3::Deactivate( void )
 {
 	// Se o jogo for minimizado, você pode zerar os estados se quiser
-	m_pendingEvents.clear();
+	m_pendingEvents.Clear();
 	m_currentEventIndex = 0;
 }
 
@@ -73,20 +104,24 @@ static inline uint16_t normalizeTo16Bits( const int32_t fullval )
 	return static_cast<uint16_t>( proportional + 0.5 ); // Converts back to a 16-bit integer (with standard rounding)
 }
 
-void idJoystick::SetRumble( const int rumbleLow, const int rumbleHigh )
+void idJoystickSDL3::SetRumble( const int rumbleLow, const int rumbleHigh )
 {
-    if ( !m_gamepadHandle )
+    if ( !m_gamepadHandle || !m_gamepadFeedback )
 		return; 
 
-	// Simple conversion to the 16-bit scale required by SDL3 (0 to 65535)
-	Uint16 low = normalizeTo16Bits( rumbleLow );
+#if 0
+    SDL_PlayHapticRumble( m_gamepadFeedback, 0.5, 1000 );
+#else
+    // Simple conversion to the 16-bit scale required by SDL3 (0 to 65535)
+    Uint16 low = normalizeTo16Bits( rumbleLow );
     Uint16 high = normalizeTo16Bits( rumbleHigh );
-    SDL_RumbleGamepad( m_gamepadHandle, low, high, 16u ); 
+    SDL_RumbleGamepad( m_gamepadHandle, low, high, 16u );
+#endif 
 }
 
-uint32_t idJoystick::PollInputEvents(void)
+uint32_t idJoystickSDL3::PollInputEvents( void )
 {
-	m_pendingEvents.clear();
+	m_pendingEvents.Clear(); // Make surre that we have cleared the states 
 	m_currentEventIndex = 0;
 
 	// Updates SDL3's internal hardware states before querying them
@@ -94,27 +129,27 @@ uint32_t idJoystick::PollInputEvents(void)
 
 	// SCANNING THE BUTTONS (Button Polling)
     // Map the standard buttons that idTech 4 expects. 
-	SDL_GamepadButton botoesParaVerificar[] = 
+	static SDL_GamepadButton botoesParaVerificar[] = 
 	{
-            SDL_GAMEPAD_BUTTON_SOUTH,  // A / X
-            SDL_GAMEPAD_BUTTON_EAST,   // B / O
-            SDL_GAMEPAD_BUTTON_WEST,   // X / Quadrado
-            SDL_GAMEPAD_BUTTON_NORTH,  // Y / Triângulo
-            SDL_GAMEPAD_BUTTON_START,
-            SDL_GAMEPAD_BUTTON_BACK
+            SDL_GAMEPAD_BUTTON_SOUTH,   // A / X
+            SDL_GAMEPAD_BUTTON_EAST,    // B / O
+            SDL_GAMEPAD_BUTTON_WEST,    // X / Quadrado
+            SDL_GAMEPAD_BUTTON_NORTH,   // Y / Triângulo
+            SDL_GAMEPAD_BUTTON_START,   // start/ right
+            SDL_GAMEPAD_BUTTON_BACK     // select / back 
     };
 
-	for (auto btn : botoesParaVerificar) 
+	for ( auto btn : botoesParaVerificar ) 
 	{
         // Pergunta o estado exato e atual do botão direto para a memória do SDL3
         bool isPressed = SDL_GetGamepadButton( m_gamepadHandle, btn);
             
-        joystickAction_t action;
+        joystickAction_t action{};
         action.actionType = 1; // Substitua pelo ID correspondente de botão na idTech (ex: SE_KEY)
         action.index = btn;
         action.value = isPressed ? 1 : 0;
             
-        m_pendingEvents.push_back(action);
+        m_pendingEvents.Append( action );
     }
 
     // 2. FAZENDO VARREDURA DOS ANALÓGICOS (Polling de Eixos)
@@ -134,45 +169,45 @@ uint32_t idJoystick::PollInputEvents(void)
         // Aplica filtro de deadzone direto no polling
         if ( axisValue < - m_deadZone || axisValue > m_deadZone ) 
 		{
-            joystickAction_t action;
+            joystickAction_t action{};
             action.actionType = 2; // Substitua pelo ID de eixo na idTech (ex: SE_AXIS)
             action.index = axis;
             action.value = axisValue;
-            pendingEvents.push_back(action);
+            m_pendingEvents.Append( action );
         } 
 		else 
 		{
             // Envia 0 para indicar que o analógico voltou ao centro estabilizado
-            joystickAction_t action;
+            joystickAction_t action{};
             action.actionType = 2;
             action.index = axis;
             action.value = 0;
-            pendingEvents.push_back(action);
+            m_pendingEvents.Append( action );
         }
     }
 
     // Retorna a quantidade de estados capturados nesta rodada para o motor saber que há dados
-	return m_pendingEvents.size();
+	return m_pendingEvents.Num();
 }
 
-uint32_t idJoystick::ReturnInputEvent(const int n, int &action, int &value)
+uint32_t idJoystickSDL3::ReturnInputEvent( const uint32_t n, int &action, int &value )
 {
-    if ( m_currentEventIndex >= pendingEvents.size())
-		return 0; // Terminou de ler os estados
+    if ( m_currentEventIndex >= m_pendingEvents.Num())
+		return 0; // End read states 
 
-    const auto& ev = pendingEvents[m_currentEventIndex];
+    const auto& ev = m_pendingEvents[m_currentEventIndex];
     action = ev.actionType;
 
     // Dependendo de como a idTech mapeia, junte o tipo do botão/eixo aqui:
     // value = ev.value;
-        
+    
     m_currentEventIndex++;
     return 1; // Indica que retornou com sucesso um dado de input
 }
 
-void idJoystick::EndInputEvents(void)
+void idJoystickSDL3::EndInputEvents( void )
 {
-	pendingEvents.clear();
+	m_pendingEvents.Clear();
 }
 
 bool Sys_JoystickConnect( const SDL_JoystickID in_JoystickID )
@@ -222,24 +257,5 @@ void Sys_InitGamepads( void )
 }
 
 void Sys_ShutdownGamepads(void)
-{
-}
-
-
-int Sys_PollJoystickInputEvents( int deviceNum )
-{	
-	return 0;
-}
-
-bool Sys_ReturnJoystickInputEvent( const int n, int& action, int& value )
-{
-	return false;
-}
-
-void Sys_EndJoystickInputEvents( void )
-{
-}
-
-void Sys_SetRumble( int device, uint16_t low, uint16_t high )
 {
 }

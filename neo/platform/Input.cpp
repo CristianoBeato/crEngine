@@ -2,8 +2,7 @@
 #include "Input.hpp"
 #include "Platform.hpp"
 
-#include <SDL3/SDL_gamepad.h>
-#include <SDL3/SDL_haptic.h>
+#include "Joystick.hpp"
 
 inline constexpr uint32_t MAX_CONTROLLER_BUTTON_EVENTS = K_JOY_DPAD_RIGHT - K_JOY1 + 1;
 inline constexpr uint32_t EVENTS_MAX_CONTROLLER_EVENTS = SDL_GAMEPAD_BUTTON_COUNT + SDL_GAMEPAD_AXIS_COUNT;
@@ -21,56 +20,6 @@ struct mousePoll_t
 	int action = 0;
 	int value = 0;
 };
-
-struct joysticPoll_t
-{
-	int button = 0;
-	int value = 0;
-};
-
-class idJoystickSDL3
-{
-public:
-	idJoystickSDL3();
-	
-	bool	Init( void );
-	void	SetRumble( const uint16_t rumbleLow, const uint16_t rumbleHigh );
-	int		PollInputEvents( int inputDeviceNum );
-	int		ReturnInputEvent( const int n, int& action, int& value );
-	void	EndInputEvents( void ) 
-	{}
-	
-protected:
-	friend void		JoystickSamplingThread( void* data );
-	
-	void 			PushButton( int key, bool value );
-	void 			PostInputEvent( int event, int value, int range = 16384 );
-
-	struct
-	{
-		int event;
-		int value;
-	}	events[ MAX_JOY_EVENT ];
-	
-	// should these be per-controller?
-	bool					buttonStates[MAX_INPUT_DEVICES][K_LAST_KEY];	// For keeping track of button up/down events
-	int						joyAxis[MAX_INPUT_DEVICES][MAX_JOYSTICK_AXIS];	// For keeping track of joystick axises
-
-private:
-	uint32_t				m_numEvents;
-	SDL_JoystickID			m_joyID;
-	SDL_Gamepad*			m_gamepadHande;
-};
-
-idJoystickSDL3::idJoystickSDL3( void )
-{
-
-}
-
-void idJoystickSDL3::SetRumble( const uint16_t rumbleLow, const uint16_t rumbleHigh )
-{
-	SDL_RumbleGamepad( m_gamepadHande, rumbleLow, rumbleHigh, 33u );
-}
 
 class crInputSystemSDL3 : public crInputSystem
 {
@@ -98,12 +47,9 @@ public:
 	virtual sysEvent_t 				GenerateMouseMoveEvent( const int32_t deltax, const int32_t deltay );
 
 	// joystick input polling
-	virtual uint32_t				PollJoystickInputEvents( const uint32_t in_deviceNum );
-	virtual bool					ReturnJoystickInputEvent( const uint32_t in_deviceNum, const uint32_t in_event, int& out_action, int& out_value );
-	virtual void					EndJoystickInputEvents( const uint32_t in_deviceNum );
-
-	virtual uint32_t				GamepadCount( void );
-	virtual void					SetRumble( const int device, uint16_t in_low, uint16_t in_hi );
+	virtual uint32_t				JoystickCount( void );
+	virtual idJoystick*				Joystick( const uint32_t in_ID );
+	
 protected:
 	friend class crEvents;
 
@@ -121,12 +67,6 @@ protected:
 	{
 		m_mousePolls.Append({ M_DELTAX, in_motionX } );
 		m_mousePolls.Append({ M_DELTAY, in_motionY } );
-	}
-
-    virtual void    AppendJoysticEvent( const uint32_t in_device, const int in_button, const int in_value ) override
-	{
-		// TODO: clamp device
-		m_joysticPolls[in_device].Append( { in_button, in_value } );
 	}
 
 private:
@@ -272,53 +212,24 @@ sysEvent_t crInputSystemSDL3::GenerateMouseMoveEvent(const int32_t deltax, const
 
 /*
 ================
-crInputSystem::PollJoystickInputEvents
+crInputSystemSDL3::GamepadCount
 ================
 */
-uint32_t crInputSystemSDL3::PollJoystickInputEvents( const uint32_t in_deviceNum )
+uint32_t crInputSystemSDL3::JoystickCount(void)
 {
-	/// TODO check if device is available
-    return m_joysticPolls[in_deviceNum].Num();
-}
+	// Updates SDL3's internal hardware states before querying them
+	SDL_UpdateJoysticks();
 
-/*
-================
-crInputSystem::ReturnJoystickInputEvent
-================
-*/
-bool crInputSystemSDL3::ReturnJoystickInputEvent(const uint32_t in_deviceNum, const uint32_t in_event, int &out_action, int &out_value)
-{
-	/// TODO: if not device available return false
-
-	if( in_event >= m_joysticPolls[in_deviceNum].Num() )
-		return false;
-
-	const auto jpoll = m_joysticPolls[in_deviceNum][in_event];
-	out_action = jpoll.button;
-	out_value = jpoll.value;
-
-    return true;
-}
-
-/*
-================
-crInputSystem::EndJoystickInputEvents
-================
-*/
-void crInputSystemSDL3::EndJoystickInputEvents(const uint32_t in_deviceNum)
-{
-	/// TODO: yah yow know, just do it...
-
-	/// Don't resize to don't reallocate memory 
-	m_joysticPolls[in_deviceNum].SetNum( 0 );
-}
-
-uint32_t crInputSystemSDL3::GamepadCount(void)
-{
 	/// Future 
     return 0;
 }
 
-void crInputSystemSDL3::SetRumble(const int device, uint16_t in_low, uint16_t in_hi)
+/*
+================
+crInputSystemSDL3::Gamepad
+================
+*/
+idJoystick *crInputSystemSDL3::Joystick(const uint32_t in_ID)
 {
+    return &m_joysticks[in_ID];
 }
