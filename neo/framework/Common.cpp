@@ -42,14 +42,6 @@ If you have questions concerning this license or the applicable additional terms
 #include "sound/sound.h"
 #include "sys/sys_savegame.h"
 
-#ifdef WIN32
-#include "sys/win32/win_local.h"  //SS2 fix RoQ videos skipping
-#endif
-
-//#ifdef MINGW
-//#include "../sys/sdl/sdl_local.h"  //SS2 fix RoQ videos skipping
-//#endif
-
 #ifdef ID_ALLOW_TOOLS
 #include "tools/edit_public.h"
 #endif
@@ -1554,7 +1546,13 @@ void idCommonLocal::Init( int argc, const char* const* argv, const char* cmdline
 		// init the user command input code
 		usercmdGen->Init();
 		
-		crInputSystem::Get()->SetRumble( 0, 0, 0 );
+		// Really needed ?
+		auto jcount = crInputSystem::Get()->JoystickCount();
+		for ( uint32_t i = 0; i < jcount; i++)
+		{
+			auto joystick =  crInputSystem::Get()->Joystick( i );
+			joystick->SetRumble( 0, 0 );
+		}
 		
 		// initialize the user interfaces
 		uiManager->Init();

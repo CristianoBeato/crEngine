@@ -8,7 +8,7 @@ class crWindowsConsole : public crConsole
 {
 public:
     crWindowsConsole( void );
-    virtual ~crWindowsConsole( void );
+    ~crWindowsConsole( void );
 	virtual void			Startup( void );
 	virtual void			Shutdown( void );
 	virtual void			ShowConsole( const int in_visLevel, const bool in_quitOnClose );
@@ -52,8 +52,8 @@ private:
     idEditField	m_historyEditLines[COMMAND_HISTORY];
     idEditField	m_consoleField;
 
-    static LONG WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-    static LONG WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+    static LONG_PTR WINAPI ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+    static LONG_PTR WINAPI InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
     // Show the early console as an error dialog
     void    SetErrorText( const char* buf ); 

@@ -8,6 +8,7 @@
 #define APP_UNIQUE_ID "crEngine_Unique_Instance_ID_000"
 static HANDLE s_instanceLock = nullptr;
 
+idCVar sys_cpustring( "sys_cpustring", "detect", CVAR_SYSTEM | CVAR_INIT, "" );
 
 crPlatform *crPlatform::Get(void)
 {
@@ -25,6 +26,7 @@ crWindowsPlatform::~crWindowsPlatform( void )
 
 void crWindowsPlatform::Init(void)
 {
+	uint32_t cpuid = 0;
     CoInitialize( nullptr ); // TODO: Move to Xaudio
 
 	//
@@ -75,49 +77,10 @@ void crWindowsPlatform::Init(void)
 		if ( cpuid & crCPUInfo::CPUID_SSE3 ) 
 			string += "SSE3 & ";
 		
-		if ( cpuid & crCPUInfo::CPUID_HTT ) 
-			string += "HTT & ";
-		
 		string.StripTrailing( " & " );
 		string.StripTrailing( " with " );
 		sys_cpustring.SetString( string );
 	} 
-	else {
-
-		common->Printf( "forcing CPU type to " );
-		idLexer src( sys_cpustring.GetString(), idStr::Length( sys_cpustring.GetString() ), "sys_cpustring" );
-		idToken token;
-
-		int id = crCPUInfo::CPUID_NONE;
-		while( src.ReadToken( &token ) ) 
-		{
-			if ( token.Icmp( "generic" ) == 0 ) 
-			{
-				id |= CPUID_GENERIC;
-			} else if ( token.Icmp( "intel" ) == 0 ) {
-				id |= CPUID_INTEL;
-			} else if ( token.Icmp( "amd" ) == 0 ) {
-				id |= CPUID_AMD;
-			} else if ( token.Icmp( "mmx" ) == 0 ) {
-				id |= CPUID_MMX;
-			} else if ( token.Icmp( "3dnow" ) == 0 ) {
-				id |= CPUID_3DNOW;
-			} else if ( token.Icmp( "sse" ) == 0 ) {
-				id |= CPUID_SSE;
-			} else if ( token.Icmp( "sse2" ) == 0 ) {
-				id |= CPUID_SSE2;
-			} else if ( token.Icmp( "sse3" ) == 0 ) {
-				id |= CPUID_SSE3;
-			} else if ( token.Icmp( "htt" ) == 0 ) {
-				id |= CPUID_HTT;
-			}
-		}
-		if ( id == CPUID_NONE ) {
-			common->Printf( "WARNING: unknown sys_cpustring '%s'\n", win32.sys_cpustring.GetString() );
-			id = CPUID_GENERIC;
-		}
-		cpuid = (cpuid_t) id;
-	}
 
 	common->Printf( "%s\n", sys_cpustring.GetString() );
 	common->Printf( "%d MB System Memory\n", crCPUInfo::Get()->GetSystemRam() );
@@ -130,7 +93,7 @@ void crWindowsPlatform::Init(void)
 	//g_Joystick.Init();
 }
 
-void crWindowsPlatform::ShutDown(void)
+void crWindowsPlatform::Shutdown(void)
 {
     // Release firt instance global mutex
 	if( s_instanceLock == nullptr )
@@ -144,6 +107,20 @@ void crWindowsPlatform::ShutDown(void)
 
 void crWindowsPlatform::Exit(const int code)
 {
+	// ExitProcess cause reasource leaks 
+	exit( code ); // ExitProcess( 0 );
+}
+
+/*
+==============
+crWindowsPlatform::Quit
+==============
+*/
+void crWindowsPlatform::Quit( void ) 
+{
+	crInputSystem::Get()->Shutdown();
+	crConsole::Get()->Shutdown();
+	Exit( 0 );
 }
 
 bool crWindowsPlatform::AlreadyRunning(void)
@@ -310,6 +287,11 @@ void crWindowsPlatform::GetCurrentMemoryStatus(sysMemoryStats_t &stats)
 void crWindowsPlatform::GetExeLaunchMemoryStatus(sysMemoryStats_t &stats)
 {
     stats = exeLaunchMemoryStats;
+}
+
+const char *crWindowsPlatform::GetCmdLine(void)
+{
+    return m_cmdline;
 }
 
 const char *crWindowsPlatform::GetCurrentUser(void)

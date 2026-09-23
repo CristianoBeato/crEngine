@@ -3,6 +3,11 @@
 #include "../Platform.hpp"
 #include "Windows_CPUInfo.hpp"
 
+// don't leak engine string compare functions, to external code 
+#ifdef strcmp
+#undef strcmp
+#endif //strcmp
+
 #include <SDL3/SDL_cpuinfo.h>
 #include <windows.h>
 #include <intrin.h>

@@ -59,6 +59,7 @@ const char *crWindowsPaths::CWD(void)
 crWindowsPaths::DefaultSavePath
 ==============
 */
+extern idCVar sys_DefaultBasePath;
 const char *crWindowsPaths::DefaultBasePath( void )
 {
     if ( s_basepath.IsEmpty() )
@@ -84,6 +85,7 @@ const char *crWindowsPaths::DefaultBasePath( void )
 crWindowsPaths::DefaultSavePath
 ==============
 */
+extern idCVar sys_DefaultSavePath;
 const char *crWindowsPaths::DefaultSavePath( void )
 {
 	if( s_savepath.IsEmpty() )

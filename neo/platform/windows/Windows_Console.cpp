@@ -2,6 +2,7 @@
 #include "precompiled.h"
 #include "Windows_Console.hpp"
 
+#include <windows.h>
 #include "rc/crEngine_resource.h"
 
 static idCVar win_viewlog( "win_viewlog", "0", CVAR_SYSTEM | CVAR_INTEGER, "" );
@@ -30,6 +31,14 @@ crConsole::Get
 crConsole* crConsole::Get( void )
 {
     return &gConsole;
+}
+
+crWindowsConsole::crWindowsConsole( void )
+{
+}
+
+crWindowsConsole::~crWindowsConsole( void )
+{
 }
 
 /*
@@ -155,9 +164,9 @@ void crWindowsConsole::Startup(void)
 	
 	// RB begin
 #if defined(_WIN64)
-	m_sysInputLineWndProc = ( WNDPROC ) SetWindowLong( m_hwndInputLine, GWLP_WNDPROC, ( LONG_PTR ) InputLineWndProc );
+	m_sysInputLineWndProc = ( WNDPROC ) SetWindowLongA( m_hwndInputLine, GWLP_WNDPROC, ( LONG_PTR ) InputLineWndProc );
 #else
-	m_sysInputLineWndProc = ( WNDPROC ) SetWindowLong( m_hwndInputLine, GWL_WNDPROC, ( LONG ) InputLineWndProc );
+	m_sysInputLineWndProc = ( WNDPROC ) SetWindowLong( m_hwndInputLine, GWL_WNDPROC, ( LONG_PTR ) InputLineWndProc );
 #endif
 	// RB end
 	SendMessage( m_hwndInputLine, WM_SETFONT, ( WPARAM ) m_hfBufferFont, 0 );
@@ -184,7 +193,7 @@ void crWindowsConsole::Startup(void)
 crWindowsConsole::ConWndProc
 =====================
 */
-LONG WINAPI crWindowsConsole::ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+LONG_PTR WINAPI crWindowsConsole::ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	char* cmdString;
 	static bool s_timePolarity;
@@ -213,7 +222,7 @@ LONG WINAPI crWindowsConsole::ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, L
 			{
 				SetBkColor( ( HDC ) wParam, RGB( 0x00, 0x00, 0x80 ) );
 				SetTextColor( ( HDC ) wParam, RGB( 0xff, 0xff, 0x00 ) );
-				return ( long ) gConsole.m_hbrEditBackground;
+				return reinterpret_cast<LONG_PTR>( gConsole.m_hbrEditBackground );
 			}
 			else if( ( HWND ) lParam == gConsole.m_hwndErrorBox )
 			{
@@ -227,7 +236,7 @@ LONG WINAPI crWindowsConsole::ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, L
 					SetBkColor( ( HDC ) wParam, RGB( 0x80, 0x80, 0x80 ) );
 					SetTextColor( ( HDC ) wParam, RGB( 0x00, 0x0, 0x00 ) );
 				}
-				return ( long ) gConsole.m_hbrErrorBackground;
+				return reinterpret_cast<LONG_PTR>( gConsole.m_hbrErrorBackground );
 			}
 			break;
 		case WM_SYSCOMMAND:
@@ -291,14 +300,12 @@ LONG WINAPI crWindowsConsole::ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, L
 			{
 				s_timePolarity = ( bool )!s_timePolarity;
 				if( gConsole.m_hwndErrorBox )
-				{
 					InvalidateRect( gConsole.m_hwndErrorBox, NULL, FALSE );
-				}
 			}
 			break;
 	}
 	
-	return DefWindowProc( hWnd, uMsg, wParam, lParam );
+	return DefWindowProcA( hWnd, uMsg, wParam, lParam );
 }
 
 /*
@@ -306,7 +313,7 @@ LONG WINAPI crWindowsConsole::ConWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, L
 crWindowsConsole::InputLineWndProc
 =====================
 */
-LONG WINAPI crWindowsConsole::InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
+LONG_PTR WINAPI crWindowsConsole::InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
 	int key, cursor;
 	switch( uMsg )
@@ -397,7 +404,7 @@ LONG WINAPI crWindowsConsole::InputLineWndProc( HWND hWnd, UINT uMsg, WPARAM wPa
 			break;
 	}
 	
-	return CallWindowProc( gConsole.m_sysInputLineWndProc, hWnd, uMsg, wParam, lParam );
+	return CallWindowProcA( gConsole.m_sysInputLineWndProc, hWnd, uMsg, wParam, lParam );
 }
 
 /*
@@ -530,7 +537,6 @@ crWindowsConsole::VError
 */
 void crWindowsConsole::VError(const char * error, va_list argptr )
 {
-	va_list		argptr;
 	char		text[4096];
     MSG        msg;
 

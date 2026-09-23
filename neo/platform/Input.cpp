@@ -25,7 +25,7 @@ class crInputSystemSDL3 : public crInputSystem
 {
 public:
 	crInputSystemSDL3( void );
-	virtual ~crInputSystemSDL3( void );
+	~crInputSystemSDL3( void );
 
 	// input is tied to windows, so it needs to be started up and shut down whenever
 	// the main window is recreated

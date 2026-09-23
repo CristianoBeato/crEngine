@@ -199,7 +199,7 @@ public:
 	virtual intptr_t		Tell( void ) const;
 	virtual void			ForceFlush( void );
 	virtual void			Flush( void );
-	virtual intptr_t		Seek( long offset, fsOrigin_t origin );
+	virtual intptr_t		Seek( const intptr_t offset, const fsOrigin_t origin );
 	
 	/// @brief Set the given length and don't allow the file to grow.
 	void					SetMaxLength( size_t len );

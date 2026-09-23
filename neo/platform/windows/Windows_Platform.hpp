@@ -14,8 +14,9 @@ public:
     crWindowsPlatform( void );
     ~crWindowsPlatform( void );
     virtual void        Init( void );
-    virtual void        ShutDown( void );
+    virtual void        Shutdown( void );
     virtual void        Exit( const int code );
+    virtual void        Quit( void );
     virtual bool        AlreadyRunning( void );
     virtual bool        LockMemory( void* ptr, const size_t bytes );
     virtual bool        UnlockMemory( void* ptr, const size_t bytes );
@@ -28,8 +29,11 @@ public:
     virtual const char* GetCurrentUser( void );
     
 private:
+
     sysMemoryStats_t    exeLaunchMemoryStats;
     HANDLE              hProcessMutex;
+    char		        m_cmdline[MAX_STRING_CHARS];
+
 };
 
 #endif //!__WINDOWS_PLATFORM_HPP__
