@@ -37,7 +37,10 @@ namespace Gwen
 
 				bool ProcessEvent( SDL_Event* Event )
 				{
-					if ( !m_Canvas ) { return false; }
+					if ( !m_Canvas ) 
+					{ 
+						return false; 
+					}
 
 					switch ( Event->type )
 					{
