@@ -21,6 +21,13 @@ struct joystickAction_t
     int value;      // Valor (0 ou 1 para botão, -32768 a 32767 para analógicos)
 };
 
+enum js_type_t
+{
+	JT_GENERIC = 0,
+	JT_XBOX,			// A/B/X/Y/RB/LB/RT/LT
+	JT_PLAY,			// TRIANGLE, SQUARE, CROSS, 
+};
+
 class idJoystickSDL3 : public idJoystick
 {
 public:
@@ -32,7 +39,7 @@ public:
 	void	    Deactivate( void ) override;
 	void	    SetRumble( const int rumbleLow, const int rumbleHigh ) override;
 	uint32_t    PollInputEvents( void ) override;
-	uint32_t    ReturnInputEvent( const uint32_t n, int& action, int& value ) override;
+	bool	    ReturnInputEvent( const uint32_t n, int& action, int& value ) override;
 	void        EndInputEvents( void ) override;
 
 private:
@@ -42,7 +49,7 @@ private:
 	SDL_HapticID										m_gamepadFeedbackID;
 	SDL_Haptic*											m_gamepadFeedback;
     SDL_Gamepad*    									m_gamepadHandle;
-	idStaticList<keyboardPoll_t, MAX_KEYBOARD_EVENTS>	m_pendingEvents;
+	idStaticList<joystickAction_t, MAX_KEYBOARD_EVENTS>	m_pendingEvents;
 };
 
 void    Sys_InitGamepads( void );

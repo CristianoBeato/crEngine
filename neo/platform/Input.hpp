@@ -17,13 +17,12 @@ provides full *Joy Pad* support (the most common device, these days).
 class idJoystick 
 {
 public:
-	virtual				~idJoystick( void ) {}
 	virtual bool		Init( void ) = 0;
 	virtual void		Shutdown( void ) = 0;
 	virtual void		Deactivate( void ) = 0;
 	virtual void		SetRumble( const int rumbleLow, const int rumbleHigh ) = 0;
 	virtual uint32_t	PollInputEvents( void ) = 0;
-	virtual uint32_t	ReturnInputEvent( const uint32_t n, int &action, int &value ) = 0;
+	virtual bool		ReturnInputEvent( const uint32_t n, int &action, int &value ) = 0;
 	virtual void		EndInputEvents( void ) = 0;
 };
 

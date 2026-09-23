@@ -55,9 +55,41 @@ idJoystickSDL3::idJoystickSDL3(void) :
 {
 }
 
+idJoystickSDL3::~idJoystickSDL3( void )
+{
+    Shutdown();
+}
+
 bool idJoystickSDL3::Init(void)
 {
- 
+    // check if are a suported gamepad 
+    if ( !SDL_IsGamepad( m_JoystickID ) )
+    {
+        // TODO: Print a warning ?
+        return false;
+    }
+
+    m_gamepadHandle = SDL_OpenGamepad( m_JoystickID );
+    if ( m_gamepadHandle )
+    {
+        idLib::Warning( "Failed to initialize gamepad!" );
+        return false;
+    }
+
+    auto type = SDL_GetGamepadType( m_gamepadHandle );
+    if( type == SDL_GAMEPAD_TYPE_PS3 || type == SDL_GAMEPAD_TYPE_PS4 || type == SDL_GAMEPAD_TYPE_PS5 )
+    {
+        // i will do latter
+    }
+    else if( type == SDL_GAMEPAD_TYPE_XBOX360 || type == SDL_GAMEPAD_TYPE_XBOXONE )
+    {
+        // latter 
+    }
+    else
+    {
+        // its generic
+    }
+
 #if 0
     m_gamepadFeedback = SDL_OpenHapticFromJoystick( m_JoystickID );
 
@@ -190,10 +222,10 @@ uint32_t idJoystickSDL3::PollInputEvents( void )
 	return m_pendingEvents.Num();
 }
 
-uint32_t idJoystickSDL3::ReturnInputEvent( const uint32_t n, int &action, int &value )
+bool idJoystickSDL3::ReturnInputEvent( const uint32_t n, int &action, int &value )
 {
     if ( m_currentEventIndex >= m_pendingEvents.Num())
-		return 0; // End read states 
+		return false; // End read states 
 
     const auto& ev = m_pendingEvents[m_currentEventIndex];
     action = ev.actionType;
@@ -202,7 +234,7 @@ uint32_t idJoystickSDL3::ReturnInputEvent( const uint32_t n, int &action, int &v
     // value = ev.value;
     
     m_currentEventIndex++;
-    return 1; // Indica que retornou com sucesso um dado de input
+    return true; // Indica que retornou com sucesso um dado de input
 }
 
 void idJoystickSDL3::EndInputEvents( void )

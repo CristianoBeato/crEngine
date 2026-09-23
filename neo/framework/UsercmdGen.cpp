@@ -1411,14 +1411,14 @@ idUsercmdGenLocal::Joystick
 */
 void idUsercmdGenLocal::Joystick( const uint32_t deviceNum )
 {
-	auto inputSystem = crInputSystem::Get();
-	int numEvents = inputSystem->PollJoystickInputEvents( deviceNum );
+	auto Joystick = crInputSystem::Get()->Joystick( deviceNum );
+	uint32_t numEvents = Joystick->PollInputEvents();
 	
 	// Study each of the buffer elements and process them.
-	for( int i = 0; i < numEvents; i++ )
+	for( uint32_t event_index = 0; event_index < numEvents; event_index++ )
 	{
 		int action = 0, value = 0;
-		if( inputSystem->ReturnJoystickInputEvent( deviceNum, i, action, value ) )
+		if( Joystick->ReturnInputEvent( event_index, action, value ) )
 		{
 			if( action >= J_ACTION1 && action <= J_ACTION_MAX )
 			{
@@ -1441,7 +1441,7 @@ void idUsercmdGenLocal::Joystick( const uint32_t deviceNum )
 		}
 	}
 	
-	inputSystem->EndJoystickInputEvents( deviceNum );
+	Joystick->EndInputEvents();
 }
 
 /*
