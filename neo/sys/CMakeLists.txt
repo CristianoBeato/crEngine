@@ -69,17 +69,24 @@ set( SYSTEM_MAIN_SOURCES
 ## Link Libraries
 ##################################################################
 
-
 if( WIN32 )
     set( SYSTEM_LIBRARIES ws2_32 iphlpapi )
+    set( WINDOWS_RESOURCES 
+        # Windows Resouce System
+#        ${CMAKE_SOURCE_DIR}/platform/windows/rc/Common_resource.h // TOOLS COMMON
+#        ${CMAKE_SOURCE_DIR}/platform/windows/rc/Common.rc
+#        ${CMAKE_SOURCE_DIR}/platform/windows/rc/crEngine_resource.h
+#        ${CMAKE_SOURCE_DIR}/platform/windows/rc/crEngine.rc
+        )
 else( )
     set( SYSTEM_LIBRARIES  )
+    set( WINDOWS_RESOURCES )
 endif()
 
 ## Executable 
 ##################################################################
 
-add_executable( crEngine WIN32 ${SYSTEM_MAIN_SOURCES} )
+add_executable( crEngine WIN32 ${SYSTEM_MAIN_SOURCES} ${WINDOWS_RESOURCES} )
 
 ##
 ## GCC require a specific modules linking order 

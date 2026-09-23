@@ -15,12 +15,6 @@ if (WIN32)
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Path.hpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Platform.cpp
         ${CMAKE_CURRENT_SOURCE_DIR}/windows/Windows_Platform.hpp 
-
-        # Windows Resouce System
-        ${CMAKE_CURRENT_SOURCE_DIR}/windows/rc/Common_resource.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/windows/rc/Common.rc
-        ${CMAKE_CURRENT_SOURCE_DIR}/windows/rc/crEngine_resource.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/windows/rc/crEngine.rc
         )
 elseif (LINUX)
     set( SYSTEM_PLATFORM_SOURCE 
