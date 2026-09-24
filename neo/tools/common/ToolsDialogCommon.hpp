@@ -16,15 +16,13 @@ public:
     void    Create( void );
     void    Destroy( void );
     void    Render( void );
-    bool    Update( const SDL_Event &in_evt );
+    bool    Update( const SDL_Event *in_evt );
 
 private:
     SDL_WindowID                 m_dialogWindowID;
     SDL_Window*                  m_dialogWindow;   // Script Editor window
     SDL_GLContext                m_renderContext;  // Render Context
     Gwen::Input::SDL3            m_eventManager;
-    Gwen::Skin::Base*            m_renderSkin;
-    Gwen::Renderer::Base*        m_dialogRenderer;
 };
 
 #endif //!__DIALOG_COMMON_HPP__

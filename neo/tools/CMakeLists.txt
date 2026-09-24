@@ -384,6 +384,12 @@ set( TOOLS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/stubs.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/compiler_public.h
 
+    #common tools
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/ToolsDialogCommon.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/ToolsDialogCommon.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/ToolsDialogRenderer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/common/ToolsDialogRenderer.hpp
+
     #dmap
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/dmap.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/dmap/dmap.h
@@ -422,6 +428,12 @@ set( TOOLS_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/BrushBSP.h
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/Brush.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/compilers/aas/Brush.h
+
+    ## Script editor
+    ${CMAKE_CURRENT_SOURCE_DIR}/script/ScriptEditorMain.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/script/ScriptEditorMain.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/script/ScriptEditorDialog.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/script/ScriptEditorDialog.hpp
     )
 
 
@@ -434,7 +446,7 @@ add_library( tools STATIC ${TOOLS_SOURCES} )
 add_dependencies( tools idLib )
 
 #set the idLib root dir as include
-target_include_directories( tools PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
+target_include_directories( tools PUBLIC ${CMAKE_SOURCE_DIR}/idlib ${CMAKE_SOURCE_DIR}/libs/gwen  PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 
 
 # set the precompiled header
 target_precompile_headers( tools PUBLIC ${CMAKE_SOURCE_DIR}/idlib/precompiled.h ) 
