@@ -90,9 +90,14 @@ private:
 	void        AddQuad( const bounds_t pos, const bounds_t uv );
 	void        Flush( void );
 				
+	/// @brief Load OpenGL Shaders ( Future we implement as SpirV shader )
 	void        InitShaders( void );
+
+	/// @brief Create rendering buffers 
 	void        InitBuffers( void );
+
 	void        CreateSamplers( void );
+	
 	void        CreateVertexArray( void );
 };
 
