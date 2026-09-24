@@ -42,6 +42,11 @@ If you have questions concerning this license or the applicable additional terms
 class	idProgram;
 class	idInterpreter;
 
+/// Beato Begin:
+// in-game Script Editor
+#include "script/ScriptEditorMain.hpp"
+/// Beato End
+
 
 // Radiant Level Editor
 void	RadiantInit( void );
@@ -49,7 +54,6 @@ void	RadiantShutdown( void );
 void	RadiantRun( void );
 void	RadiantPrint( const char *text );
 void	RadiantSync( const char *mapName, const idVec3 &viewOrg, const idAngles &viewAngles );
-
 
 // in-game Light Editor
 void	LightEditorInit( const idDict *spawnArgs );
@@ -79,13 +83,6 @@ void	ParticleEditorRun( void );
 void	PDAEditorInit( const idDict *spawnArgs );
 void	PDAEditorShutdown( void );
 void	PDAEditorRun( void );
-
-
-// in-game Script Editor
-void	ScriptEditorInit( const idDict *spawnArgs );
-void	ScriptEditorShutdown( void );
-void	ScriptEditorRun( void );
-
 
 // in-game Declaration Browser
 void	DeclBrowserInit( const idDict *spawnArgs );
