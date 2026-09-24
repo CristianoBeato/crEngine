@@ -4,11 +4,11 @@
 
 #include "tools/common/ToolsDialogCommon.hpp"
 
-class crScriptEditorMainDialog : public crToolsDialogCommon
+class crScriptEditorDialog : public crToolsDialogCommon
 {
 public:
-    crScriptEditorMainDialog( void );
-    ~crScriptEditorMainDialog( void );
+    crScriptEditorDialog( void );
+    ~crScriptEditorDialog( void );
     
 private:
 };

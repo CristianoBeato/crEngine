@@ -27,7 +27,7 @@ void crScriptEditorMain::Shutdown(void)
     }
 }
 
-bool crScriptEditorMain::Run( const SDL_Event &in_evt )
+bool crScriptEditorMain::Run( const SDL_Event *in_evt )
 {    
     if( !m_scriptEditorMainDialog )
         return false;

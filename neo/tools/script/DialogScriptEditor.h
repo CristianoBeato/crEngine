@@ -30,58 +30,49 @@ If you have questions concerning this license or the applicable additional terms
 #ifndef __DIALOGSCRIPTEDITOR_H__
 #define __DIALOGSCRIPTEDITOR_H__
 
-#pragma once
-
-#include "../comafx/CSyntaxRichEditCtrl.h"
-
-
 // DialogScriptEditor dialog
 
-class DialogScriptEditor : public CDialog {
-
+#include "Gwen/Controls.h"
+class DialogScriptEditor : public Gwen::Controls::Canvas 
+{
 	DECLARE_DYNAMIC(DialogScriptEditor)
 
 public:
 						DialogScriptEditor( CWnd* pParent = nullptr );   // standard constructor
-	virtual				~DialogScriptEditor();
+	virtual				~DialogScriptEditor( void );
 
 	void				OpenFile( const char *fileName );
 
-	//{{AFX_VIRTUAL(DialogScriptEditor)
-	virtual BOOL		OnInitDialog();
+	virtual bool		OnInitDialog( void );
 	virtual void		DoDataExchange( CDataExchange* pDX );    // DDX/DDV support
-	virtual BOOL		PreTranslateMessage( MSG* pMsg );
-	//}}AFX_VIRTUAL
+	virtual bool		PreTranslateMessage( MSG* pMsg );
 
 protected:
-	//{{AFX_MSG(DialogScriptEditor)
-	afx_msg BOOL		OnToolTipNotify( UINT id, NMHDR *pNMHDR, LRESULT *pResult );
-	afx_msg void		OnSetFocus( CWnd *pOldWnd );
-	afx_msg void		OnDestroy();
-	afx_msg void		OnActivate( UINT nState, CWnd* pWndOther, BOOL bMinimized );
-	afx_msg void		OnMove( int x, int y );
-	afx_msg void		OnSize( UINT nType, int cx, int cy );
-	afx_msg void		OnSizing( UINT nSide, LPRECT lpRect );
-	afx_msg void		OnEditGoToLine();
-	afx_msg void		OnEditFind();
-	afx_msg void		OnEditFindNext();
-	afx_msg void		OnEditReplace();
-    afx_msg LRESULT		OnFindDialogMessage( WPARAM wParam, LPARAM lParam );
-	afx_msg void		OnEnChangeEdit( NMHDR *pNMHDR, LRESULT *pResult );
-	afx_msg void		OnEnInputEdit( NMHDR *pNMHDR, LRESULT *pResult );
-	afx_msg void		OnBnClickedOk();
-	afx_msg void		OnBnClickedCancel();
-	//}}AFX_MSG
-
-	DECLARE_MESSAGE_MAP()
-
+	
+	bool		OnToolTipNotify( UINT id, NMHDR *pNMHDR, LRESULT *pResult );
+	void		OnSetFocus( CWnd *pOldWnd );
+	void		OnDestroy();
+	void		OnActivate( UINT nState, CWnd* pWndOther, BOOL bMinimized );
+	void		OnMove( int x, int y );
+	void		OnSize( UINT nType, int cx, int cy );
+	void		OnSizing( UINT nSide, LPRECT lpRect );
+	void		OnEditGoToLine();
+	void		OnEditFind();
+	void		OnEditFindNext();
+	void		OnEditReplace();
+    LRESULT		OnFindDialogMessage( WPARAM wParam, LPARAM lParam );
+	void		OnEnChangeEdit( NMHDR *pNMHDR, LRESULT *pResult );
+	void		OnEnInputEdit( NMHDR *pNMHDR, LRESULT *pResult );
+	void		OnBnClickedOk( void );
+	void		OnBnClickedCancel( void );
+	
 private:
-	//{{AFX_DATA(DialogScriptEditor)
+
 	enum				{ IDD = IDD_DIALOG_SCRIPTEDITOR };
-	CStatusBarCtrl		statusBar;
-	CSyntaxRichEditCtrl	scriptEdit;
-	CButton				okButton;
-	CButton				cancelButton;
+	CStatusBarCtrl			statusBar;
+	CSyntaxRichEditCtrl		scriptEdit;
+	Gwen::Controls::Button*	okButton;
+	Gwen::Controls::Button*	cancelButton;
 	//}}AFX_DATA
 
 	static toolTip_t	toolTips[];
@@ -89,8 +80,8 @@ private:
 	HACCEL				m_hAccel;
 	CRect				initialRect;
 	CFindReplaceDialog *findDlg;
-	CString				findStr;
-	CString				replaceStr;
+	Gwen::String		findStr;
+	Gwen::String		replaceStr;
 	bool				matchCase;
 	bool				matchWholeWords;
 	bool				searchForward;

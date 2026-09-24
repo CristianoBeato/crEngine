@@ -1,11 +1,11 @@
 
 #include "precompiled.h"
-#include "ScriptEditorMainDialog.hpp"
+#include "ScriptEditorDialog.hpp"
 
-crScriptEditorMainDialog::crScriptEditorMainDialog( void )
+crScriptEditorDialog::crScriptEditorDialog( void )
 {
 }
 
-crScriptEditorMainDialog::~crScriptEditorMainDialog( void )
+crScriptEditorDialog::~crScriptEditorDialog( void )
 {
 }

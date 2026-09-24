@@ -30,10 +30,10 @@ If you have questions concerning this license or the applicable additional terms
 #include "precompiled.h"
 #pragma hdrstop
 
-#include "../../sys/win32/rc/Common_resource.h"
-#include "../../sys/win32/rc/ScriptEditor_resource.h"
+//#include "sys/win32/rc/Common_resource.h"
+//#include "sys/win32/rc/ScriptEditor_resource.h"
 
-#include "../comafx/DialogGoToLine.h"
+#include "comafx/DialogGoToLine.h"
 #include "DialogScriptEditor.h"
 
 #ifdef ID_DEBUG_MEMORY
@@ -43,7 +43,8 @@ If you have questions concerning this license or the applicable additional terms
 #endif
 
 
-typedef struct scriptEventInfo_s {
+typedef struct scriptEventInfo_s 
+{
 	idStr		name;
 	idStr		parms;
 	idStr		help;
@@ -57,7 +58,8 @@ static DialogScriptEditor *g_ScriptDialog = nullptr;
 
 static UINT FindDialogMessage = ::RegisterWindowMessage( FINDMSGSTRING );
 
-toolTip_t DialogScriptEditor::toolTips[] = {
+toolTip_t DialogScriptEditor::toolTips[] = 
+{
 	{ IDOK, "save" },
 	{ IDCANCEL, "cancel" },
 	{ 0, nullptr }
@@ -85,7 +87,8 @@ DialogScriptEditor::DialogScriptEditor( CWnd* pParent /*=nullptr*/ )
 DialogScriptEditor::~DialogScriptEditor
 ================
 */
-DialogScriptEditor::~DialogScriptEditor() {
+DialogScriptEditor::~DialogScriptEditor() 
+{
 }
 
 /*
@@ -310,7 +313,8 @@ void DialogScriptEditor::OpenFile( const char *fileName ) {
 DialogScriptEditor::OnInitDialog
 ================
 */
-BOOL DialogScriptEditor::OnInitDialog()  {
+bool DialogScriptEditor::OnInitDialog( void )
+{
 
 	com_editors |= EDITOR_SCRIPT;
 
@@ -363,15 +367,17 @@ END_MESSAGE_MAP()
 ScriptEditorInit
 ================
 */
-void ScriptEditorInit( const idDict *spawnArgs ) {
-
-	if ( renderSystem->IsFullScreen() ) {
+void ScriptEditorInit( const idDict *spawnArgs ) 
+{
+	if ( renderSystem->IsFullScreen() ) 
+	{
 		common->Printf( "Cannot run the script editor in fullscreen mode.\n"
 					"Set r_fullscreen to 0 and vid_restart.\n" );
 		return;
 	}
 
-	if ( g_ScriptDialog == nullptr ) {
+	if ( g_ScriptDialog == nullptr ) 
+	{
 		InitAfx();
 		g_ScriptDialog = new DialogScriptEditor();
 	}
@@ -399,14 +405,16 @@ void ScriptEditorInit( const idDict *spawnArgs ) {
 ScriptEditorRun
 ================
 */
-void ScriptEditorRun( void ) {
+void ScriptEditorRun( void ) 
+{
 #if _MSC_VER >= 1300
 	MSG *msg = AfxGetCurrentMessage();			// TODO Robert fix me!!
 #else
 	MSG *msg = &m_msgCur;
 #endif
 
-	while( ::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE) ) {
+	while( ::PeekMessage(msg, nullptr, nullptr, nullptr, PM_NOREMOVE) ) 
+	{
 		// pump message
 		if ( !AfxGetApp()->PumpMessage() ) {
 		}
@@ -418,7 +426,8 @@ void ScriptEditorRun( void ) {
 ScriptEditorShutdown
 ================
 */
-void ScriptEditorShutdown( void ) {
+void ScriptEditorShutdown( void ) 
+{
 	delete g_ScriptDialog;
 	g_ScriptDialog = nullptr;
 	scriptEvents.Clear();
@@ -441,7 +450,8 @@ void DialogScriptEditor::OnActivate( UINT nState, CWnd *pWndOther, BOOL bMinimiz
 DialogScriptEditor::OnToolTipNotify
 ================
 */
-BOOL DialogScriptEditor::OnToolTipNotify( UINT id, NMHDR *pNMHDR, LRESULT *pResult ) {
+BOOL DialogScriptEditor::OnToolTipNotify( UINT id, NMHDR *pNMHDR, LRESULT *pResult ) 
+{
 	return DefaultOnToolTipNotify( toolTips, id, pNMHDR, pResult );
 }
 
@@ -747,7 +757,8 @@ void DialogScriptEditor::OnBnClickedOk() {
 DialogScriptEditor::OnBnClickedCancel
 ================
 */
-void DialogScriptEditor::OnBnClickedCancel() {
+void DialogScriptEditor::OnBnClickedCancel( void ) 
+{
 	if ( okButton.IsWindowEnabled() ) {
 		if ( MessageBox( "Cancel changes?", "Cancel", MB_YESNO | MB_ICONQUESTION ) != IDYES ) {
 			return;
