@@ -234,6 +234,17 @@ bool SDLCALL crEventsSDL3::HandleSDLEvents( void *userdata, SDL_Event *event )
 	int key;
 	static const sysEvent_t res_none = { SE_NONE, 0, 0, 0, 0, nullptr };
 	auto is = crInputSystem::Get();
+
+	auto window = static_cast<SDL_Window*>( crVideo::Get()->WindowHandler() );
+	auto id = SDL_GetWindowID( window );
+
+	/// If not from main window, are a tool event 
+	if( event->window.windowID != id )
+	{
+		if( crScriptEditorMain::Run( event ) )
+			return true; 
+	}
+	
 	switch( event->type )
 	{
 		case SDL_EVENT_WINDOW_FOCUS_GAINED:
