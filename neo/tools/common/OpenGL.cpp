@@ -7,10 +7,17 @@
 PFNGLFINISHPROC                                 gl::Finish = nullptr;
 PFNGLFLUSHPROC                                  gl::Flush = nullptr;
 
+PFNGLCLEARPROC                                  gl::Clear = nullptr;
+PFNGLCLEARCOLORPROC                             gl::ClearColor = nullptr;
+
+PFNGLBLENDFUNCPROC                              gl::BlendFunc = nullptr;
+
 PFNGLDRAWARRAYSPROC                             gl::DrawArrays = nullptr;
 PFNGLDRAWELEMENTSPROC                           gl::DrawElements = nullptr;
 PFNGLDRAWELEMENTSBASEVERTEXPROC                 gl::DrawElementsBaseVertex = nullptr;
 
+PFNGLVIEWPORTPROC                               gl::Viewport = nullptr;
+PFNGLSCISSORPROC                                gl::Scissor = nullptr;
 /// 
 PFNGLCREATEVERTEXARRAYSPROC                     gl::CreateVertexArrays = nullptr;
 PFNGLDELETEVERTEXARRAYSPROC                     gl::DeleteVertexArrays = nullptr;

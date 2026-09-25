@@ -261,12 +261,12 @@ void crToolsDialogRenderer::InitBuffers(void)
     gl::NamedBufferStorage( buffers[1], k_VERTEX_SIZE * k_MAX_VERTICES_COUNT, nullptr, flags );
 
     /// retrieve the persistent pointer of the elements map 
-    m_elements = static_cast<uint16_t*>( gl::MapNamedBufferRange(( buffers[1], 0, sizeof( uint16_t ) * k_MAX_ELEMENTS_COUNT, flags ) ) );
+    m_elements = static_cast<uint16_t*>( gl::MapNamedBufferRange( buffers[1], 0, sizeof( uint16_t ) * k_MAX_ELEMENTS_COUNT, flags )  );
     m_elementBuffer = buffers[1];
 
     /// Allocate memory for the uniform buffer
-    //gl::( buffers[2], sizeof( float ) * 20, nullptr, GL_DYNAMIC_STORAGE_BIT );
-
+    gl::NamedBufferStorage( buffers[2], sizeof( float ) * 20, nullptr, GL_DYNAMIC_STORAGE_BIT );
+    m_uniformBuffer = buffers[2];
 }
 
 void crToolsDialogRenderer::CreateSamplers( void )

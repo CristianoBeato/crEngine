@@ -113,7 +113,7 @@ bool crToolsDialogCommon::Update( const SDL_Event *in_evt )
 
     /// Handle input event
     auto e = in_evt;
-    return m_eventManager.ProcessEvent( &e );
+    return m_eventManager.ProcessEvent( e );
 }
 
 /*

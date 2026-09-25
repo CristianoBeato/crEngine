@@ -18,6 +18,8 @@
 #define UCS_STRING "UCS-4"
 #endif
 
+typedef struct SDL_Event SDL_Event;
+
 namespace Gwen
 {
 	namespace Input
@@ -35,12 +37,10 @@ namespace Gwen
 					m_Canvas = c;
 				}
 
-				bool ProcessEvent( SDL_Event* Event )
+				bool ProcessEvent( const SDL_Event* Event )
 				{
-					if ( !m_Canvas ) 
-					{ 
+					if ( !m_Canvas )
 						return false; 
-					}
 
 					switch ( Event->type )
 					{

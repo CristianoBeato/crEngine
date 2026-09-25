@@ -25,9 +25,18 @@ public:
     static PFNGLFINISHPROC                                  Finish;
     static PFNGLFLUSHPROC                                   Flush;
 
+    static PFNGLCLEARPROC                                   Clear;
+    static PFNGLCLEARCOLORPROC                              ClearColor;
+
+    //
+    static PFNGLBLENDFUNCPROC                               BlendFunc;
+
     static PFNGLDRAWARRAYSPROC                              DrawArrays;
     static PFNGLDRAWELEMENTSPROC                            DrawElements;
     static PFNGLDRAWELEMENTSBASEVERTEXPROC                  DrawElementsBaseVertex;
+
+    static PFNGLVIEWPORTPROC                                Viewport;
+    static PFNGLSCISSORPROC                                 Scissor;
 
     /// @brief Vertex Array Objets
     static PFNGLCREATEVERTEXARRAYSPROC                      CreateVertexArrays;
