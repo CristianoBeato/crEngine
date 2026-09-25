@@ -226,3 +226,4 @@ set( CONTRIB_SOURCES
 ## library
 ##################################################################
 add_library( contrib STATIC ${CONTRIB_SOURCES} )
+target_include_directories( contrib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/gwen )
