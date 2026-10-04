@@ -5,12 +5,10 @@
 */
 
 
-#pragma once
 #ifndef GWEN_TOOLTIP_H
 #define GWEN_TOOLTIP_H
 
 #include "Gwen/Controls/Base.h"
-#include "Gwen/Gwen.h"
 #include "Gwen/Skin.h"
 
 using namespace Gwen;

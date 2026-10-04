@@ -4,12 +4,12 @@
 	See license in Gwen.h
 */
 
-#pragma once
 #ifndef GWEN_INPUTHANDLER_H
 #define GWEN_INPUTHANDLER_H
 
 #include <queue>
-#include "Gwen/Gwen.h"
+#include "Exports.h"
+#include "Structures.h"
 
 namespace Gwen
 {
@@ -40,6 +40,10 @@ namespace Gwen
 		const unsigned char Count = 16;
 	}
 
+	extern GWEN_EXPORT Controls::Base*	HoveredControl;
+	extern GWEN_EXPORT Controls::Base*	KeyboardFocus;
+	extern GWEN_EXPORT Controls::Base*	MouseFocus;
+
 	namespace Input
 	{
 		namespace Message
@@ -54,8 +58,6 @@ namespace Gwen
 				SelectAll
 			};
 		};
-
-
 
 		// For use in panels
 		bool GWEN_EXPORT IsKeyDown( int iKey );

@@ -4,7 +4,6 @@
 	See license in Gwen.h
 */
 
-#pragma once
 #ifndef GWEN_UTILITY_H
 #define GWEN_UTILITY_H
 

@@ -11,11 +11,15 @@
 #include "Gwen/Hook.h"
 #include "Gwen/Platform.h"
 
-#define DOUBLE_CLICK_SPEED 0.5f
-#define MAX_MOUSE_BUTTONS 5
+constexpr float DOUBLE_CLICK_SPEED = 0.5f;
+constexpr uint32_t MAX_MOUSE_BUTTONS = 5;
 
 using namespace Gwen;
 
+// Globals
+GWEN_EXPORT Controls::Base* HoveredControl = NULL;
+GWEN_EXPORT Controls::Base* KeyboardFocus = NULL;
+GWEN_EXPORT Controls::Base* MouseFocus = NULL;
 
 struct Action
 {
@@ -25,8 +29,8 @@ struct Action
 	Gwen::UnicodeChar chr;
 };
 
-static const float KeyRepeatRate = 0.03f;
-static const float KeyRepeatDelay = 0.3f;
+constexpr float KeyRepeatRate = 0.03f;
+constexpr float KeyRepeatDelay = 0.3f;
 
 struct t_KeyData
 {

@@ -263,9 +263,9 @@ idCmdSystemLocal::Exec_f
 */
 void idCmdSystemLocal::Exec_f( const idCmdArgs& args )
 {
-	char* 	f;
-	int		len;
-	idStr	filename;
+	char* 		f = nullptr;
+	intptr_t	len = 0;
+	idStr		filename;
 	
 	if( args.Argc() != 2 )
 	{

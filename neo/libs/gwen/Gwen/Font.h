@@ -10,7 +10,6 @@
 #include <string>
 #include <list>
 
-#include "Gwen/Gwen.h"
 #include "Gwen/BaseRender.h"
 
 namespace Gwen

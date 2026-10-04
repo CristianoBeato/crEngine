@@ -1,6 +1,9 @@
-#pragma once
+
 #ifndef GWEN_CONTROLS_H
 #define GWEN_CONTROLS_H
+
+#include "Gwen/Controls/Base.h"
+#include "Gwen/Controls/Canvas.h"
 
 #include "Gwen/Controls/Button.h"
 #include "Gwen/Controls/DockBase.h"

@@ -4,9 +4,9 @@
 	See license in Gwen.h
 */
 
-#pragma once
 #ifndef GWEN_ALIGN_H
 #define GWEN_ALIGN_H
+
 #include "Gwen/Controls/Base.h"
 
 namespace Gwen

@@ -4,7 +4,6 @@
 	See license in Gwen.h
 */
 
-#pragma once
 #ifndef GWEN_CONTROLS_PROPERTY_CHECKBOX_H
 #define GWEN_CONTROLS_PROPERTY_CHECKBOX_H
 
@@ -55,7 +54,7 @@ namespace Gwen
 						return BaseClass::IsHovered() || m_Checkbox->IsHovered();
 					}
 
-					Gwen::Controls::CheckBox* m_Checkbox;
+					Controls::CheckBox* m_Checkbox;
 			};
 		}
 	}
