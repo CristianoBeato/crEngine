@@ -133,7 +133,7 @@ void VPCALL idSIMD_Generic::MinMax( idVec3& min, idVec3& max, const idDrawVert* 
 idSIMD_Generic::Memcpy
 ================
 */
-void VPCALL idSIMD_Generic::Memcpy( void* dst, const void* src, const int count )
+void VPCALL idSIMD_Generic::Memcpy( void* dst, const void* src, const size_t count )
 {
 	std::memcpy( dst, src, count );
 }
@@ -143,9 +143,19 @@ void VPCALL idSIMD_Generic::Memcpy( void* dst, const void* src, const int count 
 idSIMD_Generic::Memset
 ================
 */
-void VPCALL idSIMD_Generic::Memset( void* dst, const int val, const int count )
+void VPCALL idSIMD_Generic::Memset( void* dst, const int val, const size_t count )
 {
 	std::memset( dst, val, count );
+}
+
+/*
+================
+idSIMD_Generic::AtemporalCopy
+================
+*/
+void VPCALL idSIMD_Generic::AtemporalCopy(void *dst, const void *src, const size_t bytes)
+{
+    std::memcpy( dst, src, bytes );
 }
 
 /*
