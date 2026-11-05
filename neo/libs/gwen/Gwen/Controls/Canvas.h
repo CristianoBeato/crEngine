@@ -4,7 +4,6 @@
 	See license in Gwen.h
 */
 
-#pragma once
 #ifndef GWEN_CONTROLS_CANVAS_H
 #define GWEN_CONTROLS_CANVAS_H
 
@@ -16,7 +15,7 @@ namespace Gwen
 {
 	namespace Controls
 	{
-		class GWEN_EXPORT Canvas : public Base
+		class GWEN_EXPORT Canvas : public Controls::Base
 		{
 			public:
 
@@ -86,16 +85,14 @@ namespace Gwen
 				virtual void SetDrawBackground( bool bShouldDraw ) { m_bDrawBackground = bShouldDraw; }
 
 			protected:
-
 				bool	m_bNeedsRedraw;
 				bool	m_bAnyDelete;
 				float	m_fScale;
 
-				Controls::Base::List	m_DeleteList;
+				Controls::Base::List		m_DeleteList;
 				std::set< Controls::Base* > m_DeleteSet;
 				friend class Controls::Base;
 				void PreDeleteCanvas( Controls::Base* );
-
 				bool			m_bDrawBackground;
 				Gwen::Color		m_BackgroundColor;
 

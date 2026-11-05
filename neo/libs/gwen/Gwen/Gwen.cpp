@@ -6,16 +6,13 @@
 
 
 #include "Gwen/Gwen.h"
-#include <stdio.h>
-#include <stdarg.h>
-
 
 namespace Gwen
 {
 	// Globals
-	GWEN_EXPORT Controls::Base* HoveredControl = NULL;
-	GWEN_EXPORT Controls::Base* KeyboardFocus = NULL;
-	GWEN_EXPORT Controls::Base* MouseFocus = NULL;
+	GWEN_EXPORT Controls::Base* HoveredControl = nullptr;
+	GWEN_EXPORT Controls::Base* KeyboardFocus = nullptr;
+	GWEN_EXPORT Controls::Base* MouseFocus = nullptr;
 
 	namespace Debug
 	{

@@ -6,6 +6,8 @@
 #include "Gwen/WindowProvider.h"
 #include "FontData.h"
 
+#include "tools/common/OpenGL.hpp"
+
 #include <iostream>
 #include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -30,15 +32,15 @@ struct glyph_t
 
 struct  renderFont_t
 {
-    gl::Texture   texture;
+    uint32_t   	texture;
 	int			h = 0;	
 	glyph_t     glyphs[256];
 };
 
 struct renderFrameBuffer_t
 {
-	gl::FrameBuffer		frameBuffer;
-	gl::Texture			renderImage;
+	uint32_t	frameBuffer;
+	uint32_t	renderImage;
 };
 
 static int ReadShaderSource( const char* path, char** source )
@@ -73,18 +75,6 @@ Gwen::Renderer::OpenGL::OpenGL( void ) :
 	m_elements( nullptr ),
 	m_vertexes( nullptr  ),
 	m_pContext( nullptr )
-{
-}
-
-Gwen::Renderer::OpenGL::OpenGL(gl::Context *in_pContext):
-	m_mode( RECT_LINE ),
-	m_vhead( 0 ),
-	m_vtail( 0 ),
-	m_ihead( 0 ),
-	m_itail( 0 ),
-	m_elements( nullptr ),
-	m_vertexes( nullptr  ),
-	m_pContext( in_pContext )
 {
 }
 
@@ -986,6 +976,10 @@ void Gwen::Renderer::OpenGL::CreateVertexArray(void)
 
 	m_vertexArray.Create( attrbs, 2 );
 	
+	gl::CreateVertexArrays( 1, &m_vertexArray );
+	gl::EnableVertexArrayAttrib( 0, )
+
+
 	gl::VertexArray::bufferBindingPoint_t binding{};
 	binding.buffer = m_vertexBuffer;
 	binding.offset = 0;
@@ -1019,49 +1013,15 @@ bool Gwen::Renderer::OpenGL::InitializeContext( Gwen::WindowProvider* pWindow )
 	return true;
 }
 
-bool Gwen::Renderer::OpenGL::ShutdownContext( Gwen::WindowProvider* pWindow )
-{
-	Release();
-
-	if( m_pContext )
-	{
-		m_pContext->Destroy();
-		delete m_pContext;
-	}
-
-	return true;
-}
-
-bool Gwen::Renderer::OpenGL::PresentContext( Gwen::WindowProvider* pWindow )
-{
-	if ( !pWindow )
-		return false;
-
-	return SDL_GL_SwapWindow( static_cast<SDL_Window*>( pWindow->GetWindow() ) );
-}
-
 bool Gwen::Renderer::OpenGL::ResizedContext( Gwen::WindowProvider* pWindow, int w, int h )
 {
 	if ( pWindow )
-	{
 		SDL_GetWindowSizeInPixels( static_cast<SDL_Window*>( pWindow->GetWindow() ), &w, &h );
-	}
 	
 	m_width = w;
 	m_heigth = h;
 
 	glm::mat4 projection = glm::ortho( 0.0f, static_cast<float>( m_width ), static_cast<float>( m_heigth ), 0.0f, -1.0f, 1.0f );
 	m_uniformBuffer.Upload( glm::value_ptr( projection ), sizeof( glm::vec4 ), sizeof( glm::mat4 ) );
-	return true;
-}
-
-bool Gwen::Renderer::OpenGL::BeginContext( Gwen::WindowProvider* pWindow )
-{
-	return true;
-}
-
-bool Gwen::Renderer::OpenGL::EndContext( Gwen::WindowProvider* pWindow )
-{
-	glFinish();
 	return true;
 }

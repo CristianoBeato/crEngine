@@ -7,8 +7,6 @@
 #ifndef GWEN_BASERENDER_H
 #define GWEN_BASERENDER_H
 
-#include "Gwen/Structures.h"
-
 namespace Gwen
 {
 	struct Font;

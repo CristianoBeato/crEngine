@@ -27,10 +27,24 @@
 #ifndef GWEN_GWEN_H
 #define GWEN_GWEN_H
 
+#include <cstdio>
+#include <cstdarg>
+#include <cstdint>
+#include <string>
+#include <sstream>
+#include <vector>
+#include <list>
+
 #include "Gwen/Macros.h"
 #include "Gwen/Config.h"
 #include "Gwen/Exports.h"
 #include "Gwen/Structures.h"
+#include "Gwen/Utility.h"
+#include "Gwen/TextObject.h"
+#include "Gwen/BaseRender.h"
+#include "Gwen/Font.h"
+#include "Gwen/Texture.h"
+#include "Gwen/FrameBuffer.h"
 #include "Gwen/Skin.h"
 #include "Gwen/Controls/Base.h"
 #include "Gwen/Controls/Canvas.h"
@@ -41,27 +55,7 @@
 
 namespace Gwen
 {
-	namespace Debug
-	{
-		void GWEN_EXPORT Msg( const wchar_t* str, ... );
-		void GWEN_EXPORT Msg( const char* str, ... );
-		void GWEN_EXPORT AssertCheck( bool b, const char* strMsg );
-	}
-
-	namespace Colors
-	{
-		static const Color Black( 0, 0, 0, 255 );
-		static const Color Red( 255, 0, 0, 255 );
-		static const Color Yellow( 255, 255, 0, 255 );
-		static const Color White( 255, 255, 255, 255 );
-		static const Color Blue( 0, 0, 255, 255 );
-		static const Color Green( 0, 255, 0, 255 );
-		static const Color Grey( 200, 200, 200, 255 );
-		static const Color GreyLight( 230, 230, 230, 255 );
-		static const Color GwenPink( 255, 65, 199, 255 );
-
-
-	};
+	
 
 	extern GWEN_EXPORT Controls::Base*	HoveredControl;
 	extern GWEN_EXPORT Controls::Base*	KeyboardFocus;
@@ -77,5 +71,7 @@ namespace Gwen
 	}
 
 } //namespace Gwen
+
+#include "Controls.h"
 
 #endif

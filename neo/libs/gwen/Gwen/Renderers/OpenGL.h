@@ -8,8 +8,6 @@
 #define GWEN_RENDERERS_OPENGL_H
 
 #include <SDL3/SDL_video.h>
-#include "crglCore.hpp"
-#include "crglContext.hpp"
 #include "Gwen/BaseRender.h"
 
 namespace Gwen
@@ -20,7 +18,6 @@ namespace Gwen
 		{
 			public:
 				OpenGL( void );
-				OpenGL( gl::Context* in_pContext );
 				~OpenGL( void );
 
 				virtual void Init( void ) override;
@@ -74,19 +71,19 @@ namespace Gwen
 				uint16_t			m_vtail;
 				uint16_t			m_ihead;
 				uint16_t			m_itail;
-				GLsizei				m_width;
-				GLsizei				m_heigth;
-				gl::VertexArray		m_vertexArray;
-				gl::Program			m_program;
-				gl::Buffer			m_vertexBuffer;
-				gl::Buffer			m_elementBuffer;
-				gl::Buffer			m_uniformBuffer;
-				gl::Texture			m_white;
-				gl::Texture			m_fontImage;				
-				gl::Sampler			m_sample;
-				gl::Sampler			m_fontSample;
-				GLushort*			m_elements;
-				GLfloat*			m_vertexes;
+				int32_t				m_width;
+				int32_t				m_heigth;
+				uint32_t			m_vertexArray;
+				uint32_t			m_program;
+				uint32_t			m_vertexBuffer;
+				uint32_t			m_elementBuffer;
+				uint32_t			m_uniformBuffer;
+				uint32_t			m_white;
+				uint32_t			m_fontImage;				
+				uint32_t			m_sample;
+				uint32_t			m_fontSample;
+				uint16_t*			m_elements;
+				float*				m_vertexes;
 				
 				void	AddQuad( const bounds_t pos, const bounds_t uv );
 				void	Flush( void );
@@ -100,15 +97,12 @@ namespace Gwen
 				//
 				// Self Initialization
 				//
-				virtual bool InitializeContext( Gwen::WindowProvider* pWindow ) override;
-				virtual bool ShutdownContext( Gwen::WindowProvider* pWindow ) override;
-				virtual bool PresentContext( Gwen::WindowProvider* pWindow ) override;
-				virtual bool ResizedContext( Gwen::WindowProvider* pWindow, int w, int h ) override;
-				virtual bool BeginContext( Gwen::WindowProvider* pWindow ) override;
-				virtual bool EndContext( Gwen::WindowProvider* pWindow ) override;
-
-				
-				gl::Context*	m_pContext;
+				virtual bool InitializeContext( Gwen::WindowProvider* pWindow ) override {};
+				virtual bool ShutdownContext( Gwen::WindowProvider* pWindow ) override {};
+				virtual bool PresentContext( Gwen::WindowProvider* pWindow ) override {};
+				virtual bool ResizedContext( Gwen::WindowProvider* pWindow, int w, int h ) override {};
+				virtual bool BeginContext( Gwen::WindowProvider* pWindow ) override {};
+				virtual bool EndContext( Gwen::WindowProvider* pWindow ) override {};
 		};
 
 	}

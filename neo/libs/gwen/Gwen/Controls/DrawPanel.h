@@ -31,7 +31,10 @@ namespace Gwen
                 SetSize( m_framebuffer.width, m_framebuffer.height );
 			}
             
-            void    SetSamples( const uint8_t in_samples ) { m_samples = in_samples; }
+            void    SetSamples( const uint8_t in_samples ) 
+            { 
+                m_samples = in_samples; 
+            }
 
         private:
             uint8_t             m_samples;

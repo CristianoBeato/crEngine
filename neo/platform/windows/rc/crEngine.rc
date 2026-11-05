@@ -1,6 +1,6 @@
 // Microsoft Visual C++ generated resource script.
 //
-#include "doom_resource.h"
+#include "crEngine_resource.h"
 
 #define APSTUDIO_READONLY_SYMBOLS
 /////////////////////////////////////////////////////////////////////////////
@@ -15,25 +15,25 @@
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 #ifdef _WIN32
-LANGUAGE 9, 1
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 #pragma code_page(1252)
 #endif
-#include "Common.rc"
-#include "Radiant.rc"
-#include "AFEditor.rc"
-#include "SoundEditor.rc"
-#include "ParticleEditor.rc"
-#include "DeclEditor.rc"
-#include "PDAEditor.rc"
+// #include "Common.rc"
+// #include "Radiant.rc"
+// #include "AFEditor.rc"
+// #include "SoundEditor.rc"
+// #include "ParticleEditor.rc"
+// #include "DeclEditor.rc"
+// #include "PDAEditor.rc"
 
-#include "ScriptEditor.rc"
+// #include "ScriptEditor.rc"
 
-#include "GuiEd.rc"
-#include "Debugger.rc"
-#include "MaterialEditor.rc"
-#include "PropTree.rc"
-#include "afxres.rc"                             // Standard components
-#include "afxprint.rc"                   // printing/print preview resources
+// #include "GuiEd.rc"
+// #include "Debugger.rc"
+// #include "MaterialEditor.rc"
+// #include "PropTree.rc"
+// #include "afxres.rc"                             // Standard components
+// #include "afxprint.rc"                   // printing/print preview resources
 #endif
 /////////////////////////////////////////////////////////////////////////////
 #undef APSTUDIO_READONLY_SYMBOLS
@@ -110,14 +110,11 @@ IDI_ICON1               ICON                    "res\\stormengine2.ico"
 #endif    // English (U.S.) resources
 /////////////////////////////////////////////////////////////////////////////
 
-
-
 #ifndef APSTUDIO_INVOKED
 /////////////////////////////////////////////////////////////////////////////
 //
 // Generated from the TEXTINCLUDE 3 resource.
 //
-
 
 /////////////////////////////////////////////////////////////////////////////
 #endif    // not APSTUDIO_INVOKED
