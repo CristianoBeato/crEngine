@@ -69,15 +69,12 @@
 
 namespace Gwen
 {
-<<<<<<< HEAD
 	
 
 	extern GWEN_EXPORT Controls::Base*	HoveredControl;
 	extern GWEN_EXPORT Controls::Base*	KeyboardFocus;
 	extern GWEN_EXPORT Controls::Base*	MouseFocus;
 
-=======
->>>>>>> 4c506a1af73f63c432f44027cef41a7b33c1c7d7
 	namespace Input
 	{
 			inline void Blur( void )
