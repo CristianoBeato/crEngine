@@ -138,6 +138,11 @@ set( D3XP_MENU_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_UserEmails.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_VideoDisks.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Scoreboard.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_AudioFiles.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_EmailInbox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_Objective.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_UserData.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_VideoInfo.cpp
     )
 
 set( D3XP_PHYSICS_SOURCES

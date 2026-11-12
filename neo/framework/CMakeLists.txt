@@ -141,11 +141,6 @@ set( FRAMEWORK_SHELL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_MenuBar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_NavBar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_NavButton.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_AudioFiles.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_EmailInbox.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_Objective.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_UserData.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_VideoInfo.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Scrollbar.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Shell_SaveInfo.cpp
 )
@@ -198,6 +193,7 @@ set( FRAMEWORK_UI_SOURCES
 set( FRAMEWORK_SOURCE 
     ${FRAMEWORK_MAIN_SOURCES}
     ${FRAMEWORK_COLISION_MODEL_SOURCES}
+    ${FRAMEWORK_SHELL_SOURCES}
     ${FRAMEWORK_UI_SOURCES}  
     )
 

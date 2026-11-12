@@ -1028,9 +1028,9 @@ ID_INLINE SetTimeState::~SetTimeState()
 #include "anim/Anim_Testmodel.h"
 
 // menus
-#include "menus/MenuWidget.h"
-#include "menus/MenuScreen.h"
-#include "menus/MenuHandler.h"
+#include "framework/shell/MenuWidget.h"
+#include "framework/shell/MenuScreen.h"
+#include "framework/shell/MenuHandler.h"
 
 #include "script/Script_Compiler.h"
 #include "script/Script_Interpreter.h"
