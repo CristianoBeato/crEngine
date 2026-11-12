@@ -37,6 +37,8 @@ If you have questions concerning this license or the applicable additional terms
 ===============================================================================
 */
 
+#include "Simd_Generic.h"
+
 class idSIMD_SSE : public idSIMD_Generic
 {
 public:
