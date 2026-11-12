@@ -3,6 +3,7 @@
 #include "sound/snd_local.h"
 #include "SDLSoundHardware.h"
 
+#include <SDL3/SDL_events.h>
 #include <SDL3/SDL_init.h>
 #include <SDL3/SDL_audio.h>
 

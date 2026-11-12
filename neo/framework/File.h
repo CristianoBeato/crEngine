@@ -474,12 +474,19 @@ class idFileLocal
 {
 public:
 	// Constructor that accepts and stores the file pointer.
-	idFileLocal( idFile* _file )	: file( _file )
+	idFileLocal( idFile* _file ) : file( _file )
 	{
 	}
 	
 	// Destructor that will destroy (close) the file when this wrapper class goes out of scope.
-	~idFileLocal();
+	~idFileLocal( void )
+	{
+		if( file != nullptr )
+		{
+			delete file;
+			file = nullptr;
+		}
+	}
 	
 	// Cast to a file pointer.
 	operator idFile* () const

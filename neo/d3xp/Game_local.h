@@ -1027,11 +1027,6 @@ ID_INLINE SetTimeState::~SetTimeState()
 #include "ai/AI.h"
 #include "anim/Anim_Testmodel.h"
 
-// menus
-#include "framework/shell/MenuWidget.h"
-#include "framework/shell/MenuScreen.h"
-#include "framework/shell/MenuHandler.h"
-
 #include "script/Script_Compiler.h"
 #include "script/Script_Interpreter.h"
 #include "script/Script_Thread.h"

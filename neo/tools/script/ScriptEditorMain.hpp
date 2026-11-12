@@ -9,7 +9,12 @@ typedef struct scriptEventInfo_s
 	idStr		help;
 } scriptEventInfo_t;
 
+#if 0 // TODO: i don't like to leak SDL, or system specific strutures to rest of the code, so we need to find a better way to handle this
 typedef struct SDL_Event SDL_Event;
+#else
+#include <SDL3/SDL_events.h>
+#endif 
+
 class crScriptEditorDialog;
 class crScriptEditorMain
 {
