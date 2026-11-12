@@ -7,6 +7,7 @@
 #ifndef GWEN_TEXTURE_H
 #define GWEN_TEXTURE_H
 
+#include <list>
 #include "Gwen/BaseRender.h"
 
 namespace Gwen

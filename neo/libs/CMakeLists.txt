@@ -34,6 +34,8 @@ set( GWEN_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/gwen/Gwen/Controls.h
     ${CMAKE_CURRENT_SOURCE_DIR}/gwen/Gwen/DragAndDrop.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gwen/Gwen/DragAndDrop.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/gwen/Gwen/Debug.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/gwen/Gwen/Debug.h
     ${CMAKE_CURRENT_SOURCE_DIR}/gwen/Gwen/events.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/gwen/Gwen/Events.h
     ${CMAKE_CURRENT_SOURCE_DIR}/gwen/Gwen/Exports.h
@@ -226,4 +228,4 @@ set( CONTRIB_SOURCES
 ## library
 ##################################################################
 add_library( contrib STATIC ${CONTRIB_SOURCES} )
-target_include_directories( contrib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/gwen )
+target_include_directories( contrib PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/gwen" )

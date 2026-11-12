@@ -7,9 +7,10 @@
 #ifndef GWEN_CONTROLS_CANVAS_H
 #define GWEN_CONTROLS_CANVAS_H
 
-#include <set>
-#include "Gwen/Controls/Base.h"
 #include "Gwen/InputHandler.h"
+#include "Gwen/Skin.h"
+#include "Gwen/Controls/Base.h"
+#include <set>
 
 namespace Gwen
 {

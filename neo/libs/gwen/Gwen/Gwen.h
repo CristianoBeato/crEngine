@@ -53,20 +53,39 @@
 // Enable the hook system (se Hook.h)
 #define GWEN_HOOKSYSTEM
 
+#include "Gwen/Macros.h"
+#include "Gwen/Config.h"
+#include "Gwen/Exports.h"
+#include "Gwen/Structures.h"
+#include "Gwen/Debug.h"
+#include "Gwen/Texture.h"
+#include "Gwen/FrameBuffer.h"
+#include "Gwen/TextObject.h"
+#include "Gwen/BaseRender.h"
+#include "Gwen/Skin.h"
+#include "Gwen/InputHandler.h"
+#include "Gwen/Controls.h"
+#include "Gwen/Align.h"
+
 namespace Gwen
 {
+<<<<<<< HEAD
 	
 
 	extern GWEN_EXPORT Controls::Base*	HoveredControl;
 	extern GWEN_EXPORT Controls::Base*	KeyboardFocus;
 	extern GWEN_EXPORT Controls::Base*	MouseFocus;
 
+=======
+>>>>>>> 4c506a1af73f63c432f44027cef41a7b33c1c7d7
 	namespace Input
 	{
-		inline void Blur()
+			inline void Blur( void )
 		{
 			if ( KeyboardFocus )
-			{ KeyboardFocus->Blur(); }
+			{ 
+				KeyboardFocus->Blur(); 
+			}
 		}
 	}
 
