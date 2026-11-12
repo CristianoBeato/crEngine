@@ -29,8 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
-#include "../../framework/Common_local.h"
+#include "d3xp/Game_local.h"
+#include "framework/Common_local.h"
 
 extern idCVar g_demoMode;
 const static int NUM_MAIN_OPTIONS = 6;

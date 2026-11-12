@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "d3xp/Game_local.h"
 
 const static int NUM_LEADERBOARD_ITEMS = 16;
 const int MAX_STAT_LISTINGS = 16;

@@ -29,15 +29,13 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuWidget_PDA_VideoInfo.hpp"
 
-void idMenuWidget_PDA_VideoInfo::Update()
+void idMenuWidget_PDA_VideoInfo::Update( void )
 {
-
 	if( GetSWFObject() == nullptr )
-	{
 		return;
-	}
 	
 	idSWFScriptObject& root = GetSWFObject()->GetRootObject();
 	if( !BindSprite( root ) || GetSprite() == nullptr )

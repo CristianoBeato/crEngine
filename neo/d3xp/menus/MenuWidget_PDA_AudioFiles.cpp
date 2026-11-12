@@ -29,9 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuWidget_PDA_AudioFiles.hpp"
 
-static const int MAX_AUDIO_ITEMS = 3;
+constexpr int MAX_AUDIO_ITEMS = 3;
 
 
 /*

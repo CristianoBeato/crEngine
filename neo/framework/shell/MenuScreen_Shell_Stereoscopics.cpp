@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "d3xp/Game_local.h"
 
 const static int NUM_SYSTEM_OPTIONS_OPTIONS = 4;
 
@@ -349,7 +349,7 @@ idMenuScreen_Shell_Stereoscopics::idMenuDataSource_StereoSettings::LoadData
 */
 void idMenuScreen_Shell_Stereoscopics::idMenuDataSource_StereoSettings::LoadData()
 {
-
+	auto renderSystem = idRenderSystem::Get();
 	fields[ STEREO_FIELD_ENABLE ].SetInteger( renderSystem->GetStereoScopicRenderingMode() );
 	
 	fields[ STEREO_FIELD_SEPERATION ].SetFloat( 100.0f * ( stereoRender_interOccularCentimeters.GetFloat() / MAX_INTEROCCULAR_DISTANCE ) );
@@ -383,6 +383,7 @@ idMenuScreen_Shell_Stereoscopics::idMenuDataSource_StereoSettings::AdjustField
 void idMenuScreen_Shell_Stereoscopics::idMenuDataSource_StereoSettings::AdjustField( const int fieldIndex, const int adjustAmount )
 {
 
+	auto renderSystem = idRenderSystem::Get();
 	if( fieldIndex == STEREO_FIELD_ENABLE )
 	{
 		int numOptions = NUM_STEREO_ENABLE;

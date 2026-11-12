@@ -66,10 +66,10 @@ else()
 endif()
 
 if( CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID STREQUAL "Clang" )
-	#add_definitions(-pipe)
-	#add_definitions(-Wall)
+	add_definitions( -pipe ) # Enable compiler to store on han pre-processor compilation resources.
+	#add_definitions(-Wall -Wextra ) # Help debug and clean code compilation
 	add_definitions(-fPIC)
-	#add_definitions(-mmmx -msse -msse2)
+	add_definitions(-mmmx -msse -msse2 -mavx ) # Activate MMX SSE SSE2 AVX 
 	if(WIN32)
 		# require msvcr70.dll or newer for _aligned_malloc etc
 		# I think it is from Visual C++ .NET 2002, so it should be available on any remotely modern system.

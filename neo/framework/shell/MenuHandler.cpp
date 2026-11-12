@@ -27,9 +27,10 @@ If you have questions concerning this license or the applicable additional terms
 
 ===========================================================================
 */
+
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "d3xp/Game_local.h"
 
 extern idCVar in_useJoystick;
 
@@ -303,7 +304,7 @@ idMenuHandler::Update
 void idMenuHandler::Update( void )
 {
 	PumpWidgetActionRepeater();
-	
+	auto renderSystem = idRenderSystem::Get();
 	if( gui != nullptr && gui->IsActive() )
 		gui->Render( renderSystem, Sys_Milliseconds() );
 }

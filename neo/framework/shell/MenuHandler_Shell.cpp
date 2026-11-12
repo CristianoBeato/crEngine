@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "d3xp/Game_local.h"
 
 
 extern idCVar g_demoMode;
@@ -209,13 +209,9 @@ void idMenuHandler_Shell::Update()
 	if( cmdBar != nullptr && cmdBar->GetSprite() )
 	{
 		if( common->Dialog().IsDialogActive() )
-		{
 			cmdBar->GetSprite()->SetVisible( false );
-		}
 		else
-		{
 			cmdBar->GetSprite()->SetVisible( true );
-		}
 	}
 	
 	idMenuHandler::Update();
@@ -272,6 +268,7 @@ void idMenuHandler_Shell::Update()
 	
 	if( introGui != nullptr && introGui->IsActive() )
 	{
+		auto renderSystem = idRenderSystem::Get();
 		introGui->Render( renderSystem, Sys_Milliseconds() );
 	}
 	

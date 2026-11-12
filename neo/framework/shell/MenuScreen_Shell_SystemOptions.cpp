@@ -29,9 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "d3xp/Game_local.h"
 
-const static int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
+constexpr int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 
 extern idCVar r_multiSamples;
 extern idCVar r_motionBlur;

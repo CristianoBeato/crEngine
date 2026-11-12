@@ -29,17 +29,16 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "MenuScreen.h"
 
-idMenuScreen::idMenuScreen()
+idMenuScreen::idMenuScreen( void )
 {
 	menuGUI = nullptr;
 	transition = MENU_TRANSITION_INVALID;
 }
 
-idMenuScreen::~idMenuScreen()
+idMenuScreen::~idMenuScreen( void )
 {
-
 }
 
 /*
@@ -72,13 +71,11 @@ void idMenuScreen::ObserveEvent( const idMenuWidget& widget, const idWidgetEvent
 idMenuScreen::Update
 ========================
 */
-void idMenuScreen::Update()
+void idMenuScreen::Update( void )
 {
 
 	if( menuGUI == nullptr )
-	{
 		return;
-	}
 	
 	//
 	// Display
@@ -89,9 +86,7 @@ void idMenuScreen::Update()
 	}
 	
 	if( menuData != nullptr )
-	{
 		menuData->UpdateChildren();
-	}
 }
 
 /*
@@ -99,15 +94,13 @@ void idMenuScreen::Update()
 idMenuScreen::UpdateCmds
 ========================
 */
-void idMenuScreen::UpdateCmds()
+void idMenuScreen::UpdateCmds( void )
 {
 	idSWF* const gui = menuGUI;
 	
 	idSWFScriptObject* const shortcutKeys = gui->GetGlobal( "shortcutKeys" ).GetObject();
 	if( !verify( shortcutKeys != nullptr ) )
-	{
 		return;
-	}
 	
 	idSWFScriptVar clearFunc = shortcutKeys->Get( "clear" );
 	if( clearFunc.IsFunction() )

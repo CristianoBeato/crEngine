@@ -150,6 +150,7 @@ static const int DEFAULT_REPEAT_TIME = 150;
 static const int WAIT_START_TIME_LONG = 30000;
 static const int WAIT_START_TIME_SHORT = 5000;
 
+class idMenuWidget;
 struct actionRepeater_t
 {
 	actionRepeater_t() :
@@ -501,43 +502,6 @@ private:
 	idList< idStr, TAG_IDLIB_LIST_MENU>			navOptions;
 	
 };
-
-
-// ######################################################### SR
-
-/*
-================================================
-idMenuHandler_Cinematic
-================================================
-*/
-class idMenuHandler_Cinematic : public idMenuHandler
-{
-public:
-
-	idMenuHandler_Cinematic() :
-				hiding( false )
-	{
-	}
-	
-	
-	virtual void			Update();
-	virtual void			ActivateMenu( bool show );
-	virtual void			Initialize( const char* swfFile, idSoundWorld* sw );
-	virtual idMenuScreen* 	GetMenuScreen( int index );
-	
-	idMenuScreen_Cinematic* 		GetCinematic();
-
-	
-protected:
-
-	bool	hiding;
-	
-};
-
-// ##################################################### END SR
-
-
-
 
 /*
 ================================================
