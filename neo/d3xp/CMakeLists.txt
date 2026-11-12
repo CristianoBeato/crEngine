@@ -128,69 +128,16 @@ set( D3XP_GAMESYS_SOURCES
     )
 
 set( D3XP_MENU_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_Cinematic.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler.h
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_HUD.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_PDA.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_Scoreboard.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_Shell.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Cinematic.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen.h
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_HUD.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_Inventory.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_UserData.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_UserEmails.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_VideoDisks.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Scoreboard.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Bindings.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Browser.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_ControllerLayout.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Controls.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Credits.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Dev.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Difficulty.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_GameLobby.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_GameOptions.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Gamepad.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Leaderboards.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Load.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_MatchSettings.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_ModeSelect.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_NewGame.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_PartyLobby.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Pause.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Playstation.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_PressStart.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Resolution.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Root.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Save.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Settings.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Singleplayer.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_Stereoscopics.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Shell_SystemOptions.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_Button.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_Carousel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_CommandBar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_DynamicList.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_Help.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_InfoBox.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_ItemAssignment.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_List.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_LobbyList.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_MenuBar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_NavBar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_NavButton.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_AudioFiles.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_EmailInbox.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_Objective.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_UserData.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_VideoInfo.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_Scrollbar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_Shell_SaveInfo.cpp
     )
 
 set( D3XP_PHYSICS_SOURCES
@@ -265,7 +212,7 @@ target_compile_definitions( game PRIVATE _D3XP __GAME_DLL__ __ID_GAME_LOGIC__ ) 
 add_dependencies( game idLib )
 
 # link 
-target_link_libraries( game idLib )
+target_link_libraries( game idLib ZLIB::ZLIB SDL3::SDL3 )
 
 #set the idLib root dir as include
 target_include_directories( game PUBLIC ${CMAKE_SOURCE_DIR}/idlib PRIVATE ${CMAKE_CURRENT_SOURCE_DIR} ) 

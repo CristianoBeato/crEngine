@@ -94,6 +94,62 @@ set( FRAMEWORK_COLISION_MODEL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/cm/CollisionModel_translate.cpp
     )
 
+set( FRAMEWORK_SHELL_SOURCES 
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuHandler.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuHandler.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuHandler_Cinematic.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuHandler_Shell.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Bindings.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Browser.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_ControllerLayout.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Controls.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Credits.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Dev.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Difficulty.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_GameLobby.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_GameOptions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Gamepad.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Leaderboards.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Load.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_MatchSettings.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_ModeSelect.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_NewGame.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_PartyLobby.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Pause.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Playstation.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_PressStart.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Resolution.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Root.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Save.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Settings.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Singleplayer.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Stereoscopics.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_SystemOptions.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Button.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Carousel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_CommandBar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_DynamicList.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Help.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_InfoBox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_ItemAssignment.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_List.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_LobbyList.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_MenuBar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_NavBar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_NavButton.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_AudioFiles.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_EmailInbox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_Objective.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_UserData.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_PDA_VideoInfo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Scrollbar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Shell_SaveInfo.cpp
+)
+
 set( FRAMEWORK_UI_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/ui/BindWindow.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/ui/BindWindow.h
