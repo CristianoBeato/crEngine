@@ -29,9 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuScreen_PDA_Inventory.hpp"
+#include "d3xp/Game_local.h"
 
-static const int NUM_INVENTORY_ITEMS_VISIBLE = 9;
+constexpr int NUM_INVENTORY_ITEMS_VISIBLE = 9;
 
 /*
 ========================
