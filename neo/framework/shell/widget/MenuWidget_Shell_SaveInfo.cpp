@@ -29,7 +29,11 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
+#include "framework/shell/Shell.hpp"
 #include "MenuWidget_Shell_SaveInfo.hpp"
+
+// TODO Fix Location
+#include "d3xp/Game_local.h"
 
 /*
 ========================
@@ -241,7 +245,8 @@ void idMenuWidget_Shell_SaveInfo::UpdateSavePreviews()
 			thumbNailFile.Append(details.GetMapFileName());
 			saveGameThumbnails[i] = declManager->FindMaterial( thumbNailFile.c_str(), false );
 		}
-	    renderSystem->LoadLevelImages();
+
+		idRenderSystem::Get()->LoadLevelImages();
     }
 }
 

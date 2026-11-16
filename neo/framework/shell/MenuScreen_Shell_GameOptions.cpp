@@ -29,7 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "d3xp/Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuScreen.h"
 
 constexpr int NUM_GAME_OPTIONS_OPTIONS = 8;
 
@@ -315,7 +316,14 @@ idMenuScreen_Shell_GameOptions::idMenuDataSource_AudioSettings::LoadData
 */
 void idMenuScreen_Shell_GameOptions::idMenuDataSource_GameSettings::LoadData()
 {
+/// BEATO Begin:
+#if 0
 	fields[ GAME_FIELD_FOV ].SetInteger( g_fov.GetFloat() );
+#else
+	auto g_fov = cvarSystem->GetCVarFloat( "g_fov" );
+	fields[ GAME_FIELD_FOV ].SetInteger( g_fov );
+#endif 
+// BEATO End
 	fields[ GAME_FIELD_CHECKPOINTS ].SetBool( g_checkpoints.GetBool() );
 	fields[ GAME_FIELD_AUTO_SWITCH ].SetBool( ui_autoSwitch.GetBool() );
 	fields[ GAME_FIELD_AUTO_RELOAD ].SetBool( ui_autoReload.GetBool() );
@@ -332,9 +340,15 @@ idMenuScreen_Shell_GameOptions::idMenuDataSource_AudioSettings::CommitData
 */
 void idMenuScreen_Shell_GameOptions::idMenuDataSource_GameSettings::CommitData()
 {
-
+// BEATO Begin:
+#if 0
 	g_fov.SetFloat( fields[ GAME_FIELD_FOV ].ToFloat() );
 	g_gun_x.SetFloat( Lerp( MIN_FOV_GUN, MAX_FOV_GUN, ( fields[ GAME_FIELD_FOV ].ToFloat() - MIN_FOV ) / ( MAX_FOV - MIN_FOV ) ) );
+#else
+	cvarSystem->SetCVarFloat( "g_fov", fields[ GAME_FIELD_FOV ].ToFloat() );
+	cvarSystem->SetCVarFloat( "g_gun_x", Lerp( MIN_FOV_GUN, MAX_FOV_GUN, ( fields[ GAME_FIELD_FOV ].ToFloat() - MIN_FOV ) / ( MAX_FOV - MIN_FOV ) ) );
+#endif
+// BEATO End
 	
 	g_checkpoints.SetBool( fields[ GAME_FIELD_CHECKPOINTS ].ToBool() );
 	ui_autoSwitch.SetBool( fields[ GAME_FIELD_AUTO_SWITCH ].ToBool() );

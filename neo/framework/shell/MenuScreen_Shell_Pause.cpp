@@ -29,10 +29,10 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "d3xp/Game_local.h"
+#include "framework/shell/Shell.hpp"
 
 extern idCVar g_demoMode;
-const static int NUM_PAUSE_OPTIONS = 6;
+constexpr int NUM_PAUSE_OPTIONS = 6;
 
 enum pauseMenuCmds_t
 {
@@ -115,6 +115,8 @@ void idMenuScreen_Shell_Pause::Update()
 			}
 			buttonInfo->action.Set( WIDGET_ACTION_PRESS_FOCUSED );
 			
+// BEATO BEgin
+#if 0
 			bool isDead = false;
 			idPlayer* player = gameLocal.GetLocalPlayer();
 			if( player != nullptr )
@@ -124,8 +126,9 @@ void idMenuScreen_Shell_Pause::Update()
 					isDead = true;
 				}
 			}
+#endif
 			
-			if( !isDead )
+			if( game->ActiveLocalPlayerAlive() )
 			{
 				buttonInfo = cmdBar->GetButton( idMenuWidget_CommandBar::BUTTON_JOY2 );
 				if( menuData->GetPlatform() != 2 )
@@ -150,8 +153,10 @@ void idMenuScreen_Shell_Pause::ShowScreen( const mainMenuTransition_t transition
 
 	idList< idList< idStr, TAG_IDLIB_LIST_MENU >, TAG_IDLIB_LIST_MENU > menuOptions;
 	idList< idStr > option;
-	
+
 	bool isDead = false;
+// BEATO Begin:
+#if 0
 	idPlayer* player = gameLocal.GetLocalPlayer();
 	if( player != nullptr )
 	{
@@ -160,6 +165,10 @@ void idMenuScreen_Shell_Pause::ShowScreen( const mainMenuTransition_t transition
 			isDead = true;
 		}
 	}
+#else
+	isDead = !game->ActiveLocalPlayerAlive();
+#endif 
+// BEATO End
 	
 	if( g_demoMode.GetBool() )
 	{

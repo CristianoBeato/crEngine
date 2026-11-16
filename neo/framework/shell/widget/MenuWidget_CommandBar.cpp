@@ -29,8 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "MenuHandler.h"
-#include "MenuWidget.h"
+#include "framework/shell/Shell.hpp"
 #include "MenuWidget_CommandBar.hpp"
 
 /*

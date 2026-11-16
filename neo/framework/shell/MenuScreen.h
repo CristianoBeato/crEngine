@@ -5,6 +5,7 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014-2016 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2025-2026 Cristiano B. Santos <cristianobeato_dm@hotmail.com>
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -210,150 +211,6 @@ protected:
 	idSWF* 	menuGUI;
 	mainMenuTransition_t	transition;
 	
-};
-
-/*
-================================================
-idMenuScreen_PDA_UserData
-================================================
-*/
-class idMenuScreen_PDA_UserData : public idMenuScreen
-{
-public:
-
-	idMenuScreen_PDA_UserData() {}
-	
-	virtual ~idMenuScreen_PDA_UserData() {}
-	virtual void					Initialize( idMenuHandler* data );
-	virtual void					Update();
-	virtual void					ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void					HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool					HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled = false );
-	idMenuWidget_PDA_UserData* 		GetUserData()
-	{
-		return &pdaUserData;
-	}
-	idMenuWidget_PDA_Objective* 	GetObjective()
-	{
-		return &pdaObjectiveSimple;
-	}
-	idMenuWidget_PDA_AudioFiles* 	GetAudioFiles()
-	{
-		return &pdaAudioFiles;
-	}
-	
-private:
-	idMenuWidget_PDA_UserData 			pdaUserData;
-	idMenuWidget_PDA_Objective 		pdaObjectiveSimple;
-	idMenuWidget_PDA_AudioFiles 		pdaAudioFiles;
-};
-
-/*
-================================================
-idMenuScreen_PDA_UserEmails
-================================================
-*/
-class idMenuScreen_PDA_UserEmails : public idMenuScreen
-{
-public:
-	idMenuScreen_PDA_UserEmails() :
-		readingEmails( false ),
-		scrollEmailInfo( false )
-	{
-	}
-	
-	virtual ~idMenuScreen_PDA_UserEmails()
-	{
-	}
-	
-	virtual void					Update();
-	virtual void					Initialize( idMenuHandler* data );
-	virtual void					ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void					HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool					HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled = false );
-	virtual void					ObserveEvent( const idMenuWidget& widget, const idWidgetEvent& event );
-	idMenuWidget_PDA_EmailInbox& 	GetInbox()
-	{
-		return pdaInbox;
-	}
-	
-	bool							ScrollCorrectList( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget );
-	void							ShowEmail( bool show );
-	void							UpdateEmail();
-private:
-	idMenuWidget_PDA_EmailInbox 	pdaInbox;
-	idMenuWidget_InfoBox 			emailInfo;
-	idMenuWidget_ScrollBar 			emailScrollbar;
-	bool							readingEmails;
-	bool							scrollEmailInfo;
-};
-
-/*
-================================================
-idMenuScreen_PDA_UserData
-================================================
-*/
-class idMenuScreen_PDA_VideoDisks : public idMenuScreen
-{
-public:
-	idMenuScreen_PDA_VideoDisks() :
-		activeVideo( nullptr )
-	{
-	}
-	
-	virtual ~idMenuScreen_PDA_VideoDisks()
-	{
-	}
-	
-	virtual void				Initialize( idMenuHandler* data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled = false );
-	
-	void						ToggleVideoDiskPlay();
-	void						UpdateVideoDetails();
-	void						SelectedVideoToPlay( int index );
-	void						ClearActiveVideo()
-	{
-		activeVideo = nullptr;
-	}
-	const idDeclVideo* 			GetActiveVideo()
-	{
-		return activeVideo;
-	}
-private:
-	idMenuWidget_ScrollBar		scrollbar;
-	idMenuWidget_DynamicList 		pdaVideoList;
-	idMenuWidget_PDA_VideoInfo 	videoDetails;
-	idList< idList< idStr, TAG_IDLIB_LIST_MENU>, TAG_IDLIB_LIST_MENU >		videoItems;
-	const idDeclVideo* 				activeVideo;
-};
-
-/*
-================================================
-idMenuScreen_PDA_UserData
-================================================
-*/
-class idMenuScreen_PDA_Inventory : public idMenuScreen
-{
-public:
-	idMenuScreen_PDA_Inventory()
-	{
-	}
-	virtual void				Initialize( idMenuHandler* data );
-	virtual void				Update();
-	virtual void				ShowScreen( const mainMenuTransition_t transitionType );
-	virtual void				HideScreen( const mainMenuTransition_t transitionType );
-	virtual bool				HandleAction( idWidgetAction& action, const idWidgetEvent& event, idMenuWidget* widget, bool forceHandled = false );
-	
-	void						EquipWeapon();
-	const char* 				GetWeaponName( int index );
-	bool						IsVisibleWeapon( int index );
-	
-private:
-	idMenuWidget_Carousel 			itemList;
-	idMenuWidget_InfoBox 			infoBox;
 };
 
 //*
@@ -1599,6 +1456,7 @@ private:
 //idMenuScreen_HUD
 //================================================
 //*/
+class idPlayer;
 class idMenuScreen_HUD : public idMenuScreen
 {
 public:

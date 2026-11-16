@@ -29,12 +29,13 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "d3xp/Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuScreen.h"
 
-const static int NUM_SYSTEM_OPTIONS_OPTIONS = 4;
+constexpr int NUM_SYSTEM_OPTIONS_OPTIONS = 4;
 
 // TRC requires a maximum interoccular distance of 6.5cm even though human adults can easily have an interoccular distance of over 7.5cm
-const static float MAX_INTEROCCULAR_DISTANCE = 6.5f;
+constexpr float MAX_INTEROCCULAR_DISTANCE = 6.5f;
 
 // This should line up with stereo3DMode_t
 static const char* stereoRender_enable_text[] =
@@ -46,7 +47,8 @@ static const char* stereoRender_enable_text[] =
 	"#str_swf_stereo_interlaced",
 	"#str_swf_stereo_quad"
 };
-static const int NUM_STEREO_ENABLE = sizeof( stereoRender_enable_text ) / sizeof( stereoRender_enable_text[0] );
+
+constexpr int NUM_STEREO_ENABLE = sizeof( stereoRender_enable_text ) / sizeof( stereoRender_enable_text[0] );
 
 /*
 ========================
@@ -398,7 +400,7 @@ void idMenuScreen_Shell_Stereoscopics::idMenuDataSource_StereoSettings::AdjustFi
 		fields[fieldIndex].SetInteger( adjusted );
 		renderSystem->EnableStereoScopicRendering( ( stereo3DMode_t )adjusted );
 		
-		gameLocal.Shell_ClearRepeater();
+		game->Shell_ClearRepeater();
 		
 	}
 	else if( fieldIndex == STEREO_FIELD_SWAP_EYES )

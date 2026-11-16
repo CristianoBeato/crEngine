@@ -549,6 +549,9 @@ public:
 	idPlayer* 				GetClientByNum( int current ) const;
 	
 	idPlayer* 				GetLocalPlayer() const;
+
+	virtual bool			ActiveLocalPlayer( void ) const override;
+	virtual bool			ActiveLocalPlayerAlive( void ) const override;
 	
 	void					SpreadLocations();
 	idLocationEntity* 		LocationForPoint( const idVec3& point );	// May return nullptr
@@ -636,7 +639,7 @@ public:
 	};
 	virtual bool					ProcessDemoCommand( idDemoFile * readDemo );
 
-	void					Shell_ClearRepeater();
+	virtual void					Shell_ClearRepeater( void ) override;
 	
 	const char* 			GetMapFileName()
 	{

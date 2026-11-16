@@ -2216,6 +2216,26 @@ idPlayer* idGameLocal::GetLocalPlayer() const
 	return static_cast<idPlayer*>( entities[ GetLocalClientNum() ] );
 }
 
+// BEATO Begin:
+bool idGameLocal::ActiveLocalPlayer(void) const
+{
+	auto localPlayer = GetLocalPlayer();
+    return localPlayer != nullptr;
+}
+
+bool idGameLocal::ActiveLocalPlayerAlive(void) const
+{
+	auto localPlayer = GetLocalPlayer();
+	if( !localPlayer )
+		return false;
+
+	if( localPlayer->health <= 0 )
+		return false;
+
+    return true;
+}
+// BEATO END
+
 /*
 ================
 idGameLocal::SetupClientPVS

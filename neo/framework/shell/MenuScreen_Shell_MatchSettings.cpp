@@ -29,9 +29,13 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "d3xp/Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuScreen.h"
 
-const static int NUM_GAME_OPTIONS_OPTIONS = 8;
+#include "d3xp/Game_local.h"
+#include "d3xp/MultiplayerGame.h"
+
+constexpr int NUM_GAME_OPTIONS_OPTIONS = 8;
 /*
 ========================
 idMenuScreen_Shell_MatchSettings::Initialize

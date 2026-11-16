@@ -94,7 +94,7 @@ set( FRAMEWORK_COLISION_MODEL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/cm/CollisionModel_translate.cpp
     )
 
-set( FRAMEWORK_SHELL_SOURCES     
+set( FRAMEWORK_SHELL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuHandler.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuHandler.h
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuHandler_Cinematic.cpp
@@ -128,36 +128,36 @@ set( FRAMEWORK_SHELL_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Singleplayer.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_Stereoscopics.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuScreen_Shell_SystemOptions.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Button.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Button.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Carousel.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Carousel.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_CommandBar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_CommandBar.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_DynamicList.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_DynamicList.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Help.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Help.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_InfoBox.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_InfoBox.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_ItemAssignment.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_ItemAssignment.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_List.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_List.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_LobbyList.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_LobbyList.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_MenuBar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_MenuBar.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_NavBar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_NavBar.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_NavButton.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_NavButton.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Scrollbar.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Scrollbar.hpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Shell_SaveInfo.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/shell/MenuWidget_Shell_SaveInfo.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/Shell.hpp
+
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Button.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Button.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Carousel.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Carousel.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_CommandBar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_CommandBar.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_DynamicList.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_DynamicList.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Help.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Help.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_InfoBox.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_InfoBox.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_List.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_List.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_LobbyList.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_LobbyList.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_MenuBar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_MenuBar.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_NavBar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_NavBar.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_NavButton.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_NavButton.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Scrollbar.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Scrollbar.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Shell_SaveInfo.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/shell/widget/MenuWidget_Shell_SaveInfo.hpp
 )
 
 set( FRAMEWORK_UI_SOURCES

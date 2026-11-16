@@ -29,9 +29,9 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "d3xp/Game_local.h"
+#include "framework/shell/Shell.hpp"
 
-static const int NUM_CREDIT_LINES = 16;
+constexpr int NUM_CREDIT_LINES = 16;
 
 void idMenuScreen_Shell_Credits::SetupCreditList()
 {

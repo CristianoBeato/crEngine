@@ -29,7 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "d3xp/Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuScreen.h"
 
 constexpr int NUM_SYSTEM_OPTIONS_OPTIONS = 8;
 

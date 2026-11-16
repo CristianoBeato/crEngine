@@ -186,11 +186,19 @@ public:
 	virtual void				Shell_UpdateClientCountdown( int countdown ) = 0;
 	virtual void				Shell_UpdateLeaderboard( const idLeaderboardCallback* callback ) = 0;
 	virtual void				Shell_SetGameComplete() = 0;
+// BEATO BEgin:
+	virtual void				Shell_ClearRepeater( void ) = 0;
+// BEATO End
 
 	// Demo helper functions
 	virtual void				StartDemoPlayback( idRenderWorld * renderworld ) = 0;
 
 	virtual bool				ProcessDemoCommand( idDemoFile* readDemo ) = 0;
+
+// BEATO Begin:
+	virtual bool				ActiveLocalPlayer( void ) const = 0;
+	virtual bool				ActiveLocalPlayerAlive( void ) const = 0;
+// BEATO ENd
 };
 
 extern idGame* 					game;

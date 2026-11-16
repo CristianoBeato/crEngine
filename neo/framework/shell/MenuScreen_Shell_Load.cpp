@@ -29,7 +29,8 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "d3xp/Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuScreen.h"
 
 constexpr int NUM_LOAD_OPTIONS = 10;
 
@@ -386,15 +387,8 @@ void idMenuScreen_Shell_Load::LoadGame( int index )
 		return;
 	}
 	
-	bool isDead = false;
-	idPlayer* player = gameLocal.GetLocalPlayer();
-	if( player != nullptr && player->health <= 0 )
-	{
-		isDead = true;
-	}
-	
 	idMenuHandler_Shell* mgr = dynamic_cast< idMenuHandler_Shell* >( menuData );
-	if( mgr != nullptr && mgr->GetInGame() && !isDead )
+	if( mgr != nullptr && mgr->GetInGame() && game->ActiveLocalPlayerAlive() )
 	{
 	
 		class idSWFScriptFunction_LoadDialog : public idSWFScriptFunction_RefCounted

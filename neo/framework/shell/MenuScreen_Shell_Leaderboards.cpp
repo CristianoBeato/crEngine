@@ -29,13 +29,17 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "d3xp/Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "MenuScreen.h"
 
-const static int NUM_LEADERBOARD_ITEMS = 16;
-const int MAX_STAT_LISTINGS = 16;
-static const int MAX_ROWS_PER_BLOCK = 50;
+// TODO FIx that wen possibe
+#include "d3xp/Leaderboards.h"
 
-idMenuScreen_Shell_Leaderboards::~idMenuScreen_Shell_Leaderboards()
+constexpr int NUM_LEADERBOARD_ITEMS = 16;
+constexpr int MAX_STAT_LISTINGS = 16;
+constexpr int MAX_ROWS_PER_BLOCK = 50;
+
+idMenuScreen_Shell_Leaderboards::~idMenuScreen_Shell_Leaderboards( void ) 
 {
 	if( lbCache != nullptr )
 	{
@@ -823,7 +827,7 @@ public:
 	
 	void Call()
 	{
-		gameLocal.Shell_UpdateLeaderboard( this );
+		game->Shell_UpdateLeaderboard( this );
 	}
 	
 	LBCallback* Clone() const

@@ -5,6 +5,8 @@ Doom 3 BFG Edition GPL Source Code
 Copyright (C) 1993-2012 id Software LLC, a ZeniMax Media company.
 Copyright (C) 2014-2016 Robert Beckebans
 Copyright (C) 2014-2016 Kot in Action Creative Artel
+Copyright (C) 2025-2026 Cristiano B. Santos <cristianobeato_dm@hotmail.com>
+
 
 This file is part of the Doom 3 BFG Edition GPL Source Code ("Doom 3 BFG Edition Source Code").
 
@@ -145,12 +147,13 @@ enum menuSounds_t
 	NUM_GUI_SOUNDS,
 };
 
-static const int MAX_SCREEN_AREAS = 32;
-static const int DEFAULT_REPEAT_TIME = 150;
-static const int WAIT_START_TIME_LONG = 30000;
-static const int WAIT_START_TIME_SHORT = 5000;
+constexpr int MAX_SCREEN_AREAS = 32;
+constexpr int DEFAULT_REPEAT_TIME = 150;
+constexpr int WAIT_START_TIME_LONG = 30000;
+constexpr int WAIT_START_TIME_SHORT = 5000;
 
-class idMenuWidget;
+#include "widget/MenuWidget.hpp"
+
 struct actionRepeater_t
 {
 	actionRepeater_t() :
@@ -280,6 +283,7 @@ public:
 	{
 		return transition;
 	}
+
 	virtual idMenuScreen* 	GetMenuScreen( int index )
 	{
 		return nullptr;
