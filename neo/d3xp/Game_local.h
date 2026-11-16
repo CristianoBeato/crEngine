@@ -997,6 +997,8 @@ ID_INLINE SetTimeState::~SetTimeState()
 	}
 }
 
+#include "framework/shell/Shell.hpp"
+#include "menus/MenuHandler_PDA.hpp"
 
 #include "GameEdit.h"
 #include "Grabber.h"

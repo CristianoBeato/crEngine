@@ -19,4 +19,6 @@
 #include "framework/shell/MenuScreen.h"
 #include "framework/shell/MenuHandler.h"
 
+#include "framework/shell/MenuHandler_Cinematic.hpp"
+
 #endif //!__MENU_SHELL_HPP__

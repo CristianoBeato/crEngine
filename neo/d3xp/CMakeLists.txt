@@ -130,15 +130,22 @@ set( D3XP_GAMESYS_SOURCES
 set( D3XP_MENU_SOURCES
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_HUD.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_PDA.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_PDA.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuHandler_Scoreboard.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Cinematic.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_HUD.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_Inventory.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_Inventory.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_UserData.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_UserData.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_UserEmails.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_UserEmails.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_VideoDisks.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_PDA_VideoDisks.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Scoreboard.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuScreen_Scoreboard.hpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_ItemAssignment.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_ItemAssignment.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_AudioFiles.cpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_AudioFiles.hpp
     ${CMAKE_CURRENT_SOURCE_DIR}/menus/MenuWidget_PDA_EmailInbox.cpp

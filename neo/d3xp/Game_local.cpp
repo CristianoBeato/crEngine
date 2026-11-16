@@ -32,6 +32,7 @@ If you have questions concerning this license or the applicable additional terms
 
 #include "Game_local.h"
 #include "gamesys/SysCvar.h"	
+#include "framework/shell/Shell.hpp"
 
 // BEATO Begin:
 #ifdef __ID_GAME_LOGIC__

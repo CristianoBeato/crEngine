@@ -29,11 +29,13 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "../Game_local.h"
+#include "framework/shell/Shell.hpp"
+#include "d3xp/Game_local.h"
+#include "MenuHandler_PDA.hpp"
 
 //static const int MAX_PDA_ITEMS = 15; // SS2 note; number of simultaneously visible items on the pda_persons list' same number of itemX instances should be present
-static const int MAX_PDA_ITEMS = 5;
-static const int MAX_NAV_OPTIONS = 4;
+constexpr int MAX_PDA_ITEMS = 5;
+constexpr int MAX_NAV_OPTIONS = 4;
 
 /*
 ========================

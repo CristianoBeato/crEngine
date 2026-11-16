@@ -29,7 +29,7 @@ If you have questions concerning this license or the applicable additional terms
 */
 #pragma hdrstop
 #include "precompiled.h"
-#include "MenuWidget.h"
+#include "framework/shell/Shell.hpp"
 #include "MenuWidget_ItemAssignment.hpp"
 
 void idMenuWidget_ItemAssignment::SetIcon( int index, const idMaterial* icon )

@@ -31,6 +31,7 @@ If you have questions concerning this license or the applicable additional terms
 #pragma hdrstop
 
 #include "Game_local.h"
+#include "framework/shell/Shell.hpp"
 
 /*
 ===============================================================================
@@ -3565,9 +3566,7 @@ void idFuncRadioChatter::Event_Activate( idEntity* activator )
 	idPlayer* player = gameLocal.GetLocalPlayer();
 	
 	if( player != nullptr && player->hudManager )
-	{
 		player->hudManager->SetRadioMessage( true );
-	}
 	
 	const char* sound = spawnArgs.GetString( "snd_radiochatter", "" );
 	if( sound != nullptr && *sound != '\0' )
