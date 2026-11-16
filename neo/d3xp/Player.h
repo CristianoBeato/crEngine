@@ -63,27 +63,31 @@ extern const idEventDef EV_SpectatorTouch;
 extern const idEventDef EV_Player_StartWarp;
 extern const idEventDef EV_Player_FreeWarp;
 
-const float THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
-const int	LAND_DEFLECT_TIME = 150;
-const int	LAND_RETURN_TIME = 300;
-const int	FOCUS_TIME = 300;
-const int	FOCUS_GUI_TIME = 500;
-const int	NUM_QUICK_SLOTS = 4;
+inline constexpr float	THIRD_PERSON_FOCUS_DISTANCE	= 512.0f;
+inline constexpr int	LAND_DEFLECT_TIME = 150;
+inline constexpr int	LAND_RETURN_TIME = 300;
+inline constexpr int	FOCUS_TIME = 300;
+inline constexpr int	FOCUS_GUI_TIME = 500;
+inline constexpr int	NUM_QUICK_SLOTS = 4;
 
-const int DEAD_HEARTRATE = 0;			// fall to as you die
-const int LOWHEALTH_HEARTRATE_ADJ = 20; //
-const int DYING_HEARTRATE = 30;			// used for volumen calc when dying/dead
-const int BASE_HEARTRATE = 70;			// default
-const int ZEROSTAMINA_HEARTRATE = 115;  // no stamina
-const int MAX_HEARTRATE = 130;			// maximum
-const int ZERO_VOLUME = -40;			// volume at zero
-const int DMG_VOLUME = 5;				// volume when taking damage
-const int DEATH_VOLUME = 15;			// volume at death
+inline constexpr int	DEAD_HEARTRATE = 0;			// fall to as you die
+inline constexpr int	LOWHEALTH_HEARTRATE_ADJ = 20;	//
+inline constexpr int	DYING_HEARTRATE = 30;			// used for volumen calc when dying/dead
+inline constexpr int	BASE_HEARTRATE = 70;			// default
+inline constexpr int	ZEROSTAMINA_HEARTRATE = 115;  	// no stamina
+inline constexpr int	MAX_HEARTRATE = 130;			// maximum
+inline constexpr int	ZERO_VOLUME = -40;				// volume at zero
+inline constexpr int	DMG_VOLUME = 5;				// volume when taking damage
+inline constexpr int	DEATH_VOLUME = 15;				// volume at death
 
-const int SAVING_THROW_TIME = 5000;		// maximum one "saving throw" every five seconds
+inline constexpr int	SAVING_THROW_TIME = 5000;		// maximum one "saving throw" every five seconds
 
-const int ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 3000 );
-const int ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range [-1, 60]
+inline constexpr int	ASYNC_PLAYER_INV_CLIP_BITS = -7;								// -7 bits to cover the range [-1, 60]
+#if 0
+inline constexpr int	ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 3000 );
+#else
+static const int		ASYNC_PLAYER_INV_AMMO_BITS = idMath::BitsForInteger( 3000 );
+#endif
 
 enum gameExpansionType_t
 {
