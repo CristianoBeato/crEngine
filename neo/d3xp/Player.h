@@ -218,7 +218,6 @@ public:
 
 	idMenuScreen_Cinematic* 		cinema;	
 	idMenuHandler_Cinematic*		cinematicManager;
-	
 	idUserInterface *				hudgui;
 	
 	// ################################## END SR
